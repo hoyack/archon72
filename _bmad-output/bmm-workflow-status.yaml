@@ -1,0 +1,122 @@
+# Workflow Status - Archon 72 Conclave Backend
+# BMad Method - Greenfield Track
+
+# This tracks progress through BMM methodology phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS VALUES:
+#   Initial: required | optional | recommended | conditional
+#   Complete: {file-path} | skipped
+
+generated: "2024-12-27"
+project: "Archon 72 Conclave Backend"
+project_type: "backend-api"
+selected_track: "method"
+field_type: "greenfield"
+
+user_description: |
+  Autonomous AI governance system for Archon 72 platform. 72 AI entities (Archons)
+  deliberate and govern through parliamentary procedure. FastAPI + CrewAI + Supabase.
+  Features: Meeting engine, voting system, committees, ceremonies, elections.
+
+workflow_path: "method-greenfield.yaml"
+
+# Existing artifacts discovered during init
+existing_artifacts:
+  - path: "docs/prd.md"
+    type: "prd"
+    note: "Full Archon 72 platform PRD (2200+ lines)"
+  - path: "docs/conclave-prd.md"
+    type: "prd"
+    note: "Detailed Conclave Backend specifications (2400+ lines)"
+  - path: "docs/principles.md"
+    type: "ux-spec"
+    note: "Principles page specification - Covenant, Five Pillars, Alignment Check (970 lines)"
+
+workflow_status:
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 0: DISCOVERY (Optional - User Selected)
+  # ═══════════════════════════════════════════════════════════════
+  phase_0_discovery:
+    - id: brainstorm
+      name: "Brainstorming Session"
+      status: "_bmad-output/analysis/brainstorming-session-2024-12-27.md"
+      agent: analyst
+      command: "/bmad:core:workflows:brainstorming"
+      note: "COMPLETE: Gap analysis, 37 failure modes, 19 mitigations, 6 key decisions"
+
+    - id: research
+      name: "Research"
+      status: "_bmad-output/planning-artifacts/research/domain-ai-governance-systems-research-2024-12-27.md"
+      agent: analyst
+      command: "/bmad:bmm:workflows:research"
+      note: "COMPLETE: AI Governance Systems domain research - precedents, theory, regulatory, trends"
+
+    - id: product-brief
+      name: "Product Brief"
+      status: optional
+      agent: analyst
+      command: "/bmad:bmm:workflows:create-product-brief"
+      note: "Strategic product planning"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 1: PLANNING
+  # ═══════════════════════════════════════════════════════════════
+  phase_1_planning:
+    - id: prd
+      name: "Product Requirements Document"
+      status: "docs/prd.md + docs/conclave-prd.md"
+      agent: pm
+      command: "/bmad:bmm:workflows:create-prd"
+      note: "PRE-EXISTING: Comprehensive PRD documentation already available"
+
+    - id: ux-design
+      name: "UX Design"
+      status: conditional
+      condition: "if_has_ui"
+      agent: ux-designer
+      command: "/bmad:bmm:workflows:create-ux-design"
+      note: "Backend-only project - likely not needed"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 2: SOLUTIONING
+  # ═══════════════════════════════════════════════════════════════
+  phase_2_solutioning:
+    - id: architecture
+      name: "System Architecture"
+      status: "_bmad-output/planning-artifacts/architecture.md"
+      agent: architect
+      command: "/bmad:bmm:workflows:create-architecture"
+      note: "COMPLETE: 8-step architecture, 5 ADRs, hybrid event sourcing, MeetingCoordinator design"
+
+    - id: epics-and-stories
+      name: "Epics & Stories"
+      status: "_bmad-output/planning-artifacts/epics.md"
+      agent: pm
+      command: "/bmad:bmm:workflows:create-epics-and-stories"
+      note: "COMPLETE: 10 epics, 68 stories with full acceptance criteria"
+
+    - id: test-design
+      name: "Test Design"
+      status: recommended
+      agent: tea
+      command: "/bmad:bmm:workflows:testarch-test-design"
+      note: "System-level testability review"
+
+    - id: implementation-readiness
+      name: "Implementation Readiness Check"
+      status: required
+      agent: architect
+      command: "/bmad:bmm:workflows:check-implementation-readiness"
+      note: "Gate check before implementation"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 3: IMPLEMENTATION
+  # ═══════════════════════════════════════════════════════════════
+  phase_3_implementation:
+    - id: sprint-planning
+      name: "Sprint Planning"
+      status: required
+      agent: sm
+      command: "/bmad:bmm:workflows:sprint-planning"
+      note: "Creates sprint-status.yaml for tracking"

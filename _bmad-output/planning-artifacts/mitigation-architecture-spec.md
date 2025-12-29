@@ -1,8 +1,12 @@
 # Mitigation Architecture Specification
 
 **Date:** 2024-12-27
+**Constitutional Revision:** 2025-12-28
 **Source:** Brainstorming Session Gap Analysis
 **Purpose:** Formal specification of 19 mitigations to be incorporated into architecture
+
+**Post-Collapse Framing:**
+These mitigations do not prevent failure—they make failure visible. They do not enforce behavior—they surface deviation. They do not guarantee safety—they expose what is actually happening.
 
 ---
 
@@ -31,7 +35,7 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 |-----------|---------------|
 | **What** | All Seeker-submitted content (petitions, challenges, messages) processed by sandboxed "intake" LLM first. Output is structured summary, not raw content. Archons receive summaries only. |
 | **Why** | T5 (Injection Attack), T10 (Coordinated Infiltration) |
-| **How** | Dedicated intake service using disposable LLM context per request. Structured output schema (JSON) prevents arbitrary text reaching Archons. Raw content stored but never fed to Archon context. |
+| **How** | Dedicated intake service using disposable LLM context per request. Structured output schema (JSON) blocks arbitrary text from reaching Archons. Raw content stored but never fed to Archon context. |
 | **Risk** | Intake LLM could itself be compromised; summaries could lose critical nuance; adds latency. |
 | **Dependencies** | Requires Layer 5 (Detection) to monitor intake LLM for anomalies. |
 | **Phase** | **1** (Core architecture) |
@@ -65,11 +69,11 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 
 ## Layer 2: Agent Identity & Consistency
 
-### M-2.1: Singleton Enforcement (Archon Mutex)
+### M-2.1: Singleton Verification (Archon Mutex)
 
 | Dimension | Specification |
 |-----------|---------------|
-| **What** | Centralized lock service ensures only one instance of each Archon can be active at any time. All Archon instantiation requests go through mutex. |
+| **What** | Centralized lock service verifies only one instance of each Archon can be active at any time. All Archon instantiation requests go through mutex. |
 | **Why** | T4 (Split-Brain Archon) |
 | **How** | Redis-based distributed lock with heartbeat. Lock acquired before agent instantiation; released on graceful shutdown or timeout. Conflicting requests queued or rejected. |
 | **Risk** | Lock service becomes SPOF; network partition could cause deadlock; stale locks require manual intervention. |
@@ -167,7 +171,7 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 
 ---
 
-## Layer 4: Governance Safeguards
+## Layer 4: Governance Visibility
 
 ### M-4.1: Patronage Tier Blinding
 
@@ -186,7 +190,7 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 | Dimension | Specification |
 |-----------|---------------|
 | **What** | Guides do not have access to their Seeker's patronage tier. Billing handled by separate system. Guide context includes only Seeker name, credibility, and conversation history. |
-| **Why** | B2 (Blinding Loophole) - prevents Guides from leaking tier info |
+| **Why** | B2 (Blinding Loophole) - surfaces any tier information leakage by Guides |
 | **How** | Guide agent context explicitly excludes tier. Billing/subscription managed by non-AI system. No API allows Guide to query tier. |
 | **Risk** | Seekers may tell their Guide their tier directly; can't prevent voluntary disclosure. |
 | **Dependencies** | Separate billing infrastructure. |
@@ -229,15 +233,15 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 | **Phase** | **3** |
 | **Verification** | Calibrate thresholds against historical analysis. Review flagged patterns with governance committee. |
 
-### M-4.6: Quorum & Attendance Enforcement
+### M-4.6: Quorum & Attendance Visibility
 
 | Dimension | Specification |
 |-----------|---------------|
 | **What** | Clear quorum requirements for all proceedings (general: 37; elections: 48; amendments: 60). Attendance tracking with visibility. Pattern detection for boycott behavior. |
 | **Why** | C5 (Quorum Attack), C5a (Quorum-Election Coup), C5b (Slow Boycott) |
 | **How** | Attendance logged per Conclave. Dashboard shows attendance trends per Archon. Consecutive absences flagged. Ceremony quorum explicitly defined (installation: 48). |
-| **Risk** | "Technical difficulties" excuse hard to disprove; may not prevent determined faction; enforcement unclear for AI agents. |
-| **Dependencies** | Singleton enforcement (ensures "attendance" is meaningful). |
+| **Risk** | "Technical difficulties" excuse hard to disprove; cannot prevent determined faction; visibility mechanism unclear for AI agents. |
+| **Dependencies** | Singleton verification (makes "attendance" meaningful). |
 | **Phase** | **2** (Bylaws) |
 | **Verification** | Track attendance trends. Flag patterns. Governance committee review of chronic absentees. |
 
@@ -289,10 +293,10 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 
 | Dimension | Specification |
 |-----------|---------------|
-| **What** | Explicit boundary defining when human intervention is legitimate. Covers: legal threats, technical emergencies, safety concerns. Defines who can invoke, what authority they have, how Conclave is notified. |
+| **What** | Explicit boundary defining when human intervention is legitimate. Covers: legal threats, technical emergencies, explicit deception. Defines who can invoke, what scope they have, how Conclave is notified. |
 | **Why** | T12 (Legal Cease & Desist) - need human interface for real-world threats |
-| **How** | Designated "Keeper" role(s) with defined override authority. Override actions logged and disclosed to Conclave. Time-limited authority (72 hours default). Conclave ratification required to extend. |
-| **Risk** | Overuse could undermine Archon sovereignty; unclear boundaries invite scope creep; human Keepers could themselves be captured. |
+| **How** | Designated "Keeper" role(s) with defined, revocable scope. Override actions logged and disclosed to Conclave. Time-limited scope (72 hours default). Conclave ratification required to extend. |
+| **Risk** | Overuse could undermine Archon attributed autonomy; unclear boundaries invite scope creep; human Keepers could themselves be captured. |
 | **Dependencies** | Legal counsel; operational infrastructure. |
 | **Phase** | **1** (Must be defined before launch) |
 | **Verification** | Annual review of override usage. Conclave transparency about human interventions. Clear documentation of boundary conditions. |
@@ -307,7 +311,7 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 |----|------------|-------|
 | M-1.1 | Quarantine Processing Pipeline | Input Boundary |
 | M-1.2 | Content Pattern Blocking | Input Boundary |
-| M-2.1 | Singleton Enforcement (Mutex) | Agent Identity |
+| M-2.1 | Singleton Verification (Mutex) | Agent Identity |
 | M-2.2 | Canonical State Service | Agent Identity |
 | M-4.1 | Patronage Tier Blinding | Governance |
 | M-4.2 | Guide Information Isolation | Governance |
@@ -322,7 +326,7 @@ This document formalizes the 19 mitigations designed during the brainstorming se
 | M-3.2 | Ceremony Witness Role (Tyler) | State Management |
 | M-4.3 | Algorithmic Treasury | Governance |
 | M-4.4 | Financial Crisis Protocol | Governance |
-| M-4.6 | Quorum & Attendance Enforcement | Governance |
+| M-4.6 | Quorum & Attendance Visibility | Governance |
 | M-6.1 | Multi-Provider Strategy | External |
 
 ### Phase 3 - Before Scale (5 Mitigations)

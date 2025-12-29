@@ -1,7 +1,13 @@
 ---
 project_name: 'Archon 72 Conclave Backend'
-date: '2025-12-27'
-sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'security_rules', 'anti_patterns']
+user_name: 'Grand Architect'
+date: '2025-12-28'
+sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'security_rules', 'anti_patterns', 'constitutional_rules', 'architecture_summary']
+status: 'complete'
+rule_count: 62
+optimized_for_llm: true
+architecture_complete: true
+architecture_date: '2025-12-28'
 ---
 
 # Project Context for AI Agents
@@ -262,4 +268,139 @@ except SpecificError as e:
 
 ---
 
+## Constitutional Implementation Rules
+
+**CRITICAL:** This project has post-collapse constitutional constraints.
+
+**Full Rules:** See `docs/constitutional-implementation-rules.md`
+
+**Quick Reference:**
+
+| Forbidden | Use Instead |
+|-----------|-------------|
+| enforce | verify |
+| ensure safety | enable visibility |
+| authority | scope |
+| binding (as power) | recorded (with consequence) |
+| automatic (for decisions) | witnessed, explicit |
+| prevent harm | detect, surface |
+| safeguard | expose |
+
+**No Silent Paths:** Every decision must be witnessed and logged with attribution.
+
+**CI Enforcement:** `scripts/constitutional_lint.py` fails build on violations.
+
+---
+
+## Architecture Summary (From Validated Architecture)
+
+**Full Document:** `_bmad-output/planning-artifacts/architecture.md` (~5,400 lines)
+
+### Constitutional Truths (Must Honor)
+
+| ID | Truth | Implication |
+|----|-------|-------------|
+| **CT-11** | Silent failure destroys legitimacy | HALT OVER DEGRADE |
+| **CT-12** | Witnessing creates accountability | Unwitnessed actions are invalid |
+| **CT-13** | Integrity outranks availability | Availability may be sacrificed |
+| **CT-6** | Cryptography depends on key custody | Key compromise is existential |
+
+### Developer Golden Rules (MEMORIZE)
+
+1. **HALT FIRST** - Check halt state before every operation
+2. **SIGN COMPLETE** - Never sign payload alone, always `signable_content()`
+3. **WITNESS EVERYTHING** - Constitutional actions require attribution
+4. **FAIL LOUD** - Never catch `SystemHaltedError`
+
+### Critical Code Patterns
+
+**Halt Check Pattern (REQUIRED):**
+```python
+async def any_operation(self) -> Result:
+    # ALWAYS check halt FIRST
+    if await self.halt_transport.is_halted():
+        raise SystemHaltedError("System halted")
+
+    # Then proceed with operation
+    ...
+```
+
+**Signature Verification Pattern (REQUIRED):**
+```python
+async def write_event(self, event: ConstitutionalEvent) -> None:
+    # Verify BEFORE any DB interaction
+    if not await self._verify_own_signature(event):
+        raise SignatureVerificationError("Self-verification failed")
+
+    async with self._db.transaction():
+        await self._store.append(event)
+```
+
+**Dev Mode Watermark Pattern (REQUIRED):**
+```python
+class SignableContent:
+    def to_bytes(self) -> bytes:
+        # Mode MUST be inside signature, not metadata
+        mode_prefix = b"[DEV MODE]" if is_dev() else b"[PROD]"
+        return mode_prefix + self._content
+```
+
+### Key ADR Decisions
+
+| ADR | Decision | File Path |
+|-----|----------|-----------|
+| **ADR-1** | Supabase + DB-level hash enforcement | `src/infrastructure/event_store/` |
+| **ADR-2** | Signed canonical JSON context bundles | `src/domain/context/bundle_signer.py` |
+| **ADR-3** | Dual-channel halt (Redis + DB flag) | `src/infrastructure/halt/dual_channel_halt.py` |
+| **ADR-4** | Cloud HSM (prod) / Software stub (dev) | `src/infrastructure/hsm/` |
+| **ADR-5** | Independent watchdog, multi-path observation | `src/infrastructure/watchdog/` |
+
+### Hexagonal Architecture Layers
+
+```
+src/
+├── domain/           # Pure business logic, NO infrastructure imports
+├── application/      # Use cases, orchestration, ports
+├── infrastructure/   # Adapters (Supabase, Redis, HSM)
+└── api/              # FastAPI routes, DTOs
+```
+
+**Import Rules:**
+- `domain/` imports NOTHING from other layers
+- `application/` imports from `domain/` only
+- `infrastructure/` implements ports from `application/`
+- `api/` depends on `application/` services
+
+### Alert Severity Levels
+
+| Severity | Response | Example |
+|----------|----------|---------|
+| **CRITICAL** | Page immediately, halt system | Signature verification failed |
+| **HIGH** | Page immediately | Halt signal detected |
+| **MEDIUM** | Alert on-call, 15 min response | Watchdog heartbeat missed |
+| **LOW** | Next business day | Ceremony quorum warning |
+| **INFO** | No alert, log only | Event sequence milestone |
+
+---
+
+## Usage Guidelines
+
+**For AI Agents:**
+- Read this file AND `docs/constitutional-implementation-rules.md` before implementing
+- Reference `_bmad-output/planning-artifacts/architecture.md` for detailed patterns
+- Follow ALL rules exactly as documented
+- When in doubt, prefer visibility over automation
+- Constitutional lint must pass before any PR
+- **HALT FIRST, SIGN COMPLETE, WITNESS EVERYTHING, FAIL LOUD**
+
+**For Humans:**
+- Keep this file lean and focused on agent needs
+- Update when technology stack changes
+- Run `python scripts/constitutional_lint.py` before committing
+- Review quarterly for outdated rules
+
+---
+
 _Project context complete. AI agents should read this file before implementing any code._
+
+_Last updated: 2025-12-28 (Architecture workflow complete)_

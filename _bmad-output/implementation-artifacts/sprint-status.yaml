@@ -1,0 +1,178 @@
+# generated: 2025-12-28
+# project: archon72
+# project_key: archon72
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2025-12-28
+project: archon72
+project_key: archon72
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 0: Project Foundation & Constitutional Infrastructure
+  epic-0: in-progress
+  0-1-project-scaffold-and-dependencies: ready-for-dev
+  0-2-hexagonal-architecture-layers: backlog
+  0-3-dev-environment-and-makefile: backlog
+  0-4-software-hsm-stub-with-watermark: backlog
+  0-5-integration-test-framework: backlog
+  0-6-import-boundary-enforcement: backlog
+  0-7-constitutional-primitives: backlog
+  epic-0-retrospective: optional
+
+  # Epic 1: Witnessed Event Store
+  epic-1: backlog
+  1-1-event-store-schema-and-append-only-enforcement: backlog
+  1-2-hash-chain-implementation: backlog
+  1-3-agent-attribution-and-signing: backlog
+  1-4-witness-attribution-atomic: backlog
+  1-5-dual-time-authority-and-sequence-numbers: backlog
+  1-6-event-writer-service: backlog
+  1-7-supabase-trigger-spike: backlog
+  1-8-halt-check-interface-stub: backlog
+  1-9-observer-query-schema-design-spike: backlog
+  1-10-replica-configuration-preparation: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Agent Deliberation & Collective Output
+  epic-2: backlog
+  2-1-no-preview-constraint: backlog
+  2-2-72-concurrent-agent-deliberations: backlog
+  2-3-collective-output-irreducibility: backlog
+  2-4-dissent-tracking-in-vote-tallies: backlog
+  2-5-no-silent-edits: backlog
+  2-6-agent-heartbeat-monitoring: backlog
+  2-7-topic-origin-tracking: backlog
+  2-8-result-certification: backlog
+  2-9-context-bundle-creation: backlog
+  2-10-crewai-72-agent-load-test-spike: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Halt & Fork Detection
+  epic-3: backlog
+  3-1-continuous-fork-monitoring: backlog
+  3-2-single-conflict-halt-trigger: backlog
+  3-3-dual-channel-halt-transport: backlog
+  3-4-sticky-halt-semantics: backlog
+  3-5-read-only-access-during-halt: backlog
+  3-6-48-hour-recovery-waiting-period: backlog
+  3-7-sequence-gap-detection: backlog
+  3-8-signed-fork-detection-signals: backlog
+  3-9-witnessed-halt-event-before-stop: backlog
+  3-10-operational-rollback-to-checkpoint: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Observer Verification Interface
+  epic-4: backlog
+  4-1-public-read-access-without-registration: backlog
+  4-2-raw-events-with-hashes: backlog
+  4-3-date-range-and-event-type-filtering: backlog
+  4-4-open-source-verification-toolkit: backlog
+  4-5-historical-queries-query-as-of: backlog
+  4-6-merkle-paths-for-light-verification: backlog
+  4-7-regulatory-reporting-export: backlog
+  4-8-observer-push-notifications: backlog
+  4-9-observer-api-uptime-sla: backlog
+  4-10-sequence-gap-detection-for-observers: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Override & Keeper Actions
+  epic-5: backlog
+  5-1-override-immediate-logging: backlog
+  5-2-keeper-attribution-with-scope-and-duration: backlog
+  5-3-public-override-visibility: backlog
+  5-4-constitution-supremacy-no-witness-suppression: backlog
+  5-5-override-trend-analysis: backlog
+  5-6-keeper-key-cryptographic-signature: backlog
+  5-7-keeper-key-generation-ceremony: backlog
+  5-8-keeper-availability-attestation: backlog
+  5-9-override-abuse-detection: backlog
+  5-10-keeper-independence-attestation: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Breach & Threshold Enforcement
+  epic-6: backlog
+  6-1-breach-declaration-events: backlog
+  6-2-7-day-escalation-to-agenda: backlog
+  6-3-automatic-cessation-consideration: backlog
+  6-4-constitutional-threshold-definitions: backlog
+  6-5-witness-selection-with-verifiable-randomness: backlog
+  6-6-witness-pool-anomaly-detection: backlog
+  6-7-amendment-visibility: backlog
+  6-8-breach-collusion-defense: backlog
+  6-9-topic-manipulation-defense: backlog
+  6-10-configuration-floor-enforcement: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Cessation Protocol
+  epic-7: backlog
+  7-1-automatic-agenda-placement: backlog
+  7-2-external-observer-petition: backlog
+  7-3-schema-irreversibility: backlog
+  7-4-freeze-mechanics: backlog
+  7-5-read-only-access-after-cessation: backlog
+  7-6-cessation-as-final-recorded-event: backlog
+  7-7-public-cessation-trigger-conditions: backlog
+  7-8-final-deliberation-recording: backlog
+  7-9-mandatory-cessation-chaos-test: backlog
+  7-10-integrity-case-artifact: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: Operational Monitoring & Health
+  epic-8: backlog
+  8-1-operational-metrics-collection: backlog
+  8-2-operational-constitutional-separation: backlog
+  8-3-external-detectability: backlog
+  8-4-incident-reporting: backlog
+  8-5-pre-operational-verification: backlog
+  8-6-complexity-budget-dashboard: backlog
+  8-7-structured-logging: backlog
+  8-8-pre-mortem-operational-failures-prevention: backlog
+  8-9-operational-runbooks: backlog
+  8-10-constitutional-health-metrics: backlog
+  epic-8-retrospective: optional
+
+  # Epic 9: Emergence Governance & Public Materials
+  epic-9: backlog
+  9-1-no-emergence-claims: backlog
+  9-2-automated-keyword-scanning: backlog
+  9-3-quarterly-material-audit: backlog
+  9-4-user-content-prohibition: backlog
+  9-5-audit-results-as-events: backlog
+  9-6-violations-as-constitutional-breaches: backlog
+  9-7-semantic-injection-scanning: backlog
+  9-8-ct-15-waiver-documentation: backlog
+  9-9-compliance-documentation: backlog
+  9-10-emergence-audit-runbook: backlog
+  epic-9-retrospective: optional

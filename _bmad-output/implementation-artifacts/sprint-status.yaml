@@ -44,9 +44,9 @@ development_status:
   epic-0: in-progress
   0-1-project-scaffold-and-dependencies: done
   0-2-hexagonal-architecture-layers: done
-  0-3-dev-environment-and-makefile: backlog
-  0-4-software-hsm-stub-with-watermark: backlog
-  0-5-integration-test-framework: backlog
+  0-3-dev-environment-and-makefile: done
+  0-4-software-hsm-stub-with-watermark: review
+  0-5-integration-test-framework: review
   0-6-import-boundary-enforcement: backlog
   0-7-constitutional-primitives: backlog
   epic-0-retrospective: optional

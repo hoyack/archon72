@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.egg-info
+dist
+build
+
+# Virtual environments
+.venv
+venv
+ENV
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.docker
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Documentation
+*.md
+!README.md
+
+# Testing artifacts
+htmlcov
+.coverage
+coverage.xml
+
+# Local config
+.env
+.env.local
+.env.*.local
+
+# BMAD artifacts
+_bmad-output
+_bmad
+
+# Misc
+.DS_Store
+*.log

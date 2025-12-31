@@ -51,6 +51,9 @@ black = ">=23.0.0"
 # Type Stubs
 types-redis = ">=4.6.0"
 
+# Integration Testing with Containers (Story 0.5)
+testcontainers = {version = ">=4.0.0", extras = ["postgres", "redis"]}
+
 [tool.ruff]
 target-version = "py311"
 line-length = 88
@@ -88,6 +91,7 @@ module = [
     "crewai.*",
     "supabase.*",
     "hypothesis.*",
+    "testcontainers.*",
 ]
 ignore_missing_imports = true
 

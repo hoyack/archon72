@@ -22,7 +22,36 @@ poetry run pytest tests/unit/test_smoke.py -v
 
 # Start development environment (requires Docker)
 make dev
+
+# Check API health
+curl http://localhost:8000/v1/health
+
+# Stop development environment
+make stop
 ```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:54322/archon72` |
+| `REDIS_URL` | Redis connection string | `redis://localhost:6379` |
+| `DEV_MODE` | Enable development features | `true` |
+| `API_HOST` | API bind address | `0.0.0.0` |
+| `API_PORT` | API port | `8000` |
+
+## Make Commands
+
+| Command | Description |
+|---------|-------------|
+| `make dev` | Start development environment |
+| `make stop` | Stop all containers |
+| `make db-reset` | Reset database (drops all data) |
+| `make test` | Run tests |
+| `make lint` | Run linting (ruff + mypy) |
+| `make clean` | Stop and clean up |
 
 ## Architecture
 

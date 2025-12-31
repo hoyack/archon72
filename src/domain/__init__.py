@@ -12,6 +12,14 @@ CRITICAL: This layer must NOT import from application, infrastructure, or api.
 Only stdlib and typing imports are allowed.
 """
 
+from src.domain.errors import HSMError, HSMModeViolationError, HSMNotConfiguredError
 from src.domain.exceptions import ConclaveError
+from src.domain.models import SignableContent
 
-__all__: list[str] = ["ConclaveError"]
+__all__: list[str] = [
+    "ConclaveError",
+    "SignableContent",
+    "HSMError",
+    "HSMNotConfiguredError",
+    "HSMModeViolationError",
+]

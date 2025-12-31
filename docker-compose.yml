@@ -1,0 +1,65 @@
+# Docker Compose configuration for Archon 72 local development
+# Provides PostgreSQL, Redis, and FastAPI services
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: archon72-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: archon72
+    ports:
+      - "54322:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - archon72-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: archon72-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - archon72-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archon72-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/archon72
+      - REDIS_URL=redis://redis:6379
+      - DEV_MODE=true
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - archon72-network
+
+volumes:
+  postgres_data:
+
+networks:
+  archon72-network:
+    driver: bridge

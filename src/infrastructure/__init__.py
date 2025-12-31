@@ -12,4 +12,6 @@ IMPORT RULES:
 - Implements ports defined in application layer
 """
 
-__all__: list[str] = []
+from src.infrastructure.adapters.security import CloudHSM, DevHSM, get_hsm
+
+__all__: list[str] = ["DevHSM", "CloudHSM", "get_hsm"]

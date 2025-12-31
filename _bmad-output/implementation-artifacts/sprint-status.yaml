@@ -42,8 +42,8 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   # Epic 0: Project Foundation & Constitutional Infrastructure
   epic-0: in-progress
-  0-1-project-scaffold-and-dependencies: ready-for-dev
-  0-2-hexagonal-architecture-layers: backlog
+  0-1-project-scaffold-and-dependencies: done
+  0-2-hexagonal-architecture-layers: done
   0-3-dev-environment-and-makefile: backlog
   0-4-software-hsm-stub-with-watermark: backlog
   0-5-integration-test-framework: backlog

@@ -1,0 +1,132 @@
+[tool.poetry]
+name = "archon72"
+version = "0.1.0"
+description = "Constitutional AI Governance System with 72 Agents - Witnessed, Transparent, Accountable"
+authors = ["Archon72 Team <team@archon72.io>"]
+readme = "README.md"
+license = "MIT"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.14"
+
+# Core Framework
+fastapi = ">=0.100.0"
+uvicorn = {version = ">=0.24.0", extras = ["standard"]}
+pydantic = ">=2.0.0"
+
+# Multi-Agent Orchestration (ADR-2)
+crewai = ">=0.80.0"
+
+# Database & Event Store (ADR-1)
+supabase = ">=2.0.0"
+sqlalchemy = {version = ">=2.0.0", extras = ["asyncio"]}
+alembic = ">=1.12.0"
+asyncpg = ">=0.29.0"
+
+# Dual-Channel Halt Transport (ADR-3)
+redis = ">=5.0.0"
+
+# Async HTTP Client
+httpx = ">=0.25.0"
+
+# Constitutional Witnessing - Structured Logging
+structlog = ">=24.0.0"
+
+# HSM Signing & Hash-Chaining (ADR-4)
+cryptography = ">=41.0.0"
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = ">=7.4.0"
+pytest-asyncio = ">=0.21.0"
+pytest-cov = ">=4.1.0"
+hypothesis = ">=6.90.0"
+
+# Code Quality
+ruff = ">=0.1.0"
+mypy = ">=1.7.0"
+black = ">=23.0.0"
+
+# Type Stubs
+types-redis = ">=4.6.0"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "C90",    # mccabe complexity
+    "ASYNC",  # flake8-async
+]
+ignore = [
+    "E501",   # line too long (handled by black)
+]
+
+[tool.ruff.isort]
+known-first-party = ["src"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "crewai.*",
+    "supabase.*",
+    "hypothesis.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+]
+markers = [
+    "asyncio: mark test as async",
+    "integration: mark test as integration test",
+    "slow: mark test as slow",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = ["tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,4 +1,4 @@
-# generated: 2025-12-28
+# generated: 2026-01-06 (refreshed)
 # project: archon72
 # project_key: archon72
 # tracking_system: file-system
@@ -33,7 +33,7 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2025-12-28
+generated: 2026-01-06
 project: archon72
 project_key: archon72
 tracking_system: file-system
@@ -45,104 +45,104 @@ development_status:
   0-1-project-scaffold-and-dependencies: done
   0-2-hexagonal-architecture-layers: done
   0-3-dev-environment-and-makefile: done
-  0-4-software-hsm-stub-with-watermark: review
-  0-5-integration-test-framework: review
-  0-6-import-boundary-enforcement: backlog
-  0-7-constitutional-primitives: backlog
+  0-4-software-hsm-stub-with-watermark: done
+  0-5-integration-test-framework: done
+  0-6-import-boundary-enforcement: done
+  0-7-constitutional-primitives: done
   epic-0-retrospective: optional
 
   # Epic 1: Witnessed Event Store
-  epic-1: backlog
-  1-1-event-store-schema-and-append-only-enforcement: backlog
-  1-2-hash-chain-implementation: backlog
-  1-3-agent-attribution-and-signing: backlog
-  1-4-witness-attribution-atomic: backlog
-  1-5-dual-time-authority-and-sequence-numbers: backlog
-  1-6-event-writer-service: backlog
-  1-7-supabase-trigger-spike: backlog
-  1-8-halt-check-interface-stub: backlog
-  1-9-observer-query-schema-design-spike: backlog
-  1-10-replica-configuration-preparation: backlog
+  epic-1: in-progress
+  1-1-event-store-schema-and-append-only-enforcement: done
+  1-2-hash-chain-implementation: done
+  1-3-agent-attribution-and-signing: done
+  1-4-witness-attribution-atomic: done
+  1-5-dual-time-authority-and-sequence-numbers: done
+  1-6-event-writer-service: done
+  1-7-supabase-trigger-spike: done
+  1-8-halt-check-interface-stub: done  # Completed as part of 1-6
+  1-9-observer-query-schema-design-spike: done
+  1-10-replica-configuration-preparation: done
   epic-1-retrospective: optional
 
   # Epic 2: Agent Deliberation & Collective Output
-  epic-2: backlog
-  2-1-no-preview-constraint: backlog
-  2-2-72-concurrent-agent-deliberations: backlog
-  2-3-collective-output-irreducibility: backlog
-  2-4-dissent-tracking-in-vote-tallies: backlog
-  2-5-no-silent-edits: backlog
-  2-6-agent-heartbeat-monitoring: backlog
-  2-7-topic-origin-tracking: backlog
-  2-8-result-certification: backlog
-  2-9-context-bundle-creation: backlog
-  2-10-crewai-72-agent-load-test-spike: backlog
+  epic-2: done
+  2-1-no-preview-constraint: done
+  2-2-72-concurrent-agent-deliberations: done
+  2-3-collective-output-irreducibility: done
+  2-4-dissent-tracking-in-vote-tallies: done
+  2-5-no-silent-edits: done
+  2-6-agent-heartbeat-monitoring: done
+  2-7-topic-origin-tracking: done
+  2-8-result-certification: done
+  2-9-context-bundle-creation: done
+  2-10-crewai-72-agent-load-test-spike: done
   epic-2-retrospective: optional
 
   # Epic 3: Halt & Fork Detection
-  epic-3: backlog
-  3-1-continuous-fork-monitoring: backlog
-  3-2-single-conflict-halt-trigger: backlog
-  3-3-dual-channel-halt-transport: backlog
-  3-4-sticky-halt-semantics: backlog
-  3-5-read-only-access-during-halt: backlog
-  3-6-48-hour-recovery-waiting-period: backlog
-  3-7-sequence-gap-detection: backlog
-  3-8-signed-fork-detection-signals: backlog
-  3-9-witnessed-halt-event-before-stop: backlog
-  3-10-operational-rollback-to-checkpoint: backlog
+  epic-3: done
+  3-1-continuous-fork-monitoring: done
+  3-2-single-conflict-halt-trigger: done
+  3-3-dual-channel-halt-transport: done
+  3-4-sticky-halt-semantics: done
+  3-5-read-only-access-during-halt: done
+  3-6-48-hour-recovery-waiting-period: done
+  3-7-sequence-gap-detection: done
+  3-8-signed-fork-detection-signals: done
+  3-9-witnessed-halt-event-before-stop: done
+  3-10-operational-rollback-to-checkpoint: done
   epic-3-retrospective: optional
 
   # Epic 4: Observer Verification Interface
-  epic-4: backlog
-  4-1-public-read-access-without-registration: backlog
-  4-2-raw-events-with-hashes: backlog
-  4-3-date-range-and-event-type-filtering: backlog
-  4-4-open-source-verification-toolkit: backlog
-  4-5-historical-queries-query-as-of: backlog
-  4-6-merkle-paths-for-light-verification: backlog
-  4-7-regulatory-reporting-export: backlog
-  4-8-observer-push-notifications: backlog
-  4-9-observer-api-uptime-sla: backlog
-  4-10-sequence-gap-detection-for-observers: backlog
+  epic-4: done
+  4-1-public-read-access-without-registration: done
+  4-2-raw-events-with-hashes: done
+  4-3-date-range-and-event-type-filtering: done
+  4-4-open-source-verification-toolkit: done
+  4-5-historical-queries-query-as-of: done
+  4-6-merkle-paths-for-light-verification: done
+  4-7-regulatory-reporting-export: done
+  4-8-observer-push-notifications: done
+  4-9-observer-api-uptime-sla: done
+  4-10-sequence-gap-detection-for-observers: done
   epic-4-retrospective: optional
 
   # Epic 5: Override & Keeper Actions
-  epic-5: backlog
-  5-1-override-immediate-logging: backlog
-  5-2-keeper-attribution-with-scope-and-duration: backlog
-  5-3-public-override-visibility: backlog
-  5-4-constitution-supremacy-no-witness-suppression: backlog
-  5-5-override-trend-analysis: backlog
-  5-6-keeper-key-cryptographic-signature: backlog
-  5-7-keeper-key-generation-ceremony: backlog
-  5-8-keeper-availability-attestation: backlog
-  5-9-override-abuse-detection: backlog
-  5-10-keeper-independence-attestation: backlog
+  epic-5: done
+  5-1-override-immediate-logging: done
+  5-2-keeper-attribution-with-scope-and-duration: done
+  5-3-public-override-visibility: done
+  5-4-constitution-supremacy-no-witness-suppression: done
+  5-5-override-trend-analysis: done
+  5-6-keeper-key-cryptographic-signature: done
+  5-7-keeper-key-generation-ceremony: done
+  5-8-keeper-availability-attestation: done
+  5-9-override-abuse-detection: done
+  5-10-keeper-independence-attestation: done
   epic-5-retrospective: optional
 
   # Epic 6: Breach & Threshold Enforcement
-  epic-6: backlog
-  6-1-breach-declaration-events: backlog
-  6-2-7-day-escalation-to-agenda: backlog
-  6-3-automatic-cessation-consideration: backlog
-  6-4-constitutional-threshold-definitions: backlog
-  6-5-witness-selection-with-verifiable-randomness: backlog
-  6-6-witness-pool-anomaly-detection: backlog
-  6-7-amendment-visibility: backlog
-  6-8-breach-collusion-defense: backlog
-  6-9-topic-manipulation-defense: backlog
-  6-10-configuration-floor-enforcement: backlog
+  epic-6: done
+  6-1-breach-declaration-events: done
+  6-2-7-day-escalation-to-agenda: done
+  6-3-automatic-cessation-consideration: done
+  6-4-constitutional-threshold-definitions: done
+  6-5-witness-selection-with-verifiable-randomness: done
+  6-6-witness-pool-anomaly-detection: done
+  6-7-amendment-visibility: done
+  6-8-breach-collusion-defense: done
+  6-9-topic-manipulation-defense: done
+  6-10-configuration-floor-enforcement: done
   epic-6-retrospective: optional
 
   # Epic 7: Cessation Protocol
-  epic-7: backlog
-  7-1-automatic-agenda-placement: backlog
-  7-2-external-observer-petition: backlog
-  7-3-schema-irreversibility: backlog
-  7-4-freeze-mechanics: backlog
-  7-5-read-only-access-after-cessation: backlog
-  7-6-cessation-as-final-recorded-event: backlog
+  epic-7: in-progress
+  7-1-automatic-agenda-placement: done
+  7-2-external-observer-petition: done
+  7-3-schema-irreversibility: done
+  7-4-freeze-mechanics: done
+  7-5-read-only-access-after-cessation: done
+  7-6-cessation-as-final-recorded-event: done
   7-7-public-cessation-trigger-conditions: backlog
   7-8-final-deliberation-recording: backlog
   7-9-mandatory-cessation-chaos-test: backlog

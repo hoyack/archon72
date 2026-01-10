@@ -310,6 +310,142 @@ class TestDevModeWatermarkConstant:
         assert DEV_MODE_WATERMARK is not None
 
 
+class TestAgentOrchestratorStubInvokeSequential:
+    """Test invoke_sequential method (sequential round-robin deliberation)."""
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_returns_all_outputs(self) -> None:
+        """Sequential invocation returns all outputs."""
+        stub = AgentOrchestratorStub(latency_ms=0)
+        requests = [make_request(f"archon-{i}") for i in range(5)]
+
+        outputs = await stub.invoke_sequential(requests)
+
+        assert len(outputs) == 5
+        assert all(isinstance(o, AgentOutput) for o in outputs)
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_all_have_watermark(self) -> None:
+        """All sequential outputs have DEV MODE watermark."""
+        stub = AgentOrchestratorStub(latency_ms=0)
+        requests = [make_request(f"archon-{i}") for i in range(3)]
+
+        outputs = await stub.invoke_sequential(requests)
+
+        for output in outputs:
+            assert DEV_MODE_WATERMARK in output.content
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_continues_on_failure(self) -> None:
+        """Sequential continues to next agent if one fails."""
+        stub = AgentOrchestratorStub(
+            latency_ms=0,
+            fail_agents={"archon-1"},  # archon-1 will fail
+        )
+        requests = [
+            make_request("archon-0"),
+            make_request("archon-1"),  # This one fails
+            make_request("archon-2"),
+        ]
+
+        # Should not raise - continues processing
+        outputs = await stub.invoke_sequential(requests)
+
+        # Should have 2 successful outputs (archon-0 and archon-2)
+        assert len(outputs) == 2
+        agent_ids = {o.agent_id for o in outputs}
+        assert "archon-0" in agent_ids
+        assert "archon-2" in agent_ids
+        assert "archon-1" not in agent_ids
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_raises_if_all_fail(self) -> None:
+        """Sequential raises error only if ALL agents fail."""
+        stub = AgentOrchestratorStub(
+            latency_ms=0,
+            fail_agents={"archon-0", "archon-1", "archon-2"},
+        )
+        requests = [
+            make_request("archon-0"),
+            make_request("archon-1"),
+            make_request("archon-2"),
+        ]
+
+        with pytest.raises(AgentInvocationError, match="all.*failed"):
+            await stub.invoke_sequential(requests)
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_progress_callback(self) -> None:
+        """Sequential calls progress callback for each agent."""
+        stub = AgentOrchestratorStub(latency_ms=0)
+        requests = [make_request(f"archon-{i}") for i in range(3)]
+
+        progress_calls: list[tuple[int, int, str, str]] = []
+
+        def track_progress(current: int, total: int, agent_id: str, status: str) -> None:
+            progress_calls.append((current, total, agent_id, status))
+
+        await stub.invoke_sequential(requests, on_progress=track_progress)
+
+        # Should have 6 calls: starting + completed for each of 3 agents
+        assert len(progress_calls) == 6
+
+        # Check first agent's progress
+        assert progress_calls[0] == (1, 3, "archon-0", "starting")
+        assert progress_calls[1] == (1, 3, "archon-0", "completed")
+
+        # Check last agent's progress
+        assert progress_calls[4] == (3, 3, "archon-2", "starting")
+        assert progress_calls[5] == (3, 3, "archon-2", "completed")
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_progress_callback_on_failure(self) -> None:
+        """Progress callback reports 'failed' status on agent failure."""
+        stub = AgentOrchestratorStub(
+            latency_ms=0,
+            fail_agents={"archon-1"},
+        )
+        requests = [
+            make_request("archon-0"),
+            make_request("archon-1"),  # Will fail
+            make_request("archon-2"),
+        ]
+
+        progress_calls: list[tuple[int, int, str, str]] = []
+
+        def track_progress(current: int, total: int, agent_id: str, status: str) -> None:
+            progress_calls.append((current, total, agent_id, status))
+
+        await stub.invoke_sequential(requests, on_progress=track_progress)
+
+        # archon-1 should have "failed" status
+        archon_1_statuses = [
+            status for (_, _, agent_id, status) in progress_calls
+            if agent_id == "archon-1"
+        ]
+        assert "starting" in archon_1_statuses
+        assert "failed" in archon_1_statuses
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_72_agents(self) -> None:
+        """Sequential can process 72 agents (FR10 compliance)."""
+        stub = AgentOrchestratorStub(latency_ms=0)
+        requests = [make_request(f"archon-{i}") for i in range(72)]
+
+        outputs = await stub.invoke_sequential(requests)
+
+        assert len(outputs) == 72
+
+    @pytest.mark.asyncio
+    async def test_invoke_sequential_empty_requests(self) -> None:
+        """Sequential handles empty request list."""
+        stub = AgentOrchestratorStub(latency_ms=0)
+
+        outputs = await stub.invoke_sequential([])
+
+        assert outputs == []
+
+
 class TestExportedFromPackage:
     """Test stub is exported from package."""
 

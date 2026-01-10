@@ -25,6 +25,7 @@ from src.application.ports.agent_orchestrator import (
     AgentStatus,
     AgentStatusInfo,
     ContextBundle,
+    DeliberationProgressCallback,
 )
 from src.domain.errors.agent import AgentInvocationError
 
@@ -211,6 +212,93 @@ class AgentOrchestratorStub(AgentOrchestratorProtocol):
         )
 
         return results
+
+    async def invoke_sequential(
+        self,
+        requests: list[AgentRequest],
+        on_progress: DeliberationProgressCallback | None = None,
+    ) -> list[AgentOutput]:
+        """Stub: Simulate sequential round-robin deliberation.
+
+        Invokes agents one at a time, simulating the constitutional
+        deliberation pattern where council members speak in turn.
+
+        Args:
+            requests: List of AgentRequest objects to process in order.
+            on_progress: Optional callback for progress updates.
+
+        Returns:
+            List of AgentOutput objects in same order as requests.
+
+        Raises:
+            AgentInvocationError: If all agents fail.
+        """
+        total = len(requests)
+        logger.info(
+            "stub_sequential_deliberation_started",
+            agent_count=total,
+            mode="round_robin",
+        )
+
+        outputs: list[AgentOutput] = []
+        errors: list[str] = []
+
+        for i, req in enumerate(requests):
+            current = i + 1
+            agent_id = req.agent_id
+
+            # Notify progress callback (starting)
+            if on_progress:
+                on_progress(current, total, agent_id, "starting")
+
+            logger.debug(
+                "stub_deliberation_turn",
+                turn=current,
+                total=total,
+                agent_id=agent_id,
+            )
+
+            try:
+                output = await self.invoke(agent_id, req.context)
+                outputs.append(output)
+
+                # Notify progress callback (completed)
+                if on_progress:
+                    on_progress(current, total, agent_id, "completed")
+
+            except AgentInvocationError as e:
+                error_msg = f"{agent_id}: {e}"
+                errors.append(error_msg)
+
+                # Notify progress callback (failed)
+                if on_progress:
+                    on_progress(current, total, agent_id, "failed")
+
+                logger.debug(
+                    "stub_deliberation_turn_failed",
+                    turn=current,
+                    agent_id=agent_id,
+                    error=str(e),
+                )
+                # Continue to next agent
+
+        success_count = len(outputs)
+        failure_count = len(errors)
+
+        logger.info(
+            "stub_sequential_deliberation_complete",
+            success_count=success_count,
+            failure_count=failure_count,
+            total=total,
+        )
+
+        # Only raise if ALL agents failed
+        if success_count == 0 and failure_count > 0:
+            raise AgentInvocationError(
+                f"Sequential deliberation failed: all {failure_count} agents failed"
+            )
+
+        return outputs
 
     async def get_agent_status(
         self,

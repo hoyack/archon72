@@ -1,0 +1,302 @@
+# Archon LLM Bindings Configuration
+# ==================================
+# Per-archon LLM provider and model configuration.
+# Each archon can be bound to a unique LLM for granular control
+# over capabilities, costs, and personality fidelity.
+#
+# Structure:
+#   <archon-uuid>:
+#     provider: anthropic | openai | google | local
+#     model: <model-identifier>
+#     temperature: 0.0 - 1.0
+#     max_tokens: <positive integer>
+#     timeout_ms: <milliseconds>
+#     api_key_env: <optional env var override>
+#     base_url: <optional per-archon server URL for distributed inference>
+#
+# Archons without explicit configuration use _default.
+# Use _rank_defaults for rank-based fallbacks before _default.
+#
+# =============================================================================
+# DISTRIBUTED INFERENCE - GPU SERVER FLEET
+# =============================================================================
+# For running 72 agents across multiple Ollama servers, specify base_url
+# per-archon to distribute load across your GPU fleet.
+#
+# Example GPU Fleet (update IPs to match your infrastructure):
+#   gpu-4090:    http://192.168.1.60:11434  # RTX 4090 24GB - large models
+#   gpu-3090-a:  http://192.168.1.61:11434  # RTX 3090 24GB - large models
+#   gpu-3090-b:  http://192.168.1.62:11434  # RTX 3090 24GB - large models
+#   gpu-3080ti-a: http://192.168.1.63:11434 # RTX 3080 Ti 12GB - medium
+#   gpu-3080ti-b: http://192.168.1.64:11434 # RTX 3080 Ti 12GB - medium
+#   gpu-3070ti:  http://192.168.1.65:11434  # RTX 3070 Ti 8GB - small
+#   gpu-2080-a:  http://192.168.1.66:11434  # RTX 2080 8GB - small
+#   gpu-2080-b:  http://192.168.1.67:11434  # RTX 2080 8GB - small
+
+# =============================================================================
+# DEFAULT CONFIGURATION
+# =============================================================================
+# Applied to any archon without explicit binding
+
+_default:
+  provider: local
+  model: gemma3:4b
+  temperature: 0.5
+  max_tokens: 1024
+  timeout_ms: 120000
+
+# =============================================================================
+# RANK-BASED DEFAULTS (optional tier system)
+# =============================================================================
+# These override _default for archons of specific ranks
+# Individual archon configs still take precedence
+# ACTIVE: Local Ollama models for full 72-agent test
+
+_rank_defaults:
+  executive_director:  # Kings - highest authority (use largest model)
+    provider: local
+    model: qwen3:latest
+    temperature: 0.7
+    max_tokens: 2048
+    timeout_ms: 180000
+
+  senior_director:  # Dukes - senior leadership
+    provider: local
+    model: qwen3:latest
+    temperature: 0.6
+    max_tokens: 1536
+    timeout_ms: 150000
+
+  director:  # Marquis - mid-tier
+    provider: local
+    model: llama3.2:latest
+    temperature: 0.6
+    max_tokens: 1024
+    timeout_ms: 120000
+
+  managing_director:  # President
+    provider: local
+    model: llama3.2:latest
+    temperature: 0.6
+    max_tokens: 1024
+    timeout_ms: 120000
+
+  strategic_director:  # Prince/Earl/Knight
+    provider: local
+    model: gemma3:4b
+    temperature: 0.5
+    max_tokens: 1024
+    timeout_ms: 90000
+
+# =============================================================================
+# EXECUTIVE DIRECTORS (Kings) - 9 Archons
+# =============================================================================
+# COMMENTED OUT FOR LOCAL TESTING - using _rank_defaults instead
+#
+# # Paimon - Knowledge & Skill Development (200 clusters, largest)
+# 1a4a2056-e2b5-42a7-a338-8b8b67509f1f:
+#   provider: anthropic
+#   model: claude-sonnet-4-20250514
+#   temperature: 0.7
+#   max_tokens: 8192
+#   timeout_ms: 90000
+#
+# # Belial - Talent Acquisition & Team Building (80 clusters)
+# da58a598-bfab-42e9-849c-1c34012104c6:
+#   provider: anthropic
+#   model: claude-sonnet-4-20250514
+#   temperature: 0.8
+#   max_tokens: 4096
+#   timeout_ms: 60000
+#
+# # ... (other Kings also use _rank_defaults)
+
+# =============================================================================
+# SENIOR DIRECTORS (Dukes) - Using _rank_defaults
+# =============================================================================
+# COMMENTED OUT FOR LOCAL TESTING
+#
+# # Astaroth, Eligos, Gusion, Crocell - all use senior_director rank default
+
+# =============================================================================
+# SPECIALIZED CONFIGURATIONS - COMMENTED OUT FOR LOCAL TESTING
+# =============================================================================
+# All archons will use _rank_defaults based on their aegis_rank
+
+# =============================================================================
+# LOCAL MODEL DEFAULTS (Ollama)
+# =============================================================================
+# For running all archons on local Ollama models instead of cloud providers.
+# Set OLLAMA_HOST in .env to point to your Ollama server.
+# Model names must match exactly what Ollama reports via `ollama list`.
+#
+# Available local models (add more as needed):
+#   - ministral-3:latest   (small, fast)
+#   - qwen3:latest         (balanced)
+#   - gemma3:4b            (efficient)
+#   - llama3.2:latest      (general purpose)
+#   - gpt-oss:20b          (large, capable)
+
+_local_rank_defaults:
+  executive_director:  # Kings - use largest/best local model
+    provider: local
+    model: gpt-oss:20b
+    temperature: 0.7
+    max_tokens: 4096
+    timeout_ms: 120000
+
+  senior_director:  # Dukes
+    provider: local
+    model: qwen3:latest
+    temperature: 0.6
+    max_tokens: 4096
+    timeout_ms: 90000
+
+  director:  # Marquis
+    provider: local
+    model: llama3.2:latest
+    temperature: 0.6
+    max_tokens: 3072
+    timeout_ms: 60000
+
+  managing_director:  # President
+    provider: local
+    model: llama3.2:latest
+    temperature: 0.6
+    max_tokens: 3072
+    timeout_ms: 60000
+
+  strategic_director:  # Prince/Earl/Knight
+    provider: local
+    model: gemma3:4b
+    temperature: 0.5
+    max_tokens: 2048
+    timeout_ms: 45000
+
+# =============================================================================
+# SINGLE-GPU SEQUENTIAL MODE (Recommended for Testing)
+# =============================================================================
+# For single-GPU deployments using sequential round-robin deliberation.
+# Accuracy over speed - agents speak in turn like a constitutional council.
+#
+# QUANTIZED MODELS (for limited VRAM):
+# Use Q4_K_M quantization to fit larger models in smaller VRAM.
+# Model names must match Ollama exactly. Pull quantized versions:
+#   ollama pull gpt-oss:20b-q4_K_M
+#   ollama pull qwen3:8b-q4_K_M
+#   ollama pull llama3.2:8b-q4_K_M
+#   ollama pull gemma3:4b-q4_K_M
+#
+# VRAM REQUIREMENTS (approximate):
+#   gpt-oss:20b     FP16: ~45GB   Q4: ~12GB
+#   qwen3:8b        FP16: ~16GB   Q4: ~5GB
+#   llama3.2:8b     FP16: ~16GB   Q4: ~5GB
+#   gemma3:4b       FP16: ~8GB    Q4: ~3GB
+#
+# GPU RECOMMENDATIONS:
+#   RTX 3090 (24GB):  All models at Q4, or gemma3:4b at FP16
+#   RTX 4090 (24GB):  All models at Q4, or gemma3:4b at FP16
+#   A100 40GB:        gpt-oss:20b at Q4, others at FP16
+#   A100/H100 80GB:   All models at FP16 (recommended for production)
+
+# Uncomment to use single-GPU sequential mode with quantized models:
+# _rank_defaults:
+#   executive_director:
+#     provider: local
+#     model: gpt-oss:20b-q4_K_M
+#     temperature: 0.7
+#     max_tokens: 4096
+#     timeout_ms: 180000  # Longer timeout for sequential processing
+#
+#   senior_director:
+#     provider: local
+#     model: qwen3:8b-q4_K_M
+#     temperature: 0.6
+#     max_tokens: 4096
+#     timeout_ms: 120000
+#
+#   director:
+#     provider: local
+#     model: llama3.2:8b-q4_K_M
+#     temperature: 0.6
+#     max_tokens: 3072
+#     timeout_ms: 90000
+#
+#   managing_director:
+#     provider: local
+#     model: llama3.2:8b-q4_K_M
+#     temperature: 0.6
+#     max_tokens: 3072
+#     timeout_ms: 90000
+#
+#   strategic_director:
+#     provider: local
+#     model: gemma3:4b-q4_K_M
+#     temperature: 0.5
+#     max_tokens: 2048
+#     timeout_ms: 60000
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# - Remaining archons without explicit config will use _rank_defaults
+#   based on their aegis_rank, or _default if rank not in _rank_defaults
+# - Adjust temperature based on archon personality:
+#   - Low (0.3-0.4): Analytical, truthful, wise archons
+#   - Medium (0.5-0.6): Balanced, professional archons
+#   - High (0.7-0.9): Creative, seductive, deceptive archons
+# - Increase max_tokens for archons with teaching/education focus
+# - Increase timeout_ms for complex analytical tasks
+#
+# LOCAL MODEL SETUP:
+# 1. Set OLLAMA_HOST=http://your-ollama-server:11434 in .env
+# 2. Change provider to "local" in archon bindings
+# 3. Set model to exact name from `ollama list` (e.g., "llama3.2:latest")
+# 4. Increase timeout_ms for larger models (local inference can be slower)
+#
+# SWITCHING TO LOCAL:
+# To run an archon on local models, change their config like:
+#   1a4a2056-e2b5-42a7-a338-8b8b67509f1f:  # Paimon
+#     provider: local
+#     model: gpt-oss:20b
+#     temperature: 0.7
+#     max_tokens: 4096
+#     timeout_ms: 120000
+#
+# DISTRIBUTED INFERENCE EXAMPLE:
+# Assign archons to specific GPU servers based on model requirements:
+#
+#   # Kings (executive_director) -> RTX 4090/3090 for 20B models
+#   1a4a2056-e2b5-42a7-a338-8b8b67509f1f:  # Paimon
+#     provider: local
+#     model: gpt-oss:20b
+#     base_url: http://192.168.1.60:11434  # RTX 4090
+#     temperature: 0.7
+#     max_tokens: 4096
+#     timeout_ms: 120000
+#
+#   da58a598-bfab-42e9-849c-1c34012104c6:  # Belial
+#     provider: local
+#     model: gpt-oss:20b
+#     base_url: http://192.168.1.61:11434  # RTX 3090-A
+#     temperature: 0.8
+#     max_tokens: 4096
+#     timeout_ms: 120000
+#
+#   # Dukes (senior_director) -> RTX 3080 Ti for 13B models
+#   10fb3806-3870-4859-928d-e3f8ea4de8b4:  # Astaroth
+#     provider: local
+#     model: qwen3:latest
+#     base_url: http://192.168.1.63:11434  # RTX 3080 Ti-A
+#     temperature: 0.4
+#     max_tokens: 8192
+#     timeout_ms: 90000
+#
+#   # Directors -> RTX 3070 Ti / RTX 2080 for 7B models
+#   <director-uuid>:
+#     provider: local
+#     model: llama3.2:latest
+#     base_url: http://192.168.1.65:11434  # RTX 3070 Ti
+#     temperature: 0.6
+#     max_tokens: 3072
+#     timeout_ms: 60000

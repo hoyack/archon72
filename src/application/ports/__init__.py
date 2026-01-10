@@ -297,6 +297,22 @@ from src.application.ports.waiver_repository import (
 from src.application.ports.compliance_repository import (
     ComplianceRepositoryProtocol,
 )
+from src.application.ports.tool_registry import (
+    ToolRegistryProtocol,
+)
+from src.application.ports.archon_profile_repository import (
+    ArchonProfileRepository,
+)
+from src.application.ports.archon_selector import (
+    ArchonSelection,
+    ArchonSelectionMetadata,
+    ArchonSelectorProtocol,
+    DEFAULT_MAX_ARCHONS,
+    DEFAULT_MIN_ARCHONS,
+    DEFAULT_RELEVANCE_THRESHOLD,
+    SelectionMode,
+    TopicContext,
+)
 
 __all__: list[str] = [
     "AgentOrchestratorProtocol",
@@ -494,4 +510,17 @@ __all__: list[str] = [
     "WaiverRepositoryProtocol",
     # Compliance Repository (Story 9.9, NFR31-34)
     "ComplianceRepositoryProtocol",
+    # Tool Registry (Story 10.3, FR10, NFR5)
+    "ToolRegistryProtocol",
+    # Archon Profile Repository (Story 10.1)
+    "ArchonProfileRepository",
+    # Archon Selector (Story 10.4, FR10, NFR5)
+    "ArchonSelection",
+    "ArchonSelectionMetadata",
+    "ArchonSelectorProtocol",
+    "DEFAULT_MAX_ARCHONS",
+    "DEFAULT_MIN_ARCHONS",
+    "DEFAULT_RELEVANCE_THRESHOLD",
+    "SelectionMode",
+    "TopicContext",
 ]

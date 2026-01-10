@@ -123,5 +123,73 @@ workflow_status:
       status: "_bmad-output/implementation-artifacts/sprint-status.yaml"
       agent: sm
       command: "/bmad:bmm:workflows:sprint-planning"
-      note: "COMPLETE: Sprint status tracking active - Epics 0-6 done (64/64 stories), Epic 7: 5/10 done, Epic 8-9 backlog"
+      note: "ACTIVE: Epics 0-9 done. Epic 10 (CrewAI Integration) in-progress - Story 10-1 done, 10-2 ready-for-dev"
       completed: "2026-01-06"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CURRENT WORK IN PROGRESS (2026-01-10)
+# ═══════════════════════════════════════════════════════════════════════════════
+current_work:
+  epic: "Epic 10: CrewAI Integration & Archon Configuration"
+  status: in-progress
+
+  completed_this_session:
+    - id: "10-1-archon-profile-configuration-system"
+      status: done
+      summary: "Per-archon LLM configuration system implemented"
+      files_created:
+        - src/domain/models/llm_config.py
+        - src/domain/models/archon_profile.py
+        - src/application/ports/archon_profile_repository.py
+        - src/infrastructure/adapters/config/archon_profile_adapter.py
+        - config/archon-llm-bindings.yaml
+        - tests/unit/domain/models/test_llm_config.py
+        - tests/unit/domain/models/test_archon_profile.py
+        - tests/unit/infrastructure/adapters/config/test_archon_profile_adapter.py
+      spec: "_bmad-output/planning-artifacts/archon-profile-system-spec.md"
+      tests: "65 unit tests passing"
+      key_features:
+        - "Per-archon LLM provider/model binding (not just rank-based)"
+        - "CSV identity data (docs/archons-base.csv) + YAML LLM config merged"
+        - "Priority resolution: explicit UUID > rank defaults > global default"
+        - "Immutable frozen dataclasses for thread safety"
+        - "CrewAI integration methods on ArchonProfile"
+
+    - id: "10-2-crewai-adapter-implementation"
+      status: done
+      summary: "CrewAI adapter implementing AgentOrchestratorProtocol"
+      files_created:
+        - src/infrastructure/adapters/external/__init__.py
+        - src/infrastructure/adapters/external/crewai_adapter.py
+        - tests/unit/infrastructure/adapters/external/__init__.py
+        - tests/unit/infrastructure/adapters/external/test_crewai_adapter.py
+      tests: "29 unit tests passing"
+      key_features:
+        - "Implements AgentOrchestratorProtocol for CrewAI integration"
+        - "Uses ArchonProfile for per-archon LLM config (provider, model, temperature, timeout)"
+        - "Resolves agent_id by UUID or name (case-insensitive)"
+        - "asyncio.gather pattern for 72 concurrent agents"
+        - "Tool registry placeholder for Story 10-3"
+        - "Timeout handling with status tracking"
+
+  ready_for_dev:
+    - id: "10-3-tool-registry-for-archons"
+      status: ready-for-dev
+      story_file: "_bmad-output/implementation-artifacts/stories/10-3-tool-registry-for-archons.md"
+      description: "Create tool registry mapping 9 tool names to CrewAI Tool instances"
+    - id: "10-4-archon-selection-service"
+      status: ready-for-dev
+      story_file: "_bmad-output/implementation-artifacts/stories/10-4-archon-selection-service.md"
+      description: "Service to select relevant archons based on topic characteristics"
+    - id: "10-5-end-to-end-deliberation-test"
+      status: ready-for-dev
+      story_file: "_bmad-output/implementation-artifacts/stories/10-5-end-to-end-deliberation-test.md"
+      description: "Integration test with real LLM calls for full pipeline validation"
+
+  next_story:
+    id: "10-3-tool-registry-for-archons"
+    status: ready-for-dev
+    story_file: "_bmad-output/implementation-artifacts/stories/10-3-tool-registry-for-archons.md"
+    description: "Create tool registry that maps tool names to CrewAI Tool instances"
+
+  backlog: []  # All stories now have story files (ready-for-dev)

@@ -1,5 +1,5 @@
 # Makefile for Archon 72 development workflow
-.PHONY: dev stop db-reset test test-unit test-integration test-chaos test-all lint clean help check-imports format pre-commit pre-commit-install chaos-cessation validate-cessation
+.PHONY: dev stop db-reset test test-unit test-integration test-integration-crewai test-crewai-smoke test-crewai-load test-chaos test-all lint clean help check-imports format pre-commit pre-commit-install chaos-cessation validate-cessation
 
 # Default target
 help:
@@ -10,6 +10,9 @@ help:
 	@echo "  make test             - Run all tests with pytest"
 	@echo "  make test-unit        - Run unit tests only"
 	@echo "  make test-integration - Run integration tests (requires Docker)"
+	@echo "  make test-integration-crewai - Run CrewAI E2E tests (requires API keys)"
+	@echo "  make test-crewai-smoke - Run quick CrewAI smoke test (~30s, ~$0.05)"
+	@echo "  make test-crewai-load - Run 72-agent load test (~5min, ~$2.00)"
 	@echo "  make test-chaos       - Run chaos tests only (PM-5)"
 	@echo "  make test-all         - Alias for make test"
 	@echo "  make chaos-cessation  - Run cessation chaos test (PM-5 mandatory)"
@@ -52,7 +55,23 @@ test-unit:
 # Run integration tests only (requires Docker)
 test-integration:
 	@docker info > /dev/null 2>&1 || (echo "Error: Docker is not running. Please start Docker first." && exit 1)
-	python3 -m pytest tests/integration/ -v -m integration --tb=short
+	python3 -m pytest tests/integration/ -v -m integration --tb=short --ignore=tests/integration/crewai
+
+# Run CrewAI E2E integration tests (requires API keys)
+test-integration-crewai:
+	@echo "Running CrewAI E2E tests (requires ANTHROPIC_API_KEY or OPENAI_API_KEY)..."
+	python3 -m pytest tests/integration/crewai/ -v -m integration --tb=short
+
+# Run quick CrewAI smoke test (~30s, ~$0.05)
+test-crewai-smoke:
+	@echo "Running CrewAI smoke test..."
+	python3 -m pytest tests/integration/crewai/ -v -m "smoke" --tb=short
+
+# Run 72-agent load test (~5min, ~$2.00) - expensive!
+test-crewai-load:
+	@echo "WARNING: This test invokes 72 agents and costs ~$2.00 per run!"
+	@read -p "Continue? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
+	python3 -m pytest tests/integration/crewai/ -v -m "load" --tb=short
 
 # Alias for test
 test-all: test

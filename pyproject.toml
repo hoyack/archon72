@@ -47,6 +47,7 @@ prometheus-client = ">=0.19.0"
 pytest = ">=7.4.0"
 pytest-asyncio = ">=0.21.0"
 pytest-cov = ">=4.1.0"
+pytest-timeout = ">=2.2.0"
 hypothesis = ">=6.90.0"
 
 # Code Quality
@@ -121,6 +122,10 @@ markers = [
     "slow: mark test as slow",
     "spike: mark test as spike/investigation test",
     "chaos: mark test as chaos test for destructive/terminal operations (PM-5)",
+    "smoke: mark test as quick smoke test for CI validation",
+    "load: mark test as load/stress test (expensive, requires API keys)",
+    "requires_api_keys: mark test as requiring LLM API keys to run",
+    "timeout: mark test with a timeout in seconds",
 ]
 
 [tool.coverage.run]

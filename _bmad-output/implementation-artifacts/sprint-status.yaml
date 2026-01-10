@@ -176,3 +176,58 @@ development_status:
   9-9-compliance-documentation: done
   9-10-emergence-audit-runbook: done
   epic-9-retrospective: done  # Full project retrospective 2026-01-09
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Epic 10: CrewAI Integration & Archon Configuration (NEW)
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Added 2026-01-10 to track per-archon LLM configuration and CrewAI adapter work
+  epic-10: in-progress
+
+  # COMPLETED: Per-Archon Profile Configuration System
+  10-1-archon-profile-configuration-system: done
+  # Implemented 2026-01-10:
+  # - LLMConfig domain model (src/domain/models/llm_config.py)
+  # - ArchonProfile domain model (src/domain/models/archon_profile.py)
+  # - ArchonProfileRepository port (src/application/ports/archon_profile_repository.py)
+  # - CsvYamlArchonProfileAdapter (src/infrastructure/adapters/config/archon_profile_adapter.py)
+  # - Per-archon LLM bindings config (config/archon-llm-bindings.yaml)
+  # - 65 unit tests passing
+  # - Spec: _bmad-output/planning-artifacts/archon-profile-system-spec.md
+  # - Uses docs/archons-base.csv (72 Goetic archons with backstories, system prompts)
+
+  # COMPLETED: CrewAI Adapter Implementation
+  10-2-crewai-adapter-implementation: done
+  # Implemented 2026-01-10:
+  # - CrewAIAdapter implements AgentOrchestratorProtocol
+  # - Uses ArchonProfile for per-archon LLM config (provider, model, temperature, timeout)
+  # - System prompt from ArchonProfile.backstory injected (context-aware)
+  # - Tools mapped from suggested_tools via tool_registry (placeholder for 10-3)
+  # - 72 concurrent agents validated via asyncio.gather pattern
+  # - 29 unit tests passing
+  # Files created:
+  #   - src/infrastructure/adapters/external/__init__.py
+  #   - src/infrastructure/adapters/external/crewai_adapter.py
+  #   - tests/unit/infrastructure/adapters/external/__init__.py
+  #   - tests/unit/infrastructure/adapters/external/test_crewai_adapter.py
+
+  # COMPLETED: Tool Registry for Archons
+  10-3-tool-registry-for-archons: done
+  # Story file: _bmad-output/implementation-artifacts/stories/10-3-tool-registry-for-archons.md
+  # Implemented 2026-01-10:
+  # - ToolRegistryProtocol port (src/application/ports/tool_registry.py)
+  # - 9 stub tool implementations (src/infrastructure/adapters/tools/archon_tools.py)
+  # - ToolRegistryAdapter (src/infrastructure/adapters/tools/tool_registry_adapter.py)
+  # - CrewAIAdapter integration updated to use ToolRegistryProtocol
+  # - 54 new unit tests + 29 existing tests passing
+
+  # READY FOR DEV: Archon Selection Service
+  10-4-archon-selection-service: ready-for-dev
+  # Story file: _bmad-output/implementation-artifacts/stories/10-4-archon-selection-service.md
+  # Description: Service to select relevant archons for a deliberation based on topic
+  # Uses ArchonProfile.suggested_tools, domain, focus_areas, capabilities for matching
+
+  # READY FOR DEV: End-to-End Deliberation Test
+  10-5-end-to-end-deliberation-test: ready-for-dev
+  # Story file: _bmad-output/implementation-artifacts/stories/10-5-end-to-end-deliberation-test.md
+  # Description: Integration test with real LLM calls (requires API keys)
+  # Validates full flow: topic → archon selection → LLM invocation → collective output

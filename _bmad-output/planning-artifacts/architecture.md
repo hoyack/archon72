@@ -3989,6 +3989,47 @@ class AuthProviderProtocol(Protocol):
 
 ---
 
+#### PM6-4a: Archon Profile Configuration System (IMPLEMENTED)
+
+**Status:** ✅ Implemented (2026-01-10)
+**Spec:** `_bmad-output/planning-artifacts/archon-profile-system-spec.md`
+
+Per-archon identity and LLM binding configuration for the 72 deliberative agents:
+
+```
+docs/archons-base.csv        config/archon-llm-bindings.yaml
+     (identity)                    (LLM bindings)
+         │                              │
+         └──────────┬───────────────────┘
+                    ▼
+        CsvYamlArchonProfileAdapter
+                    │
+                    ▼
+             ArchonProfile
+        (merged identity + llm_config)
+```
+
+**Key Components:**
+- `LLMConfig` — Per-archon provider/model/temperature binding
+- `ArchonProfile` — Immutable profile with CrewAI integration
+- `ArchonProfileRepository` — Port interface for profile access
+- `CsvYamlArchonProfileAdapter` — Merges CSV identity + YAML LLM config
+
+**LLM Config Priority:**
+1. Explicit archon UUID in YAML (highest)
+2. Rank-based defaults (`_rank_defaults.<rank>`)
+3. Global default (`_default`)
+
+**Files:**
+- `src/domain/models/llm_config.py`
+- `src/domain/models/archon_profile.py`
+- `src/application/ports/archon_profile_repository.py`
+- `src/infrastructure/adapters/config/archon_profile_adapter.py`
+
+**Tests:** 65 unit tests passing
+
+---
+
 #### PM6-5: Constitutional Coverage Validation Script
 
 Add CI script to ensure every CT-* and GAP-* has enforcement and coverage:

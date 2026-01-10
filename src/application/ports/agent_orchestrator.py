@@ -22,6 +22,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import Callable
 from uuid import UUID
 
 # Re-export AgentStatus from domain layer for backward compatibility
@@ -29,12 +31,33 @@ from src.domain.models.agent_status import AgentStatus
 
 __all__ = [
     "AgentStatus",
+    "DeliberationMode",
     "ContextBundle",
     "AgentRequest",
     "AgentOutput",
     "AgentStatusInfo",
     "AgentOrchestratorProtocol",
+    "DeliberationProgressCallback",
 ]
+
+
+class DeliberationMode(Enum):
+    """Mode for agent deliberation execution.
+
+    PARALLEL: All agents deliberate concurrently (requires multi-GPU fleet).
+              Best for: Production with ample GPU resources, time-critical decisions.
+
+    SEQUENTIAL: Agents deliberate one at a time in round-robin fashion.
+                Best for: Single GPU setups, accuracy over speed, testing.
+                Supports model swapping between agents if needed.
+    """
+
+    PARALLEL = "parallel"
+    SEQUENTIAL = "sequential"
+
+
+# Type alias for progress callbacks during sequential deliberation
+DeliberationProgressCallback = Callable[[int, int, str, str], None]
 
 
 @dataclass(frozen=True, eq=True)
@@ -185,6 +208,39 @@ class AgentOrchestratorProtocol(ABC):
         Raises:
             AgentInvocationError: If any agent fails to execute.
                 The error should include which agents failed.
+            SystemHaltedError: If the system is halted (caller should check).
+        """
+        ...
+
+    @abstractmethod
+    async def invoke_sequential(
+        self,
+        requests: list[AgentRequest],
+        on_progress: DeliberationProgressCallback | None = None,
+    ) -> list[AgentOutput]:
+        """Invoke multiple agents sequentially (round-robin deliberation).
+
+        This method invokes agents one at a time, waiting for each to complete
+        before moving to the next. This pattern is ideal for:
+        - Single GPU deployments where model swapping may be needed
+        - Accuracy-focused deliberations where time is not critical
+        - Testing and development with limited resources
+
+        The sequential pattern mirrors authentic constitutional deliberation
+        where council members speak in turn rather than simultaneously.
+
+        Args:
+            requests: List of AgentRequest objects to process in order.
+            on_progress: Optional callback invoked after each agent completes.
+                         Signature: (current: int, total: int, agent_id: str, status: str)
+
+        Returns:
+            List of AgentOutput objects in the same order as requests.
+
+        Raises:
+            AgentInvocationError: If any agent fails to execute.
+                Individual failures are logged but do not stop the sequence.
+                The error includes which agents failed.
             SystemHaltedError: If the system is halted (caller should check).
         """
         ...

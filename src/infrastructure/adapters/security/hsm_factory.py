@@ -9,24 +9,19 @@ AC1, AC3: Factory returns correct HSM based on environment.
 ADR-4: Development uses software stub, production uses Cloud HSM.
 """
 
-import os
+from __future__ import annotations
 
 import structlog
 
 from src.application.ports.hsm import HSMProtocol
+from src.domain.models.signable import is_dev_mode
 from src.infrastructure.adapters.security.hsm_cloud import CloudHSM
 from src.infrastructure.adapters.security.hsm_dev import DevHSM
 
 log = structlog.get_logger()
 
-
-def is_dev_mode() -> bool:
-    """Check if running in development mode.
-
-    Returns:
-        True if DEV_MODE environment variable is 'true' (case-insensitive).
-    """
-    return os.getenv("DEV_MODE", "false").lower() == "true"
+# Re-export is_dev_mode for backward compatibility with existing tests
+__all__ = ["get_hsm", "get_dev_hsm", "get_cloud_hsm", "is_dev_mode"]
 
 
 def get_hsm(dev_hsm_instance: DevHSM | None = None) -> HSMProtocol:

@@ -1,6 +1,6 @@
 # Story 3.6: 48-Hour Recovery Waiting Period (FR21)
 
-Status: in-progress
+Status: done
 
 ## Story
 
@@ -134,7 +134,7 @@ so that stakeholders have time to verify before recovery.
 
 ### Review Follow-ups (AI Code Review 2026-01-07)
 
-- [ ] [AI-Review][HIGH] H1: Commit all Story 3.6 files to git - 15 files untracked (CT-12 accountability)
+- [x] [AI-Review][HIGH] H1: Commit all Story 3.6 files to git - 16 files committed (cdeb269)
 - [x] [AI-Review][MEDIUM] M1: Add halt state re-check in `complete_recovery()` before delegating to port [src/application/services/recovery_coordinator.py:180-190]
 - [x] [AI-Review][MEDIUM] M2: Update Dev Notes code examples to use `RecoveryNotPermittedError` instead of `SystemNotHaltedError` (naming was changed per Debug Log)
 - [x] [AI-Review][MEDIUM] M3: Add test coverage for port.py docstring example code [tests/unit/application/test_recovery_waiting_period_port.py:TestPortDocstringExample]

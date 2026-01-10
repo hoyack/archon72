@@ -100,10 +100,11 @@ workflow_status:
 
     - id: test-design
       name: "Test Design"
-      status: recommended
+      status: "_bmad-output/test-design-epic-1.md"
       agent: tea
       command: "/bmad:bmm:workflows:testarch-test-design"
-      note: "System-level testability review"
+      note: "COMPLETE: Epic-level test design for Epic 1 - 12 risks, 61 scenarios, 5 high-priority mitigated"
+      completed: "2026-01-06"
 
     - id: implementation-readiness
       name: "Implementation Readiness Check"
@@ -119,7 +120,8 @@ workflow_status:
   phase_3_implementation:
     - id: sprint-planning
       name: "Sprint Planning"
-      status: required
+      status: "_bmad-output/implementation-artifacts/sprint-status.yaml"
       agent: sm
       command: "/bmad:bmm:workflows:sprint-planning"
-      note: "Creates sprint-status.yaml for tracking"
+      note: "COMPLETE: Sprint status tracking active - Epics 0-6 done (64/64 stories), Epic 7: 5/10 done, Epic 8-9 backlog"
+      completed: "2026-01-06"

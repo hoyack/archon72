@@ -5,11 +5,18 @@ These tests verify:
 - AC2: Database session fixture provides real async connection
 - AC3: Single test execution with container startup
 - AC5: Test isolation (changes in one test don't affect another)
+- Container startup performance (< 10s for both containers)
 """
+
+from __future__ import annotations
+
+import time
 
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+from testcontainers.postgres import PostgresContainer
+from testcontainers.redis import RedisContainer
 
 
 class TestDatabaseConnectivity:
@@ -66,7 +73,7 @@ class TestDatabaseIsolation:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_isolation_first_insert_data(
+    async def test_isolation_01_first_insert_data(
         self, db_session: AsyncSession
     ) -> None:
         """AC5: First test creates data that should not affect second test."""
@@ -90,7 +97,7 @@ class TestDatabaseIsolation:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_isolation_second_no_data_from_first(
+    async def test_isolation_02_second_no_data_from_first(
         self, db_session: AsyncSession
     ) -> None:
         """AC5: Second test should not see data from first test (rollback isolation)."""
@@ -187,3 +194,50 @@ class TestDatabaseCRUD:
             text("SELECT COUNT(*) FROM delete_test")
         )
         assert result.scalar() == 0
+
+
+class TestContainerStartup:
+    """Tests for container startup performance verification."""
+
+    @pytest.mark.integration
+    def test_postgres_container_startup_time(self) -> None:
+        """Verify PostgreSQL container starts within acceptable time (<10s).
+
+        This test measures actual container startup time to validate
+        performance claims. The 10s threshold accounts for:
+        - Docker image pull (if not cached)
+        - Container creation
+        - PostgreSQL startup and ready state
+        """
+        start = time.perf_counter()
+
+        with PostgresContainer("postgres:16-alpine") as postgres:
+            # Verify container is ready by getting connection URL
+            url = postgres.get_connection_url()
+            assert url is not None
+            assert "postgresql" in url
+
+        elapsed = time.perf_counter() - start
+
+        # Threshold of 10s is generous; typical startup is 3-5s with cached image
+        assert elapsed < 10.0, f"PostgreSQL container took {elapsed:.2f}s to start (expected <10s)"
+
+    @pytest.mark.integration
+    def test_redis_container_startup_time(self) -> None:
+        """Verify Redis container starts within acceptable time (<10s).
+
+        This test measures actual container startup time to validate
+        performance claims. Redis typically starts faster than PostgreSQL.
+        """
+        start = time.perf_counter()
+
+        with RedisContainer("redis:7-alpine") as redis_cont:
+            # Verify container is ready by getting connection URL
+            url = redis_cont.get_connection_url()
+            assert url is not None
+            assert "redis" in url
+
+        elapsed = time.perf_counter() - start
+
+        # Threshold of 10s is generous; typical startup is 2-3s with cached image
+        assert elapsed < 10.0, f"Redis container took {elapsed:.2f}s to start (expected <10s)"

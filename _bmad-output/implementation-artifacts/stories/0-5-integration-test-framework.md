@@ -1,6 +1,6 @@
 # Story 0.5: Integration Test Framework
 
-Status: review
+Status: done
 
 ## Story
 
@@ -298,3 +298,13 @@ N/A - No significant debug issues encountered
   - Redis client fixture with FLUSHDB isolation
   - 18 new container-based tests, all 89 tests passing
   - Container startup time ~3.5 seconds (cached images)
+
+- 2026-01-06: Code review fixes applied
+  - **Critical Fix**: Fixed resource leak in `db_session` fixture - moved from nested context managers to explicit try/finally with proper cleanup on rollback failures
+  - **Medium Fix**: Made `echo` parameter configurable via `SQLALCHEMY_ECHO` environment variable instead of hardcoded `False`
+  - **Medium Fix**: Changed Redis fixture to use URL-based connection (`from_url()`) for consistency with PostgreSQL pattern
+  - **Medium Fix**: Added proper try/finally in `redis_client` fixture to ensure `aclose()` is called even if `flushdb()` fails
+  - **Medium Fix**: Added proper type annotation `Redis[bytes]` to remove `# type: ignore` comment
+  - **Low Fix**: Renamed isolation tests with numeric prefixes (`test_isolation_01_*`, `test_isolation_02_*`) to ensure deterministic execution order
+  - **Low Fix**: Added `TestContainerStartup` class with explicit container startup time verification tests
+  - All files pass mypy type checking with no issues

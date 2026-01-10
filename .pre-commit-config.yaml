@@ -1,0 +1,39 @@
+# Pre-commit hooks for Archon 72
+# Run `pre-commit install` to enable git hooks
+# Run `pre-commit run --all-files` to check all files
+
+repos:
+  # Python formatting with Black
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        language_version: python3.11
+
+  # Python linting with Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+
+  # Local hooks for project-specific checks
+  - repo: local
+    hooks:
+      # Type checking with mypy
+      - id: mypy
+        name: mypy type checking
+        entry: python3 -m mypy
+        language: system
+        types: [python]
+        args: [--strict, src/]
+        pass_filenames: false
+
+      # Hexagonal architecture import boundary enforcement
+      - id: check-imports
+        name: check import boundaries
+        entry: python3
+        args: [scripts/check_imports.py]
+        language: system
+        types: [python]
+        pass_filenames: false

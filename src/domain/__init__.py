@@ -16,6 +16,9 @@ from src.domain.errors import HSMError, HSMModeViolationError, HSMNotConfiguredE
 from src.domain.exceptions import ConclaveError
 from src.domain.models import SignableContent
 
+# Note: primitives module is imported separately to avoid circular imports
+# Use: from src.domain.primitives import DeletePreventionMixin, AtomicOperationContext
+
 __all__: list[str] = [
     "ConclaveError",
     "SignableContent",

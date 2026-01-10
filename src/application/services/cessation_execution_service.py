@@ -1,4 +1,4 @@
-"""Cessation Execution Service (Story 7.4, FR41, AC1, AC8; Story 7.6, FR43).
+"""Cessation Execution Service (Story 7.4, FR41; Story 7.6, FR43; Story 7.8, FR135).
 
 This service handles the execution of cessation, which is the
 permanent termination of the system. Once executed, no further
@@ -7,16 +7,18 @@ events can be written.
 Constitutional Constraints:
 - FR41: Freeze on new actions except record preservation
 - FR43: Cessation as final recorded event (Story 7.6)
+- FR135: Final deliberation SHALL be recorded before cessation (Story 7.8)
 - CT-11: Silent failure destroys legitimacy -> Log ALL execution details
 - CT-12: Witnessing creates accountability -> Cessation must be witnessed
 - CT-13: Integrity outranks availability -> Permanent termination
 - ADR-3: Dual-channel pattern -> Set flag in both Redis and DB
 
 Responsibilities:
-1. Write the cessation event (FINAL event - FR43)
-2. Set dual-channel cessation flag atomically (ADR-3)
-3. Log execution with full context (CT-11)
-4. Ensure witness attribution (CT-12)
+1. Record final deliberation (FR135) - BEFORE cessation event
+2. Write the cessation event (FINAL event - FR43)
+3. Set dual-channel cessation flag atomically (ADR-3)
+4. Log execution with full context (CT-11)
+5. Ensure witness attribution (CT-12)
 
 This service is called by the deliberation system when a
 cessation vote passes (FR37, FR38, FR39 triggers).
@@ -30,6 +32,12 @@ Story 7.6 FR43 Compliance:
 - Event is written BEFORE freeze flag is set (atomic sequence)
 - If event write fails, no freeze flag is set
 - If freeze flag fails, CRITICAL log is emitted for human intervention
+
+Story 7.8 FR135 Compliance:
+- Final deliberation is recorded BEFORE cessation event
+- If deliberation recording fails, that failure is the final event
+- All 72 Archon votes must be recorded
+- Dissent percentage visible (FR12)
 """
 
 from __future__ import annotations
@@ -52,6 +60,10 @@ if TYPE_CHECKING:
     )
     from src.application.ports.event_store import EventStorePort
     from src.application.services.event_writer_service import EventWriterService
+    from src.application.services.final_deliberation_service import (
+        FinalDeliberationService,
+    )
+    from src.domain.events.cessation_deliberation import ArchonDeliberation
     from src.domain.events.event import Event
 
 logger = get_logger()
@@ -98,6 +110,7 @@ class CessationExecutionService:
         event_writer: EventWriterService,
         event_store: EventStorePort,
         cessation_flag_repo: CessationFlagRepositoryProtocol,
+        final_deliberation_service: FinalDeliberationService | None = None,
     ) -> None:
         """Initialize CessationExecutionService.
 
@@ -105,10 +118,14 @@ class CessationExecutionService:
             event_writer: Service for writing events (handles witnessing).
             event_store: Direct access to read current head event.
             cessation_flag_repo: Dual-channel cessation flag storage.
+            final_deliberation_service: Optional service for recording final
+                deliberation (FR135). If provided, execute_cessation_with_deliberation()
+                will record the deliberation before the cessation event.
         """
         self._event_writer = event_writer
         self._event_store = event_store
         self._cessation_flag_repo = cessation_flag_repo
+        self._final_deliberation_service = final_deliberation_service
 
     async def execute_cessation(
         self,
@@ -267,8 +284,12 @@ class CessationExecutionService:
                         "System may accept writes until flag is set."
                     ),
                 )
-                # Re-raise to indicate failure (but event is permanent)
-                raise
+                # Wrap in CessationExecutionError for consistent error typing (Finding 6 fix)
+                raise CessationExecutionError(
+                    f"Cessation event written (seq={cessation_event.sequence}) but "
+                    f"flag setting failed: {flag_error}. "
+                    f"HUMAN INTERVENTION REQUIRED to set freeze flag."
+                ) from flag_error
 
             # Step 5: Final confirmation log
             log.critical(
@@ -302,3 +323,107 @@ class CessationExecutionService:
             raise CessationExecutionError(
                 f"Cessation execution failed: {e}"
             ) from e
+
+    async def execute_cessation_with_deliberation(
+        self,
+        *,
+        deliberation_id: UUID,
+        deliberation_started_at: datetime,
+        deliberation_ended_at: datetime,
+        archon_deliberations: list[ArchonDeliberation],
+        triggering_event_id: UUID,
+        reason: str,
+        agent_id: str = "SYSTEM:CESSATION",
+    ) -> Event:
+        """Execute cessation with final deliberation recording (FR135).
+
+        This method records the final deliberation BEFORE executing cessation.
+        Per FR135: Final deliberation SHALL be recorded and immutable;
+        if recording fails, that failure is the final event.
+
+        CRITICAL: If deliberation recording fails, the failure event becomes
+        the final event and cessation is NOT executed.
+
+        Args:
+            deliberation_id: Unique ID for the deliberation.
+            deliberation_started_at: When deliberation began (UTC).
+            deliberation_ended_at: When deliberation concluded (UTC).
+            archon_deliberations: All 72 Archon deliberations.
+            triggering_event_id: Event that triggered cessation.
+            reason: Human-readable reason for cessation.
+            agent_id: Agent executing cessation.
+
+        Returns:
+            The cessation Event (last event ever).
+
+        Raises:
+            CessationExecutionError: If deliberation service not configured
+                or cessation fails.
+        """
+        log = logger.bind(
+            operation="execute_cessation_with_deliberation",
+            deliberation_id=str(deliberation_id),
+            triggering_event_id=str(triggering_event_id),
+        )
+
+        if self._final_deliberation_service is None:
+            log.error(
+                "final_deliberation_service_not_configured",
+                message="FR135: Cannot execute cessation with deliberation - service not configured",
+            )
+            raise CessationExecutionError(
+                "FR135: FinalDeliberationService not configured"
+            )
+
+        log.info(
+            "fr135_recording_deliberation",
+            archon_count=len(archon_deliberations),
+            message="FR135: Recording final deliberation before cessation",
+        )
+
+        # Step 1: Record the final deliberation (FR135)
+        from src.application.services.final_deliberation_service import (
+            DeliberationRecordingCompleteFailure,
+        )
+
+        try:
+            deliberation_result = await self._final_deliberation_service.record_and_proceed(
+                deliberation_id=deliberation_id,
+                started_at=deliberation_started_at,
+                ended_at=deliberation_ended_at,
+                archon_deliberations=archon_deliberations,
+            )
+
+            log.info(
+                "fr135_deliberation_recorded",
+                event_id=str(deliberation_result.event_id),
+                success=deliberation_result.success,
+                message="FR135: Final deliberation recorded successfully",
+            )
+
+        except DeliberationRecordingCompleteFailure as e:
+            # FR135: If recording fails completely, system must HALT
+            log.critical(
+                "fr135_complete_failure",
+                error_code=e.error_code,
+                error_message=e.error_message,
+                message=(
+                    "FR135 VIOLATED: Cannot record deliberation OR failure event. "
+                    "SYSTEM MUST HALT. HUMAN INTERVENTION REQUIRED."
+                ),
+            )
+            raise CessationExecutionError(
+                f"FR135: Complete deliberation recording failure - {e.error_code}"
+            ) from e
+
+        # Step 2: Now execute cessation
+        log.info(
+            "cessation_proceeding_after_deliberation",
+            message="FR135 satisfied - proceeding with cessation",
+        )
+
+        return await self.execute_cessation(
+            triggering_event_id=triggering_event_id,
+            reason=reason,
+            agent_id=agent_id,
+        )

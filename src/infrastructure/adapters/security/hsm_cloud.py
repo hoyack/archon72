@@ -67,3 +67,24 @@ class CloudHSM(HSMProtocol):
             HSMNotConfiguredError: Always, as production HSM is not configured.
         """
         raise HSMNotConfiguredError("Production HSM not configured")
+
+    async def verify_with_key(
+        self,
+        content: bytes,
+        signature: bytes,
+        key_id: str,
+    ) -> bool:
+        """Verify signature with specific key - NOT IMPLEMENTED.
+
+        Raises:
+            HSMNotConfiguredError: Always, as production HSM is not configured.
+        """
+        raise HSMNotConfiguredError("Production HSM not configured")
+
+    async def get_public_key_bytes(self, key_id: str | None = None) -> bytes:
+        """Get public key bytes - NOT IMPLEMENTED.
+
+        Raises:
+            HSMNotConfiguredError: Always, as production HSM is not configured.
+        """
+        raise HSMNotConfiguredError("Production HSM not configured")

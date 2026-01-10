@@ -6,13 +6,10 @@ These tests verify:
 - AC5: Test isolation (Redis is flushed between tests)
 """
 
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
 
 import pytest
-import redis.asyncio as aioredis
-
-if TYPE_CHECKING:
-    from redis.asyncio import Redis
+from redis.asyncio import Redis
 
 
 class TestRedisConnectivity:
@@ -21,7 +18,7 @@ class TestRedisConnectivity:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_redis_connection_works(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC1, AC4: Verify Redis connection is established."""
         # PING should return True
@@ -31,7 +28,7 @@ class TestRedisConnectivity:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_redis_server_info(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC1: Verify Redis server info is accessible."""
         info = await redis_client.info()
@@ -47,7 +44,7 @@ class TestRedisOperations:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_set_and_get(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC4: Test SET and GET operations."""
         await redis_client.set("test_key", "test_value")
@@ -57,7 +54,7 @@ class TestRedisOperations:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_delete_operation(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC4: Test DELETE operation."""
         await redis_client.set("delete_key", "value")
@@ -69,7 +66,7 @@ class TestRedisOperations:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_hash_operations(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC4: Test hash operations (useful for caching)."""
         await redis_client.hset("hash_key", "field1", "value1")
@@ -84,7 +81,7 @@ class TestRedisOperations:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_list_operations(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC4: Test list operations (useful for queues)."""
         await redis_client.rpush("list_key", "item1", "item2", "item3")
@@ -98,7 +95,7 @@ class TestRedisOperations:
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_expiration(
-        self, redis_client: "Redis[Any]"
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC4: Test key expiration (useful for locks)."""
         await redis_client.setex("expiring_key", 60, "value")
@@ -112,8 +109,8 @@ class TestRedisIsolation:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_isolation_first_set_data(
-        self, redis_client: "Redis[Any]"
+    async def test_isolation_01_first_set_data(
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC5: First test sets data that should not affect second test."""
         await redis_client.set("isolation_marker", "first_test_data")
@@ -124,8 +121,8 @@ class TestRedisIsolation:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_isolation_second_no_data_from_first(
-        self, redis_client: "Redis[Any]"
+    async def test_isolation_02_second_no_data_from_first(
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC5: Second test should not see data from first test (FLUSHDB isolation)."""
         # Key from first test should not exist due to FLUSHDB
@@ -134,8 +131,8 @@ class TestRedisIsolation:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_isolation_database_is_empty(
-        self, redis_client: "Redis[Any]"
+    async def test_isolation_03_database_is_empty(
+        self, redis_client: Redis[bytes]
     ) -> None:
         """AC5: Verify database starts empty for each test."""
         # Get all keys - should be empty at start of test

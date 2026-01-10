@@ -21,8 +21,10 @@ Usage:
 Note: Docker must be running for these fixtures to work.
 """
 
+from __future__ import annotations
+
+import os
 from collections.abc import AsyncGenerator, Generator
-from typing import Any
 
 import pytest
 import redis.asyncio as aioredis
@@ -33,6 +35,15 @@ from sqlalchemy.ext.asyncio import (
 )
 from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
+
+
+def _get_sql_echo() -> bool:
+    """Get SQL echo setting from environment.
+
+    Set SQLALCHEMY_ECHO=1 or SQLALCHEMY_ECHO=true to enable SQL logging.
+    Defaults to False for cleaner test output.
+    """
+    return os.environ.get("SQLALCHEMY_ECHO", "").lower() in ("1", "true", "yes")
 
 
 # Session-scoped container fixtures (started once per test session)
@@ -106,8 +117,11 @@ async def db_session(
             # Perform database operations
             result = await db_session.execute(text("SELECT 1"))
             # Session is automatically rolled back after test
+
+    Environment:
+        SQLALCHEMY_ECHO: Set to "1" or "true" to enable SQL logging for debugging.
     """
-    engine = create_async_engine(postgres_async_url, echo=False)
+    engine = create_async_engine(postgres_async_url, echo=_get_sql_echo())
 
     async_session_maker = async_sessionmaker(
         bind=engine,
@@ -115,18 +129,39 @@ async def db_session(
         expire_on_commit=False,
     )
 
-    async with async_session_maker() as session, session.begin():
-        yield session
-        # Rollback after each test for isolation (AC2)
-        await session.rollback()
+    session: AsyncSession | None = None
+    try:
+        session = async_session_maker()
+        async with session.begin():
+            yield session
+            # Rollback after each test for isolation (AC2)
+            await session.rollback()
+    finally:
+        # Ensure session is closed even if rollback fails
+        if session is not None:
+            await session.close()
+        await engine.dispose()
 
-    await engine.dispose()
+
+@pytest.fixture(scope="session")
+def redis_url(redis_container: RedisContainer) -> str:
+    """Get Redis connection URL from container.
+
+    Provides consistent URL-based connection pattern matching PostgreSQL.
+
+    Returns:
+        redis:// URL string
+    """
+    # Use get_connection_url() for consistency with postgres pattern
+    # RedisContainer.get_connection_url() returns redis://host:port/db format
+    url: str = redis_container.get_connection_url()
+    return url
 
 
 @pytest.fixture
 async def redis_client(
-    redis_container: RedisContainer,
-) -> AsyncGenerator[aioredis.Redis, None]:  # type: ignore[type-arg]
+    redis_url: str,
+) -> AsyncGenerator[aioredis.Redis[bytes], None]:
     """Per-test Redis client with FLUSHDB isolation (AC4).
 
     Provides a fresh Redis connection for each test with automatic
@@ -139,14 +174,14 @@ async def redis_client(
             result = await redis_client.get("key")
             # Redis is automatically flushed after test
     """
-    # Get connection details from container
-    host = redis_container.get_container_host_ip()
-    port = redis_container.get_exposed_port(6379)
+    client: aioredis.Redis[bytes] = aioredis.from_url(redis_url)
 
-    client: aioredis.Redis[Any] = aioredis.Redis(host=host, port=int(port))
-
-    yield client
-
-    # Clean up after each test for isolation (AC4)
-    await client.flushdb()
-    await client.aclose()
+    try:
+        yield client
+    finally:
+        # Clean up after each test for isolation (AC4)
+        # Use try/except to ensure aclose is called even if flushdb fails
+        try:
+            await client.flushdb()
+        finally:
+            await client.aclose()

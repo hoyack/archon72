@@ -36,6 +36,12 @@ structlog = ">=24.0.0"
 # HSM Signing & Hash-Chaining (ADR-4)
 cryptography = ">=41.0.0"
 
+# Server-Sent Events for Push Notifications (Story 4.8, SR-9)
+sse-starlette = ">=2.0.0"
+
+# Prometheus Metrics (Story 8.1, NFR27)
+prometheus-client = ">=0.19.0"
+
 [tool.poetry.group.dev.dependencies]
 # Testing
 pytest = ">=7.4.0"
@@ -54,6 +60,9 @@ types-redis = ">=4.6.0"
 # Integration Testing with Containers (Story 0.5)
 testcontainers = {version = ">=4.0.0", extras = ["postgres", "redis"]}
 
+# Pre-commit hooks (Story 0.6)
+pre-commit = ">=3.5.0"
+
 [tool.ruff]
 target-version = "py311"
 line-length = 88
@@ -69,6 +78,7 @@ select = [
 ]
 ignore = [
     "E501",   # line too long (handled by black)
+    "UP017",  # datetime.UTC requires Python 3.11+, use timezone.utc for 3.10 compat
 ]
 
 [tool.ruff.isort]
@@ -109,6 +119,8 @@ markers = [
     "asyncio: mark test as async",
     "integration: mark test as integration test",
     "slow: mark test as slow",
+    "spike: mark test as spike/investigation test",
+    "chaos: mark test as chaos test for destructive/terminal operations (PM-5)",
 ]
 
 [tool.coverage.run]

@@ -5,10 +5,66 @@ This ensures that:
 1. The watermark cannot be stripped without invalidating the signature
 2. Dev signatures can never be confused with production signatures
 3. Mode is cryptographically bound to the content
+
+H1 Security Enhancement:
+- Secondary validation prevents accidental DEV_MODE in production
+- ENVIRONMENT variable must match DEV_MODE setting
+- Startup verification detects environment inconsistency
 """
 
 import os
 from dataclasses import dataclass
+
+import structlog
+
+log = structlog.get_logger()
+
+
+class DevModeEnvironmentMismatchError(Exception):
+    """Raised when DEV_MODE and ENVIRONMENT variables are inconsistent (H1 fix).
+
+    This prevents accidental use of DevHSM (plaintext keys) in production.
+    """
+
+    pass
+
+
+@dataclass(frozen=True)
+class ParsedSignedContent:
+    """Result of parsing signed bytes back into SignableContent.
+
+    This dataclass provides clearer semantics than a bare tuple for the
+    result of SignableContent.from_signed_bytes().
+
+    Attributes:
+        content: The parsed SignableContent with raw_content extracted.
+        is_dev_mode: True if the signed bytes had [DEV MODE] prefix, False for [PROD].
+    """
+
+    content: "SignableContent"
+    is_dev_mode: bool
+
+
+# Valid environment names for production detection
+PRODUCTION_ENVIRONMENTS = frozenset({"production", "prod", "staging", "stage"})
+
+
+def _detect_environment() -> str:
+    """Detect the current environment from ENVIRONMENT variable.
+
+    Returns:
+        Environment name (lowercase), defaults to 'development'.
+    """
+    return os.getenv("ENVIRONMENT", "development").lower()
+
+
+def _is_production_environment() -> bool:
+    """Check if running in a production-like environment.
+
+    Returns:
+        True if ENVIRONMENT indicates production/staging.
+    """
+    return _detect_environment() in PRODUCTION_ENVIRONMENTS
 
 
 def is_dev_mode() -> bool:
@@ -18,6 +74,54 @@ def is_dev_mode() -> bool:
         True if DEV_MODE environment variable is set to 'true'.
     """
     return os.getenv("DEV_MODE", "false").lower() == "true"
+
+
+def validate_dev_mode_consistency() -> None:
+    """Validate DEV_MODE is consistent with ENVIRONMENT (H1 fix).
+
+    This secondary validation prevents a critical security misconfiguration
+    where DEV_MODE=true in a production environment. An attacker who can
+    modify environment variables could force development mode in production.
+
+    H1 Security Finding:
+    - Single environment variable determines HSM selection
+    - This validation adds a secondary check
+
+    Raises:
+        DevModeEnvironmentMismatchError: If DEV_MODE=true in production environment.
+    """
+    dev_mode = is_dev_mode()
+    environment = _detect_environment()
+    is_prod = _is_production_environment()
+
+    if dev_mode and is_prod:
+        log.critical(
+            "dev_mode_environment_mismatch",
+            dev_mode=dev_mode,
+            environment=environment,
+            message="H1: DEV_MODE=true in production environment - SECURITY VIOLATION",
+        )
+        raise DevModeEnvironmentMismatchError(
+            f"H1 Security Violation: DEV_MODE=true is not allowed in "
+            f"'{environment}' environment. Set DEV_MODE=false or change "
+            f"ENVIRONMENT to 'development'."
+        )
+
+    if not dev_mode and not is_prod and environment == "development":
+        # Informational: Production HSM in development is allowed but unusual
+        log.info(
+            "dev_mode_production_hsm_in_dev",
+            dev_mode=dev_mode,
+            environment=environment,
+            message="Using production HSM configuration in development environment",
+        )
+
+    log.debug(
+        "dev_mode_consistency_validated",
+        dev_mode=dev_mode,
+        environment=environment,
+        is_production=is_prod,
+    )
 
 
 @dataclass(frozen=True)
@@ -85,7 +189,8 @@ class SignableContent:
             signed_bytes: Bytes that include mode prefix.
 
         Returns:
-            Tuple of (SignableContent, is_dev_mode).
+            Tuple of (SignableContent, is_dev_mode). For clearer semantics,
+            use parse_signed_bytes() which returns ParsedSignedContent.
 
         Raises:
             ValueError: If no valid mode prefix is found.
@@ -102,6 +207,25 @@ class SignableContent:
                 f"Expected '{cls.DEV_MODE_PREFIX.decode()}' or "
                 f"'{cls.PROD_MODE_PREFIX.decode()}' prefix."
             )
+
+    @classmethod
+    def parse_signed_bytes(cls, signed_bytes: bytes) -> ParsedSignedContent:
+        """Reconstruct SignableContent from signed bytes with named result.
+
+        This is the preferred method over from_signed_bytes() as it returns
+        a named dataclass instead of a bare tuple.
+
+        Args:
+            signed_bytes: Bytes that include mode prefix.
+
+        Returns:
+            ParsedSignedContent with content and is_dev_mode fields.
+
+        Raises:
+            ValueError: If no valid mode prefix is found.
+        """
+        content, is_dev = cls.from_signed_bytes(signed_bytes)
+        return ParsedSignedContent(content=content, is_dev_mode=is_dev)
 
     def __len__(self) -> int:
         """Return length of raw content (without mode prefix)."""

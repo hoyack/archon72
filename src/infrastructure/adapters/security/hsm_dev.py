@@ -9,8 +9,13 @@ the signed content to prevent confusion with production signatures.
 ADR-4: Development mode uses software HSM stub with watermark.
 """
 
+from __future__ import annotations
+
 import base64
 import json
+import os
+import stat
+import tempfile
 import uuid
 from pathlib import Path
 
@@ -50,9 +55,16 @@ class DevHSM(HSMProtocol):
     AC4: Logs warning on initialization
     """
 
-    # Default key storage location
-    DEFAULT_KEY_DIR = Path.home() / ".archon72"
+    # Default key storage location (Finding 7 fix: use temp directory)
+    # Using process-specific temp directory prevents:
+    # - Accidental commit of home directory keys
+    # - Key sharing between users on shared systems
+    # - Key persistence across reboots (ephemeral by design)
+    DEFAULT_KEY_DIR = Path(tempfile.gettempdir()) / f"archon72-dev-{os.getpid()}"
     DEFAULT_KEY_FILE = "dev_keys.json"
+
+    # Key ID prefix for dev keys
+    DEV_KEY_PREFIX = "dev-"
 
     def __init__(
         self,
@@ -84,7 +96,11 @@ class DevHSM(HSMProtocol):
         self._load_keys()
 
     def _ensure_key_dir(self) -> None:
-        """Create key directory if it doesn't exist."""
+        """Create key directory if it doesn't exist.
+
+        Creates the key storage directory with all parent directories.
+        Uses exist_ok=True to be idempotent.
+        """
         self._key_dir.mkdir(parents=True, exist_ok=True)
 
     def _load_keys(self) -> None:
@@ -135,6 +151,9 @@ class DevHSM(HSMProtocol):
 
         with open(self._key_path, "w") as f:
             json.dump(data, f, indent=2)
+
+        # Set secure file permissions (owner read/write only)
+        os.chmod(self._key_path, stat.S_IRUSR | stat.S_IWUSR)
 
         log.debug("hsm_keys_saved", key_path=str(self._key_path))
 
@@ -242,8 +261,8 @@ class DevHSM(HSMProtocol):
         private_key = Ed25519PrivateKey.generate()
         public_key = private_key.public_key()
 
-        # Create key ID
-        key_id = f"dev-{uuid.uuid4().hex[:8]}"
+        # Create key ID using class constant
+        key_id = f"{self.DEV_KEY_PREFIX}{uuid.uuid4().hex[:8]}"
 
         # Store key
         self._keys[key_id] = (private_key, public_key)

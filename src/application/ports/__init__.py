@@ -5,8 +5,493 @@ Ports enable dependency inversion and make the application layer testable.
 
 Available ports:
 - HSMProtocol: Hardware Security Module operations (signing, verification)
+- EventStorePort: Event store operations (append-only)
+- KeyRegistryProtocol: Agent key registry operations (FR75, FR76)
+- WitnessPoolProtocol: Witness pool operations (FR4, FR5)
+- HaltChecker: Halt state checking interface (Story 1.6, Epic 3 stub)
+- WriterLockProtocol: Single-writer lock interface (Story 1.6, ADR-1)
+- EventReplicatorPort: Replica propagation and verification (Story 1.10, FR94-FR95)
+- AgentOrchestratorProtocol: Agent orchestration interface (Story 2.2, FR10)
+
+Helper functions:
+- validate_sequence_continuity: Validate sequence gaps (FR7, Story 1.5)
 """
 
+from src.application.ports.agent_orchestrator import (
+    AgentOrchestratorProtocol,
+    AgentOutput,
+    AgentRequest,
+    AgentStatus,
+    AgentStatusInfo,
+    ContextBundle,
+)
+from src.application.ports.collective_output import (
+    CollectiveOutputPort,
+    StoredCollectiveOutput,
+)
+from src.application.ports.content_verification import (
+    ContentVerificationPort,
+    ContentVerificationResult,
+)
+from src.application.ports.context_bundle_creator import (
+    BundleCreationResult,
+    BundleVerificationResult,
+    ContextBundleCreatorPort,
+)
+from src.application.ports.context_bundle_validator import (
+    BundleValidationResult,
+    ContextBundleValidatorPort,
+    FreshnessCheckResult,
+)
+from src.application.ports.dissent_metrics import (
+    DissentMetricsPort,
+    DissentRecord,
+)
+from src.application.ports.dual_channel_halt import (
+    CONFIRMATION_TIMEOUT_SECONDS,
+    DualChannelHaltTransport,
+    HaltFlagState,
+)
+from src.application.ports.event_replicator import (
+    EventReplicatorPort,
+    ReplicationReceipt,
+    ReplicationStatus,
+    VerificationResult,
+)
+from src.application.ports.event_store import (
+    EventStorePort,
+    validate_sequence_continuity,
+)
+from src.application.ports.fork_monitor import ForkMonitor
+from src.application.ports.fork_signal_rate_limiter import ForkSignalRateLimiterPort
+from src.application.ports.halt_checker import HaltChecker
+from src.application.ports.halt_trigger import HaltTrigger
+from src.application.ports.heartbeat_emitter import (
+    HEARTBEAT_INTERVAL_SECONDS,
+    MISSED_HEARTBEAT_THRESHOLD,
+    UNRESPONSIVE_TIMEOUT_SECONDS,
+    HeartbeatEmitterPort,
+)
+from src.application.ports.heartbeat_monitor import HeartbeatMonitorPort
 from src.application.ports.hsm import HSMMode, HSMProtocol, SignatureResult
+from src.application.ports.key_registry import KeyRegistryProtocol
+from src.application.ports.procedural_record_generator import (
+    ProceduralRecordData,
+    ProceduralRecordGeneratorPort,
+)
+from src.application.ports.result_certifier import (
+    CertificationResult,
+    ResultCertifierPort,
+)
+from src.application.ports.topic_origin_tracker import (
+    DIVERSITY_THRESHOLD,
+    DIVERSITY_WINDOW_DAYS,
+    TopicOriginTrackerPort,
+)
+from src.application.ports.topic_rate_limiter import (
+    RATE_LIMIT_PER_HOUR,
+    RATE_LIMIT_WINDOW_SECONDS,
+    TopicRateLimiterPort,
+)
+from src.application.ports.unanimous_vote import (
+    StoredUnanimousVote,
+    UnanimousVotePort,
+)
+from src.application.ports.recovery_waiting_period import RecoveryWaitingPeriodPort
+from src.application.ports.sequence_gap_detector import (
+    DETECTION_INTERVAL_SECONDS,
+    SequenceGapDetectorPort,
+)
+from src.application.ports.unwitnessed_halt_repository import UnwitnessedHaltRepository
+from src.application.ports.witnessed_halt_writer import WitnessedHaltWriter
+from src.application.ports.witness_pool import WitnessPoolProtocol
+from src.application.ports.writer_lock import WriterLockProtocol
+from src.application.ports.checkpoint_repository import CheckpointRepository
+from src.application.ports.override_executor import (
+    OverrideExecutorPort,
+    OverrideResult,
+)
+from src.application.ports.override_registry import (
+    ExpiredOverrideInfo,
+    OverrideRegistryPort,
+)
+from src.application.ports.rollback_coordinator import RollbackCoordinator
+from src.application.ports.constitution_validator import ConstitutionValidatorProtocol
+from src.application.ports.override_trend_repository import (
+    OverrideTrendData,
+    OverrideTrendRepositoryProtocol,
+)
+from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
+from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
+from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
+from src.application.ports.override_abuse_validator import (
+    OverrideAbuseValidatorProtocol,
+    ValidationResult,
+)
+from src.application.ports.anomaly_detector import (
+    AnomalyDetectorProtocol,
+    AnomalyResult,
+    FrequencyData,
+)
+from src.application.ports.independence_attestation import (
+    IndependenceAttestationProtocol,
+)
+from src.application.ports.breach_declaration import BreachDeclarationProtocol
+from src.application.ports.breach_repository import BreachRepositoryProtocol
+from src.application.ports.escalation import EscalationProtocol
+from src.application.ports.escalation_repository import EscalationRepositoryProtocol
+from src.application.ports.cessation import CessationConsiderationProtocol
+from src.application.ports.cessation_repository import CessationRepositoryProtocol
+from src.application.ports.threshold_configuration import (
+    ThresholdConfigurationProtocol,
+    ThresholdRepositoryProtocol,
+)
+from src.application.ports.entropy_source import EntropySourceProtocol
+from src.application.ports.witness_pair_history import WitnessPairHistoryProtocol
+from src.application.ports.witness_anomaly_detector import (
+    PairExclusion,
+    WitnessAnomalyDetectorProtocol,
+    WitnessAnomalyResult,
+)
+from src.application.ports.witness_pool_monitor import (
+    MINIMUM_WITNESSES_HIGH_STAKES,
+    MINIMUM_WITNESSES_STANDARD,
+    WitnessPoolMonitorProtocol,
+    WitnessPoolStatus,
+)
+from src.application.ports.amendment_repository import (
+    AmendmentProposal,
+    AmendmentRepositoryProtocol,
+)
+from src.application.ports.amendment_visibility_validator import (
+    AmendmentVisibilityValidatorProtocol,
+    HistoryProtectionResult,
+    ImpactValidationResult,
+    VisibilityValidationResult,
+)
+from src.application.ports.collusion_investigator import (
+    CollusionInvestigatorProtocol,
+    Investigation,
+    InvestigationStatus,
+)
+from src.application.ports.hash_verifier import (
+    HashScanResult,
+    HashScanStatus,
+    HashVerifierProtocol,
+)
+from src.application.ports.topic_manipulation_detector import (
+    FlaggedTopic,
+    ManipulationAnalysisResult,
+    TimingPatternResult,
+    TopicManipulationDetectorProtocol,
+)
+from src.application.ports.seed_validator import (
+    PredictabilityCheck,
+    SeedSourceValidation,
+    SeedUsageRecord,
+    SeedValidatorProtocol,
+)
+from src.application.ports.topic_daily_limiter import (
+    DAILY_TOPIC_LIMIT,
+    TopicDailyLimiterProtocol,
+)
+from src.application.ports.topic_priority import (
+    TopicPriorityLevel,
+    TopicPriorityProtocol,
+)
+from src.application.ports.configuration_floor_validator import (
+    ConfigurationChangeResult,
+    ConfigurationFloorValidatorProtocol,
+    ConfigurationHealthStatus,
+    ConfigurationValidationResult,
+    ThresholdStatus,
+    ThresholdViolation,
+)
+from src.application.ports.integrity_failure_repository import (
+    IntegrityFailure,
+    IntegrityFailureRepositoryProtocol,
+)
+from src.application.ports.anti_success_alert_repository import (
+    AntiSuccessAlertRepositoryProtocol,
+    SustainedAlertInfo,
+)
+from src.application.ports.cessation_agenda_repository import (
+    CessationAgendaRepositoryProtocol,
+)
+from src.application.ports.petition_repository import (
+    PetitionRepositoryProtocol,
+)
+from src.application.ports.signature_verifier import (
+    SignatureVerifierProtocol,
+)
+from src.application.ports.terminal_event_detector import (
+    TerminalEventDetectorProtocol,
+)
+from src.application.ports.freeze_checker import (
+    FreezeCheckerProtocol,
+)
+from src.application.ports.cessation_flag_repository import (
+    CessationFlagRepositoryProtocol,
+)
+from src.application.ports.integrity_case_repository import (
+    IntegrityCaseRepositoryProtocol,
+)
+from src.application.ports.separation_validator import (
+    DataClassification,
+    SeparationValidatorPort,
+)
+from src.application.ports.external_health import (
+    ExternalHealthPort,
+    ExternalHealthStatus,
+)
+from src.application.ports.incident_report_repository import (
+    IncidentReportRepositoryPort,
+)
+from src.application.ports.complexity_calculator import (
+    ComplexityCalculatorPort,
+)
+from src.application.ports.complexity_budget_repository import (
+    ComplexityBudgetRepositoryPort,
+)
+from src.application.ports.failure_mode_registry import (
+    FailureModeRegistryPort,
+    HealthSummary,
+)
+from src.application.ports.constitutional_health import (
+    ConstitutionalHealthPort,
+)
+from src.application.ports.prohibited_language_scanner import (
+    ProhibitedLanguageScannerProtocol,
+    ScanResult,
+)
+from src.application.ports.publication_scanner import (
+    PublicationScannerProtocol,
+    PublicationScanResult,
+    PublicationScanResultStatus,
+)
+from src.application.ports.material_repository import (
+    Material,
+    MaterialRepositoryProtocol,
+    MATERIAL_TYPE_ANNOUNCEMENT,
+    MATERIAL_TYPE_DOCUMENT,
+    MATERIAL_TYPE_PUBLICATION,
+)
+from src.application.ports.audit_repository import (
+    AuditRepositoryProtocol,
+)
+from src.application.ports.user_content_repository import (
+    UserContentRepositoryProtocol,
+)
+from src.application.ports.event_query import (
+    EventQueryProtocol,
+)
+from src.application.ports.semantic_scanner import (
+    DEFAULT_ANALYSIS_METHOD,
+    SemanticScannerProtocol,
+    SemanticScanResult,
+)
+from src.application.ports.waiver_repository import (
+    WaiverRecord,
+    WaiverRepositoryProtocol,
+)
+from src.application.ports.compliance_repository import (
+    ComplianceRepositoryProtocol,
+)
 
-__all__: list[str] = ["HSMProtocol", "HSMMode", "SignatureResult"]
+__all__: list[str] = [
+    "AgentOrchestratorProtocol",
+    "AgentOutput",
+    "AgentRequest",
+    "AgentStatus",
+    "AgentStatusInfo",
+    "ContextBundle",
+    "HSMProtocol",
+    "HSMMode",
+    "SignatureResult",
+    "EventStorePort",
+    "EventReplicatorPort",
+    "ReplicationReceipt",
+    "ReplicationStatus",
+    "VerificationResult",
+    "KeyRegistryProtocol",
+    "WitnessPoolProtocol",
+    "HaltChecker",
+    "HaltTrigger",
+    "WriterLockProtocol",
+    "validate_sequence_continuity",
+    "CollectiveOutputPort",
+    "StoredCollectiveOutput",
+    "DissentMetricsPort",
+    "DissentRecord",
+    "StoredUnanimousVote",
+    "UnanimousVotePort",
+    "ContentVerificationPort",
+    "ContentVerificationResult",
+    "HeartbeatEmitterPort",
+    "HeartbeatMonitorPort",
+    "HEARTBEAT_INTERVAL_SECONDS",
+    "MISSED_HEARTBEAT_THRESHOLD",
+    "UNRESPONSIVE_TIMEOUT_SECONDS",
+    "TopicOriginTrackerPort",
+    "DIVERSITY_WINDOW_DAYS",
+    "DIVERSITY_THRESHOLD",
+    "TopicRateLimiterPort",
+    "RATE_LIMIT_PER_HOUR",
+    "RATE_LIMIT_WINDOW_SECONDS",
+    "ResultCertifierPort",
+    "CertificationResult",
+    "ProceduralRecordGeneratorPort",
+    "ProceduralRecordData",
+    "BundleCreationResult",
+    "BundleVerificationResult",
+    "ContextBundleCreatorPort",
+    "BundleValidationResult",
+    "ContextBundleValidatorPort",
+    "FreshnessCheckResult",
+    "ForkMonitor",
+    "HaltTrigger",
+    "DualChannelHaltTransport",
+    "HaltFlagState",
+    "CONFIRMATION_TIMEOUT_SECONDS",
+    "DETECTION_INTERVAL_SECONDS",
+    "RecoveryWaitingPeriodPort",
+    "SequenceGapDetectorPort",
+    "ForkSignalRateLimiterPort",
+    "UnwitnessedHaltRepository",
+    "WitnessedHaltWriter",
+    "CheckpointRepository",
+    "RollbackCoordinator",
+    "OverrideExecutorPort",
+    "OverrideResult",
+    "OverrideRegistryPort",
+    "ExpiredOverrideInfo",
+    "ConstitutionValidatorProtocol",
+    "OverrideTrendData",
+    "OverrideTrendRepositoryProtocol",
+    "KeeperKeyRegistryProtocol",
+    "KeyGenerationCeremonyProtocol",
+    "KeeperAvailabilityProtocol",
+    "OverrideAbuseValidatorProtocol",
+    "ValidationResult",
+    "AnomalyDetectorProtocol",
+    "AnomalyResult",
+    "FrequencyData",
+    "IndependenceAttestationProtocol",
+    "BreachDeclarationProtocol",
+    "BreachRepositoryProtocol",
+    "EscalationProtocol",
+    "EscalationRepositoryProtocol",
+    "CessationConsiderationProtocol",
+    "CessationRepositoryProtocol",
+    "ThresholdConfigurationProtocol",
+    "ThresholdRepositoryProtocol",
+    "EntropySourceProtocol",
+    "WitnessPairHistoryProtocol",
+    "WitnessAnomalyDetectorProtocol",
+    "WitnessAnomalyResult",
+    "PairExclusion",
+    "WitnessPoolMonitorProtocol",
+    "WitnessPoolStatus",
+    "MINIMUM_WITNESSES_STANDARD",
+    "MINIMUM_WITNESSES_HIGH_STAKES",
+    "AmendmentProposal",
+    "AmendmentRepositoryProtocol",
+    "AmendmentVisibilityValidatorProtocol",
+    "HistoryProtectionResult",
+    "ImpactValidationResult",
+    "VisibilityValidationResult",
+    # Collusion investigation (Story 6.8, FR124)
+    "CollusionInvestigatorProtocol",
+    "Investigation",
+    "InvestigationStatus",
+    # Hash verification (Story 6.8, FR125)
+    "HashScanResult",
+    "HashScanStatus",
+    "HashVerifierProtocol",
+    # Topic manipulation detection (Story 6.9, FR118)
+    "FlaggedTopic",
+    "ManipulationAnalysisResult",
+    "TimingPatternResult",
+    "TopicManipulationDetectorProtocol",
+    # Seed validation (Story 6.9, FR124)
+    "PredictabilityCheck",
+    "SeedSourceValidation",
+    "SeedUsageRecord",
+    "SeedValidatorProtocol",
+    # Daily rate limiting (Story 6.9, FR118)
+    "DAILY_TOPIC_LIMIT",
+    "TopicDailyLimiterProtocol",
+    # Topic priority (Story 6.9, FR119)
+    "TopicPriorityLevel",
+    "TopicPriorityProtocol",
+    # Configuration floor validation (Story 6.10, NFR39)
+    "ConfigurationChangeResult",
+    "ConfigurationFloorValidatorProtocol",
+    "ConfigurationHealthStatus",
+    "ConfigurationValidationResult",
+    "ThresholdStatus",
+    "ThresholdViolation",
+    # Integrity failure tracking (Story 7.1, FR37, RT-4)
+    "IntegrityFailure",
+    "IntegrityFailureRepositoryProtocol",
+    # Anti-success alert tracking (Story 7.1, FR38)
+    "AntiSuccessAlertRepositoryProtocol",
+    "SustainedAlertInfo",
+    # Cessation agenda placement (Story 7.1, FR37-FR38, RT-4)
+    "CessationAgendaRepositoryProtocol",
+    # Petition repository (Story 7.2, FR39)
+    "PetitionRepositoryProtocol",
+    # Signature verifier (Story 7.2, FR39, AC4)
+    "SignatureVerifierProtocol",
+    # Terminal event detection (Story 7.3, FR40, NFR40)
+    "TerminalEventDetectorProtocol",
+    # Freeze mechanics (Story 7.4, FR41)
+    "FreezeCheckerProtocol",
+    "CessationFlagRepositoryProtocol",
+    # Integrity Case Artifact (Story 7.10, FR144)
+    "IntegrityCaseRepositoryProtocol",
+    # Separation Validator (Story 8.2, FR52)
+    "DataClassification",
+    "SeparationValidatorPort",
+    # External Health (Story 8.3, FR54)
+    "ExternalHealthPort",
+    "ExternalHealthStatus",
+    # Incident Report Repository (Story 8.4, FR54, FR145, FR147)
+    "IncidentReportRepositoryPort",
+    # Complexity Budget (Story 8.6, CT-14, RT-6, SC-3)
+    "ComplexityCalculatorPort",
+    "ComplexityBudgetRepositoryPort",
+    # Failure Mode Registry (Story 8.8, FR106-FR107)
+    "FailureModeRegistryPort",
+    "HealthSummary",
+    # Constitutional Health Port (Story 8.10, ADR-10)
+    "ConstitutionalHealthPort",
+    # Prohibited Language Scanner (Story 9.1, FR55)
+    "ProhibitedLanguageScannerProtocol",
+    "ScanResult",
+    # Publication Scanner (Story 9.2, FR56)
+    "PublicationScannerProtocol",
+    "PublicationScanResult",
+    "PublicationScanResultStatus",
+    # Material Repository (Story 9.3, FR57)
+    "Material",
+    "MaterialRepositoryProtocol",
+    "MATERIAL_TYPE_ANNOUNCEMENT",
+    "MATERIAL_TYPE_DOCUMENT",
+    "MATERIAL_TYPE_PUBLICATION",
+    # Audit Repository (Story 9.3, FR57)
+    "AuditRepositoryProtocol",
+    # User Content Repository (Story 9.4, FR58)
+    "UserContentRepositoryProtocol",
+    # Event Query (Story 9.5, FR108)
+    "EventQueryProtocol",
+    # Semantic Scanner (Story 9.7, FR110)
+    "DEFAULT_ANALYSIS_METHOD",
+    "SemanticScannerProtocol",
+    "SemanticScanResult",
+    # Waiver Repository (Story 9.8, SC-4, SR-10)
+    "WaiverRecord",
+    "WaiverRepositoryProtocol",
+    # Compliance Repository (Story 9.9, NFR31-34)
+    "ComplianceRepositoryProtocol",
+]

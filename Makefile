@@ -1,5 +1,5 @@
 # Makefile for Archon 72 development workflow
-.PHONY: dev stop db-reset test test-unit test-integration test-all lint clean help
+.PHONY: dev stop db-reset test test-unit test-integration test-chaos test-all lint clean help check-imports format pre-commit pre-commit-install chaos-cessation validate-cessation
 
 # Default target
 help:
@@ -10,8 +10,15 @@ help:
 	@echo "  make test             - Run all tests with pytest"
 	@echo "  make test-unit        - Run unit tests only"
 	@echo "  make test-integration - Run integration tests (requires Docker)"
+	@echo "  make test-chaos       - Run chaos tests only (PM-5)"
 	@echo "  make test-all         - Alias for make test"
+	@echo "  make chaos-cessation  - Run cessation chaos test (PM-5 mandatory)"
+	@echo "  make validate-cessation - Validate cessation code path (CI weekly)"
 	@echo "  make lint             - Run linting (ruff + mypy)"
+	@echo "  make check-imports    - Check hexagonal architecture import boundaries"
+	@echo "  make format           - Format code with black and ruff"
+	@echo "  make pre-commit       - Run all pre-commit hooks"
+	@echo "  make pre-commit-install - Install pre-commit git hooks"
 	@echo "  make clean            - Stop containers and clean up"
 
 # Start development environment
@@ -36,24 +43,56 @@ db-reset:
 
 # Run all tests (unit + integration)
 test:
-	poetry run pytest tests/ -v --tb=short
+	python3 -m pytest tests/ -v --tb=short
 
 # Run unit tests only
 test-unit:
-	poetry run pytest tests/unit/ -v --tb=short
+	python3 -m pytest tests/unit/ -v --tb=short
 
 # Run integration tests only (requires Docker)
 test-integration:
 	@docker info > /dev/null 2>&1 || (echo "Error: Docker is not running. Please start Docker first." && exit 1)
-	poetry run pytest tests/integration/ -v -m integration --tb=short
+	python3 -m pytest tests/integration/ -v -m integration --tb=short
 
 # Alias for test
 test-all: test
 
+# Run chaos tests only (PM-5 mandate)
+test-chaos:
+	python3 -m pytest tests/chaos/ -v -m chaos --tb=short
+
+# Run cessation chaos test specifically (PM-5 mandatory)
+chaos-cessation:
+	@echo "[PM-5] Running mandatory cessation chaos test..."
+	python3 -m pytest tests/chaos/cessation/ -v --tb=short
+
+# Validate cessation code path without execution (CI weekly)
+validate-cessation:
+	@echo "[PM-5] Validating cessation code path..."
+	python3 scripts/validate_cessation_path.py
+
 # Run linting
 lint:
-	poetry run ruff check src/ tests/
-	poetry run mypy src/ --strict
+	python3 -m ruff check src/ tests/
+	python3 -m mypy src/ --strict
+
+# Check hexagonal architecture import boundaries
+check-imports:
+	python3 scripts/check_imports.py
+
+# Format code with black and ruff
+format:
+	python3 -m black src/ tests/ scripts/
+	python3 -m ruff check --fix src/ tests/ scripts/
+
+# Run all pre-commit hooks
+pre-commit:
+	python3 -m pre_commit run --all-files
+
+# Install pre-commit git hooks
+pre-commit-install:
+	python3 -m pre_commit install
+	@echo "Pre-commit hooks installed. They will run automatically on git commit."
 
 # Clean up everything
 clean:

@@ -130,3 +130,47 @@ class HSMProtocol(ABC):
             HSMError: If no key has been generated yet.
         """
         ...
+
+    @abstractmethod
+    async def verify_with_key(
+        self,
+        content: bytes,
+        signature: bytes,
+        key_id: str,
+    ) -> bool:
+        """Verify a signature against content using a specific key.
+
+        Used when verifying signatures created by other parties (witnesses,
+        other agents) where we need to specify which key to use.
+
+        Args:
+            content: The original content (with mode prefix).
+            signature: The signature to verify.
+            key_id: The identifier of the key to use for verification.
+
+        Returns:
+            True if signature is valid, False otherwise.
+
+        Raises:
+            HSMError: For HSM-related failures during verification.
+            KeyNotFoundError: If the specified key_id is not found.
+        """
+        ...
+
+    @abstractmethod
+    async def get_public_key_bytes(self, key_id: str | None = None) -> bytes:
+        """Get the public key bytes for a key.
+
+        Used for exporting public key material for registration,
+        verification by external parties, or key ceremonies.
+
+        Args:
+            key_id: The key ID to get public key for. Defaults to current key.
+
+        Returns:
+            Raw public key bytes (32 bytes for Ed25519).
+
+        Raises:
+            HSMKeyNotFoundError: If the specified key_id is not found.
+        """
+        ...

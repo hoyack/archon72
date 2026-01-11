@@ -229,6 +229,20 @@ from src.domain.models.compliance import (
     FrameworkMapping,
     generate_assessment_id,
 )
+from src.domain.models.conclave import (
+    AgendaItem,
+    ConclavePhase,
+    ConclaveSession,
+    DebateEntry,
+    Motion,
+    MotionStatus,
+    MotionType,
+    RANK_ORDER,
+    TranscriptEntry,
+    Vote,
+    VoteChoice,
+    get_rank_priority,
+)
 
 __all__: list[str] = [
     "AgentPool",
@@ -412,4 +426,17 @@ __all__: list[str] = [
     "ComplianceStatus",
     "FrameworkMapping",
     "generate_assessment_id",
+    # Conclave models (Epic 11 - CrewAI Conclave)
+    "AgendaItem",
+    "ConclavePhase",
+    "ConclaveSession",
+    "DebateEntry",
+    "Motion",
+    "MotionStatus",
+    "MotionType",
+    "RANK_ORDER",
+    "TranscriptEntry",
+    "Vote",
+    "VoteChoice",
+    "get_rank_priority",
 ]

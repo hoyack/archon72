@@ -2,6 +2,19 @@
 
 Constitutional AI Governance System with 72 Agents
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Deployment from Scratch](#deployment-from-scratch)
+- [Docker Usage](#docker-usage)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Make Commands](#make-commands)
+- [Architecture](#architecture)
+- [Constitutional Truths](#constitutional-truths)
+- [Conclave System](#conclave-system)
+- [Development](#development)
+
 ## Overview
 
 Archon 72 is a witnessed, transparent, and accountable AI governance system built on constitutional principles. It features:
@@ -10,6 +23,158 @@ Archon 72 is a witnessed, transparent, and accountable AI governance system buil
 - **Cryptographic Witnessing** - All actions are signed and verifiable
 - **Halt-Over-Degrade Philosophy** - System integrity takes precedence over availability
 - **Append-Only Event Store** - Immutable audit trail with hash-chaining
+
+## Deployment from Scratch
+
+### Prerequisites
+
+- **Git** - Version control
+- **Docker** - Container runtime (v20.10+)
+- **Docker Compose** - Container orchestration (v2.0+)
+- **Python 3.12+** - For local development and Conclave
+- **Poetry** - Python dependency management
+
+### Clone the Repository
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/archon72.git
+cd archon72
+
+# Copy environment template
+cp .env.example .env
+```
+
+### Install Python Dependencies (Local Development)
+
+```bash
+# Install Poetry if not already installed
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Install project dependencies
+poetry install
+
+# Activate virtual environment
+poetry shell
+```
+
+## Docker Usage
+
+### Services Overview
+
+The system uses Docker Compose with three services:
+
+| Service | Image | Port | Description |
+|---------|-------|------|-------------|
+| `db` | postgres:16-alpine | 54322 | PostgreSQL database |
+| `redis` | redis:7-alpine | 6379 | Redis cache/message broker |
+| `api` | Custom (Dockerfile) | 8000 | FastAPI application |
+
+### Start All Services
+
+```bash
+# Build and start all services in detached mode
+docker compose up --build -d
+
+# Or use the Makefile shortcut
+make dev
+```
+
+### Check Service Status
+
+```bash
+# View running containers
+docker compose ps
+
+# View logs for all services
+docker compose logs -f
+
+# View logs for specific service
+docker compose logs -f api
+docker compose logs -f db
+docker compose logs -f redis
+```
+
+### Stop Services
+
+```bash
+# Stop all services (preserves data)
+docker compose down
+
+# Or use Makefile
+make stop
+
+# Stop and remove all data (full reset)
+docker compose down -v
+make clean
+```
+
+### Database Operations
+
+```bash
+# Reset database (drops all data, restarts fresh)
+make db-reset
+
+# Connect to PostgreSQL directly
+docker compose exec db psql -U postgres -d archon72
+
+# Run database migrations (if applicable)
+docker compose exec api python -m alembic upgrade head
+```
+
+### Rebuild After Code Changes
+
+```bash
+# Rebuild API container after code changes
+docker compose up --build -d api
+
+# Force rebuild without cache
+docker compose build --no-cache api
+docker compose up -d
+```
+
+### Production Deployment
+
+For production, modify `docker-compose.yml`:
+
+```yaml
+# docker-compose.prod.yml
+services:
+  api:
+    environment:
+      - DEV_MODE=false
+      - DATABASE_URL=postgresql://user:pass@production-db:5432/archon72
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --workers 4
+    # Remove volume mounts for production
+    volumes: []
+```
+
+Run with production config:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+### Docker Health Checks
+
+All services include health checks:
+
+```bash
+# Check health status
+docker compose ps
+
+# Manual health check
+curl http://localhost:8000/v1/health
+```
+
+Expected response:
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "redis": "connected"
+}
+```
 
 ## Quick Start
 
@@ -64,6 +229,139 @@ src/
 ├── infrastructure/   # Adapters (Supabase, Redis, HSM)
 └── api/              # FastAPI routes, DTOs
 ```
+
+## Project Structure
+
+```
+archon72/
+├── config/                      # Configuration files
+│   └── archon-llm-bindings.yaml # Per-archon LLM provider/model bindings
+│
+├── docs/                        # Documentation and data
+│   ├── archons-base.csv         # 72 Archon identity profiles (name, rank, backstory)
+│   ├── constitutional-implementation-rules.md
+│   ├── operations/              # Operational runbooks
+│   ├── security/                # Security documentation
+│   └── spikes/                  # Technical spike documentation
+│
+├── migrations/                  # PostgreSQL database migrations
+│   ├── 001_create_events_table.sql
+│   ├── 002_hash_chain_verification.sql
+│   └── ...                      # Hash chains, keys, witnesses, halt state
+│
+├── scripts/                     # Utility and runner scripts
+│   ├── run_conclave.py          # Run formal Conclave with motions/voting
+│   ├── run_full_deliberation.py # Run 72-agent sequential deliberation
+│   ├── test_ollama_connection.py # Smoke test for Ollama integration
+│   ├── check_imports.py         # Validate hexagonal architecture boundaries
+│   └── validate_cessation_path.py # Validate cessation code paths
+│
+├── src/                         # Main application source code
+│   ├── api/                     # FastAPI HTTP layer
+│   │   ├── main.py              # FastAPI application entry point
+│   │   ├── routes/              # API route handlers (/v1/health, etc.)
+│   │   ├── models/              # Pydantic request/response models
+│   │   ├── middleware/          # HTTP middleware (auth, logging)
+│   │   └── dependencies/        # FastAPI dependency injection
+│   │
+│   ├── application/             # Application layer (use cases)
+│   │   ├── services/            # Business logic orchestration
+│   │   │   ├── conclave_service.py    # Conclave meeting orchestration
+│   │   │   ├── health_service.py      # Health check logic
+│   │   │   └── ...                    # 50+ domain services
+│   │   ├── ports/               # Abstract interfaces (protocols)
+│   │   │   ├── agent_orchestrator.py  # Agent invocation protocol
+│   │   │   ├── hsm.py                 # HSM signing protocol
+│   │   │   └── ...                    # 60+ port definitions
+│   │   └── dtos/                # Data transfer objects
+│   │
+│   ├── domain/                  # Pure domain logic (no infrastructure)
+│   │   ├── models/              # Domain models and value objects
+│   │   │   ├── conclave.py      # Conclave, Motion, Vote models
+│   │   │   ├── archon_profile.py # Archon identity model
+│   │   │   └── ...              # 40+ domain models
+│   │   ├── events/              # Domain events
+│   │   ├── errors/              # Domain-specific errors
+│   │   ├── primitives/          # Constitutional primitives
+│   │   └── services/            # Pure domain services
+│   │
+│   └── infrastructure/          # External system adapters
+│       ├── adapters/
+│       │   ├── config/          # Configuration adapters
+│       │   │   └── archon_profile_adapter.py # CSV+YAML profile loader
+│       │   ├── external/        # External service adapters
+│       │   │   └── crewai_adapter.py # CrewAI LLM integration
+│       │   ├── persistence/     # Database adapters
+│       │   ├── security/        # HSM adapters (dev/cloud)
+│       │   └── messaging/       # Message queue adapters
+│       ├── stubs/               # Test stubs for all ports
+│       └── monitoring/          # Observability adapters
+│
+├── tests/                       # Test suites
+│   ├── unit/                    # Unit tests (no external deps)
+│   │   ├── domain/              # Domain model tests
+│   │   ├── application/         # Service tests with stubs
+│   │   └── infrastructure/      # Adapter tests
+│   ├── integration/             # Integration tests (requires Docker)
+│   ├── chaos/                   # Chaos engineering tests
+│   └── conftest.py              # Shared pytest fixtures
+│
+├── tools/                       # External verification tools
+│   └── archon72-verify/         # Open-source hash chain verifier
+│
+├── _bmad-output/                # BMAD workflow outputs
+│   ├── conclave/                # Conclave transcripts and checkpoints
+│   ├── deliberations/           # Deliberation results (JSON)
+│   ├── implementation-artifacts/ # Stories, epics, sprint status
+│   └── project-context.md       # AI agent development guidelines
+│
+├── Dockerfile                   # Container image definition
+├── docker-compose.yml           # Local development stack
+├── Makefile                     # Development workflow commands
+├── pyproject.toml               # Python dependencies (Poetry)
+├── CLAUDE.md                    # Claude Code session context
+└── README.md                    # This file
+```
+
+### Key Files Explained
+
+| File | Purpose |
+|------|---------|
+| `config/archon-llm-bindings.yaml` | Maps each Archon to LLM provider/model with rank-based defaults |
+| `docs/archons-base.csv` | Master list of 72 Archon identities (UUID, name, rank, backstory, system prompt) |
+| `src/api/main.py` | FastAPI application with route registration and startup hooks |
+| `src/application/services/conclave_service.py` | Orchestrates formal Conclave meetings with parliamentary procedure |
+| `src/domain/models/conclave.py` | Domain models for Motion, Vote, ConclaveSession, DebateEntry |
+| `src/infrastructure/adapters/external/crewai_adapter.py` | CrewAI integration for LLM agent invocation |
+| `scripts/run_conclave.py` | CLI to run formal Conclave with motions and voting |
+| `migrations/*.sql` | Database schema for event store, hash chains, witnesses |
+
+### Hexagonal Architecture Layers
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         API Layer                                │
+│  (FastAPI routes, Pydantic models, HTTP concerns)               │
+├─────────────────────────────────────────────────────────────────┤
+│                     Application Layer                            │
+│  (Services, Use Cases, Ports/Interfaces)                        │
+├─────────────────────────────────────────────────────────────────┤
+│                       Domain Layer                               │
+│  (Models, Events, Errors, Pure Business Logic)                  │
+│  ⚠️  NO infrastructure imports allowed                          │
+├─────────────────────────────────────────────────────────────────┤
+│                   Infrastructure Layer                           │
+│  (Adapters: Database, Redis, HSM, CrewAI, External APIs)        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Import Rules:**
+- Domain → (nothing external)
+- Application → Domain only
+- Infrastructure → Application, Domain
+- API → Application, Domain, Infrastructure
+
+Run `make check-imports` to validate architecture boundaries.
 
 ## Constitutional Truths
 

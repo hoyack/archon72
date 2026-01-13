@@ -1,0 +1,293 @@
+{
+  "voices": [
+    {
+      "voice_id": "nJyvTPpFFKF9DDv2Divl",
+      "name": "Agares"
+    },
+    {
+      "voice_id": "jZFQQazi8ZNjAcHLufkA",
+      "name": "Aim"
+    },
+    {
+      "voice_id": "3m36uAzAGCMmHXGrPeGF",
+      "name": "Alloces"
+    },
+    {
+      "voice_id": "VtEE9zsS82iEwWyG9vOe",
+      "name": "Amdusias"
+    },
+    {
+      "voice_id": "d3ErliQVUgLvWzqvtVpm",
+      "name": "Amon"
+    },
+    {
+      "voice_id": "BmhdA5681ordmE6e91bV",
+      "name": "Amy"
+    },
+    {
+      "voice_id": "0oyGw7g5GDmzD54KqveN",
+      "name": "Andras"
+    },
+    {
+      "voice_id": "FZb24HkiCsWZKaKeSAi2",
+      "name": "Andrealphus"
+    },
+    {
+      "voice_id": "Ur9QCeicvWLx6Ce8976m",
+      "name": "Andromalius"
+    },
+    {
+      "voice_id": "dVt7o123a2mAmac39HPP",
+      "name": "Asmoday"
+    },
+    {
+      "voice_id": "A8BYGhnjlXznR9CFkfty",
+      "name": "Astaroth"
+    },
+    {
+      "voice_id": "Lk29MNavZhOG5FkVspXl",
+      "name": "Bael"
+    },
+    {
+      "voice_id": "R5K8jeM4ywgvXuZtDWWh",
+      "name": "Balam"
+    },
+    {
+      "voice_id": "8E28IgG4DJVH1VCy2ZhP",
+      "name": "Barbatos"
+    },
+    {
+      "voice_id": "nfYCNm9sIpt7tHLTsXMx",
+      "name": "Bathim"
+    },
+    {
+      "voice_id": "J6ztGyM6e7omeh5pPJ5t",
+      "name": "Beleth"
+    },
+    {
+      "voice_id": "Y23cr3JpAZPil235W5iO",
+      "name": "Belial"
+    },
+    {
+      "voice_id": "oICTAuYSNkixFcYyTmHW",
+      "name": "Berith"
+    },
+    {
+      "voice_id": "QQHvU7WeOi5BJSUDGfFM",
+      "name": "Bifrons"
+    },
+    {
+      "voice_id": "tqEO7jZweeJpaZQLgd9S",
+      "name": "Botis"
+    },
+    {
+      "voice_id": "Og6D1NXihNzKW8efXMBs",
+      "name": "Buer"
+    },
+    {
+      "voice_id": "ghjxHgKT6SV8o6B60j6G",
+      "name": "Bune"
+    },
+    {
+      "voice_id": "FRCWGHGdNg52Eppjpr8D",
+      "name": "Caim"
+    },
+    {
+      "voice_id": "f0n237P4c0nbNvzNSQVa",
+      "name": "Cimeies"
+    },
+    {
+      "voice_id": "6TZCFVID4Nh9RXKspYra",
+      "name": "Crocell"
+    },
+    {
+      "voice_id": "pq7Y190IlTZ4RPXFkTli",
+      "name": "Dantalion"
+    },
+    {
+      "voice_id": "4dLTBaEBk8rzPzvmB7HR",
+      "name": "Decarabia"
+    },
+    {
+      "voice_id": "jJKrAKpfdrZyzDo4GWeS",
+      "name": "Eligos"
+    },
+    {
+      "voice_id": "g4u0R8D1R5rqJpdHV16i",
+      "name": "Focalor"
+    },
+    {
+      "voice_id": "1QO4U8BnQecWSc6gStPo",
+      "name": "Foras"
+    },
+    {
+      "voice_id": "L74QJm9s0u9F1xezAhNs",
+      "name": "Forneus"
+    },
+    {
+      "voice_id": "Lo6ksUQwwkudVGLZYuwD",
+      "name": "Furcas"
+    },
+    {
+      "voice_id": "CKFRmjezGaYsXNcS2h7K",
+      "name": "Furfur"
+    },
+    {
+      "voice_id": "yzlDvaCU8OHxnUaTk83m",
+      "name": "Gaap"
+    },
+    {
+      "voice_id": "ec2mke7sQ5C7wQSSSJBO",
+      "name": "Glasya-Labolas"
+    },
+    {
+      "voice_id": "iSkbSHRmleQ1JdE1sC96",
+      "name": "Gremory"
+    },
+    {
+      "voice_id": "817XZRROAFycIvgocJII",
+      "name": "Gusion"
+    },
+    {
+      "voice_id": "WPKcH1cSa9lW9L6vrZ5K",
+      "name": "Haagenti"
+    },
+    {
+      "voice_id": "sTN8dM12AuwOfFL75DpM",
+      "name": "Halphas"
+    },
+    {
+      "voice_id": "lKBmjZnYxHTILhNTRUbX",
+      "name": "Haures"
+    },
+    {
+      "voice_id": "ovI5zIW7jr2FCAFG8xlC",
+      "name": "Ipos"
+    },
+    {
+      "voice_id": "EhrusQ5AwbNaLxjskL5D",
+      "name": "Leraje"
+    },
+    {
+      "voice_id": "jkXqFvv0ZjPIvECuib52",
+      "name": "Malphas"
+    },
+    {
+      "voice_id": "NfNeogw36K3fMCqn84MD",
+      "name": "Marax"
+    },
+    {
+      "voice_id": "N5TW8BSizV3JDeP6sh30",
+      "name": "Marbas"
+    },
+    {
+      "voice_id": "dPDJFxbaAD8aX67mBY4X",
+      "name": "Marchosias"
+    },
+    {
+      "voice_id": "xJoyUEcL2vNhgu0eo3vf",
+      "name": "Murmur"
+    },
+    {
+      "voice_id": "QqfT6Ehdr7tuVZ8gfamn",
+      "name": "Naberius"
+    },
+    {
+      "voice_id": "QGHIHYKoHkOU6QutrZKa",
+      "name": "Orias"
+    },
+    {
+      "voice_id": "XPjBXBwdAwTVJrdPJiXJ",
+      "name": "Orobas"
+    },
+    {
+      "voice_id": "3JC60CRRiqpSlfFHQrm8",
+      "name": "Ose"
+    },
+    {
+      "voice_id": "WQtnYFc7Yukn61S8uhNK",
+      "name": "Paimon"
+    },
+    {
+      "voice_id": "Ss2BpxgC0uYg9J2swBT1",
+      "name": "Phenex"
+    },
+    {
+      "voice_id": "Cj3OegwgdZmvkrNVdS6i",
+      "name": "Purson"
+    },
+    {
+      "voice_id": "KTlOM5oBw4rKBYugI6cM",
+      "name": "Raum"
+    },
+    {
+      "voice_id": "e3EMghl0Nlc7QAsFAvj8",
+      "name": "Ronove"
+    },
+    {
+      "voice_id": "Z82dDdDD9AeYxoDADrqk",
+      "name": "Sabnock"
+    },
+    {
+      "voice_id": "aKP9XpZvu7JY4VGXW6wh",
+      "name": "Sallos"
+    },
+    {
+      "voice_id": "e72KDVAQqZE0jI32I58L",
+      "name": "Samigina"
+    },
+    {
+      "voice_id": "ga9peRF3ZegsSSbKtA2f",
+      "name": "Seere"
+    },
+    {
+      "voice_id": "lmZQW1CLp0wOmwWRkD6M",
+      "name": "Shax"
+    },
+    {
+      "voice_id": "GsTbs5gWVpZwJGeVpWGL",
+      "name": "Sitri"
+    },
+    {
+      "voice_id": "SrYbGDTCRwVdkZlx5T5P",
+      "name": "Stolas"
+    },
+    {
+      "voice_id": "phienOJMhzh7UdgWD8cA",
+      "name": "Valac"
+    },
+    {
+      "voice_id": "799VsfEAza9ANkVQA4gV",
+      "name": "Valefor"
+    },
+    {
+      "voice_id": "f6iMp457mTpR396EPn0C",
+      "name": "Vapula"
+    },
+    {
+      "voice_id": "tMdrGqSNH9wcbqjwT37r",
+      "name": "Vassago"
+    },
+    {
+      "voice_id": "3nr7aJfPDtJDBpJV57yJ",
+      "name": "Vepar"
+    },
+    {
+      "voice_id": "vyJKOz9xx1xClFTqqvv3",
+      "name": "Vine"
+    },
+    {
+      "voice_id": "t39EDluBMNdEwAEnzJ5l",
+      "name": "Vual"
+    },
+    {
+      "voice_id": "XIUVSt5umWufiun95ncW",
+      "name": "Zagan"
+    },
+    {
+      "voice_id": "Q4QBaeC493glPG2w9Sve",
+      "name": "Zepar"
+    }
+  ],
+  "total_count": 72
+}

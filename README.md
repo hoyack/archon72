@@ -251,6 +251,9 @@ archon72/
 │
 ├── scripts/                     # Utility and runner scripts
 │   ├── run_conclave.py          # Run formal Conclave with motions/voting
+│   ├── run_secretary.py         # Extract recommendations from transcript
+│   ├── run_consolidator.py      # Consolidate motions into mega-motions
+│   ├── run_review_pipeline.py   # Run Motion Review Pipeline
 │   ├── run_full_deliberation.py # Run 72-agent sequential deliberation
 │   ├── test_ollama_connection.py # Smoke test for Ollama integration
 │   ├── check_imports.py         # Validate hexagonal architecture boundaries
@@ -266,11 +269,16 @@ archon72/
 │   │
 │   ├── application/             # Application layer (use cases)
 │   │   ├── services/            # Business logic orchestration
-│   │   │   ├── conclave_service.py    # Conclave meeting orchestration
-│   │   │   ├── health_service.py      # Health check logic
-│   │   │   └── ...                    # 50+ domain services
+│   │   │   ├── conclave_service.py         # Conclave meeting orchestration
+│   │   │   ├── secretary_service.py        # Transcript extraction
+│   │   │   ├── motion_consolidator_service.py # Mega-motion consolidation
+│   │   │   ├── motion_review_service.py    # Review pipeline orchestration
+│   │   │   ├── health_service.py           # Health check logic
+│   │   │   └── ...                         # 50+ domain services
 │   │   ├── ports/               # Abstract interfaces (protocols)
 │   │   │   ├── agent_orchestrator.py  # Agent invocation protocol
+│   │   │   ├── reviewer_agent.py      # Motion reviewer protocol
+│   │   │   ├── secretary_agent.py     # Secretary agent protocol
 │   │   │   ├── hsm.py                 # HSM signing protocol
 │   │   │   └── ...                    # 60+ port definitions
 │   │   └── dtos/                # Data transfer objects
@@ -279,6 +287,8 @@ archon72/
 │   │   ├── models/              # Domain models and value objects
 │   │   │   ├── conclave.py      # Conclave, Motion, Vote models
 │   │   │   ├── archon_profile.py # Archon identity model
+│   │   │   ├── review_pipeline.py # Review pipeline value objects
+│   │   │   ├── secretary.py     # Secretary extraction models
 │   │   │   └── ...              # 40+ domain models
 │   │   ├── events/              # Domain events
 │   │   ├── errors/              # Domain-specific errors
@@ -290,7 +300,11 @@ archon72/
 │       │   ├── config/          # Configuration adapters
 │       │   │   └── archon_profile_adapter.py # CSV+YAML profile loader
 │       │   ├── external/        # External service adapters
-│       │   │   └── crewai_adapter.py # CrewAI LLM integration
+│       │   │   ├── crewai_adapter.py         # CrewAI LLM integration
+│       │   │   ├── reviewer_crewai_adapter.py # Motion reviewer agent
+│       │   │   └── secretary_crewai_adapter.py # Secretary agent
+│       │   ├── tools/           # CrewAI tool implementations
+│       │   │   └── secretary_tools.py # Secretary extraction tools
 │       │   ├── persistence/     # Database adapters
 │       │   ├── security/        # HSM adapters (dev/cloud)
 │       │   └── messaging/       # Message queue adapters
@@ -311,6 +325,9 @@ archon72/
 │
 ├── _bmad-output/                # BMAD workflow outputs
 │   ├── conclave/                # Conclave transcripts and checkpoints
+│   ├── secretary/               # Secretary extraction outputs
+│   ├── consolidator/            # Mega-motion consolidation outputs
+│   ├── review-pipeline/         # Motion review pipeline outputs
 │   ├── deliberations/           # Deliberation results (JSON)
 │   ├── implementation-artifacts/ # Stories, epics, sprint status
 │   └── project-context.md       # AI agent development guidelines
@@ -331,9 +348,15 @@ archon72/
 | `docs/archons-base.csv` | Master list of 72 Archon identities (UUID, name, rank, backstory, system prompt) |
 | `src/api/main.py` | FastAPI application with route registration and startup hooks |
 | `src/application/services/conclave_service.py` | Orchestrates formal Conclave meetings with parliamentary procedure |
+| `src/application/services/secretary_service.py` | Extracts recommendations from Conclave transcripts |
+| `src/application/services/motion_consolidator_service.py` | Consolidates 60+ motions into ~12 mega-motions |
+| `src/application/services/motion_review_service.py` | Orchestrates 6-phase motion review pipeline |
 | `src/domain/models/conclave.py` | Domain models for Motion, Vote, ConclaveSession, DebateEntry |
+| `src/domain/models/review_pipeline.py` | Domain models for review pipeline (RiskTier, ReviewResponse, etc.) |
 | `src/infrastructure/adapters/external/crewai_adapter.py` | CrewAI integration for LLM agent invocation |
+| `src/infrastructure/adapters/external/reviewer_crewai_adapter.py` | Per-Archon LLM-powered motion reviewer |
 | `scripts/run_conclave.py` | CLI to run formal Conclave with motions and voting |
+| `scripts/run_review_pipeline.py` | CLI to run motion review pipeline with real or simulated agents |
 | `migrations/*.sql` | Database schema for event store, hash chains, witnesses |
 
 ### Hexagonal Architecture Layers
@@ -613,17 +636,23 @@ Conclave → Secretary → Consolidator → Tiered Deliberation
 ### Running the Consolidator
 
 ```bash
-# Auto-detect latest motions checkpoint, consolidate to ~12 mega-motions
-poetry run python scripts/run_consolidator.py
+# Full analysis (consolidation + novelty + summary + acronyms)
+python scripts/run_consolidator.py
+
+# Basic consolidation only (fastest)
+python scripts/run_consolidator.py --basic
 
 # Custom target count
-poetry run python scripts/run_consolidator.py --target 10
+python scripts/run_consolidator.py --target 10
+
+# Skip specific analyses
+python scripts/run_consolidator.py --no-novelty --no-summary
 
 # With verbose LLM logging
-poetry run python scripts/run_consolidator.py --verbose
+python scripts/run_consolidator.py --verbose
 
 # Specify checkpoint explicitly
-poetry run python scripts/run_consolidator.py \
+python scripts/run_consolidator.py \
   _bmad-output/secretary/checkpoints/*_05_motions.json
 ```
 
@@ -634,16 +663,45 @@ poetry run python scripts/run_consolidator.py \
 | `checkpoint` | Path to `*_05_motions.json` | Auto-detected |
 | `--target N` | Target number of mega-motions | 12 |
 | `--verbose` | Enable verbose LLM logging | Off |
+| `--basic` | Skip novelty, summary, and acronyms | Off |
+| `--no-novelty` | Skip novelty detection | Off |
+| `--no-summary` | Skip conclave summary | Off |
+| `--no-acronyms` | Skip acronym registry | Off |
+
+### Analysis Vectors
+
+The Consolidator performs four analysis passes:
+
+| Analysis | Description | Output |
+|----------|-------------|--------|
+| **Consolidation** | Groups 69 motions into ~12 mega-motions by theme | `mega-motions.md` |
+| **Novelty Detection** | Scans 909 recommendations for uniquely creative proposals | `novel-proposals.md` |
+| **Conclave Summary** | Generates executive overview of deliberation | `conclave-summary.md` |
+| **Acronym Registry** | Catalogs emerging terminology and definitions | `acronym-registry.md` |
+
+### Novelty Detection
+
+Identifies proposals that are:
+- **Unconventional** - Challenge mainstream thinking
+- **Cross-Domain** - Synthesize ideas from different fields
+- **Minority-Insight** - Unique perspectives not echoed by others
+- **Creative** - Innovative mechanisms or novel frameworks
+
+Each proposal receives a novelty score (0-1) and is flagged for human review.
 
 ### Consolidator Output Files
 
-Saved to `_bmad-output/consolidator/`:
+Saved to `_bmad-output/consolidator/{session_id}/`:
 
 | File | Description |
 |------|-------------|
+| `index.md` | Master index linking all outputs |
 | `mega-motions.json` | Machine-readable consolidated motions |
 | `mega-motions.md` | Human-readable mega-motion summaries |
 | `traceability-matrix.md` | Maps mega-motions to source motions |
+| `novel-proposals.json/md` | Uniquely interesting proposals for review |
+| `conclave-summary.json/md` | Executive summary of deliberation |
+| `acronym-registry.json/md` | Emerging terminology catalogue |
 
 ### Traceability
 
@@ -676,12 +734,119 @@ Each mega-motion preserves:
 │         │            MEDIUM → Committee (12 Archons)            │
 │         │            LOW → Backlog (future sessions)            │
 │         ▼                                                       │
-│  5. [Next Conclave] → Deliberate mega-motions efficiently      │
+│  5. [Review Pipeline] → Per-Archon review with LLM agents      │
+│         │              Triage by implicit support               │
+│         │              Panel deliberation for contested         │
+│         ▼                                                       │
+│  6. [Next Conclave] → Ratify reviewed mega-motions             │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+## Motion Review Pipeline
+
+The Motion Review Pipeline avoids the combinatorial explosion problem by leveraging implicit support from source contributions, risk-tiered review depth, and targeted assignments.
+
+### Why Review Pipeline?
+
+Without a review pipeline, 28 mega-motions × 72 Archons × 3 debate rounds = **6,048 speech acts** per Conclave. The pipeline reduces this to targeted reviews only for Archons who haven't already contributed.
+
+### Six-Phase Process
+
+```
+Phase 1: TRIAGE
+  └─→ Calculate implicit support (contributing Archons)
+  └─→ Assign risk tiers: LOW (≥66%), MEDIUM (33-66%), HIGH (<33%)
+  └─→ Novel proposals always HIGH risk
+
+Phase 2: PACKET GENERATION
+  └─→ Create personalized review packets per Archon
+  └─→ Only assign motions the Archon hasn't contributed to
+  └─→ Flag conflicts with prior positions
+
+Phase 3: REVIEW COLLECTION (Real or Simulated)
+  └─→ Each Archon reviews assigned motions via LLM
+  └─→ Returns: endorse | oppose | amend | abstain
+  └─→ Amendments include proposed text and rationale
+
+Phase 4: AGGREGATION
+  └─→ Tally implicit + explicit endorsements
+  └─→ Identify consensus (≥75% endorsement)
+  └─→ Identify contested (≥25% opposition)
+
+Phase 5: PANEL DELIBERATION
+  └─→ Convene panels for contested motions
+  └─→ 3 supporters + 3 critics + 3 neutrals
+  └─→ Synthesize amendments if multiple proposals
+
+Phase 6: RATIFICATION
+  └─→ Simple majority (37/72) for policy motions
+  └─→ Supermajority (48/72) for constitutional changes
+```
+
+### Running the Review Pipeline
+
+```bash
+# Full pipeline with simulation (default)
+python scripts/run_review_pipeline.py
+
+# Triage only (no review simulation)
+python scripts/run_review_pipeline.py --triage-only
+
+# Real LLM-powered Archon reviews (requires Ollama)
+python scripts/run_review_pipeline.py --real-agent
+
+# Specific consolidator session
+python scripts/run_review_pipeline.py _bmad-output/consolidator/<session-id>
+
+# With verbose logging
+python scripts/run_review_pipeline.py --verbose
+```
+
+### Per-Archon LLM Configuration
+
+When using `--real-agent`, each Archon uses their specific LLM binding from `config/archon-llm-bindings.yaml`:
+
+| Rank | Default Model | Purpose |
+|------|---------------|---------|
+| Executive Director (King) | `qwen3:latest` | Highest authority, complex analysis |
+| Senior Director (Duke) | `qwen3:latest` | Senior leadership decisions |
+| Director (Marquis) | `llama3.2:latest` | Mid-tier deliberation |
+| Managing Director (President) | `llama3.2:latest` | Operational decisions |
+| Strategic Director (Prince/Earl/Knight) | `gemma3:4b` | Quick tactical reviews |
+
+**LLM Priority:**
+1. Per-archon binding in YAML
+2. Rank-based default from `_rank_defaults`
+3. Global `_default` (gemma3:4b)
+
+All local models use Ollama via `OLLAMA_HOST` environment variable.
+
+### Review Pipeline Outputs
+
+Saved to `_bmad-output/review-pipeline/{session_id}/`:
+
+| File | Description |
+|------|-------------|
+| `triage_results.json` | Risk tier assignments and implicit support |
+| `review_packets/{archon}.json` | Per-Archon review assignments |
+| `aggregations.json` | Endorsement/opposition tallies |
+| `panel_deliberations/{id}.json` | Panel discussion results |
+| `ratification_results.json` | Final vote outcomes |
+| `pipeline_result.json` | Complete pipeline summary |
+| `audit_trail.json` | Full audit log of all operations |
+
+### Risk Tier Thresholds
+
+| Tier | Implicit Support | Review Process |
+|------|------------------|----------------|
+| LOW | ≥66% (48+ Archons) | Fast-track to ratification |
+| MEDIUM | 33-66% (24-47 Archons) | Targeted gap Archon review |
+| HIGH | <33% or Novel | Full panel deliberation |
+
 ### Expected Duration
+
+
 
 | Mode | Debate Rounds | Approximate Time |
 |------|---------------|------------------|

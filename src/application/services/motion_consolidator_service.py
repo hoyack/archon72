@@ -8,6 +8,11 @@ This is the HYBRID approach:
 - Consolidated mega-motions for efficient deliberation
 - Full audit trail maintained
 
+Additional Analysis:
+- Novelty detection: Identify uniquely creative/unconventional proposals
+- Conclave summary: Executive overview of deliberation themes
+- Acronym registry: Catalog emerging terminology
+
 Constitutional Constraints:
 - CT-11: No silent failures - all consolidation decisions logged
 - CT-12: Witnessing accountability - every mega-motion traces to sources
@@ -17,6 +22,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +34,80 @@ from structlog import get_logger
 from src.domain.models.secretary_agent import load_secretary_config_from_yaml
 
 logger = get_logger(__name__)
+
+
+def _sanitize_json_string(text: str) -> str:
+    """Sanitize JSON string by escaping control characters inside strings."""
+    # Remove markdown code blocks
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.split("\n")
+        if lines[-1].strip().startswith("```"):
+            cleaned = "\n".join(lines[1:-1])
+        else:
+            cleaned = "\n".join(lines[1:])
+
+    # Replace control chars that break JSON
+    # This is aggressive but necessary for LLM outputs
+    result = []
+    in_string = False
+    escape_next = False
+
+    for char in cleaned:
+        if escape_next:
+            result.append(char)
+            escape_next = False
+            continue
+        if char == "\\":
+            result.append(char)
+            escape_next = True
+            continue
+        if char == '"':
+            in_string = not in_string
+            result.append(char)
+            continue
+        if in_string:
+            if char == "\n":
+                result.append("\\n")
+            elif char == "\r":
+                result.append("\\r")
+            elif char == "\t":
+                result.append("\\t")
+            elif ord(char) < 32:
+                result.append(f"\\u{ord(char):04x}")
+            else:
+                result.append(char)
+        else:
+            result.append(char)
+
+    return "".join(result)
+
+
+def _aggressive_json_clean(text: str) -> str:
+    """Aggressively clean JSON for parsing."""
+    import re
+
+    cleaned = text.strip()
+
+    # Remove markdown
+    if cleaned.startswith("```"):
+        lines = cleaned.split("\n")
+        if lines[-1].strip().startswith("```"):
+            cleaned = "\n".join(lines[1:-1])
+        else:
+            cleaned = "\n".join(lines[1:])
+
+    # Fix trailing commas before ] or }
+    cleaned = re.sub(r',\s*([\]}])', r'\1', cleaned)
+
+    # Fix missing quotes around keys
+    cleaned = re.sub(r'{\s*(\w+):', r'{"\1":', cleaned)
+    cleaned = re.sub(r',\s*(\w+):', r',"\1":', cleaned)
+
+    # Replace unescaped control characters
+    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', ' ', cleaned)
+
+    return cleaned
 
 # Target number of mega-motions
 TARGET_MEGA_MOTION_COUNT = 12
@@ -73,6 +153,61 @@ class ConsolidationResult:
     consolidation_ratio: float
     traceability_complete: bool
     orphaned_motions: list[str]  # Should be empty if successful
+
+
+@dataclass
+class NovelProposal:
+    """A uniquely interesting or unconventional proposal."""
+
+    proposal_id: str
+    recommendation_id: str
+    archon_name: str
+    text: str
+    novelty_reason: str
+    novelty_score: float  # 0-1, higher = more novel
+    category: str  # "unconventional", "cross-domain", "minority-insight", "creative"
+    keywords: list[str]
+
+
+@dataclass
+class AcronymEntry:
+    """A catalogued acronym from the deliberation."""
+
+    acronym: str
+    full_form: str
+    definition: str
+    introduced_by: list[str]  # Archon names
+    first_seen_in: str  # recommendation_id or motion_id
+    usage_count: int
+
+
+@dataclass
+class ConclaveSummary:
+    """Executive summary of the conclave deliberation."""
+
+    session_id: str
+    session_name: str
+    total_speeches: int
+    total_recommendations: int
+    total_motions: int
+    key_themes: list[str]
+    areas_of_consensus: list[str]
+    points_of_contention: list[str]
+    notable_dynamics: str
+    executive_summary: str
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+@dataclass
+class FullConsolidationResult:
+    """Complete result including all analysis vectors."""
+
+    consolidation: ConsolidationResult
+    novel_proposals: list[NovelProposal]
+    conclave_summary: ConclaveSummary | None
+    acronym_registry: list[AcronymEntry]
+    session_id: str
+    session_name: str
 
 
 class MotionConsolidatorService:
@@ -163,6 +298,47 @@ class MotionConsolidatorService:
         logger.info("motions_loaded_from_checkpoint", count=len(motions))
         return motions
 
+    def load_recommendations_from_checkpoint(self, checkpoint_path: Path) -> list[dict]:
+        """Load recommendations from Secretary extraction checkpoint.
+
+        Args:
+            checkpoint_path: Path to *_01_extraction.json checkpoint
+
+        Returns:
+            List of recommendation dicts
+        """
+        with open(checkpoint_path) as f:
+            data = json.load(f)
+
+        logger.info("recommendations_loaded_from_checkpoint", count=len(data))
+        return data
+
+    def extract_session_info_from_checkpoint(self, checkpoint_path: Path) -> tuple[str, str]:
+        """Extract session ID and name from checkpoint path.
+
+        Args:
+            checkpoint_path: Path to any checkpoint file
+
+        Returns:
+            Tuple of (session_id, session_name)
+        """
+        # Checkpoint filename format: {session_id}_{timestamp}_{step}_*.json
+        filename = checkpoint_path.stem
+        parts = filename.split("_")
+        session_id = parts[0] if parts else str(uuid4())
+
+        # Try to find session name from secretary report
+        secretary_dir = checkpoint_path.parent.parent / session_id
+        report_path = secretary_dir / "secretary-report.json"
+        session_name = f"Conclave {session_id[:8]}"
+
+        if report_path.exists():
+            with open(report_path) as f:
+                report = json.load(f)
+                session_name = report.get("source_session_name", session_name)
+
+        return session_id, session_name
+
     async def consolidate(
         self,
         motions: list[SourceMotion],
@@ -246,14 +422,22 @@ class MotionConsolidatorService:
 MOTIONS:
 {motion_summaries}
 
-Create exactly {self._target_count} groups based on thematic similarity.
-Each motion must belong to exactly ONE group.
-No motion should be left ungrouped.
+INSTRUCTIONS:
+1. Create exactly {self._target_count} thematic groups
+2. Each motion belongs to exactly ONE group
+3. Group by similar topics (ethics, transparency, oversight, etc.)
 
-Return a JSON array of groups:
-[{{"theme": "Theme Name", "motion_ids": ["id1", "id2", ...]}}]
+OUTPUT FORMAT - Return ONLY this JSON structure, nothing else:
+[
+  {{"theme": "Ethics & Oversight", "motion_ids": ["uuid1", "uuid2"]}},
+  {{"theme": "Transparency", "motion_ids": ["uuid3", "uuid4"]}}
+]
 
-CRITICAL: Output ONLY valid JSON. Include ALL motion IDs exactly once.""",
+RULES:
+- Output ONLY valid JSON array
+- No text before or after the JSON
+- Use the exact motion IDs from the input
+- Every motion ID must appear exactly once""",
             expected_output="JSON array of motion groupings",
             agent=self._agent,
         )
@@ -286,30 +470,43 @@ CRITICAL: Output ONLY valid JSON. Include ALL motion IDs exactly once.""",
             # Fallback: single group with all motions
             return [{"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}]
 
-        try:
-            json_str = cleaned[start:end + 1]
-            data = json.loads(json_str)
+        json_str = cleaned[start:end + 1]
 
-            # Validate all motions are accounted for
-            all_ids = {m.motion_id for m in motions}
-            grouped_ids = set()
-            for group in data:
-                grouped_ids.update(group.get("motion_ids", []))
+        # Try multiple parsing strategies
+        data = None
+        for attempt, parser in enumerate([
+            lambda s: json.loads(s),
+            lambda s: json.loads(_sanitize_json_string(s)),
+            lambda s: json.loads(_aggressive_json_clean(s)),
+        ]):
+            try:
+                data = parser(json_str)
+                if attempt > 0:
+                    logger.debug("grouping_parse_succeeded", attempt=attempt + 1)
+                break
+            except json.JSONDecodeError:
+                continue
 
-            missing = all_ids - grouped_ids
-            if missing:
-                logger.warning("motions_missing_from_groups", count=len(missing))
-                # Add missing to last group or create "Other" group
-                if data:
-                    data[-1]["motion_ids"].extend(list(missing))
-                else:
-                    data.append({"theme": "Other", "motion_ids": list(missing)})
-
-            return data
-
-        except json.JSONDecodeError as e:
-            logger.error("grouping_parse_failed", error=str(e))
+        if data is None:
+            logger.error("grouping_parse_failed_all_attempts", raw=json_str[:300])
             return [{"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}]
+
+        # Validate all motions are accounted for
+        all_ids = {m.motion_id for m in motions}
+        grouped_ids = set()
+        for group in data:
+            grouped_ids.update(group.get("motion_ids", []))
+
+        missing = all_ids - grouped_ids
+        if missing:
+            logger.warning("motions_missing_from_groups", count=len(missing))
+            # Add missing to last group or create "Other" group
+            if data:
+                data[-1]["motion_ids"].extend(list(missing))
+            else:
+                data.append({"theme": "Other", "motion_ids": list(missing)})
+
+        return data
 
     async def _synthesize_mega_motion(
         self,
@@ -408,19 +605,495 @@ CRITICAL: Output ONLY valid JSON.""",
                 "rationale": f"Combined from {len(motions)} related motions",
             }
 
-        try:
-            json_str = cleaned[start:end + 1]
-            # Sanitize control characters
-            json_str = json_str.replace("\n", "\\n").replace("\t", "\\t")
-            return json.loads(json_str)
-        except json.JSONDecodeError as e:
-            logger.warning("synthesis_parse_failed", theme=theme, error=str(e))
-            combined_text = "\n\n".join(m.text[:300] for m in motions)
-            return {
-                "title": f"Mega-Motion: {theme}",
-                "text": combined_text,
-                "rationale": f"Combined from {len(motions)} related motions",
-            }
+        json_str = cleaned[start:end + 1]
+
+        # Try multiple parsing strategies
+        for attempt, parser in enumerate([
+            lambda s: json.loads(s),
+            lambda s: json.loads(_sanitize_json_string(s)),
+            lambda s: json.loads(_aggressive_json_clean(s)),
+        ]):
+            try:
+                data = parser(json_str)
+                if attempt > 0:
+                    logger.debug("synthesis_parse_succeeded", theme=theme, attempt=attempt + 1)
+                return data
+            except json.JSONDecodeError:
+                continue
+
+        # All attempts failed - use fallback
+        logger.warning("synthesis_parse_failed_all_attempts", theme=theme, raw=json_str[:200])
+        combined_text = "\n\n".join(m.text[:300] for m in motions)
+        return {
+            "title": f"Mega-Motion: {theme}",
+            "text": combined_text,
+            "rationale": f"Combined from {len(motions)} related motions",
+        }
+
+    async def detect_novel_proposals(
+        self,
+        recommendations: list[dict],
+        top_n: int = 15,
+    ) -> list[NovelProposal]:
+        """Identify uniquely interesting or unconventional proposals.
+
+        Scans all recommendations to find creative, minority, or
+        cross-domain insights that deserve special attention.
+
+        Args:
+            recommendations: List of recommendation dicts from extraction
+            top_n: Maximum number of novel proposals to return
+
+        Returns:
+            List of NovelProposal objects
+        """
+        logger.info("novelty_detection_start", recommendation_count=len(recommendations))
+
+        # Prepare summaries for LLM - batch in chunks to avoid token limits
+        batch_size = 100
+        all_novel = []
+
+        for batch_start in range(0, len(recommendations), batch_size):
+            batch = recommendations[batch_start:batch_start + batch_size]
+            batch_summaries = json.dumps(
+                [
+                    {
+                        "id": r.get("recommendation_id", ""),
+                        "archon": r.get("source", {}).get("archon_name", "Unknown"),
+                        "text": r.get("summary", r.get("source", {}).get("raw_text", ""))[:300],
+                        "keywords": r.get("keywords", [])[:5],
+                    }
+                    for r in batch
+                ],
+                indent=2,
+            )
+
+            task = Task(
+                description=f"""Analyze these {len(batch)} recommendations and identify the TOP 5 most NOVEL, CREATIVE, or UNCONVENTIONAL proposals.
+
+RECOMMENDATIONS (batch {batch_start // batch_size + 1}):
+{batch_summaries}
+
+Look for proposals that are:
+1. UNCONVENTIONAL: Challenge mainstream thinking or propose unusual approaches
+2. CROSS-DOMAIN: Synthesize ideas from different fields in creative ways
+3. MINORITY-INSIGHT: Unique perspectives not echoed by others
+4. CREATIVE: Innovative mechanisms, novel frameworks, or unexpected solutions
+
+Return ONLY a JSON array with the top 5 most novel proposals:
+[
+  {{
+    "recommendation_id": "uuid",
+    "novelty_reason": "Why this is novel/interesting",
+    "novelty_score": 0.85,
+    "category": "unconventional"
+  }}
+]
+
+RULES:
+- novelty_score: 0.0 to 1.0 (higher = more novel)
+- category: one of "unconventional", "cross-domain", "minority-insight", "creative"
+- Only include truly standout proposals, not generic ones
+- Output ONLY valid JSON""",
+                expected_output="JSON array of novel proposals",
+                agent=self._agent,
+            )
+
+            crew = Crew(
+                agents=[self._agent],
+                tasks=[task],
+                verbose=self._verbose,
+            )
+
+            result = await asyncio.to_thread(crew.kickoff)
+            batch_novel = self._parse_novel_proposals(str(result), batch)
+            all_novel.extend(batch_novel)
+
+        # Sort by novelty score and take top N
+        all_novel.sort(key=lambda x: x.novelty_score, reverse=True)
+        final_novel = all_novel[:top_n]
+
+        logger.info(
+            "novelty_detection_complete",
+            candidates_found=len(all_novel),
+            top_n_selected=len(final_novel),
+        )
+
+        return final_novel
+
+    def _parse_novel_proposals(
+        self,
+        result: str,
+        recommendations: list[dict],
+    ) -> list[NovelProposal]:
+        """Parse novelty detection result."""
+        cleaned = result.strip()
+        if cleaned.startswith("```"):
+            lines = cleaned.split("\n")
+            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+
+        start = cleaned.find("[")
+        end = cleaned.rfind("]")
+        if start == -1 or end == -1:
+            logger.warning("no_json_array_in_novelty_result")
+            return []
+
+        json_str = cleaned[start:end + 1]
+
+        # Try multiple parsing strategies
+        data = None
+        for parser in [
+            lambda s: json.loads(s),
+            lambda s: json.loads(_sanitize_json_string(s)),
+            lambda s: json.loads(_aggressive_json_clean(s)),
+        ]:
+            try:
+                data = parser(json_str)
+                break
+            except json.JSONDecodeError:
+                continue
+
+        if data is None:
+            logger.warning("novelty_parse_failed")
+            return []
+
+        # Build lookup for recommendations
+        rec_lookup = {r.get("recommendation_id", ""): r for r in recommendations}
+
+        proposals = []
+        for item in data:
+            rec_id = item.get("recommendation_id", "")
+            rec = rec_lookup.get(rec_id, {})
+
+            if not rec:
+                continue
+
+            proposals.append(NovelProposal(
+                proposal_id=str(uuid4()),
+                recommendation_id=rec_id,
+                archon_name=rec.get("source", {}).get("archon_name", "Unknown"),
+                text=rec.get("summary", rec.get("source", {}).get("raw_text", "")),
+                novelty_reason=item.get("novelty_reason", ""),
+                novelty_score=float(item.get("novelty_score", 0.5)),
+                category=item.get("category", "creative"),
+                keywords=rec.get("keywords", []),
+            ))
+
+        return proposals
+
+    async def generate_conclave_summary(
+        self,
+        recommendations: list[dict],
+        motions: list[SourceMotion],
+        session_id: str,
+        session_name: str,
+    ) -> ConclaveSummary:
+        """Generate executive summary of the conclave deliberation.
+
+        Args:
+            recommendations: All extracted recommendations
+            motions: Consolidated motions
+            session_id: Conclave session ID
+            session_name: Conclave session name
+
+        Returns:
+            ConclaveSummary object
+        """
+        logger.info("conclave_summary_start", session_id=session_id)
+
+        # Collect unique archons and themes
+        archon_counts: dict[str, int] = {}
+        for rec in recommendations:
+            archon = rec.get("source", {}).get("archon_name", "Unknown")
+            archon_counts[archon] = archon_counts.get(archon, 0) + 1
+
+        motion_themes = [m.theme for m in motions]
+        total_speeches = len(set(rec.get("source", {}).get("archon_name", "") for rec in recommendations))
+
+        # Sample recommendations for LLM summary
+        sample_size = min(50, len(recommendations))
+        sample_recs = recommendations[:sample_size]
+        sample_text = "\n".join(
+            f"- {r.get('source', {}).get('archon_name', 'Unknown')}: {r.get('summary', '')[:150]}"
+            for r in sample_recs
+        )
+
+        task = Task(
+            description=f"""Generate an executive summary of this Conclave deliberation.
+
+SESSION: {session_name} ({session_id})
+STATISTICS:
+- Total Recommendations: {len(recommendations)}
+- Total Motions Generated: {len(motions)}
+- Participating Archons: {len(archon_counts)}
+- Motion Themes: {', '.join(list(set(motion_themes))[:10])}
+
+SAMPLE RECOMMENDATIONS:
+{sample_text}
+
+Generate a comprehensive summary with:
+1. key_themes: List of 5-7 main themes discussed
+2. areas_of_consensus: List of 3-5 areas where multiple Archons agreed
+3. points_of_contention: List of 2-4 areas of disagreement or debate
+4. notable_dynamics: One paragraph on interesting patterns or dynamics
+5. executive_summary: 2-3 paragraph overview of the deliberation
+
+Return JSON:
+{{
+  "key_themes": ["theme1", "theme2"],
+  "areas_of_consensus": ["consensus1", "consensus2"],
+  "points_of_contention": ["contention1", "contention2"],
+  "notable_dynamics": "Paragraph describing dynamics...",
+  "executive_summary": "Full summary..."
+}}
+
+CRITICAL: Output ONLY valid JSON.""",
+            expected_output="JSON summary object",
+            agent=self._agent,
+        )
+
+        crew = Crew(
+            agents=[self._agent],
+            tasks=[task],
+            verbose=self._verbose,
+        )
+
+        result = await asyncio.to_thread(crew.kickoff)
+        data = self._parse_summary(str(result))
+
+        summary = ConclaveSummary(
+            session_id=session_id,
+            session_name=session_name,
+            total_speeches=total_speeches,
+            total_recommendations=len(recommendations),
+            total_motions=len(motions),
+            key_themes=data.get("key_themes", motion_themes[:7]),
+            areas_of_consensus=data.get("areas_of_consensus", []),
+            points_of_contention=data.get("points_of_contention", []),
+            notable_dynamics=data.get("notable_dynamics", ""),
+            executive_summary=data.get("executive_summary", ""),
+        )
+
+        logger.info("conclave_summary_complete", session_id=session_id)
+        return summary
+
+    def _parse_summary(self, result: str) -> dict:
+        """Parse conclave summary result."""
+        cleaned = result.strip()
+        if cleaned.startswith("```"):
+            lines = cleaned.split("\n")
+            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+
+        start = cleaned.find("{")
+        end = cleaned.rfind("}")
+        if start == -1 or end == -1:
+            logger.warning("no_json_object_in_summary")
+            return {}
+
+        json_str = cleaned[start:end + 1]
+
+        for parser in [
+            lambda s: json.loads(s),
+            lambda s: json.loads(_sanitize_json_string(s)),
+            lambda s: json.loads(_aggressive_json_clean(s)),
+        ]:
+            try:
+                return parser(json_str)
+            except json.JSONDecodeError:
+                continue
+
+        logger.warning("summary_parse_failed")
+        return {}
+
+    def extract_acronyms(
+        self,
+        recommendations: list[dict],
+        motions: list[SourceMotion],
+    ) -> list[AcronymEntry]:
+        """Extract and catalog acronyms from deliberation content.
+
+        Uses regex to find uppercase acronyms and attempts to infer
+        meanings from context.
+
+        Args:
+            recommendations: All recommendations
+            motions: All motions
+
+        Returns:
+            List of AcronymEntry objects
+        """
+        logger.info("acronym_extraction_start")
+
+        # Pattern for acronyms: 2-6 uppercase letters, optionally with numbers
+        acronym_pattern = re.compile(r'\b([A-Z]{2,6})\b')
+
+        # Common acronyms to exclude (not domain-specific)
+        exclude = {
+            "AI", "ML", "LLM", "API", "EU", "US", "UK", "UN", "CEO", "CTO",
+            "GDP", "ROI", "KPI", "FAQ", "PDF", "JSON", "XML", "HTML", "CSS",
+            "HTTP", "SQL", "AWS", "GCP", "FOR", "AND", "THE", "BUT", "NOT",
+        }
+
+        # Collect acronyms with context
+        acronym_data: dict[str, dict] = {}
+
+        # Scan recommendations
+        for rec in recommendations:
+            text = rec.get("summary", "") + " " + rec.get("source", {}).get("raw_text", "")
+            archon = rec.get("source", {}).get("archon_name", "Unknown")
+            rec_id = rec.get("recommendation_id", "")
+
+            for match in acronym_pattern.finditer(text):
+                acronym = match.group(1)
+                if acronym in exclude:
+                    continue
+
+                if acronym not in acronym_data:
+                    acronym_data[acronym] = {
+                        "count": 0,
+                        "archons": set(),
+                        "first_seen": rec_id,
+                        "contexts": [],
+                    }
+
+                acronym_data[acronym]["count"] += 1
+                acronym_data[acronym]["archons"].add(archon)
+                # Store context (text around acronym)
+                start = max(0, match.start() - 50)
+                end = min(len(text), match.end() + 50)
+                context = text[start:end].strip()
+                if len(acronym_data[acronym]["contexts"]) < 3:
+                    acronym_data[acronym]["contexts"].append(context)
+
+        # Scan motions
+        for motion in motions:
+            text = motion.title + " " + motion.text
+            for match in acronym_pattern.finditer(text):
+                acronym = match.group(1)
+                if acronym in exclude or acronym not in acronym_data:
+                    continue
+                acronym_data[acronym]["count"] += 1
+
+        # Convert to AcronymEntry objects
+        entries = []
+        for acronym, data in acronym_data.items():
+            if data["count"] < 2:  # Only include if used more than once
+                continue
+
+            # Try to infer meaning from context
+            contexts = data["contexts"]
+            definition = self._infer_acronym_meaning(acronym, contexts)
+
+            entries.append(AcronymEntry(
+                acronym=acronym,
+                full_form=definition.get("full_form", f"[{acronym}]"),
+                definition=definition.get("definition", "Meaning not determined"),
+                introduced_by=sorted(list(data["archons"])),
+                first_seen_in=data["first_seen"],
+                usage_count=data["count"],
+            ))
+
+        # Sort by usage count
+        entries.sort(key=lambda x: x.usage_count, reverse=True)
+
+        logger.info("acronym_extraction_complete", acronyms_found=len(entries))
+        return entries
+
+    def _infer_acronym_meaning(self, acronym: str, contexts: list[str]) -> dict:
+        """Attempt to infer acronym meaning from context."""
+        # Look for patterns like "ACRONYM (Full Form)" or "Full Form (ACRONYM)"
+        for context in contexts:
+            # Pattern: ACRONYM (Full Form)
+            pattern1 = re.compile(rf'{acronym}\s*\(([^)]+)\)', re.IGNORECASE)
+            match = pattern1.search(context)
+            if match:
+                full_form = match.group(1).strip()
+                return {"full_form": full_form, "definition": full_form}
+
+            # Pattern: Full Form (ACRONYM)
+            pattern2 = re.compile(rf'([A-Z][^(]+)\s*\({acronym}\)', re.IGNORECASE)
+            match = pattern2.search(context)
+            if match:
+                full_form = match.group(1).strip()
+                return {"full_form": full_form, "definition": full_form}
+
+        # If no expansion found, return placeholder
+        return {"full_form": f"[{acronym}]", "definition": "Expansion not found in context"}
+
+    async def consolidate_full(
+        self,
+        motions_checkpoint: Path,
+        recommendations_checkpoint: Path | None = None,
+        run_novelty: bool = True,
+        run_summary: bool = True,
+        run_acronyms: bool = True,
+    ) -> FullConsolidationResult:
+        """Run full consolidation with all analysis vectors.
+
+        Args:
+            motions_checkpoint: Path to motions checkpoint
+            recommendations_checkpoint: Path to recommendations checkpoint (auto-detected if None)
+            run_novelty: Whether to run novelty detection
+            run_summary: Whether to generate conclave summary
+            run_acronyms: Whether to extract acronyms
+
+        Returns:
+            FullConsolidationResult with all analysis
+        """
+        # Extract session info
+        session_id, session_name = self.extract_session_info_from_checkpoint(motions_checkpoint)
+        logger.info("full_consolidation_start", session_id=session_id)
+
+        # Auto-detect recommendations checkpoint if not provided
+        if recommendations_checkpoint is None:
+            # Replace _05_motions with _01_extraction
+            checkpoint_name = motions_checkpoint.name.replace("_05_motions", "_01_extraction")
+            recommendations_checkpoint = motions_checkpoint.parent / checkpoint_name
+
+        # Load data
+        motions = self.load_motions_from_checkpoint(motions_checkpoint)
+        recommendations = []
+        if recommendations_checkpoint.exists():
+            recommendations = self.load_recommendations_from_checkpoint(recommendations_checkpoint)
+
+        # Run consolidation
+        consolidation_result = await self.consolidate(motions)
+
+        # Run novelty detection
+        novel_proposals = []
+        if run_novelty and recommendations:
+            novel_proposals = await self.detect_novel_proposals(recommendations)
+
+        # Generate summary
+        summary = None
+        if run_summary and recommendations:
+            summary = await self.generate_conclave_summary(
+                recommendations, motions, session_id, session_name
+            )
+
+        # Extract acronyms
+        acronyms = []
+        if run_acronyms:
+            acronyms = self.extract_acronyms(recommendations, motions)
+
+        result = FullConsolidationResult(
+            consolidation=consolidation_result,
+            novel_proposals=novel_proposals,
+            conclave_summary=summary,
+            acronym_registry=acronyms,
+            session_id=session_id,
+            session_name=session_name,
+        )
+
+        logger.info(
+            "full_consolidation_complete",
+            session_id=session_id,
+            mega_motions=len(consolidation_result.mega_motions),
+            novel_proposals=len(novel_proposals),
+            acronyms=len(acronyms),
+        )
+
+        return result
 
     def save_results(
         self,
@@ -508,3 +1181,254 @@ CRITICAL: Output ONLY valid JSON.""",
         )
 
         return output_dir
+
+    def save_full_results(
+        self,
+        result: FullConsolidationResult,
+        base_output_dir: Path,
+    ) -> Path:
+        """Save full consolidation results to session-organized directory.
+
+        Args:
+            result: FullConsolidationResult to save
+            base_output_dir: Base directory (e.g., _bmad-output/consolidator)
+
+        Returns:
+            Path to session output directory
+        """
+        # Create session-based directory structure
+        session_dir = base_output_dir / result.session_id
+        session_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save basic consolidation results
+        self.save_results(result.consolidation, session_dir)
+
+        # Save novel proposals
+        if result.novel_proposals:
+            self._save_novel_proposals(result.novel_proposals, session_dir)
+
+        # Save conclave summary
+        if result.conclave_summary:
+            self._save_conclave_summary(result.conclave_summary, session_dir)
+
+        # Save acronym registry
+        if result.acronym_registry:
+            self._save_acronym_registry(result.acronym_registry, session_dir)
+
+        # Save master index
+        self._save_master_index(result, session_dir)
+
+        logger.info(
+            "full_results_saved",
+            session_id=result.session_id,
+            output_dir=str(session_dir),
+        )
+
+        return session_dir
+
+    def _save_novel_proposals(
+        self,
+        proposals: list[NovelProposal],
+        output_dir: Path,
+    ) -> None:
+        """Save novel proposals to files."""
+        # JSON
+        novel_json = output_dir / "novel-proposals.json"
+        with open(novel_json, "w") as f:
+            json.dump(
+                [
+                    {
+                        "proposal_id": p.proposal_id,
+                        "recommendation_id": p.recommendation_id,
+                        "archon_name": p.archon_name,
+                        "text": p.text,
+                        "novelty_reason": p.novelty_reason,
+                        "novelty_score": p.novelty_score,
+                        "category": p.category,
+                        "keywords": p.keywords,
+                    }
+                    for p in proposals
+                ],
+                f,
+                indent=2,
+            )
+
+        # Markdown
+        novel_md = output_dir / "novel-proposals.md"
+        with open(novel_md, "w") as f:
+            f.write("# Novel & Unconventional Proposals\n\n")
+            f.write("*Flagged for special attention - these proposals demonstrate*\n")
+            f.write("*creative thinking, cross-domain synthesis, or minority insights.*\n\n")
+            f.write("---\n\n")
+
+            for i, p in enumerate(proposals, 1):
+                score_bar = "█" * int(p.novelty_score * 10) + "░" * (10 - int(p.novelty_score * 10))
+                f.write(f"## {i}. {p.category.upper()} Proposal\n\n")
+                f.write(f"**Archon:** {p.archon_name}\n")
+                f.write(f"**Novelty Score:** {score_bar} ({p.novelty_score:.0%})\n")
+                f.write(f"**Category:** {p.category}\n\n")
+                f.write("### Proposal\n\n")
+                f.write(f"> {p.text}\n\n")
+                f.write("### Why It's Interesting\n\n")
+                f.write(f"{p.novelty_reason}\n\n")
+                if p.keywords:
+                    f.write(f"**Keywords:** {', '.join(p.keywords)}\n\n")
+                f.write("---\n\n")
+
+    def _save_conclave_summary(
+        self,
+        summary: ConclaveSummary,
+        output_dir: Path,
+    ) -> None:
+        """Save conclave summary to files."""
+        # JSON
+        summary_json = output_dir / "conclave-summary.json"
+        with open(summary_json, "w") as f:
+            json.dump(
+                {
+                    "session_id": summary.session_id,
+                    "session_name": summary.session_name,
+                    "total_speeches": summary.total_speeches,
+                    "total_recommendations": summary.total_recommendations,
+                    "total_motions": summary.total_motions,
+                    "key_themes": summary.key_themes,
+                    "areas_of_consensus": summary.areas_of_consensus,
+                    "points_of_contention": summary.points_of_contention,
+                    "notable_dynamics": summary.notable_dynamics,
+                    "executive_summary": summary.executive_summary,
+                    "generated_at": summary.generated_at.isoformat(),
+                },
+                f,
+                indent=2,
+            )
+
+        # Markdown
+        summary_md = output_dir / "conclave-summary.md"
+        with open(summary_md, "w") as f:
+            f.write(f"# Conclave Summary: {summary.session_name}\n\n")
+            f.write(f"**Session ID:** `{summary.session_id}`\n")
+            f.write(f"**Generated:** {summary.generated_at.isoformat()}\n\n")
+            f.write("---\n\n")
+
+            f.write("## Statistics\n\n")
+            f.write(f"| Metric | Value |\n")
+            f.write(f"|--------|-------|\n")
+            f.write(f"| Participating Archons | {summary.total_speeches} |\n")
+            f.write(f"| Total Recommendations | {summary.total_recommendations} |\n")
+            f.write(f"| Motions Generated | {summary.total_motions} |\n\n")
+
+            f.write("## Executive Summary\n\n")
+            f.write(f"{summary.executive_summary}\n\n")
+
+            f.write("## Key Themes\n\n")
+            for theme in summary.key_themes:
+                f.write(f"- {theme}\n")
+            f.write("\n")
+
+            f.write("## Areas of Consensus\n\n")
+            for consensus in summary.areas_of_consensus:
+                f.write(f"- ✅ {consensus}\n")
+            f.write("\n")
+
+            if summary.points_of_contention:
+                f.write("## Points of Contention\n\n")
+                for contention in summary.points_of_contention:
+                    f.write(f"- ⚠️ {contention}\n")
+                f.write("\n")
+
+            if summary.notable_dynamics:
+                f.write("## Notable Dynamics\n\n")
+                f.write(f"{summary.notable_dynamics}\n\n")
+
+    def _save_acronym_registry(
+        self,
+        acronyms: list[AcronymEntry],
+        output_dir: Path,
+    ) -> None:
+        """Save acronym registry to files."""
+        # JSON
+        acronym_json = output_dir / "acronym-registry.json"
+        with open(acronym_json, "w") as f:
+            json.dump(
+                [
+                    {
+                        "acronym": a.acronym,
+                        "full_form": a.full_form,
+                        "definition": a.definition,
+                        "introduced_by": a.introduced_by,
+                        "first_seen_in": a.first_seen_in,
+                        "usage_count": a.usage_count,
+                    }
+                    for a in acronyms
+                ],
+                f,
+                indent=2,
+            )
+
+        # Markdown
+        acronym_md = output_dir / "acronym-registry.md"
+        with open(acronym_md, "w") as f:
+            f.write("# Acronym Registry\n\n")
+            f.write("*Terminology emerging from Conclave deliberations.*\n\n")
+            f.write("---\n\n")
+
+            f.write("| Acronym | Full Form | Usage | Introduced By |\n")
+            f.write("|---------|-----------|-------|---------------|\n")
+            for a in acronyms:
+                archons = ", ".join(a.introduced_by[:3])
+                if len(a.introduced_by) > 3:
+                    archons += f" (+{len(a.introduced_by) - 3})"
+                f.write(f"| **{a.acronym}** | {a.full_form} | {a.usage_count}x | {archons} |\n")
+
+            f.write("\n---\n\n## Detailed Definitions\n\n")
+            for a in acronyms:
+                f.write(f"### {a.acronym}\n\n")
+                f.write(f"**Full Form:** {a.full_form}\n\n")
+                f.write(f"**Definition:** {a.definition}\n\n")
+                f.write(f"**Usage Count:** {a.usage_count}\n\n")
+                f.write(f"**Introduced By:** {', '.join(a.introduced_by)}\n\n")
+
+    def _save_master_index(
+        self,
+        result: FullConsolidationResult,
+        output_dir: Path,
+    ) -> None:
+        """Save master index linking all outputs."""
+        index_md = output_dir / "index.md"
+        with open(index_md, "w") as f:
+            f.write(f"# Consolidation Report: {result.session_name}\n\n")
+            f.write(f"**Session ID:** `{result.session_id}`\n")
+            f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+            f.write("---\n\n")
+
+            f.write("## Quick Stats\n\n")
+            f.write(f"| Metric | Value |\n")
+            f.write(f"|--------|-------|\n")
+            f.write(f"| Original Motions | {result.consolidation.original_motion_count} |\n")
+            f.write(f"| Mega-Motions | {len(result.consolidation.mega_motions)} |\n")
+            f.write(f"| Novel Proposals | {len(result.novel_proposals)} |\n")
+            f.write(f"| Acronyms Catalogued | {len(result.acronym_registry)} |\n")
+            f.write(f"| Consolidation Ratio | {result.consolidation.consolidation_ratio:.1%} |\n")
+            f.write(f"| Traceability Complete | {'✅' if result.consolidation.traceability_complete else '❌'} |\n\n")
+
+            f.write("## Output Files\n\n")
+            f.write("| File | Description |\n")
+            f.write("|------|-------------|\n")
+            f.write("| [mega-motions.md](mega-motions.md) | Consolidated mega-motions (human-readable) |\n")
+            f.write("| [mega-motions.json](mega-motions.json) | Mega-motions (machine-readable) |\n")
+            f.write("| [traceability-matrix.md](traceability-matrix.md) | Source motion mapping |\n")
+            if result.novel_proposals:
+                f.write("| [novel-proposals.md](novel-proposals.md) | Uniquely interesting proposals |\n")
+            if result.conclave_summary:
+                f.write("| [conclave-summary.md](conclave-summary.md) | Executive summary of deliberation |\n")
+            if result.acronym_registry:
+                f.write("| [acronym-registry.md](acronym-registry.md) | Emerging terminology catalogue |\n")
+            f.write("\n")
+
+            f.write("## Mega-Motion Summary\n\n")
+            f.write("| # | Theme | Tier | Archons | Sources |\n")
+            f.write("|---|-------|------|---------|--------|\n")
+            tier_emoji = {"high": "🟢", "medium": "🟡", "low": "🔵"}
+            for i, mm in enumerate(result.consolidation.mega_motions, 1):
+                emoji = tier_emoji.get(mm.consensus_tier, "⚪")
+                f.write(f"| {i} | {mm.theme[:30]} | {emoji} {mm.consensus_tier.upper()} | {mm.unique_archon_count} | {len(mm.source_motion_ids)} |\n")

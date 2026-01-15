@@ -114,3 +114,6 @@ logs/
 *.key
 secrets/
 .secrets/
+
+_logs/
+_tmp/

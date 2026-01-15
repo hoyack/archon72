@@ -454,6 +454,233 @@ All outputs are saved to `_bmad-output/conclave/`:
 | `checkpoint-{session}-{timestamp}.json` | Session state for resume |
 | `transcript-{session}-{timestamp}.md` | Full meeting transcript |
 
+## Automated Secretary System
+
+The Secretary is an automated post-processing system that extracts actionable outcomes from Conclave transcripts.
+
+### Pipeline Overview
+
+```
+Conclave Session
+       │
+       ▼
+   Transcript.md
+       │
+       ▼
+┌──────────────────┐
+│    SECRETARY     │  ◄── Automated Post-Processing
+│    PROCESSOR     │
+└────────┬─────────┘
+         │
+   ┌─────┴─────┬──────────────┬──────────────┐
+   ▼           ▼              ▼              ▼
+Recommendations  Motion      Task         Conflict
+   Register      Queue      Registry       Report
+                   │
+                   ▼
+          Next Conclave Agenda
+```
+
+### Secretary Outputs
+
+| Output | Description |
+|--------|-------------|
+| **Recommendations Register** | All extracted ideas, clustered by theme with consensus scores |
+| **Motion Queue** | High-consensus items formatted as motions for next Conclave |
+| **Task Registry** | Operational work items for Archon workgroups |
+| **Conflict Report** | Contradictory positions requiring resolution debate |
+
+### Consensus Levels
+
+| Level | Archon Count | Auto-Promotion |
+|-------|--------------|----------------|
+| CRITICAL | 15+ | Yes |
+| HIGH | 8-14 | Yes |
+| MEDIUM | 4-7 | Yes (with endorsement) |
+| LOW | 2-3 | Requires endorsements |
+| SINGLE | 1 | Manual promotion only |
+
+### Running the Secretary
+
+```python
+from src.application.services.secretary_service import SecretaryService
+from src.application.services.motion_queue_service import MotionQueueService
+from uuid import uuid4
+
+# Process a Conclave transcript
+secretary = SecretaryService()
+report = secretary.process_transcript(
+    transcript_path="_bmad-output/conclave/transcript-xxx.md",
+    session_id=uuid4(),
+    session_name="AI Autonomy Conclave",
+)
+
+# View extraction results
+print(f"Speeches analyzed: {report.total_speeches_analyzed}")
+print(f"Recommendations extracted: {report.total_recommendations_extracted}")
+print(f"Clusters formed: {len(report.clusters)}")
+print(f"Motions queued: {len(report.motion_queue)}")
+
+# Save outputs
+output_dir = secretary.save_report(report)
+print(f"Saved to: {output_dir}")
+
+# Import to motion queue for next Conclave
+queue = MotionQueueService()
+imported = queue.import_from_report(report)
+print(f"Imported {imported} motions to queue")
+
+# Generate agenda for next Conclave
+agenda_items = queue.generate_agenda_items(max_items=5)
+```
+
+### Extraction Patterns
+
+The Secretary extracts recommendations using pattern matching:
+
+| Pattern | Example | Category |
+|---------|---------|----------|
+| "I recommend/propose/suggest..." | "I recommend establishing an ethics council" | POLICY |
+| "Establish a/an..." | "Establish a dedicated task force" | ESTABLISH |
+| "Implement..." | "Implement blockchain audit trails" | IMPLEMENT |
+| "Mandate that..." | "Mandate human oversight for high-stakes decisions" | MANDATE |
+| "Task force to..." | "Task force to develop risk protocols" | ESTABLISH |
+| Numbered recommendations | "1. Create oversight body 2. Define thresholds" | POLICY |
+
+### Endorsement System
+
+Between Conclaves, Archons can endorse queued motions:
+
+```python
+queue = MotionQueueService()
+
+# Endorse a motion
+queue.endorse_motion(
+    motion_id=motion_uuid,
+    archon_id="asmoday",
+    archon_name="Asmoday",
+)
+
+# Check endorsement count
+motion = queue.get_motion(motion_uuid)
+print(f"Endorsements: {motion.endorsement_count}")
+```
+
+### Motion Queue Lifecycle
+
+```
+PENDING → ENDORSED → PROMOTED → (Voted in Conclave) → Archived
+    │         │           │
+    └─────────┴───────────┴──→ DEFERRED (pushed to later)
+                          └──→ WITHDRAWN (removed)
+```
+
+### Secretary Output Files
+
+Saved to `_bmad-output/secretary/{session_id}/`:
+
+| File | Description |
+|------|-------------|
+| `recommendations-register.md` | Full clustered analysis |
+| `motion-queue.md` | Formatted motions for next Conclave |
+| `secretary-report.json` | Machine-readable summary |
+
+## Motion Consolidator
+
+The Motion Consolidator reduces many motions into fewer "mega-motions" for sustainable deliberation while preserving full traceability to original recommendations.
+
+### Why Consolidate?
+
+Without consolidation, the governance system faces a **combinatorial explosion**:
+- 69 motions × 72 Archons × 3 turns = **14,904 speech acts**
+- This creates runaway feedback loops where each Conclave generates more motions than the last
+
+The Consolidator implements a **hybrid approach**:
+- All original data preserved (909 recommendations, 69 motions)
+- Consolidated mega-motions for efficient deliberation (~12 instead of 69)
+- Full audit trail maintained for accountability
+
+### When to Run
+
+Run the Consolidator **after the Secretary** completes and **before the next Conclave**:
+
+```
+Conclave → Secretary → Consolidator → Tiered Deliberation
+                           │
+                    69 motions → 12 mega-motions
+```
+
+### Running the Consolidator
+
+```bash
+# Auto-detect latest motions checkpoint, consolidate to ~12 mega-motions
+poetry run python scripts/run_consolidator.py
+
+# Custom target count
+poetry run python scripts/run_consolidator.py --target 10
+
+# With verbose LLM logging
+poetry run python scripts/run_consolidator.py --verbose
+
+# Specify checkpoint explicitly
+poetry run python scripts/run_consolidator.py \
+  _bmad-output/secretary/checkpoints/*_05_motions.json
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `checkpoint` | Path to `*_05_motions.json` | Auto-detected |
+| `--target N` | Target number of mega-motions | 12 |
+| `--verbose` | Enable verbose LLM logging | Off |
+
+### Consolidator Output Files
+
+Saved to `_bmad-output/consolidator/`:
+
+| File | Description |
+|------|-------------|
+| `mega-motions.json` | Machine-readable consolidated motions |
+| `mega-motions.md` | Human-readable mega-motion summaries |
+| `traceability-matrix.md` | Maps mega-motions to source motions |
+
+### Traceability
+
+Each mega-motion preserves:
+- `source_motion_ids[]` - Original motion UUIDs
+- `source_motion_titles[]` - Original motion titles
+- `source_cluster_ids[]` - Original cluster UUIDs
+- `all_supporting_archons[]` - All Archons who contributed
+- `consensus_tier` - HIGH (10+), MEDIUM (4-9), LOW (2-3)
+
+### Full Governance Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    GOVERNANCE PIPELINE                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. [Conclave]     → 72 Archons deliberate on motions          │
+│         │                                                       │
+│         ▼                                                       │
+│  2. [Secretary]    → Extract 900+ recommendations              │
+│         │            Cluster into 180+ themes                   │
+│         │            Generate 60+ raw motions                   │
+│         ▼                                                       │
+│  3. [Consolidator] → Reduce to 10-15 mega-motions              │
+│         │            Preserve full traceability                 │
+│         ▼                                                       │
+│  4. [Router]       → Tier by consensus level                   │
+│         │            HIGH → Ratification (simple vote)          │
+│         │            MEDIUM → Committee (12 Archons)            │
+│         │            LOW → Backlog (future sessions)            │
+│         ▼                                                       │
+│  5. [Next Conclave] → Deliberate mega-motions efficiently      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### Expected Duration
 
 | Mode | Debate Rounds | Approximate Time |

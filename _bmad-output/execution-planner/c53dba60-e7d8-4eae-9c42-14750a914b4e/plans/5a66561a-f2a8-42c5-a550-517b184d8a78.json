@@ -1,0 +1,130 @@
+{
+  "plan_id": "5a66561a-f2a8-42c5-a550-517b184d8a78",
+  "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+  "motion_title": "Novel: Rigorously enforce existing safeguards (constituti...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+    "motion_title": "Novel: Rigorously enforce existing safeguards (constituti...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "8e6e5a51-9afb-4010-b621-6f84bd164687",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "4c14ed29-a83d-43fc-876c-4008b082a2e0",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Rigorously enforce existing safeguards (con...",
+          "pattern_id": "POLICY",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "714a4c7b-ccbe-4802-9d0c-ba32d3338dba",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Rigorously enforce existing safeguards (con...",
+          "pattern_id": "POLICY",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "4c14ed29-a83d-43fc-876c-4008b082a2e0"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "f6200b1f-3d81-43ea-b058-21a269827681",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Rigorously enforce existing safeguards (con...",
+          "pattern_id": "POLICY",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "714a4c7b-ccbe-4802-9d0c-ba32d3338dba"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "3b125637-8646-48de-9073-68f6084abcd4",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Rigorously enforce existing safeguards (con...",
+          "pattern_id": "POLICY",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "f6200b1f-3d81-43ea-b058-21a269827681"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "ad28c780-f5d5-48be-8106-c98c44e3c61b",
+      "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.216732+00:00"
+    },
+    {
+      "blocker_id": "0485443e-ad77-42e8-85d8-984c82f08646",
+      "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.216737+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_changelog",
+    "review_comments",
+    "policy_document"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:32:25.216761+00:00",
+  "status": "draft"
+}

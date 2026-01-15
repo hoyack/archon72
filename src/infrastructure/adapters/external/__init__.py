@@ -8,6 +8,10 @@ from src.infrastructure.adapters.external.crewai_adapter import (
     CrewAIAdapter,
     create_crewai_adapter,
 )
+from src.infrastructure.adapters.external.planner_crewai_adapter import (
+    PlannerCrewAIAdapter,
+    create_planner_agent,
+)
 from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     SecretaryCrewAIAdapter,
 )
@@ -15,6 +19,8 @@ from src.infrastructure.adapters.external.secretary_crewai_adapter import (
 __all__ = [
     "CrewAIAdapter",
     "create_crewai_adapter",
+    "PlannerCrewAIAdapter",
+    "create_planner_agent",
     "SecretaryCrewAIAdapter",
     "create_secretary_agent",
 ]

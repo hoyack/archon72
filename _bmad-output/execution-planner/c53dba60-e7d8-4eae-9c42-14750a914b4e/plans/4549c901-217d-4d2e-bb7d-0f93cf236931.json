@@ -1,0 +1,193 @@
+{
+  "plan_id": "4549c901-217d-4d2e-bb7d-0f93cf236931",
+  "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+  "motion_title": "Novel: Integrate real-time monitoring and anomaly detecti...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+    "motion_title": "Novel: Integrate real-time monitoring and anomaly detecti...",
+    "primary_pattern": "TECH",
+    "secondary_patterns": [
+      "PROC"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion focuses on implementing real-time monitoring and anomaly detection systems, which are technical safeguards. The integration of such systems likely involves defining operational workflows (PROC) for their deployment and management.",
+    "matched_keywords": [
+      "real-time monitoring",
+      "anomaly detection",
+      "integrate"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "c40ef472-1d95-41c2-a064-450a1f94abcc",
+      "phase_number": 1,
+      "pattern_id": "TECH",
+      "pattern_name": "Technical Safeguard",
+      "tasks": [
+        {
+          "task_id": "bb53ad15-03f6-46e6-98fc-435cbab5ad9b",
+          "task_type": "technical_design",
+          "description": "Design real-time data ingestion pipelines and anomaly detection algorithm architecture for integration with existing Archon72 systems",
+          "pattern_id": "TECH",
+          "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must include API specifications for real-time data streams and define thresholds for anomaly detection triggers"
+        },
+        {
+          "task_id": "48a18b71-65c4-41a7-badb-c9f7da75f87e",
+          "task_type": "implementation",
+          "description": "Develop core anomaly detection engine with real-time data processing capabilities using machine learning models",
+          "pattern_id": "TECH",
+          "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Implementation must include streaming data processing frameworks and integration with Archon72's security protocols"
+        },
+        {
+          "task_id": "26d8a9b6-7a28-4b3d-99e5-de802ecd38f0",
+          "task_type": "testing",
+          "description": "Create comprehensive test scenarios for real-time anomaly detection including edge case simulations",
+          "pattern_id": "TECH",
+          "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Testing must validate false positive rates and system performance under sustained real-time data loads"
+        },
+        {
+          "task_id": "b1e140c6-b014-4ea1-a86d-81109380c713",
+          "task_type": "deployment",
+          "description": "Configure production environment for real-time monitoring system with automated alerting integration",
+          "pattern_id": "TECH",
+          "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Deployment requires blue-green deployment strategy and rollback plans for anomaly detection system failures"
+        },
+        {
+          "task_id": "57946697-64cf-49db-8f6b-bf99d3976d29",
+          "task_type": "documentation",
+          "description": "Create technical documentation for anomaly detection system architecture and API usage guidelines",
+          "pattern_id": "TECH",
+          "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Documentation must include architecture diagrams, data flow explanations, and maintenance procedures"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "2462a2f7-8636-47f0-93e7-4f405eefd26d",
+      "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+      "blocker_type": "missing_prerequisite",
+      "description": "The motion depends on the completion of the 'policy_framework' prerequisite, which is not confirmed as implemented or approved.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Policy Framework Finalization",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:54:34.472230+00:00"
+    },
+    {
+      "blocker_id": "29c1d9d2-3140-4577-ac2d-3c92f8cd729e",
+      "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's scope is ambiguous regarding specific metrics, thresholds for anomalies, and integration points with existing systems.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope for Real-Time Monitoring Integration",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:54:34.472235+00:00"
+    },
+    {
+      "blocker_id": "e10e946a-893e-45cb-ad64-362ed88398a6",
+      "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+      "blocker_type": "resource_gap",
+      "description": "The motion lacks details on budget allocation, personnel requirements, and infrastructure needs for real-time monitoring deployment.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation for Technical Safeguards",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:54:34.472239+00:00"
+    },
+    {
+      "blocker_id": "b7dca5a6-29dc-448c-974d-d17d607f8f4d",
+      "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+      "blocker_type": "undefined_scope",
+      "description": "Potential conflicts with existing data privacy policies or system access controls could arise during real-time monitoring implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Policy Compliance Review for Monitoring System",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:54:34.472242+00:00"
+    },
+    {
+      "blocker_id": "ae401f58-baed-42cc-819a-768e22464b99",
+      "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+      "blocker_type": "technical_infeasibility",
+      "description": "The motion assumes real-time monitoring feasibility without confirming compatibility with current architecture or data pipelines.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Technical Feasibility Assessment for Monitoring System",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:54:34.472246+00:00"
+    },
+    {
+      "blocker_id": "1081db8f-169e-4936-9169-79e11c26b0f8",
+      "motion_id": "3351b521-e7a0-4449-ae9a-8972df9e90ab",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Competing priorities among stakeholders (e.g., security vs. privacy) may hinder consensus on anomaly detection parameters.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Stakeholder Alignment on Monitoring Priorities",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:54:34.472250+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:54:34.472257+00:00",
+  "status": "draft"
+}

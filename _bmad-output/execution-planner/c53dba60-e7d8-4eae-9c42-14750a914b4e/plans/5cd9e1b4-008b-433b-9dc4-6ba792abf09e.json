@@ -1,0 +1,130 @@
+{
+  "plan_id": "5cd9e1b4-008b-433b-9dc4-6ba792abf09e",
+  "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+  "motion_title": "Mega-Motion: Education & Awareness",
+  "motion_text": "\nThe Conclave hereby resolves to establish a **Comprehensive AI Governance and Education Framework** to ensure responsible development, deployment, and understanding of artificial intelligence across all stakeholders.\n\n1. **Global AI Education Council**:\n   - Establish a permanent **Global AI Education Council** comprising ethicists, technologists, policymakers, educators, and domain experts to design, oversee, and standardize AI literacy programs globally.\n   - Develop **modular, multi-level educational curricula** tailored to diverse audiences:\n     - **Foundational AI Literacy**: Accessible programs covering core AI concepts (e.g., machine learning fundamentals, ethical considerations, bias mitigation) for general public and policymakers.\n     - **Technical Specialization**: Advanced curricula for developers, engineers, and researchers focusing on algorithmic fairness, model interpretability, and responsible AI design.\n     - **Strategic Leadership**: Executive-level training for corporate leaders, government officials, and industry stakeholders on AI governance, risk management, and societal impact assessment.\n\n2. **Cross-Disciplinary AI Governance Task Forces**:\n   - Establish **permanent cross-disciplinary task forces** composed of experts from AI research, ethics, governance, law, and operational domains to proactively address emerging challenges in AI governance.\n   - **Core Mandates**:\n     - Develop **comprehensive frameworks** for AI ethics, safety, and responsible deployment, including guidelines for bias mitigation, transparency, and accountability.\n     - Conduct **regular risk assessments** and **scenario analyses** across all AI applications, identifying potential societal, economic, and security implications.\n     - Create **standardized evaluation metrics** for AI systems to ensure alignment with human values, ethical principles, and regulatory requirements.\n     - Facilitate **collaborative research initiatives** to explore cutting-edge topics such as AI alignment, long-term safety, and the ethical implications of advanced AI systems.\n\n3. **Public Awareness and Engagement Initiatives**:\n   - Launch **campaigns for public awareness** to demystify AI technologies, promote digital literacy, and foster informed public discourse on AI's benefits and risks.\n   - Integrate AI education into **school curricula** at all levels, emphasizing critical thinking, ethical reasoning, and the responsible use of AI tools.\n   - Establish **public-facing portals** where stakeholders can access resources, participate in consultations, and report concerns related to AI deployment.\n\n4. **Continuous Improvement Mechanisms**:\n   - Implement **periodic reviews** of the education and governance frameworks to adapt to technological advancements and evolving societal needs.\n   - Encourage **global collaboration** among task forces, education councils, and international organizations to harmonize standards and best practices in AI governance and literacy.\n   - Prioritize **inclusive participation** in all initiatives, ensuring representation from diverse cultural, geographic, and disciplinary backgrounds.\n  ",
+  "classification": {
+    "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+    "motion_title": "Mega-Motion: Education & Awareness",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "6d6984e3-0145-4132-aabb-5ba62394fa9e",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "ed49a792-2dfa-4ccc-81ca-3c5e09ce774a",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Education & Awareness...",
+          "pattern_id": "POLICY",
+          "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "30d0c797-1827-497c-ae35-47fa4e37a3a1",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Education & Awareness...",
+          "pattern_id": "POLICY",
+          "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "ed49a792-2dfa-4ccc-81ca-3c5e09ce774a"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "dbe53ec0-93ce-468b-aee3-3117ca130cc5",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Education & Awareness...",
+          "pattern_id": "POLICY",
+          "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "30d0c797-1827-497c-ae35-47fa4e37a3a1"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "5d9b3f2f-d10f-47ea-9d36-7c91182a2528",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Education & Awareness...",
+          "pattern_id": "POLICY",
+          "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "dbe53ec0-93ce-468b-aee3-3117ca130cc5"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "02082d3a-fe13-4443-92d7-b0a9eed2b7a7",
+      "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.213890+00:00"
+    },
+    {
+      "blocker_id": "94fc6d51-9961-4b40-8bec-96d8796eadb6",
+      "motion_id": "0e639c7e-984f-4167-a159-bf343dcf52bf",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.213895+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_changelog",
+    "review_comments",
+    "policy_document"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:32:25.213905+00:00",
+  "status": "draft"
+}

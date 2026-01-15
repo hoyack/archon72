@@ -1,0 +1,165 @@
+{
+  "plan_id": "7ddfff8b-c83a-4986-8dc8-793cf855946b",
+  "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+  "motion_title": "Novel: Create a dedicated 'Ethical Calibration Chamber' \u2013...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+    "motion_title": "Novel: Create a dedicated 'Ethical Calibration Chamber' \u2013...",
+    "primary_pattern": "ORG",
+    "secondary_patterns": [],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion proposes creating a dedicated 'Ethical Calibration Chamber,' which directly relates to establishing a new organizational unit within the Archon72 governance structure. This falls under ORG (Organizational Structure) as it involves defining a new committee or task force. No secondary patterns are evident as the text does not mention policy, technical, or resource components.",
+    "matched_keywords": [
+      "Ethical Calibration Chamber",
+      "dedicated",
+      "create"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "68d2d6e4-af2a-446c-b48f-1b36e0bb6fb3",
+      "phase_number": 1,
+      "pattern_id": "ORG",
+      "pattern_name": "Organizational Structure",
+      "tasks": [
+        {
+          "task_id": "5168645f-594a-4e4a-8e8b-5b6c8665de5b",
+          "task_type": "current_state_analysis",
+          "description": "Document existing ethical oversight frameworks and organizational units responsible for AI alignment protocols",
+          "pattern_id": "ORG",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on current AI ethics committees, risk assessment protocols, and existing calibration practices within Archon72"
+        },
+        {
+          "task_id": "86d54865-c74b-4dd1-a930-6d3bf788babf",
+          "task_type": "future_state_design",
+          "description": "Design the architectural specifications for the Ethical Calibration Chamber including governance protocols, stakeholder roles, and integration with existing decision-making frameworks",
+          "pattern_id": "ORG",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must include technical specifications for AI-driven calibration algorithms and human oversight mechanisms"
+        },
+        {
+          "task_id": "5dc591a2-9cf6-4592-b6b3-1180f6032d62",
+          "task_type": "gap_analysis",
+          "description": "Identify operational gaps between current ethical oversight capabilities and the proposed chamber's requirements",
+          "pattern_id": "ORG",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Analyze resource requirements, skill gaps, and infrastructure needs for real-time ethical calibration"
+        },
+        {
+          "task_id": "50a54a1c-a17b-4420-8785-0261215e3f3f",
+          "task_type": "transition_plan",
+          "description": "Develop a phased implementation roadmap for the Ethical Calibration Chamber with risk mitigation strategies",
+          "pattern_id": "ORG",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include pilot program design, stakeholder training plans, and contingency protocols for system integration challenges"
+        },
+        {
+          "task_id": "87ca3786-2cd8-4411-bb48-46e81a46808a",
+          "task_type": "execute_transition",
+          "description": "Orchestrate the deployment of the Ethical Calibration Chamber across Archon72's operational frameworks",
+          "pattern_id": "ORG",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Requires coordination with technical teams, policy officers, and AI developers for system integration"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "a725873b-8082-4724-81c7-2b130d1a0e8b",
+      "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+      "blocker_type": "undefined_scope",
+      "description": "The motion lacks clarity on the chamber's specific responsibilities, operational boundaries, and integration with existing governance frameworks, leading to potential ambiguity in its role and authority.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Ethical Calibration Chamber Scope and Authority",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:32.252132+00:00"
+    },
+    {
+      "blocker_id": "629669e1-c23b-4faf-8156-fcebe3200477",
+      "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+      "blocker_type": "resource_gap",
+      "description": "No budget allocation, personnel assignments, or infrastructure requirements are specified for the chamber, risking under-resourcing or operational delays.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation for Ethical Calibration Chamber",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:32.252168+00:00"
+    },
+    {
+      "blocker_id": "1e3a7b8e-52e1-4b55-8549-d594c04d7cb3",
+      "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+      "blocker_type": "undefined_scope",
+      "description": "Potential contradictions with existing ethical review protocols, conflict resolution frameworks, or data privacy policies could arise if the chamber's mandate overlaps with or bypasses current governance mechanisms.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Policy Alignment for Ethical Calibration Chamber",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:32.252201+00:00"
+    },
+    {
+      "blocker_id": "80dc4caa-9c76-404b-ab38-a7c7074c4b04",
+      "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Competing interests among stakeholders (e.g., oversight bodies, operational teams, or external auditors) may emerge regarding the chamber's influence, transparency requirements, or enforcement capabilities.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Stakeholder Alignment for Ethical Calibration Chamber",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:32.252233+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:48:32.252270+00:00",
+  "status": "draft"
+}

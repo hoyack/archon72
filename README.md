@@ -13,6 +13,7 @@ Constitutional AI Governance System with 72 Agents
 - [Architecture](#architecture)
 - [Constitutional Truths](#constitutional-truths)
 - [Conclave System](#conclave-system)
+- [Execution Planner](#execution-planner)
 - [Development](#development)
 
 ## Overview
@@ -235,7 +236,8 @@ src/
 ```
 archon72/
 ├── config/                      # Configuration files
-│   └── archon-llm-bindings.yaml # Per-archon LLM provider/model bindings
+│   ├── archon-llm-bindings.yaml # Per-archon LLM provider/model bindings
+│   └── execution-patterns.yaml  # Implementation patterns for Execution Planner
 │
 ├── docs/                        # Documentation and data
 │   ├── archons-base.csv         # 72 Archon identity profiles (name, rank, backstory)
@@ -254,6 +256,7 @@ archon72/
 │   ├── run_secretary.py         # Extract recommendations from transcript
 │   ├── run_consolidator.py      # Consolidate motions into mega-motions
 │   ├── run_review_pipeline.py   # Run Motion Review Pipeline
+│   ├── run_execution_planner.py # Transform ratified motions into execution plans
 │   ├── run_full_deliberation.py # Run 72-agent sequential deliberation
 │   ├── test_ollama_connection.py # Smoke test for Ollama integration
 │   ├── check_imports.py         # Validate hexagonal architecture boundaries
@@ -302,7 +305,8 @@ archon72/
 │       │   ├── external/        # External service adapters
 │       │   │   ├── crewai_adapter.py         # CrewAI LLM integration
 │       │   │   ├── reviewer_crewai_adapter.py # Motion reviewer agent
-│       │   │   └── secretary_crewai_adapter.py # Secretary agent
+│       │   │   ├── secretary_crewai_adapter.py # Secretary agent
+│       │   │   └── planner_crewai_adapter.py  # Execution planner agent
 │       │   ├── tools/           # CrewAI tool implementations
 │       │   │   └── secretary_tools.py # Secretary extraction tools
 │       │   ├── persistence/     # Database adapters
@@ -328,6 +332,7 @@ archon72/
 │   ├── secretary/               # Secretary extraction outputs
 │   ├── consolidator/            # Mega-motion consolidation outputs
 │   ├── review-pipeline/         # Motion review pipeline outputs
+│   ├── execution-planner/       # Execution plan outputs (tasks, blockers)
 │   ├── deliberations/           # Deliberation results (JSON)
 │   ├── implementation-artifacts/ # Stories, epics, sprint status
 │   └── project-context.md       # AI agent development guidelines
@@ -351,12 +356,17 @@ archon72/
 | `src/application/services/secretary_service.py` | Extracts recommendations from Conclave transcripts |
 | `src/application/services/motion_consolidator_service.py` | Consolidates 60+ motions into ~12 mega-motions |
 | `src/application/services/motion_review_service.py` | Orchestrates 6-phase motion review pipeline |
+| `src/application/services/execution_planner_service.py` | Transforms ratified motions into execution plans |
+| `src/domain/models/execution_plan.py` | Domain models for execution plans, tasks, blockers |
 | `src/domain/models/conclave.py` | Domain models for Motion, Vote, ConclaveSession, DebateEntry |
 | `src/domain/models/review_pipeline.py` | Domain models for review pipeline (RiskTier, ReviewResponse, etc.) |
 | `src/infrastructure/adapters/external/crewai_adapter.py` | CrewAI integration for LLM agent invocation |
 | `src/infrastructure/adapters/external/reviewer_crewai_adapter.py` | Per-Archon LLM-powered motion reviewer |
+| `src/infrastructure/adapters/external/planner_crewai_adapter.py` | LLM-powered execution planner for pattern classification |
 | `scripts/run_conclave.py` | CLI to run formal Conclave with motions and voting |
 | `scripts/run_review_pipeline.py` | CLI to run motion review pipeline with real or simulated agents |
+| `scripts/run_execution_planner.py` | CLI to transform ratified motions into execution plans |
+| `config/execution-patterns.yaml` | Defines 8 implementation patterns with task templates |
 | `migrations/*.sql` | Database schema for event store, hash chains, witnesses |
 
 ### Hexagonal Architecture Layers
@@ -738,7 +748,12 @@ Each mega-motion preserves:
 │         │              Triage by implicit support               │
 │         │              Panel deliberation for contested         │
 │         ▼                                                       │
-│  6. [Next Conclave] → Ratify reviewed mega-motions             │
+│  6. [Execution Planner] → Transform ratified motions to plans  │
+│         │                Classify into implementation patterns  │
+│         │                Instantiate concrete tasks             │
+│         │                Detect blockers → escalate to Conclave │
+│         ▼                                                       │
+│  7. [Next Conclave] → Ratify + deliberate on blockers          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -855,6 +870,122 @@ Saved to `_bmad-output/review-pipeline/{session_id}/`:
 | Extended | 5 | 60-75 minutes |
 
 Times vary based on GPU and model sizes. Sessions can be interrupted with Ctrl+C and resumed later.
+
+## Execution Planner
+
+The Execution Planner transforms ratified motions into actionable execution plans by classifying them into implementation patterns and generating concrete tasks.
+
+### Why Execution Planner?
+
+After motions are ratified, they need to be translated from "WHAT" (legislative decisions) to "HOW" (implementation tasks). The Execution Planner:
+- Classifies motions into domain-specific implementation patterns
+- Instantiates concrete tasks from pattern templates
+- Identifies blockers that need Conclave deliberation
+- Closes the governance loop by escalating issues back to the next Conclave
+
+### Implementation Patterns
+
+| Pattern | ID | Domain | Description |
+|---------|-----|--------|-------------|
+| Constitutional Amendment | CONST | Governance | Modify the governing constitution document |
+| Policy Framework | POLICY | Governance | Create or update policy and guideline documents |
+| Organizational Structure | ORG | Governance | Modify roles, committees, task forces |
+| Technical Safeguard | TECH | Implementation | Implement code, monitoring, infrastructure |
+| Archon Capability | ARCHON | Implementation | Modify Archon behaviors, prompts, tools |
+| Process Protocol | PROC | Operations | Define operational procedures, workflows |
+| Resource Allocation | RESOURCE | Operations | Assign budget, compute, personnel |
+| Research Investigation | RESEARCH | Knowledge | Study, analyze, and report findings |
+
+### Running the Execution Planner
+
+```bash
+# Heuristic mode (fast, no LLM required)
+python scripts/run_execution_planner.py
+
+# LLM-powered classification (more accurate)
+python scripts/run_execution_planner.py --real-agent
+
+# Specify review pipeline session
+python scripts/run_execution_planner.py _bmad-output/review-pipeline/<session-id>
+
+# With verbose logging
+python scripts/run_execution_planner.py --verbose
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `review_pipeline_path` | Path to review pipeline output | Auto-detected |
+| `--verbose` | Enable verbose logging | Off |
+| `--real-agent` | Use LLM-powered classification | Off (heuristic) |
+
+### Classification Modes
+
+| Mode | Speed | Accuracy | Requirements |
+|------|-------|----------|--------------|
+| **Heuristic** | Fast | Basic keyword matching | None |
+| **LLM-powered** | Slower | Content analysis, nuanced | Ollama server |
+
+**Heuristic Mode:** Uses keyword matching from `config/execution-patterns.yaml` to classify motions. All motions may default to POLICY if no keywords match.
+
+**LLM-powered Mode:** Uses CrewAI agents to analyze motion content and determine appropriate patterns. Provides higher accuracy and identifies secondary patterns.
+
+### Blocker Types
+
+| Type | Description | Escalation |
+|------|-------------|------------|
+| `missing_prerequisite` | Another pattern must complete first | Auto-queue |
+| `undefined_scope` | Ambiguous language needs clarification | Conclave |
+| `resource_gap` | Insufficient budget/personnel/infra | Conclave |
+| `policy_conflict` | Contradicts existing policy | Conclave |
+| `technical_infeasibility` | Cannot implement as specified | Conclave |
+| `stakeholder_conflict` | Competing requirements | Conclave |
+
+### Execution Planner Outputs
+
+Saved to `_bmad-output/execution-planner/{session_id}/`:
+
+| File | Description |
+|------|-------------|
+| `execution_plans.json` | All plans with tasks and blockers |
+| `blockers_summary.json` | All blockers with Conclave agenda items |
+| `pattern_usage.json` | Pattern distribution statistics |
+| `plans/{plan_id}.json` | Individual plan files |
+
+### Sample Output (LLM Mode)
+
+```
+--- Summary ---
+  Motions processed: 27
+  Execution plans generated: 27
+  Total tasks created: 147
+  Blockers identified: 106
+  Blockers requiring Conclave: 105
+
+--- Pattern Usage ---
+  POLICY: 15 motions
+  TECH: 6 motions
+  ORG: 4 motions
+  RESEARCH: 1 motions
+  CONST: 1 motions
+```
+
+### Governance Loop Closure
+
+Blockers that escalate to Conclave become agenda items for the next session:
+
+```
+CONCLAVE ESCALATIONS (Agenda Items for Next Session)
+============================================================
+1. Clarify Scope Definitions for Ethical Principles
+   Motion: Mega-Motion: Comprehensive Framework for Ethi...
+
+2. Resource Allocation for Governance Framework Implementation
+   Motion: Mega-Motion: Oversight & Governance Structure...
+```
+
+This closes the governance loop: ratified motions → execution plans → blockers → next Conclave agenda.
 
 ### Rank Hierarchy (Speaking Order)
 

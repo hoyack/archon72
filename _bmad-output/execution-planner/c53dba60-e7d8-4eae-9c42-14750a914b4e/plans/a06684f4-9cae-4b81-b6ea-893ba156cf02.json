@@ -1,0 +1,130 @@
+{
+  "plan_id": "a06684f4-9cae-4b81-b6ea-893ba156cf02",
+  "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+  "motion_title": "Novel: Create a dedicated 'Ethical Calibration Chamber' \u2013...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+    "motion_title": "Novel: Create a dedicated 'Ethical Calibration Chamber' \u2013...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "252ddb0a-fddd-4713-a24c-253a72d24c5b",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "e7db6446-5f30-4f2d-9ac8-3d78f63c081b",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Create a dedicated 'Ethical Calibration Cha...",
+          "pattern_id": "POLICY",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "ee88780a-beaf-4b2a-9a11-54f451b872bb",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Create a dedicated 'Ethical Calibration Cha...",
+          "pattern_id": "POLICY",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "e7db6446-5f30-4f2d-9ac8-3d78f63c081b"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "8d08f1bd-433f-48ce-bb05-545fbe1bf776",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Create a dedicated 'Ethical Calibration Cha...",
+          "pattern_id": "POLICY",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "ee88780a-beaf-4b2a-9a11-54f451b872bb"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "6785e7e0-85b6-4e9d-ae1d-9b0e806947a3",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Create a dedicated 'Ethical Calibration Cha...",
+          "pattern_id": "POLICY",
+          "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "8d08f1bd-433f-48ce-bb05-545fbe1bf776"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "94d15f6f-dd47-4b89-9f5d-777892cfe5db",
+      "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.215362+00:00"
+    },
+    {
+      "blocker_id": "e1c23f1b-a6a6-4802-bba1-14bda5c123c4",
+      "motion_id": "91a03876-7299-4637-b8f5-5ae98ba49298",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.215367+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_changelog",
+    "review_comments",
+    "policy_document"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:32:25.215372+00:00",
+  "status": "draft"
+}

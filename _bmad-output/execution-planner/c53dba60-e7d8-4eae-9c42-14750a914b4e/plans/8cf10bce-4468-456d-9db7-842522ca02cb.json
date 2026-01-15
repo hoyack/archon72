@@ -1,0 +1,139 @@
+{
+  "plan_id": "8cf10bce-4468-456d-9db7-842522ca02cb",
+  "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+  "motion_title": "Novel: Develop a proactive approach focused on acquiring ...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+    "motion_title": "Novel: Develop a proactive approach focused on acquiring ...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [
+      "RESOURCE"
+    ],
+    "classification_confidence": 0.85,
+    "classification_reasoning": "The motion's title indicates the creation of a new proactive approach, which aligns with establishing policy frameworks. The mention of 'acquiring' suggests resource allocation may be involved to support implementation.",
+    "matched_keywords": [
+      "proactive approach",
+      "acquiring",
+      "novel"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "1b58e5f2-3289-41b5-a50e-dcb62652d60b",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "95343669-03bf-4663-bb75-73a7f332b01a",
+          "task_type": "policy_research",
+          "description": "Research existing acquisition strategies and industry standards for proactive resource acquisition",
+          "pattern_id": "POLICY",
+          "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on identifying gaps in current protocols for proactive asset/technology acquisition"
+        },
+        {
+          "task_id": "76f60823-c880-4ad6-8a22-7e5ecfb3377c",
+          "task_type": "draft_policy",
+          "description": "Develop a policy framework outlining proactive acquisition methodologies and risk mitigation protocols",
+          "pattern_id": "POLICY",
+          "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include specific guidelines for evaluating, prioritizing, and implementing acquisition initiatives"
+        },
+        {
+          "task_id": "682f0f6a-1611-4821-8929-850310b26808",
+          "task_type": "stakeholder_review",
+          "description": "Conduct stakeholder workshops to gather input on proposed acquisition policies",
+          "pattern_id": "POLICY",
+          "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Prioritize engagement with legal, finance, and operational teams affected by acquisition protocols"
+        },
+        {
+          "task_id": "ab815598-44cd-47a6-b590-6333231d1941",
+          "task_type": "finalize_policy",
+          "description": "Refine and publish the acquisition policy with implementation timelines and accountability measures",
+          "pattern_id": "POLICY",
+          "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Ensure alignment with Archon72 governance frameworks and regulatory requirements"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "ec0b6aae-74da-4a12-bf1f-859c08199bf5",
+      "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's title and text lack specific details about the 'proactive approach' or 'acquiring' objectives, resulting in ambiguous scope boundaries. Without clear definitions of goals, boundaries, or deliverables, execution cannot proceed.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope and Objectives for Novel Proactive Acquisition Policy Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:02.270455+00:00"
+    },
+    {
+      "blocker_id": "b761c66b-c1c1-450f-9f1e-fc14bbc89578",
+      "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+      "blocker_type": "policy_conflict",
+      "description": "The motion introduces a new policy framework without addressing potential conflicts with existing Archon72 policies, such as resource allocation, risk management, or stakeholder governance protocols.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Policy Conflict Review: Novel Proactive Acquisition Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:02.270478+00:00"
+    },
+    {
+      "blocker_id": "4999275e-81a9-47f7-be52-3bd13dd29a91",
+      "motion_id": "c1c9b82a-5f7c-4b8b-8c7d-270ca6d35525",
+      "blocker_type": "undefined_scope",
+      "description": "The motion does not specify budgetary, personnel, or infrastructural requirements for implementing the proactive approach, creating a risk of under-resourcing critical components.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation Planning for Novel Proactive Acquisition Initiative",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:02.270482+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:49:02.270489+00:00",
+  "status": "draft"
+}

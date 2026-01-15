@@ -1,0 +1,130 @@
+{
+  "plan_id": "85cd8cf1-1dd2-47b3-8924-f6453b5109f2",
+  "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+  "motion_title": "Novel: Define 'human values' through inclusive, participa...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+    "motion_title": "Novel: Define 'human values' through inclusive, participa...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "35e5e008-1873-49c4-ac34-cd0eeb7b12bd",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "a9abaf36-5afc-4f22-afbd-f4a6076c6f4c",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Define 'human values' through inclusive, pa...",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "05d367d8-f5f8-4bbe-858b-19cbf71d968b",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Define 'human values' through inclusive, pa...",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "a9abaf36-5afc-4f22-afbd-f4a6076c6f4c"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "946fa7db-2532-41ae-881f-0f843862d4a3",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Define 'human values' through inclusive, pa...",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "05d367d8-f5f8-4bbe-858b-19cbf71d968b"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "7de6bce5-9a1e-4e9f-8d1b-a5bd31264039",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Define 'human values' through inclusive, pa...",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "946fa7db-2532-41ae-881f-0f843862d4a3"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "68c1bfcb-6d02-4674-86b6-4476fcbdcd5a",
+      "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.561590+00:00"
+    },
+    {
+      "blocker_id": "e3344351-1c09-49c7-bfb6-a84847593a94",
+      "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.561595+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.561601+00:00",
+  "status": "draft"
+}

@@ -1,0 +1,130 @@
+{
+  "plan_id": "2fe7e441-5f51-4c04-8f04-18d882890a6b",
+  "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+  "motion_title": "Mega-Motion: Alignment & Ethical Frameworks",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+    "motion_title": "Mega-Motion: Alignment & Ethical Frameworks",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "1755ee13-4710-4999-b7ec-93b6f2feb1e8",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "114edbc2-0779-4a31-9587-3d751d62e1e7",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Alignment & Ethical Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "d41a148d-c687-4f6b-90ec-2283b26f6997",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Alignment & Ethical Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "114edbc2-0779-4a31-9587-3d751d62e1e7"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "659a319c-727d-4535-9304-c58e09db57a0",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Alignment & Ethical Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "d41a148d-c687-4f6b-90ec-2283b26f6997"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "8491379c-abc4-48aa-97f0-bb3b38a180eb",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Alignment & Ethical Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "659a319c-727d-4535-9304-c58e09db57a0"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "a5a57c18-fe31-4b53-b3da-1ed0445d03d7",
+      "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559045+00:00"
+    },
+    {
+      "blocker_id": "455a6360-7e1d-42ce-90a6-6edf5663bf1f",
+      "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559050+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.559057+00:00",
+  "status": "draft"
+}

@@ -1,0 +1,139 @@
+{
+  "plan_id": "d5a0e79e-2fe1-4f5b-abe5-660ad4f7147a",
+  "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+  "motion_title": "Novel: Shift the Conclave\u2019s approach from passive regulat...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+    "motion_title": "Novel: Shift the Conclave\u2019s approach from passive regulat...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [
+      "PROC"
+    ],
+    "classification_confidence": 0.85,
+    "classification_reasoning": "The motion proposes shifting the Conclave's approach from passive regulation to an active governance model, indicating a need to update policy frameworks and operational procedures. The focus on changing regulatory methodology aligns with POLICY, while the procedural shift suggests PROC as a secondary pattern.",
+    "matched_keywords": [
+      "shift approach",
+      "passive regulation",
+      "Conclave's approach"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "f5f95d09-59da-45c3-92b3-da4d6de7f8d9",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "ab37614c-61ce-4914-930e-7d9c08a10a5f",
+          "task_type": "policy_research",
+          "description": "Investigate current Conclave regulatory frameworks and identify active regulation case studies from other governing bodies",
+          "pattern_id": "POLICY",
+          "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on comparing passive vs active regulatory models and identifying measurable outcomes from proactive governance approaches"
+        },
+        {
+          "task_id": "4adaa19a-1c49-4106-ac51-b64868fe9e10",
+          "task_type": "draft_policy",
+          "description": "Develop a policy framework outlining procedures for proactive regulation, including trigger mechanisms and accountability protocols",
+          "pattern_id": "POLICY",
+          "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must include transition guidelines from existing passive systems and risk mitigation strategies for implementation"
+        },
+        {
+          "task_id": "81918aa4-af4d-48bc-b315-ec369a9da7e9",
+          "task_type": "stakeholder_review",
+          "description": "Conduct structured consultations with Conclave members, industry representatives, and legal advisors on proposed active regulation protocols",
+          "pattern_id": "POLICY",
+          "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Prioritize feedback on conflict resolution mechanisms and resource allocation requirements for proactive oversight"
+        },
+        {
+          "task_id": "5c87cb36-7b66-4b60-9b24-efdddc8f7e5d",
+          "task_type": "finalize_policy",
+          "description": "Refine policy document based on stakeholder input and prepare for official adoption by the Conclave leadership",
+          "pattern_id": "POLICY",
+          "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include implementation timelines, training requirements, and contingency plans for regulatory transition"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "e60f67d3-6e50-4042-b731-a7f91715ae0d",
+      "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's title mentions shifting the Conclave's approach but lacks specific details on the new methodology, boundaries, or criteria for evaluating the shift. Ambiguous language creates uncertainty about the policy's implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope and Parameters for Conclave's Policy Shift",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:52:22.243391+00:00"
+    },
+    {
+      "blocker_id": "0b8e80cf-5435-40c4-ab75-81a2280a8fef",
+      "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+      "blocker_type": "stakeholder_conflict",
+      "description": "The motion's lack of detail on stakeholder involvement or requirements could lead to competing interests among governance bodies, external entities, or community members. Conflicting priorities may hinder consensus.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resolve Stakeholder Requirements for Policy Framework Update",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:52:22.243398+00:00"
+    },
+    {
+      "blocker_id": "dce203b9-9187-42a8-817d-c7385d0fb627",
+      "motion_id": "3ac10be7-cc9a-491d-a0f3-e6ae28af2c2c",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's proposal to shift the Conclave's approach may conflict with existing policies defining its role, enforcement mechanisms, or regulatory boundaries. Without explicit resolution, implementation risks legal or operational contradictions.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Address Policy Conflicts in Conclave's Regulatory Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:52:22.243425+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:52:22.243440+00:00",
+  "status": "draft"
+}

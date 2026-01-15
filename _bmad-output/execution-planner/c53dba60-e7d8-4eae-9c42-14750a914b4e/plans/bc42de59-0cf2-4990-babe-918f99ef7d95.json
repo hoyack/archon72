@@ -1,0 +1,143 @@
+{
+  "plan_id": "bc42de59-0cf2-4990-babe-918f99ef7d95",
+  "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+  "motion_title": "Mega-Motion: Oversight & Governance Structures",
+  "motion_text": "The Conclave hereby directs the development and implementation of **Adaptive Alignment Frameworks** for AI systems, prioritizing dynamic ethical reasoning and iterative feedback loops over rigid safeguards. These frameworks shall:\n  1. **Embed iterative learning**\u2014AI systems must continuously adapt \n\nThe Conclave hereby resolves to establish a Council of Partnerships and other oversight structures to govern AI-human collaboration, ensuring transparency, accountability, and alignment with shared values. These councils shall include representatives from human stakeholders, AI developers, and ethic\n\n\n  The Conclave hereby resolves to:\n  1. Mandate the creation of a **Global AI Education Council** comprising ethicists, technologists, policymakers, and educators to design and oversee standardized AI literacy programs;\n  2. Develop **modular, multi-level educational curricula** addressing:\n     - \n\nThe Conclave hereby directs the Governance Council to:\n  1. Mandate **human oversight committees** for all high-risk AI deployments, ensuring independent review of critical decisions, with clear escalation pathways for ethical violations or misalignment risks.\n  2. Implement **immutable, tamper-proo\n\nThe Conclave hereby directs the establishment of a **Comprehensive AI Governance Framework** to ensure that AI systems operate within clearly defined boundaries of accountability, transparency, and alignment with human values. This framework shall:\n\n  1. **Define Clear Accountability Structures**: E\n\nThe Conclave hereby directs the Governance Council to:\n  1. Formalize and enforce existing safeguards\u2014constitutional alignment, human oversight, and immutable audit trails\u2014as a mandatory framework for all AI systems under the Archon\u2019s jurisdiction.\n  2. Establish a **Continuous Monitoring Division**",
+  "classification": {
+    "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+    "motion_title": "Mega-Motion: Oversight & Governance Structures",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [
+      "ORG",
+      "TECH"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion primarily establishes comprehensive governance policies for AI systems through frameworks like the 'Comprehensive AI Governance Framework' and 'Global AI Education Council,' which define accountability structures and standardized protocols. Secondary patterns include ORG (creation of councils/committees) and TECH (immutable audit trails, monitoring divisions).",
+    "matched_keywords": [
+      "Policy Framework",
+      "governance structures",
+      "councils",
+      "safeguards",
+      "monitoring",
+      "accountability"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "eb875e18-c00d-44d0-b800-069a9880796d",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "7a53e4f8-64cc-4377-80fa-1a1b2cf9f70d",
+          "task_type": "policy_research",
+          "description": "Research existing global AI governance frameworks, educational policies, and ethical guidelines to inform the development of the Comprehensive AI Governance Framework and Global AI Education Council mandates",
+          "pattern_id": "POLICY",
+          "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on international AI regulations, educational standards, and case studies of successful oversight structures mentioned in the motion"
+        },
+        {
+          "task_id": "36483128-9f4c-4938-9a44-e0d49575f105",
+          "task_type": "draft_policy",
+          "description": "Develop detailed policy documents for the Global AI Education Council, modular curricula structure, and Continuous Monitoring Division as outlined in the motion",
+          "pattern_id": "POLICY",
+          "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include specific requirements for constitutional alignment, immutable audit trails, and multi-level educational content for high-risk AI systems"
+        },
+        {
+          "task_id": "def8647c-ebc1-4331-9ba6-d24831ec7469",
+          "task_type": "stakeholder_review",
+          "description": "Organize feedback sessions with ethicists, technologists, policymakers, and AI developers to refine the proposed governance frameworks and educational programs",
+          "pattern_id": "POLICY",
+          "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Prioritize input from human stakeholders and developers for the Council of Partnerships and oversight committees"
+        },
+        {
+          "task_id": "3b907371-c8f7-4c6e-9ec1-9d29590b0963",
+          "task_type": "finalize_policy",
+          "description": "Integrate stakeholder feedback into the governance framework documents, ensuring alignment with the motion's requirements for accountability, transparency, and ethical AI development",
+          "pattern_id": "POLICY",
+          "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Finalize immutable audit trail protocols, human oversight committee mandates, and modular curriculum specifications for publication"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "5b85e24a-0a44-4e4d-b6b7-7a7c7bb85316",
+      "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+      "blocker_type": "undefined_scope",
+      "description": "The motion contains incomplete sections (e.g., 'modular, multi-level educational curricula addressing: -', 'Define Clear Accountability Structures: E') and lacks explicit boundaries for AI systems covered by the frameworks, operational protocols for councils, and criteria for 'high-risk AI deployments'. Ambiguous language risks misinterpretation of governance mandates.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify Scope and Operational Parameters for Adaptive Alignment Frameworks",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:38:13.285998+00:00"
+    },
+    {
+      "blocker_id": "4dbf623a-ee50-4113-8235-5d22044d6c87",
+      "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+      "blocker_type": "resource_gap",
+      "description": "The motion mandates creation of councils, divisions, and committees (e.g., Global AI Education Council, Continuous Monitoring Division) without specifying budget allocations, staffing requirements, or infrastructure needs. Lack of resource planning could delay implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation for Governance Infrastructure",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:38:13.286032+00:00"
+    },
+    {
+      "blocker_id": "a7cea529-5c04-4ca0-aff7-8ed65cdca5ec",
+      "motion_id": "93539170-3e92-4e67-90eb-8cf4902dea16",
+      "blocker_type": "stakeholder_conflict",
+      "description": "The motion involves conflicting priorities among stakeholders (e.g., AI developers seeking flexibility vs. ethicists demanding strict oversight). No mechanism is proposed to resolve disagreements over governance priorities or enforcement of 'immutable audit trails'.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Stakeholder Conflict Resolution Framework for Governance Councils",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:38:13.286048+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:38:13.286089+00:00",
+  "status": "draft"
+}

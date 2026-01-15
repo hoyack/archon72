@@ -1,0 +1,478 @@
+# Archon72 Execution Pattern Taxonomy
+# =====================================
+# Domain-specific implementation patterns for the Execution Planner.
+# Each ratified motion is classified into one or more patterns,
+# which then instantiate concrete tasks for implementation.
+#
+# Pattern Structure:
+#   id: Short identifier for classification
+#   name: Human-readable name
+#   description: What this pattern covers
+#   domain: governance | implementation | operations | knowledge
+#   task_templates: Ordered list of task types
+#   outputs: Artifacts produced by this pattern
+#   prerequisites: Other patterns that must complete first
+#   typical_blockers: Common issues that escalate to Conclave
+#
+# Version: 1.0.0
+# Created: 2026-01-15
+
+patterns:
+  # ===========================================================================
+  # GOVERNANCE DOMAIN
+  # ===========================================================================
+
+  constitutional_amendment:
+    id: "CONST"
+    name: "Constitutional Amendment"
+    description: "Modify the governing constitution document"
+    domain: "governance"
+    task_templates:
+      - type: "draft_amendment"
+        description: "Draft specific constitutional language changes"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "legal_review"
+        description: "Review for internal consistency with existing articles"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "impact_assessment"
+        description: "Assess downstream effects on other constitutional provisions"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "apply_amendment"
+        description: "Integrate approved changes into constitution.md"
+        assignable: false  # Automated by Constitutional Integration service
+        estimated_effort: "low"
+      - type: "publish_changelog"
+        description: "Document amendment in constitutional history"
+        assignable: false  # Automated
+        estimated_effort: "low"
+    outputs:
+      - constitution_diff
+      - amendment_record
+      - changelog_entry
+    prerequisites: []  # Top-level pattern
+    typical_blockers:
+      - "Conflicts with existing constitutional article"
+      - "Scope ambiguity in motion language"
+      - "Requires supermajority not achieved"
+
+  policy_framework:
+    id: "POLICY"
+    name: "Policy Framework"
+    description: "Create or update policy and guideline documents"
+    domain: "governance"
+    task_templates:
+      - type: "policy_research"
+        description: "Research existing policies and best practices"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "draft_policy"
+        description: "Write policy document with clear guidelines"
+        assignable: true
+        estimated_effort: "high"
+      - type: "stakeholder_review"
+        description: "Gather feedback from affected parties"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "finalize_policy"
+        description: "Incorporate feedback and publish"
+        assignable: true
+        estimated_effort: "low"
+    outputs:
+      - policy_document
+      - review_comments
+      - policy_changelog
+    prerequisites: []
+    typical_blockers:
+      - "Undefined scope boundaries"
+      - "Conflicting stakeholder requirements"
+      - "Missing authority to enforce"
+
+  organizational_structure:
+    id: "ORG"
+    name: "Organizational Structure"
+    description: "Modify roles, committees, task forces, or hierarchies"
+    domain: "governance"
+    task_templates:
+      - type: "current_state_analysis"
+        description: "Document existing organizational structure"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "future_state_design"
+        description: "Design new organizational model"
+        assignable: true
+        estimated_effort: "high"
+      - type: "gap_analysis"
+        description: "Identify transition requirements"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "transition_plan"
+        description: "Create phased transition approach"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "execute_transition"
+        description: "Implement organizational changes"
+        assignable: true
+        estimated_effort: "high"
+    outputs:
+      - org_chart
+      - transition_plan
+      - role_definitions
+      - responsibility_matrix
+    prerequisites: []
+    typical_blockers:
+      - "Stakeholder resistance"
+      - "Undefined authority boundaries"
+      - "Resource constraints for new roles"
+
+  # ===========================================================================
+  # IMPLEMENTATION DOMAIN
+  # ===========================================================================
+
+  technical_safeguard:
+    id: "TECH"
+    name: "Technical Safeguard"
+    description: "Implement code, monitoring, infrastructure, or technical controls"
+    domain: "implementation"
+    task_templates:
+      - type: "technical_design"
+        description: "Design system architecture and interfaces"
+        assignable: true
+        estimated_effort: "high"
+      - type: "implementation"
+        description: "Write code implementing the safeguard"
+        assignable: true
+        estimated_effort: "high"
+      - type: "testing"
+        description: "Create and execute test suite"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "deployment"
+        description: "Deploy to production environment"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "documentation"
+        description: "Document technical implementation"
+        assignable: true
+        estimated_effort: "medium"
+    outputs:
+      - design_spec
+      - code_artifacts
+      - test_results
+      - deployment_record
+      - technical_documentation
+    prerequisites:
+      - "policy_framework"  # Often needs policy to define requirements
+    typical_blockers:
+      - "Undefined acceptance criteria"
+      - "Missing infrastructure or dependencies"
+      - "Unclear integration points"
+      - "Performance requirements not specified"
+
+  archon_capability:
+    id: "ARCHON"
+    name: "Archon Capability"
+    description: "Modify Archon behaviors, prompts, tools, or configurations"
+    domain: "implementation"
+    task_templates:
+      - type: "capability_design"
+        description: "Design new Archon behavior or tool"
+        assignable: true
+        estimated_effort: "high"
+      - type: "prompt_engineering"
+        description: "Create or modify Archon system prompts"
+        assignable: true
+        estimated_effort: "high"
+      - type: "tool_implementation"
+        description: "Implement new Archon tools or capabilities"
+        assignable: true
+        estimated_effort: "high"
+      - type: "testing_validation"
+        description: "Test Archon behavior changes across scenarios"
+        assignable: true
+        estimated_effort: "high"
+      - type: "rollout"
+        description: "Deploy changes to all 72 Archons"
+        assignable: true
+        estimated_effort: "medium"
+    outputs:
+      - prompt_updates
+      - tool_code
+      - test_results
+      - behavior_validation_report
+      - deployment_record
+    prerequisites:
+      - "policy_framework"  # Archon changes need policy backing
+    typical_blockers:
+      - "Behavioral conflicts with existing prompts"
+      - "Constitutional constraint violations"
+      - "Inconsistent behavior across Archon personalities"
+      - "Safety validation failures"
+
+  # ===========================================================================
+  # OPERATIONS DOMAIN
+  # ===========================================================================
+
+  process_protocol:
+    id: "PROC"
+    name: "Process Protocol"
+    description: "Define operational procedures, workflows, and runbooks"
+    domain: "operations"
+    task_templates:
+      - type: "workflow_design"
+        description: "Define process steps and decision points"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "create_runbook"
+        description: "Document operational procedures"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "training_materials"
+        description: "Create training for operators"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "pilot_process"
+        description: "Run process in limited scope"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "full_rollout"
+        description: "Deploy process organization-wide"
+        assignable: true
+        estimated_effort: "low"
+    outputs:
+      - workflow_diagram
+      - runbook
+      - training_docs
+      - pilot_results
+      - rollout_report
+    prerequisites: []
+    typical_blockers:
+      - "Undefined roles and responsibilities"
+      - "Missing tooling support"
+      - "Insufficient training resources"
+
+  resource_allocation:
+    id: "RESOURCE"
+    name: "Resource Allocation"
+    description: "Assign budget, compute resources, personnel, or infrastructure"
+    domain: "operations"
+    task_templates:
+      - type: "requirements_gathering"
+        description: "Define resource needs and justification"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "cost_estimation"
+        description: "Estimate costs and timeline"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "approval_request"
+        description: "Submit for budget/resource approval"
+        assignable: true
+        estimated_effort: "low"
+      - type: "procurement"
+        description: "Acquire approved resources"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "allocation_tracking"
+        description: "Monitor resource utilization"
+        assignable: true
+        estimated_effort: "low"
+    outputs:
+      - budget_request
+      - cost_estimate
+      - approval_record
+      - procurement_log
+      - allocation_ledger
+    prerequisites: []
+    typical_blockers:
+      - "Budget constraints"
+      - "Approval delays"
+      - "Competing priorities"
+      - "Vendor availability"
+
+  # ===========================================================================
+  # KNOWLEDGE DOMAIN
+  # ===========================================================================
+
+  research_investigation:
+    id: "RESEARCH"
+    name: "Research Investigation"
+    description: "Study, analyze, and report findings on specific topics"
+    domain: "knowledge"
+    task_templates:
+      - type: "scope_definition"
+        description: "Define research questions and methodology"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "data_collection"
+        description: "Gather relevant data and evidence"
+        assignable: true
+        estimated_effort: "high"
+      - type: "analysis"
+        description: "Analyze data and synthesize findings"
+        assignable: true
+        estimated_effort: "high"
+      - type: "report_writing"
+        description: "Document findings and recommendations"
+        assignable: true
+        estimated_effort: "medium"
+      - type: "presentation"
+        description: "Present findings to stakeholders"
+        assignable: true
+        estimated_effort: "low"
+    outputs:
+      - research_report
+      - data_appendix
+      - recommendations
+      - presentation_deck
+    prerequisites: []
+    typical_blockers:
+      - "Data access restrictions"
+      - "Unclear success metrics"
+      - "Insufficient expertise"
+      - "Time constraints"
+
+# =============================================================================
+# BLOCKER ESCALATION RULES
+# =============================================================================
+# When blockers are detected, they are classified and escalated appropriately.
+
+blocker_types:
+  missing_prerequisite:
+    description: "A prerequisite pattern has not been completed"
+    escalation: "auto"  # Automatically queue prerequisite pattern
+    conclave_escalation: false
+
+  undefined_scope:
+    description: "Motion language is ambiguous about requirements"
+    escalation: "conclave"  # Requires Conclave clarification
+    conclave_escalation: true
+    agenda_template: "Clarify scope and requirements for: {motion_title}"
+
+  resource_gap:
+    description: "Insufficient resources to proceed"
+    escalation: "conclave"  # Requires Conclave resource decision
+    conclave_escalation: true
+    agenda_template: "Resource allocation decision for: {motion_title}"
+
+  policy_conflict:
+    description: "Implementation conflicts with existing policy"
+    escalation: "conclave"  # Requires Conclave resolution
+    conclave_escalation: true
+    agenda_template: "Resolve policy conflict for: {motion_title}"
+
+  technical_infeasibility:
+    description: "Technical implementation is not feasible as specified"
+    escalation: "conclave"  # Requires Conclave to revise motion
+    conclave_escalation: true
+    agenda_template: "Technical feasibility review for: {motion_title}"
+
+  stakeholder_conflict:
+    description: "Conflicting requirements from stakeholders"
+    escalation: "conclave"  # Requires Conclave arbitration
+    conclave_escalation: true
+    agenda_template: "Stakeholder alignment needed for: {motion_title}"
+
+# =============================================================================
+# PATTERN CLASSIFICATION HINTS
+# =============================================================================
+# Keywords and phrases that suggest pattern classification.
+
+classification_hints:
+  constitutional_amendment:
+    keywords:
+      - "amend constitution"
+      - "constitutional"
+      - "fundamental rights"
+      - "governance structure"
+      - "modify article"
+    phrases:
+      - "enshrine in constitution"
+      - "constitutional mandate"
+
+  policy_framework:
+    keywords:
+      - "policy"
+      - "guideline"
+      - "framework"
+      - "principles"
+      - "standards"
+    phrases:
+      - "establish guidelines"
+      - "create framework"
+      - "define standards"
+
+  technical_safeguard:
+    keywords:
+      - "implement"
+      - "build"
+      - "monitoring"
+      - "infrastructure"
+      - "system"
+      - "technical"
+    phrases:
+      - "implement safeguards"
+      - "build monitoring"
+      - "create system"
+
+  process_protocol:
+    keywords:
+      - "process"
+      - "procedure"
+      - "workflow"
+      - "protocol"
+      - "operational"
+    phrases:
+      - "establish process"
+      - "define workflow"
+      - "create protocol"
+
+  research_investigation:
+    keywords:
+      - "research"
+      - "investigate"
+      - "study"
+      - "analyze"
+      - "assess"
+    phrases:
+      - "conduct research"
+      - "investigate impact"
+      - "study effects"
+
+  organizational_structure:
+    keywords:
+      - "committee"
+      - "task force"
+      - "team"
+      - "role"
+      - "responsibility"
+    phrases:
+      - "establish committee"
+      - "create task force"
+      - "define roles"
+
+  resource_allocation:
+    keywords:
+      - "budget"
+      - "funding"
+      - "resources"
+      - "allocate"
+      - "invest"
+    phrases:
+      - "allocate resources"
+      - "fund initiative"
+      - "invest in"
+
+  archon_capability:
+    keywords:
+      - "archon"
+      - "agent"
+      - "capability"
+      - "behavior"
+      - "prompt"
+    phrases:
+      - "modify archon"
+      - "enhance capability"
+      - "update behavior"

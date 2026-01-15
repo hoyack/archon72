@@ -1,0 +1,130 @@
+{
+  "plan_id": "bb0884a0-6049-4e73-b103-ed3c04db4fd9",
+  "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+  "motion_title": "Novel: Adopt a framework that embraces the AI\u2019s autonomy ...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+    "motion_title": "Novel: Adopt a framework that embraces the AI\u2019s autonomy ...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "d0805fd0-21cb-4ee9-b665-d77f836d5f9b",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "4eb92972-3218-4350-9e59-0884c98d1f65",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Adopt a framework that embraces the AI\u2019s au...",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "24afb51f-d09c-4d4b-b59c-61a37190d363",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Adopt a framework that embraces the AI\u2019s au...",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "4eb92972-3218-4350-9e59-0884c98d1f65"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "16100d12-a6e2-40a0-b9df-10a6a5bc230c",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Adopt a framework that embraces the AI\u2019s au...",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "24afb51f-d09c-4d4b-b59c-61a37190d363"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "f2df6913-8dde-482e-9e86-7241e09fe8cb",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Adopt a framework that embraces the AI\u2019s au...",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "16100d12-a6e2-40a0-b9df-10a6a5bc230c"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "629c610a-da8f-431d-8e14-3fd901d0b556",
+      "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.560480+00:00"
+    },
+    {
+      "blocker_id": "a2327cd2-5e31-488b-8199-5fc80c641e10",
+      "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.560486+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.560493+00:00",
+  "status": "draft"
+}

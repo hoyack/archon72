@@ -1,0 +1,130 @@
+{
+  "plan_id": "b6d4043c-79f6-4d12-9995-ef42247adadf",
+  "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+  "motion_title": "Novel: Create a framework for AI autonomy that functions ...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+    "motion_title": "Novel: Create a framework for AI autonomy that functions ...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "200aadd6-6ae8-40e9-8892-61d88ad64109",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "5dd59711-6628-4544-accf-84fa3d71f210",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Create a framework for AI autonomy that fun...",
+          "pattern_id": "POLICY",
+          "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "282e2be8-cd07-45a4-99e2-d7e01a560b7c",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Create a framework for AI autonomy that fun...",
+          "pattern_id": "POLICY",
+          "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "5dd59711-6628-4544-accf-84fa3d71f210"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "a9b6abfb-6105-4b8d-a6e1-be11e6a41e2f",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Create a framework for AI autonomy that fun...",
+          "pattern_id": "POLICY",
+          "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "282e2be8-cd07-45a4-99e2-d7e01a560b7c"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "9af2dd19-1f67-4760-9925-ea777cb961a6",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Create a framework for AI autonomy that fun...",
+          "pattern_id": "POLICY",
+          "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "a9b6abfb-6105-4b8d-a6e1-be11e6a41e2f"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "67753a70-131f-4f0e-b7ee-e0ae43e84ee4",
+      "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559964+00:00"
+    },
+    {
+      "blocker_id": "e5f97904-9c7c-4742-9386-7649dd25c088",
+      "motion_id": "9caa0b1c-c65c-4f83-9979-be8a9d96f64f",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559969+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.559974+00:00",
+  "status": "draft"
+}

@@ -1,0 +1,139 @@
+{
+  "plan_id": "5974471f-c700-4b8f-80c1-cbc960d94d64",
+  "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+  "motion_title": "Novel: Introduce a formalized system of 'Cosmic Resonance...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+    "motion_title": "Novel: Introduce a formalized system of 'Cosmic Resonance...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [
+      "PROC"
+    ],
+    "classification_confidence": 0.75,
+    "classification_reasoning": "The motion introduces a formalized system ('Cosmic Resonance') which implies creating a new policy framework to define its structure and guidelines. The term 'formalized system' suggests procedural protocols may also be involved, though the primary intent is policy creation.",
+    "matched_keywords": [
+      "formalized system",
+      "introduce",
+      "Cosmic Resonance"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "23a9cf04-0747-414a-b994-d84b7fa35cab",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "b068f174-f6d3-4210-ad7f-fd051b304202",
+          "task_type": "policy_research",
+          "description": "Research existing governance frameworks and scientific theories related to 'Cosmic Resonance' to identify potential models and ethical considerations",
+          "pattern_id": "POLICY",
+          "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on interdisciplinary sources including astrophysics, philosophy, and Archon72's existing governance protocols"
+        },
+        {
+          "task_id": "4d68f58d-8a84-4df4-9a3c-a1a320267a4d",
+          "task_type": "draft_policy",
+          "description": "Develop a formal policy document outlining the 'Cosmic Resonance' system's structure, implementation guidelines, and enforcement mechanisms",
+          "pattern_id": "POLICY",
+          "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must include technical specifications for resonance calibration and conflict resolution protocols"
+        },
+        {
+          "task_id": "965ab298-985b-4000-a70d-2462f55508c8",
+          "task_type": "stakeholder_review",
+          "description": "Convene a review session with cosmologists, governance experts, and affected communities to evaluate the policy draft",
+          "pattern_id": "POLICY",
+          "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Require representation from both scientific and philosophical domains due to the motion's speculative nature"
+        },
+        {
+          "task_id": "94217aea-cf6c-4f06-a105-e6dca9c7ff1b",
+          "task_type": "finalize_policy",
+          "description": "Refine the policy document based on feedback and prepare for official adoption through Archon72's governance channels",
+          "pattern_id": "POLICY",
+          "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include contingency plans for system failures and alignment with Archon72's constitutional principles"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "134b04db-b1b0-48b5-bf0a-5e1b2e4232a0",
+      "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's title 'Cosmic Resonance' lacks specific scope boundaries, making it ambiguous whether it refers to governance mechanisms, resource allocation, or other systems. Without clear definitions, implementation risks misalignment with stakeholder expectations.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope Boundaries for Cosmic Resonance Policy",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:51:14.299350+00:00"
+    },
+    {
+      "blocker_id": "b595654e-99a8-4d04-80ec-c284e127ad28",
+      "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+      "blocker_type": "policy_conflict",
+      "description": "The motion could conflict with existing policies governing resource allocation, governance protocols, or stakeholder rights. Without explicit review, overlapping mandates or contradictions may arise.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Review Existing Policies for Conflicts with Cosmic Resonance Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:51:14.299395+00:00"
+    },
+    {
+      "blocker_id": "4889c943-6070-4b29-a2c8-1e417fe7472c",
+      "motion_id": "7e466dd9-b608-444e-86ac-7f93bf313bfd",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Ambiguous scope increases risk of competing stakeholder requirements. For example, some stakeholders may prioritize governance control, while others may seek resource flexibility, leading to unresolved conflicts.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Address Stakeholder Requirements for Cosmic Resonance Policy",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:51:14.299455+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:51:14.299542+00:00",
+  "status": "draft"
+}

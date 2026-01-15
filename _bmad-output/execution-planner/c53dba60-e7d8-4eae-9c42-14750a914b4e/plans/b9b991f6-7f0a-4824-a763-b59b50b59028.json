@@ -1,0 +1,167 @@
+{
+  "plan_id": "b9b991f6-7f0a-4824-a763-b59b50b59028",
+  "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+  "motion_title": "Novel: Integrate predictive modeling and scenario analysi...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+    "motion_title": "Novel: Integrate predictive modeling and scenario analysi...",
+    "primary_pattern": "TECH",
+    "secondary_patterns": [
+      "RESEARCH"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion focuses on integrating predictive modeling and scenario analysis, which are technical implementations requiring algorithmic systems and data analysis infrastructure. While research aspects may be involved in developing these models, the primary intent is technical integration rather than pure investigation.",
+    "matched_keywords": [
+      "predictive modeling",
+      "scenario analysis",
+      "integrate"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "d3008c92-cbb5-44fd-96e4-ff70ff991466",
+      "phase_number": 1,
+      "pattern_id": "TECH",
+      "pattern_name": "Technical Safeguard",
+      "tasks": [
+        {
+          "task_id": "26f3eef2-a58f-41fc-afeb-6e1d3899fbf2",
+          "task_type": "technical_design",
+          "description": "Design the architecture for integrating predictive models and scenario analysis tools, including data pipelines, model deployment interfaces, and API endpoints for governance system interaction",
+          "pattern_id": "TECH",
+          "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Requires collaboration with data scientists to define model input/output specifications and ensure compatibility with existing governance frameworks"
+        },
+        {
+          "task_id": "d6a1a735-7334-42e8-8470-089158d056ff",
+          "task_type": "implementation",
+          "description": "Develop the core predictive modeling framework and scenario analysis engine, including model training pipelines, risk simulation modules, and real-time forecasting capabilities",
+          "pattern_id": "TECH",
+          "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Implementation must include secure data handling protocols and version control for machine learning models"
+        },
+        {
+          "task_id": "158c5f97-b9b7-4cdf-96b0-528be8f15dfa",
+          "task_type": "testing",
+          "description": "Create comprehensive test cases for predictive models and scenario analysis modules, including unit tests, integration tests with historical data, and stress testing for edge cases",
+          "pattern_id": "TECH",
+          "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Testing should validate model accuracy against benchmark datasets and ensure system stability under simulated governance workloads"
+        },
+        {
+          "task_id": "6ba630d9-11db-4905-ad1f-f12984c21ea9",
+          "task_type": "deployment",
+          "description": "Deploy predictive modeling and scenario analysis components to production environments, including blue-green deployment of machine learning models and API gateway configuration",
+          "pattern_id": "TECH",
+          "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Requires monitoring setup for model performance metrics and automated rollback procedures for failed deployments"
+        },
+        {
+          "task_id": "c8c8a913-a28d-42ac-821a-d51ee154512d",
+          "task_type": "documentation",
+          "description": "Create technical documentation for the predictive modeling architecture, including system diagrams, API references, model training procedures, and deployment guides",
+          "pattern_id": "TECH",
+          "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Documentation must include security considerations for AI models and compliance with governance system audit requirements"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "c1c320c5-ea58-402f-9cef-ef15386b3eb4",
+      "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+      "blocker_type": "missing_prerequisite",
+      "description": "The motion depends on the 'policy_framework' prerequisite, but there is no confirmation that this policy has been implemented or approved prior to this motion.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Policy Framework Implementation Status Review",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:42.996386+00:00"
+    },
+    {
+      "blocker_id": "17c7006c-363c-4d9e-b1b9-f521caa201c5",
+      "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+      "blocker_type": "undefined_scope",
+      "description": "The motion lacks specific details on acceptance criteria, integration points, and performance requirements, leading to ambiguity in implementation boundaries and success metrics.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope and Acceptance Criteria for Predictive Modeling Integration",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:42.996436+00:00"
+    },
+    {
+      "blocker_id": "fac25960-d5d3-4641-a67f-92db480b2068",
+      "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+      "blocker_type": "resource_gap",
+      "description": "The motion does not specify required infrastructure, computational resources, or budget allocation, which could delay or prevent successful implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation Assessment for Predictive Modeling Project",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:42.996471+00:00"
+    },
+    {
+      "blocker_id": "f476ea61-6fef-4649-81f0-adfc72f8d98f",
+      "motion_id": "35a39fdf-d292-4e99-a1f1-44153cd1eadb",
+      "blocker_type": "technical_infeasibility",
+      "description": "The motion's technical feasibility is unclear without details on data availability, algorithm compatibility, or system integration capabilities.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Technical Feasibility Evaluation of Predictive Modeling Integration",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:49:42.996505+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:49:42.996543+00:00",
+  "status": "draft"
+}

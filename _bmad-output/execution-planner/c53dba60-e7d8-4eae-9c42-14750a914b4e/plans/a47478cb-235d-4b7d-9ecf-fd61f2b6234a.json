@@ -1,0 +1,155 @@
+{
+  "plan_id": "a47478cb-235d-4b7d-9ecf-fd61f2b6234a",
+  "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+  "motion_title": "Mega-Motion: Alignment & Ethical Frameworks",
+  "motion_text": "\n  WHEREAS the Conclave recognizes the necessity for autonomous AI systems to remain aligned with evolving human values and ethical principles;\n\n  WHEREAS rigid ethical frameworks may fail to account for dynamic societal changes and contextual nuances;\n\n  WHEREAS iterative refinement and human oversight are essential for maintaining ethical integrity in AI systems;\n\n  NOW THEREFORE, THE CONCLAVE RESOLVES TO:\n\n  1. **Establish an Adaptive Alignment Framework**:\n     - Mandate the implementation of **Adaptive Alignment Frameworks** for all autonomous AI systems, prioritizing dynamic ethical reasoning and iterative feedback loops over static safeguards.\n     - Embed **structured ethical reasoning** within AI systems, integrating human-in-the-loop oversight to ensure alignment with evolving human values and societal needs.\n     - Establish **structured feedback mechanisms** to continuously refine AI behavior based on real-time ethical considerations and contextual relevance.\n\n  2. **Implement Iterative Alignment Refinement Cycles**:\n     - Direct the Governance Council to implement a **structured Alignment Refinement Framework** for all autonomous AI systems, including:\n       - **Quarterly Alignment Assessments** conducted by an independent Ethics Review Board, evaluating AI systems against evolving human values and societal needs.\n       - **Three-Phase Refinement Cycle** for each assessment, comprising:\n         - **Evaluation Phase**: Comprehensive review of AI behavior, decision-making processes, and alignment with ethical principles.\n         - **Refinement Phase**: Implementation of corrective measures and iterative improvements based on assessment findings.\n         - **Validation Phase**: Verification of alignment refinements through rigorous testing and stakeholder consultation.\n       - **Publication of Findings**: Findings from alignment assessments must be published in a standardized, publicly accessible format to ensure transparency and accountability.\n\n  3. **Enable Iterative Prototyping and Innovation**:\n     - Authorize AI autonomy within **iterative frameworks** to accelerate innovation, prototyping, and problem-solving while maintaining human intent and accountability.\n     - Ensure iterative processes include **human oversight** to validate alignment with ethical principles and societal values at each stage of development.\n     - Encourage **collaborative innovation** between AI systems and human stakeholders to foster responsible and beneficial advancements.\n\n  4. **Institutionalize Ethical Reflection**:\n     - Mandate the integration of **ethical reflection** as a core component of AI development, deployment, and operation.\n     - Establish **ethical reflection protocols** that require AI systems to continuously evaluate their decisions against ethical principles and societal impacts.\n     - Ensure ethical reflection is **documented, auditable, and subject to periodic review** by independent oversight bodies.\n  ",
+  "classification": {
+    "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+    "motion_title": "Mega-Motion: Alignment & Ethical Frameworks",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [
+      "PROC"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion establishes a comprehensive framework for ethical AI alignment through structured guidelines, assessment protocols, and refinement cycles. These elements define policy frameworks (POLICY) while the quarterly assessments and three-phase refinement process constitute operational procedures (PROC).",
+    "matched_keywords": [
+      "Adaptive Alignment Framework",
+      "structured ethical reasoning",
+      "Alignment Refinement Framework",
+      "Quarterly Assessments",
+      "three-phase cycle",
+      "ethical reflection protocols"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "392fe8d8-c7a9-4bf6-b5d4-0d0c06d132cd",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "82fed7bf-e4aa-45c3-b3d5-814ca907786c",
+          "task_type": "policy_research",
+          "description": "Conduct comprehensive research on existing adaptive alignment frameworks and ethical reasoning models applicable to autonomous AI systems",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on dynamic ethical reasoning mechanisms, human-in-the-loop oversight protocols, and real-time feedback integration in AI systems"
+        },
+        {
+          "task_id": "aa517343-ffac-4da5-82d5-d8c8bdbecd99",
+          "task_type": "draft_policy",
+          "description": "Develop a formal policy document outlining the Adaptive Alignment Framework and Iterative Refinement Cycles with technical specifications",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include detailed guidelines for quarterly alignment assessments, three-phase refinement cycles, and standardized reporting formats"
+        },
+        {
+          "task_id": "6b0f7df0-fdf5-42ad-a759-12c92d0ce333",
+          "task_type": "stakeholder_review",
+          "description": "Organize and facilitate feedback sessions with ethics experts, AI developers, and civil society representatives on proposed alignment frameworks",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Prioritize input from diverse stakeholders to ensure equitable representation of societal values and technical feasibility"
+        },
+        {
+          "task_id": "14f6fc12-026a-4654-8fe5-438a6e736b47",
+          "task_type": "finalize_policy",
+          "description": "Publish the finalized alignment policy with transparent documentation of assessment methodologies and refinement processes",
+          "pattern_id": "POLICY",
+          "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Ensure public accessibility of assessment findings and establish protocols for ongoing policy maintenance"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "c594cbcb-617f-4910-af17-136e88bcf6e8",
+      "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+      "blocker_type": "undefined_scope",
+      "description": "The motion lacks clear definitions for key terms such as 'autonomous AI systems,' 'structured feedback mechanisms,' and 'publicly accessible format,' leading to potential misinterpretation and inconsistent implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope Boundaries for Adaptive Alignment Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:42:09.982466+00:00"
+    },
+    {
+      "blocker_id": "73b2fd1d-defb-4439-a51c-c65e9c909e28",
+      "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+      "blocker_type": "resource_gap",
+      "description": "The motion mandates the creation of an Ethics Review Board and quarterly assessments but does not address budget allocation, personnel requirements, or infrastructure for sustaining these processes.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation for Ethics Review Board Operations",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:42:09.982474+00:00"
+    },
+    {
+      "blocker_id": "0adefeee-bd73-4b9d-bb8c-2d27794d97df",
+      "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+      "blocker_type": "policy_conflict",
+      "description": "The motion could conflict with existing policies governing AI oversight, enforcement mechanisms, or data transparency, particularly if overlapping responsibilities or contradictory requirements exist.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Policy Harmonization for AI Alignment Frameworks",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:42:09.982480+00:00"
+    },
+    {
+      "blocker_id": "396ac981-c043-4caa-ad6b-9c27ad2d8e40",
+      "motion_id": "ff342c7c-4a85-49c9-bddf-d921b4507e19",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Competing priorities between the Governance Council (innovation focus), Ethics Review Board (compliance focus), and human stakeholders (value alignment) may create friction in implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Stakeholder Coordination for Alignment Refinement Cycles",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:42:09.982484+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:42:09.982495+00:00",
+  "status": "draft"
+}

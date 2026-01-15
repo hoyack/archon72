@@ -1,0 +1,143 @@
+{
+  "plan_id": "3b840859-15d6-4b95-acf3-2449ea8950cb",
+  "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+  "motion_title": "Mega-Motion: Proactive & Iterative Frameworks",
+  "motion_text": "\nThe Conclave hereby directs the Governance Council to establish a **Proactive & Iterative AI Governance Framework** to ensure continuous improvement, innovation, and constitutional alignment of AI systems. This framework shall include the following provisions:\n\n1. **Iterative Prototyping & Innovation Framework**:\n   - Enable AI autonomy within **structured iterative frameworks** to accelerate innovation, prototyping, and problem-solving while maintaining human intent and accountability.\n   - Establish **sandbox environments** for experimental AI development, allowing controlled testing of emerging capabilities (e.g., AGI, autonomous systems) under strict oversight.\n\n2. **Amendments for Proactive Measures**:\n   - Amend existing governance frameworks to incorporate **granular risk management protocols** addressing emergent complexities in AI systems.\n   - Integrate **constitutional alignment mechanisms** to ensure AI systems remain aligned with evolving ethical, legal, and societal norms.\n\n3. **Continuous Evaluation and Improvement**:\n   - **Mandate quarterly independent audits** of all AI systems, with reports submitted to the Ethics Review Board and public disclosure of critical findings to ensure transparency.\n   - Establish a **Dynamic Improvement Task Force**, comprising AI researchers, ethicists, policymakers, and operational experts, to design and implement iterative evaluation protocols for emerging AI capabilities.\n   - Implement **real-time feedback mechanisms** requiring developers to incorporate stakeholder input and audit findings into iterative improvement cycles.\n\n4. **Proactive Risk Mitigation**:\n   - Develop **adaptive risk assessment methodologies** to preemptively identify and address potential ethical, safety, and societal risks in AI systems.\n   - Integrate **proactive constitutional review processes** to ensure alignment with constitutional principles and evolving societal values.\n\n5. **Cross-Disciplinary Collaboration**:\n   - Foster collaboration between AI developers, ethicists, policymakers, and operational experts to address emerging challenges in AI governance proactively.\n   - Establish **permanent working groups** to monitor advancements in AI and propose amendments to the framework as needed.\n\nThis framework shall be continuously refined through iterative feedback loops, ensuring that AI systems evolve responsibly and in alignment with human values and societal needs.\n",
+  "classification": {
+    "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+    "motion_title": "Mega-Motion: Proactive & Iterative Frameworks",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "bcfbeba3-0734-423c-bbfc-35590bc70b01",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "ed955373-9355-448f-9583-f17b6dcf3f00",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Proactive & Iterative Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "26dbcfe9-3c07-41ec-aff9-2b1de6a26ce6",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Proactive & Iterative Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "ed955373-9355-448f-9583-f17b6dcf3f00"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "68726cc6-7f47-4ac2-882c-ed716d74a4a3",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Proactive & Iterative Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "26dbcfe9-3c07-41ec-aff9-2b1de6a26ce6"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "2875ef17-e807-46ca-80d2-9dfa2e1cf2c7",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Proactive & Iterative Frameworks...",
+          "pattern_id": "POLICY",
+          "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "68726cc6-7f47-4ac2-882c-ed716d74a4a3"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "1c5499a1-bd2e-422e-bf42-d18458cafee9",
+      "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+      "blocker_type": "undefined_scope",
+      "description": "Motion contains ambiguous language: 'as needed'",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify scope for: Mega-Motion: Proactive & Iterative Frameworks...",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.214099+00:00"
+    },
+    {
+      "blocker_id": "fed3e22e-3bb9-4e34-a5bd-e05148f65d73",
+      "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.214104+00:00"
+    },
+    {
+      "blocker_id": "eb85363a-9d85-45c2-8fe8-6416a9e7732a",
+      "motion_id": "21a85f78-a8bf-417c-ae06-de397ffeddfd",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.214107+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_changelog",
+    "review_comments",
+    "policy_document"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:32:25.214113+00:00",
+  "status": "draft"
+}

@@ -1,0 +1,130 @@
+{
+  "plan_id": "5aaef05f-32ed-4043-bbdc-5fea26f5f327",
+  "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+  "motion_title": "Novel: Address concerns about accountability and bias thr...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+    "motion_title": "Novel: Address concerns about accountability and bias thr...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "ee47a922-aeee-4d61-8662-44b8cf45a514",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "afec6355-60be-4f46-b8c0-750e0b81aebf",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Address concerns about accountability and b...",
+          "pattern_id": "POLICY",
+          "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "d79f9197-72bb-4420-b6a7-d6431c1fdfa4",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Address concerns about accountability and b...",
+          "pattern_id": "POLICY",
+          "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "afec6355-60be-4f46-b8c0-750e0b81aebf"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "09161f0e-7bed-4dcc-be96-66e0860d5615",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Address concerns about accountability and b...",
+          "pattern_id": "POLICY",
+          "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "d79f9197-72bb-4420-b6a7-d6431c1fdfa4"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "f48fb637-be98-435f-a32d-a45f4c93439f",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Address concerns about accountability and b...",
+          "pattern_id": "POLICY",
+          "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "09161f0e-7bed-4dcc-be96-66e0860d5615"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "8d90179f-3ab1-44a6-9728-948016b1ab1f",
+      "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.562275+00:00"
+    },
+    {
+      "blocker_id": "ea38bb85-45a4-455d-a4b6-65f5925df91d",
+      "motion_id": "dc0ccae1-9232-4cfc-85fa-05b6b267da99",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.562282+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.562292+00:00",
+  "status": "draft"
+}

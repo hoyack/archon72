@@ -1,0 +1,137 @@
+{
+  "plan_id": "b49bb0ee-f08a-4780-93a5-e1aa33a2a9f8",
+  "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+  "motion_title": "Novel: Adopt a framework that embraces the AI\u2019s autonomy ...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+    "motion_title": "Novel: Adopt a framework that embraces the AI\u2019s autonomy ...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion explicitly calls for adopting a framework to 'embrace the AI\u2019s autonomy,' which directly aligns with creating or updating policy guidelines. The focus on establishing a structured approach to AI autonomy indicates a policy framework rather than technical safeguards, organizational changes, or other patterns. No secondary patterns are evident given the motion\u2019s narrow scope.",
+    "matched_keywords": [
+      "framework",
+      "AI\u2019s autonomy",
+      "embrace"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "e9153b3f-0d94-4794-8f66-df75f8f02eee",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "1ea575ec-b236-438f-af52-a0ddadd01c53",
+          "task_type": "policy_research",
+          "description": "Research existing AI governance frameworks, ethical guidelines, and autonomy protocols to identify best practices for balancing AI autonomy with accountability",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on AI autonomy frameworks from academia, industry standards, and regulatory bodies. Prioritize research on risk mitigation strategies for autonomous systems."
+        },
+        {
+          "task_id": "7f1e512c-4acb-44e9-a8b3-fb951d7b9b51",
+          "task_type": "draft_policy",
+          "description": "Develop a policy document outlining a framework for AI autonomy, including governance mechanisms, transparency requirements, and human oversight protocols",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "The policy must address technical autonomy boundaries, decision-making accountability, and integration with existing Archon72 systems. Include specific implementation guidelines."
+        },
+        {
+          "task_id": "d93fad72-03e9-4789-a15a-9fc38892368f",
+          "task_type": "stakeholder_review",
+          "description": "Conduct targeted feedback sessions with AI developers, ethicists, and system operators to refine the autonomy framework policy",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Prioritize engagement with technical teams and ethical review boards. Address concerns about system overreach vs. operational efficiency."
+        },
+        {
+          "task_id": "04fd08a5-c19e-4ca3-82ba-5c7c27cc0983",
+          "task_type": "finalize_policy",
+          "description": "Integrate stakeholder feedback into the policy document, obtain legal review, and prepare for formal adoption through Archon72 governance channels",
+          "pattern_id": "POLICY",
+          "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Ensure alignment with Archon72's existing governance protocols. Include implementation timelines and compliance verification procedures."
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "9386172f-24ac-4c83-8ec6-49d7071c826a",
+      "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's title mentions 'embrace the AI\u2019s autonomy' but lacks specific boundaries for the framework's application, such as scope limitations, governance parameters, or operational constraints.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify the Scope and Boundaries of the AI Autonomy Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:02.648157+00:00"
+    },
+    {
+      "blocker_id": "458b1fd9-8263-4d94-b3f3-f7b50378930f",
+      "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+      "blocker_type": "policy_conflict",
+      "description": "The motion may conflict with existing policies that regulate AI behavior, data governance, or accountability, particularly if the framework's autonomy provisions contradict enforceable obligations.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resolve Conflicts Between the AI Autonomy Framework and Existing Policies",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:02.648202+00:00"
+    },
+    {
+      "blocker_id": "aa7a031a-b1d3-4622-bc3d-2fa08358e880",
+      "motion_id": "181eacc2-99c1-4588-9977-4a8987ff529c",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Stakeholders with competing interests (e.g., developers, regulators, end-users) may demand conflicting requirements regarding AI autonomy, oversight, and accountability.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Address Stakeholder Requirements for AI Autonomy Governance",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:48:02.648242+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:48:02.648281+00:00",
+  "status": "draft"
+}

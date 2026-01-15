@@ -1,0 +1,130 @@
+{
+  "plan_id": "7e76b480-7945-4c3b-ba7a-5c66c0e32e3d",
+  "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+  "motion_title": "Mega-Motion: Continuous Improvement & Evaluation",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+    "motion_title": "Mega-Motion: Continuous Improvement & Evaluation",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "426cfdbf-538a-4cda-a851-398a97706d01",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "86256e4b-d324-4bc8-ad9c-22ae885514e8",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Continuous Improvement & Evaluation...",
+          "pattern_id": "POLICY",
+          "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "655d88d3-baad-4bb4-965b-39ac8ad96937",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Continuous Improvement & Evaluation...",
+          "pattern_id": "POLICY",
+          "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "86256e4b-d324-4bc8-ad9c-22ae885514e8"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "6557ede9-fdc5-4f84-8651-e84872821e6d",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Continuous Improvement & Evaluation...",
+          "pattern_id": "POLICY",
+          "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "655d88d3-baad-4bb4-965b-39ac8ad96937"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "d2a969c3-4064-480c-9f06-38ce7dc222ad",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Continuous Improvement & Evaluation...",
+          "pattern_id": "POLICY",
+          "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "6557ede9-fdc5-4f84-8651-e84872821e6d"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "05c1ba90-d903-40cc-9bab-5d09e0ae3afc",
+      "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559573+00:00"
+    },
+    {
+      "blocker_id": "cd6fde7e-ec6a-4f22-aa7c-b7bc0351c036",
+      "motion_id": "cbf20627-e747-41a5-acc1-bf23d1f221a0",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559578+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.559583+00:00",
+  "status": "draft"
+}

@@ -1,0 +1,130 @@
+{
+  "plan_id": "7b44481a-21c4-48d4-9400-980f5fe85a24",
+  "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+  "motion_title": "Mega-Motion: Comprehensive Transparency and Auditability Framework for Autonomous AI Systems",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+    "motion_title": "Mega-Motion: Comprehensive Transparency and Auditability Framework for Autonomous AI Systems",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "2872f96b-fdcf-4c5d-a6dd-40e23cdc9fa4",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "d447e8d6-4c10-4907-a221-c4cc82974e57",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Comprehensive Transparency and Audita...",
+          "pattern_id": "POLICY",
+          "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "819984e9-9682-48bf-92e6-bdcaf150d0e1",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Comprehensive Transparency and Audita...",
+          "pattern_id": "POLICY",
+          "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "d447e8d6-4c10-4907-a221-c4cc82974e57"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "5d79bc54-7e26-48d6-84ff-b4f01e6f8e3d",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Comprehensive Transparency and Audita...",
+          "pattern_id": "POLICY",
+          "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "819984e9-9682-48bf-92e6-bdcaf150d0e1"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "bbbd25a9-35b9-47e7-91c1-7aa622b7f719",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Comprehensive Transparency and Audita...",
+          "pattern_id": "POLICY",
+          "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "5d79bc54-7e26-48d6-84ff-b4f01e6f8e3d"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "c1a89fcc-9a56-4668-ac98-89e71159c71d",
+      "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.558482+00:00"
+    },
+    {
+      "blocker_id": "239fa0f7-706b-4b22-8e17-42549affc445",
+      "motion_id": "1253bcdf-aca3-427d-a536-82ab93263d88",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.558488+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.558495+00:00",
+  "status": "draft"
+}

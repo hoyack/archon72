@@ -1,0 +1,154 @@
+{
+  "plan_id": "f41ab8b4-9f38-446e-a766-e52601fe8f8a",
+  "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+  "motion_title": "Novel: Establish a cluster-led task force comprising 12 c...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+    "motion_title": "Novel: Establish a cluster-led task force comprising 12 c...",
+    "primary_pattern": "ORG",
+    "secondary_patterns": [
+      "PROC"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion establishes a new cluster-led task force with specific membership (12 members), which directly relates to modifying organizational structures and roles. The secondary pattern 'Process Protocol' applies because the motion implies the need to define operational workflows for the task force's functioning.",
+    "matched_keywords": [
+      "task force",
+      "cluster-led",
+      "comprising 12"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "83cf54cd-e0dd-420d-8da7-5ab34dc179ea",
+      "phase_number": 1,
+      "pattern_id": "ORG",
+      "pattern_name": "Organizational Structure",
+      "tasks": [
+        {
+          "task_id": "2b3cf8ed-2cdf-42ea-851e-3d95144a0a9d",
+          "task_type": "current_state_analysis",
+          "description": "Document existing organizational structures and identify current task force configurations within the Archon72 governance system",
+          "pattern_id": "ORG",
+          "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on existing cluster leadership models and task force composition metrics"
+        },
+        {
+          "task_id": "5ed0d7d3-954a-41f0-961f-2322849c0f8a",
+          "task_type": "future_state_design",
+          "description": "Design the cluster-led task force structure with 12 members, defining roles, decision-making protocols, and cluster coordination mechanisms",
+          "pattern_id": "ORG",
+          "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must align with Archon72's decentralized governance principles and cluster autonomy frameworks"
+        },
+        {
+          "task_id": "9ee4d2ae-3506-474e-a706-550c1e547572",
+          "task_type": "gap_analysis",
+          "description": "Identify resource requirements, policy updates, and capability gaps for transitioning to cluster-led task force operations",
+          "pattern_id": "ORG",
+          "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include analysis of cluster coordination tools and member qualification criteria"
+        },
+        {
+          "task_id": "38b7c732-9dce-404e-8300-997600434435",
+          "task_type": "transition_plan",
+          "description": "Develop a phased implementation plan for establishing the new task force, including cluster selection, member onboarding, and operational readiness timelines",
+          "pattern_id": "ORG",
+          "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must account for existing cluster priorities and governance transition risks"
+        },
+        {
+          "task_id": "aa6c7ded-bd1a-4299-afdd-a57bd2977daf",
+          "task_type": "execute_transition",
+          "description": "Implement the cluster-led task force structure through formal governance channels, including member appointments and procedural updates",
+          "pattern_id": "ORG",
+          "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Require coordination with all 12 cluster representatives and governance protocol updates"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "115cc237-174e-4e80-95f2-9a42e49ea773",
+      "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+      "blocker_type": "undefined_scope",
+      "description": "The motion lacks clarity on the task force's specific objectives, cluster affiliations, member selection criteria, and operational boundaries, creating ambiguity about its role and authority.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify Task Force Scope and Authority Boundaries",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:50:12.996967+00:00"
+    },
+    {
+      "blocker_id": "c0e71c28-54ea-4aa0-8e14-8f7c4d7aa1e8",
+      "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+      "blocker_type": "resource_gap",
+      "description": "No budget allocation, personnel assignments, or infrastructure requirements are specified for the 12-member task force, risking operational infeasibility.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation for Cluster-Led Task Force",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:50:12.996996+00:00"
+    },
+    {
+      "blocker_id": "7204b9ef-1f0d-4f24-9d7d-f218d9ef882b",
+      "motion_id": "a49f8136-7d5d-444c-a6d2-64c8c14bc871",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Competing interests among clusters and existing roles may arise without explicit conflict-resolution mechanisms or stakeholder alignment processes.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Stakeholder Alignment for Task Force Implementation",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:50:12.997024+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:50:12.997055+00:00",
+  "status": "draft"
+}

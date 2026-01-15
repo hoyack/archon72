@@ -1,0 +1,130 @@
+{
+  "plan_id": "e95756e2-e15a-4045-bf0f-4fb95a73283f",
+  "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+  "motion_title": "Novel: Integrate real-time feedback loops to adjust AI\u2019s ...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+    "motion_title": "Novel: Integrate real-time feedback loops to adjust AI\u2019s ...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "51279def-c94a-46c3-b83f-0370661ebc43",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "657ff5db-ad0e-4b06-afda-76dd35f2c3b0",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Integrate real-time feedback loops to adjus...",
+          "pattern_id": "POLICY",
+          "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "3feaaebd-c0bb-4cd4-bea9-e4238c1925d6",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Integrate real-time feedback loops to adjus...",
+          "pattern_id": "POLICY",
+          "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "657ff5db-ad0e-4b06-afda-76dd35f2c3b0"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "5dbe9795-fd50-4a9c-bf16-6df05e0fa140",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Integrate real-time feedback loops to adjus...",
+          "pattern_id": "POLICY",
+          "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "3feaaebd-c0bb-4cd4-bea9-e4238c1925d6"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "3a1afe77-ec2e-4389-89ae-bc9783376a44",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Integrate real-time feedback loops to adjus...",
+          "pattern_id": "POLICY",
+          "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "5dbe9795-fd50-4a9c-bf16-6df05e0fa140"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "50eb2e1e-bee1-4777-b103-120e1ec75d6b",
+      "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.561874+00:00"
+    },
+    {
+      "blocker_id": "9536022d-97a5-4ee1-8751-2fafefd36294",
+      "motion_id": "0dad8c8c-fcc2-4c83-b2a7-49338860639b",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.561882+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.561892+00:00",
+  "status": "draft"
+}

@@ -1,0 +1,130 @@
+{
+  "plan_id": "aa08b2bc-503e-4a20-9264-a5774cb7c990",
+  "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+  "motion_title": "Mega-Motion: Cognitive & Bias Mapping",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+    "motion_title": "Mega-Motion: Cognitive & Bias Mapping",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "b8af3ba4-2820-4dd7-987c-aff345a4e613",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "1485c1ff-47e8-4588-9610-742b6c72171b",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Cognitive & Bias Mapping...",
+          "pattern_id": "POLICY",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "4ca0c0d1-a720-4036-b788-9cb02954f9e7",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Cognitive & Bias Mapping...",
+          "pattern_id": "POLICY",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "1485c1ff-47e8-4588-9610-742b6c72171b"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "51b8c86f-b175-474c-b548-102867a9ca99",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Cognitive & Bias Mapping...",
+          "pattern_id": "POLICY",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "4ca0c0d1-a720-4036-b788-9cb02954f9e7"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "84e43f26-cd1f-4c86-84c1-a8b37bec1f45",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Cognitive & Bias Mapping...",
+          "pattern_id": "POLICY",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "51b8c86f-b175-474c-b548-102867a9ca99"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "69a8a816-4db1-411d-9005-08708864e0da",
+      "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559695+00:00"
+    },
+    {
+      "blocker_id": "4ea14ec4-e188-4a3c-becb-756af8bf9232",
+      "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:31:02.559700+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "review_comments",
+    "policy_document",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:31:02.559705+00:00",
+  "status": "draft"
+}

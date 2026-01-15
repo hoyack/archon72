@@ -1,0 +1,139 @@
+{
+  "plan_id": "c373219d-a101-420b-a512-61c49a988e1b",
+  "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+  "motion_title": "Novel: Define 'human values' through inclusive, participa...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+    "motion_title": "Novel: Define 'human values' through inclusive, participa...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [
+      "PROC"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion focuses on creating a framework to define 'human values' through participatory processes, which aligns with POLICY (Policy Framework) as it establishes guidelines for value definitions. The mention of 'inclusive, participatory processes' also ties to PROC (Process Protocol) for operationalizing the policy.",
+    "matched_keywords": [
+      "define 'human values'",
+      "inclusive",
+      "participatory processes"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "3a506a8e-3173-4fee-802d-60d5597a2c6b",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "ad8765df-dba9-4819-9604-ec5f6389f9ec",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices related to defining human values through inclusive, participatory governance frameworks, including ethical guidelines and community engagement models",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on interdisciplinary sources including philosophy, sociology, and open governance frameworks to establish foundational principles"
+        },
+        {
+          "task_id": "7701a6bd-786c-4650-a8a3-4d0ca7d0858d",
+          "task_type": "draft_policy",
+          "description": "Draft a policy document outlining the definition of 'human values' through inclusive, participatory processes, including guidelines for implementation and conflict resolution mechanisms",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Require creation of actionable frameworks for value articulation, ensuring accessibility for diverse stakeholder groups"
+        },
+        {
+          "task_id": "d0ecd11b-d1a5-494e-9026-61fe0bf9f494",
+          "task_type": "stakeholder_review",
+          "description": "Convene multi-stakeholder workshops to gather feedback on the draft policy, prioritizing representation from marginalized communities and value-driven organizations",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Emphasize iterative feedback cycles and cultural sensitivity in engagement strategies"
+        },
+        {
+          "task_id": "0a0b05f1-f049-4404-b40b-cd2aebed7ef4",
+          "task_type": "finalize_policy",
+          "description": "Incorporate stakeholder feedback into the policy document, finalize guidelines, and publish the official policy with implementation timelines and accountability measures",
+          "pattern_id": "POLICY",
+          "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include mechanisms for ongoing review and adaptation to ensure long-term relevance to evolving societal values"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "fce62c85-ea92-4eeb-b490-05d989f48e23",
+      "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+      "blocker_type": "undefined_scope",
+      "description": "The motion lacks clear boundaries for defining 'human values,' such as specific criteria, exclusionary factors, or procedural guidelines for the participatory process. Ambiguous language risks misinterpretation or inconsistent application.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Scope Boundaries for Human Values Policy",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:51:51.535781+00:00"
+    },
+    {
+      "blocker_id": "c2e72065-31b5-4b21-91a3-00a63b890895",
+      "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+      "blocker_type": "resource_gap",
+      "description": "The motion does not specify required resources (budget, personnel, infrastructure) for organizing inclusive participatory processes or sustaining long-term value alignment efforts.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resource Allocation for Participatory Process",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:51:51.535787+00:00"
+    },
+    {
+      "blocker_id": "9a14a4d4-483d-47bd-a433-673405527726",
+      "motion_id": "ad963ff7-8a3b-4411-999a-69d4c6e30338",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Competing stakeholder priorities (e.g., individual vs. collective values, cultural differences) may arise, leading to disputes over which values should be prioritized or how to balance diverse perspectives.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resolve Stakeholder Requirements for Human Values Definition",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:51:51.535791+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:51:51.535800+00:00",
+  "status": "draft"
+}

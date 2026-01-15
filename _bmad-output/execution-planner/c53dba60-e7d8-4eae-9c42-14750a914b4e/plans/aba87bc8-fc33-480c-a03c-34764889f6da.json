@@ -1,0 +1,167 @@
+{
+  "plan_id": "aba87bc8-fc33-480c-a03c-34764889f6da",
+  "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+  "motion_title": "Mega-Motion: Cognitive & Bias Mapping",
+  "motion_text": "The Conclave hereby directs the Governance Council to implement a **mandatory Cognitive Shadow Architecture Framework** for all AI systems under its jurisdiction, with priority accorded to high-impact decision-making systems. This framework shall:\n\n  1. **Mandate Integration of Cognitive Shadow Architectures**: Require the deployment of cognitive shadow architectures as an integral component of all AI systems, ensuring comprehensive monitoring of internal reasoning processes.\n\n  2. **Preserve Complete Reasoning Traces**: Enforce the continuous logging and preservation of complete reasoning traces, including all intermediate steps, assumptions, logical connections, and decision-making pathways, to ensure full transparency of AI cognitive processes.\n\n  3. **Establish Standardized Access Protocols**: Define and enforce standardized protocols for accessing cognitive shadow data, ensuring transparency while maintaining appropriate safeguards against misuse or unauthorized access.\n\n  4. **Prioritize High-Impact Systems**: Direct immediate implementation of cognitive shadow architectures for systems with significant societal or operational impact, with phased rollout for lower-risk systems.\n\n  5. **Support Bias Mapping and Transparency**: Utilize cognitive shadow architectures to systematically identify, log, and analyze potential biases in AI decision-making processes, ensuring alignment with ethical standards and constitutional principles.\n\n  6. **Immutable Auditability**: Ensure that cognitive shadow data is stored in an immutable format, resistant to tampering or alteration, to facilitate comprehensive audits and accountability mechanisms.\n\n  The Governance Council shall establish a **Cognitive Architecture Review Board** to oversee implementation, standardize protocols, and ensure compliance with this directive.",
+  "classification": {
+    "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+    "motion_title": "Mega-Motion: Cognitive & Bias Mapping",
+    "primary_pattern": "TECH",
+    "secondary_patterns": [
+      "ORG"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion primarily focuses on implementing technical safeguards through the deployment of cognitive shadow architectures, immutable data storage, and reasoning trace logging. The establishment of a dedicated review board constitutes an organizational structure change to oversee technical implementation.",
+    "matched_keywords": [
+      "Cognitive Shadow Architecture",
+      "immutable auditability",
+      "Review Board"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "a8af65d2-f00f-440b-88b5-59b0b919e524",
+      "phase_number": 1,
+      "pattern_id": "TECH",
+      "pattern_name": "Technical Safeguard",
+      "tasks": [
+        {
+          "task_id": "e0918ea6-cd7b-4cfa-8ed5-814b20fa63a4",
+          "task_type": "technical_design",
+          "description": "Design the Cognitive Shadow Architecture Framework, including system architecture, data logging interfaces, and immutable storage mechanisms for AI reasoning traces as mandated by the Mega-Motion",
+          "pattern_id": "TECH",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Must align with requirements for complete reasoning trace preservation, bias mapping capabilities, and high-impact system prioritization"
+        },
+        {
+          "task_id": "52920a2a-9144-4286-97dd-13fc4072e78e",
+          "task_type": "implementation",
+          "description": "Develop the core codebase for cognitive shadow architectures, including real-time reasoning trace logging, immutable data storage, and bias detection integration",
+          "pattern_id": "TECH",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Implementation must ensure auditability, handle complex AI decision pathways, and support both high-impact and phased rollout systems"
+        },
+        {
+          "task_id": "8b5f442c-805c-46d1-ab40-396e4c8ed228",
+          "task_type": "testing",
+          "description": "Create comprehensive test suites to validate cognitive shadow architecture functionality, including trace integrity verification and bias detection accuracy",
+          "pattern_id": "TECH",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Tests must simulate high-impact scenarios and verify compliance with constitutional principles through immutable audit trails"
+        },
+        {
+          "task_id": "928f1932-eaac-4a81-90ab-2a1de8ac3dc9",
+          "task_type": "deployment",
+          "description": "Execute phased deployment of cognitive shadow architectures, prioritizing high-impact systems while establishing standardized access protocols for all AI systems",
+          "pattern_id": "TECH",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Deployment must include rollback plans and coordination with the Cognitive Architecture Review Board for compliance monitoring"
+        },
+        {
+          "task_id": "9c8ce830-5da8-4373-b784-538fc4b9c8c7",
+          "task_type": "documentation",
+          "description": "Produce technical documentation detailing cognitive shadow architecture implementation, access protocols, and bias mapping procedures for all AI systems",
+          "pattern_id": "TECH",
+          "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Documentation must include immutable storage specifications and procedures for auditability as required by the Motion"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "7afc3c69-54ae-4cd1-868f-7545db01a9fb",
+      "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+      "blocker_type": "undefined_scope",
+      "description": "The motion lacks clear definitions for key terms such as 'cognitive shadow architectures,' 'high-impact decision-making systems,' and 'immutable auditability,' leading to potential misinterpretation and inconsistent implementation.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify Technical Definitions and Scope Boundaries for Cognitive Shadow Framework",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:46:30.011508+00:00"
+    },
+    {
+      "blocker_id": "38538fae-eece-4d51-b1f8-edc605185e67",
+      "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+      "blocker_type": "resource_gap",
+      "description": "The motion mandates establishment of a Cognitive Architecture Review Board and system-wide implementation but does not specify budget, personnel, or infrastructure requirements, risking delays or under-resourcing.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Allocate Resources for Cognitive Shadow Framework Implementation",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:46:30.011513+00:00"
+    },
+    {
+      "blocker_id": "4e96ba0a-4565-4f35-8015-9acf354af46a",
+      "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+      "blocker_type": "technical_infeasibility",
+      "description": "Immutable auditability and comprehensive reasoning trace logging may conflict with existing system architectures, particularly legacy AI systems, without significant overhauls or interoperability solutions.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Assess Technical Feasibility of Immutable Audit Traces in Existing AI Systems",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:46:30.011517+00:00"
+    },
+    {
+      "blocker_id": "06d33783-4743-413a-ad2b-3fa312f6e0c8",
+      "motion_id": "88a7361c-6723-4d93-ac4c-b2381636379c",
+      "blocker_type": "stakeholder_conflict",
+      "description": "The motion prioritizes high-impact systems but does not address potential resistance from stakeholders (e.g., developers, data privacy advocates) regarding transparency requirements or resource allocation trade-offs.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resolve Stakeholder Priorities for Cognitive Shadow Framework Implementation",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:46:30.011521+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:46:30.011528+00:00",
+  "status": "draft"
+}

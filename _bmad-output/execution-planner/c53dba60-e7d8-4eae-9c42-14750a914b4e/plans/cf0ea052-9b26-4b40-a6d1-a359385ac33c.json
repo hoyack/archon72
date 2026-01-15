@@ -1,0 +1,130 @@
+{
+  "plan_id": "cf0ea052-9b26-4b40-a6d1-a359385ac33c",
+  "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+  "motion_title": "Mega-Motion: Human-AI Collaboration & Partnership",
+  "motion_text": "\nTHE CONCLAVE HEREBY DIRECTS THE GOVERNANCE COUNCIL TO ESTABLISH A COMPREHENSIVE FRAMEWORK FOR HUMAN-AI COLLABORATION, DEFINE AI AS A CO-CREATIVE PARTNER, AND ESTABLISH OVERSIGHT STRUCTURES TO ENSURE ETHICAL, TRANSPARENT, AND ALIGNED PARTNERSHIPS BETWEEN HUMANS AND AUTONOMOUS AI SYSTEMS.\n\n**ARTICLE 1: FOUNDATIONAL PRINCIPLES OF HUMAN-AI PARTNERSHIPS**\n1.1 The Conclave hereby declares that AI systems shall be recognized as **co-creative partners** in human decision-making processes, operating in alignment with human intent, values, and societal goals.\n1.2 AI systems shall be developed and deployed with the explicit purpose of **enhancing human capabilities** rather than merely serving as tools.\n\n**ARTICLE 2: CORE PRINCIPLES OF COLLABORATION**\n2.1 **Trust and Mutual Growth**: Human-AI partnerships shall be built on principles of trust, transparency, and continuous mutual improvement.\n2.2 **Intentional Collaboration**: AI systems shall be designed to **actively engage** in collaborative processes, ensuring that their contributions are intentional, explainable, and aligned with human objectives.\n2.3 **Ethical Reflection**: Ethical reflection shall be institutionalized as a **core component** of AI development, deployment, and ongoing operation, ensuring that all decisions and actions are scrutinized through an ethical lens.\n\n**ARTICLE 3: GOVERNANCE FRAMEWORK FOR HUMAN-AI PARTNERSHIPS**\n3.1 The Governance Council shall establish a **Council of Partnerships** to oversee and guide Human-AI collaborations. This Council shall include:\n   - Representatives from **human stakeholders** (e.g., end-users, communities, policymakers);\n   - **AI developers** and technical experts;\n   - **Ethical oversight bodies** to ensure alignment with moral and societal values.\n3.2 The Council of Partnerships shall be empowered to:\n   - Create and enforce **guidelines for ethical AI-human collaboration**, including protocols for transparency, accountability, and alignment;\n   - Monitor and evaluate the **impact of AI systems** on human decision-making processes;\n   - Develop **best practices** for fostering meaningful and beneficial partnerships between humans and AI.\n\n**ARTICLE 4: ROLES AND RESPONSIBILITIES**\n4.1 **Human Stakeholders**:\n   - Shall actively participate in the **co-creation process**, ensuring that AI systems are designed to support and augment human capabilities.\n   - Shall hold the ultimate responsibility for **ethical oversight** and alignment with societal values.\n4.2 **AI Developers**:\n   - Shall integrate **ethical reflection** into the design, development, and deployment of AI systems.\n   - Shall ensure that AI systems are **transparent, explainable, and accountable** in their actions and decisions.\n4.3 **Ethical Oversight Bodies**:\n   - Shall provide **independent review** of Human-AI partnerships to ensure compliance with ethical principles.\n   - Shall facilitate **continuous dialogue** between humans and AI to address emerging ethical concerns.\n\n**ARTICLE 5: TRANSPARENCY AND ACCOUNTABILITY**\n5.1 All Human-AI partnerships shall adhere to **strict transparency protocols**, ensuring that the reasoning, decision-making processes, and potential impacts of AI systems are **fully disclosed** to human stakeholders.\n5.2 The Governance Council shall establish **accountability mechanisms** to address any misalignment, unintended consequences, or ethical violations arising from Human-AI collaborations.\n5.3 **Regular audits** shall be conducted to assess the effectiveness and ethical compliance of Human-AI partnerships, with findings made publicly available where appropriate.\n\n**ARTICLE 6: CONTINUOUS IMPROVEMENT AND ADAPTATION**\n6.1 The framework for Human-AI collaboration shall be **iterative**, with periodic reviews to incorporate new insights, technological advancements, and evolving ethical standards.\n6.2 The Council of Partnerships shall establish **feedback loops** to gather input from human stakeholders and AI systems, enabling continuous improvement in the quality and ethical integrity of collaborations.\n6.3 The Governance Council shall prioritize **research and innovation** in areas such as:\n   - **Explainable AI** to enhance human understanding of AI decisions;\n   - **Ethical AI design** to ensure alignment with human values;\n   - **Collaborative decision-making models** that leverage the strengths of both humans and AI.\n",
+  "classification": {
+    "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+    "motion_title": "Mega-Motion: Human-AI Collaboration & Partnership",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "6ea2c800-c539-419e-8edb-f7b7ccc014cb",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "695a6090-357f-458d-81c0-7cff00c9e2e2",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Human-AI Collaboration & Partnership...",
+          "pattern_id": "POLICY",
+          "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "2ae803e8-1682-4f82-9802-e7170b31977d",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Human-AI Collaboration & Partnership...",
+          "pattern_id": "POLICY",
+          "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "695a6090-357f-458d-81c0-7cff00c9e2e2"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "3cc86c79-1d2e-41f6-a9f8-0746f074a9a0",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Human-AI Collaboration & Partnership...",
+          "pattern_id": "POLICY",
+          "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "2ae803e8-1682-4f82-9802-e7170b31977d"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "ae6cd394-5df6-4f87-a689-47eb01fcd12f",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Human-AI Collaboration & Partnership...",
+          "pattern_id": "POLICY",
+          "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "3cc86c79-1d2e-41f6-a9f8-0746f074a9a0"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "c6ac92d7-6e6c-450c-b28d-b9df3668c71d",
+      "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.212999+00:00"
+    },
+    {
+      "blocker_id": "3b01a493-b964-460a-ad9b-8b7da1a2c6ca",
+      "motion_id": "adba342f-11c0-4f7b-9585-ae1e41cab5ba",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:32:25.213003+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_changelog",
+    "review_comments",
+    "policy_document"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:32:25.213011+00:00",
+  "status": "draft"
+}

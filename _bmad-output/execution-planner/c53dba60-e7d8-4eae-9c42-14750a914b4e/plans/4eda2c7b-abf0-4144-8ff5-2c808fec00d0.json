@@ -1,0 +1,130 @@
+{
+  "plan_id": "4eda2c7b-abf0-4144-8ff5-2c808fec00d0",
+  "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+  "motion_title": "Novel: Prioritize research into the transformative potent...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+    "motion_title": "Novel: Prioritize research into the transformative potent...",
+    "primary_pattern": "RESEARCH",
+    "secondary_patterns": [
+      "RESOURCE"
+    ],
+    "classification_confidence": 0.95,
+    "classification_reasoning": "The motion explicitly calls for prioritizing research into transformative potential, which directly aligns with the RESEARCH pattern's focus on studying and reporting findings. The mention of 'prioritize' suggests resource allocation may be involved to support this research initiative, making RESOURCE a secondary pattern.",
+    "matched_keywords": [
+      "research",
+      "prioritize",
+      "transformative",
+      "potential",
+      "investigation"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "310f6d1b-b0ae-4d67-8d59-c498519353c9",
+      "phase_number": 1,
+      "pattern_id": "RESEARCH",
+      "pattern_name": "Research Investigation",
+      "tasks": [
+        {
+          "task_id": "ffc55869-28a9-4e44-b7c9-2e5eb3fabc4d",
+          "task_type": "scope_definition",
+          "description": "Define research questions and methodology to explore quantum computing's impact on decentralized governance security and efficiency",
+          "pattern_id": "RESEARCH",
+          "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on identifying specific research gaps in quantum-resistant algorithms and governance protocol optimization"
+        },
+        {
+          "task_id": "0c4645c3-b0aa-45d6-897e-9e3cdd16a8b0",
+          "task_type": "data_collection",
+          "description": "Gather academic papers, technical whitepapers, and case studies on quantum computing applications in blockchain governance",
+          "pattern_id": "RESEARCH",
+          "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Prioritize sources from cryptography experts and decentralized systems researchers"
+        },
+        {
+          "task_id": "bee7dde4-e29e-4ce0-8fe4-b0b250dd55a1",
+          "task_type": "analysis",
+          "description": "Evaluate technical feasibility of quantum computing integration in governance systems and identify implementation risks",
+          "pattern_id": "RESEARCH",
+          "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Analyze trade-offs between computational power gains and potential vulnerabilities in decentralized networks"
+        },
+        {
+          "task_id": "43a8cbb2-0c15-461e-a852-e7c7e7c734e5",
+          "task_type": "report_writing",
+          "description": "Compile findings into a structured report with technical recommendations for governance system modernization",
+          "pattern_id": "RESEARCH",
+          "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include cost-benefit analysis of quantum-ready infrastructure investments"
+        },
+        {
+          "task_id": "24bba87d-3562-4c5a-bdb0-ab265a7501b7",
+          "task_type": "presentation",
+          "description": "Create visual presentation to explain quantum computing benefits and risks to governance stakeholders",
+          "pattern_id": "RESEARCH",
+          "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Tailor content for technical experts and non-technical decision-makers separately"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "9f2cf706-cd69-4b96-8652-0fe2b72aa26d",
+      "motion_id": "bf091924-b648-499e-9544-ec487d485d73",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's title and text lack specific details about the research focus, objectives, or success metrics. The phrase 'transformative potent' is ambiguous and does not clarify the research's intended impact or methodology.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Define Research Scope and Metrics",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:46:57.344346+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:46:57.344362+00:00",
+  "status": "draft"
+}

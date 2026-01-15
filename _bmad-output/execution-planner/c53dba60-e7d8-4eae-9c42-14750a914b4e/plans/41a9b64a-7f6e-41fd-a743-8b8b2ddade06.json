@@ -1,0 +1,155 @@
+{
+  "plan_id": "41a9b64a-7f6e-41fd-a743-8b8b2ddade06",
+  "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+  "motion_title": "Novel: Rigorously enforce existing safeguards (constituti...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+    "motion_title": "Novel: Rigorously enforce existing safeguards (constituti...",
+    "primary_pattern": "CONST",
+    "secondary_patterns": [
+      "POLICY"
+    ],
+    "classification_confidence": 0.85,
+    "classification_reasoning": "The motion's title explicitly references 'enforce existing safeguards' tied to the constitution, indicating a focus on modifying constitutional provisions. The mention of 'rigorously enforce' suggests enhancing or clarifying constitutional safeguards, which aligns with constitutional amendment (CONST). A secondary POLICY pattern may apply if the motion involves creating implementation guidelines for these safeguards.",
+    "matched_keywords": [
+      "enforce",
+      "safeguards",
+      "constitution",
+      "rigorously"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "83a0b1d5-c660-4fd6-ac99-6841e111aa61",
+      "phase_number": 1,
+      "pattern_id": "CONST",
+      "pattern_name": "Constitutional Amendment",
+      "tasks": [
+        {
+          "task_id": "2bb12246-d667-4d3f-8445-4bce64dd3f20",
+          "task_type": "draft_amendment",
+          "description": "Draft specific constitutional language to enhance enforcement mechanisms for existing safeguards, including clear penalties for non-compliance and accountability protocols for governance bodies",
+          "pattern_id": "CONST",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Focus on strengthening enforcement clauses related to data protection, transparency, and dispute resolution mechanisms"
+        },
+        {
+          "task_id": "f66445ff-7414-4c38-91db-a7808c77a479",
+          "task_type": "legal_review",
+          "description": "Review proposed amendments for internal consistency with constitutional articles on governance, rights protections, and procedural fairness",
+          "pattern_id": "CONST",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Ensure alignment with Article 3 (Governance) and Article 5 (Rights) to avoid conflicting obligations"
+        },
+        {
+          "task_id": "834b2074-6999-4ac6-9b4a-0e714c60025e",
+          "task_type": "impact_assessment",
+          "description": "Evaluate downstream effects of amendments on constitutional provisions related to judicial oversight, electoral processes, and emergency protocols",
+          "pattern_id": "CONST",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Identify potential cascading impacts on Article 8 (Judicial Review) and Article 12 (Emergency Powers)"
+        },
+        {
+          "task_id": "03e44aeb-0a2b-4f01-92ec-bca35b76bf64",
+          "task_type": "apply_amendment",
+          "description": "Integrate approved amendments into the constitution.md file while preserving existing structural formatting and version control history",
+          "pattern_id": "CONST",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Maintain compatibility with the Archon72 governance framework's technical documentation standards"
+        },
+        {
+          "task_id": "672c20ba-33ad-4aa1-8a31-cff7a189612e",
+          "task_type": "publish_changelog",
+          "description": "Document amendment details in the constitutional history log with timestamps, proposer identifiers, and affected article references",
+          "pattern_id": "CONST",
+          "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": "Include specific references to Articles 4, 7, and 9 as impacted by enhanced safeguard enforcement"
+        }
+      ],
+      "phase_description": ""
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "9ca229cb-f28e-4240-ad35-f1d3ca49f5fd",
+      "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+      "blocker_type": "undefined_scope",
+      "description": "The motion's title suggests enforcing existing safeguards but lacks specific details on which safeguards, enforcement mechanisms, or scope boundaries. Ambiguous language could lead to misinterpretation or inconsistent application.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify Scope of Safeguard Enforcement",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:53:34.948843+00:00"
+    },
+    {
+      "blocker_id": "ebe1a660-543d-4f47-bed0-f08061a230e5",
+      "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+      "blocker_type": "policy_conflict",
+      "description": "Enforcing existing safeguards may conflict with other constitutional articles or policies that already address similar provisions, creating contradictions or overlapping obligations.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Resolve Policy Conflicts in Safeguard Enforcement",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:53:34.948887+00:00"
+    },
+    {
+      "blocker_id": "7e8bce1f-2bbb-496b-a345-2171d4074e95",
+      "motion_id": "b062965f-e16b-46dd-87c6-4b8a25a5917f",
+      "blocker_type": "stakeholder_conflict",
+      "description": "Competing interests among stakeholders (e.g., governance bodies, protocol users) may arise if stricter enforcement of safeguards disproportionately impacts certain groups or limits flexibility.",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Address Stakeholder Impacts of Safeguard Enforcement",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-15T22:53:34.948915+00:00"
+    }
+  ],
+  "expected_outputs": [],
+  "total_tasks": 5,
+  "assignable_tasks": 5,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-15T22:53:34.948998+00:00",
+  "status": "draft"
+}

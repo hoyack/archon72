@@ -1,0 +1,445 @@
+# Archon 72 - CI/CD Test Pipeline
+# Constitutional AI Governance System Test Automation
+#
+# Stages:
+#   1. lint     - Code quality checks (ruff, mypy, black)
+#   2. test     - Parallel test execution (4 shards)
+#   3. burn-in  - Flaky test detection (10 iterations)
+#   4. report   - Coverage aggregation and reporting
+
+name: Test Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly burn-in on Sunday at 2am UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      burn_in_iterations:
+        description: 'Number of burn-in iterations'
+        required: false
+        default: '10'
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.7.0'
+  # Disable telemetry
+  POETRY_NO_INTERACTION: 1
+  POETRY_VIRTUALENVS_CREATE: true
+  POETRY_VIRTUALENVS_IN_PROJECT: true
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════
+  # LINT STAGE - Code Quality Checks (<2 min target)
+  # ═══════════════════════════════════════════════════════════════
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Run ruff (linting)
+        run: poetry run ruff check src/ tests/
+
+      - name: Run ruff (formatting check)
+        run: poetry run ruff format --check src/ tests/
+
+      - name: Run mypy (type checking)
+        run: poetry run mypy src/
+        continue-on-error: true  # Type errors shouldn't block initially
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST STAGE - Parallel Test Execution (<10 min per shard target)
+  # ═══════════════════════════════════════════════════════════════
+  test:
+    name: Tests (Shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+
+    services:
+      # PostgreSQL for integration tests
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: archon72_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      # Redis for halt circuit tests
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run tests (shard ${{ matrix.shard }}/4)
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/archon72_test
+          REDIS_URL: redis://localhost:6379
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          # Get all test files and shard them
+          TEST_FILES=$(find tests -name "test_*.py" | sort)
+          TOTAL_FILES=$(echo "$TEST_FILES" | wc -l)
+          SHARD_SIZE=$(( (TOTAL_FILES + 3) / 4 ))
+          START=$(( ((${{ matrix.shard }} - 1) * SHARD_SIZE) + 1 ))
+
+          # Extract shard's test files
+          SHARD_FILES=$(echo "$TEST_FILES" | sed -n "${START},$((START + SHARD_SIZE - 1))p" | tr '\n' ' ')
+
+          if [ -n "$SHARD_FILES" ]; then
+            echo "Running shard ${{ matrix.shard }}/4 with $SHARD_SIZE files starting at $START"
+            poetry run pytest $SHARD_FILES \
+              --tb=short \
+              -v \
+              --cov=src \
+              --cov-report=xml:coverage-${{ matrix.shard }}.xml \
+              --junitxml=junit-${{ matrix.shard }}.xml \
+              -m "not slow and not chaos and not load and not requires_api_keys"
+          else
+            echo "No test files for shard ${{ matrix.shard }}"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-shard-${{ matrix.shard }}
+          path: |
+            junit-${{ matrix.shard }}.xml
+            coverage-${{ matrix.shard }}.xml
+          retention-days: 30
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-artifacts-shard-${{ matrix.shard }}
+          path: |
+            .pytest_cache/
+            tests/**/*.log
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════════
+  # BURN-IN STAGE - Flaky Test Detection (<30 min target)
+  # ═══════════════════════════════════════════════════════════════
+  burn-in:
+    name: Flaky Test Detection
+    runs-on: ubuntu-latest
+    needs: test
+    # Only run on PRs to main/develop or scheduled runs
+    if: |
+      (github.event_name == 'pull_request' &&
+       (github.base_ref == 'main' || github.base_ref == 'develop')) ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: archon72_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run burn-in loop
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/archon72_test
+          REDIS_URL: redis://localhost:6379
+          PYTHONPATH: ${{ github.workspace }}
+          ITERATIONS: ${{ github.event.inputs.burn_in_iterations || '10' }}
+        run: |
+          echo "Starting burn-in loop with $ITERATIONS iterations"
+
+          for i in $(seq 1 $ITERATIONS); do
+            echo ""
+            echo "=========================================="
+            echo "Burn-in iteration $i/$ITERATIONS"
+            echo "=========================================="
+
+            # Run smoke tests only for burn-in (faster feedback)
+            if ! poetry run pytest tests/ \
+              -m "smoke or not slow" \
+              --tb=short \
+              -q \
+              --timeout=60; then
+              echo ""
+              echo "FAILURE: Test failed on iteration $i"
+              echo "This indicates a flaky test that needs investigation"
+              exit 1
+            fi
+
+            echo "Iteration $i passed"
+          done
+
+          echo ""
+          echo "=========================================="
+          echo "All $ITERATIONS burn-in iterations passed!"
+          echo "No flaky tests detected."
+          echo "=========================================="
+
+      - name: Upload burn-in failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: burn-in-failures
+          path: |
+            .pytest_cache/
+            tests/**/*.log
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════════
+  # REPORT STAGE - Aggregate Results and Coverage
+  # ═══════════════════════════════════════════════════════════════
+  report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install coverage tools
+        run: pip install coverage
+
+      - name: Combine coverage reports
+        run: |
+          # Combine XML coverage reports
+          if ls coverage-*.xml 1> /dev/null 2>&1; then
+            echo "Coverage reports found:"
+            ls -la coverage-*.xml
+          else
+            echo "No coverage reports found"
+          fi
+
+      - name: Upload combined coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage-1.xml,coverage-2.xml,coverage-3.xml,coverage-4.xml
+          flags: unittests
+          name: archon72-coverage
+          fail_ci_if_error: false
+        continue-on-error: true
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## Test Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result == 'success' && 'Passed' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.test.result == 'success' && 'Passed' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Artifacts:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Test results and coverage reports available in Actions artifacts" >> $GITHUB_STEP_SUMMARY
+
+  # ═══════════════════════════════════════════════════════════════
+  # INTEGRATION TESTS - Full System Tests (manual trigger)
+  # ═══════════════════════════════════════════════════════════════
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: archon72_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/archon72_test
+          REDIS_URL: redis://localhost:6379
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          poetry run pytest tests/integration/ \
+            -v \
+            --tb=long \
+            -m "integration" \
+            --timeout=300
+
+      - name: Upload integration test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-failures
+          path: |
+            .pytest_cache/
+            tests/**/*.log
+          retention-days: 30

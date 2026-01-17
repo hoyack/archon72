@@ -1,6 +1,6 @@
 # Story consent-gov-2.4: Task Result Submission
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -29,69 +29,137 @@ So that **my work is recorded and issues are surfaced through proper channels**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create TaskResultPort interface** (AC: 1, 2, 9)
-  - [ ] Create `src/application/ports/governance/task_result_port.py`
-  - [ ] Define `submit_result()` method for completed work
-  - [ ] Define `submit_problem_report()` method for issues
-  - [ ] Include Cluster authorization validation
+- [x] **Task 1: Create TaskResultPort interface** (AC: 1, 2, 9)
+  - [x] Create `src/application/ports/governance/task_result_port.py`
+  - [x] Define `submit_result()` method for completed work
+  - [x] Define `submit_problem_report()` method for issues
+  - [x] Include Cluster authorization validation
 
-- [ ] **Task 2: Create TaskResult domain model** (AC: 7)
-  - [ ] Create `src/domain/governance/task_result.py`
-  - [ ] Define `TaskResult` value object with structured output
-  - [ ] Define result validation against task spec
-  - [ ] Include timestamp and Cluster attribution
+- [x] **Task 2: Create TaskResult domain model** (AC: 7)
+  - [x] Create `src/domain/governance/task/task_result.py`
+  - [x] Define `TaskResult` value object with structured output
+  - [x] Define result validation against task spec
+  - [x] Include timestamp and Cluster attribution
 
-- [ ] **Task 3: Create ProblemReport domain model** (AC: 8)
-  - [ ] Define `ProblemReport` value object
-  - [ ] Define `ProblemCategory` enum (e.g., BLOCKED, UNCLEAR_SPEC, RESOURCE_UNAVAILABLE)
-  - [ ] Include description field and timestamp
-  - [ ] Include Cluster attribution
+- [x] **Task 3: Create ProblemReport domain model** (AC: 8)
+  - [x] Create `src/domain/governance/task/problem_report.py`
+  - [x] Define `ProblemReport` value object
+  - [x] Define `ProblemCategory` enum (BLOCKED, UNCLEAR_SPEC, RESOURCE_UNAVAILABLE, TECHNICAL_ISSUE, OTHER)
+  - [x] Include description field and timestamp
+  - [x] Include Cluster attribution
 
-- [ ] **Task 4: Implement TaskResultService** (AC: 1, 2, 3, 4)
-  - [ ] Create `src/application/services/governance/task_result_service.py`
-  - [ ] Implement `submit_result()` - validate in_progress, transition to reported
-  - [ ] Implement `submit_problem_report()` - record problem, keep in_progress
-  - [ ] Validate Cluster is assigned worker
+- [x] **Task 4: Implement TaskResultService** (AC: 1, 2, 3, 4)
+  - [x] Create `src/application/services/governance/task_result_service.py`
+  - [x] Implement `submit_result()` - validate in_progress, transition to reported
+  - [x] Implement `submit_problem_report()` - record problem, keep in_progress
+  - [x] Validate Cluster is assigned worker
 
-- [ ] **Task 5: Implement result submission** (AC: 1, 3, 5, 7)
-  - [ ] Validate task is in IN_PROGRESS state
-  - [ ] Validate Cluster is the assigned worker
-  - [ ] Validate result structure matches task spec expectations
-  - [ ] Transition task to REPORTED state
-  - [ ] Emit `executive.task.reported` event with result payload
-  - [ ] Use two-phase event emission
+- [x] **Task 5: Implement result submission** (AC: 1, 3, 5, 7)
+  - [x] Validate task is in IN_PROGRESS state
+  - [x] Validate Cluster is the assigned worker
+  - [x] Validate result structure matches task spec expectations
+  - [x] Transition task to REPORTED state
+  - [x] Emit `executive.task.reported` event with result payload
+  - [x] Use two-phase event emission
 
-- [ ] **Task 6: Implement problem report submission** (AC: 2, 4, 6, 8)
-  - [ ] Validate task is in IN_PROGRESS state
-  - [ ] Validate Cluster is the assigned worker
-  - [ ] Create ProblemReport with category and description
-  - [ ] Do NOT transition state (task remains IN_PROGRESS)
-  - [ ] Emit `executive.task.problem_reported` event
-  - [ ] Use two-phase event emission
-  - [ ] Problem report may trigger escalation to Duke (future story)
+- [x] **Task 6: Implement problem report submission** (AC: 2, 4, 6, 8)
+  - [x] Validate task is in IN_PROGRESS state
+  - [x] Validate Cluster is the assigned worker
+  - [x] Create ProblemReport with category and description
+  - [x] Do NOT transition state (task remains IN_PROGRESS)
+  - [x] Emit `executive.task.problem_reported` event
+  - [x] Use two-phase event emission
+  - [x] Problem report may trigger escalation to Duke (future story)
 
-- [ ] **Task 7: Integrate with Task State Machine** (AC: 3, 4)
-  - [ ] Add REPORTED to TaskStatus enum if not present
-  - [ ] Add valid transition: IN_PROGRESS → REPORTED
-  - [ ] Verify problem reports don't affect state
+- [x] **Task 7: Integrate with Task State Machine** (AC: 3, 4)
+  - [x] REPORTED already exists in TaskStatus enum
+  - [x] IN_PROGRESS → REPORTED transition already defined
+  - [x] Verified problem reports don't affect state
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 10)
-  - [ ] Test submit_result transitions to REPORTED
-  - [ ] Test submit_problem_report keeps IN_PROGRESS
-  - [ ] Test result validation against task spec
-  - [ ] Test problem report captures category and description
-  - [ ] Test unauthorized Cluster submission rejected
-  - [ ] Test submission from wrong state rejected
-  - [ ] Test events emitted correctly
+- [x] **Task 8: Write comprehensive unit tests** (AC: 10)
+  - [x] Test submit_result transitions to REPORTED
+  - [x] Test submit_problem_report keeps IN_PROGRESS
+  - [x] Test result validation against task spec
+  - [x] Test problem report captures category and description
+  - [x] Test unauthorized Cluster submission rejected
+  - [x] Test submission from wrong state rejected
+  - [x] Test events emitted correctly
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (result submission workflow)
-- [ ] Inline comments explaining result vs problem report distinction
-- [ ] N/A - API docs (service layer)
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (result submission workflow)
+- [x] Inline comments explaining result vs problem report distinction
+- [x] N/A - API docs (service layer)
+- [x] N/A - README (internal component)
+
+---
+
+## File List
+
+### Created Files
+
+| File | Purpose |
+|------|---------|
+| `src/application/ports/governance/task_result_port.py` | TaskResultPort interface with submit_result(), submit_problem_report(), value objects, errors |
+| `src/domain/governance/task/task_result.py` | TaskResult frozen dataclass with validation and event payload methods |
+| `src/domain/governance/task/problem_report.py` | ProblemCategory enum and ProblemReport frozen dataclass |
+| `src/application/services/governance/task_result_service.py` | TaskResultService implementing two-phase event emission |
+| `tests/unit/application/ports/governance/test_task_result_port.py` | 18 unit tests for port value objects and errors |
+| `tests/unit/domain/governance/task/test_task_result.py` | 15 unit tests for TaskResult domain model (including validation tests) |
+| `tests/unit/domain/governance/task/test_problem_report.py` | 13 unit tests for ProblemReport and ProblemCategory |
+| `tests/unit/application/services/governance/test_task_result_service.py` | 15 unit tests for service implementation |
+
+### Modified Files
+
+| File | Changes |
+|------|---------|
+| `src/application/ports/governance/__init__.py` | Added exports for TaskResultPort, TaskResultValue, ProblemReportValue, ProblemCategory, ResultSubmissionResult, UnauthorizedResultError, InvalidResultStateError |
+| `src/domain/governance/task/__init__.py` | Added exports for TaskResult, ProblemCategory, ProblemReport |
+
+---
+
+## Dev Agent Record
+
+**Agent:** dev
+**Started:** 2026-01-16
+**Completed:** 2026-01-16
+
+### Implementation Notes
+
+1. **Two-Phase Event Emission:** Used TwoPhaseExecution context manager for both submit_result and submit_problem_report operations, ensuring intent visibility to Knight observers.
+
+2. **State Transitions:**
+   - Result submission: IN_PROGRESS → REPORTED (state transition)
+   - Problem report: IN_PROGRESS → IN_PROGRESS (no state change per AC4)
+
+3. **Constitutional Guarantees:** Only assigned Cluster can submit results (AC9) - enforced via cluster_id validation.
+
+4. **Existing State Machine:** REPORTED status and IN_PROGRESS → REPORTED transition already existed in task_state.py and task_state_rules.py.
+
+5. **Event Types:**
+   - `executive.task.reported` for result submissions
+   - `executive.task.problem_reported` for problem reports
+
+6. **Test Coverage:** 58 tests covering all acceptance criteria (including code review additions).
+
+---
+
+## Change Log
+
+| Date | Change | Author |
+|------|--------|--------|
+| 2026-01-16 | Created TaskResultPort interface with value objects | dev |
+| 2026-01-16 | Created TaskResult and ProblemReport domain models | dev |
+| 2026-01-16 | Implemented TaskResultService with two-phase emission | dev |
+| 2026-01-16 | Added comprehensive unit tests (56 tests) | dev |
+| 2026-01-16 | Story complete - all ACs met | dev |
+| 2026-01-16 | Code review: Fixed datetime.utcnow() deprecation (H1) | code-review |
+| 2026-01-16 | Code review: Removed duplicate ProblemCategory enum (M1) | code-review |
+| 2026-01-16 | Code review: Added cluster_id validation tests (M2) | code-review |
+| 2026-01-16 | Code review: Fixed timestamp type hints (L1) | code-review |
+| 2026-01-16 | Code review passed - 58 tests passing | code-review |
 
 ---
 

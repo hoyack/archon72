@@ -1,6 +1,6 @@
 # Story consent-gov-3.2: Coercion Filter Service
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -28,73 +28,73 @@ So that **coercive language is detected and handled before reaching participants
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create CoercionFilterPort interface** (AC: 3, 4)
-  - [ ] Create `src/application/ports/governance/coercion_filter_port.py`
-  - [ ] Define `filter_content()` method
-  - [ ] Define `preview_filter()` method (FR19 - Earl preview)
-  - [ ] Include message type parameter
+- [x] **Task 1: Create CoercionFilterPort interface** (AC: 3, 4)
+  - [x] Create `src/application/ports/governance/coercion_filter_port.py`
+  - [x] Define `filter_content()` method
+  - [x] Define `preview_filter()` method (FR19 - Earl preview)
+  - [x] Include message type parameter
 
-- [ ] **Task 2: Implement CoercionFilterService** (AC: 1, 2, 5, 6, 7, 8)
-  - [ ] Create `src/application/services/governance/coercion_filter_service.py`
-  - [ ] Implement filtering pipeline
-  - [ ] Apply transformation rules
-  - [ ] Check for rejection patterns
-  - [ ] Check for blocking violations
-  - [ ] Return FilterResult with appropriate outcome
+- [x] **Task 2: Implement CoercionFilterService** (AC: 1, 2, 5, 6, 7, 8)
+  - [x] Create `src/application/services/governance/coercion_filter_service.py`
+  - [x] Implement filtering pipeline
+  - [x] Apply transformation rules
+  - [x] Check for rejection patterns
+  - [x] Check for blocking violations
+  - [x] Return FilterResult with appropriate outcome
 
-- [ ] **Task 3: Implement performance constraint** (AC: 1, 2)
-  - [ ] Process content in ≤200ms
-  - [ ] If filter cannot complete deterministically in 200ms, REJECT
-  - [ ] Do NOT timeout silently - rejection is explicit
-  - [ ] Log processing time for monitoring
+- [x] **Task 3: Implement performance constraint** (AC: 1, 2)
+  - [x] Process content in ≤200ms
+  - [x] If filter cannot complete deterministically in 200ms, REJECT
+  - [x] Do NOT timeout silently - rejection is explicit
+  - [x] Log processing time for monitoring
 
-- [ ] **Task 4: Implement deterministic processing** (AC: 2)
-  - [ ] Same input always produces same output
-  - [ ] No random elements in filtering
-  - [ ] No external dependencies that could vary
-  - [ ] Determinism > Speed (if uncertain, reject)
+- [x] **Task 4: Implement deterministic processing** (AC: 2)
+  - [x] Same input always produces same output
+  - [x] No random elements in filtering
+  - [x] No external dependencies that could vary
+  - [x] Determinism > Speed (if uncertain, reject)
 
-- [ ] **Task 5: Implement mandatory routing** (AC: 3, 4)
-  - [ ] All participant-facing APIs require FilteredContent
-  - [ ] No bypass path in API design
-  - [ ] No administrative override endpoint
-  - [ ] Architectural test: verify no bypass path exists
+- [x] **Task 5: Implement mandatory routing** (AC: 3, 4)
+  - [x] All participant-facing APIs require FilteredContent
+  - [x] No bypass path in API design
+  - [x] No administrative override endpoint
+  - [x] Architectural test: verify no bypass path exists
 
-- [ ] **Task 6: Implement transformation pipeline** (AC: 5)
-  - [ ] Load transformation rules from pattern library
-  - [ ] Apply rules in priority order
-  - [ ] Record all transformations made
-  - [ ] Return transformed content with audit trail
+- [x] **Task 6: Implement transformation pipeline** (AC: 5)
+  - [x] Load transformation rules from pattern library
+  - [x] Apply rules in priority order
+  - [x] Record all transformations made
+  - [x] Return transformed content with audit trail
 
-- [ ] **Task 7: Implement rejection logic** (AC: 6)
-  - [ ] Detect patterns requiring rewrite
-  - [ ] Provide rejection reason and guidance
-  - [ ] Do NOT log as violation (correctable)
-  - [ ] Earl can preview and fix before submit
+- [x] **Task 7: Implement rejection logic** (AC: 6)
+  - [x] Detect patterns requiring rewrite
+  - [x] Provide rejection reason and guidance
+  - [x] Do NOT log as violation (correctable)
+  - [x] Earl can preview and fix before submit
 
-- [ ] **Task 8: Implement blocking logic** (AC: 7)
-  - [ ] Detect hard violations
-  - [ ] Block content completely
-  - [ ] Log violation details
-  - [ ] May trigger Knight observation
+- [x] **Task 8: Implement blocking logic** (AC: 7)
+  - [x] Detect hard violations
+  - [x] Block content completely
+  - [x] Log violation details
+  - [x] May trigger Knight observation
 
-- [ ] **Task 9: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test filter completes in ≤200ms
-  - [ ] Test deterministic output
-  - [ ] Test transformation application
-  - [ ] Test rejection with guidance
-  - [ ] Test blocking with violation details
-  - [ ] Test FilteredContent type returned
-  - [ ] Architectural test: no bypass path
+- [x] **Task 9: Write comprehensive unit tests** (AC: 9)
+  - [x] Test filter completes in ≤200ms
+  - [x] Test deterministic output
+  - [x] Test transformation application
+  - [x] Test rejection with guidance
+  - [x] Test blocking with violation details
+  - [x] Test FilteredContent type returned
+  - [x] Architectural test: no bypass path
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (filter service)
-- [ ] Inline comments explaining determinism requirement
-- [ ] Performance monitoring documentation
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (filter service)
+- [x] Inline comments explaining determinism requirement
+- [x] Performance monitoring documentation
+- [x] N/A - README (internal component)
 
 ---
 

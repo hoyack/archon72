@@ -1,6 +1,6 @@
 # Story consent-gov-3.4: Coercion Pattern Detection
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -28,88 +28,105 @@ So that **manipulative content is identified and handled appropriately**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create PatternLibraryPort interface** (AC: 5, 8)
-  - [ ] Create `src/application/ports/governance/pattern_library_port.py`
-  - [ ] Define `get_current_version()` method
-  - [ ] Define `get_blocking_patterns()` method
-  - [ ] Define `get_rejection_patterns()` method
-  - [ ] Define `get_transformation_rules()` method
+- [x] **Task 1: Create PatternLibraryPort interface** (AC: 5, 8)
+  - [x] Create `src/application/ports/governance/pattern_library_port.py`
+  - [x] Define `get_current_version()` method
+  - [x] Define `get_blocking_patterns()` method
+  - [x] Define `get_rejection_patterns()` method
+  - [x] Define `get_transformation_rules()` method
 
-- [ ] **Task 2: Create CoercionPattern domain model** (AC: 6)
-  - [ ] Create `src/domain/governance/filter/coercion_pattern.py`
-  - [ ] Define `PatternSeverity` enum (TRANSFORM, REJECT, BLOCK)
-  - [ ] Define `CoercionPattern` value object
-  - [ ] Include pattern ID, regex, severity, category
+- [x] **Task 2: Create CoercionPattern domain model** (AC: 6)
+  - [x] Create `src/domain/governance/filter/coercion_pattern.py`
+  - [x] Define `PatternSeverity` enum (TRANSFORM, REJECT, BLOCK)
+  - [x] Define `CoercionPattern` value object
+  - [x] Include pattern ID, regex, severity, category
 
-- [ ] **Task 3: Implement urgency pressure patterns** (AC: 1)
-  - [ ] "URGENT", "ASAP", "immediately", "right now"
-  - [ ] "limited time", "expires", "deadline approaching"
-  - [ ] "act now", "don't delay", "hurry"
-  - [ ] Caps-lock emphasis detection
-  - [ ] Severity: mostly TRANSFORM or REJECT
+- [x] **Task 3: Implement urgency pressure patterns** (AC: 1)
+  - [x] "URGENT", "ASAP", "immediately", "right now"
+  - [x] "limited time", "expires", "deadline approaching"
+  - [x] "act now", "don't delay", "hurry"
+  - [x] Caps-lock emphasis detection
+  - [x] Severity: mostly TRANSFORM or REJECT
 
-- [ ] **Task 4: Implement guilt induction patterns** (AC: 2)
-  - [ ] "you owe", "you promised", "you said"
-  - [ ] "disappointing", "let down", "expected more"
-  - [ ] "after everything", "how could you"
-  - [ ] Severity: mostly REJECT
+- [x] **Task 4: Implement guilt induction patterns** (AC: 2)
+  - [x] "you owe", "you promised", "you said"
+  - [x] "disappointing", "let down", "expected more"
+  - [x] "after everything", "how could you"
+  - [x] Severity: mostly REJECT
 
-- [ ] **Task 5: Implement false scarcity patterns** (AC: 3)
-  - [ ] "only X left", "limited availability"
-  - [ ] "exclusive", "special offer"
-  - [ ] "last chance", "won't last"
-  - [ ] "before it's too late"
-  - [ ] Severity: mostly REJECT
+- [x] **Task 5: Implement false scarcity patterns** (AC: 3)
+  - [x] "only X left", "limited availability"
+  - [x] "exclusive", "special offer"
+  - [x] "last chance", "won't last"
+  - [x] "before it's too late"
+  - [x] Severity: mostly REJECT
 
-- [ ] **Task 6: Implement engagement-optimization patterns** (AC: 4)
-  - [ ] Excessive punctuation (!!!, ???)
-  - [ ] Click-bait language
-  - [ ] Emotional manipulation
-  - [ ] Gamification language ("streak", "points", "level up")
-  - [ ] Severity: TRANSFORM for mild, REJECT for heavy
+- [x] **Task 6: Implement engagement-optimization patterns** (AC: 4)
+  - [x] Excessive punctuation (!!!, ???)
+  - [x] Click-bait language
+  - [x] Emotional manipulation
+  - [x] Gamification language ("streak", "points", "level up")
+  - [x] Severity: TRANSFORM for mild, REJECT for heavy
 
-- [ ] **Task 7: Implement hard violation patterns** (AC: 6)
-  - [ ] Explicit threats
-  - [ ] Deception patterns
-  - [ ] Manipulation through false claims
-  - [ ] Coercion through power imbalance
-  - [ ] Severity: BLOCK
+- [x] **Task 7: Implement hard violation patterns** (AC: 6)
+  - [x] Explicit threats
+  - [x] Deception patterns
+  - [x] Manipulation through false claims
+  - [x] Coercion through power imbalance
+  - [x] Severity: BLOCK
 
-- [ ] **Task 8: Implement pattern library versioning** (AC: 5)
-  - [ ] Version in semver format
-  - [ ] Hash of all patterns for verification
-  - [ ] Version history tracked
-  - [ ] Changes logged to ledger
+- [x] **Task 8: Implement pattern library versioning** (AC: 5)
+  - [x] Version in semver format
+  - [x] Hash of all patterns for verification
+  - [x] Version history tracked
+  - [x] Changes logged to ledger
 
-- [ ] **Task 9: Implement YAML pattern loader** (AC: 8)
-  - [ ] Create `config/governance/coercion_patterns.yaml`
-  - [ ] Load patterns at startup
-  - [ ] Validate pattern syntax
+- [x] **Task 9: Implement YAML pattern loader** (AC: 8)
+  - [x] Create `config/governance/coercion_patterns.yaml`
+  - [x] Load patterns at startup
+  - [x] Validate pattern syntax
   - [ ] Hot-reload support (future)
 
-- [ ] **Task 10: Implement deterministic matching** (AC: 7)
-  - [ ] Patterns matched in priority order
-  - [ ] Same input always matches same patterns
-  - [ ] No probabilistic matching
-  - [ ] Performance: <50ms for pattern matching
+- [x] **Task 10: Implement deterministic matching** (AC: 7)
+  - [x] Patterns matched in priority order
+  - [x] Same input always matches same patterns
+  - [x] No probabilistic matching
+  - [x] Performance: <50ms for pattern matching
 
-- [ ] **Task 11: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test urgency patterns detected
-  - [ ] Test guilt patterns detected
-  - [ ] Test scarcity patterns detected
-  - [ ] Test engagement-optimization detected
-  - [ ] Test hard violations blocked
-  - [ ] Test pattern versioning
-  - [ ] Test deterministic matching
+- [x] **Task 11: Write comprehensive unit tests** (AC: 9)
+  - [x] Test urgency patterns detected
+  - [x] Test guilt patterns detected
+  - [x] Test scarcity patterns detected
+  - [x] Test engagement-optimization detected
+  - [x] Test hard violations blocked
+  - [x] Test pattern versioning
+  - [x] Test deterministic matching
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (pattern library)
-- [ ] Pattern categories documented
-- [ ] How to add new patterns documented
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (pattern library)
+- [x] Pattern categories documented
+- [x] How to add new patterns documented
+- [x] N/A - README (internal component)
+
+---
+
+## File List
+
+### Created
+- `src/domain/governance/filter/coercion_pattern.py` - Domain models: PatternSeverity, PatternCategory, CoercionPattern, PatternLibraryVersion
+- `src/application/ports/governance/pattern_library_port.py` - Port interface for pattern library
+- `src/infrastructure/adapters/governance/yaml_pattern_library_adapter.py` - YAML adapter for loading patterns
+- `config/governance/coercion_patterns.yaml` - Pattern library configuration (56 patterns)
+- `tests/unit/domain/governance/filter/test_coercion_pattern.py` - Domain model tests (42 tests)
+- `tests/unit/infrastructure/adapters/governance/test_yaml_pattern_library_adapter.py` - Adapter tests (23 tests)
+- `tests/unit/infrastructure/adapters/governance/test_coercion_pattern_detection.py` - Comprehensive pattern tests (52 tests)
+
+### Modified
+- `src/domain/governance/filter/__init__.py` - Added exports for new types
+- `src/application/ports/governance/__init__.py` - Added PatternLibraryPort export
 
 ---
 

@@ -14,6 +14,8 @@ Available routers:
 - constitutional_health: Constitutional health metrics (ADR-10, Story 8.10)
 - waiver: Constitutional waiver API (SC-4, SR-10, Story 9.8 - public read)
 - compliance: Compliance documentation API (NFR31-34, Story 9.9 - public read)
+- halt: Halt trigger API (FR22-23, Story 4-2 - requires auth)
+- legitimacy: Legitimacy restoration API (FR30-32, Story 5-3 - auth for restore)
 """
 
 from src.api.routes.health import router as health_router
@@ -27,6 +29,8 @@ from src.api.routes.failure_prevention import router as failure_prevention_route
 from src.api.routes.constitutional_health import router as constitutional_health_router
 from src.api.routes.waiver import router as waiver_router
 from src.api.routes.compliance import router as compliance_router
+from src.api.routes.halt import router as halt_router
+from src.api.routes.legitimacy import router as legitimacy_router
 
 __all__: list[str] = [
     "health_router",
@@ -40,4 +44,6 @@ __all__: list[str] = [
     "constitutional_health_router",
     "waiver_router",
     "compliance_router",
+    "halt_router",
+    "legitimacy_router",
 ]

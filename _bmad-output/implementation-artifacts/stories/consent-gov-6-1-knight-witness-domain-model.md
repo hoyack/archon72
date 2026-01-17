@@ -1,6 +1,6 @@
 # Story consent-gov-6.1: Knight Witness Domain Model
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -28,65 +28,115 @@ So that **violations can be observed and recorded neutrally**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create witness domain package** (AC: 1, 2)
-  - [ ] Create `src/domain/governance/witness/__init__.py`
-  - [ ] Create `src/domain/governance/witness/witness_statement.py`
-  - [ ] Define Knight's role boundaries
-  - [ ] Document observation-only semantics
+- [x] **Task 1: Create witness domain package** (AC: 1, 2)
+  - [x] Create `src/domain/governance/witness/__init__.py`
+  - [x] Create `src/domain/governance/witness/witness_statement.py`
+  - [x] Define Knight's role boundaries
+  - [x] Document observation-only semantics
 
-- [ ] **Task 2: Create WitnessStatement domain model** (AC: 3, 5, 6, 7, 8)
-  - [ ] Define immutable value object
-  - [ ] Include statement_id, observed_event_id, observed_at
-  - [ ] Include factual observation content
-  - [ ] Prevent judgment/recommendation fields
+- [x] **Task 2: Create WitnessStatement domain model** (AC: 3, 5, 6, 7, 8)
+  - [x] Define immutable value object
+  - [x] Include statement_id, observed_event_id, observed_at
+  - [x] Include factual observation content
+  - [x] Prevent judgment/recommendation fields
 
-- [ ] **Task 3: Create ObservationType enum** (AC: 1, 3)
-  - [ ] BRANCH_ACTION: Normal branch operation observed
-  - [ ] POTENTIAL_VIOLATION: Pattern matching violation indicators
-  - [ ] TIMING_ANOMALY: Unexpected timing detected
-  - [ ] HASH_CHAIN_GAP: Missing expected event
-  - [ ] All types are observations, not judgments
+- [x] **Task 3: Create ObservationType enum** (AC: 1, 3)
+  - [x] BRANCH_ACTION: Normal branch operation observed
+  - [x] POTENTIAL_VIOLATION: Pattern matching violation indicators
+  - [x] TIMING_ANOMALY: Unexpected timing detected
+  - [x] HASH_CHAIN_GAP: Missing expected event
+  - [x] All types are observations, not judgments
 
-- [ ] **Task 4: Create WitnessStatementFactory** (AC: 3, 7, 8)
-  - [ ] Factory method for statement creation
-  - [ ] Validate observation content (no judgment language)
-  - [ ] Enforce structure compliance
-  - [ ] Reject invalid statement attempts
+- [x] **Task 4: Create WitnessStatementFactory** (AC: 3, 7, 8)
+  - [x] Factory method for statement creation
+  - [x] Validate observation content (no judgment language)
+  - [x] Enforce structure compliance
+  - [x] Reject invalid statement attempts
 
-- [ ] **Task 5: Implement suppression prevention** (AC: 4)
-  - [ ] Statement emission BEFORE state commit (two-phase)
-  - [ ] No deletion method on statement
-  - [ ] No modification method on statement
-  - [ ] Hash chain gap detection for missing statements
+- [x] **Task 5: Implement suppression prevention** (AC: 4)
+  - [x] Statement emission BEFORE state commit (two-phase)
+  - [x] No deletion method on statement
+  - [x] No modification method on statement
+  - [x] Hash chain gap detection for missing statements
 
-- [ ] **Task 6: Create WitnessPort interface** (AC: 1, 4)
-  - [ ] Create `src/application/ports/governance/witness_port.py`
-  - [ ] Define `record_statement()` method
-  - [ ] Define `get_statements_for_event()` method
-  - [ ] No `delete_statement()` or `modify_statement()` methods
+- [x] **Task 6: Create WitnessPort interface** (AC: 1, 4)
+  - [x] Create `src/application/ports/governance/witness_port.py`
+  - [x] Define `record_statement()` method
+  - [x] Define `get_statements_for_event()` method
+  - [x] No `delete_statement()` or `modify_statement()` methods
 
-- [ ] **Task 7: Define observation content structure** (AC: 7, 8)
-  - [ ] Factual fields: what, when, who (actor), where (component)
-  - [ ] No fields for: why, should, recommendation
-  - [ ] Structured for machine readability
-  - [ ] Human readable summary optional
+- [x] **Task 7: Define observation content structure** (AC: 7, 8)
+  - [x] Factual fields: what, when, who (actor), where (component)
+  - [x] No fields for: why, should, recommendation
+  - [x] Structured for machine readability
+  - [x] Human readable summary optional
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test statement creation with valid observation
-  - [ ] Test statement immutability
-  - [ ] Test no judgment fields allowed
-  - [ ] Test no suppression methods exist
-  - [ ] Test all observation types
-  - [ ] Test factory validation
+- [x] **Task 8: Write comprehensive unit tests** (AC: 9)
+  - [x] Test statement creation with valid observation
+  - [x] Test statement immutability
+  - [x] Test no judgment fields allowed
+  - [x] Test no suppression methods exist
+  - [x] Test all observation types
+  - [x] Test factory validation
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (Knight role)
-- [ ] Inline comments explaining observation-only principle
-- [ ] Knight boundaries documented
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (Knight role)
+- [x] Inline comments explaining observation-only principle
+- [x] Knight boundaries documented
+- [x] N/A - README (internal component)
+
+---
+
+## File List
+
+### Domain Models
+- `src/domain/governance/witness/__init__.py` - Package init with exports and comprehensive Knight role docstring
+- `src/domain/governance/witness/observation_type.py` - ObservationType enum (BRANCH_ACTION, POTENTIAL_VIOLATION, TIMING_ANOMALY, HASH_CHAIN_GAP)
+- `src/domain/governance/witness/observation_content.py` - ObservationContent frozen dataclass (factual fields only)
+- `src/domain/governance/witness/witness_statement.py` - WitnessStatement frozen dataclass (immutable, no judgment fields)
+- `src/domain/governance/witness/witness_statement_factory.py` - Factory with judgment language validation
+- `src/domain/governance/witness/errors.py` - JudgmentLanguageError exception
+
+### Ports
+- `src/application/ports/governance/witness_port.py` - WitnessPort Protocol (no delete/modify methods by design)
+
+### Tests (47 tests total)
+- `tests/unit/domain/governance/witness/__init__.py` - Test package init
+- `tests/unit/domain/governance/witness/test_witness_statement.py` - 15 tests for domain models
+- `tests/unit/domain/governance/witness/test_witness_statement_factory.py` - 18 tests for factory validation
+- `tests/unit/application/ports/governance/test_witness_port.py` - 14 tests for port interface
+
+---
+
+## Dev Agent Record
+
+### Implementation Notes
+- Knight witness domain model implemented following observation-only semantics per FR33, FR34, NFR-CONST-07
+- Suppression prevention enforced by port interface design (intentionally no delete/modify methods)
+- Judgment language validation via factory with banned word list (12 indicators)
+- All domain models use frozen dataclasses for immutability
+- WitnessPort uses Protocol with @runtime_checkable for type safety
+- ObservationContent explicitly excludes judgment fields (why, should, severity)
+- Hash chain position included for gap detection
+
+### Test Coverage
+- 47 new tests all passing
+- Tests cover: immutability, no judgment fields, factory validation, port interface structure
+- All observation types tested for neutral semantics
+
+### Acceptance Criteria Verification
+- AC1 ✓ Knight can observe all branch actions (ObservationType.BRANCH_ACTION)
+- AC2 ✓ Knight observes but does not judge (no judgment fields in domain models)
+- AC3 ✓ Witness statements are observation only (factory validates, rejects judgment language)
+- AC4 ✓ Statements cannot be suppressed (no delete/modify methods in WitnessPort)
+- AC5 ✓ Witness statement includes observed event reference (content.event_id)
+- AC6 ✓ Statement includes observation timestamp (observed_at)
+- AC7 ✓ Statement includes factual observation content (ObservationContent dataclass)
+- AC8 ✓ No interpretation or recommendation (fields excluded, factory validates)
+- AC9 ✓ Unit tests for witness statement creation (47 tests passing)
 
 ---
 

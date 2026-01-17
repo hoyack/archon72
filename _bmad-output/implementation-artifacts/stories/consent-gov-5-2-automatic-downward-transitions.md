@@ -1,6 +1,6 @@
 # Story consent-gov-5.2: Automatic Downward Transitions
 
-Status: ready-for-dev
+Status: review
 
 ---
 
@@ -28,61 +28,61 @@ So that **system health degrades visibly when problems occur**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Define violation severity mapping** (AC: 1, 4)
-  - [ ] Create `src/domain/governance/legitimacy/violation_severity.py`
-  - [ ] Map violation types to severity levels
-  - [ ] Define how severity maps to band transitions
-  - [ ] Severe violations can skip bands
+- [x] **Task 1: Define violation severity mapping** (AC: 1, 4)
+  - [x] Create `src/domain/governance/legitimacy/violation_severity.py`
+  - [x] Map violation types to severity levels
+  - [x] Define how severity maps to band transitions
+  - [x] Severe violations can skip bands
 
-- [ ] **Task 2: Create LegitimacyDecayPort interface** (AC: 1, 2)
-  - [ ] Create `src/application/ports/governance/legitimacy_decay_port.py`
-  - [ ] Define `process_violation()` method
-  - [ ] Include violation_event_id parameter
-  - [ ] Return new legitimacy state
+- [x] **Task 2: Create LegitimacyDecayPort interface** (AC: 1, 2)
+  - [x] Create `src/application/ports/governance/legitimacy_decay_port.py`
+  - [x] Define `process_violation()` method
+  - [x] Include violation_event_id parameter
+  - [x] Return new legitimacy state
 
-- [ ] **Task 3: Implement LegitimacyDecayService** (AC: 1, 2, 3, 4, 5)
-  - [ ] Create `src/application/services/governance/legitimacy_decay_service.py`
-  - [ ] Receive violation events
-  - [ ] Calculate target band based on severity
-  - [ ] Execute transition with system actor
+- [x] **Task 3: Implement LegitimacyDecayService** (AC: 1, 2, 3, 4, 5)
+  - [x] Create `src/application/services/governance/legitimacy_decay_service.py`
+  - [x] Receive violation events
+  - [x] Calculate target band based on severity
+  - [x] Execute transition with system actor
 
-- [ ] **Task 4: Implement severity-based band calculation** (AC: 4)
-  - [ ] Minor violation: drop 1 band (e.g., STABLE → STRAINED)
-  - [ ] Major violation: drop 2 bands (e.g., STABLE → ERODING)
-  - [ ] Critical violation: drop to COMPROMISED
-  - [ ] Integrity violation: immediate FAILED
+- [x] **Task 4: Implement severity-based band calculation** (AC: 4)
+  - [x] Minor violation: drop 1 band (e.g., STABLE → STRAINED)
+  - [x] Major violation: drop 2 bands (e.g., STABLE → ERODING)
+  - [x] Critical violation: drop to COMPROMISED
+  - [x] Integrity violation: immediate FAILED
 
-- [ ] **Task 5: Implement violation accumulation** (AC: 8)
-  - [ ] Track violation_count in LegitimacyState
-  - [ ] Increment on each violation
-  - [ ] Count persists across transitions
-  - [ ] Only reset on reconstitution
+- [x] **Task 5: Implement violation accumulation** (AC: 8)
+  - [x] Track violation_count in LegitimacyState
+  - [x] Increment on each violation
+  - [x] Count persists across transitions
+  - [x] Only reset on reconstitution
 
-- [ ] **Task 6: Implement transition recording** (AC: 2, 3, 7)
-  - [ ] Record transition with triggering_event_id
-  - [ ] Include timestamp from TimeAuthority
-  - [ ] Actor is "system" for automatic transitions
-  - [ ] Include reason describing violation type
+- [x] **Task 6: Implement transition recording** (AC: 2, 3, 7)
+  - [x] Record transition with triggering_event_id
+  - [x] Include timestamp from TimeAuthority
+  - [x] Actor is "system" for automatic transitions
+  - [x] Include reason describing violation type
 
-- [ ] **Task 7: Implement band_decreased event emission** (AC: 6)
-  - [ ] Emit `constitutional.legitimacy.band_decreased`
-  - [ ] Include from_band, to_band, severity
-  - [ ] Include violation_event_id
-  - [ ] Knight observes all decay events
+- [x] **Task 7: Implement band_decreased event emission** (AC: 6)
+  - [x] Emit `constitutional.legitimacy.band_decreased`
+  - [x] Include from_band, to_band, severity
+  - [x] Include violation_event_id
+  - [x] Knight observes all decay events
 
-- [ ] **Task 8: Subscribe to violation events** (AC: 1)
-  - [ ] Listen for `constitutional.violation.*` events
-  - [ ] Extract violation severity from event
-  - [ ] Trigger decay processing
+- [x] **Task 8: Subscribe to violation events** (AC: 1)
+  - [x] Listen for `constitutional.violation.*` events
+  - [x] Extract violation severity from event
+  - [x] Trigger decay processing
 
-- [ ] **Task 9: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test minor violation drops 1 band
-  - [ ] Test major violation drops 2 bands
-  - [ ] Test critical violation goes to COMPROMISED
-  - [ ] Test integrity violation goes to FAILED
-  - [ ] Test violation count accumulates
-  - [ ] Test transition includes triggering event
-  - [ ] Test band_decreased event emitted
+- [x] **Task 9: Write comprehensive unit tests** (AC: 9)
+  - [x] Test minor violation drops 1 band
+  - [x] Test major violation drops 2 bands
+  - [x] Test critical violation goes to COMPROMISED
+  - [x] Test integrity violation goes to FAILED
+  - [x] Test violation count accumulates
+  - [x] Test transition includes triggering event
+  - [x] Test band_decreased event emitted
 
 ---
 

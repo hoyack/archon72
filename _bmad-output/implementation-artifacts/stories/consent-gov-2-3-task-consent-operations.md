@@ -1,6 +1,6 @@
 # Story consent-gov-2.3: Task Consent Operations
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -29,70 +29,70 @@ So that **I maintain control over my participation with full dignity and without
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create TaskConsentPort interface** (AC: 1, 2, 3, 4)
-  - [ ] Create `src/application/ports/governance/task_consent_port.py`
-  - [ ] Define `get_pending_requests()` method for Cluster
-  - [ ] Define `accept_task()` method
-  - [ ] Define `decline_task()` method (no justification required)
-  - [ ] Define `halt_task()` method
+- [x] **Task 1: Create TaskConsentPort interface** (AC: 1, 2, 3, 4)
+  - [x] Create `src/application/ports/governance/task_consent_port.py`
+  - [x] Define `get_pending_requests()` method for Cluster
+  - [x] Define `accept_task()` method
+  - [x] Define `decline_task()` method (no justification required)
+  - [x] Define `halt_task()` method
 
-- [ ] **Task 2: Implement TaskConsentService** (AC: 2, 3, 4)
-  - [ ] Create `src/application/services/governance/task_consent_service.py`
-  - [ ] Implement `get_pending_requests()` - query routed tasks for Cluster
-  - [ ] Implement `accept_task()` - transition routed → accepted
-  - [ ] Implement `decline_task()` - transition routed → declined
-  - [ ] Implement `halt_task()` - transition in_progress → quarantined (no penalty)
+- [x] **Task 2: Implement TaskConsentService** (AC: 2, 3, 4)
+  - [x] Create `src/application/services/governance/task_consent_service.py`
+  - [x] Implement `get_pending_requests()` - query routed tasks for Cluster
+  - [x] Implement `accept_task()` - transition routed → accepted
+  - [x] Implement `decline_task()` - transition routed → declined
+  - [x] Implement `halt_task()` - transition in_progress → quarantined (no penalty)
 
-- [ ] **Task 3: Enforce penalty-free refusal** (AC: 5, 6)
-  - [ ] Verify NO standing/reputation fields in any schema
-  - [ ] Verify NO penalty tracking on decline
-  - [ ] Add architectural test: schema has no standing/reputation columns
-  - [ ] Document constitutional guarantee in service
+- [x] **Task 3: Enforce penalty-free refusal** (AC: 5, 6)
+  - [x] Verify NO standing/reputation fields in any schema
+  - [x] Verify NO penalty tracking on decline
+  - [x] Add architectural test: schema has no standing/reputation columns
+  - [x] Document constitutional guarantee in service
 
-- [ ] **Task 4: Implement pending request visibility** (AC: 1)
-  - [ ] Query tasks in ROUTED state for Cluster
-  - [ ] Include task details, TTL remaining, Earl info
-  - [ ] Support pagination for multiple pending requests
-  - [ ] Filter out expired requests (already auto-declined)
+- [x] **Task 4: Implement pending request visibility** (AC: 1)
+  - [x] Query tasks in ROUTED state for Cluster
+  - [x] Include task details, TTL remaining, Earl info
+  - [x] Support pagination for multiple pending requests
+  - [x] Filter out expired requests (already auto-declined)
 
-- [ ] **Task 5: Implement accept operation** (AC: 2, 7)
-  - [ ] Validate task is in ROUTED state
-  - [ ] Validate Cluster is the intended recipient
-  - [ ] Transition task to ACCEPTED state
-  - [ ] Emit `executive.task.accepted` event
-  - [ ] Use two-phase event emission
+- [x] **Task 5: Implement accept operation** (AC: 2, 7)
+  - [x] Validate task is in ROUTED state
+  - [x] Validate Cluster is the intended recipient
+  - [x] Transition task to ACCEPTED state
+  - [x] Emit `executive.task.accepted` event
+  - [x] Use two-phase event emission
 
-- [ ] **Task 6: Implement decline operation** (AC: 3, 8)
-  - [ ] Validate task is in ROUTED or ACCEPTED state
-  - [ ] NO justification required (FR4 explicit)
-  - [ ] Transition task to DECLINED state
-  - [ ] Emit `executive.task.declined` event with reason "explicit_decline"
-  - [ ] Do NOT record any negative attribution
+- [x] **Task 6: Implement decline operation** (AC: 3, 8)
+  - [x] Validate task is in ROUTED or ACCEPTED state
+  - [x] NO justification required (FR4 explicit)
+  - [x] Transition task to DECLINED state
+  - [x] Emit `executive.task.declined` event with reason "explicit_decline"
+  - [x] Do NOT record any negative attribution
 
-- [ ] **Task 7: Implement halt operation** (AC: 4, 9)
-  - [ ] Validate task is in IN_PROGRESS state
-  - [ ] Validate Cluster is the worker
-  - [ ] Transition task to QUARANTINED state (halt = quarantine, not failure)
-  - [ ] Emit `executive.task.halted` event
-  - [ ] Do NOT record any penalty or negative attribution
+- [x] **Task 7: Implement halt operation** (AC: 4, 9)
+  - [x] Validate task is in IN_PROGRESS state
+  - [x] Validate Cluster is the worker
+  - [x] Transition task to QUARANTINED state (halt = quarantine, not failure)
+  - [x] Emit `executive.task.halted` event
+  - [x] Do NOT record any penalty or negative attribution
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 10)
-  - [ ] Test get_pending_requests returns routed tasks
-  - [ ] Test accept transitions to ACCEPTED
-  - [ ] Test decline transitions to DECLINED without justification
-  - [ ] Test halt transitions to QUARANTINED without penalty
-  - [ ] Test invalid state transitions rejected
-  - [ ] Test unauthorized Cluster operations rejected
-  - [ ] Architectural test: no standing/reputation schema
+- [x] **Task 8: Write comprehensive unit tests** (AC: 10)
+  - [x] Test get_pending_requests returns routed tasks
+  - [x] Test accept transitions to ACCEPTED
+  - [x] Test decline transitions to DECLINED without justification
+  - [x] Test halt transitions to QUARANTINED without penalty
+  - [x] Test invalid state transitions rejected
+  - [x] Test unauthorized Cluster operations rejected
+  - [x] Architectural test: no standing/reputation schema
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (consent operations workflow)
-- [ ] Inline comments explaining penalty-free guarantee
-- [ ] N/A - API docs (service layer)
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (consent operations workflow)
+- [x] Inline comments explaining penalty-free guarantee
+- [x] N/A - API docs (service layer)
+- [x] N/A - README (internal component)
 
 ---
 
@@ -668,11 +668,29 @@ class TestTaskConsentService:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+N/A - All tests pass on first run.
+
 ### Completion Notes List
 
+1. **Port Interface Created**: `TaskConsentPort` protocol with `PendingTaskView`, `TaskConsentResult`, and error types
+2. **Service Implemented**: `TaskConsentService` with all consent operations (get_pending, accept, decline, halt)
+3. **Constitutional Guarantees**: All decline/halt events have `penalty_incurred: false`, no standing/reputation tracking
+4. **Two-Phase Emission**: All operations use `TwoPhaseExecution` context manager for Knight observability
+5. **Extended TaskStatePort**: Added `get_tasks_by_state_and_cluster()` method for pending request queries
+6. **28 Unit Tests**: All passing, covering acceptance criteria and constitutional guarantees
+
 ### File List
+
+**New Files:**
+- `src/application/ports/governance/task_consent_port.py` - TaskConsentPort protocol + view models + errors
+- `src/application/services/governance/task_consent_service.py` - TaskConsentService implementation
+- `tests/unit/application/services/governance/test_task_consent_service.py` - 28 unit tests
+
+**Modified Files:**
+- `src/application/ports/governance/__init__.py` - Export new port types
+- `src/application/ports/governance/task_activation_port.py` - Added `get_tasks_by_state_and_cluster()` to TaskStatePort
 

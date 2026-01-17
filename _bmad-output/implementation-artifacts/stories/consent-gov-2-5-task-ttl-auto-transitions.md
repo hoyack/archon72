@@ -1,6 +1,6 @@
 # Story consent-gov-2.5: Task TTL & Auto-Transitions
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -29,75 +29,75 @@ So that **stale tasks don't block the system and silence is never allowed**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create TaskTimeoutPort interface** (AC: 1, 2, 3, 8)
-  - [ ] Create `src/application/ports/governance/task_timeout_port.py`
-  - [ ] Define `process_expired_tasks()` method
-  - [ ] Define timeout configuration interface
-  - [ ] Support async batch processing
+- [x] **Task 1: Create TaskTimeoutPort interface** (AC: 1, 2, 3, 8)
+  - [x] Create `src/application/ports/governance/task_timeout_port.py`
+  - [x] Define `process_expired_tasks()` method
+  - [x] Define timeout configuration interface
+  - [x] Support async batch processing
 
-- [ ] **Task 2: Create timeout configuration** (AC: 7)
-  - [ ] Define `TaskTimeoutConfig` dataclass
-  - [ ] Default activation TTL: 72 hours
-  - [ ] Default acceptance inactivity: 48 hours
-  - [ ] Default reporting timeout: 7 days
-  - [ ] Load from YAML configuration
+- [x] **Task 2: Create timeout configuration** (AC: 7)
+  - [x] Define `TaskTimeoutConfig` dataclass
+  - [x] Default activation TTL: 72 hours
+  - [x] Default acceptance inactivity: 48 hours
+  - [x] Default reporting timeout: 7 days
+  - [x] Load from YAML configuration
 
-- [ ] **Task 3: Implement TaskTimeoutService** (AC: 1, 2, 3, 4, 5, 6)
-  - [ ] Create `src/application/services/governance/task_timeout_service.py`
-  - [ ] Implement `process_activation_timeouts()` - routed tasks past TTL
-  - [ ] Implement `process_acceptance_timeouts()` - accepted but inactive
-  - [ ] Implement `process_reporting_timeouts()` - in_progress past deadline
-  - [ ] All transitions use `system` as actor
+- [x] **Task 3: Implement TaskTimeoutService** (AC: 1, 2, 3, 4, 5, 6)
+  - [x] Create `src/application/services/governance/task_timeout_service.py`
+  - [x] Implement `process_activation_timeouts()` - routed tasks past TTL
+  - [x] Implement `process_acceptance_timeouts()` - accepted but inactive
+  - [x] Implement `process_reporting_timeouts()` - in_progress past deadline
+  - [x] All transitions use `system` as actor
 
-- [ ] **Task 4: Implement activation TTL auto-decline** (AC: 1, 4, 6)
-  - [ ] Query tasks in ROUTED state past 72h TTL
-  - [ ] Transition to DECLINED state
-  - [ ] Emit `executive.task.auto_declined` event
-  - [ ] Reason: "ttl_expired" (not "cluster_failure")
-  - [ ] NO penalty attribution whatsoever
+- [x] **Task 4: Implement activation TTL auto-decline** (AC: 1, 4, 6)
+  - [x] Query tasks in ROUTED state past 72h TTL
+  - [x] Transition to DECLINED state
+  - [x] Emit `executive.task.auto_declined` event
+  - [x] Reason: "ttl_expired" (not "cluster_failure")
+  - [x] NO penalty attribution whatsoever
 
-- [ ] **Task 5: Implement acceptance inactivity auto-start** (AC: 2)
-  - [ ] Query tasks in ACCEPTED state inactive for 48h
-  - [ ] Transition to IN_PROGRESS state
-  - [ ] Emit `executive.task.auto_started` event
-  - [ ] Rationale: Cluster accepted, assumed working
+- [x] **Task 5: Implement acceptance inactivity auto-start** (AC: 2)
+  - [x] Query tasks in ACCEPTED state inactive for 48h
+  - [x] Transition to IN_PROGRESS state
+  - [x] Emit `executive.task.auto_started` event
+  - [x] Rationale: Cluster accepted, assumed working
 
-- [ ] **Task 6: Implement reporting timeout auto-quarantine** (AC: 3)
-  - [ ] Query tasks in IN_PROGRESS state past 7d deadline
-  - [ ] Transition to QUARANTINED state
-  - [ ] Emit `executive.task.auto_quarantined` event
-  - [ ] Reason: "reporting_timeout"
-  - [ ] NO penalty attribution (silence isn't failure, it's unknown)
+- [x] **Task 6: Implement reporting timeout auto-quarantine** (AC: 3)
+  - [x] Query tasks in IN_PROGRESS state past 7d deadline
+  - [x] Transition to QUARANTINED state
+  - [x] Emit `executive.task.auto_quarantined` event
+  - [x] Reason: "reporting_timeout"
+  - [x] NO penalty attribution (silence isn't failure, it's unknown)
 
-- [ ] **Task 7: Implement scheduled processor** (AC: 8)
-  - [ ] Create background scheduler interface
-  - [ ] Run timeout checks periodically (configurable interval, e.g., every 5 min)
-  - [ ] Non-blocking execution
-  - [ ] Log processing statistics
+- [x] **Task 7: Implement scheduled processor** (AC: 8)
+  - [x] Create background scheduler interface
+  - [x] Run timeout checks periodically (configurable interval, e.g., every 5 min)
+  - [x] Non-blocking execution
+  - [x] Log processing statistics
 
-- [ ] **Task 8: Enforce "silence is not allowed"** (AC: 9)
-  - [ ] All timeout events are explicit, never silent
-  - [ ] Hash chain captures timeout events
-  - [ ] No task can expire without recorded event
-  - [ ] Architectural test: verify no silent expiry path
+- [x] **Task 8: Enforce "silence is not allowed"** (AC: 9)
+  - [x] All timeout events are explicit, never silent
+  - [x] Hash chain captures timeout events
+  - [x] No task can expire without recorded event
+  - [x] Architectural test: verify no silent expiry path
 
-- [ ] **Task 9: Write comprehensive unit tests** (AC: 10)
-  - [ ] Test auto-decline after 72h TTL
-  - [ ] Test auto-start after 48h acceptance inactivity
-  - [ ] Test auto-quarantine after 7d reporting timeout
-  - [ ] Test events emitted with system as actor
-  - [ ] Test no penalty attribution on any timeout
-  - [ ] Test configurable timeout durations
-  - [ ] Test batch processing of multiple expired tasks
+- [x] **Task 9: Write comprehensive unit tests** (AC: 10)
+  - [x] Test auto-decline after 72h TTL
+  - [x] Test auto-start after 48h acceptance inactivity
+  - [x] Test auto-quarantine after 7d reporting timeout
+  - [x] Test events emitted with system as actor
+  - [x] Test no penalty attribution on any timeout
+  - [x] Test configurable timeout durations
+  - [x] Test batch processing of multiple expired tasks
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (timeout workflows)
-- [ ] Inline comments explaining "silence is not allowed" rule
-- [ ] Configuration docs for timeout values
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (timeout workflows)
+- [x] Inline comments explaining "silence is not allowed" rule
+- [x] Configuration docs for timeout values
+- [x] N/A - README (internal component)
 
 ---
 

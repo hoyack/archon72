@@ -1,6 +1,6 @@
 # Story consent-gov-2.6: Task Reminders
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -29,71 +29,115 @@ So that **participants are informed without coercion**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create TaskReminderPort interface** (AC: 1, 2, 5)
-  - [ ] Create `src/application/ports/governance/task_reminder_port.py`
-  - [ ] Define `send_milestone_reminder()` method
-  - [ ] Define `get_pending_reminders()` method
-  - [ ] Include milestone tracking (50%, 90%)
+- [x] **Task 1: Create TaskReminderPort interface** (AC: 1, 2, 5)
+  - [x] Create `src/application/ports/governance/task_reminder_port.py`
+  - [x] Define `send_milestone_reminder()` method
+  - [x] Define `get_pending_reminders()` method
+  - [x] Include milestone tracking (50%, 90%)
 
-- [ ] **Task 2: Create ReminderTemplate domain model** (AC: 4)
-  - [ ] Create `src/domain/governance/reminder_template.py`
-  - [ ] Define neutral reminder text templates
-  - [ ] No pressuring language (no "urgent", "hurry", "deadline", etc.)
-  - [ ] Template variables: task_id, ttl_remaining, milestone_pct
+- [x] **Task 2: Create ReminderTemplate domain model** (AC: 4)
+  - [x] Create `src/domain/governance/task/reminder_template.py`
+  - [x] Define neutral reminder text templates
+  - [x] No pressuring language (no "urgent", "hurry", "deadline", etc.)
+  - [x] Template variables: task_id, ttl_remaining, milestone_pct
 
-- [ ] **Task 3: Implement TaskReminderService** (AC: 1, 2, 3, 5, 7, 9)
-  - [ ] Create `src/application/services/governance/task_reminder_service.py`
-  - [ ] Implement 50% TTL reminder logic
-  - [ ] Implement 90% TTL reminder logic
-  - [ ] Skip if task already actioned (accepted/declined)
-  - [ ] Track sent reminders to prevent duplicates
+- [x] **Task 3: Implement TaskReminderService** (AC: 1, 2, 3, 5, 7, 9)
+  - [x] Create `src/application/services/governance/task_reminder_service.py`
+  - [x] Implement 50% TTL reminder logic
+  - [x] Implement 90% TTL reminder logic
+  - [x] Skip if task already actioned (accepted/declined)
+  - [x] Track sent reminders to prevent duplicates
 
-- [ ] **Task 4: Integrate with Coercion Filter** (AC: 3, 8)
-  - [ ] All reminder content passes through Coercion Filter
-  - [ ] Use FilteredContent type for reminder body
-  - [ ] If filter rejects, log but do not send (constitutional)
-  - [ ] Filter decision logged to ledger
+- [x] **Task 4: Integrate with Coercion Filter** (AC: 3, 8)
+  - [x] All reminder content passes through Coercion Filter
+  - [x] Use FilteredContent type for reminder body
+  - [x] If filter rejects, log but do not send (constitutional)
+  - [x] Filter decision logged to ledger
 
-- [ ] **Task 5: Implement 50% TTL reminder** (AC: 1, 4, 6)
-  - [ ] Calculate 50% of TTL (36h for 72h TTL)
-  - [ ] Query tasks at or past 50% milestone
-  - [ ] Generate neutral reminder content
-  - [ ] Pass through Coercion Filter
-  - [ ] Send to Cluster if filter accepts
-  - [ ] Emit `executive.task.reminder_sent` event
+- [x] **Task 5: Implement 50% TTL reminder** (AC: 1, 4, 6)
+  - [x] Calculate 50% of TTL (36h for 72h TTL)
+  - [x] Query tasks at or past 50% milestone
+  - [x] Generate neutral reminder content
+  - [x] Pass through Coercion Filter
+  - [x] Send to Cluster if filter accepts
+  - [x] Emit `executive.task.reminder_sent` event
 
-- [ ] **Task 6: Implement 90% TTL reminder** (AC: 2, 4, 6)
-  - [ ] Calculate 90% of TTL (64.8h for 72h TTL)
-  - [ ] Query tasks at or past 90% milestone
-  - [ ] Generate neutral reminder content
-  - [ ] Include "final reminder" indicator (still neutral tone)
-  - [ ] Pass through Coercion Filter
-  - [ ] Send to Cluster if filter accepts
-  - [ ] Emit `executive.task.reminder_sent` event
+- [x] **Task 6: Implement 90% TTL reminder** (AC: 2, 4, 6)
+  - [x] Calculate 90% of TTL (64.8h for 72h TTL)
+  - [x] Query tasks at or past 90% milestone
+  - [x] Generate neutral reminder content
+  - [x] Include "final reminder" indicator (still neutral tone)
+  - [x] Pass through Coercion Filter
+  - [x] Send to Cluster if filter accepts
+  - [x] Emit `executive.task.reminder_sent` event
 
-- [ ] **Task 7: Implement duplicate prevention** (AC: 9)
-  - [ ] Track which milestones sent for each task
-  - [ ] Store in reminder_tracking table or projection
-  - [ ] Skip if milestone already sent
-  - [ ] Handle race conditions in batch processing
+- [x] **Task 7: Implement duplicate prevention** (AC: 9)
+  - [x] Track which milestones sent for each task
+  - [x] Store in reminder_tracking table or projection
+  - [x] Skip if milestone already sent
+  - [x] Handle race conditions in batch processing
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 10)
-  - [ ] Test reminder sent at 50% TTL
-  - [ ] Test reminder sent at 90% TTL
-  - [ ] Test reminder content is neutral
-  - [ ] Test Coercion Filter integration
-  - [ ] Test no reminder if task already actioned
-  - [ ] Test duplicate prevention
-  - [ ] Test FilteredContent type enforcement
+- [x] **Task 8: Write comprehensive unit tests** (AC: 10)
+  - [x] Test reminder sent at 50% TTL
+  - [x] Test reminder sent at 90% TTL
+  - [x] Test reminder content is neutral
+  - [x] Test Coercion Filter integration
+  - [x] Test no reminder if task already actioned
+  - [x] Test duplicate prevention
+  - [x] Test FilteredContent type enforcement
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (reminder workflow)
-- [ ] Inline comments explaining neutral tone requirement
-- [ ] Reminder template documentation
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (reminder workflow)
+- [x] Inline comments explaining neutral tone requirement
+- [x] Reminder template documentation
+- [x] N/A - README (internal component)
+
+---
+
+## Implementation Summary
+
+### Files Created
+
+1. **`src/application/ports/governance/task_reminder_port.py`**
+   - `ReminderMilestone` enum (HALFWAY=50%, FINAL=90%)
+   - `ReminderRecord` - immutable tracking of sent milestones
+   - `ReminderSendResult` - result of individual reminder sends
+   - `ReminderProcessingResult` - batch processing results
+   - `ReminderTrackingPort` - protocol for milestone tracking
+   - `TaskReminderPort` - main protocol for reminder operations
+
+2. **`src/domain/governance/task/reminder_template.py`**
+   - `BANNED_PHRASES` - frozenset of coercive language patterns
+   - `ReminderTemplate` - immutable template with banned word validation
+   - `HALFWAY_TEMPLATE` - pre-defined neutral 50% template
+   - `FINAL_TEMPLATE` - pre-defined neutral 90% template
+   - `get_template_for_milestone()` - template selector
+   - `validate_custom_template()` - utility for custom template validation
+
+3. **`src/application/services/governance/task_reminder_service.py`**
+   - `TaskReminderService` - main service implementing TaskReminderPort
+   - `TaskReminderScheduler` - background scheduler for periodic processing
+   - Full Coercion Filter integration (mandatory path, no bypass)
+   - Golden Rule compliance: events emitted regardless of filter outcome
+
+### Test Coverage (60 tests)
+
+- `tests/unit/application/ports/governance/test_task_reminder_port.py` (19 tests)
+- `tests/unit/domain/governance/task/test_reminder_template.py` (25 tests)
+- `tests/unit/application/services/governance/test_task_reminder_service.py` (16 tests)
+
+### Key Architectural Decisions
+
+1. **BANNED_PHRASES vs BANNED_WORDS**: Changed from simple word matching to phrase matching to allow neutral phrases like "no penalty" while blocking coercive phrases like "you must".
+
+2. **Mandatory Coercion Filter**: All reminder content passes through the Coercion Filter. If rejected, the reminder is NOT sent but an event is still emitted (Golden Rule).
+
+3. **Immutable Data Structures**: `ReminderRecord`, `ReminderTemplate`, `ReminderSendResult`, and `ReminderProcessingResult` are all frozen dataclasses.
+
+4. **FilteredContent Type Enforcement**: The service uses the type system to ensure only filtered content can be sent to participants.
 
 ---
 

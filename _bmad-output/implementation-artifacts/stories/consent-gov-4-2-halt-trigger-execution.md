@@ -1,6 +1,6 @@
 # Story consent-gov-4.2: Halt Trigger & Execution
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -28,62 +28,62 @@ So that **I can stop operations immediately when needed**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create HaltTriggerPort interface** (AC: 1, 2)
-  - [ ] Create `src/application/ports/governance/halt_trigger_port.py`
-  - [ ] Define `trigger_halt()` method
-  - [ ] Include operator_id, reason, message parameters
-  - [ ] Return halt execution result
+- [x] **Task 1: Create HaltTriggerPort interface** (AC: 1, 2)
+  - [x] Create `src/application/ports/governance/halt_trigger_port.py`
+  - [x] Define `trigger_halt()` method
+  - [x] Include operator_id, reason, message parameters
+  - [x] Return halt execution result
 
-- [ ] **Task 2: Create HaltService** (AC: 2, 3, 4, 5)
-  - [ ] Create `src/application/services/governance/halt_service.py`
-  - [ ] Orchestrate halt trigger flow
-  - [ ] Emit trigger event
-  - [ ] Execute halt through circuit
-  - [ ] Emit execution complete event
+- [x] **Task 2: Create HaltService** (AC: 2, 3, 4, 5)
+  - [x] Create `src/application/services/governance/halt_service.py`
+  - [x] Orchestrate halt trigger flow
+  - [x] Emit trigger event
+  - [x] Execute halt through circuit
+  - [x] Emit execution complete event
 
-- [ ] **Task 3: Implement operator authentication** (AC: 6)
-  - [ ] Verify operator identity
-  - [ ] Check halt permission in rank matrix
-  - [ ] Only certain ranks can trigger halt
-  - [ ] Log unauthorized attempts
+- [x] **Task 3: Implement operator authentication** (AC: 6)
+  - [x] Verify operator identity
+  - [x] Check halt permission in rank matrix
+  - [x] Only certain ranks can trigger halt
+  - [x] Log unauthorized attempts
 
-- [ ] **Task 4: Implement halt trigger event** (AC: 4)
-  - [ ] Emit `constitutional.halt.triggered` at start
-  - [ ] Include operator_id, reason, timestamp
-  - [ ] Two-phase emission (intent first)
-  - [ ] Knight observes trigger attempt
+- [x] **Task 4: Implement halt trigger event** (AC: 4)
+  - [x] Emit `constitutional.halt.triggered` at start
+  - [x] Include operator_id, reason, timestamp
+  - [x] Two-phase emission (intent first)
+  - [x] Knight observes trigger attempt
 
-- [ ] **Task 5: Implement halt execution** (AC: 2, 3)
-  - [ ] Call HaltCircuitAdapter.trigger_halt()
-  - [ ] Wait for propagation (primary → secondary → tertiary)
-  - [ ] Verify halt is established
-  - [ ] Handle partial failures gracefully
+- [x] **Task 5: Implement halt execution** (AC: 2, 3)
+  - [x] Call HaltCircuitAdapter.trigger_halt()
+  - [x] Wait for propagation (primary → secondary → tertiary)
+  - [x] Verify halt is established
+  - [x] Handle partial failures gracefully
 
-- [ ] **Task 6: Implement halt completion event** (AC: 5)
-  - [ ] Emit `constitutional.halt.executed` on completion
-  - [ ] Include execution time, channels reached
-  - [ ] Mark as final confirmation
-  - [ ] Knight observes completion
+- [x] **Task 6: Implement halt completion event** (AC: 5)
+  - [x] Emit `constitutional.halt.executed` on completion
+  - [x] Include execution time, channels reached
+  - [x] Mark as final confirmation
+  - [x] Knight observes completion
 
-- [ ] **Task 7: Implement in-flight operation handling** (AC: 8)
-  - [ ] Signal all running operations
-  - [ ] Operations check halt flag and abort
-  - [ ] Graceful shutdown where possible
-  - [ ] Log all interrupted operations
+- [x] **Task 7: Implement in-flight operation handling** (AC: 8)
+  - [x] Signal all running operations via halt flag (primary channel)
+  - [x] Operations check halt flag and abort (delegated to HaltChecker)
+  - [x] Graceful shutdown where possible (halt adapter logs)
+  - [x] Log all interrupted operations
 
-- [ ] **Task 8: Create halt API endpoint** (AC: 1, 6)
-  - [ ] POST `/governance/halt` endpoint
-  - [ ] Require authentication
-  - [ ] Require halt permission
-  - [ ] Return halt status
+- [x] **Task 8: Create halt API endpoint** (AC: 1, 6)
+  - [x] POST `/v1/governance/halt` endpoint
+  - [x] Require authentication via X-Operator-Id header
+  - [x] Require halt permission
+  - [x] Return halt status
 
-- [ ] **Task 9: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test authorized operator can halt
-  - [ ] Test unauthorized operator rejected
-  - [ ] Test trigger event emitted
-  - [ ] Test execution event emitted
-  - [ ] Test halt propagation
-  - [ ] Test in-flight operations interrupted
+- [x] **Task 9: Write comprehensive unit tests** (AC: 9)
+  - [x] Test authorized operator can halt (24 tests passing)
+  - [x] Test unauthorized operator rejected
+  - [x] Test trigger event emitted
+  - [x] Test execution event emitted
+  - [x] Test halt propagation
+  - [x] Test in-flight operations interrupted
 
 ---
 

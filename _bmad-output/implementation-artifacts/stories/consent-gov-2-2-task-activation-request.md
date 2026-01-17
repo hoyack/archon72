@@ -1,6 +1,6 @@
 # Story consent-gov-2.2: Task Activation Request
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -29,57 +29,57 @@ So that **work can be offered to human participants with full transparency and c
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create task activation domain models** (AC: 1, 2)
-  - [ ] Create `src/domain/governance/task/task_activation_request.py`
-  - [ ] Define `TaskActivationRequest` dataclass
-  - [ ] Include task details: description, requirements, expected_outcomes
-  - [ ] Include TTL configuration with default 72h
-  - [ ] Add validation for required fields
+- [x] **Task 1: Create task activation domain models** (AC: 1, 2)
+  - [x] Create `src/domain/governance/task/task_activation_request.py`
+  - [x] Define `TaskActivationRequest` dataclass
+  - [x] Include task details: description, requirements, expected_outcomes
+  - [x] Include TTL configuration with default 72h
+  - [x] Add validation for required fields
 
-- [ ] **Task 2: Create TaskActivationPort interface** (AC: 5, 9)
-  - [ ] Create `src/application/ports/governance/task_activation_port.py`
-  - [ ] Define `create_activation()` method
-  - [ ] Define `route_to_cluster()` method
-  - [ ] Define `get_task_state()` method for Earl visibility
+- [x] **Task 2: Create TaskActivationPort interface** (AC: 5, 9)
+  - [x] Create `src/application/ports/governance/task_activation_port.py`
+  - [x] Define `create_activation()` method
+  - [x] Define `route_to_cluster()` method
+  - [x] Define `get_task_state()` method for Earl visibility
 
-- [ ] **Task 3: Implement TaskActivationService** (AC: 3, 4, 9)
-  - [ ] Create `src/application/services/governance/task_activation_service.py`
-  - [ ] Implement `create_activation_request()` method
-  - [ ] Integrate with `CoercionFilterService` for content validation
-  - [ ] Implement state transitions (authorized → activated → routed)
-  - [ ] Use two-phase event emission (from Epic 1)
+- [x] **Task 3: Implement TaskActivationService** (AC: 3, 4, 9)
+  - [x] Create `src/application/services/governance/task_activation_service.py`
+  - [x] Implement `create_activation_request()` method
+  - [x] Integrate with `CoercionFilterService` for content validation
+  - [x] Implement state transitions (authorized → activated → routed)
+  - [x] Use two-phase event emission (from Epic 1)
 
-- [ ] **Task 4: Implement Coercion Filter integration** (AC: 4)
-  - [ ] Create filter request for activation content
-  - [ ] Handle `accept`, `reject`, `block` outcomes
-  - [ ] Return filter result to Earl for review (FR19)
-  - [ ] Block routing if filter rejects/blocks
+- [x] **Task 4: Implement Coercion Filter integration** (AC: 4)
+  - [x] Create filter request for activation content
+  - [x] Handle `accept`, `reject`, `block` outcomes
+  - [x] Return filter result to Earl for review (FR19)
+  - [x] Block routing if filter rejects/blocks
 
-- [ ] **Task 5: Implement async routing** (AC: 5)
-  - [ ] Create `ParticipantMessagePort` integration
-  - [ ] Route via email (async protocol)
-  - [ ] Use `FilteredContent` type (not raw strings)
-  - [ ] Log routing attempt to ledger
+- [x] **Task 5: Implement async routing** (AC: 5)
+  - [x] Create `ParticipantMessagePort` integration
+  - [x] Route via email (async protocol)
+  - [x] Use `FilteredContent` type (not raw strings)
+  - [x] Log routing attempt to ledger
 
-- [ ] **Task 6: Implement event emission** (AC: 6, 7)
-  - [ ] Emit `executive.task.activated` on activation
-  - [ ] Emit `executive.task.routed` on successful routing
-  - [ ] Include activation details in event payload
-  - [ ] Use two-phase emission pattern
+- [x] **Task 6: Implement event emission** (AC: 6, 7)
+  - [x] Emit `executive.task.activated` on activation
+  - [x] Emit `executive.task.routed` on successful routing
+  - [x] Include activation details in event payload
+  - [x] Use two-phase emission pattern
 
-- [ ] **Task 7: Implement Earl task visibility** (AC: 8)
-  - [ ] Create `get_task_state()` method
-  - [ ] Create `get_task_history()` method
-  - [ ] Query from task_states projection
-  - [ ] Return complete state and event history
+- [x] **Task 7: Implement Earl task visibility** (AC: 8)
+  - [x] Create `get_task_state()` method
+  - [x] Create `get_task_history()` method
+  - [x] Query from task_states projection
+  - [x] Return complete state and event history
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 10)
-  - [ ] Test activation request creation with valid data
-  - [ ] Test TTL configuration (default and custom)
-  - [ ] Test Coercion Filter integration (accept, reject, block)
-  - [ ] Test state transitions
-  - [ ] Test event emission
-  - [ ] Test Earl task visibility
+- [x] **Task 8: Write comprehensive unit tests** (AC: 10)
+  - [x] Test activation request creation with valid data
+  - [x] Test TTL configuration (default and custom)
+  - [x] Test Coercion Filter integration (accept, reject, block)
+  - [x] Test state transitions
+  - [x] Test event emission
+  - [x] Test Earl task visibility
 
 ---
 
@@ -604,11 +604,35 @@ class TestTaskActivationService:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+N/A - No debug issues during implementation.
+
 ### Completion Notes List
 
+1. **Domain Models Created**: `TaskActivationRequest`, `TaskActivationResult`, `FilteredContent`, `TaskStateView` with full validation
+2. **Port Interfaces**: `TaskActivationPort`, `TaskStatePort`, `CoercionFilterPort`, `ParticipantMessagePort` protocols defined
+3. **Service Implementation**: `TaskActivationService` with full workflow (create → filter → route)
+4. **Filter Integration**: Handles all four outcomes (accepted, transformed, rejected, blocked)
+5. **Async Routing**: Uses `ParticipantMessagePort` with type-safe `FilteredContent`
+6. **Event Emission**: Two-phase pattern via `TwoPhaseExecution` context manager
+7. **Earl Visibility**: `get_task_state()` and `get_task_history()` with ownership verification
+8. **Tests**: 41 tests passing (26 domain + 15 service)
+9. **Bug Fix**: Updated `_transition_task()` to pass required `transition_time` and `actor_id` to `TaskState.transition()`
+
 ### File List
+
+**Created Files:**
+- `src/domain/governance/task/task_activation_request.py` - Domain models
+- `src/application/ports/governance/task_activation_port.py` - Port interfaces
+- `src/application/ports/governance/coercion_filter_port.py` - Filter port
+- `src/application/ports/governance/participant_message_port.py` - Message port
+- `src/application/services/governance/task_activation_service.py` - Service implementation
+- `tests/unit/domain/governance/task/test_task_activation_request.py` - Domain tests (26 passing)
+- `tests/unit/application/services/governance/test_task_activation_service.py` - Service tests (15 passing)
+
+**Modified Files:**
+- `src/application/ports/governance/__init__.py` - Added new exports
 

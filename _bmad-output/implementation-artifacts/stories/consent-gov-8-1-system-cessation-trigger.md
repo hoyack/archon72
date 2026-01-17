@@ -1,6 +1,6 @@
 # Story consent-gov-8.1: System Cessation Trigger
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -27,63 +27,63 @@ So that **the system can stop operations honorably**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create CessationTrigger domain model** (AC: 1, 4)
-  - [ ] Create `src/domain/governance/cessation/cessation_trigger.py`
-  - [ ] Include operator_id, triggered_at
-  - [ ] Include reason (required documentation)
-  - [ ] Immutable value object
+- [x] **Task 1: Create CessationTrigger domain model** (AC: 1, 4)
+  - [x] Create `src/domain/governance/cessation/cessation_trigger.py`
+  - [x] Include operator_id, triggered_at
+  - [x] Include reason (required documentation)
+  - [x] Immutable value object
 
-- [ ] **Task 2: Create CessationTriggerService** (AC: 1, 5)
-  - [ ] Create `src/application/services/governance/cessation_trigger_service.py`
-  - [ ] Validate operator has cessation authority
-  - [ ] Emit `constitutional.cessation.triggered`
-  - [ ] Coordinate with other services
+- [x] **Task 2: Create CessationTriggerService** (AC: 1, 5)
+  - [x] Create `src/application/services/governance/cessation_trigger_service.py`
+  - [x] Validate operator has cessation authority
+  - [x] Emit `constitutional.cessation.triggered`
+  - [x] Coordinate with other services
 
-- [ ] **Task 3: Create CessationPort interface** (AC: 1)
-  - [ ] Create `src/application/ports/governance/cessation_port.py`
-  - [ ] Define `trigger_cessation()` method
-  - [ ] Define `get_cessation_status()` method
-  - [ ] No `cancel_cessation()` (irreversible)
+- [x] **Task 3: Create CessationPort interface** (AC: 1)
+  - [x] Create `src/application/ports/governance/cessation_port.py`
+  - [x] Define `trigger_cessation()` method
+  - [x] Define `get_cessation_status()` method
+  - [x] No `cancel_cessation()` (irreversible)
 
-- [ ] **Task 4: Implement motion blocking** (AC: 2)
-  - [ ] Block new motion submission
-  - [ ] Return `CESSATION_IN_PROGRESS` error
-  - [ ] Existing motions continue to completion
-  - [ ] No new motions accepted
+- [x] **Task 4: Implement motion blocking** (AC: 2)
+  - [x] Block new motion submission
+  - [x] Return `CESSATION_IN_PROGRESS` error
+  - [x] Existing motions continue to completion
+  - [x] No new motions accepted
 
-- [ ] **Task 5: Implement execution halt** (AC: 3)
-  - [ ] Signal halt to all executors
-  - [ ] Graceful shutdown where possible
-  - [ ] Force stop after timeout
-  - [ ] Log halt status for each component
+- [x] **Task 5: Implement execution halt** (AC: 3)
+  - [x] Signal halt to all executors
+  - [x] Graceful shutdown where possible
+  - [x] Force stop after timeout
+  - [x] Log halt status for each component
 
-- [ ] **Task 6: Implement irreversibility** (AC: 6)
-  - [ ] No cancel/undo method exists
-  - [ ] State machine: ACTIVE → CESSATION_TRIGGERED → CEASED
-  - [ ] Forward-only transitions
-  - [ ] Any restart is new instance
+- [x] **Task 6: Implement irreversibility** (AC: 6)
+  - [x] No cancel/undo method exists
+  - [x] State machine: ACTIVE → CESSATION_TRIGGERED → CEASED
+  - [x] Forward-only transitions
+  - [x] Any restart is new instance
 
-- [ ] **Task 7: Handle in-flight operations** (AC: 7)
-  - [ ] Grace period for completing operations
-  - [ ] Label interrupted work appropriately
-  - [ ] No silent drops
-  - [ ] All transitions recorded
+- [x] **Task 7: Handle in-flight operations** (AC: 7)
+  - [x] Grace period for completing operations
+  - [x] Label interrupted work appropriately
+  - [x] No silent drops
+  - [x] All transitions recorded
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test operator can trigger cessation
-  - [ ] Test new motions blocked
-  - [ ] Test execution halts
-  - [ ] Test irreversibility
-  - [ ] Test event emitted
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test operator can trigger cessation
+  - [x] Test new motions blocked
+  - [x] Test execution halts
+  - [x] Test irreversibility
+  - [x] Test event emitted
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (cessation workflow)
-- [ ] Operations runbook for cessation procedure
-- [ ] Inline comments explaining irreversibility
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (cessation workflow) - inline docstrings
+- [x] Operations runbook for cessation procedure - via dev notes
+- [x] Inline comments explaining irreversibility
+- [x] N/A - README (internal component)
 
 ---
 

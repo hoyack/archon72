@@ -328,7 +328,7 @@ development_status:
   # Consent-Gov Epic 1: Constitutional Event Infrastructure (P0 - Foundation)
   # Event sourcing, ledger, hash chain, projections, Merkle proofs
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-1: in-progress
+  consent-gov-epic-1: done
   consent-gov-1-1-event-envelope-domain-model: done
   consent-gov-1-2-append-only-ledger-port-adapter: done
   consent-gov-1-3-hash-chain-implementation: done
@@ -343,14 +343,14 @@ development_status:
   # Task state machine, activation, consent, results, TTL, reminders, constraints
   # FR1-FR14, NFR-CONSENT-01, NFR-PERF-05, NFR-INT-01
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-2: in-progress
-  consent-gov-2-1-task-state-machine-domain-model: ready-for-dev
-  consent-gov-2-2-task-activation-request: ready-for-dev
-  consent-gov-2-3-task-consent-operations: ready-for-dev
-  consent-gov-2-4-task-result-submission: ready-for-dev
-  consent-gov-2-5-task-ttl-auto-transitions: ready-for-dev
-  consent-gov-2-6-task-reminders: ready-for-dev
-  consent-gov-2-7-role-specific-task-constraints: ready-for-dev
+  consent-gov-epic-2: done
+  consent-gov-2-1-task-state-machine-domain-model: done
+  consent-gov-2-2-task-activation-request: done
+  consent-gov-2-3-task-consent-operations: done
+  consent-gov-2-4-task-result-submission: done
+  consent-gov-2-5-task-ttl-auto-transitions: done
+  consent-gov-2-6-task-reminders: done
+  consent-gov-2-7-role-specific-task-constraints: done
   consent-gov-epic-2-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -358,11 +358,11 @@ development_status:
   # Coercion filter, pattern detection, logging
   # FR15-FR21, NFR-CONST-05, NFR-PERF-03, NFR-UX-01
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-3: in-progress
-  consent-gov-3-1-coercion-filter-domain-model: ready-for-dev
-  consent-gov-3-2-coercion-filter-service: ready-for-dev
-  consent-gov-3-3-filter-decision-logging: ready-for-dev
-  consent-gov-3-4-coercion-pattern-detection: ready-for-dev
+  consent-gov-epic-3: done
+  consent-gov-3-1-coercion-filter-domain-model: done
+  consent-gov-3-2-coercion-filter-service: done
+  consent-gov-3-3-filter-decision-logging: done
+  consent-gov-3-4-coercion-pattern-detection: done
   consent-gov-epic-3-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -370,10 +370,10 @@ development_status:
   # Halt circuit, trigger, task transitions on halt
   # FR22-FR27, NFR-PERF-01, NFR-ATOMIC-01, NFR-REL-01, NFR-REL-03
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-4: in-progress
-  consent-gov-4-1-halt-circuit-port-adapter: in-progress
-  consent-gov-4-2-halt-trigger-execution: ready-for-dev
-  consent-gov-4-3-task-state-transitions-on-halt: ready-for-dev
+  consent-gov-epic-4: done
+  consent-gov-4-1-halt-circuit-port-adapter: done
+  consent-gov-4-2-halt-trigger-execution: done
+  consent-gov-4-3-task-state-transitions-on-halt: done
   consent-gov-epic-4-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -381,10 +381,10 @@ development_status:
   # Legitimacy bands, auto-decay, explicit restoration
   # FR28-FR32, NFR-AUDIT-04, NFR-CONST-04
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-5: in-progress
-  consent-gov-5-1-legitimacy-band-domain-model: ready-for-dev
-  consent-gov-5-2-automatic-downward-transitions: ready-for-dev
-  consent-gov-5-3-explicit-upward-transitions: ready-for-dev
+  consent-gov-epic-5: done
+  consent-gov-5-1-legitimacy-band-domain-model: done
+  consent-gov-5-2-automatic-downward-transitions: done
+  consent-gov-5-3-explicit-upward-transitions: done
   consent-gov-epic-5-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -392,12 +392,12 @@ development_status:
   # Knight witness, observation, routing, Prince panels, findings
   # FR33-FR41, NFR-CONST-06, NFR-CONST-07, NFR-OBS-01, NFR-AUDIT-01
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-6: in-progress
-  consent-gov-6-1-knight-witness-domain-model: ready-for-dev
-  consent-gov-6-2-passive-knight-observation: ready-for-dev
-  consent-gov-6-3-witness-statement-routing: ready-for-dev
-  consent-gov-6-4-prince-panel-domain-model: ready-for-dev
-  consent-gov-6-5-panel-finding-preservation: ready-for-dev
+  consent-gov-epic-6: done
+  consent-gov-6-1-knight-witness-domain-model: done
+  consent-gov-6-2-passive-knight-observation: done
+  consent-gov-6-3-witness-statement-routing: done
+  consent-gov-6-4-prince-panel-domain-model: done
+  consent-gov-6-5-panel-finding-preservation: done
   consent-gov-epic-6-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -405,11 +405,11 @@ development_status:
   # Exit processing, obligation release, contribution preservation, no follow-up
   # FR42-FR46, NFR-EXIT-01 to 03
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-7: in-progress
-  consent-gov-7-1-exit-request-processing: ready-for-dev
-  consent-gov-7-2-obligation-release: ready-for-dev
-  consent-gov-7-3-contribution-preservation: ready-for-dev
-  consent-gov-7-4-follow-up-contact-prevention: ready-for-dev
+  consent-gov-epic-7: done
+  consent-gov-7-1-exit-request-processing: done
+  consent-gov-7-2-obligation-release: done
+  consent-gov-7-3-contribution-preservation: done
+  consent-gov-7-4-follow-up-contact-prevention: done
   consent-gov-epic-7-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -417,10 +417,10 @@ development_status:
   # Cessation trigger, record creation, reconstitution validation
   # FR47-FR55, NFR-REL-05
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-8: in-progress
-  consent-gov-8-1-system-cessation-trigger: ready-for-dev
-  consent-gov-8-2-cessation-record-creation: ready-for-dev
-  consent-gov-8-3-reconstitution-validation: ready-for-dev
+  consent-gov-epic-8: done
+  consent-gov-8-1-system-cessation-trigger: done
+  consent-gov-8-2-cessation-record-creation: done
+  consent-gov-8-3-reconstitution-validation: done
   consent-gov-epic-8-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -428,11 +428,11 @@ development_status:
   # Ledger export, proof generation, independent verification, logging
   # FR56-FR60, NFR-AUDIT-02 to 06, NFR-INT-02
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-9: in-progress
-  consent-gov-9-1-ledger-export: ready-for-dev
-  consent-gov-9-2-cryptographic-proof-generation: ready-for-dev
-  consent-gov-9-3-independent-verification: ready-for-dev
-  consent-gov-9-4-state-transition-logging: ready-for-dev
+  consent-gov-epic-9: done
+  consent-gov-9-1-ledger-export: done
+  consent-gov-9-2-cryptographic-proof-generation: done
+  consent-gov-9-3-independent-verification: done
+  consent-gov-9-4-state-transition-logging: done
   consent-gov-epic-9-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -440,7 +440,7 @@ development_status:
   # Anti-metrics enforcement, verification
   # FR61-FR63, NFR-CONST-08
   # ═══════════════════════════════════════════════════════════════════════════
-  consent-gov-epic-10: in-progress
-  consent-gov-10-1-anti-metrics-data-layer-enforcement: ready-for-dev
-  consent-gov-10-2-anti-metrics-verification: ready-for-dev
+  consent-gov-epic-10: done
+  consent-gov-10-1-anti-metrics-data-layer-enforcement: done
+  consent-gov-10-2-anti-metrics-verification: done
   consent-gov-epic-10-retrospective: optional

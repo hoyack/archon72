@@ -1,6 +1,6 @@
 # Story consent-gov-3.3: Filter Decision Logging
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -28,64 +28,64 @@ So that **I can review what was filtered and why**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create FilterDecisionLogPort interface** (AC: 1, 8)
-  - [ ] Create `src/application/ports/governance/filter_decision_log_port.py`
-  - [ ] Define `log_decision()` method
-  - [ ] Define `get_decision_history()` method for audit
-  - [ ] Ensure append-only semantics
+- [x] **Task 1: Create FilterDecisionLogPort interface** (AC: 1, 8)
+  - [x] Create `src/application/ports/governance/filter_decision_log_port.py`
+  - [x] Define `log_decision()` method
+  - [x] Define `get_decision_history()` method for audit
+  - [x] Ensure append-only semantics
 
-- [ ] **Task 2: Create FilterDecisionLog domain model** (AC: 1, 3, 4, 5)
-  - [ ] Create `src/domain/governance/filter/filter_decision_log.py`
-  - [ ] Include input content hash (not raw - privacy)
-  - [ ] Include output content hash
-  - [ ] Include filter version
-  - [ ] Include timestamp
-  - [ ] Include decision-specific details
+- [x] **Task 2: Create FilterDecisionLog domain model** (AC: 1, 3, 4, 5)
+  - [x] Create `src/domain/governance/filter/filter_decision_log.py`
+  - [x] Include input content hash (not raw - privacy)
+  - [x] Include output content hash
+  - [x] Include filter version
+  - [x] Include timestamp
+  - [x] Include decision-specific details
 
-- [ ] **Task 3: Implement FilterLoggingService** (AC: 1, 3, 4, 5, 6, 7)
-  - [ ] Create `src/application/services/governance/filter_logging_service.py`
-  - [ ] Log accepted decisions with transformations
-  - [ ] Log rejected decisions with reasons
-  - [ ] Log blocked decisions with violations
-  - [ ] Do NOT log preview operations
+- [x] **Task 3: Implement FilterLoggingService** (AC: 1, 3, 4, 5, 6, 7)
+  - [x] Create `src/application/services/governance/filter_logging_service.py`
+  - [x] Log accepted decisions with transformations
+  - [x] Log rejected decisions with reasons
+  - [x] Log blocked decisions with violations
+  - [x] Do NOT log preview operations
 
-- [ ] **Task 4: Implement accepted decision logging** (AC: 3)
-  - [ ] Log original content hash
-  - [ ] Log transformed content hash
-  - [ ] Log all transformations applied
-  - [ ] Include rule IDs for auditability
+- [x] **Task 4: Implement accepted decision logging** (AC: 3)
+  - [x] Log original content hash
+  - [x] Log transformed content hash
+  - [x] Log all transformations applied
+  - [x] Include rule IDs for auditability
 
-- [ ] **Task 5: Implement rejected decision logging** (AC: 4)
-  - [ ] Log original content hash
-  - [ ] Log rejection reason
-  - [ ] Log guidance provided
-  - [ ] Track rejection count per Earl (pattern detection)
+- [x] **Task 5: Implement rejected decision logging** (AC: 4)
+  - [x] Log original content hash
+  - [x] Log rejection reason
+  - [x] Log guidance provided
+  - [x] Track rejection count per Earl (pattern detection)
 
-- [ ] **Task 6: Implement blocked decision logging** (AC: 5)
-  - [ ] Log original content hash
-  - [ ] Log violation type and details
-  - [ ] May trigger Knight observation
-  - [ ] Higher severity logging level
+- [x] **Task 6: Implement blocked decision logging** (AC: 5)
+  - [x] Log original content hash
+  - [x] Log violation type and details
+  - [x] May trigger Knight observation
+  - [x] Higher severity logging level
 
-- [ ] **Task 7: Implement Earl preview** (AC: 2, 7)
-  - [ ] Earl can call preview before submit
-  - [ ] Preview shows what would happen
-  - [ ] Preview is NOT logged to ledger
-  - [ ] Allows iteration without audit trail pollution
+- [x] **Task 7: Implement Earl preview** (AC: 2, 7)
+  - [x] Earl can call preview before submit
+  - [x] Preview shows what would happen
+  - [x] Preview is NOT logged to ledger
+  - [x] Allows iteration without audit trail pollution
 
-- [ ] **Task 8: Implement event emission** (AC: 6)
-  - [ ] Emit `custodial.filter.decision_logged` event
-  - [ ] Include decision type, content hashes, version
-  - [ ] Event is part of hash chain
-  - [ ] Knight can observe filter decisions
+- [x] **Task 8: Implement event emission** (AC: 6)
+  - [x] Emit `custodial.filter.decision_logged` event
+  - [x] Include decision type, content hashes, version
+  - [x] Event is part of hash chain
+  - [x] Knight can observe filter decisions
 
-- [ ] **Task 9: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test accepted decisions logged with transformations
-  - [ ] Test rejected decisions logged with reasons
-  - [ ] Test blocked decisions logged with violations
-  - [ ] Test preview NOT logged
-  - [ ] Test event emission
-  - [ ] Test decision history retrieval
+- [x] **Task 9: Write comprehensive unit tests** (AC: 9)
+  - [x] Test accepted decisions logged with transformations
+  - [x] Test rejected decisions logged with reasons
+  - [x] Test blocked decisions logged with violations
+  - [x] Test preview NOT logged
+  - [x] Test event emission
+  - [x] Test decision history retrieval
 
 ---
 

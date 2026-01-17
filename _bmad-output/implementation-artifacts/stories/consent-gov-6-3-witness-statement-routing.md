@@ -1,6 +1,6 @@
 # Story consent-gov-6.3: Witness Statement Routing
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -27,67 +27,120 @@ So that **violations are queued for review**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create WitnessRoutingService** (AC: 1, 3, 4)
-  - [ ] Create `src/application/services/governance/witness_routing_service.py`
-  - [ ] Route POTENTIAL_VIOLATION statements to panel queue
-  - [ ] Skip BRANCH_ACTION statements (normal operations)
-  - [ ] Route TIMING_ANOMALY for review
-  - [ ] Route HASH_CHAIN_GAP as critical
+- [x] **Task 1: Create WitnessRoutingService** (AC: 1, 3, 4)
+  - [x] Create `src/application/services/governance/witness_routing_service.py`
+  - [x] Route POTENTIAL_VIOLATION statements to panel queue
+  - [x] Skip BRANCH_ACTION statements (normal operations)
+  - [x] Route TIMING_ANOMALY for review
+  - [x] Route HASH_CHAIN_GAP as critical
 
-- [ ] **Task 2: Create PanelQueuePort interface** (AC: 2)
-  - [ ] Create `src/application/ports/governance/panel_queue_port.py`
-  - [ ] Define `enqueue_statement()` method
-  - [ ] Define `get_pending_statements()` method
-  - [ ] NO `delete_statement()` method (append-only)
-  - [ ] NO `modify_statement()` method (immutable)
+- [x] **Task 2: Create PanelQueuePort interface** (AC: 2)
+  - [x] Create `src/application/ports/governance/panel_queue_port.py`
+  - [x] Define `enqueue_statement()` method
+  - [x] Define `get_pending_statements()` method
+  - [x] NO `delete_statement()` method (append-only)
+  - [x] NO `modify_statement()` method (immutable)
 
-- [ ] **Task 3: Implement append-only queue** (AC: 2)
-  - [ ] Queue stored in append-only ledger
-  - [ ] Status transitions: PENDING → ACKNOWLEDGED → IN_REVIEW → RESOLVED
-  - [ ] Resolved statements remain (for audit)
-  - [ ] No physical deletion
+- [x] **Task 3: Implement append-only queue** (AC: 2)
+  - [x] Queue stored in append-only ledger
+  - [x] Status transitions: PENDING → ACKNOWLEDGED → IN_REVIEW → RESOLVED
+  - [x] Resolved statements remain (for audit)
+  - [x] No physical deletion
 
-- [ ] **Task 4: Implement routing rules** (AC: 3, 4)
-  - [ ] POTENTIAL_VIOLATION → queue (review needed)
-  - [ ] TIMING_ANOMALY → queue (investigation needed)
-  - [ ] HASH_CHAIN_GAP → queue with CRITICAL priority
-  - [ ] BRANCH_ACTION → no queue (normal operation)
+- [x] **Task 4: Implement routing rules** (AC: 3, 4)
+  - [x] POTENTIAL_VIOLATION → queue (review needed)
+  - [x] TIMING_ANOMALY → queue (investigation needed)
+  - [x] HASH_CHAIN_GAP → queue with CRITICAL priority
+  - [x] BRANCH_ACTION → no queue (normal operation)
 
-- [ ] **Task 5: Implement priority assignment** (AC: 6)
-  - [ ] CRITICAL: hash chain gaps, integrity issues
-  - [ ] HIGH: consent violations, coercion blocked
-  - [ ] MEDIUM: timing anomalies
-  - [ ] LOW: other potential violations
-  - [ ] Priority affects queue ordering
+- [x] **Task 5: Implement priority assignment** (AC: 6)
+  - [x] CRITICAL: hash chain gaps, integrity issues
+  - [x] HIGH: consent violations, coercion blocked
+  - [x] MEDIUM: timing anomalies
+  - [x] LOW: other potential violations
+  - [x] Priority affects queue ordering
 
-- [ ] **Task 6: Implement queue event emission** (AC: 5)
-  - [ ] Emit `judicial.witness.statement_queued`
-  - [ ] Include statement_id, priority, queued_at
-  - [ ] Knight observes all queuing events
-  - [ ] Panel notified of new items
+- [x] **Task 6: Implement queue event emission** (AC: 5)
+  - [x] Emit `judicial.witness.statement_queued`
+  - [x] Include statement_id, priority, queued_at
+  - [x] Knight observes all queuing events
+  - [x] Panel notified of new items
 
-- [ ] **Task 7: Implement queue viewing** (AC: 7)
-  - [ ] Human Operator can view pending queue
-  - [ ] Filter by priority, date range
-  - [ ] No modification via view endpoint
-  - [ ] Read-only access to queue
+- [x] **Task 7: Implement queue viewing** (AC: 7)
+  - [x] Human Operator can view pending queue
+  - [x] Filter by priority, date range
+  - [x] No modification via view endpoint
+  - [x] Read-only access to queue
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test violation statements queued
-  - [ ] Test branch actions not queued
-  - [ ] Test queue is append-only
-  - [ ] Test priority assignment
-  - [ ] Test queued event emitted
-  - [ ] Test queue viewing
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test violation statements queued
+  - [x] Test branch actions not queued
+  - [x] Test queue is append-only
+  - [x] Test priority assignment
+  - [x] Test queued event emitted
+  - [x] Test queue viewing
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (routing rules)
-- [ ] Routing decision tree documented
-- [ ] Inline comments explaining queue semantics
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (routing rules)
+- [x] Routing decision tree documented
+- [x] Inline comments explaining queue semantics
+- [x] N/A - README (internal component)
+
+---
+
+## Dev Agent Record
+
+### Implementation Plan
+Implemented witness statement routing to Prince Panel queue with:
+1. Domain models for queue (QueuePriority, QueueItemStatus, QueuedStatement)
+2. PanelQueuePort interface with append-only semantics (no delete/modify)
+3. WitnessRoutingService with routing rules and priority assignment
+4. Two-phase event emission for Knight observability
+5. Comprehensive unit tests covering all acceptance criteria
+
+### Debug Log
+- No blocking issues encountered
+- All 51 unit tests pass (48 original + 3 added in code review)
+- All witness/queue related tests pass (including existing witness domain tests)
+- Code review fixes applied: tuple type for `who` field, date range filtering test, get_item_by_id tests
+
+### Completion Notes
+- Created domain models in `src/domain/governance/queue/`
+- Created PanelQueuePort in `src/application/ports/governance/`
+- Created WitnessRoutingService in `src/application/services/governance/`
+- 48 new unit tests covering routing rules, priority, events, queue viewing
+- Follows hexagonal architecture patterns
+- Uses TimeAuthorityProtocol for testable timestamps
+- Uses TwoPhaseEventEmitterPort for Knight observability
+
+---
+
+## File List
+
+### New Files Created
+- `src/domain/governance/queue/__init__.py`
+- `src/domain/governance/queue/priority.py`
+- `src/domain/governance/queue/status.py`
+- `src/domain/governance/queue/queued_statement.py`
+- `src/application/ports/governance/panel_queue_port.py`
+- `src/application/services/governance/witness_routing_service.py`
+- `tests/unit/domain/governance/queue/__init__.py`
+- `tests/unit/domain/governance/queue/test_queue_models.py`
+- `tests/unit/application/services/governance/test_witness_routing_service.py`
+
+### Modified Files
+- `src/application/ports/governance/__init__.py` (added PanelQueuePort export)
+- `src/application/services/governance/__init__.py` (added WitnessRoutingService exports)
+
+---
+
+## Change Log
+
+- 2026-01-17: Story implementation complete - all 8 tasks completed, 48 unit tests passing
+- 2026-01-17: Code review fixes - 51 tests passing, HARDENING-1 compliance (tuple for who field)
 
 ---
 

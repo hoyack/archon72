@@ -1,6 +1,6 @@
 # Story consent-gov-2.7: Role-Specific Task Constraints
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -29,66 +29,66 @@ So that **task operations respect branch authority and separation of powers**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create TaskConstraintPort interface** (AC: 3, 4)
-  - [ ] Create `src/application/ports/governance/task_constraint_port.py`
-  - [ ] Define `validate_operation()` method
-  - [ ] Define `ConstraintViolation` result type
-  - [ ] Include actor role and attempted operation
+- [x] **Task 1: Create TaskConstraintPort interface** (AC: 3, 4)
+  - [x] Create `src/application/ports/governance/task_constraint_port.py`
+  - [x] Define `validate_operation()` method
+  - [x] Define `ConstraintViolation` result type
+  - [x] Include actor role and attempted operation
 
-- [ ] **Task 2: Create TaskConstraint domain model** (AC: 1, 2, 3)
-  - [ ] Create `src/domain/governance/task_constraint.py`
-  - [ ] Define `TaskOperation` enum (ACTIVATE, ACCEPT, DECLINE, HALT, REPORT, etc.)
-  - [ ] Define role → allowed operations mapping
-  - [ ] Define `ConstraintRule` value object
+- [x] **Task 2: Create TaskConstraint domain model** (AC: 1, 2, 3)
+  - [x] Create `src/domain/governance/task/task_constraint.py`
+  - [x] Define `TaskOperation` enum (ACTIVATE, ACCEPT, DECLINE, HALT, REPORT, etc.)
+  - [x] Define role → allowed operations mapping
+  - [x] Define `ConstraintRule` value object
 
-- [ ] **Task 3: Implement TaskConstraintService** (AC: 3, 4, 7, 8, 9)
-  - [ ] Create `src/application/services/governance/task_constraint_service.py`
-  - [ ] Implement constraint validation logic
-  - [ ] Load constraints from rank-matrix.yaml
-  - [ ] Emit violation events on failure
-  - [ ] Return detailed error messages
+- [x] **Task 3: Implement TaskConstraintService** (AC: 3, 4, 7, 8, 9)
+  - [x] Create `src/application/services/governance/task_constraint_service.py`
+  - [x] Implement constraint validation logic
+  - [x] Load constraints from rank-matrix.yaml
+  - [x] Emit violation events on failure
+  - [x] Return detailed error messages
 
-- [ ] **Task 4: Implement Earl constraints** (AC: 1, 5, 6)
-  - [ ] Earl can: create activation request, view task state/history
-  - [ ] Earl cannot: compel acceptance, change task scope, bypass consent
-  - [ ] Earl cannot: directly assign tasks (must use activation flow)
-  - [ ] Validate Earl operations against allowed actions
+- [x] **Task 4: Implement Earl constraints** (AC: 1, 5, 6)
+  - [x] Earl can: create activation request, view task state/history
+  - [x] Earl cannot: compel acceptance, change task scope, bypass consent
+  - [x] Earl cannot: directly assign tasks (must use activation flow)
+  - [x] Validate Earl operations against allowed actions
 
-- [ ] **Task 5: Implement Cluster constraints** (AC: 2)
-  - [ ] Cluster can: accept, decline, halt, report
-  - [ ] Cluster cannot: be commanded (only activated)
-  - [ ] Cluster cannot: modify task scope
-  - [ ] Cluster always has consent choice
+- [x] **Task 5: Implement Cluster constraints** (AC: 2)
+  - [x] Cluster can: accept, decline, halt, report
+  - [x] Cluster cannot: be commanded (only activated)
+  - [x] Cluster cannot: modify task scope
+  - [x] Cluster always has consent choice
 
-- [ ] **Task 6: Integrate with task operations** (AC: 3, 4)
-  - [ ] Validate constraints before task activation
-  - [ ] Validate constraints before accept/decline
-  - [ ] Validate constraints before result submission
-  - [ ] Reject operation if constraint violated
+- [x] **Task 6: Integrate with task operations** (AC: 3, 4)
+  - [x] Validate constraints before task activation
+  - [x] Validate constraints before accept/decline
+  - [x] Validate constraints before result submission
+  - [x] Reject operation if constraint violated
 
-- [ ] **Task 7: Implement violation logging** (AC: 4, 8)
-  - [ ] Emit `executive.task.constraint_violated` event
-  - [ ] Include: actor_id, actor_role, attempted_operation, constraint_violated
-  - [ ] Log to ledger for audit trail
-  - [ ] Knight can observe all violation events
+- [x] **Task 7: Implement violation logging** (AC: 4, 8)
+  - [x] Emit `executive.task.constraint_violated` event
+  - [x] Include: actor_id, actor_role, attempted_operation, constraint_violated
+  - [x] Log to ledger for audit trail
+  - [x] Knight can observe all violation events
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 10)
-  - [ ] Test Earl can activate
-  - [ ] Test Earl cannot compel
-  - [ ] Test Earl cannot change scope after creation
-  - [ ] Test Cluster can accept/decline
-  - [ ] Test Cluster cannot be commanded
-  - [ ] Test violation events emitted
-  - [ ] Test constraint validation uses rank-matrix.yaml
+- [x] **Task 8: Write comprehensive unit tests** (AC: 10)
+  - [x] Test Earl can activate
+  - [x] Test Earl cannot compel
+  - [x] Test Earl cannot change scope after creation
+  - [x] Test Cluster can accept/decline
+  - [x] Test Cluster cannot be commanded
+  - [x] Test violation events emitted
+  - [x] Test constraint validation uses rank-matrix.yaml
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (constraint enforcement)
-- [ ] Inline comments explaining separation of powers
-- [ ] N/A - API docs (service layer)
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (constraint enforcement)
+- [x] Inline comments explaining separation of powers
+- [x] N/A - API docs (service layer)
+- [x] N/A - README (internal component)
 
 ---
 

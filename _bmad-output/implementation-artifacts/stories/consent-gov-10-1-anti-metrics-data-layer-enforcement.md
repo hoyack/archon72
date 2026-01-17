@@ -1,6 +1,6 @@
 # Story consent-gov-10.1: Anti-Metrics Data Layer Enforcement
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -27,62 +27,127 @@ So that **no collection endpoints exist**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create AntiMetricsGuard** (AC: 1, 2, 3, 7)
-  - [ ] Create `src/infrastructure/adapters/governance/anti_metrics_guard.py`
-  - [ ] Intercept any metric storage attempts
-  - [ ] Block participant-level metrics
-  - [ ] Emit violation event on attempts
+- [x] **Task 1: Create AntiMetricsGuard** (AC: 1, 2, 3, 7)
+  - [x] Create `src/infrastructure/adapters/governance/anti_metrics_guard.py`
+  - [x] Intercept any metric storage attempts
+  - [x] Block participant-level metrics
+  - [x] Emit violation event on attempts
 
-- [ ] **Task 2: Implement schema validation** (AC: 5)
-  - [ ] Define prohibited table patterns
-  - [ ] Validate schema on startup
-  - [ ] Block metric table creation
-  - [ ] Migration guard for new tables
+- [x] **Task 2: Implement schema validation** (AC: 5)
+  - [x] Define prohibited table patterns
+  - [x] Validate schema on startup
+  - [x] Block metric table creation
+  - [x] Migration guard for new tables
 
-- [ ] **Task 3: Implement structural absence** (AC: 4)
-  - [ ] No `/metrics/participant` endpoint
-  - [ ] No `/analytics/engagement` endpoint
-  - [ ] No `/tracking/*` routes
-  - [ ] API router has no metric paths
+- [x] **Task 3: Implement structural absence** (AC: 4)
+  - [x] No `/metrics/participant` endpoint
+  - [x] No `/analytics/engagement` endpoint
+  - [x] No `/tracking/*` routes
+  - [x] API router has no metric paths
 
-- [ ] **Task 4: Implement performance metric prevention** (AC: 1)
-  - [ ] No task completion rates per Cluster
-  - [ ] No response time tracking per Cluster
-  - [ ] No quality scores per Cluster
-  - [ ] Structural absence (no fields exist)
+- [x] **Task 4: Implement performance metric prevention** (AC: 1)
+  - [x] No task completion rates per Cluster
+  - [x] No response time tracking per Cluster
+  - [x] No quality scores per Cluster
+  - [x] Structural absence (no fields exist)
 
-- [ ] **Task 5: Implement completion rate prevention** (AC: 2)
-  - [ ] No calculation of success rates
-  - [ ] No calculation of failure rates
-  - [ ] No historical performance tracking
-  - [ ] No per-participant statistics
+- [x] **Task 5: Implement completion rate prevention** (AC: 2)
+  - [x] No calculation of success rates
+  - [x] No calculation of failure rates
+  - [x] No historical performance tracking
+  - [x] No per-participant statistics
 
-- [ ] **Task 6: Implement engagement prevention** (AC: 3)
-  - [ ] No login tracking
-  - [ ] No session duration tracking
-  - [ ] No retention metrics
-  - [ ] No engagement scores
+- [x] **Task 6: Implement engagement prevention** (AC: 3)
+  - [x] No login tracking
+  - [x] No session duration tracking
+  - [x] No retention metrics
+  - [x] No engagement scores
 
-- [ ] **Task 7: Emit enforcement event** (AC: 6)
-  - [ ] Emit on system startup
-  - [ ] Include guard status
-  - [ ] Include schema validation result
-  - [ ] Knight observes enforcement
+- [x] **Task 7: Emit enforcement event** (AC: 6)
+  - [x] Emit on system startup
+  - [x] Include guard status
+  - [x] Include schema validation result
+  - [x] Knight observes enforcement
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test no metric storage paths exist
-  - [ ] Test metric table creation blocked
-  - [ ] Test metric endpoints don't exist
-  - [ ] Test violation on collection attempt
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test no metric storage paths exist
+  - [x] Test metric table creation blocked
+  - [x] Test metric endpoints don't exist
+  - [x] Test violation on collection attempt
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (anti-metrics)
-- [ ] Prohibited patterns documented
-- [ ] Constitutional constraint explained
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (anti-metrics) - in code docstrings
+- [x] Prohibited patterns documented - in prohibited_pattern.py
+- [x] Constitutional constraint explained - in module docstrings
+- [x] N/A - README (internal component)
+
+---
+
+## File List
+
+### Created Files
+- `src/domain/governance/antimetrics/__init__.py` - Domain module exports
+- `src/domain/governance/antimetrics/prohibited_pattern.py` - ProhibitedPattern enum and pattern lists
+- `src/domain/governance/antimetrics/violation.py` - AntiMetricsViolation and AntiMetricsViolationError
+- `src/application/ports/governance/anti_metrics_port.py` - Port interfaces (SchemaValidatorPort, EventEmitterPort, AntiMetricsGuardPort)
+- `src/infrastructure/adapters/governance/anti_metrics_guard.py` - AntiMetricsGuard implementation
+- `tests/unit/domain/governance/antimetrics/__init__.py` - Test package init
+- `tests/unit/domain/governance/antimetrics/test_prohibited_patterns.py` - Pattern definition tests
+- `tests/unit/domain/governance/antimetrics/test_violation.py` - Violation model tests
+- `tests/unit/infrastructure/adapters/governance/test_anti_metrics_guard.py` - Guard implementation tests
+- `tests/unit/api/__init__.py` - Test package init
+- `tests/unit/api/routes/__init__.py` - Test package init
+- `tests/unit/api/routes/test_no_metric_endpoints.py` - Structural absence tests
+
+---
+
+## Change Log
+
+- 2026-01-17: Initial implementation of anti-metrics data layer enforcement
+  - Created ProhibitedPattern enum with 6 pattern types (FR61-63)
+  - Defined 12 prohibited table patterns and 13 prohibited column patterns
+  - Implemented AntiMetricsGuard with schema validation and violation recording
+  - Added 139 unit tests for comprehensive coverage
+  - All tests passing
+
+---
+
+## Dev Agent Record
+
+### Implementation Plan
+
+1. Create domain models for prohibited patterns and violations (frozen dataclasses)
+2. Create port interfaces for schema validation and event emission
+3. Implement AntiMetricsGuard adapter with:
+   - Schema validation on startup
+   - Table creation blocking
+   - Column addition blocking
+   - Violation event emission
+4. Add structural absence tests to verify no metric endpoints/methods exist
+
+### Completion Notes
+
+**Implementation Summary:**
+- Implemented structural absence pattern - methods for storing metrics INTENTIONALLY do not exist
+- All 139 tests passing:
+  - 58 domain model tests (patterns, violations)
+  - 73 guard implementation tests
+  - 8 structural absence tests (API endpoints, routes, models)
+
+**Key Design Decisions:**
+1. Used frozen dataclasses for immutability (AntiMetricsViolation)
+2. No update/delete methods - structural absence enforced by type system
+3. Violations are recorded AND blocked (not just logged)
+4. Event `constitutional.anti_metrics.enforced` emitted on successful startup validation
+
+**Constitutional Compliance:**
+- FR61: No participant-level performance metrics (enforced via pattern blocking)
+- FR62: No completion rates per participant (enforced via pattern blocking)
+- FR63: No engagement/retention tracking (enforced via pattern blocking)
+- NFR-CONST-08: Anti-metrics enforced at data layer (structural absence verified)
 
 ---
 

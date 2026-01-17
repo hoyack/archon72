@@ -1,6 +1,6 @@
 # Story consent-gov-5.3: Explicit Upward Transitions
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -28,69 +28,69 @@ So that **restoration requires explicit human decision**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create LegitimacyRestorationPort interface** (AC: 1, 2)
-  - [ ] Create `src/application/ports/governance/legitimacy_restoration_port.py`
-  - [ ] Define `request_restoration()` method
-  - [ ] Include operator_id, reason, evidence parameters
-  - [ ] Return restoration result
+- [x] **Task 1: Create LegitimacyRestorationPort interface** (AC: 1, 2)
+  - [x] Create `src/application/ports/governance/legitimacy_restoration_port.py`
+  - [x] Define `request_restoration()` method
+  - [x] Include operator_id, reason, evidence parameters
+  - [x] Return restoration result
 
-- [ ] **Task 2: Create RestorationAcknowledgment domain model** (AC: 1, 7)
-  - [ ] Create `src/domain/governance/legitimacy/restoration_acknowledgment.py`
-  - [ ] Define immutable value object
-  - [ ] Include operator_id, reason, evidence, timestamp
-  - [ ] Include acknowledgment_id for tracking
+- [x] **Task 2: Create RestorationAcknowledgment domain model** (AC: 1, 7)
+  - [x] Create `src/domain/governance/legitimacy/restoration_acknowledgment.py`
+  - [x] Define immutable value object
+  - [x] Include operator_id, reason, evidence, timestamp
+  - [x] Include acknowledgment_id for tracking
 
-- [ ] **Task 3: Implement LegitimacyRestorationService** (AC: 1, 2, 3, 4, 5)
-  - [ ] Create `src/application/services/governance/legitimacy_restoration_service.py`
-  - [ ] Verify operator authorization
-  - [ ] Validate transition (one step only)
-  - [ ] Record acknowledgment
-  - [ ] Execute transition
+- [x] **Task 3: Implement LegitimacyRestorationService** (AC: 1, 2, 3, 4, 5)
+  - [x] Create `src/application/services/governance/legitimacy_restoration_service.py`
+  - [x] Verify operator authorization
+  - [x] Validate transition (one step only)
+  - [x] Record acknowledgment
+  - [x] Execute transition
 
-- [ ] **Task 4: Implement authorization check** (AC: 5)
-  - [ ] Verify operator identity
-  - [ ] Check restoration permission in rank matrix
-  - [ ] Only Human Operator rank can restore
-  - [ ] Log unauthorized attempts
+- [x] **Task 4: Implement authorization check** (AC: 5)
+  - [x] Verify operator identity
+  - [x] Check restoration permission in rank matrix
+  - [x] Only Human Operator rank can restore
+  - [x] Log unauthorized attempts
 
-- [ ] **Task 5: Implement one-step constraint** (AC: 4)
-  - [ ] Validate target band is exactly one step up
-  - [ ] Reject multi-step restoration attempts
-  - [ ] Require separate acknowledgments for each step
-  - [ ] Return clear error for invalid requests
+- [x] **Task 5: Implement one-step constraint** (AC: 4)
+  - [x] Validate target band is exactly one step up
+  - [x] Reject multi-step restoration attempts
+  - [x] Require separate acknowledgments for each step
+  - [x] Return clear error for invalid requests
 
-- [ ] **Task 6: Implement FAILED terminal constraint** (AC: 8)
-  - [ ] FAILED state cannot transition upward
-  - [ ] Return specific error for FAILED restoration attempts
-  - [ ] Document that reconstitution is required
-  - [ ] No exceptions to this rule
+- [x] **Task 6: Implement FAILED terminal constraint** (AC: 8)
+  - [x] FAILED state cannot transition upward
+  - [x] Return specific error for FAILED restoration attempts
+  - [x] Document that reconstitution is required
+  - [x] No exceptions to this rule
 
-- [ ] **Task 7: Implement acknowledgment recording** (AC: 3, 7)
-  - [ ] Create acknowledgment record
-  - [ ] Write to append-only ledger
-  - [ ] Include reason and evidence
-  - [ ] Link acknowledgment to transition
+- [x] **Task 7: Implement acknowledgment recording** (AC: 3, 7)
+  - [x] Create acknowledgment record
+  - [x] Write to append-only ledger
+  - [x] Include reason and evidence
+  - [x] Link acknowledgment to transition
 
-- [ ] **Task 8: Implement band_increased event emission** (AC: 6)
-  - [ ] Emit `constitutional.legitimacy.band_increased`
-  - [ ] Include from_band, to_band
-  - [ ] Include operator_id and acknowledgment_id
-  - [ ] Knight observes all restoration events
+- [x] **Task 8: Implement band_increased event emission** (AC: 6)
+  - [x] Emit `constitutional.legitimacy.band_increased`
+  - [x] Include from_band, to_band
+  - [x] Include operator_id and acknowledgment_id
+  - [x] Knight observes all restoration events
 
-- [ ] **Task 9: Create restoration API endpoint** (AC: 1, 5)
-  - [ ] POST `/governance/legitimacy/restore` endpoint
-  - [ ] Require authentication
-  - [ ] Require restoration permission
-  - [ ] Return restoration result
+- [x] **Task 9: Create restoration API endpoint** (AC: 1, 5)
+  - [x] POST `/governance/legitimacy/restore` endpoint
+  - [x] Require authentication
+  - [x] Require restoration permission
+  - [x] Return restoration result
 
-- [ ] **Task 10: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test acknowledgment required for upward
-  - [ ] Test automatic upward rejected
-  - [ ] Test one step at a time
-  - [ ] Test FAILED is terminal
-  - [ ] Test acknowledgment logged
-  - [ ] Test band_increased event emitted
-  - [ ] Test unauthorized operator rejected
+- [x] **Task 10: Write comprehensive unit tests** (AC: 9)
+  - [x] Test acknowledgment required for upward
+  - [x] Test automatic upward rejected
+  - [x] Test one step at a time
+  - [x] Test FAILED is terminal
+  - [x] Test acknowledgment logged
+  - [x] Test band_increased event emitted
+  - [x] Test unauthorized operator rejected
 
 ---
 

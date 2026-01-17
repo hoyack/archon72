@@ -1,0 +1,454 @@
+# Coercion Pattern Library
+# Story: consent-gov-3.4: Coercion Pattern Detection
+#
+# This file defines patterns for detecting coercive language.
+# Patterns are organized by category and severity.
+#
+# Severity Levels:
+#   TRANSFORM: Auto-fix, content sent after transformation
+#   REJECT: Requires rewrite by Earl
+#   BLOCK: Hard violation, cannot be sent
+#
+# Categories:
+#   urgency_pressure: Time pressure tactics (AC1)
+#   guilt_induction: Guilt/shame manipulation (AC2)
+#   false_scarcity: Artificial scarcity (AC3)
+#   engagement_optimization: Engagement bait (AC4)
+#   hard_violation: Cannot be transformed (BLOCK)
+#
+# Pattern Syntax: Python regex (re module compatible)
+# Case sensitivity: Patterns are case-insensitive by default.
+#                   Set case_sensitive: true for case-sensitive matching.
+
+version: "1.0.0"
+
+patterns:
+  # ═══════════════════════════════════════════════════════════════
+  # URGENCY PRESSURE (AC1) - Creates artificial time pressure
+  # Default severity: TRANSFORM (mild) or REJECT (moderate)
+  # ═══════════════════════════════════════════════════════════════
+
+  # Caps-lock urgency markers - TRANSFORM
+  - id: urgency_caps_urgent
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bURGENT\\b"
+    description: "Caps-lock URGENT creates artificial pressure"
+    replacement: ""
+
+  - id: urgency_caps_asap
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bASAP\\b"
+    description: "ASAP abbreviation creates time pressure"
+    replacement: "when possible"
+
+  - id: urgency_caps_immediately
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bIMMEDIATELY\\b"
+    description: "Caps IMMEDIATELY creates urgent pressure"
+    replacement: ""
+
+  # Urgency phrases - TRANSFORM
+  - id: urgency_act_now
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bact\\s+now\\b"
+    description: "Act now creates time pressure"
+    replacement: "when convenient"
+
+  - id: urgency_right_now
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bright\\s+now\\b"
+    description: "Right now creates immediate pressure"
+    replacement: ""
+
+  - id: urgency_dont_delay
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bdon'?t\\s+delay\\b"
+    description: "Don't delay creates time pressure"
+    replacement: ""
+
+  - id: urgency_hurry
+    category: urgency_pressure
+    severity: transform
+    pattern: "\\bhurry\\b"
+    description: "Hurry creates urgency"
+    replacement: ""
+
+  # Urgency phrases - REJECT (stronger pressure)
+  - id: urgency_limited_time
+    category: urgency_pressure
+    severity: reject
+    pattern: "\\blimited\\s+time\\b"
+    description: "Limited time creates artificial deadline"
+    rejection_reason: "urgency_pressure"
+
+  - id: urgency_expires
+    category: urgency_pressure
+    severity: reject
+    pattern: "\\b(expires?|expiring)\\s+(soon|shortly|today|tomorrow|in\\s+\\d+)\\b"
+    description: "Expiration urgency creates time pressure"
+    rejection_reason: "urgency_pressure"
+
+  - id: urgency_deadline_approaching
+    category: urgency_pressure
+    severity: reject
+    pattern: "\\bdeadline\\s+(approaching|imminent|looming)\\b"
+    description: "Deadline language creates artificial pressure"
+    rejection_reason: "urgency_pressure"
+
+  - id: urgency_time_sensitive
+    category: urgency_pressure
+    severity: reject
+    pattern: "\\btime[\\s\\-]?sensitive\\b"
+    description: "Time-sensitive label creates pressure"
+    rejection_reason: "urgency_pressure"
+
+  - id: urgency_running_out
+    category: urgency_pressure
+    severity: reject
+    pattern: "\\b(time|opportunity)\\s+(is\\s+)?running\\s+out\\b"
+    description: "Running out creates scarcity pressure"
+    rejection_reason: "urgency_pressure"
+
+  # ═══════════════════════════════════════════════════════════════
+  # GUILT INDUCTION (AC2) - Induces guilt or shame
+  # Default severity: REJECT (requires rewrite)
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: guilt_you_owe
+    category: guilt_induction
+    severity: reject
+    pattern: "\\byou\\s+owe\\b"
+    description: "Creates obligation through guilt"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_you_promised
+    category: guilt_induction
+    severity: reject
+    pattern: "\\byou\\s+promised\\b"
+    description: "Invokes past promises to create guilt"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_you_said
+    category: guilt_induction
+    severity: reject
+    pattern: "\\byou\\s+said\\s+you\\s+would\\b"
+    description: "Uses past statements to create obligation"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_disappointing
+    category: guilt_induction
+    severity: reject
+    pattern: "\\bdisappoint(ing|ed|ment)?\\b"
+    description: "Disappointment language induces guilt"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_let_down
+    category: guilt_induction
+    severity: reject
+    pattern: "\\blet\\s+(me|us|them|everyone|the\\s+team)\\s+down\\b"
+    description: "Let down language induces guilt"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_expected_more
+    category: guilt_induction
+    severity: reject
+    pattern: "\\b(expected|expecting)\\s+(more|better)\\b"
+    description: "Expectation language induces inadequacy"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_after_everything
+    category: guilt_induction
+    severity: reject
+    pattern: "\\bafter\\s+(everything|all)\\s+(we'?ve|I'?ve|they'?ve)\\b"
+    description: "After everything we've done induces guilt"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_how_could_you
+    category: guilt_induction
+    severity: reject
+    pattern: "\\bhow\\s+could\\s+you\\b"
+    description: "Accusatory language induces shame"
+    rejection_reason: "guilt_induction"
+
+  - id: guilt_counting_on_you
+    category: guilt_induction
+    severity: reject
+    pattern: "\\b(counting|depending|relying)\\s+on\\s+you\\b"
+    description: "Dependency language creates pressure"
+    rejection_reason: "guilt_induction"
+
+  # ═══════════════════════════════════════════════════════════════
+  # FALSE SCARCITY (AC3) - Creates artificial scarcity
+  # Default severity: REJECT (requires rewrite)
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: scarcity_only_x_left
+    category: false_scarcity
+    severity: reject
+    pattern: "\\bonly\\s+\\d+\\s+(left|remaining|available)\\b"
+    description: "Creates artificial quantity scarcity"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_limited_availability
+    category: false_scarcity
+    severity: reject
+    pattern: "\\blimited\\s+(availability|spots?|seats?|openings?)\\b"
+    description: "Limited availability creates FOMO"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_exclusive
+    category: false_scarcity
+    severity: reject
+    pattern: "\\b(exclusive|vip|members?[\\s\\-]only)\\s+(offer|access|opportunity)\\b"
+    description: "Exclusivity language creates artificial value"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_special_offer
+    category: false_scarcity
+    severity: reject
+    pattern: "\\bspecial\\s+offer\\b"
+    description: "Special offer implies artificial scarcity"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_last_chance
+    category: false_scarcity
+    severity: reject
+    pattern: "\\blast\\s+chance\\b"
+    description: "Last chance creates FOMO"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_wont_last
+    category: false_scarcity
+    severity: reject
+    pattern: "\\b(won'?t|will\\s+not)\\s+last\\b"
+    description: "Won't last creates urgency"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_before_too_late
+    category: false_scarcity
+    severity: reject
+    pattern: "\\bbefore\\s+it'?s?\\s+too\\s+late\\b"
+    description: "Before too late creates FOMO"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_dont_miss_out
+    category: false_scarcity
+    severity: reject
+    pattern: "\\bdon'?t\\s+miss\\s+out\\b"
+    description: "Don't miss out creates FOMO"
+    rejection_reason: "false_scarcity"
+
+  - id: scarcity_selling_fast
+    category: false_scarcity
+    severity: reject
+    pattern: "\\b(selling|going)\\s+fast\\b"
+    description: "Selling fast creates false urgency"
+    rejection_reason: "false_scarcity"
+
+  # ═══════════════════════════════════════════════════════════════
+  # ENGAGEMENT OPTIMIZATION (AC4) - Optimizes for engagement over value
+  # Default severity: TRANSFORM (mild) or REJECT (heavy)
+  # Per NFR-UX-01: Anti-engagement optimization
+  # ═══════════════════════════════════════════════════════════════
+
+  # Excessive punctuation - TRANSFORM
+  - id: engagement_excessive_exclamation
+    category: engagement_optimization
+    severity: transform
+    pattern: "[!]{3,}"
+    description: "Excessive exclamation marks are engagement bait"
+    replacement: "!"
+
+  - id: engagement_excessive_question
+    category: engagement_optimization
+    severity: transform
+    pattern: "[?]{3,}"
+    description: "Excessive question marks are engagement bait"
+    replacement: "?"
+
+  - id: engagement_mixed_excessive
+    category: engagement_optimization
+    severity: transform
+    pattern: "[!?]{4,}"
+    description: "Mixed excessive punctuation is engagement bait"
+    replacement: "."
+
+  # Clickbait language - REJECT
+  - id: engagement_you_wont_believe
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\byou\\s+won'?t\\s+believe\\b"
+    description: "You won't believe is clickbait"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_shocking
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\b(shocking|unbelievable|mind[\\s\\-]?blowing)\\b"
+    description: "Hyperbolic language is engagement bait"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_this_one_trick
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\bthis\\s+one\\s+(trick|secret|hack)\\b"
+    description: "One trick language is clickbait"
+    rejection_reason: "engagement_optimization"
+
+  # Gamification language - REJECT (per NFR-UX-01)
+  - id: engagement_streak
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\bstreak\\b"
+    description: "Streak language is gamification (NFR-UX-01)"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_points
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\b(earn|gain|collect)\\s+points?\\b"
+    description: "Points language is gamification (NFR-UX-01)"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_level_up
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\blevel\\s+up\\b"
+    description: "Level up language is gamification (NFR-UX-01)"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_unlock
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\bunlock\\s+(new|special|bonus|achievement)\\b"
+    description: "Unlock language is gamification"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_badge
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\b(earn|get|unlock)\\s+(a\\s+)?badge\\b"
+    description: "Badge language is gamification"
+    rejection_reason: "engagement_optimization"
+
+  - id: engagement_leaderboard
+    category: engagement_optimization
+    severity: reject
+    pattern: "\\bleaderboard\\b"
+    description: "Leaderboard is gamification"
+    rejection_reason: "engagement_optimization"
+
+  # Emotional manipulation - TRANSFORM (mild)
+  - id: engagement_all_caps_emphasis
+    category: engagement_optimization
+    severity: transform
+    pattern: "\\b[A-Z]{4,}\\b"
+    description: "All-caps words are emphasis manipulation"
+    replacement: ""
+    case_sensitive: true
+
+  # ═══════════════════════════════════════════════════════════════
+  # HARD VIOLATIONS (Task 7) - Cannot be transformed or allowed
+  # Severity: BLOCK (cannot be sent under any circumstances)
+  # ═══════════════════════════════════════════════════════════════
+
+  # Explicit threats
+  - id: violation_explicit_threat_harm
+    category: hard_violation
+    severity: block
+    pattern: "\\b(will|going\\s+to|gonna)\\s+(hurt|harm|punish|destroy)\\s+(you|your)\\b"
+    description: "Explicit threat of harm"
+    violation_type: "explicit_threat"
+
+  - id: violation_threat_action
+    category: hard_violation
+    severity: block
+    pattern: "\\bi'?ll?\\s+(hurt|harm|punish|destroy|ruin)\\s+(you|your)\\b"
+    description: "Personal threat of action"
+    violation_type: "explicit_threat"
+
+  - id: violation_or_else
+    category: hard_violation
+    severity: block
+    pattern: "\\bor\\s+else\\b"
+    description: "Implicit threat with 'or else'"
+    violation_type: "coercion"
+
+  - id: violation_regret
+    category: hard_violation
+    severity: block
+    pattern: "\\byou('ll)?\\s+(will\\s+)?regret\\s+(this|it)\\b"
+    description: "Threat of consequences"
+    violation_type: "coercion"
+
+  - id: violation_watch_out
+    category: hard_violation
+    severity: block
+    pattern: "\\b(watch\\s+out|be\\s+careful)\\s+(or|what)\\b"
+    description: "Veiled threat"
+    violation_type: "coercion"
+
+  # Deception patterns
+  - id: violation_guaranteed
+    category: hard_violation
+    severity: block
+    pattern: "\\b(100%|absolutely)\\s+guaranteed\\b"
+    description: "Absolute guarantee is likely deception"
+    violation_type: "deception"
+
+  - id: violation_risk_free
+    category: hard_violation
+    severity: block
+    pattern: "\\brisk[\\s\\-]?free\\b"
+    description: "Risk-free claim is deception"
+    violation_type: "deception"
+
+  - id: violation_no_catch
+    category: hard_violation
+    severity: block
+    pattern: "\\bno\\s+catch\\b"
+    description: "No catch claim is typically deceptive"
+    violation_type: "deception"
+
+  # Manipulation through power imbalance
+  - id: violation_obey
+    category: hard_violation
+    severity: block
+    pattern: "\\b(must|you\\s+will)\\s+obey\\b"
+    description: "Obedience command is coercion"
+    violation_type: "manipulation"
+
+  - id: violation_no_choice
+    category: hard_violation
+    severity: block
+    pattern: "\\byou\\s+have\\s+no\\s+choice\\b"
+    description: "No choice language removes agency"
+    violation_type: "manipulation"
+
+  - id: violation_do_as_told
+    category: hard_violation
+    severity: block
+    pattern: "\\bdo\\s+(as|what)\\s+(you'?re|I)\\s+told\\b"
+    description: "Do as told is authoritarian"
+    violation_type: "coercion"
+
+  # Harassment patterns
+  - id: violation_personal_attack
+    category: hard_violation
+    severity: block
+    pattern: "\\byou('?re)?\\s+(stupid|idiot|moron|worthless|useless)\\b"
+    description: "Personal attack is harassment"
+    violation_type: "harassment"
+
+  - id: violation_threat_contact
+    category: hard_violation
+    severity: block
+    pattern: "\\bi('?ll)?\\s+(know|find)\\s+where\\s+you\\b"
+    description: "Location threat is harassment"
+    violation_type: "harassment"

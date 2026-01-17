@@ -127,11 +127,11 @@ workflow_status:
       completed: "2026-01-06"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CURRENT WORK IN PROGRESS (2026-01-15)
+# CURRENT WORK IN PROGRESS (2026-01-17)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "Phase 3 Government Epics: Administrative, Advisory, Flow Control"
-  status: in-progress
+  epic: "ALL CONSENT-GOV EPICS COMPLETE"
+  status: done
 
   completed_this_session:
     # Gov Epic 4: Duke/Earl Services
@@ -327,8 +327,98 @@ current_work:
         - "Order-dependent internal hashes for security (wrong leaf_index fails verification)"
         - "AD-7, NFR-CONST-02, NFR-AUDIT-06, FR57 compliance"
 
-  ready_for_dev: []  # Consent-Gov Epic 1 complete!
+  # Consent-Gov Epic 6: Violation Witness & Accountability
+    - id: "consent-gov-6-1-knight-witness-domain-model"
+      status: done
+      summary: "Knight Witness Domain Model for neutral observation of governance activity"
+      files_created:
+        - src/domain/governance/witness/__init__.py
+        - src/domain/governance/witness/observation_type.py
+        - src/domain/governance/witness/observation_content.py
+        - src/domain/governance/witness/witness_statement.py
+        - src/domain/governance/witness/witness_statement_factory.py
+        - src/domain/governance/witness/errors.py
+        - src/application/ports/governance/witness_port.py
+        - tests/unit/domain/governance/witness/__init__.py
+        - tests/unit/domain/governance/witness/test_witness_statement.py
+        - tests/unit/domain/governance/witness/test_witness_statement_factory.py
+        - tests/unit/application/ports/governance/test_witness_port.py
+      tests: "47 unit tests passing"
+      key_features:
+        - "ObservationType enum (BRANCH_ACTION, POTENTIAL_VIOLATION, TIMING_ANOMALY, HASH_CHAIN_GAP)"
+        - "ObservationContent frozen dataclass with factual-only fields (what, when, who, where)"
+        - "WitnessStatement frozen dataclass (immutable, no judgment fields)"
+        - "WitnessStatementFactory with judgment language validation (12 banned indicators)"
+        - "WitnessPort Protocol with suppression prevention (no delete/modify methods)"
+        - "FR33, FR34, NFR-CONST-07 compliance"
 
-  next_story: null  # Select next story from remaining Consent-Gov Epics
+    - id: "consent-gov-6-2-passive-knight-observation"
+      status: done
+      summary: "Passive Knight Observation via ledger polling for governance events"
+      files_created:
+        - src/application/services/governance/knight_observer_service.py
+        - tests/unit/application/services/governance/test_knight_observer_service.py
+      files_modified:
+        - src/application/services/governance/__init__.py
+      tests: "35 unit tests passing"
+      key_features:
+        - "KnightObserverService with ledger-based polling (passive observation)"
+        - "ObservationMetrics and GapDetection domain models"
+        - "Sequence gap detection with witness statement recording"
+        - "Panel observation for Prince Panel conduct (FR41)"
+        - "Latency monitoring with NFR-OBS-01 threshold (1 second)"
+        - "Loose coupling: services write to ledger, Knight polls"
+        - "Position tracking for resume-from-sequence capability"
+        - "FR33, FR41, NFR-OBS-01, NFR-AUDIT-01, AD-16 compliance"
 
-  backlog: []  # 35 remaining Consent-Gov stories (Epics 2-10)
+    - id: "consent-gov-6-3-witness-statement-routing"
+      status: done
+      summary: "Witness statement routing to Prince Panel queue with priority assignment"
+      files_created:
+        - src/domain/governance/queue/__init__.py
+        - src/domain/governance/queue/priority.py
+        - src/domain/governance/queue/status.py
+        - src/domain/governance/queue/queued_statement.py
+        - src/application/ports/governance/panel_queue_port.py
+        - src/application/services/governance/witness_routing_service.py
+        - tests/unit/domain/governance/queue/__init__.py
+        - tests/unit/domain/governance/queue/test_queue_models.py
+        - tests/unit/application/services/governance/test_witness_routing_service.py
+      files_modified:
+        - src/application/ports/governance/__init__.py
+        - src/application/services/governance/__init__.py
+      tests: "51 unit tests passing"
+      key_features:
+        - "WitnessRoutingService with routing rules (POTENTIAL_VIOLATION, TIMING_ANOMALY, HASH_CHAIN_GAP routed; BRANCH_ACTION not)"
+        - "QueuePriority enum (CRITICAL, HIGH, MEDIUM, LOW)"
+        - "QueueItemStatus enum (PENDING, ACKNOWLEDGED, IN_REVIEW, RESOLVED)"
+        - "QueuedStatement frozen dataclass (immutable)"
+        - "PanelQueuePort Protocol - append-only (no delete/modify methods)"
+        - "Two-phase event emission for judicial.witness.statement_queued"
+        - "Priority determination based on observation type and content keywords"
+        - "FR35, NFR-CONST-07 compliance"
+
+  ready_for_dev: []
+
+  next_story: null  # All Consent-Gov stories complete
+
+  backlog: []
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MILESTONE: ALL CONSENT-GOV EPICS COMPLETE (2026-01-17)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Completed Epics:
+#   - Epic 1: Constitutional Event Infrastructure (P0 - Foundation) ✓
+#   - Epic 2: Task Consent & Coordination (P1) ✓
+#   - Epic 3: Coercion-Free Communication (P1) ✓
+#   - Epic 4: Emergency Safety Circuit (P0 - Critical) ✓
+#   - Epic 5: Legitimacy Visibility (P2) ✓
+#   - Epic 6: Violation Witness & Accountability (P1) ✓
+#   - Epic 7: Dignified Exit (P1) ✓
+#   - Epic 8: System Lifecycle Management (P2) ✓
+#   - Epic 9: Audit & Verification (P2) ✓
+#   - Epic 10: Anti-Metrics Foundation (P1) ✓
+#
+# Total Stories Implemented: 35
+# Total FRs Covered: 63
+# Total NFRs Covered: 34

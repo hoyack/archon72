@@ -83,6 +83,20 @@ from src.api.models.compliance import (
     CompliancePostureResponse,
     ComplianceRequirementResponse,
 )
+from src.api.models.halt import (
+    HaltErrorResponse,
+    HaltRequest,
+    HaltResponse,
+    HaltStatusResponse,
+)
+from src.api.models.legitimacy import (
+    LegitimacyErrorResponse,
+    LegitimacyStatusResponse,
+    RestorationHistoryItem,
+    RestorationHistoryResponse,
+    RestorationRequest,
+    RestorationResponse,
+)
 
 __all__: list[str] = [
     "ChainVerificationResult",
@@ -152,4 +166,16 @@ __all__: list[str] = [
     "ComplianceGapsResponse",
     "CompliancePostureResponse",
     "ComplianceRequirementResponse",
+    # Halt models (Story 4-2, FR22-23)
+    "HaltErrorResponse",
+    "HaltRequest",
+    "HaltResponse",
+    "HaltStatusResponse",
+    # Legitimacy models (Story 5-3, FR30-32)
+    "LegitimacyErrorResponse",
+    "LegitimacyStatusResponse",
+    "RestorationHistoryItem",
+    "RestorationHistoryResponse",
+    "RestorationRequest",
+    "RestorationResponse",
 ]

@@ -1,6 +1,6 @@
 # Story consent-gov-5.1: Legitimacy Band Domain Model
 
-Status: ready-for-dev
+Status: review
 
 ---
 
@@ -28,65 +28,98 @@ So that **system health has clear states and transitions that are visible to all
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create LegitimacyBand enum** (AC: 1, 8)
-  - [ ] Create `src/domain/governance/legitimacy/__init__.py`
-  - [ ] Create `src/domain/governance/legitimacy/legitimacy_band.py`
-  - [ ] Define five bands: STABLE, STRAINED, ERODING, COMPROMISED, FAILED
-  - [ ] Include severity level (0-4) and descriptions
+- [x] **Task 1: Create LegitimacyBand enum** (AC: 1, 8)
+  - [x] Create `src/domain/governance/legitimacy/__init__.py`
+  - [x] Create `src/domain/governance/legitimacy/legitimacy_band.py`
+  - [x] Define five bands: STABLE, STRAINED, ERODING, COMPROMISED, FAILED
+  - [x] Include severity level (0-4) and descriptions
 
-- [ ] **Task 2: Create LegitimacyState domain model** (AC: 3, 7)
-  - [ ] Define `LegitimacyState` as immutable value object
-  - [ ] Include current_band, entered_at, violation_count
-  - [ ] Include last triggering event reference
-  - [ ] Track band history
+- [x] **Task 2: Create LegitimacyState domain model** (AC: 3, 7)
+  - [x] Define `LegitimacyState` as immutable value object
+  - [x] Include current_band, entered_at, violation_count
+  - [x] Include last triggering event reference
+  - [x] Track band history
 
-- [ ] **Task 3: Create transition rules** (AC: 2, 5, 6)
-  - [ ] Create `src/domain/governance/legitimacy/band_transition_rules.py`
-  - [ ] Define valid downward transitions (any band → lower bands)
-  - [ ] Define valid upward transitions (only one step up, requires ack)
-  - [ ] Reject invalid transitions
+- [x] **Task 3: Create transition rules** (AC: 2, 5, 6)
+  - [x] Create `src/domain/governance/legitimacy/band_transition_rules.py`
+  - [x] Define valid downward transitions (any band → lower bands)
+  - [x] Define valid upward transitions (only one step up, requires ack)
+  - [x] Reject invalid transitions
 
-- [ ] **Task 4: Define band characteristics** (AC: 1, 8)
-  - [ ] STABLE: Normal operation, no active issues
-  - [ ] STRAINED: Minor issues detected, monitoring required
-  - [ ] ERODING: Significant issues, intervention recommended
-  - [ ] COMPROMISED: Critical issues, limited operation
-  - [ ] FAILED: System integrity compromised, halt recommended
+- [x] **Task 4: Define band characteristics** (AC: 1, 8)
+  - [x] STABLE: Normal operation, no active issues
+  - [x] STRAINED: Minor issues detected, monitoring required
+  - [x] ERODING: Significant issues, intervention recommended
+  - [x] COMPROMISED: Critical issues, limited operation
+  - [x] FAILED: System integrity compromised, halt recommended
 
-- [ ] **Task 5: Create LegitimacyTransition model** (AC: 7)
-  - [ ] Define transition record with from_band, to_band
-  - [ ] Include timestamp, triggering_event_id
-  - [ ] Include actor (system or operator)
-  - [ ] Include transition_type (automatic or acknowledged)
+- [x] **Task 5: Create LegitimacyTransition model** (AC: 7)
+  - [x] Define transition record with from_band, to_band
+  - [x] Include timestamp, triggering_event_id
+  - [x] Include actor (system or operator)
+  - [x] Include transition_type (automatic or acknowledged)
 
-- [ ] **Task 6: Implement transition validation** (AC: 2, 5, 6)
-  - [ ] Validate downward transitions (automatic allowed)
-  - [ ] Validate upward transitions (acknowledgment required)
-  - [ ] Reject FAILED → any transition (terminal unless reconstitution)
-  - [ ] Return validation result with reason
+- [x] **Task 6: Implement transition validation** (AC: 2, 5, 6)
+  - [x] Validate downward transitions (automatic allowed)
+  - [x] Validate upward transitions (acknowledgment required)
+  - [x] Reject FAILED → any transition (terminal unless reconstitution)
+  - [x] Return validation result with reason
 
-- [ ] **Task 7: Create LegitimacyPort interface** (AC: 3, 4)
-  - [ ] Create `src/application/ports/governance/legitimacy_port.py`
-  - [ ] Define `get_current_band()` method
-  - [ ] Define `get_legitimacy_state()` method
-  - [ ] Define `transition()` method
+- [x] **Task 7: Create LegitimacyPort interface** (AC: 3, 4)
+  - [x] Create `src/application/ports/governance/legitimacy_port.py`
+  - [x] Define `get_current_band()` method
+  - [x] Define `get_legitimacy_state()` method
+  - [x] Define `transition()` method
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 9)
-  - [ ] Test all five bands exist with correct severity
-  - [ ] Test valid downward transitions
-  - [ ] Test upward transitions rejected without ack
-  - [ ] Test transition records include timestamp
-  - [ ] Test band query returns current state
-  - [ ] Test FAILED is terminal
+- [x] **Task 8: Write comprehensive unit tests** (AC: 9)
+  - [x] Test all five bands exist with correct severity
+  - [x] Test valid downward transitions
+  - [x] Test upward transitions rejected without ack
+  - [x] Test transition records include timestamp
+  - [x] Test band query returns current state
+  - [x] Test FAILED is terminal
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (legitimacy bands)
-- [ ] Inline comments explaining band meanings
-- [ ] Band severity descriptions
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (legitimacy bands) - In module __init__.py docstring
+- [x] Inline comments explaining band meanings - In legitimacy_band.py
+- [x] Band severity descriptions - In legitimacy_band.py
+- [x] N/A - README (internal component)
+
+---
+
+## File List
+
+### Created Files
+- `src/domain/governance/legitimacy/__init__.py` - Module exports with comprehensive docstring
+- `src/domain/governance/legitimacy/legitimacy_band.py` - LegitimacyBand enum with 5 bands
+- `src/domain/governance/legitimacy/legitimacy_state.py` - LegitimacyState frozen dataclass
+- `src/domain/governance/legitimacy/legitimacy_transition.py` - LegitimacyTransition frozen dataclass
+- `src/domain/governance/legitimacy/transition_type.py` - TransitionType enum (AUTOMATIC, ACKNOWLEDGED)
+- `src/domain/governance/legitimacy/transition_validation.py` - TransitionValidation result class
+- `src/domain/governance/legitimacy/band_transition_rules.py` - BandTransitionRules validation class
+- `src/domain/governance/legitimacy/errors.py` - Domain-specific exceptions
+- `src/application/ports/governance/legitimacy_port.py` - LegitimacyPort and LegitimacyQueryPort protocols
+- `tests/unit/domain/governance/legitimacy/__init__.py` - Test package init
+- `tests/unit/domain/governance/legitimacy/test_legitimacy_band.py` - 22 band enum tests
+- `tests/unit/domain/governance/legitimacy/test_legitimacy_state.py` - 19 state model tests
+- `tests/unit/domain/governance/legitimacy/test_legitimacy_transition.py` - 18 transition model tests
+- `tests/unit/domain/governance/legitimacy/test_transition_rules.py` - 22 transition rules tests
+- `tests/unit/application/ports/governance/test_legitimacy_port.py` - 14 port interface tests
+
+### Modified Files
+- `src/application/ports/governance/__init__.py` - Added LegitimacyPort, LegitimacyQueryPort exports
+
+---
+
+## Change Log
+
+| Date | Change | Author |
+|------|--------|--------|
+| 2026-01-17 | Initial implementation - All 8 tasks complete | Claude |
+| 2026-01-17 | 95 unit tests passing | Claude |
 
 ---
 

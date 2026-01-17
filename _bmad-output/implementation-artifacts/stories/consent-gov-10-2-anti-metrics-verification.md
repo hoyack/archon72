@@ -1,6 +1,6 @@
 # Story consent-gov-10.2: Anti-Metrics Verification
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -27,53 +27,53 @@ So that **I can confirm the anti-surveillance guarantee**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create AntiMetricsVerificationService** (AC: 1, 2, 5)
-  - [ ] Create `src/application/services/governance/anti_metrics_verification_service.py`
-  - [ ] Verify no metric tables
-  - [ ] Verify no metric endpoints
-  - [ ] Detect any violations
+- [x] **Task 1: Create AntiMetricsVerificationService** (AC: 1, 2, 5)
+  - [x] Create `src/application/services/governance/anti_metrics_verification_service.py`
+  - [x] Verify no metric tables
+  - [x] Verify no metric endpoints
+  - [x] Detect any violations
 
-- [ ] **Task 2: Implement schema verification** (AC: 1)
-  - [ ] Query all table names
-  - [ ] Check against prohibited patterns
-  - [ ] Check all column names
-  - [ ] Report any violations
+- [x] **Task 2: Implement schema verification** (AC: 1)
+  - [x] Query all table names
+  - [x] Check against prohibited patterns
+  - [x] Check all column names
+  - [x] Report any violations
 
-- [ ] **Task 3: Implement endpoint verification** (AC: 2)
-  - [ ] Enumerate all API routes
-  - [ ] Check for metric-related routes
-  - [ ] Check for analytics routes
-  - [ ] Report any violations
+- [x] **Task 3: Implement endpoint verification** (AC: 2)
+  - [x] Enumerate all API routes
+  - [x] Check for metric-related routes
+  - [x] Check for analytics routes
+  - [x] Report any violations
 
-- [ ] **Task 4: Implement periodic job** (AC: 3)
-  - [ ] Schedule verification job
-  - [ ] Run on configurable interval
-  - [ ] Log results each run
-  - [ ] Alert on violations
+- [x] **Task 4: Implement periodic job** (AC: 3)
+  - [x] Schedule verification job
+  - [x] Run on configurable interval
+  - [x] Log results each run
+  - [x] Alert on violations
 
-- [ ] **Task 5: Implement verification event** (AC: 4)
-  - [ ] Emit after each verification
-  - [ ] Include tables checked
-  - [ ] Include endpoints checked
-  - [ ] Include result status
+- [x] **Task 5: Implement verification event** (AC: 4)
+  - [x] Emit after each verification
+  - [x] Include tables checked
+  - [x] Include endpoints checked
+  - [x] Include result status
 
-- [ ] **Task 6: Implement independent runner** (AC: 6)
-  - [ ] CLI command for verification
-  - [ ] Can run standalone
-  - [ ] No system dependency
-  - [ ] Works with database directly
+- [x] **Task 6: Implement independent runner** (AC: 6)
+  - [x] CLI command for verification
+  - [x] Can run standalone
+  - [x] No system dependency
+  - [x] Works with database directly
 
-- [ ] **Task 7: Implement verification report** (AC: 7)
-  - [ ] Clear pass/fail status
-  - [ ] List of checks performed
-  - [ ] Details of any violations
-  - [ ] Recommendation for remediation
+- [x] **Task 7: Implement verification report** (AC: 7)
+  - [x] Clear pass/fail status
+  - [x] List of checks performed
+  - [x] Details of any violations
+  - [x] Recommendation for remediation
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test schema verification
-  - [ ] Test endpoint verification
-  - [ ] Test violation detection
-  - [ ] Test report generation
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test schema verification
+  - [x] Test endpoint verification
+  - [x] Test violation detection
+  - [x] Test report generation
 
 ---
 
@@ -583,3 +583,24 @@ class TestViolationDetection:
 ### References
 
 - NFR-CONST-08: Anti-metrics are enforced at data layer; collection endpoints do not exist
+
+---
+
+## File List
+
+### Domain Layer
+- `src/domain/governance/antimetrics/verification.py` - Domain models (CheckResult, VerificationReport, VerificationCheck, VerificationStatus)
+
+### Application Layer
+- `src/application/ports/governance/anti_metrics_verification_port.py` - Port protocol for verification
+- `src/application/services/governance/anti_metrics_verification_service.py` - Verification service implementation
+- `src/application/services/governance/periodic_verification_job.py` - Periodic job scheduler
+
+### Infrastructure Layer
+- `src/infrastructure/adapters/governance/verification_cli.py` - CLI for independent verification
+
+### Tests
+- `tests/unit/domain/governance/antimetrics/test_verification.py` - Domain model tests
+- `tests/unit/application/services/governance/test_anti_metrics_verification_service.py` - Service tests
+- `tests/unit/application/services/governance/test_periodic_verification_job.py` - Periodic job tests
+- `tests/unit/infrastructure/adapters/governance/test_verification_cli.py` - CLI tests

@@ -1,6 +1,6 @@
 # Story consent-gov-9.3: Independent Verification
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -14,79 +14,79 @@ So that **I don't have to trust the system**.
 
 ## Acceptance Criteria
 
-1. **AC1:** Independent hash chain verification (FR58)
-2. **AC2:** Independent Merkle proof verification
-3. **AC3:** State derivable through event replay (NFR-AUDIT-06)
-4. **AC4:** Verification possible offline with exported ledger
-5. **AC5:** Event `audit.verification.completed` emitted after verification
-6. **AC6:** Verification detects tampering
-7. **AC7:** Verification detects missing events
-8. **AC8:** Unit tests for verification
+1. **AC1:** Independent hash chain verification (FR58) ✅
+2. **AC2:** Independent Merkle proof verification ✅
+3. **AC3:** State derivable through event replay (NFR-AUDIT-06) ✅
+4. **AC4:** Verification possible offline with exported ledger ✅
+5. **AC5:** Event `audit.verification.completed` emitted after verification ✅
+6. **AC6:** Verification detects tampering ✅
+7. **AC7:** Verification detects missing events ✅
+8. **AC8:** Unit tests for verification ✅
 
 ---
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create VerificationResult domain model** (AC: 1)
-  - [ ] Create `src/domain/governance/audit/verification_result.py`
-  - [ ] Include hash_chain_valid, merkle_valid
-  - [ ] Include detected_issues list
-  - [ ] Include verification timestamp
+- [x] **Task 1: Create VerificationResult domain model** (AC: 1)
+  - [x] Create `src/domain/governance/audit/verification_result.py`
+  - [x] Include hash_chain_valid, merkle_valid
+  - [x] Include detected_issues list
+  - [x] Include verification timestamp
 
-- [ ] **Task 2: Create IndependentVerificationService** (AC: 1, 2, 5)
-  - [ ] Create `src/application/services/governance/independent_verification_service.py`
-  - [ ] Verify hash chain independently
-  - [ ] Verify Merkle proofs independently
-  - [ ] Emit verification events
+- [x] **Task 2: Create IndependentVerificationService** (AC: 1, 2, 5)
+  - [x] Create `src/application/services/governance/independent_verification_service.py`
+  - [x] Verify hash chain independently
+  - [x] Verify Merkle proofs independently
+  - [x] Emit verification events
 
-- [ ] **Task 3: Create VerificationPort interface** (AC: 1)
-  - [ ] Create port for verification operations
-  - [ ] Define `verify_hash_chain()` method
-  - [ ] Define `verify_merkle_proof()` method
-  - [ ] Define `verify_completeness()` method
+- [x] **Task 3: Create VerificationPort interface** (AC: 1)
+  - [x] Create port for verification operations
+  - [x] Define `verify_hash_chain()` method
+  - [x] Define `verify_merkle_proof()` method
+  - [x] Define `verify_completeness()` method
 
-- [ ] **Task 4: Implement hash chain verification** (AC: 1)
-  - [ ] Recompute each event hash
-  - [ ] Verify prev_hash linkage
-  - [ ] Detect any breaks in chain
-  - [ ] Return detailed results
+- [x] **Task 4: Implement hash chain verification** (AC: 1)
+  - [x] Recompute each event hash
+  - [x] Verify prev_hash linkage
+  - [x] Detect any breaks in chain
+  - [x] Return detailed results
 
-- [ ] **Task 5: Implement Merkle verification** (AC: 2)
-  - [ ] Verify proof-of-inclusion for any event
-  - [ ] Reconstruct path to root
-  - [ ] Verify root matches expected
-  - [ ] Return verification result
+- [x] **Task 5: Implement Merkle verification** (AC: 2)
+  - [x] Verify proof-of-inclusion for any event
+  - [x] Reconstruct path to root
+  - [x] Verify root matches expected
+  - [x] Return verification result
 
-- [ ] **Task 6: Implement state replay** (AC: 3)
-  - [ ] Replay events from genesis
-  - [ ] Derive state from events
-  - [ ] State should be deterministic
-  - [ ] Same events = same state
+- [x] **Task 6: Implement state replay** (AC: 3)
+  - [x] Replay events from genesis
+  - [x] Derive state from events
+  - [x] State should be deterministic
+  - [x] Same events = same state
 
-- [ ] **Task 7: Implement offline verification** (AC: 4)
-  - [ ] Work with exported ledger only
-  - [ ] No network calls required
-  - [ ] All data in export
-  - [ ] Standalone verification
+- [x] **Task 7: Implement offline verification** (AC: 4)
+  - [x] Work with exported ledger only
+  - [x] No network calls required
+  - [x] All data in export
+  - [x] Standalone verification
 
-- [ ] **Task 8: Implement tampering detection** (AC: 6)
-  - [ ] Detect modified events (hash mismatch)
-  - [ ] Detect reordered events
-  - [ ] Detect content changes
-  - [ ] Clear error messages
+- [x] **Task 8: Implement tampering detection** (AC: 6)
+  - [x] Detect modified events (hash mismatch)
+  - [x] Detect reordered events
+  - [x] Detect content changes
+  - [x] Clear error messages
 
-- [ ] **Task 9: Implement gap detection** (AC: 7)
-  - [ ] Detect missing sequence numbers
-  - [ ] Detect broken prev_hash links
-  - [ ] Report specific gaps
-  - [ ] Clear error messages
+- [x] **Task 9: Implement gap detection** (AC: 7)
+  - [x] Detect missing sequence numbers
+  - [x] Detect broken prev_hash links
+  - [x] Report specific gaps
+  - [x] Clear error messages
 
-- [ ] **Task 10: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test valid ledger passes
-  - [ ] Test tampered ledger detected
-  - [ ] Test missing events detected
-  - [ ] Test state replay works
-  - [ ] Test offline verification
+- [x] **Task 10: Write comprehensive unit tests** (AC: 8)
+  - [x] Test valid ledger passes
+  - [x] Test tampered ledger detected
+  - [x] Test missing events detected
+  - [x] Test state replay works
+  - [x] Test offline verification
 
 ---
 

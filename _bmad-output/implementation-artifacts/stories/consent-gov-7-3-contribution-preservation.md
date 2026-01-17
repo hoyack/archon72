@@ -1,6 +1,6 @@
 # Story consent-gov-7.3: Contribution Preservation
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -14,76 +14,117 @@ So that **my work remains attributed even after I leave**.
 
 ## Acceptance Criteria
 
-1. **AC1:** Contribution history preserved (FR45)
-2. **AC2:** History remains in ledger (immutable)
-3. **AC3:** Attribution maintained without PII
-4. **AC4:** Completed work attributed to Cluster ID
-5. **AC5:** Event `custodial.contributions.preserved` emitted
-6. **AC6:** Historical queries show preserved contributions
-7. **AC7:** No scrubbing of historical events
-8. **AC8:** Unit tests for preservation
+1. **AC1:** Contribution history preserved (FR45) ✅
+2. **AC2:** History remains in ledger (immutable) ✅
+3. **AC3:** Attribution maintained without PII ✅
+4. **AC4:** Completed work attributed to Cluster ID ✅
+5. **AC5:** Event `custodial.contributions.preserved` emitted ✅
+6. **AC6:** Historical queries show preserved contributions ✅
+7. **AC7:** No scrubbing of historical events ✅
+8. **AC8:** Unit tests for preservation ✅
 
 ---
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create ContributionPreservationService** (AC: 1, 2)
-  - [ ] Create `src/application/services/governance/contribution_preservation_service.py`
-  - [ ] Preserve contribution records on exit
-  - [ ] Link to immutable ledger events
-  - [ ] No deletion or modification
+- [x] **Task 1: Create ContributionPreservationService** (AC: 1, 2)
+  - [x] Create `src/application/services/governance/contribution_preservation_service.py`
+  - [x] Preserve contribution records on exit
+  - [x] Link to immutable ledger events
+  - [x] No deletion or modification
 
-- [ ] **Task 2: Implement preservation logic** (AC: 1, 7)
-  - [ ] Mark contributions as preserved (flag only)
-  - [ ] Do NOT delete any events
-  - [ ] Do NOT modify any events
-  - [ ] Historical integrity maintained
+- [x] **Task 2: Implement preservation logic** (AC: 1, 7)
+  - [x] Mark contributions as preserved (flag only)
+  - [x] Do NOT delete any events
+  - [x] Do NOT modify any events
+  - [x] Historical integrity maintained
 
-- [ ] **Task 3: Implement PII-free attribution** (AC: 3, 4)
-  - [ ] Attribution uses Cluster ID (UUID)
-  - [ ] No personal names stored
-  - [ ] No email addresses stored
-  - [ ] No contact information stored
+- [x] **Task 3: Implement PII-free attribution** (AC: 3, 4)
+  - [x] Attribution uses Cluster ID (UUID)
+  - [x] No personal names stored
+  - [x] No email addresses stored
+  - [x] No contact information stored
 
-- [ ] **Task 4: Implement preservation event** (AC: 5)
-  - [ ] Emit `custodial.contributions.preserved`
-  - [ ] Include contribution count
-  - [ ] Include task IDs preserved
-  - [ ] Knight observes preservation
+- [x] **Task 4: Implement preservation event** (AC: 5)
+  - [x] Emit `custodial.contributions.preserved`
+  - [x] Include contribution count
+  - [x] Include task IDs preserved
+  - [x] Knight observes preservation
 
-- [ ] **Task 5: Implement historical query support** (AC: 6)
-  - [ ] Contributions queryable by Cluster ID
-  - [ ] Query returns preserved contributions
-  - [ ] Works same as before exit
-  - [ ] No access restriction after exit
+- [x] **Task 5: Implement historical query support** (AC: 6)
+  - [x] Contributions queryable by Cluster ID
+  - [x] Query returns preserved contributions
+  - [x] Works same as before exit
+  - [x] No access restriction after exit
 
-- [ ] **Task 6: Ensure no scrubbing** (AC: 7)
-  - [ ] No "delete my data" for contributions
-  - [ ] Ledger immutability enforced
-  - [ ] Constitutional constraint
-  - [ ] Audit trail preserved
+- [x] **Task 6: Ensure no scrubbing** (AC: 7)
+  - [x] No "delete my data" for contributions
+  - [x] Ledger immutability enforced
+  - [x] Constitutional constraint
+  - [x] Audit trail preserved
 
-- [ ] **Task 7: Create ContributionRecord model** (AC: 1, 4)
-  - [ ] Include cluster_id, task_id, contribution_type
-  - [ ] Include contributed_at, preserved_at
-  - [ ] Include result_hash (for verification)
-  - [ ] Immutable value object
+- [x] **Task 7: Create ContributionRecord model** (AC: 1, 4)
+  - [x] Include cluster_id, task_id, contribution_type
+  - [x] Include contributed_at, preserved_at
+  - [x] Include result_hash (for verification)
+  - [x] Immutable value object
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test contributions preserved on exit
-  - [ ] Test ledger immutability
-  - [ ] Test PII-free attribution
-  - [ ] Test historical queries work
-  - [ ] Test no scrubbing possible
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test contributions preserved on exit
+  - [x] Test ledger immutability
+  - [x] Test PII-free attribution
+  - [x] Test historical queries work
+  - [x] Test no scrubbing possible
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (preservation)
-- [ ] PII constraints documented
-- [ ] Immutability guarantees documented
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (preservation) - In code docstrings
+- [x] PII constraints documented - In ContributionRecord structural absence comments
+- [x] Immutability guarantees documented - In PreservationResult and ContributionPort structural absence comments
+- [x] N/A - README (internal component)
+
+---
+
+## Implementation Summary
+
+### Files Created
+
+**Domain Models:**
+- `src/domain/governance/exit/contribution_type.py` - ContributionType enum
+- `src/domain/governance/exit/contribution_record.py` - ContributionRecord frozen dataclass
+- `src/domain/governance/exit/preservation_result.py` - PreservationResult frozen dataclass
+
+**Ports:**
+- `src/application/ports/governance/contribution_port.py` - ContributionPort protocol
+
+**Services:**
+- `src/application/services/governance/contribution_preservation_service.py` - ContributionPreservationService
+
+**Tests:**
+- `tests/unit/domain/governance/exit/test_contribution_preservation.py` - 39 domain model tests
+- `tests/unit/application/ports/governance/test_contribution_port.py` - 16 port tests
+- `tests/unit/application/services/governance/test_contribution_preservation_service.py` - 33 service tests
+
+### Test Results
+
+**88 unit tests passing:**
+- ContributionType enum tests (5)
+- ContributionRecord validation tests (14)
+- ContributionRecord PII-free tests (6)
+- PreservationResult validation tests (11)
+- PreservationResult no-scrubbing tests (3)
+- ContributionPort protocol tests (16)
+- ContributionPreservationService tests (33)
+
+### Key Features
+
+1. **Immutable Domain Models:** All models are frozen dataclasses with validation
+2. **PII-Free Attribution:** Uses UUIDs only - no cluster_name, cluster_email, etc.
+3. **No Scrubbing:** ContributionPort and ContributionPreservationService have no delete/scrub/modify methods (structural absence)
+4. **Event Emission:** `custodial.contributions.preserved` event emitted with cluster_id, contribution count, task_ids
+5. **Historical Queries:** get_for_cluster() and get_preserved() work same before and after exit
 
 ---
 

@@ -1,6 +1,6 @@
 # Story consent-gov-9.2: Cryptographic Proof Generation
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -27,54 +27,54 @@ So that **I can verify nothing is missing**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create CompletenessProof domain model** (AC: 1)
-  - [ ] Create `src/domain/governance/audit/completeness_proof.py`
-  - [ ] Include hash_chain_proof
-  - [ ] Include merkle_proof
-  - [ ] Include verification_instructions
+- [x] **Task 1: Create CompletenessProof domain model** (AC: 1)
+  - [x] Create `src/domain/governance/audit/completeness_proof.py`
+  - [x] Include hash_chain_proof
+  - [x] Include merkle_proof
+  - [x] Include verification_instructions
 
-- [ ] **Task 2: Create LedgerProofService** (AC: 1, 5)
-  - [ ] Create `src/application/services/governance/ledger_proof_service.py`
-  - [ ] Generate completeness proofs
-  - [ ] Emit `audit.proof.generated` event
-  - [ ] Coordinate hash chain and Merkle proofs
+- [x] **Task 2: Create LedgerProofService** (AC: 1, 5)
+  - [x] Create `src/application/services/governance/ledger_proof_service.py`
+  - [x] Generate completeness proofs
+  - [x] Emit `audit.proof.generated` event
+  - [x] Coordinate hash chain and Merkle proofs
 
-- [ ] **Task 3: Create ProofPort interface** (AC: 1)
-  - [ ] Create port for proof operations
-  - [ ] Define `generate_completeness_proof()` method
-  - [ ] Define `get_merkle_proof()` method
-  - [ ] Define `get_hash_chain_proof()` method
+- [x] **Task 3: Create ProofPort interface** (AC: 1)
+  - [x] Create port for proof operations
+  - [x] Define `generate_completeness_proof()` method
+  - [x] Define `get_merkle_proof()` method
+  - [x] Define `get_hash_chain_proof()` method
 
-- [ ] **Task 4: Implement hash chain proof** (AC: 2)
-  - [ ] Prove each event links to previous
-  - [ ] Verify chain from genesis to latest
-  - [ ] Detect any gaps or modifications
-  - [ ] Include first and last hashes
+- [x] **Task 4: Implement hash chain proof** (AC: 2)
+  - [x] Prove each event links to previous
+  - [x] Verify chain from genesis to latest
+  - [x] Detect any gaps or modifications
+  - [x] Include first and last hashes
 
-- [ ] **Task 5: Implement Merkle tree proof** (AC: 3)
-  - [ ] Build Merkle tree from events
-  - [ ] Generate proof-of-inclusion for any event
-  - [ ] Root hash represents entire ledger
-  - [ ] Witness path for verification
+- [x] **Task 5: Implement Merkle tree proof** (AC: 3)
+  - [x] Build Merkle tree from events
+  - [x] Generate proof-of-inclusion for any event
+  - [x] Root hash represents entire ledger
+  - [x] Witness path for verification
 
-- [ ] **Task 6: Implement independent verification** (AC: 4, 7)
-  - [ ] Proof contains all needed info
-  - [ ] No external data required
-  - [ ] Verifier needs only proof and events
-  - [ ] Step-by-step verification possible
+- [x] **Task 6: Implement independent verification** (AC: 4, 7)
+  - [x] Proof contains all needed info
+  - [x] No external data required
+  - [x] Verifier needs only proof and events
+  - [x] Step-by-step verification possible
 
-- [ ] **Task 7: Implement root and witness path** (AC: 6)
-  - [ ] Merkle root hash
-  - [ ] Sibling hashes for path
-  - [ ] Position indicators (left/right)
-  - [ ] Compact representation
+- [x] **Task 7: Implement root and witness path** (AC: 6)
+  - [x] Merkle root hash
+  - [x] Sibling hashes for path
+  - [x] Position indicators (left/right)
+  - [x] Compact representation
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test proof generation succeeds
-  - [ ] Test hash chain verification works
-  - [ ] Test Merkle proof verification works
-  - [ ] Test tampered ledger detection
-  - [ ] Test missing event detection
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test proof generation succeeds
+  - [x] Test hash chain verification works
+  - [x] Test Merkle proof verification works
+  - [x] Test tampered ledger detection
+  - [x] Test missing event detection
 
 ---
 

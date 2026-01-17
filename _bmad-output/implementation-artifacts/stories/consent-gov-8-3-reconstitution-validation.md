@@ -1,6 +1,6 @@
 # Story consent-gov-8.3: Reconstitution Validation
 
-Status: ready-for-dev
+Status: done
 
 ---
 
@@ -27,64 +27,64 @@ So that **new instances don't falsely inherit legitimacy**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create ReconstitutionArtifact domain model** (AC: 1, 7)
-  - [ ] Create `src/domain/governance/cessation/reconstitution_artifact.py`
-  - [ ] Include cessation_record_id reference
-  - [ ] Include proposed_legitimacy_band
-  - [ ] Include continuity_claims
-  - [ ] Immutable value object
+- [x] **Task 1: Create ReconstitutionArtifact domain model** (AC: 1, 7)
+  - [x] Create `src/domain/governance/cessation/reconstitution_artifact.py`
+  - [x] Include cessation_record_id reference
+  - [x] Include proposed_legitimacy_band
+  - [x] Include continuity_claims
+  - [x] Immutable value object
 
-- [ ] **Task 2: Create ReconstitutionValidationService** (AC: 1, 5)
-  - [ ] Create `src/application/services/governance/reconstitution_validation_service.py`
-  - [ ] Validate artifact structure
-  - [ ] Check for prohibited claims
-  - [ ] Emit validation result events
+- [x] **Task 2: Create ReconstitutionValidationService** (AC: 1, 5)
+  - [x] Create `src/application/services/governance/reconstitution_validation_service.py`
+  - [x] Validate artifact structure
+  - [x] Check for prohibited claims
+  - [x] Emit validation result events
 
-- [ ] **Task 3: Create ReconstitutionPort interface** (AC: 1)
-  - [ ] Create port for validation operations
-  - [ ] Define `validate_artifact()` method
-  - [ ] Define `get_validation_result()` method
-  - [ ] Return typed validation result
+- [x] **Task 3: Create ReconstitutionPort interface** (AC: 1)
+  - [x] Create port for validation operations
+  - [x] Define `store_validation_result()` method
+  - [x] Define `get_validation_result()` method
+  - [x] Return typed validation result
 
-- [ ] **Task 4: Implement continuity rejection** (AC: 2)
-  - [ ] Detect continuity claims in artifact
-  - [ ] Reject if claims_continuity = true
-  - [ ] Reject if references "same system"
-  - [ ] Clear rejection message
+- [x] **Task 4: Implement continuity rejection** (AC: 2)
+  - [x] Detect continuity claims in artifact
+  - [x] Reject if claims_continuity = true
+  - [x] Reject if references "same system"
+  - [x] Clear rejection message
 
-- [ ] **Task 5: Implement legitimacy rejection** (AC: 3, 4)
-  - [ ] Reject if proposed_band != BASELINE
-  - [ ] Cannot inherit previous band
-  - [ ] New instance must earn legitimacy
-  - [ ] Starts at STABLE (baseline)
+- [x] **Task 5: Implement legitimacy rejection** (AC: 3, 4)
+  - [x] Reject if proposed_band != BASELINE
+  - [x] Cannot inherit previous band
+  - [x] New instance must earn legitimacy
+  - [x] Starts at STABLE (baseline)
 
-- [ ] **Task 6: Implement validation success path** (AC: 1, 7)
-  - [ ] Valid artifact references cessation record
-  - [ ] Valid artifact has no continuity claims
-  - [ ] Valid artifact proposes BASELINE legitimacy
-  - [ ] Emit validation success event
+- [x] **Task 6: Implement validation success path** (AC: 1, 7)
+  - [x] Valid artifact references cessation record
+  - [x] Valid artifact has no continuity claims
+  - [x] Valid artifact proposes BASELINE legitimacy
+  - [x] Emit validation success event
 
-- [ ] **Task 7: Implement clear error messages** (AC: 6)
-  - [ ] `CONTINUITY_CLAIM_REJECTED`: "New instance cannot claim continuity"
-  - [ ] `LEGITIMACY_INHERITANCE_REJECTED`: "New instance cannot inherit legitimacy"
-  - [ ] `MISSING_CESSATION_REFERENCE`: "Must reference cessation record"
-  - [ ] Human-readable explanations
+- [x] **Task 7: Implement clear error messages** (AC: 6)
+  - [x] `CONTINUITY_CLAIM_REJECTED`: "New instance cannot claim continuity"
+  - [x] `LEGITIMACY_INHERITANCE_REJECTED`: "New instance cannot inherit legitimacy"
+  - [x] `MISSING_CESSATION_REFERENCE`: "Must reference cessation record"
+  - [x] Human-readable explanations
 
-- [ ] **Task 8: Write comprehensive unit tests** (AC: 8)
-  - [ ] Test valid artifact accepted
-  - [ ] Test continuity claim rejected
-  - [ ] Test legitimacy inheritance rejected
-  - [ ] Test missing cessation rejected
-  - [ ] Test events emitted
+- [x] **Task 8: Write comprehensive unit tests** (AC: 8)
+  - [x] Test valid artifact accepted
+  - [x] Test continuity claim rejected
+  - [x] Test legitimacy inheritance rejected
+  - [x] Test missing cessation rejected
+  - [x] Test events emitted
 
 ---
 
 ## Documentation Checklist
 
-- [ ] Architecture docs updated (reconstitution rules)
-- [ ] Operations runbook for new instance setup
-- [ ] Inline comments explaining rejection logic
-- [ ] N/A - README (internal component)
+- [x] Architecture docs updated (reconstitution rules)
+- [x] Operations runbook for new instance setup
+- [x] Inline comments explaining rejection logic
+- [x] N/A - README (internal component)
 
 ---
 

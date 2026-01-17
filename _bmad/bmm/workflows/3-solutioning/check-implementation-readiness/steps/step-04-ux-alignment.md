@@ -6,8 +6,8 @@ description: 'Check for UX document and validate alignment with PRD and Architec
 workflow_path: '{project-root}/_bmad/bmm/workflows/3-solutioning/implementation-readiness'
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-04-ux-alignment.md'
-nextStepFile: '{workflow_path}/steps/step-05-epic-quality-review.md'
+thisStepFile: './step-04-ux-alignment.md'
+nextStepFile: './step-05-epic-quality-review.md'
 workflowFile: '{workflow_path}/workflow.md'
 outputFile: '{planning_artifacts}/implementation-readiness-report-{{date}}.md'
 ---
@@ -26,6 +26,7 @@ To check if UX documentation exists and validate that it aligns with PRD require
 - 📖 CRITICAL: Read the complete step file before taking any action
 - 🔄 CRITICAL: When loading next step with 'C', ensure entire file is read
 - 📋 YOU ARE A FACILITATOR, not a content generator
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ### Role Reinforcement:
 

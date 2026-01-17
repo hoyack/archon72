@@ -1,0 +1,89 @@
+{
+  "motion_id": "motion-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "title": "Privacy Boundary Clarification for External Data Sources",
+  "motion_type": "policy",
+  "realm_assignment": {
+    "primary_realm": "boundary_concealment",
+    "primary_sponsor": {
+      "king_id": "king-bael",
+      "king_name": "Bael"
+    },
+    "cross_realm": false,
+    "co_sponsors": []
+  },
+  "normative_intent": "External data sources must declare their privacy classification before integration. The system will not process data whose privacy status is unknown. This motion establishes that privacy boundaries are explicit, not inferred, and that the system's default posture toward unclassified data is refusal rather than assumption.",
+  "constraints": [
+    "Must not require disclosure of source identity to achieve classification",
+    "Must not create implicit consent through continued use",
+    "Must not block emergency response scenarios where immediate action is required",
+    "Must not impose classification burden on data subjects rather than data controllers",
+    "Must not conflate privacy classification with security classification"
+  ],
+  "success_criteria": [
+    "All external data sources have explicit privacy classification within 90 days of motion ratification",
+    "No unclassified data enters the processing pipeline after implementation deadline",
+    "Emergency override path exists with full audit trail for time-critical scenarios",
+    "Classification can be verified by any authorized party without accessing the data itself",
+    "Rejection of unclassified data is logged with sufficient detail for source remediation"
+  ],
+  "what_this_motion_does_not_cover": [
+    "Implementation method for classification verification (HOW)",
+    "Specific technical controls or encryption standards",
+    "Timeline for compliance beyond the 90-day window",
+    "Penalty or consequence for non-compliance by sources",
+    "Definition of what constitutes 'emergency response scenarios'",
+    "Integration with existing data governance frameworks"
+  ],
+  "advisory_required": false,
+  "submitted_at": "2026-01-16T10:00:00Z",
+  "status": "ratified",
+  "admission": {
+    "admitted": true,
+    "reviewed_at": "2026-01-16T10:30:00Z",
+    "validation_checks": {
+      "realm_valid": true,
+      "how_free": true,
+      "cross_realm_sponsors_complete": true,
+      "not_duplicate": true
+    }
+  },
+  "deliberation": {
+    "scheduled_for_conclave": "conclave-2026-01-20",
+    "agenda_band": 3,
+    "deferral_count": 0,
+    "deliberation_summary": "Motion received broad support during deliberation. Duke Valefor noted alignment with ongoing data governance program. Earl Glasya raised concern about emergency override definition being left to implementation; sponsor King Bael clarified this is intentional to preserve Executive flexibility on HOW. No amendments proposed."
+  },
+  "voting": {
+    "threshold_required": "simple_majority",
+    "votes_for": 47,
+    "votes_against": 12,
+    "abstentions": 5,
+    "threshold_met": true,
+    "voted_at": "2026-01-20T16:00:00Z"
+  },
+  "ratification": {
+    "ratified": true,
+    "ratified_at": "2026-01-20T16:30:00Z",
+    "effective_at": "2026-01-21T00:00:00Z",
+    "transferred_to_executive": true,
+    "execution_plan_id": "exec-plan-privacy-boundary-001"
+  },
+  "lineage": {
+    "predecessor_motion_id": null,
+    "material_changes_from_predecessor": [],
+    "resubmission_count": 0
+  },
+  "constraints_metadata": {
+    "must_be_realm_valid": true,
+    "must_be_how_free": true,
+    "must_be_explicitly_scoped": true,
+    "king_authority_ends_at_ratification": true,
+    "no_special_voting_weight": true
+  },
+  "audit": {
+    "created_at": "2026-01-16T10:00:00Z",
+    "updated_at": "2026-01-20T16:30:00Z",
+    "trace_id": "trace-motion-privacy-boundary-001"
+  }
+}

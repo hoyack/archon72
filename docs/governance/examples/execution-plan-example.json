@@ -1,0 +1,276 @@
+{
+  "execution_plan_id": "exec-plan-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "motion_id": "motion-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "motion_title": "Privacy Boundary Clarification for External Data Sources",
+  "plan_owner": {
+    "president_id": "president-ose",
+    "president_name": "Ose",
+    "portfolio": "identity_access_perception"
+  },
+  "affected_portfolios": [
+    "identity_access_perception",
+    "infrastructure_build_systems",
+    "knowledge_systems_transfer"
+  ],
+  "portfolio_contributions": [
+    {
+      "contribution_id": "contrib-ose-001",
+      "portfolio": "identity_access_perception",
+      "contributing_president": {
+        "president_id": "president-ose",
+        "president_name": "Ose"
+      },
+      "tasks": [
+        {
+          "task_id": "task-001",
+          "description": "Define privacy classification taxonomy for external data sources",
+          "contributing_portfolio": "identity_access_perception",
+          "dependencies": [],
+          "sequence_order": 1,
+          "capacity_required": {
+            "cluster_id": "cluster-17",
+            "capacity_units": 2
+          },
+          "estimated_duration": "P7D"
+        },
+        {
+          "task_id": "task-002",
+          "description": "Design classification verification interface that does not require data access",
+          "contributing_portfolio": "identity_access_perception",
+          "dependencies": ["task-001"],
+          "sequence_order": 2,
+          "capacity_required": {
+            "cluster_id": "cluster-17",
+            "capacity_units": 3
+          },
+          "estimated_duration": "P14D"
+        },
+        {
+          "task_id": "task-003",
+          "description": "Implement emergency override audit trail mechanism",
+          "contributing_portfolio": "identity_access_perception",
+          "dependencies": ["task-002"],
+          "sequence_order": 4,
+          "capacity_required": {
+            "cluster_id": "cluster-17",
+            "capacity_units": 2
+          },
+          "estimated_duration": "P7D"
+        }
+      ],
+      "constraints_respected": [
+        "Must not require disclosure of source identity to achieve classification",
+        "Classification can be verified by any authorized party without accessing the data itself"
+      ],
+      "risks": [
+        "Classification taxonomy may require iteration with data controllers",
+        "Emergency override definition may require Conclave clarification"
+      ],
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-21T10:00:00Z",
+        "attestation_type": "contribution"
+      }
+    },
+    {
+      "contribution_id": "contrib-malphas-001",
+      "portfolio": "infrastructure_build_systems",
+      "contributing_president": {
+        "president_id": "president-malphas",
+        "president_name": "Malphas"
+      },
+      "tasks": [
+        {
+          "task_id": "task-004",
+          "description": "Implement pipeline gate that rejects unclassified data",
+          "contributing_portfolio": "infrastructure_build_systems",
+          "dependencies": ["task-002"],
+          "sequence_order": 3,
+          "capacity_required": {
+            "cluster_id": "cluster-22",
+            "capacity_units": 4
+          },
+          "estimated_duration": "P21D"
+        },
+        {
+          "task_id": "task-005",
+          "description": "Configure rejection logging with remediation detail level",
+          "contributing_portfolio": "infrastructure_build_systems",
+          "dependencies": ["task-004"],
+          "sequence_order": 5,
+          "capacity_required": {
+            "cluster_id": "cluster-22",
+            "capacity_units": 2
+          },
+          "estimated_duration": "P7D"
+        }
+      ],
+      "constraints_respected": [
+        "No unclassified data enters the processing pipeline after implementation deadline",
+        "Rejection of unclassified data is logged with sufficient detail for source remediation"
+      ],
+      "risks": [
+        "Existing integrations may break if sources are not classified in time",
+        "Logging volume may require additional storage capacity"
+      ],
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-21T11:00:00Z",
+        "attestation_type": "contribution"
+      }
+    }
+  ],
+  "no_action_attestations": [
+    {
+      "attestation_id": "attest-gaap-001",
+      "portfolio": "knowledge_systems_transfer",
+      "attesting_president": {
+        "president_id": "president-gaap",
+        "president_name": "Gaap"
+      },
+      "reason": "Documentation of privacy classification process will be handled through standard operational documentation channels. No specialized learning pipeline or training material development is required beyond what Infrastructure will produce as part of implementation.",
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-21T09:30:00Z",
+        "attestation_type": "no_action"
+      }
+    }
+  ],
+  "integrated_tasks": [
+    {
+      "task_id": "task-001",
+      "description": "Define privacy classification taxonomy for external data sources",
+      "contributing_portfolio": "identity_access_perception",
+      "dependencies": [],
+      "sequence_order": 1,
+      "capacity_required": {
+        "cluster_id": "cluster-17",
+        "capacity_units": 2
+      },
+      "estimated_duration": "P7D"
+    },
+    {
+      "task_id": "task-002",
+      "description": "Design classification verification interface that does not require data access",
+      "contributing_portfolio": "identity_access_perception",
+      "dependencies": ["task-001"],
+      "sequence_order": 2,
+      "capacity_required": {
+        "cluster_id": "cluster-17",
+        "capacity_units": 3
+      },
+      "estimated_duration": "P14D"
+    },
+    {
+      "task_id": "task-004",
+      "description": "Implement pipeline gate that rejects unclassified data",
+      "contributing_portfolio": "infrastructure_build_systems",
+      "dependencies": ["task-002"],
+      "sequence_order": 3,
+      "capacity_required": {
+        "cluster_id": "cluster-22",
+        "capacity_units": 4
+      },
+      "estimated_duration": "P21D"
+    },
+    {
+      "task_id": "task-003",
+      "description": "Implement emergency override audit trail mechanism",
+      "contributing_portfolio": "identity_access_perception",
+      "dependencies": ["task-002"],
+      "sequence_order": 4,
+      "capacity_required": {
+        "cluster_id": "cluster-17",
+        "capacity_units": 2
+      },
+      "estimated_duration": "P7D"
+    },
+    {
+      "task_id": "task-005",
+      "description": "Configure rejection logging with remediation detail level",
+      "contributing_portfolio": "infrastructure_build_systems",
+      "dependencies": ["task-004"],
+      "sequence_order": 5,
+      "capacity_required": {
+        "cluster_id": "cluster-22",
+        "capacity_units": 2
+      },
+      "estimated_duration": "P7D"
+    }
+  ],
+  "capacity_claims": {
+    "clusters_required": [
+      {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis",
+        "capacity_units": 7
+      },
+      {
+        "cluster_id": "cluster-22",
+        "cluster_name": "Platform Engineering",
+        "capacity_units": 6
+      }
+    ],
+    "program_slots_required": 1,
+    "time_estimate": "P60D",
+    "risk_if_unavailable": "Delay in implementation may cause the 90-day compliance window to be missed. Existing data sources would continue processing without classification, creating compliance gap."
+  },
+  "blockers": [],
+  "constraints_from_motion": [
+    "Must not require disclosure of source identity to achieve classification",
+    "Must not create implicit consent through continued use",
+    "Must not block emergency response scenarios where immediate action is required",
+    "Must not impose classification burden on data subjects rather than data controllers",
+    "Must not conflate privacy classification with security classification"
+  ],
+  "success_criteria_mapping": [
+    {
+      "motion_criterion": "All external data sources have explicit privacy classification within 90 days of motion ratification",
+      "addressed_by_tasks": ["task-001", "task-002"]
+    },
+    {
+      "motion_criterion": "No unclassified data enters the processing pipeline after implementation deadline",
+      "addressed_by_tasks": ["task-004"]
+    },
+    {
+      "motion_criterion": "Emergency override path exists with full audit trail for time-critical scenarios",
+      "addressed_by_tasks": ["task-003"]
+    },
+    {
+      "motion_criterion": "Classification can be verified by any authorized party without accessing the data itself",
+      "addressed_by_tasks": ["task-002"]
+    },
+    {
+      "motion_criterion": "Rejection of unclassified data is logged with sufficient detail for source remediation",
+      "addressed_by_tasks": ["task-005"]
+    }
+  ],
+  "advisory_acknowledgments": [],
+  "status": "authorized",
+  "created_at": "2026-01-21T08:00:00Z",
+  "submitted_at": "2026-01-21T14:00:00Z",
+  "authorized_at": "2026-01-22T10:00:00Z",
+  "handoff": {
+    "handed_off": true,
+    "handed_off_at": "2026-01-22T10:30:00Z",
+    "assigned_duke": {
+      "duke_id": "duke-valefor",
+      "duke_name": "Valefor"
+    },
+    "program_id": "program-privacy-boundary-001"
+  },
+  "completion": null,
+  "constraints_metadata": {
+    "must_preserve_intent": true,
+    "must_have_all_portfolio_responses": true,
+    "must_escalate_critical_blockers": true,
+    "president_authority_ends_at_handoff": true,
+    "no_capacity_concealment": true
+  },
+  "audit": {
+    "created_at": "2026-01-21T08:00:00Z",
+    "updated_at": "2026-01-22T10:30:00Z",
+    "trace_id": "trace-exec-plan-privacy-boundary-001"
+  }
+}

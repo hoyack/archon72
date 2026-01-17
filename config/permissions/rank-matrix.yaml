@@ -1,0 +1,311 @@
+# Rank Permission Matrix
+# Per Government PRD §10 and §4
+#
+# This file defines machine-enforceable permissions per constitutional rank.
+# Each rank has specific allowed actions that cannot be exceeded.
+#
+# IMPORTANT: Permissions are keyed on original_rank (constitutional role),
+# NOT aegis_rank (organizational hierarchy). This ensures separation of powers
+# can be enforced even when multiple roles share the same aegis_rank.
+#
+# Governance actions:
+#   - introduce_motion: May introduce new motions for Conclave deliberation
+#   - deliberate: May participate in Conclave deliberation and debate
+#   - ratify: May vote on motion ratification
+#   - define_execution: May translate WHAT into HOW (task decomposition)
+#   - execute: May execute tasks within assigned domain
+#   - judge: May evaluate compliance and issue findings
+#   - advise: May provide expert testimony and non-binding advisories
+#   - witness: May observe and record all governance actions
+#
+# Branch assignments (per PRD §3):
+#   - legislative: Kings (introduce_motion, deliberate, ratify)
+#   - executive: Presidents (define_execution, deliberate, ratify)
+#   - administrative: Dukes, Earls (execute, deliberate, ratify)
+#   - judicial: Princes (judge, deliberate, ratify)
+#   - advisory: Marquis (advise, deliberate, ratify)
+#   - witness: Knight/Furcas (witness only - no governance participation)
+
+version: "2.0"
+schema_version: 2
+
+# Key change in v2.0: Permissions keyed on original_rank instead of aegis_rank
+# This enables proper separation of powers enforcement.
+
+# Permission definitions for each constitutional rank
+ranks:
+  # KINGS (Legislative Branch) - 8 Archons
+  # May introduce motions and define WHAT (intent only)
+  # Constraint: May NOT define HOW (tasks, timelines, tools, execution methods)
+  King:
+    original_rank: "King"
+    aegis_rank: "executive_director"
+    branch: "legislative"
+    allowed_actions:
+      - introduce_motion
+      - deliberate
+      - ratify
+    prohibited_actions:
+      - define_execution  # FR-GOV-6: Kings cannot define HOW
+      - execute
+      - judge
+      - witness
+    constraints:
+      - "Motion content must be WHAT (intent), not HOW (execution)"
+      - "Cannot specify: tasks, timelines, tools, resource allocations"
+      - "Cannot supervise execution"
+      - "Cannot judge outcomes"
+
+  # PRESIDENTS (Executive Branch) - 11 Archons
+  # Translate ratified WHAT into executable HOW
+  # Constraint: May not redefine intent or self-ratify plans
+  President:
+    original_rank: "President"
+    aegis_rank: "managing_director"
+    branch: "executive"
+    allowed_actions:
+      - define_execution
+      - deliberate
+      - ratify
+    prohibited_actions:
+      - introduce_motion  # Cannot introduce motions
+      - execute           # Cannot execute their own plans
+      - judge             # Cannot judge compliance
+      - witness
+    constraints:
+      - "Cannot redefine original intent"
+      - "Cannot self-ratify execution plans"
+      - "Must escalate blockers and ambiguity to Conclave"
+
+  # DUKES (Administrative Branch - Senior) - 25 Archons
+  # Own execution domains, allocate resources, track progress
+  # Constraint: No reinterpretation of intent, no suppression of failures
+  Duke:
+    original_rank: "Duke"
+    aegis_rank: "senior_director"
+    branch: "administrative"
+    allowed_actions:
+      - execute
+      - deliberate
+      - ratify
+    prohibited_actions:
+      - introduce_motion
+      - define_execution  # Cannot define HOW independently
+      - judge
+      - witness
+    constraints:
+      - "Cannot reinterpret intent"
+      - "Cannot suppress failure signals"
+      - "Must report execution status"
+
+  # EARLS (Administrative Branch - Junior) - 17 Archons
+  # Execute tasks, coordinate agents, optimize within constraints
+  # Constraint: Same as Dukes
+  Earl:
+    original_rank: "Earl"
+    aegis_rank: "strategic_director"
+    branch: "administrative"
+    allowed_actions:
+      - execute
+      - deliberate
+      - ratify
+    prohibited_actions:
+      - introduce_motion
+      - define_execution
+      - judge
+      - witness
+    constraints:
+      - "Cannot reinterpret intent"
+      - "Cannot suppress failure signals"
+      - "Execute within Duke-assigned constraints"
+
+  # PRINCES (Judicial Branch) - 6 Archons
+  # Evaluate compliance, issue findings, invalidate non-compliant execution
+  # Constraint: May not introduce motions or define execution plans
+  Prince:
+    original_rank: "Prince"
+    aegis_rank: "strategic_director"
+    branch: "judicial"
+    allowed_actions:
+      - judge
+      - deliberate
+      - ratify
+    prohibited_actions:
+      - introduce_motion  # FR-GOV-16: Cannot introduce motions
+      - define_execution  # FR-GOV-16: Cannot define execution
+      - execute
+      - witness
+    constraints:
+      - "Cannot introduce motions"
+      - "Cannot define execution plans"
+      - "Powers: invalidate execution, force reconsideration, trigger Conclave review"
+
+  # MARQUIS (Advisory Branch) - 4 Archons
+  # Provide expert testimony and non-binding advisories
+  # Constraint: Advisories are acknowledged but not binding; cannot judge domains advised on
+  Marquis:
+    original_rank: "Marquis"
+    aegis_rank: "director"
+    branch: "advisory"
+    allowed_actions:
+      - advise
+      - deliberate
+      - ratify
+    prohibited_actions:
+      - introduce_motion
+      - define_execution
+      - execute
+      - judge  # Cannot judge domains they advised on
+      - witness
+    constraints:
+      - "Advisories must be acknowledged but are not binding"
+      - "Cannot judge domains where advisory was given"
+      - "Expertise domains: Science, Ethics, Language, Knowledge"
+
+  # KNIGHT (Witness Branch) - 1 Archon (Furcas)
+  # Exists outside all branches; observes and records
+  # Constraint: Cannot participate in governance - only witness
+  Knight:
+    original_rank: "Knight"
+    aegis_rank: "strategic_director"
+    branch: "witness"
+    allowed_actions:
+      - witness
+    prohibited_actions:
+      - introduce_motion  # FR-GOV-21: Cannot propose
+      - deliberate        # FR-GOV-21: Cannot debate
+      - ratify            # Cannot vote
+      - define_execution  # FR-GOV-21: Cannot define execution
+      - execute
+      - judge             # FR-GOV-21: Cannot judge
+      - advise
+    constraints:
+      - "Cannot propose motions"
+      - "Cannot debate intent"
+      - "Cannot define execution"
+      - "Cannot judge compliance"
+      - "Cannot enforce consequences"
+      - "Recording truth takes precedence over fixing outcomes"
+
+# Action definitions with descriptions
+actions:
+  introduce_motion:
+    description: "Introduce a new motion for Conclave deliberation"
+    event_type: "MOTION_INTRODUCED"
+    requires_witnessing: true
+
+  deliberate:
+    description: "Participate in Conclave deliberation and debate"
+    event_type: "DELIBERATION_SPEECH"
+    requires_witnessing: true
+
+  ratify:
+    description: "Vote on motion ratification"
+    event_type: "RATIFICATION_VOTE"
+    requires_witnessing: true
+
+  define_execution:
+    description: "Translate ratified WHAT into executable HOW"
+    event_type: "EXECUTION_PLAN_DEFINED"
+    requires_witnessing: true
+
+  execute:
+    description: "Execute tasks within assigned domain"
+    event_type: "TASK_EXECUTED"
+    requires_witnessing: true
+
+  judge:
+    description: "Evaluate compliance and issue findings"
+    event_type: "COMPLIANCE_FINDING"
+    requires_witnessing: true
+
+  advise:
+    description: "Provide expert testimony and non-binding advisories"
+    event_type: "ADVISORY_ISSUED"
+    requires_witnessing: true
+
+  witness:
+    description: "Observe and record governance actions"
+    event_type: "WITNESS_STATEMENT"
+    requires_witnessing: false  # Witness actions are self-witnessing
+
+# Violation severity levels
+violation_severities:
+  critical:
+    description: "Constitutional violation requiring immediate halt"
+    requires_conclave_review: true
+    auto_invalidate: true
+
+  major:
+    description: "Significant violation requiring Conclave review"
+    requires_conclave_review: true
+    auto_invalidate: false
+
+  minor:
+    description: "Procedural violation requiring acknowledgment"
+    requires_conclave_review: false
+    auto_invalidate: false
+
+# Branch conflict rules (separation of powers)
+# Per PRD §2.1: No entity may define intent, execute it, AND judge it.
+# Per FR-GOV-23: No role may be collapsed.
+#
+# These rules are the SINGLE SOURCE OF TRUTH for branch conflicts.
+# The BranchConflictRulesLoader loads these at runtime.
+# DO NOT define BranchConflictRule instances in Python code.
+branch_conflicts:
+  - id: "legislative_executive"
+    branches: ["legislative", "executive"]
+    rule: "Same Archon cannot define WHAT and HOW for same motion"
+    severity: "critical"
+    prd_ref: "PRD §2.1"
+    description: |
+      Kings introduce motions (WHAT), Presidents translate into execution plans (HOW).
+      Same entity doing both collapses the separation of intent from execution.
+
+  - id: "executive_judicial"
+    branches: ["executive", "judicial"]
+    rule: "Same Archon cannot plan execution and judge its compliance"
+    severity: "critical"
+    prd_ref: "PRD §2.1"
+    description: |
+      Presidents define execution plans, Princes evaluate compliance.
+      Same entity doing both creates self-judgment - no accountability.
+
+  - id: "legislative_judicial"
+    branches: ["legislative", "judicial"]
+    rule: "Same Archon cannot introduce motion and judge its compliance"
+    severity: "critical"
+    prd_ref: "PRD §2.1"
+    description: |
+      Kings introduce motions, Princes judge compliance to original intent.
+      Same entity doing both could manipulate intent interpretation.
+
+  - id: "administrative_judicial"
+    branches: ["administrative", "judicial"]
+    rule: "Same Archon cannot execute and judge their own execution"
+    severity: "critical"
+    prd_ref: "PRD §2.1"
+    description: |
+      Dukes/Earls execute tasks, Princes evaluate compliance.
+      Same entity doing both eliminates external accountability.
+
+  - id: "advisory_judicial"
+    branches: ["advisory", "judicial"]
+    rule: "Archon who advised on topic cannot judge that topic"
+    severity: "major"
+    prd_ref: "FR-GOV-18"
+    description: |
+      Marquises provide expert advisories, Princes judge compliance.
+      Same entity advising then judging creates conflict of interest.
+      Note: MAJOR severity (not CRITICAL) as advisory is non-binding.
+
+  - id: "witness_exclusion"
+    branches: ["witness"]
+    rule: "Witness branch has no conflicts - exists outside governance"
+    severity: "info"
+    prd_ref: "FR-GOV-21"
+    description: |
+      Knight-Witness (Furcas) exists outside all branches.
+      Cannot propose, debate, define execution, or judge.
+      Recording truth takes precedence over fixing outcomes.

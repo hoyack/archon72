@@ -1,0 +1,39 @@
+{
+  "appeal_id": "appeal-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "document_type": "appeal_request",
+  "related_finding_id": "finding-b2c3d4e5-f6a7-8901-bcde-f23456789012",
+  "submitted_at": "2026-01-22T10:00:00Z",
+  "submitted_by": {
+    "actor_type": "duke",
+    "actor_id": "duke-valefor",
+    "actor_name": "Duke Valefor"
+  },
+  "basis": {
+    "new_facts": false,
+    "changed_constraints": false,
+    "revised_plan": true,
+    "procedural_correction": false
+  },
+  "basis_description": "The original judicial finding (finding-b2c3d4e5) identified a procedural deficiency in the Q1 Security Review task activation: the task transitioned to in_progress without a cluster acceptance event, violating CR-1 (No silent assignment). We have revised the execution plan to explicitly require and verify cluster acceptance before any state transition. This appeal requests reversal of the 'procedurally_deficient' finding based on the corrected workflow.",
+  "what_changed": [
+    "Added mandatory acceptance_event verification checkpoint before task state transition to in_progress",
+    "Implemented real-time audit log verification step that blocks transition if acceptance event is missing",
+    "Added Steward notification workflow with acknowledgment requirement",
+    "Created automated CR-1 compliance check integrated into Earl Raum's task activation workflow",
+    "Documented escalation path if acceptance is not received within 4-hour window"
+  ],
+  "supporting_artifacts": [
+    "execution-plan-q1-security-review-v2",
+    "workflow-diagram-task-activation-revised",
+    "cr1-compliance-check-specification",
+    "steward-notification-protocol-v1"
+  ],
+  "requested_outcome": "reversal",
+  "appeal_window_status": "within_window",
+  "constraints": {
+    "one_appeal_only": true,
+    "must_introduce_new_information": true,
+    "outcome_is_final": true
+  }
+}

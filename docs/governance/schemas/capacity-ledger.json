@@ -1,0 +1,569 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/capacity_ledger.v1.json",
+  "title": "Capacity Ledger",
+  "description": "An append-only system that records what can be done, what is claimed, and what is deferred—so scarcity becomes visible, prioritization becomes explicit, and execution pressure cannot masquerade as inevitability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ledger_id",
+    "version",
+    "current_state",
+    "declarations",
+    "claims",
+    "deferrals",
+    "constraints",
+    "audit"
+  ],
+  "properties": {
+    "ledger_id": {
+      "type": "string",
+      "description": "Unique identifier for this capacity ledger.",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "snapshot_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this ledger snapshot was taken."
+    },
+    "current_state": {
+      "type": "object",
+      "description": "Current capacity state summary.",
+      "additionalProperties": false,
+      "required": ["overall_state", "cluster_capacity", "program_capacity", "task_capacity"],
+      "properties": {
+        "overall_state": {
+          "$ref": "#/$defs/capacity_state"
+        },
+        "state_since": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cluster_capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "available_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "consumed_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "utilization_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "program_capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "available_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "consumed_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "utilization_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "task_capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "available_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "consumed_slots": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "utilization_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "pending_claims": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Claims awaiting capacity."
+        },
+        "active_deferrals": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Items currently deferred for capacity reasons."
+        },
+        "crisis_active": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "declarations": {
+      "type": "array",
+      "description": "Capacity declarations from all sources.",
+      "items": {
+        "$ref": "#/$defs/capacity_declaration"
+      }
+    },
+    "claims": {
+      "type": "array",
+      "description": "Capacity claims from execution plans.",
+      "items": {
+        "$ref": "#/$defs/capacity_claim"
+      }
+    },
+    "deferrals": {
+      "type": "array",
+      "description": "Deferred items due to capacity constraints.",
+      "items": {
+        "$ref": "#/$defs/deferral_record"
+      }
+    },
+    "violations": {
+      "type": "array",
+      "description": "Capacity-related violations detected by Knight-Witness.",
+      "items": {
+        "$ref": "#/$defs/capacity_violation"
+      }
+    },
+    "state_history": {
+      "type": "array",
+      "description": "History of capacity state transitions.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state_before": {
+            "$ref": "#/$defs/capacity_state"
+          },
+          "state_after": {
+            "$ref": "#/$defs/capacity_state"
+          },
+          "transitioned_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trigger": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Non-negotiable constraints on capacity governance.",
+      "additionalProperties": false,
+      "properties": {
+        "no_hidden_prioritization": {
+          "type": "boolean",
+          "const": true,
+          "description": "All sequencing must be recorded."
+        },
+        "no_optimization_for_fairness": {
+          "type": "boolean",
+          "const": true,
+          "description": "Fairness is a judgment; visibility is a fact."
+        },
+        "no_central_allocator": {
+          "type": "boolean",
+          "const": true,
+          "description": "No discretionary allocation authority."
+        },
+        "deferral_must_be_named": {
+          "type": "boolean",
+          "const": true,
+          "description": "Deferrals cannot be implied or forgotten."
+        },
+        "scarcity_must_be_visible": {
+          "type": "boolean",
+          "const": true,
+          "description": "To everyone, not just decision-makers."
+        },
+        "append_only": {
+          "type": "boolean",
+          "const": true,
+          "description": "Ledger entries cannot be modified."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "last_entry_at"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_entry_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "declaration_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claim_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deferral_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retention_period": {
+          "type": "string",
+          "const": "permanent"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "capacity_state": {
+      "type": "string",
+      "enum": ["abundant", "balanced", "constrained", "scarce", "crisis"],
+      "description": "Overall capacity state."
+    },
+    "capacity_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declaration_id", "declaration_type", "source_id", "declared_at"],
+      "properties": {
+        "declaration_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "declaration_type": {
+          "type": "string",
+          "enum": [
+            "cluster_capacity",
+            "duke_program_load",
+            "earl_task_saturation",
+            "president_plan_demand"
+          ]
+        },
+        "source_id": {
+          "type": "string",
+          "description": "Cluster ID, Duke ID, Earl ID, or President ID."
+        },
+        "source_name": {
+          "type": "string"
+        },
+        "declared_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "availability": {
+          "type": "string",
+          "enum": ["available", "limited", "unavailable", "saturated"]
+        },
+        "total_slots": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "available_slots": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "consumed_slots": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Restrictions on capacity usage."
+        },
+        "reason_for_limitation": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "attestation": {
+          "type": "boolean",
+          "description": "Source attests declaration is accurate."
+        },
+        "witnessed": {
+          "type": "boolean",
+          "description": "Knight-Witness has recorded this declaration."
+        }
+      }
+    },
+    "capacity_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "execution_plan_id", "claimed_at", "claimed_capacity", "status"],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "execution_plan_id": {
+          "type": "string"
+        },
+        "claimant_id": {
+          "type": "string",
+          "description": "President ID submitting the claim."
+        },
+        "claimed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "claimed_capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "clusters_required": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "cluster_capabilities_required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "program_slots_required": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "task_slots_required": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "estimated_duration": {
+              "type": "string",
+              "description": "ISO-8601 duration."
+            }
+          }
+        },
+        "risk_if_unavailable": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "priority_justification": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "alternatives_if_constrained": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "fulfilled", "partially_fulfilled", "deferred", "withdrawn"]
+        },
+        "resolution": {
+          "type": "object",
+          "properties": {
+            "resolved_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "resolution_type": {
+              "type": "string",
+              "enum": ["capacity_available", "partial_capacity", "deferred", "prioritized", "withdrawn"]
+            },
+            "capacity_allocated": {
+              "type": "object",
+              "properties": {
+                "clusters_allocated": {
+                  "type": "integer"
+                },
+                "program_slots_allocated": {
+                  "type": "integer"
+                },
+                "task_slots_allocated": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "deferral_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deferral_id",
+        "item_type",
+        "item_id",
+        "deferred_at",
+        "reason",
+        "deferral_count"
+      ],
+      "properties": {
+        "deferral_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "item_type": {
+          "type": "string",
+          "enum": ["execution_plan", "program", "task", "motion"]
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "item_title": {
+          "type": "string"
+        },
+        "deferred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "insufficient_cluster_capacity",
+            "insufficient_program_slots",
+            "insufficient_task_slots",
+            "capability_mismatch",
+            "competing_priority",
+            "capacity_crisis"
+          ]
+        },
+        "reason_detail": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["informational", "operational", "strategic", "critical"]
+        },
+        "deferred_by": {
+          "type": "string",
+          "description": "System or role that recorded the deferral."
+        },
+        "acknowledged_by": {
+          "type": "string",
+          "description": "Claimant who acknowledged the deferral."
+        },
+        "next_review_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deferral_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "How many times this item has been deferred."
+        },
+        "escalation_threshold": {
+          "type": "integer",
+          "const": 3,
+          "description": "Deferrals before forced agenda escalation."
+        },
+        "escalated": {
+          "type": "boolean",
+          "default": false
+        },
+        "resolved": {
+          "type": "boolean",
+          "default": false
+        },
+        "resolved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolution": {
+          "type": "string",
+          "enum": ["capacity_became_available", "priority_approved", "item_withdrawn", "item_modified"]
+        }
+      }
+    },
+    "capacity_violation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["violation_id", "violation_type", "detected_at", "description"],
+      "properties": {
+        "violation_id": {
+          "type": "string"
+        },
+        "violation_type": {
+          "type": "string",
+          "enum": [
+            "capacity_overclaim",
+            "silent_prioritization",
+            "deferral_concealment",
+            "optimistic_declaration",
+            "capacity_hoarding",
+            "work_without_capacity"
+          ]
+        },
+        "detected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "related_artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actors_involved": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "archon_id": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "witness_statement_id": {
+          "type": "string",
+          "description": "Knight-Witness statement reference."
+        },
+        "legitimacy_impact": {
+          "type": "string",
+          "enum": ["minor_decay", "major_decay"]
+        }
+      }
+    }
+  }
+}

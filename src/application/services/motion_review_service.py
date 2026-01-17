@@ -31,6 +31,7 @@ from src.application.ports.reviewer_agent import (
     ReviewDecision,
     ReviewerAgentProtocol,
 )
+from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.domain.models.review_pipeline import (
     AmendmentType,
     DeliberationPanel,
@@ -106,16 +107,27 @@ class MotionReviewService:
         self,
         verbose: bool = False,
         reviewer_agent: ReviewerAgentProtocol | None = None,
+        archon_repository: ArchonProfileRepository | None = None,
     ) -> None:
         """Initialize the service.
 
         Args:
             verbose: Enable verbose logging
             reviewer_agent: Optional LLM-powered reviewer agent for real reviews
+            archon_repository: Optional repository to load archon names from.
+                              If not provided, uses hardcoded ALL_ARCHON_NAMES.
         """
         self.verbose = verbose
-        self._all_archons = set(ALL_ARCHON_NAMES)
         self._reviewer_agent = reviewer_agent
+        self._archon_repository = archon_repository
+
+        # Load archon names from repository if provided, otherwise use hardcoded list
+        if archon_repository is not None:
+            self._all_archon_names = archon_repository.get_all_names()
+        else:
+            self._all_archon_names = list(ALL_ARCHON_NAMES)
+
+        self._all_archons = set(self._all_archon_names)
 
     # =========================================================================
     # Data Loading
@@ -343,11 +355,12 @@ class MotionReviewService:
         Returns:
             List of ReviewAssignment, one per Archon
         """
-        logger.info("packet_generation_start", archon_count=72)
+        archon_count = len(self._all_archon_names)
+        logger.info("packet_generation_start", archon_count=archon_count)
 
         assignments = []
 
-        for archon_name in ALL_ARCHON_NAMES:
+        for archon_name in self._all_archon_names:
             assigned_motions = []
             conflict_flags: dict[str, str] = {}
             already_endorsed = []
@@ -1016,7 +1029,7 @@ class MotionReviewService:
 
             # Select neutrals (from remaining Archons)
             used = set(supporters + critics)
-            available = [a for a in ALL_ARCHON_NAMES if a not in used]
+            available = [a for a in self._all_archon_names if a not in used]
             neutrals = available[:3]
 
             panel = DeliberationPanel(

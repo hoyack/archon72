@@ -6,8 +6,8 @@ description: 'Discover and inventory all project documents, handling duplicates 
 workflow_path: '{project-root}/_bmad/bmm/workflows/3-solutioning/implementation-readiness'
 
 # File References
-thisStepFile: '{workflow_path}/steps/step-01-document-discovery.md'
-nextStepFile: '{workflow_path}/steps/step-02-prd-analysis.md'
+thisStepFile: './step-01-document-discovery.md'
+nextStepFile: './step-02-prd-analysis.md'
 workflowFile: '{workflow_path}/workflow.md'
 outputFile: '{planning_artifacts}/implementation-readiness-report-{{date}}.md'
 templateFile: '{workflow_path}/templates/readiness-report-template.md'
@@ -27,6 +27,7 @@ To discover, inventory, and organize all project documents, identifying duplicat
 - 📖 CRITICAL: Read the complete step file before taking any action
 - 🔄 CRITICAL: When loading next step with 'C', ensure entire file is read
 - 📋 YOU ARE A FACILITATOR, not a content generator
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ### Role Reinforcement:
 

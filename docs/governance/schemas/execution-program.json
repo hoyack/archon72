@@ -1,0 +1,674 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/execution-program.v1.json",
+  "title": "Execution Program",
+  "description": "A bounded, stateful container for coordinated work. Turns Execution Plans into reality without altering intent, scope, or meaning. Owned by one Duke, coordinated through Earls.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "program_id",
+    "version",
+    "execution_plan_id",
+    "program_owner",
+    "assigned_earls",
+    "participating_clusters",
+    "tasks",
+    "capacity_state",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "program_id": {
+      "type": "string",
+      "description": "Unique identifier for this execution program (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "execution_plan_id": {
+      "type": "string",
+      "description": "Reference to the Execution Plan this program derives from."
+    },
+    "execution_plan_title": {
+      "type": "string",
+      "description": "Title of the source Execution Plan for reference."
+    },
+    "motion_id": {
+      "type": "string",
+      "description": "Reference to the original ratified motion."
+    },
+    "program_owner": {
+      "type": "object",
+      "description": "The Duke who owns this program. Ownership implies accountability for coordination.",
+      "additionalProperties": false,
+      "required": ["duke_id", "duke_name"],
+      "properties": {
+        "duke_id": {
+          "type": "string"
+        },
+        "duke_name": {
+          "$ref": "#/$defs/duke_name"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Administrative domain of the Duke."
+        }
+      }
+    },
+    "assigned_earls": {
+      "type": "array",
+      "description": "Earls assigned to activate tasks in this program.",
+      "items": {
+        "$ref": "#/$defs/earl_assignment"
+      }
+    },
+    "participating_clusters": {
+      "type": "array",
+      "description": "Clusters participating in execution.",
+      "items": {
+        "$ref": "#/$defs/cluster_participation"
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "description": "Tasks from the Execution Plan, with activation and completion status.",
+      "items": {
+        "$ref": "#/$defs/program_task"
+      }
+    },
+    "capacity_state": {
+      "type": "object",
+      "description": "Current capacity situation for this program.",
+      "additionalProperties": false,
+      "properties": {
+        "clusters_committed": {
+          "type": "integer",
+          "description": "Number of clusters that have accepted tasks.",
+          "minimum": 0
+        },
+        "clusters_declined": {
+          "type": "integer",
+          "description": "Number of clusters that have declined tasks.",
+          "minimum": 0
+        },
+        "clusters_pending": {
+          "type": "integer",
+          "description": "Number of clusters with pending activation requests.",
+          "minimum": 0
+        },
+        "saturation_percentage": {
+          "type": "integer",
+          "description": "Overall capacity utilization percentage.",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "bottleneck_areas": {
+          "type": "array",
+          "description": "Clusters or resources causing constraints.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deferral_risk": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high", "critical"],
+          "description": "Risk that program will be deferred due to capacity."
+        }
+      }
+    },
+    "capacity_events": {
+      "type": "array",
+      "description": "Record of capacity-related events.",
+      "items": {
+        "$ref": "#/$defs/capacity_event"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "description": "Conditions preventing execution. Critical blockers require escalation.",
+      "items": {
+        "$ref": "#/$defs/administrative_blocker"
+      }
+    },
+    "escalations": {
+      "type": "array",
+      "description": "Formal escalations raised by this program.",
+      "items": {
+        "$ref": "#/$defs/escalation"
+      }
+    },
+    "progress": {
+      "type": "object",
+      "description": "Execution progress metrics.",
+      "additionalProperties": false,
+      "properties": {
+        "tasks_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks_activated": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks_accepted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks_declined": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks_in_progress": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks_completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks_failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completion_percentage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "created",
+        "activating",
+        "executing",
+        "blocked",
+        "completed",
+        "halted",
+        "escalated",
+        "returned_to_planning"
+      ]
+    },
+    "halt_record": {
+      "type": "object",
+      "description": "Record if program was halted.",
+      "additionalProperties": false,
+      "properties": {
+        "halted": {
+          "type": "boolean"
+        },
+        "halted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "halt_reason": {
+          "type": "string",
+          "enum": [
+            "critical_blocker",
+            "safety_boundary_crossed",
+            "legitimacy_risk",
+            "constraint_violation",
+            "capacity_exhausted"
+          ]
+        },
+        "halt_description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "halted_by": {
+          "$ref": "#/$defs/duke_reference"
+        }
+      }
+    },
+    "completion": {
+      "type": "object",
+      "description": "Record of program completion.",
+      "additionalProperties": false,
+      "properties": {
+        "completed": {
+          "type": "boolean"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "tasks_completed": {
+          "type": "integer"
+        },
+        "tasks_failed": {
+          "type": "integer"
+        },
+        "tasks_declined": {
+          "type": "integer"
+        },
+        "success_criteria_addressed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "constraints_metadata": {
+      "type": "object",
+      "description": "Constitutional constraints on execution programs.",
+      "additionalProperties": false,
+      "properties": {
+        "may_not_modify_plan": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_invent_tasks": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_pressure_clusters": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_conceal_failure": {
+          "type": "boolean",
+          "const": true
+        },
+        "must_escalate_critical_blockers": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "duke_name": {
+      "type": "string",
+      "enum": [
+        "Agares",
+        "Valefor",
+        "Barbatos",
+        "Gusion",
+        "Eligos",
+        "Zepar",
+        "Bathin",
+        "Sallos",
+        "Aim",
+        "Buné",
+        "Berith",
+        "Astaroth",
+        "Focalor",
+        "Vepar",
+        "Vual",
+        "Crocell",
+        "Alloces",
+        "Murmur",
+        "Gremory",
+        "Vapula",
+        "Haures",
+        "Amdusias",
+        "Dantalion"
+      ],
+      "description": "The twenty-three Dukes."
+    },
+    "duke_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duke_id", "duke_name"],
+      "properties": {
+        "duke_id": {
+          "type": "string"
+        },
+        "duke_name": {
+          "$ref": "#/$defs/duke_name"
+        }
+      }
+    },
+    "earl_name": {
+      "type": "string",
+      "enum": [
+        "Bifrons",
+        "Andromalius",
+        "Furfur",
+        "Marchosias",
+        "Raum",
+        "Halphas"
+      ],
+      "description": "The six Earls."
+    },
+    "earl_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["earl_id", "earl_name"],
+      "properties": {
+        "earl_id": {
+          "type": "string"
+        },
+        "earl_name": {
+          "$ref": "#/$defs/earl_name"
+        }
+      }
+    },
+    "earl_assignment": {
+      "type": "object",
+      "description": "Earl assigned to tasks in this program.",
+      "additionalProperties": false,
+      "required": ["earl_id", "earl_name", "assigned_tasks"],
+      "properties": {
+        "earl_id": {
+          "type": "string"
+        },
+        "earl_name": {
+          "$ref": "#/$defs/earl_name"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Coordination domain of the Earl."
+        },
+        "assigned_tasks": {
+          "type": "array",
+          "description": "Task IDs assigned to this Earl.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assigned_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "cluster_participation": {
+      "type": "object",
+      "description": "Record of cluster participation in the program.",
+      "additionalProperties": false,
+      "required": ["cluster_id", "participation_status"],
+      "properties": {
+        "cluster_id": {
+          "type": "string"
+        },
+        "cluster_name": {
+          "type": "string"
+        },
+        "participation_status": {
+          "type": "string",
+          "enum": ["requested", "accepted", "declined", "in_progress", "completed", "failed"]
+        },
+        "tasks_assigned": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "capacity_committed": {
+          "type": "integer",
+          "description": "Capacity units committed by this cluster."
+        },
+        "accepted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "declined_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "decline_reason": {
+          "type": "string",
+          "description": "Reason for decline if applicable."
+        }
+      }
+    },
+    "program_task": {
+      "type": "object",
+      "description": "A task within the program, tracking activation and completion.",
+      "additionalProperties": false,
+      "required": ["task_id", "description", "status"],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "source_plan_task_id": {
+          "type": "string",
+          "description": "Reference to original task in Execution Plan."
+        },
+        "assigned_earl": {
+          "$ref": "#/$defs/earl_reference"
+        },
+        "target_cluster": {
+          "type": "object",
+          "properties": {
+            "cluster_id": { "type": "string" },
+            "cluster_name": { "type": "string" }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "activated",
+            "accepted",
+            "declined",
+            "in_progress",
+            "reported",
+            "completed",
+            "failed",
+            "quarantined"
+          ]
+        },
+        "activation_request_id": {
+          "type": "string",
+          "description": "Reference to Task Activation Request."
+        },
+        "result_artifact_id": {
+          "type": "string",
+          "description": "Reference to Task Result Artifact."
+        },
+        "activated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "capacity_event": {
+      "type": "object",
+      "description": "A capacity-related event in the program.",
+      "additionalProperties": false,
+      "required": ["event_id", "event_type", "recorded_at"],
+      "properties": {
+        "event_id": {
+          "type": "string"
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "cluster_accepted",
+            "cluster_declined",
+            "cluster_delayed",
+            "capacity_exhausted",
+            "capacity_freed",
+            "deferral_triggered"
+          ]
+        },
+        "cluster_id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "administrative_blocker": {
+      "type": "object",
+      "description": "A condition preventing execution in the administrative branch.",
+      "additionalProperties": false,
+      "required": ["blocker_id", "blocker_type", "description", "severity", "raised_by", "raised_at"],
+      "properties": {
+        "blocker_id": {
+          "type": "string"
+        },
+        "blocker_type": {
+          "type": "string",
+          "enum": [
+            "cluster_refusal",
+            "capacity_insufficient",
+            "constraint_violation",
+            "authority_missing",
+            "task_conflict",
+            "safety_boundary"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "major", "minor"]
+        },
+        "raised_by": {
+          "$ref": "#/$defs/duke_reference"
+        },
+        "raised_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "escalated": {
+          "type": "boolean"
+        },
+        "escalated_to": {
+          "type": "string",
+          "enum": ["conclave", "executive", "judicial"]
+        },
+        "escalated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolution": {
+          "type": "object",
+          "properties": {
+            "resolved": { "type": "boolean" },
+            "resolved_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "resolution_method": {
+              "type": "string",
+              "enum": [
+                "capacity_obtained",
+                "task_reassigned",
+                "constraint_clarified",
+                "program_modified",
+                "program_halted",
+                "returned_to_planning"
+              ]
+            },
+            "resolution_notes": { "type": "string" }
+          }
+        }
+      }
+    },
+    "escalation": {
+      "type": "object",
+      "description": "A formal escalation from the program.",
+      "additionalProperties": false,
+      "required": ["escalation_id", "escalation_type", "escalated_to", "raised_at"],
+      "properties": {
+        "escalation_id": {
+          "type": "string"
+        },
+        "escalation_type": {
+          "type": "string",
+          "enum": [
+            "critical_blocker",
+            "capacity_exhausted",
+            "constraint_conflict",
+            "legitimacy_concern",
+            "safety_boundary"
+          ]
+        },
+        "escalated_to": {
+          "type": "string",
+          "enum": ["conclave", "executive", "judicial"]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "blocker_ids": {
+          "type": "array",
+          "description": "Related blocker IDs.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "raised_by": {
+          "$ref": "#/$defs/duke_reference"
+        },
+        "raised_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "received": { "type": "boolean" },
+            "received_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "decision": {
+              "type": "string",
+              "enum": [
+                "proceed",
+                "modify_plan",
+                "halt_program",
+                "return_to_planning",
+                "defer"
+              ]
+            },
+            "decision_rationale": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

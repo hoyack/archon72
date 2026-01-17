@@ -1,0 +1,334 @@
+# Workflow Status - Archon 72 Conclave Backend
+# BMad Method - Greenfield Track
+
+# This tracks progress through BMM methodology phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS VALUES:
+#   Initial: required | optional | recommended | conditional
+#   Complete: {file-path} | skipped
+
+generated: "2024-12-27"
+project: "Archon 72 Conclave Backend"
+project_type: "backend-api"
+selected_track: "method"
+field_type: "greenfield"
+
+user_description: |
+  Autonomous AI governance system for Archon 72 platform. 72 AI entities (Archons)
+  deliberate and govern through parliamentary procedure. FastAPI + CrewAI + Supabase.
+  Features: Meeting engine, voting system, committees, ceremonies, elections.
+
+workflow_path: "method-greenfield.yaml"
+
+# Existing artifacts discovered during init
+existing_artifacts:
+  - path: "docs/prd.md"
+    type: "prd"
+    note: "Full Archon 72 platform PRD (2200+ lines)"
+  - path: "docs/conclave-prd.md"
+    type: "prd"
+    note: "Detailed Conclave Backend specifications (2400+ lines)"
+  - path: "docs/principles.md"
+    type: "ux-spec"
+    note: "Principles page specification - Covenant, Five Pillars, Alignment Check (970 lines)"
+
+workflow_status:
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 0: DISCOVERY (Optional - User Selected)
+  # ═══════════════════════════════════════════════════════════════
+  phase_0_discovery:
+    - id: brainstorm
+      name: "Brainstorming Session"
+      status: "_bmad-output/analysis/brainstorming-session-2024-12-27.md"
+      agent: analyst
+      command: "/bmad:core:workflows:brainstorming"
+      note: "COMPLETE: Gap analysis, 37 failure modes, 19 mitigations, 6 key decisions"
+
+    - id: research
+      name: "Research"
+      status: "_bmad-output/planning-artifacts/research/domain-ai-governance-systems-research-2024-12-27.md"
+      agent: analyst
+      command: "/bmad:bmm:workflows:research"
+      note: "COMPLETE: AI Governance Systems domain research - precedents, theory, regulatory, trends"
+
+    - id: product-brief
+      name: "Product Brief"
+      status: "_bmad-output/planning-artifacts/product-brief-archon72-2025-12-27.md"
+      agent: analyst
+      command: "/bmad:bmm:workflows:create-product-brief"
+      note: "COMPLETE: 7 elicitation methods, Final Axiom, Seven Horsemen, Constitutional Triggers, CBRT methodology"
+      completed: "2025-12-27"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 1: PLANNING
+  # ═══════════════════════════════════════════════════════════════
+  phase_1_planning:
+    - id: prd
+      name: "Product Requirements Document"
+      status: "docs/prd.md + docs/conclave-prd.md"
+      agent: pm
+      command: "/bmad:bmm:workflows:create-prd"
+      note: "PRE-EXISTING: Comprehensive PRD documentation already available"
+
+    - id: ux-design
+      name: "UX Design"
+      status: skipped
+      condition: "if_has_ui"
+      agent: ux-designer
+      command: "/bmad:bmm:workflows:create-ux-design"
+      note: "Backend-only project - skipped"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 2: SOLUTIONING
+  # ═══════════════════════════════════════════════════════════════
+  phase_2_solutioning:
+    - id: architecture
+      name: "System Architecture"
+      status: "_bmad-output/planning-artifacts/architecture.md"
+      agent: architect
+      command: "/bmad:bmm:workflows:create-architecture"
+      note: "COMPLETE: 8-step architecture, 5 ADRs, hybrid event sourcing, MeetingCoordinator design"
+
+    - id: epics-and-stories
+      name: "Epics & Stories"
+      status: "_bmad-output/planning-artifacts/epics.md"
+      agent: pm
+      command: "/bmad:bmm:workflows:create-epics-and-stories"
+      note: "COMPLETE: 11 epics, 83 stories with full acceptance criteria and 5 ritual coverage"
+      completed: "2025-12-28"
+
+    - id: test-design
+      name: "Test Design"
+      status: "_bmad-output/test-design-epic-1.md"
+      agent: tea
+      command: "/bmad:bmm:workflows:testarch-test-design"
+      note: "COMPLETE: Epic-level test design for Epic 1 - 12 risks, 61 scenarios, 5 high-priority mitigated"
+      completed: "2026-01-06"
+
+    - id: implementation-readiness
+      name: "Implementation Readiness Check"
+      status: "_bmad-output/planning-artifacts/implementation-readiness-report-2025-12-28.md"
+      agent: architect
+      command: "/bmad:bmm:workflows:check-implementation-readiness"
+      note: "COMPLETE: All checks passed - READY FOR IMPLEMENTATION"
+      completed: "2025-12-28"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 3: IMPLEMENTATION
+  # ═══════════════════════════════════════════════════════════════
+  phase_3_implementation:
+    - id: sprint-planning
+      name: "Sprint Planning"
+      status: "_bmad-output/implementation-artifacts/sprint-status.yaml"
+      agent: sm
+      command: "/bmad:bmm:workflows:sprint-planning"
+      note: "ACTIVE: Epics 0-9 done. Epic 10 (CrewAI Integration) in-progress - Story 10-1 done, 10-2 ready-for-dev"
+      completed: "2026-01-06"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CURRENT WORK IN PROGRESS (2026-01-15)
+# ═══════════════════════════════════════════════════════════════════════════════
+current_work:
+  epic: "Phase 3 Government Epics: Administrative, Advisory, Flow Control"
+  status: in-progress
+
+  completed_this_session:
+    # Gov Epic 4: Duke/Earl Services
+    - id: "gov-4-1-duke-service-port"
+      status: done
+      summary: "Duke service port and adapter for execution planning"
+      files_created:
+        - src/application/ports/duke_service.py
+        - src/infrastructure/adapters/government/duke_service_adapter.py
+        - tests/unit/application/ports/test_duke_service.py
+      tests: "35 unit tests passing"
+
+    - id: "gov-4-2-earl-service-port"
+      status: done
+      summary: "Earl service port and adapter for resource management"
+      files_created:
+        - src/application/ports/earl_service.py
+        - src/infrastructure/adapters/government/earl_service_adapter.py
+        - tests/unit/application/ports/test_earl_service.py
+      tests: "29 unit tests passing"
+
+    # Gov Epic 6: Marquis Advisory Service
+    - id: "gov-6-1-marquis-service-port"
+      status: done
+      summary: "Marquis service port and adapter for advisory opinions"
+      files_created:
+        - src/application/ports/marquis_service.py
+        - src/infrastructure/adapters/government/marquis_service_adapter.py
+        - tests/unit/application/ports/test_marquis_service.py
+      tests: "21 unit tests passing"
+
+    # Gov Epic 8: Flow Orchestrator
+    - id: "gov-8-1-governance-state-machine"
+      status: done
+      summary: "Governance state machine for motion lifecycle"
+      files_created:
+        - src/application/ports/governance_state_machine.py
+        - src/infrastructure/adapters/government/governance_state_machine_adapter.py
+        - tests/unit/application/ports/test_governance_state_machine.py
+      tests: "42 unit tests passing"
+
+    - id: "gov-8-2-flow-orchestrator"
+      status: done
+      summary: "Flow orchestrator coordinating 7-step governance pipeline"
+      files_created:
+        - src/application/ports/flow_orchestrator.py
+        - src/application/services/flow_orchestrator_service.py
+        - tests/unit/application/ports/test_flow_orchestrator.py
+        - tests/unit/application/services/test_flow_orchestrator_service.py
+      tests: "129 unit tests passing (87 port + 42 service)"
+      key_features:
+        - "7-step canonical flow: King→Conclave→President→Duke/Earl→Prince→Knight→Conclave"
+        - "STATE_SERVICE_MAP routing configuration"
+        - "Error escalation strategies (RETURN_TO_PREVIOUS, CONCLAVE_REVIEW, HALT_AND_ALERT, RETRY)"
+        - "Pipeline status tracking with 24h statistics"
+        - "Knight witness integration per CT-12"
+
+    - id: "gov-8-3-skip-prevention"
+      status: done
+      summary: "Skip prevention enforcement per FR-GOV-23"
+      files_created:
+        - tests/unit/infrastructure/adapters/government/test_skip_prevention.py
+      files_modified:
+        - src/application/ports/governance_state_machine.py
+        - src/infrastructure/adapters/government/governance_state_machine_adapter.py
+      tests: "40 unit tests passing"
+      key_features:
+        - "SkipAttemptViolation domain model with CRITICAL severity"
+        - "SkipAttemptType enum (SIMPLE_SKIP, FORCE_SKIP, BULK_SKIP)"
+        - "Force skip prevention with Conclave escalation (AC4)"
+        - "validate_transition() for API-level enforcement (AC5)"
+        - "Full audit trail via get_skip_attempts() (AC6)"
+        - "ForceSkipAttemptError for privileged skip attempts"
+
+    - id: "gov-8-4-role-collapse-prevention"
+      status: done
+      summary: "Role collapse prevention per FR-GOV-23 and PRD §2.1"
+      files_created:
+        - src/application/ports/branch_action_tracker.py
+        - src/application/services/role_collapse_detection_service.py
+        - src/infrastructure/adapters/government/branch_action_tracker_adapter.py
+        - tests/unit/application/services/test_role_collapse_detection.py
+      files_modified:
+        - src/application/ports/permission_enforcer.py
+        - src/application/services/flow_orchestrator_service.py
+      tests: "47 unit tests passing"
+      key_features:
+        - "BranchAction domain model for action tracking"
+        - "BranchConflictRule with CRITICAL/MAJOR severity"
+        - "Role collapse detection per PRD §2.1: No entity may define intent, execute it, AND judge it"
+        - "Pre-routing collapse check in Flow Orchestrator"
+        - "Knight witness integration for violations"
+        - "Conflict rules: legislative↔executive, executive↔judicial, advisory↔judicial"
+
+    - id: "gov-4-3-failure-signal-propagation"
+      status: done
+      summary: "Failure signal propagation per FR-GOV-13 - no suppression of failures"
+      files_created:
+        - src/application/ports/failure_propagation.py
+        - src/application/services/suppression_detection_service.py
+        - src/infrastructure/adapters/government/failure_propagation_adapter.py
+        - tests/unit/application/services/test_failure_propagation.py
+        - tests/integration/test_failure_propagation_integration.py
+      tests: "57 tests passing (45 unit + 12 integration)"
+      key_features:
+        - "FailureSignal domain model with 6 failure types and 4 severity levels"
+        - "SuppressionViolation model for detecting suppression attempts"
+        - "SuppressionDetectionService with timeout monitoring"
+        - "FailurePropagationAdapter with Knight witnessing per CT-12"
+        - "Prince notification with full context (task spec, timeline, evidence)"
+        - "Anti-suppression enforcement per FR-GOV-13"
+
+    - id: "gov-6-2-advisory-acknowledgment-tracking"
+      status: done
+      summary: "Advisory acknowledgment tracking per FR-GOV-18 - acknowledged but not obeyed"
+      files_created:
+        - src/application/ports/advisory_acknowledgment.py
+        - src/application/services/advisory_acknowledgment_service.py
+        - tests/unit/application/services/test_advisory_acknowledgment.py
+      tests: "41 unit tests passing"
+      key_features:
+        - "AdvisoryAcknowledgment domain model with approved=False always"
+        - "ContraryDecision domain model with reasoning documentation"
+        - "AdvisoryWindow domain model for Marquis-Judge conflict prevention"
+        - "Deadline enforcement with escalation pattern (default 48h)"
+        - "Topic overlap detection for advisory window conflicts"
+        - "Knight witnessing for all operations per CT-12"
+
+    - id: "gov-6-3-advisory-conflict-prevention"
+      status: done
+      summary: "Advisory conflict prevention per FR-GOV-18 - Marquis cannot judge advised topics"
+      files_created:
+        - src/application/services/advisory_conflict_detection_service.py
+        - tests/unit/application/services/test_advisory_conflict_detection.py
+      tests: "40 unit tests passing"
+      key_features:
+        - "TopicOverlap model with configurable threshold (default 0.6)"
+        - "AdvisoryConflict model with resolution tracking"
+        - "AdvisoryConflictViolation model with MAJOR severity"
+        - "Prince panel exclusion for conflicted Marquis"
+        - "Escalation to Conclave when all Princes conflicted"
+        - "Full conflict audit trail per AC6"
+        - "Knight witnessing for all conflicts per CT-12"
+
+    # Consent Gov Epic 1: Event Sourcing Foundation
+    - id: "consent-gov-1-6-two-phase-event-emission"
+      status: done
+      summary: "Two-phase event emission for Knight observability (intent → commit/failure)"
+      files_created:
+        - src/domain/governance/events/two_phase_events.py
+        - src/application/ports/governance/two_phase_emitter_port.py
+        - src/application/services/governance/two_phase_event_emitter.py
+        - src/application/services/governance/orphan_intent_detector.py
+        - src/application/services/governance/two_phase_gap_detector.py
+        - src/application/services/governance/two_phase_execution.py
+        - tests/unit/domain/governance/events/test_two_phase_events.py
+        - tests/unit/application/services/governance/test_two_phase_event_emitter.py
+        - tests/unit/application/services/governance/test_orphan_intent_detector.py
+        - tests/unit/application/services/governance/test_two_phase_gap_detector.py
+        - tests/unit/application/services/governance/test_two_phase_execution.py
+        - tests/integration/governance/test_two_phase_lifecycle.py
+      tests: "107 tests passing (95 unit + 12 integration)"
+      key_features:
+        - "IntentEmittedEvent, CommitConfirmedEvent, FailureRecordedEvent domain models"
+        - "TwoPhaseEventEmitter service with in-memory pending intent tracking"
+        - "OrphanIntentDetector for auto-resolution of orphaned intents"
+        - "TwoPhaseGapDetector for ledger-based gap detection"
+        - "TwoPhaseExecution async context manager for automatic intent/outcome"
+        - "28 new event types for two-phase emission across all branches"
+        - "Configurable orphan timeout (default 5 minutes)"
+        - "Knight observability - intent visible immediately upon action initiation"
+
+    # Consent-Gov Epic 1: Event Sourcing Foundation (continued)
+    - id: "consent-gov-1-7-merkle-tree-proof-of-inclusion"
+      status: done
+      summary: "Merkle tree proof-of-inclusion for governance event ledger"
+      files_created:
+        - src/domain/governance/events/merkle_tree.py
+        - src/application/ports/governance/merkle_tree_port.py
+        - src/application/services/governance/epoch_manager.py
+        - src/infrastructure/adapters/governance/merkle_tree_adapter.py
+        - migrations/011_create_merkle_epochs_table.sql
+        - tests/unit/domain/governance/events/test_merkle_tree.py
+        - tests/unit/application/services/governance/test_epoch_manager.py
+        - tests/integration/governance/test_merkle_proofs.py
+      tests: "90 tests passing (44 unit + 27 epoch manager + 19 integration)"
+      key_features:
+        - "MerkleTree class with configurable hash algorithm (BLAKE3/SHA-256)"
+        - "MerkleProof frozen dataclass with event_id, event_hash, merkle_path, merkle_root, epoch, leaf_index"
+        - "verify_merkle_proof() standalone function - no database access required"
+        - "EpochManagerService for epoch lifecycle management"
+        - "PostgresMerkleTreeAdapter for proof persistence"
+        - "Order-dependent internal hashes for security (wrong leaf_index fails verification)"
+        - "AD-7, NFR-CONST-02, NFR-AUDIT-06, FR57 compliance"
+
+  ready_for_dev: []  # Consent-Gov Epic 1 complete!
+
+  next_story: null  # Select next story from remaining Consent-Gov Epics
+
+  backlog: []  # 35 remaining Consent-Gov stories (Epics 2-10)

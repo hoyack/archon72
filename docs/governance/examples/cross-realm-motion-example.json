@@ -1,0 +1,124 @@
+{
+  "motion_id": "motion-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "version": "1.0.0",
+  "title": "Ethical Guidelines for Predictive Risk Assessments",
+  "motion_type": "ethical",
+  "realm_assignment": {
+    "primary_realm": "prediction_uncertainty",
+    "primary_sponsor": {
+      "king_id": "king-purson",
+      "king_name": "Purson"
+    },
+    "cross_realm": true,
+    "co_sponsors": [
+      {
+        "realm": "virtue_method",
+        "sponsor": {
+          "king_id": "king-asmoday",
+          "king_name": "Asmoday"
+        },
+        "domain_constraints": [
+          "Predictions must not be used as sole basis for consequential decisions affecting individuals",
+          "Uncertainty must be communicated alongside any prediction",
+          "The system must not claim predictive accuracy it cannot demonstrate"
+        ]
+      },
+      {
+        "realm": "truth_claims_counsel",
+        "sponsor": {
+          "king_id": "king-balam",
+          "king_name": "Balam"
+        },
+        "domain_constraints": [
+          "Predictions must be distinguishable from assertions of fact",
+          "Confidence intervals must accompany all predictions",
+          "The basis for predictions must be explicable upon request"
+        ]
+      }
+    ]
+  },
+  "normative_intent": "The system shall establish boundaries for predictive risk assessments that prevent overconfidence, preserve human agency in decision-making, and maintain epistemic honesty about the limits of forecasting. Predictions are tools for deliberation, not substitutes for judgment.",
+  "constraints": [
+    "Predictions must never be presented as certainties",
+    "No prediction shall be used as automatic justification for irreversible action",
+    "Individuals affected by predictions must have a path to contest or request explanation",
+    "Predictive models must not encode prohibited discrimination",
+    "The system must not suppress uncertainty to appear more confident",
+    "Predictions must be revisable as new information emerges"
+  ],
+  "success_criteria": [
+    "All predictive outputs include explicit uncertainty quantification",
+    "No consequential automated decision relies solely on prediction without human review",
+    "Explanation pathway exists and is documented for all predictive systems",
+    "Audit trail shows predictions were presented with appropriate caveats",
+    "Feedback loop exists to compare predictions against outcomes"
+  ],
+  "what_this_motion_does_not_cover": [
+    "Specific predictive algorithms or models (HOW)",
+    "Technical implementation of uncertainty quantification",
+    "Definition of 'consequential decision' (left to Executive interpretation)",
+    "Timeline for compliance",
+    "Remediation process for existing predictive systems"
+  ],
+  "advisory_required": true,
+  "advisory_window": {
+    "duration": "PT48H",
+    "opens_at": "2026-01-18T10:00:00Z",
+    "closes_at": "2026-01-20T10:00:00Z",
+    "advisory_received": [
+      {
+        "marquis_id": "marquis-orobas",
+        "advisory_id": "advisory-orobas-prediction-ethics-001",
+        "received_at": "2026-01-19T14:00:00Z"
+      },
+      {
+        "marquis_id": "marquis-seere",
+        "advisory_id": "advisory-seere-prediction-ethics-001",
+        "received_at": "2026-01-19T16:00:00Z"
+      }
+    ],
+    "acknowledgment": {
+      "acknowledged": true,
+      "acknowledged_at": "2026-01-20T08:00:00Z",
+      "response": "partially_accepted",
+      "rationale": "Advisory from Marquis Orobas regarding explicit confidence thresholds accepted and integrated into success criteria. Advisory from Marquis Seere regarding mandatory human review for all predictions rejected as overly broad - constraint modified to apply only to 'consequential decisions' to preserve operational flexibility while maintaining the core ethical requirement."
+    }
+  },
+  "submitted_at": "2026-01-17T14:00:00Z",
+  "status": "pending_deliberation",
+  "admission": {
+    "admitted": true,
+    "reviewed_at": "2026-01-17T15:00:00Z",
+    "validation_checks": {
+      "realm_valid": true,
+      "how_free": true,
+      "cross_realm_sponsors_complete": true,
+      "not_duplicate": true
+    }
+  },
+  "deliberation": {
+    "scheduled_for_conclave": "conclave-2026-01-27",
+    "agenda_band": 3,
+    "deferral_count": 0,
+    "deliberation_summary": null
+  },
+  "voting": null,
+  "ratification": null,
+  "lineage": {
+    "predecessor_motion_id": null,
+    "material_changes_from_predecessor": [],
+    "resubmission_count": 0
+  },
+  "constraints_metadata": {
+    "must_be_realm_valid": true,
+    "must_be_how_free": true,
+    "must_be_explicitly_scoped": true,
+    "king_authority_ends_at_ratification": true,
+    "no_special_voting_weight": true
+  },
+  "audit": {
+    "created_at": "2026-01-17T14:00:00Z",
+    "updated_at": "2026-01-20T08:00:00Z",
+    "trace_id": "trace-motion-prediction-ethics-001"
+  }
+}

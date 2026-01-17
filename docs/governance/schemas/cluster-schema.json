@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/aegis_cluster.v1.json",
+  "title": "Aegis Cluster",
+  "description": "Human-in-the-loop execution unit for Archon 72. Clusters accept work voluntarily via a human steward. Earls may request activation; clusters may accept, decline, or request clarification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "cluster_id",
+    "version",
+    "status",
+    "steward",
+    "capabilities",
+    "capacity",
+    "consent_policy",
+    "audit"
+  ],
+  "properties": {
+    "cluster_id": {
+      "type": "string",
+      "description": "Stable identifier for the cluster. UUID preferred.",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable cluster name.",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "paused", "retired"]
+    },
+    "steward": {
+      "type": "object",
+      "description": "Human accountable operator for the cluster. This is the point of responsibility.",
+      "additionalProperties": false,
+      "required": ["steward_id", "display_name", "contact", "auth_level"],
+      "properties": {
+        "steward_id": {
+          "type": "string",
+          "description": "Stable identifier for the steward (UUID recommended).",
+          "minLength": 8,
+          "maxLength": 80
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["channel", "address"],
+          "properties": {
+            "channel": {
+              "type": "string",
+              "enum": ["email", "slack", "discord", "signal", "other"]
+            },
+            "address": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 200
+            }
+          }
+        },
+        "auth_level": {
+          "type": "string",
+          "description": "Controls what kinds of tasks this steward is allowed to accept.",
+          "enum": ["standard", "sensitive", "restricted"]
+        }
+      }
+    },
+    "members": {
+      "type": "object",
+      "description": "Cluster size is tracked in aggregate for privacy; optional member roster references allowed.",
+      "additionalProperties": false,
+      "required": ["member_count"],
+      "properties": {
+        "member_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "roster_ref": {
+          "type": "string",
+          "description": "Optional reference to an external roster system (NOT stored inline).",
+          "maxLength": 300
+        }
+      },
+      "default": {
+        "member_count": 1
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "What the cluster can do, declared and auditable.",
+      "additionalProperties": false,
+      "required": ["tags"],
+      "properties": {
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "research",
+              "analysis",
+              "writing",
+              "review",
+              "design",
+              "dev_backend",
+              "dev_frontend",
+              "devops",
+              "security",
+              "data_engineering",
+              "qa_testing",
+              "product_ops",
+              "community_ops",
+              "incident_response",
+              "compliance_ops",
+              "other"
+            ]
+          }
+        },
+        "tooling": {
+          "type": "array",
+          "description": "Tools the cluster can use (informational; not a permission).",
+          "items": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "default": []
+        },
+        "domain_focus": {
+          "type": "array",
+          "description": "Optional domain focus areas (e.g., healthcare, fintech).",
+          "items": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "default": []
+        }
+      }
+    },
+    "capacity": {
+      "type": "object",
+      "description": "How much work the cluster can accept without lying.",
+      "additionalProperties": false,
+      "required": ["availability_status", "max_concurrent_tasks", "max_weekly_task_load"],
+      "properties": {
+        "availability_status": {
+          "type": "string",
+          "enum": ["available", "limited", "unavailable"]
+        },
+        "max_concurrent_tasks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "max_weekly_task_load": {
+          "type": "integer",
+          "description": "Rough cap on weekly task acceptances to prevent overload.",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone identifier.",
+          "maxLength": 60
+        },
+        "hours_of_operation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start_local", "end_local"],
+          "properties": {
+            "start_local": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "end_local": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+            }
+          }
+        }
+      }
+    },
+    "consent_policy": {
+      "type": "object",
+      "description": "Explicit consent and refusal rules. This is what prevents coercion.",
+      "additionalProperties": false,
+      "required": [
+        "requires_explicit_acceptance",
+        "refusal_is_penalty_free",
+        "acceptance_method",
+        "task_types_allowed"
+      ],
+      "properties": {
+        "requires_explicit_acceptance": {
+          "type": "boolean",
+          "const": true
+        },
+        "refusal_is_penalty_free": {
+          "type": "boolean",
+          "const": true
+        },
+        "acceptance_method": {
+          "type": "string",
+          "enum": ["steward_accepts", "member_vote", "hybrid"]
+        },
+        "task_types_allowed": {
+          "type": "array",
+          "description": "Controls what kinds of tasks can be accepted.",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "research_summary",
+              "implementation_work",
+              "security_review",
+              "incident_support",
+              "content_creation",
+              "testing_validation",
+              "ops_runbook",
+              "governance_support",
+              "other"
+            ]
+          }
+        },
+        "sensitive_task_gate": {
+          "type": "object",
+          "description": "Extra friction for sensitive tasks.",
+          "additionalProperties": false,
+          "required": ["enabled", "requires_steward_auth_level"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "requires_steward_auth_level": {
+              "type": "string",
+              "enum": ["sensitive", "restricted"]
+            }
+          },
+          "default": {
+            "enabled": true,
+            "requires_steward_auth_level": "sensitive"
+          }
+        }
+      }
+    },
+    "interfaces": {
+      "type": "object",
+      "description": "How tasks are received and how results are returned.",
+      "additionalProperties": false,
+      "required": ["intake_channels", "delivery_channels"],
+      "properties": {
+        "intake_channels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["web_portal", "email", "slack", "discord", "api", "other"]
+          }
+        },
+        "delivery_channels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["web_portal", "email", "slack", "discord", "api", "other"]
+          }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "description": "Auditability requirements for the cluster.",
+      "additionalProperties": false,
+      "required": ["created_at", "updated_at", "audit_level", "event_log_enabled"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "audit_level": {
+          "type": "string",
+          "enum": ["minimal", "standard", "strict"]
+        },
+        "event_log_enabled": {
+          "type": "boolean",
+          "const": true
+        },
+        "data_retention_days": {
+          "type": "integer",
+          "minimum": 7,
+          "maximum": 3650,
+          "default": 365
+        }
+      }
+    }
+  }
+}

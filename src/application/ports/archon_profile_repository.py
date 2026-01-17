@@ -102,6 +102,48 @@ class ArchonProfileRepository(ABC):
         ...
 
     @abstractmethod
+    def get_by_branch(self, branch: str) -> list[ArchonProfile]:
+        """Retrieve all Archons in a specific governance branch.
+
+        Branches per Government PRD:
+        - legislative: Kings (introduce motions, define WHAT)
+        - executive: Presidents (translate WHAT to HOW)
+        - administrative: Dukes/Earls (execute tasks)
+        - judicial: Princes (evaluate compliance)
+        - advisory: Marquis (expert testimony)
+        - witness: Knight/Furcas (observe and record)
+
+        Args:
+            branch: The governance branch to filter by
+
+        Returns:
+            List of ArchonProfile instances in the specified branch
+        """
+        ...
+
+    @abstractmethod
+    def get_witness(self) -> ArchonProfile | None:
+        """Retrieve the Knight-Witness (Furcas).
+
+        Per Government PRD §5, the Knight-Witness is the singular
+        observer who exists outside all branches of governance.
+
+        Returns:
+            The ArchonProfile for Furcas if found, None otherwise
+        """
+        ...
+
+    @abstractmethod
+    def get_all_names(self) -> list[str]:
+        """Retrieve all Archon names in canonical order.
+
+        Returns:
+            List of archon names sorted by rank_level (highest first)
+            then alphabetically
+        """
+        ...
+
+    @abstractmethod
     def count(self) -> int:
         """Return the total number of Archon profiles.
 

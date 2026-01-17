@@ -1,0 +1,105 @@
+{
+  "request_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "task_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "version": "1.0.0",
+  "issued_at": "2026-01-16T14:00:00Z",
+  "issued_by": {
+    "archon_id": "earl-raum",
+    "archon_name": "Raum",
+    "rank": "Earl"
+  },
+  "authorization_chain": {
+    "president_archon_id": "president-marbas",
+    "duke_archon_id": "duke-valefor",
+    "program_id": "program-threat-analysis-2026",
+    "plan_id": "plan-q1-security-review"
+  },
+  "task_summary": "Provision research inputs for threat anomaly review",
+  "human_readable_summary": "We need research on recent threat intelligence reports to identify patterns that might affect our security posture. This involves reviewing public threat feeds, summarizing key findings, and noting any anomalies that stand out from the baseline.\n\nExpected output is a 2-3 page summary document covering:\n- Sources reviewed (minimum 5)\n- Key threat patterns identified\n- Anomalies or emerging concerns\n- Relevance assessment for our context\n\nNo access to internal systems required - please use public sources only from the approved list.",
+  "constraints": [
+    {
+      "constraint_type": "data_handling",
+      "description": "No personal data exposure - anonymize all examples and references",
+      "severity": "must"
+    },
+    {
+      "constraint_type": "source_restriction",
+      "description": "Use approved public sources only - see resources section for approved list",
+      "severity": "must"
+    },
+    {
+      "constraint_type": "output_format",
+      "description": "Deliver as Markdown document with clear section headings",
+      "severity": "should"
+    },
+    {
+      "constraint_type": "time_boundary",
+      "description": "Focus on threat intelligence from the past 30 days only",
+      "severity": "must"
+    }
+  ],
+  "success_definition": {
+    "criteria": "Research summary delivered covering at least 5 threat intelligence sources from the past 30 days, with clear categorization of threat types and relevance assessment for the organization's security context.",
+    "deliverables": [
+      {
+        "name": "threat-intel-summary.md",
+        "format": "document",
+        "optional": false
+      },
+      {
+        "name": "source-list.csv",
+        "format": "data",
+        "optional": true
+      }
+    ],
+    "acceptance_tests": [
+      "Summary covers at least 5 distinct sources",
+      "Each source dated within the last 30 days",
+      "Threat types are clearly categorized",
+      "Relevance assessment included with rationale",
+      "No personal data or internal references included"
+    ]
+  },
+  "required_capabilities": ["research", "analysis"],
+  "task_type": "research_summary",
+  "sensitivity_level": "standard",
+  "response_policy": {
+    "response_expected_within": "PT4H",
+    "deadline": "2026-01-20T17:00:00Z",
+    "backoff_policy": {
+      "initial_wait": "PT4H",
+      "max_attempts": 3,
+      "escalate_after": "PT24H",
+      "respect_hours_of_operation": true
+    }
+  },
+  "context": {
+    "background": "This research supports the Q1 security posture review initiative. The Duke is synthesizing inputs from multiple clusters to build a comprehensive threat landscape. Your research will be combined with internal monitoring data and other cluster contributions.",
+    "related_tasks": [
+      "task-internal-monitoring-synthesis",
+      "task-vendor-security-review"
+    ],
+    "resources": [
+      {
+        "name": "Approved Threat Intelligence Sources",
+        "uri": "https://internal.example.com/docs/approved-sources",
+        "description": "Pre-approved list of public threat intelligence sources"
+      },
+      {
+        "name": "Report Template",
+        "uri": "https://internal.example.com/templates/threat-intel-template.md",
+        "description": "Optional template for the summary document"
+      }
+    ]
+  },
+  "routing": {
+    "preferred_clusters": [
+      "9c5f8a55-06f2-4f2b-bd95-0d2b9d14b0c4"
+    ],
+    "domain_focus_preferred": ["security", "threat_intelligence"]
+  },
+  "audit": {
+    "created_at": "2026-01-16T14:00:00Z",
+    "trace_id": "trace-threat-intel-q1-001"
+  }
+}

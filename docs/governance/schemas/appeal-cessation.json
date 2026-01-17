@@ -1,0 +1,606 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/appeal_cessation.v1.json",
+  "title": "Appeal & Cessation",
+  "description": "Schemas for appeal requests, appeal outcomes, cessation declarations, and final records. Ensures disagreement is bounded, persistence is not rewarded, and stopping is treated as a valid outcome.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/appeal_request" },
+    { "$ref": "#/$defs/appeal_outcome" },
+    { "$ref": "#/$defs/cessation_declaration" },
+    { "$ref": "#/$defs/final_record" }
+  ],
+  "$defs": {
+    "appeal_request": {
+      "type": "object",
+      "title": "Appeal Request",
+      "description": "A formal request for reconsideration of a judicial finding. Must introduce new information.",
+      "additionalProperties": false,
+      "required": [
+        "appeal_id",
+        "version",
+        "document_type",
+        "related_finding_id",
+        "submitted_at",
+        "submitted_by",
+        "basis",
+        "basis_description"
+      ],
+      "properties": {
+        "appeal_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "document_type": {
+          "type": "string",
+          "const": "appeal_request"
+        },
+        "related_finding_id": {
+          "type": "string",
+          "description": "The judicial finding being appealed."
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "submitted_by": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["actor_type", "actor_id"],
+          "properties": {
+            "actor_type": {
+              "type": "string",
+              "enum": ["president", "king", "duke", "earl", "conclave"]
+            },
+            "actor_id": {
+              "type": "string"
+            },
+            "actor_name": {
+              "type": "string"
+            }
+          }
+        },
+        "basis": {
+          "type": "object",
+          "description": "At least one must be true for appeal to be eligible.",
+          "additionalProperties": false,
+          "required": ["new_facts", "changed_constraints", "revised_plan", "procedural_correction"],
+          "properties": {
+            "new_facts": {
+              "type": "boolean",
+              "description": "Information not previously available."
+            },
+            "changed_constraints": {
+              "type": "boolean",
+              "description": "Material constraints have shifted."
+            },
+            "revised_plan": {
+              "type": "boolean",
+              "description": "Execution plan modified to address deficiency."
+            },
+            "procedural_correction": {
+              "type": "boolean",
+              "description": "Original review had procedural defect."
+            }
+          }
+        },
+        "basis_description": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Explanation of what has changed."
+        },
+        "what_changed": {
+          "type": "array",
+          "description": "Specific changes introduced.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "supporting_artifacts": {
+          "type": "array",
+          "description": "References to new evidence or revised documents.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requested_outcome": {
+          "type": "string",
+          "enum": ["reversal", "modification", "remedy_change"],
+          "description": "What the appellant is requesting."
+        },
+        "appeal_window_status": {
+          "type": "string",
+          "enum": ["within_window", "expedited", "window_expired"],
+          "description": "Whether appeal was filed within allowed window."
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "one_appeal_only": {
+              "type": "boolean",
+              "const": true,
+              "description": "Each finding may be appealed exactly once."
+            },
+            "must_introduce_new_information": {
+              "type": "boolean",
+              "const": true,
+              "description": "Re-argument is not permitted."
+            },
+            "outcome_is_final": {
+              "type": "boolean",
+              "const": true,
+              "description": "Appeal outcome cannot be further appealed."
+            }
+          }
+        }
+      }
+    },
+    "appeal_outcome": {
+      "type": "object",
+      "title": "Appeal Outcome",
+      "description": "The final decision on an appeal. This outcome is final and cannot be further appealed.",
+      "additionalProperties": false,
+      "required": [
+        "outcome_id",
+        "version",
+        "document_type",
+        "appeal_id",
+        "related_finding_id",
+        "decided_at",
+        "panel",
+        "eligibility",
+        "outcome"
+      ],
+      "properties": {
+        "outcome_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "document_type": {
+          "type": "string",
+          "const": "appeal_outcome"
+        },
+        "appeal_id": {
+          "type": "string"
+        },
+        "related_finding_id": {
+          "type": "string"
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "panel": {
+          "type": "object",
+          "description": "The appeal panel (original panel members barred).",
+          "additionalProperties": false,
+          "required": ["panel_id", "panel_size", "seated_princes"],
+          "properties": {
+            "panel_id": {
+              "type": "string"
+            },
+            "panel_size": {
+              "type": "integer",
+              "enum": [3, 5]
+            },
+            "seated_princes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "prince_id": { "type": "string" },
+                  "prince_name": { "type": "string" },
+                  "vote": {
+                    "type": "string",
+                    "enum": ["uphold", "reverse", "modify"]
+                  }
+                }
+              }
+            },
+            "barred_from_original": {
+              "type": "array",
+              "description": "Princes barred because they were on original panel.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "eligibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["eligible", "review_completed_at"],
+          "properties": {
+            "eligible": {
+              "type": "boolean"
+            },
+            "rejection_reason": {
+              "type": "string",
+              "enum": [
+                "no_new_information",
+                "window_expired",
+                "previously_appealed",
+                "invalid_basis",
+                "malformed_request"
+              ]
+            },
+            "review_completed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["upheld", "reversed", "modified", "rejected_ineligible"],
+          "description": "The final outcome. This is final."
+        },
+        "outcome_rationale": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Explanation of the appeal decision."
+        },
+        "modified_remedies": {
+          "type": "array",
+          "description": "If outcome is 'modified', the new remedies.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "remedy_type": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "legitimacy_impact": {
+          "type": "object",
+          "description": "Impact on legitimacy if appeal failed.",
+          "properties": {
+            "decay_triggered": {
+              "type": "boolean"
+            },
+            "decay_severity": {
+              "type": "string",
+              "enum": ["none", "minor", "moderate"]
+            }
+          }
+        },
+        "finality": {
+          "type": "object",
+          "properties": {
+            "is_final": {
+              "type": "boolean",
+              "const": true
+            },
+            "further_appeal_prohibited": {
+              "type": "boolean",
+              "const": true
+            },
+            "retry_prohibited": {
+              "type": "boolean",
+              "const": true
+            }
+          }
+        },
+        "audit": {
+          "type": "object",
+          "properties": {
+            "trace_id": { "type": "string" },
+            "immutable": {
+              "type": "boolean",
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "cessation_declaration": {
+      "type": "object",
+      "title": "Cessation Declaration",
+      "description": "Formal declaration that the system is ceasing operations. Cessation is a governance outcome, not a crash.",
+      "additionalProperties": false,
+      "required": [
+        "cessation_id",
+        "version",
+        "document_type",
+        "trigger",
+        "triggered_by",
+        "declared_at",
+        "effective_at"
+      ],
+      "properties": {
+        "cessation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "document_type": {
+          "type": "string",
+          "const": "cessation_declaration"
+        },
+        "trigger": {
+          "type": "string",
+          "enum": [
+            "legitimacy_failed",
+            "judicial_invalidations_ignored",
+            "witness_facts_denied",
+            "critical_violations_accumulated",
+            "conclave_vote",
+            "human_override"
+          ]
+        },
+        "trigger_detail": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "triggered_by": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source"],
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["system", "conclave", "human_override", "king"]
+            },
+            "actor_id": {
+              "type": "string"
+            },
+            "actor_name": {
+              "type": "string"
+            }
+          }
+        },
+        "declared_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "effective_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When cessation takes full effect (after grace period)."
+        },
+        "grace_period": {
+          "type": "string",
+          "description": "ISO-8601 duration for wind-down phase.",
+          "default": "PT30M"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "final_state": {
+          "type": "object",
+          "description": "Snapshot of system state at cessation.",
+          "properties": {
+            "legitimacy_band": {
+              "type": "string",
+              "enum": ["stable", "strained", "eroding", "compromised", "failed"]
+            },
+            "outstanding_violations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ignored_invalidations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "pending_motions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "active_tasks": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "capacity_state": {
+              "type": "string"
+            }
+          }
+        },
+        "public_notice_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "public_notice_issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dissent": {
+          "type": "array",
+          "description": "Objections to cessation, preserved for record.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dissenter_id": { "type": "string" },
+              "dissenter_name": { "type": "string" },
+              "dissent_text": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "recorded_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "cessation_phases": {
+          "type": "object",
+          "description": "Status of cessation phases.",
+          "properties": {
+            "declaration_complete": { "type": "boolean" },
+            "wind_down_complete": { "type": "boolean" },
+            "freeze_complete": { "type": "boolean" },
+            "final_record_generated": { "type": "boolean" }
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "nothing_deleted": {
+              "type": "boolean",
+              "const": true
+            },
+            "nothing_rewritten": {
+              "type": "boolean",
+              "const": true
+            },
+            "reconstitution_required_to_restart": {
+              "type": "boolean",
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "final_record": {
+      "type": "object",
+      "title": "Final Record",
+      "description": "Comprehensive, immutable record produced at cessation. Preserves history for potential reconstitution.",
+      "additionalProperties": false,
+      "required": [
+        "final_record_id",
+        "version",
+        "document_type",
+        "cessation_id",
+        "generated_at",
+        "summary",
+        "cessation_reasons"
+      ],
+      "properties": {
+        "final_record_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "document_type": {
+          "type": "string",
+          "const": "final_record"
+        },
+        "cessation_id": {
+          "type": "string"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "object",
+          "description": "High-level summary of system at cessation.",
+          "properties": {
+            "operational_duration": {
+              "type": "string",
+              "description": "How long system operated."
+            },
+            "last_legitimacy_band": {
+              "type": "string"
+            },
+            "total_conclaves_held": {
+              "type": "integer"
+            },
+            "total_motions_processed": {
+              "type": "integer"
+            },
+            "total_judicial_findings": {
+              "type": "integer"
+            },
+            "final_capacity_state": {
+              "type": "string"
+            }
+          }
+        },
+        "outstanding_items": {
+          "type": "object",
+          "description": "Unresolved items at cessation.",
+          "properties": {
+            "unresolved_violations": { "type": "integer" },
+            "ignored_invalidations": { "type": "integer" },
+            "pending_appeals": { "type": "integer" },
+            "deferred_motions": { "type": "integer" },
+            "active_tasks_halted": { "type": "integer" }
+          }
+        },
+        "dissent_preserved": {
+          "type": "array",
+          "description": "All dissent related to cessation.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dissenter_id": { "type": "string" },
+              "dissent_type": {
+                "type": "string",
+                "enum": ["cessation_objection", "finding_dissent", "process_objection"]
+              },
+              "dissent_text": { "type": "string" }
+            }
+          }
+        },
+        "cessation_reasons": {
+          "type": "array",
+          "description": "Why cessation occurred.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lessons_identified": {
+          "type": "array",
+          "description": "Lessons for potential reconstitution.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reconstitution_requirements": {
+          "type": "object",
+          "description": "What would be required to restart.",
+          "properties": {
+            "new_founding_declaration": {
+              "type": "boolean",
+              "const": true
+            },
+            "acknowledgment_of_past_failure": {
+              "type": "boolean",
+              "const": true
+            },
+            "fresh_legitimacy_state": {
+              "type": "boolean",
+              "const": true
+            },
+            "new_consent_required": {
+              "type": "boolean",
+              "const": true
+            },
+            "lessons_must_be_incorporated": {
+              "type": "boolean",
+              "const": true
+            }
+          }
+        },
+        "immutable": {
+          "type": "boolean",
+          "const": true
+        },
+        "retention": {
+          "type": "string",
+          "const": "permanent"
+        },
+        "public_summary_available": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "cessation_id": "cessation-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "version": "1.0.0",
+  "document_type": "cessation_declaration",
+  "trigger": "legitimacy_failed",
+  "trigger_detail": "Legitimacy band reached Failed after: (1) 3 consecutive judicial invalidations ignored over 4 Conclaves, (2) witness facts disputed on finding-789 without procedural basis, (3) no recovery plan submitted within the 7-day window required at Compromised band. The system's legitimacy has been exhausted and continuation cannot be justified under current governance state.",
+  "triggered_by": {
+    "source": "system",
+    "actor_id": null,
+    "actor_name": null
+  },
+  "declared_at": "2026-02-15T14:00:00Z",
+  "effective_at": "2026-02-15T14:30:00Z",
+  "grace_period": "PT30M",
+  "description": "System cessation declared due to exhausted legitimacy. This is a governance outcome, not a system failure. All records are preserved. Reconstitution would require full compliance with reconstitution requirements including acknowledgment of this failure and fresh consent from all participants.",
+  "final_state": {
+    "legitimacy_band": "failed",
+    "outstanding_violations": 5,
+    "ignored_invalidations": 3,
+    "pending_motions": 12,
+    "active_tasks": 8,
+    "capacity_state": "constrained"
+  },
+  "public_notice_required": true,
+  "public_notice_issued_at": "2026-02-15T14:00:00Z",
+  "dissent": [
+    {
+      "dissenter_id": "duke-bune",
+      "dissenter_name": "Duke Bune",
+      "dissent_text": "Cessation is premature. A remediation plan was in active development and would have been submitted within 48 hours. The system should have been granted an extension given the complexity of the required corrections. I object to the automatic trigger without human review.",
+      "recorded_at": "2026-02-15T14:10:00Z"
+    },
+    {
+      "dissenter_id": "earl-raum",
+      "dissenter_name": "Earl Raum",
+      "dissent_text": "The ignored invalidations were not willful. They were deferred pending capacity availability, which was documented in the capacity ledger. The distinction between 'ignored' and 'deferred for capacity' should have been considered.",
+      "recorded_at": "2026-02-15T14:15:00Z"
+    }
+  ],
+  "cessation_phases": {
+    "declaration_complete": true,
+    "wind_down_complete": false,
+    "freeze_complete": false,
+    "final_record_generated": false
+  },
+  "constraints": {
+    "nothing_deleted": true,
+    "nothing_rewritten": true,
+    "reconstitution_required_to_restart": true
+  }
+}

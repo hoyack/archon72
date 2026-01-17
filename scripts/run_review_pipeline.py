@@ -57,15 +57,15 @@ def create_reviewer_agent(verbose: bool = False):
     """
     try:
         from src.infrastructure.adapters.config.archon_profile_adapter import (
-            CsvYamlArchonProfileAdapter,
+            JsonYamlArchonProfileAdapter,
         )
         from src.infrastructure.adapters.external.reviewer_crewai_adapter import (
             create_reviewer_agent as create_agent,
         )
 
         # Load profile repository with per-Archon LLM configs
-        profile_repo = CsvYamlArchonProfileAdapter(
-            csv_path="docs/archons-base.csv",
+        profile_repo = JsonYamlArchonProfileAdapter(
+            json_path="docs/archons-base.json",
             llm_config_path="config/archon-llm-bindings.yaml",
         )
 

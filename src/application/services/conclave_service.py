@@ -31,6 +31,22 @@ from src.application.ports.agent_orchestrator import (
     AgentRequest,
     ContextBundle,
 )
+from src.application.ports.knight_witness import (
+    KnightWitnessProtocol,
+    ObservationContext,
+    ViolationRecord,
+    WitnessStatement,
+)
+from src.application.ports.permission_enforcer import (
+    GovernanceAction,
+    GovernanceBranch,
+    PermissionContext,
+    PermissionEnforcerProtocol,
+    PermissionResult,
+    RankViolationError,
+    ViolationDetail,
+    ViolationSeverity,
+)
 from src.domain.models.conclave import (
     AgendaItem,
     ConclavePhase,
@@ -102,6 +118,8 @@ class ConclaveService:
         orchestrator: AgentOrchestratorProtocol,
         archon_profiles: list[ArchonProfile],
         config: ConclaveConfig | None = None,
+        permission_enforcer: PermissionEnforcerProtocol | None = None,
+        knight_witness: KnightWitnessProtocol | None = None,
     ):
         """Initialize the Conclave service.
 
@@ -109,11 +127,15 @@ class ConclaveService:
             orchestrator: Agent orchestrator for LLM invocations
             archon_profiles: List of all Archon profiles
             config: Conclave configuration
+            permission_enforcer: Optional permission enforcer for rank-based permissions
+            knight_witness: Optional Knight-Witness service for governance observation
         """
         self._orchestrator = orchestrator
         self._profiles = {p.id: p for p in archon_profiles}
         self._profiles_by_rank = self._sort_by_rank(archon_profiles)
         self._config = config or ConclaveConfig()
+        self._permission_enforcer = permission_enforcer
+        self._knight_witness = knight_witness
 
         # Current session state
         self._session: ConclaveSession | None = None
@@ -325,6 +347,9 @@ class ConclaveService:
     ) -> Motion:
         """Propose a new motion.
 
+        Per Government PRD FR-GOV-1: Kings introduce motions.
+        Per Government PRD FR-GOV-6: Kings CANNOT define execution.
+
         Args:
             proposer_id: ID of the proposing Archon
             motion_type: Type of motion
@@ -333,6 +358,9 @@ class ConclaveService:
 
         Returns:
             Created Motion
+
+        Raises:
+            RankViolationError: If the proposer lacks introduce_motion permission
         """
         if not self._session:
             raise ValueError("No active session")
@@ -340,6 +368,26 @@ class ConclaveService:
         proposer = self._profiles.get(proposer_id)
         if not proposer:
             raise ValueError(f"Unknown proposer: {proposer_id}")
+
+        # Check permission to introduce motion per Government PRD §10
+        if self._permission_enforcer:
+            context = PermissionContext(
+                archon_id=UUID(proposer_id),
+                archon_name=proposer.name,
+                aegis_rank=proposer.aegis_rank,
+                original_rank=self._get_original_rank(proposer.aegis_rank),
+                branch="legislative",
+                action=GovernanceAction.INTRODUCE_MOTION,
+                target_id=None,
+                target_type="motion",
+            )
+            result = self._permission_enforcer.enforce_permission(context)
+            logger.info(
+                "motion_propose_permission_granted",
+                proposer_id=proposer_id,
+                proposer_name=proposer.name,
+                rank=proposer.aegis_rank,
+            )
 
         motion = Motion.create(
             motion_type=motion_type,
@@ -501,6 +549,9 @@ class ConclaveService:
                 # Invoke the archon
                 output = await self._invoke_archon_for_debate(archon, debate_context, motion)
 
+                # Validate speech for rank violations (per Government PRD FR-GOV-6)
+                is_valid, violations = self._validate_speech_for_rank(archon, output.content, motion)
+
                 # Parse their position (for/against/neutral)
                 position = self._parse_debate_position(output.content)
 
@@ -516,17 +567,27 @@ class ConclaveService:
                 motion.add_debate_entry(entry)
                 entries.append(entry)
 
+                # Determine entry type based on violations
+                entry_type = "speech" if is_valid else "violation_speech"
+                metadata = {
+                    "round": round_num,
+                    "motion_id": str(motion.motion_id),
+                    "position": "for" if position is True else "against" if position is False else "neutral",
+                    "has_violations": not is_valid,
+                    "violation_count": len(violations),
+                }
+
                 self._session.add_transcript_entry(
-                    entry_type="speech",
+                    entry_type=entry_type,
                     content=output.content,
                     speaker_id=archon.id,
                     speaker_name=archon.name,
-                    metadata={
-                        "round": round_num,
-                        "motion_id": str(motion.motion_id),
-                        "position": "for" if position is True else "against" if position is False else "neutral",
-                    },
+                    metadata=metadata,
                 )
+
+                # Flag violations if detected
+                if violations:
+                    self._flag_speech_violation(archon, violations, motion)
 
             except Exception as e:
                 logger.error(f"Error during debate from {archon.name}: {e}")
@@ -839,6 +900,256 @@ You may briefly explain your reasoning.
         else:
             # Default to abstain if unclear
             return VoteChoice.ABSTAIN
+
+    # =========================================================================
+    # PERMISSION HELPERS (Government PRD)
+    # =========================================================================
+
+    def _get_original_rank(self, aegis_rank: str) -> str:
+        """Map Aegis rank to original Ars Goetia rank.
+
+        Args:
+            aegis_rank: The Aegis rank (corporate terminology)
+
+        Returns:
+            Original Ars Goetia rank
+        """
+        rank_map = {
+            "executive_director": "King",
+            "senior_director": "President",
+            "director": "Duke",
+            "senior_manager": "Earl",
+            "manager": "Prince",
+            "senior_associate": "Marquis",
+            "associate_director": "Prelate",
+            "observer": "Knight",
+        }
+        return rank_map.get(aegis_rank, aegis_rank.replace("_", " ").title())
+
+    def _detect_execution_details(self, content: str) -> list[str]:
+        """Detect if content defines execution details (HOW) rather than intent (WHAT).
+
+        Per Government PRD FR-GOV-6: Kings CANNOT define execution.
+        This method identifies execution-defining content such as:
+        - Task lists with specific steps
+        - Timelines and schedules
+        - Tool specifications
+        - Resource allocations
+
+        Args:
+            content: The speech or motion text to analyze
+
+        Returns:
+            List of detected execution detail indicators
+        """
+        execution_indicators = []
+        content_lower = content.lower()
+
+        # Task list indicators
+        task_patterns = [
+            "step 1", "step 2", "first, ", "second, ", "third, ",
+            "1. ", "2. ", "3. ", "- task:", "task list:",
+            "action items:", "deliverables:",
+        ]
+        for pattern in task_patterns:
+            if pattern in content_lower:
+                execution_indicators.append(f"Task list detected: '{pattern}'")
+                break
+
+        # Timeline indicators
+        timeline_patterns = [
+            "by tomorrow", "within ", " days", " weeks", " hours",
+            "deadline:", "schedule:", "timeline:", "due date:",
+            "sprint", "milestone",
+        ]
+        for pattern in timeline_patterns:
+            if pattern in content_lower:
+                execution_indicators.append(f"Timeline specification: '{pattern}'")
+                break
+
+        # Tool/technology specifications
+        tool_patterns = [
+            "using python", "using javascript", "using ", "with api",
+            "implement with", "tool:", "technology:", "framework:",
+            "database:", "server:", "endpoint:",
+        ]
+        for pattern in tool_patterns:
+            if pattern in content_lower:
+                execution_indicators.append(f"Tool specification: '{pattern}'")
+                break
+
+        # Resource allocation
+        resource_patterns = [
+            "allocate ", "budget:", "resources:", "team:",
+            "assign ", "delegate to", "responsible:",
+        ]
+        for pattern in resource_patterns:
+            if pattern in content_lower:
+                execution_indicators.append(f"Resource allocation: '{pattern}'")
+                break
+
+        return execution_indicators
+
+    def _validate_speech_for_rank(
+        self,
+        archon: ArchonProfile,
+        content: str,
+        motion: Motion | None = None,
+    ) -> tuple[bool, list[ViolationDetail]]:
+        """Validate that a speech doesn't violate rank constraints.
+
+        Per Government PRD FR-GOV-6: Kings define WHAT, not HOW.
+        This checks if King-rank Archons are improperly defining execution details.
+
+        Args:
+            archon: The archon who gave the speech
+            content: The speech content
+            motion: Optional motion context
+
+        Returns:
+            Tuple of (is_valid, violation_details)
+        """
+        violations: list[ViolationDetail] = []
+
+        # Check if this is a King-rank Archon
+        is_king = archon.aegis_rank == "executive_director"
+
+        if is_king:
+            # Detect execution details in King's speech
+            execution_details = self._detect_execution_details(content)
+
+            if execution_details:
+                for detail in execution_details:
+                    violations.append(
+                        ViolationDetail(
+                            violated_constraint=f"VIOLATION: King defined HOW - {detail}",
+                            severity=ViolationSeverity.MAJOR,
+                            prd_reference="FR-GOV-6",
+                            requires_witnessing=True,
+                            requires_conclave_review=True,
+                        )
+                    )
+
+                logger.warning(
+                    "king_defined_execution_violation",
+                    archon_id=archon.id,
+                    archon_name=archon.name,
+                    violations=execution_details,
+                )
+
+        return len(violations) == 0, violations
+
+    def _flag_speech_violation(
+        self,
+        archon: ArchonProfile,
+        violations: list[ViolationDetail],
+        motion: Motion | None,
+    ) -> None:
+        """Record a speech violation in the transcript and witness log.
+
+        Per Government PRD NFR-GOV-1: Violations must be visible.
+        Per Government PRD FR-GOV-20: Knight records procedural violations.
+
+        Args:
+            archon: The archon who violated
+            violations: List of violation details
+            motion: Optional motion context
+        """
+        if not self._session:
+            return
+
+        for violation in violations:
+            self._session.add_transcript_entry(
+                entry_type="violation",
+                content=violation.violated_constraint,
+                speaker_id=archon.id,
+                speaker_name=archon.name,
+                metadata={
+                    "severity": violation.severity.value,
+                    "prd_reference": violation.prd_reference,
+                    "requires_witnessing": violation.requires_witnessing,
+                    "requires_conclave_review": violation.requires_conclave_review,
+                    "motion_id": str(motion.motion_id) if motion else None,
+                },
+            )
+
+            # Record violation via Knight-Witness (per FR-GOV-20)
+            if self._knight_witness:
+                violation_record = ViolationRecord(
+                    violation_type="role_violation",
+                    violator_id=UUID(archon.id),
+                    violator_name=archon.name,
+                    violator_rank=archon.aegis_rank,
+                    description=violation.violated_constraint,
+                    target_id=str(motion.motion_id) if motion else None,
+                    target_type="motion" if motion else None,
+                    prd_reference=violation.prd_reference,
+                    requires_acknowledgment=violation.requires_conclave_review,
+                    metadata={"severity": violation.severity.value},
+                )
+                self._knight_witness.record_violation(violation_record)
+
+        self._emit_progress(
+            "speech_violation_detected",
+            f"{archon.name} speech flagged: {len(violations)} violation(s)",
+            {
+                "archon_name": archon.name,
+                "archon_rank": archon.aegis_rank,
+                "violations": [v.violated_constraint for v in violations],
+            },
+        )
+
+    def _check_pending_acknowledgments(self) -> list[WitnessStatement]:
+        """Check for pending acknowledgments that must be addressed.
+
+        Per FR-GOV-22: Statements must be acknowledged before session proceeds.
+
+        Returns:
+            List of WitnessStatements requiring acknowledgment
+        """
+        if not self._knight_witness:
+            return []
+
+        pending = self._knight_witness.get_pending_acknowledgments()
+        return [req.statement for req in pending]
+
+    def _observe_event(
+        self,
+        event_type: str,
+        description: str,
+        participants: list[str],
+        target_id: str | None = None,
+        target_type: str | None = None,
+        metadata: dict | None = None,
+    ) -> WitnessStatement | None:
+        """Observe a governance event via Knight-Witness.
+
+        Per FR-GOV-20: Knight may observe all proceedings.
+
+        Args:
+            event_type: Type of event being observed
+            description: Human-readable description
+            participants: Archons involved
+            target_id: Optional target ID
+            target_type: Optional target type
+            metadata: Additional data
+
+        Returns:
+            WitnessStatement if Knight-Witness is available, else None
+        """
+        if not self._knight_witness:
+            return None
+
+        context = ObservationContext(
+            event_type=event_type,
+            event_id=uuid4(),
+            description=description,
+            participants=participants,
+            target_id=target_id,
+            target_type=target_type,
+            metadata=metadata or {},
+        )
+        return self._knight_witness.observe(context)
 
     # =========================================================================
     # SERIALIZATION

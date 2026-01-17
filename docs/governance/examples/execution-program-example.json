@@ -1,0 +1,177 @@
+{
+  "program_id": "program-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "execution_plan_id": "exec-plan-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "execution_plan_title": "Privacy Boundary Clarification Implementation",
+  "motion_id": "motion-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "program_owner": {
+    "duke_id": "duke-valefor",
+    "duke_name": "Valefor",
+    "domain": "Tactical Coordination"
+  },
+  "assigned_earls": [
+    {
+      "earl_id": "earl-bifrons",
+      "earl_name": "Bifrons",
+      "domain": "Transition Management",
+      "assigned_tasks": ["task-001", "task-002", "task-003"],
+      "assigned_at": "2026-01-22T11:00:00Z"
+    },
+    {
+      "earl_id": "earl-halphas",
+      "earl_name": "Halphas",
+      "domain": "Fortification",
+      "assigned_tasks": ["task-004", "task-005"],
+      "assigned_at": "2026-01-22T11:00:00Z"
+    }
+  ],
+  "participating_clusters": [
+    {
+      "cluster_id": "cluster-17",
+      "cluster_name": "Research & Analysis",
+      "participation_status": "in_progress",
+      "tasks_assigned": ["task-001", "task-002", "task-003"],
+      "capacity_committed": 7,
+      "accepted_at": "2026-01-22T14:00:00Z"
+    },
+    {
+      "cluster_id": "cluster-22",
+      "cluster_name": "Platform Engineering",
+      "participation_status": "in_progress",
+      "tasks_assigned": ["task-004", "task-005"],
+      "capacity_committed": 6,
+      "accepted_at": "2026-01-22T14:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-001",
+      "description": "Define privacy classification taxonomy for external data sources",
+      "source_plan_task_id": "task-001",
+      "assigned_earl": {
+        "earl_id": "earl-bifrons",
+        "earl_name": "Bifrons"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis"
+      },
+      "status": "completed",
+      "activation_request_id": "tar-001-privacy-taxonomy",
+      "result_artifact_id": "tra-001-privacy-taxonomy-result",
+      "activated_at": "2026-01-22T15:00:00Z",
+      "completed_at": "2026-01-29T16:00:00Z"
+    },
+    {
+      "task_id": "task-002",
+      "description": "Design classification verification interface that does not require data access",
+      "source_plan_task_id": "task-002",
+      "assigned_earl": {
+        "earl_id": "earl-bifrons",
+        "earl_name": "Bifrons"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis"
+      },
+      "status": "in_progress",
+      "activation_request_id": "tar-002-verification-interface",
+      "activated_at": "2026-01-30T09:00:00Z"
+    },
+    {
+      "task_id": "task-003",
+      "description": "Implement emergency override audit trail mechanism",
+      "source_plan_task_id": "task-003",
+      "assigned_earl": {
+        "earl_id": "earl-bifrons",
+        "earl_name": "Bifrons"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis"
+      },
+      "status": "pending"
+    },
+    {
+      "task_id": "task-004",
+      "description": "Implement pipeline gate that rejects unclassified data",
+      "source_plan_task_id": "task-004",
+      "assigned_earl": {
+        "earl_id": "earl-halphas",
+        "earl_name": "Halphas"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-22",
+        "cluster_name": "Platform Engineering"
+      },
+      "status": "pending"
+    },
+    {
+      "task_id": "task-005",
+      "description": "Configure rejection logging with remediation detail level",
+      "source_plan_task_id": "task-005",
+      "assigned_earl": {
+        "earl_id": "earl-halphas",
+        "earl_name": "Halphas"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-22",
+        "cluster_name": "Platform Engineering"
+      },
+      "status": "pending"
+    }
+  ],
+  "capacity_state": {
+    "clusters_committed": 2,
+    "clusters_declined": 0,
+    "clusters_pending": 0,
+    "saturation_percentage": 65,
+    "bottleneck_areas": [],
+    "deferral_risk": "low"
+  },
+  "capacity_events": [
+    {
+      "event_id": "cap-event-001",
+      "event_type": "cluster_accepted",
+      "cluster_id": "cluster-17",
+      "description": "Cluster 17 accepted tasks 1-3 with 7 capacity units",
+      "recorded_at": "2026-01-22T14:00:00Z"
+    },
+    {
+      "event_id": "cap-event-002",
+      "event_type": "cluster_accepted",
+      "cluster_id": "cluster-22",
+      "description": "Cluster 22 accepted tasks 4-5 with 6 capacity units",
+      "recorded_at": "2026-01-22T14:30:00Z"
+    }
+  ],
+  "blockers": [],
+  "escalations": [],
+  "progress": {
+    "tasks_total": 5,
+    "tasks_activated": 2,
+    "tasks_accepted": 2,
+    "tasks_declined": 0,
+    "tasks_in_progress": 1,
+    "tasks_completed": 1,
+    "tasks_failed": 0,
+    "completion_percentage": 20
+  },
+  "status": "executing",
+  "halt_record": null,
+  "completion": null,
+  "constraints_metadata": {
+    "may_not_modify_plan": true,
+    "may_not_invent_tasks": true,
+    "may_not_pressure_clusters": true,
+    "may_not_conceal_failure": true,
+    "must_escalate_critical_blockers": true
+  },
+  "created_at": "2026-01-22T10:30:00Z",
+  "activated_at": "2026-01-22T15:00:00Z",
+  "audit": {
+    "created_at": "2026-01-22T10:30:00Z",
+    "updated_at": "2026-01-30T09:00:00Z",
+    "trace_id": "trace-program-privacy-boundary-001"
+  }
+}

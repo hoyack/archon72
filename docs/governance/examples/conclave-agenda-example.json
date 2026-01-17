@@ -1,0 +1,317 @@
+{
+  "agenda_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "conclave_id": "conclave-2026-01-20",
+  "conclave_scheduled_at": "2026-01-20T14:00:00Z",
+  "generated_at": "2026-01-19T08:00:00Z",
+  "algorithm_version": "1.0.0",
+  "input_queues": {
+    "new_motions": {
+      "queue_id": "new_motions",
+      "item_count": 8,
+      "available": true,
+      "priority_band": 3,
+      "subject_to_quota": true
+    },
+    "deferred_motions": {
+      "queue_id": "deferred_motions",
+      "item_count": 2,
+      "available": true,
+      "priority_band": 2,
+      "subject_to_quota": false
+    },
+    "blockers": {
+      "queue_id": "blockers",
+      "item_count": 1,
+      "available": true,
+      "priority_band": 1,
+      "subject_to_quota": false
+    },
+    "witness_statements": {
+      "queue_id": "witness_statements",
+      "item_count": 1,
+      "available": true,
+      "priority_band": 0,
+      "subject_to_quota": false
+    },
+    "judicial_referrals": {
+      "queue_id": "judicial_referrals",
+      "item_count": 1,
+      "available": true,
+      "priority_band": 0,
+      "subject_to_quota": false
+    },
+    "mandatory_review": {
+      "queue_id": "mandatory_review",
+      "item_count": 1,
+      "available": true,
+      "priority_band": 0,
+      "subject_to_quota": false
+    }
+  },
+  "capacity": {
+    "total_slots": 12,
+    "band_allocation": {
+      "band_0_forced": 3,
+      "band_1_blockers": 1,
+      "band_2_unfinished": 2,
+      "band_3_new_business": 5,
+      "band_4_optional": 1
+    },
+    "utilization_percent": 100,
+    "overflow": true,
+    "capacity_crisis": false
+  },
+  "realm_quotas": {
+    "max_per_realm": 1,
+    "realm_status": [
+      {
+        "realm_id": "realm-strategic",
+        "realm_name": "Strategic Planning",
+        "quota_used": 1,
+        "quota_deferred": 2
+      },
+      {
+        "realm_id": "realm-tactical",
+        "realm_name": "Tactical Operations",
+        "quota_used": 1,
+        "quota_deferred": 0
+      },
+      {
+        "realm_id": "realm-judicial",
+        "realm_name": "Judicial Affairs",
+        "quota_used": 1,
+        "quota_deferred": 0
+      },
+      {
+        "realm_id": "realm-security",
+        "realm_name": "Security & Compliance",
+        "quota_used": 1,
+        "quota_deferred": 1
+      },
+      {
+        "realm_id": "realm-research",
+        "realm_name": "Research & Development",
+        "quota_used": 1,
+        "quota_deferred": 0
+      }
+    ]
+  },
+  "agenda_items": [
+    {
+      "item_id": "stmt-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "item_type": "witness_statement",
+      "source_queue": "witness_statements",
+      "priority_band": 0,
+      "position": 1,
+      "title": "Witness Statement: Task Consent Bypass Detected",
+      "summary": "Knight-Witness Furcas detected that task-7c9e6679 transitioned to in_progress without a cluster acceptance event. Task has been quarantined pending review.",
+      "sponsor_id": "knight-furcas",
+      "forced_acknowledgement": true,
+      "estimated_duration_minutes": 15
+    },
+    {
+      "item_id": "finding-b2c3d4e5-f6a7-8901-bcde-f23456789012",
+      "item_type": "judicial_referral",
+      "source_queue": "judicial_referrals",
+      "priority_band": 0,
+      "position": 2,
+      "title": "Judicial Finding: Procedural Deficiency in Q1 Security Review",
+      "summary": "Prince panel found Earl Raum's task activation procedurally deficient. Remedies recommended: return to conclave for re-authorization, mandate procedural review.",
+      "sponsor_id": "prince-vassago",
+      "forced_acknowledgement": true,
+      "estimated_duration_minutes": 20
+    },
+    {
+      "item_id": "review-q1-authorization-sunset",
+      "item_type": "mandatory_review",
+      "source_queue": "mandatory_review",
+      "priority_band": 0,
+      "position": 3,
+      "title": "Mandatory Review: Q1 Program Authorization Sunset",
+      "summary": "Q1 Security Review program authorization expires 2026-01-31. Conclave must decide: extend, modify, or terminate.",
+      "sponsor_id": "system",
+      "forced_acknowledgement": true,
+      "estimated_duration_minutes": 30
+    },
+    {
+      "item_id": "blocker-cluster-17-capacity",
+      "item_type": "blocker",
+      "source_queue": "blockers",
+      "priority_band": 1,
+      "position": 4,
+      "title": "Blocker: Cluster 17 Capacity Exhausted",
+      "summary": "Cluster 17 (Research & Analysis) has declined 3 consecutive task activations citing capacity. Duke Valefor requests guidance on task redistribution.",
+      "sponsor_id": "duke-valefor",
+      "realm": "realm-research",
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 15
+    },
+    {
+      "item_id": "motion-deferred-infra-upgrade",
+      "item_type": "deferred_motion",
+      "source_queue": "deferred_motions",
+      "priority_band": 2,
+      "position": 5,
+      "title": "Motion: Infrastructure Upgrade Authorization",
+      "summary": "Request authorization for infrastructure modernization program across all clusters. Budget: $2.1M. Timeline: Q2-Q3.",
+      "sponsor_id": "duke-bune",
+      "realm": "realm-tactical",
+      "deferral_count": 2,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 25
+    },
+    {
+      "item_id": "motion-deferred-training-expansion",
+      "item_type": "deferred_motion",
+      "source_queue": "deferred_motions",
+      "priority_band": 2,
+      "position": 6,
+      "title": "Motion: Cluster Training Expansion",
+      "summary": "Request authorization to expand cluster steward training program to include new security protocols.",
+      "sponsor_id": "earl-raum",
+      "realm": "realm-security",
+      "deferral_count": 1,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 15
+    },
+    {
+      "item_id": "motion-new-ai-governance",
+      "item_type": "new_motion",
+      "source_queue": "new_motions",
+      "priority_band": 3,
+      "position": 7,
+      "title": "Motion: AI Governance Framework Adoption",
+      "summary": "Request authorization to adopt formal AI governance framework based on proposed standards.",
+      "sponsor_id": "duke-aim",
+      "realm": "realm-strategic",
+      "deferral_count": 0,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 30
+    },
+    {
+      "item_id": "motion-new-vendor-audit",
+      "item_type": "new_motion",
+      "source_queue": "new_motions",
+      "priority_band": 3,
+      "position": 8,
+      "title": "Motion: Quarterly Vendor Security Audit",
+      "summary": "Request authorization for Q1 vendor security audit program covering 12 critical vendors.",
+      "sponsor_id": "earl-glasya",
+      "realm": "realm-security",
+      "deferral_count": 0,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 20
+    },
+    {
+      "item_id": "motion-new-research-grant",
+      "item_type": "new_motion",
+      "source_queue": "new_motions",
+      "priority_band": 3,
+      "position": 9,
+      "title": "Motion: External Research Partnership Grant",
+      "summary": "Request authorization for research partnership with university consortium. Budget: $500K.",
+      "sponsor_id": "duke-foras",
+      "realm": "realm-research",
+      "deferral_count": 0,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 15
+    },
+    {
+      "item_id": "motion-new-judicial-guidelines",
+      "item_type": "new_motion",
+      "source_queue": "new_motions",
+      "priority_band": 3,
+      "position": 10,
+      "title": "Motion: Judicial Panel Selection Guidelines Update",
+      "summary": "Request approval for updated guidelines on Prince panel selection to improve recusal transparency.",
+      "sponsor_id": "prince-sitri",
+      "realm": "realm-judicial",
+      "deferral_count": 0,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 20
+    },
+    {
+      "item_id": "motion-new-tactical-realignment",
+      "item_type": "new_motion",
+      "source_queue": "new_motions",
+      "priority_band": 3,
+      "position": 11,
+      "title": "Motion: Tactical Operations Realignment",
+      "summary": "Request authorization for tactical operations restructuring to improve cluster coordination.",
+      "sponsor_id": "duke-bune",
+      "realm": "realm-tactical",
+      "deferral_count": 0,
+      "escalated": false,
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 20
+    },
+    {
+      "item_id": "info-quarterly-metrics",
+      "item_type": "new_motion",
+      "source_queue": "new_motions",
+      "priority_band": 4,
+      "position": 12,
+      "title": "Informational: Q4 Metrics Summary",
+      "summary": "Presentation of Q4 operational metrics. No decision required.",
+      "sponsor_id": "secretary",
+      "forced_acknowledgement": false,
+      "estimated_duration_minutes": 10
+    }
+  ],
+  "deferrals": [
+    {
+      "item_id": "motion-strategic-expansion-phase2",
+      "item_type": "new_motion",
+      "title": "Motion: Strategic Expansion Phase 2",
+      "reason": "realm_quota_exceeded",
+      "deferral_count": 1,
+      "deferred_to": "conclave-2026-01-27",
+      "escalation_triggered": false
+    },
+    {
+      "item_id": "motion-strategic-budget-review",
+      "item_type": "new_motion",
+      "title": "Motion: Strategic Budget Review",
+      "reason": "realm_quota_exceeded",
+      "deferral_count": 1,
+      "deferred_to": "conclave-2026-01-27",
+      "escalation_triggered": false
+    },
+    {
+      "item_id": "motion-security-penetration-test",
+      "item_type": "new_motion",
+      "title": "Motion: Annual Penetration Testing Authorization",
+      "reason": "realm_quota_exceeded",
+      "deferral_count": 1,
+      "deferred_to": "conclave-2026-01-27",
+      "escalation_triggered": false
+    }
+  ],
+  "rejections": [],
+  "transparency": {
+    "internal_report_generated": true,
+    "internal_report_id": "report-internal-2026-01-19-001",
+    "public_report_generated": true,
+    "public_report_id": "report-public-2026-01-19-001"
+  },
+  "constraints": {
+    "no_suppression_by_omission": true,
+    "realm_fairness": true,
+    "transparency_required": true,
+    "predictability": true,
+    "completeness": true
+  },
+  "audit": {
+    "created_at": "2026-01-19T08:00:00Z",
+    "trace_id": "trace-agenda-gen-2026-01-19",
+    "immutable": true,
+    "retention_period": "permanent"
+  }
+}

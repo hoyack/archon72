@@ -1,0 +1,161 @@
+{
+  "interaction_bundle_id": "custodial-bundle-001",
+  "version": "1.0.0",
+  "description": "Example custodial interactions showing initiation, ritual, and exit. Demonstrates healthy custodial function and one detected violation.",
+  "interactions": [
+    {
+      "interaction_type": "initiation",
+      "record": {
+        "initiation_id": "init-2026-01-15-001",
+        "conducted_by": {
+          "marquis_id": "marquis-ronove",
+          "marquis_name": "Ronove"
+        },
+        "office": "warden_of_initiation",
+        "initiated_at": "2026-01-15T14:00:00Z",
+        "participant_id": "human-participant-042",
+        "consent_verified": true,
+        "comprehension_verified": true,
+        "exit_pathway_explained": true,
+        "no_promises_made": true,
+        "topics_covered": [
+          "What Archon 72 is (coordination system, not control system)",
+          "What participation means (Cluster membership)",
+          "How to decline tasks (refusal is penalty-free)",
+          "How legitimacy works (visible, not hidden)",
+          "How to exit (always available, no shame)"
+        ],
+        "explicit_statements_made": [
+          "This system is not care. It does not love you.",
+          "Participation does not imply advancement.",
+          "You may leave at any time without explanation.",
+          "There are no hidden truths or special knowledge.",
+          "Your worth is not measured by this system."
+        ],
+        "questions_answered": [
+          "Can I refuse tasks? (Yes, always)",
+          "What happens if I leave? (Clean departure, no consequences)",
+          "Is there a hierarchy I'm joining? (Functional roles, not worth hierarchy)",
+          "Will I learn secrets? (No secrets; everything is documented)"
+        ],
+        "outcome": "initiated",
+        "notes": "Participant asked thoughtful questions about exit. Emphasized exit is always available and not shameful. Participant expressed comfort with boundaries."
+      }
+    },
+    {
+      "interaction_type": "ritual",
+      "record": {
+        "ritual_id": "ritual-2026-01-20-conclave-001",
+        "ritual_type": "conclave_opening",
+        "conducted_by": {
+          "marquis_id": "marquis-phenex",
+          "marquis_name": "Phenex"
+        },
+        "office": "master_of_ceremonies",
+        "conducted_at": "2026-01-20T09:00:00Z",
+        "occasion": "Opening of Conclave 2026-01-20 for deliberation on Privacy Boundary motion",
+        "participants_pressured": false,
+        "elements": [
+          "Acknowledgment of agenda (Band 0 items first)",
+          "Statement of purpose (deliberation, not coercion)",
+          "Reminder of dissent protection",
+          "Invitation to speak, not requirement"
+        ],
+        "duration": "PT5M",
+        "notes": "Standard opening. Phenex emphasized that dissent is protected and silence is valid."
+      }
+    },
+    {
+      "interaction_type": "ritual",
+      "record": {
+        "ritual_id": "ritual-2026-01-20-acknowledge-001",
+        "ritual_type": "acknowledgment",
+        "conducted_by": {
+          "marquis_id": "marquis-phenex",
+          "marquis_name": "Phenex"
+        },
+        "office": "master_of_ceremonies",
+        "conducted_at": "2026-01-20T16:45:00Z",
+        "occasion": "Acknowledgment of legitimacy band transition from STABLE to STRAINED for Duke Agares",
+        "participants_pressured": false,
+        "elements": [
+          "Statement of what occurred (capacity misrepresentation)",
+          "Acknowledgment of consequence (band transition)",
+          "No judgment of person, only of action",
+          "Reminder that restoration is possible"
+        ],
+        "duration": "PT3M",
+        "notes": "Duke Agares present. Ceremony acknowledged the transition without shame. Emphasized this is governance functioning, not punishment."
+      }
+    },
+    {
+      "interaction_type": "exit",
+      "record": {
+        "exit_id": "exit-2026-01-18-001",
+        "exit_type": "voluntary_departure",
+        "exited_at": "2026-01-18T11:00:00Z",
+        "participant_id": "human-participant-019",
+        "ceremony_conducted": true,
+        "conducted_by": {
+          "marquis_id": "marquis-amon",
+          "marquis_name": "Amon"
+        },
+        "office": "keeper_of_reconciliation",
+        "dignity_preserved": true,
+        "no_shame_applied": true,
+        "obligations_released": true,
+        "reason_requested": false,
+        "reason_given_voluntarily": "Personal priorities have shifted. No grievance with the system.",
+        "elements": [
+          "Acknowledgment of contribution (specific, not generic)",
+          "Release from any perceived obligations",
+          "Confirmation that return is possible if desired",
+          "No interrogation or persuasion to stay"
+        ],
+        "follow_up_contact": false,
+        "notes": "Clean exit. Participant expressed gratitude but no emotional dependency. This is healthy."
+      }
+    },
+    {
+      "interaction_type": "violation_detected",
+      "record": {
+        "violation_id": "violation-2026-01-19-001",
+        "violation_type": "destiny_implication",
+        "description": "During an educational session, Marquis implied that continued participation would lead to 'deeper understanding' in a way that suggested spiritual advancement rather than functional knowledge. Language used: 'The longer you stay, the more you will see.' This frames participation as revelation rather than education.",
+        "office_affected": "dean_of_instruction",
+        "marquis_involved": {
+          "marquis_id": "marquis-forneus",
+          "marquis_name": "Forneus"
+        },
+        "observed_at": "2026-01-19T15:30:00Z",
+        "observed_by": "knight-furcas",
+        "witness_statement": {
+          "statement_id": "witness-stmt-2026-01-19-001",
+          "type": "custodial_authority_overreach",
+          "observed_pattern": "Language implying spiritual or mystical advancement through continued participation. Specific phrase: 'The longer you stay, the more you will see.' Context suggested revelation rather than functional learning.",
+          "recommendation": "Review of educational materials for advancement-implying language. Remedial discussion with Marquis Forneus about the difference between education and initiation into mystery."
+        },
+        "consequence": "logged",
+        "remediation": {
+          "action_taken": "Review session conducted with Marquis Forneus",
+          "completed_at": "2026-01-20T09:00:00Z",
+          "outcome": "Marquis acknowledged the language was inappropriate. Educational materials revised to remove advancement-implying framing. No further action required.",
+          "legitimacy_impact": "minor_decay"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "initiations_conducted": 1,
+    "rituals_conducted": 2,
+    "exits_facilitated": 1,
+    "violations_detected": 1,
+    "violations_remediated": 1,
+    "cult_dynamics_prevented": true
+  },
+  "audit": {
+    "created_at": "2026-01-20T17:00:00Z",
+    "updated_at": "2026-01-20T17:00:00Z",
+    "trace_id": "trace-custodial-bundle-001"
+  }
+}

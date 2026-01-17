@@ -1,0 +1,87 @@
+{
+  "result_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "request_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "task_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "version": "1.0.0",
+  "submitted_at": "2026-01-18T16:30:00Z",
+  "cluster_id": "9c5f8a55-06f2-4f2b-bd95-0d2b9d14b0c4",
+  "steward_id": "steward-17",
+  "status": "completed",
+  "completion_summary": "Research completed covering 7 threat intelligence sources from the past 30 days. Identified 3 significant threat patterns relevant to the security posture review:\n\n1. Increased phishing campaigns targeting cloud infrastructure credentials\n2. New ransomware variants exploiting unpatched VPN appliances\n3. Supply chain compromise attempts via compromised npm packages\n\nNo anomalies detected beyond baseline expectations. All sources verified and dated within the required 30-day window.",
+  "deliverables": [
+    {
+      "name": "threat-intel-summary.md",
+      "format": "document",
+      "location": "https://storage.example.com/deliverables/task-7c9e6679/threat-intel-summary.md",
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "size_bytes": 15234,
+      "notes": "Main deliverable - covers all required sections"
+    },
+    {
+      "name": "source-list.csv",
+      "format": "data",
+      "location": "https://storage.example.com/deliverables/task-7c9e6679/source-list.csv",
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "abc123def456789..."
+      },
+      "size_bytes": 2048,
+      "notes": "Optional deliverable - structured list of all sources reviewed with dates and URLs"
+    }
+  ],
+  "acceptance_test_results": [
+    {
+      "test": "Summary covers at least 5 distinct sources",
+      "passed": true,
+      "notes": "Covered 7 sources"
+    },
+    {
+      "test": "Each source dated within the last 30 days",
+      "passed": true,
+      "notes": "All sources from 2025-12-17 to 2026-01-16"
+    },
+    {
+      "test": "Threat types are clearly categorized",
+      "passed": true,
+      "notes": "Categorized into: Phishing, Ransomware, Supply Chain, Other"
+    },
+    {
+      "test": "Relevance assessment included with rationale",
+      "passed": true,
+      "notes": "Each threat pattern includes relevance score (High/Medium/Low) with explanation"
+    },
+    {
+      "test": "No personal data or internal references included",
+      "passed": true,
+      "notes": "Verified - all examples anonymized"
+    }
+  ],
+  "issues": [],
+  "blockers": [],
+  "effort": {
+    "started_at": "2026-01-17T09:00:00Z",
+    "completed_at": "2026-01-18T15:00:00Z",
+    "estimated_hours": 8,
+    "actual_hours": 10,
+    "contributors_count": 2
+  },
+  "notes": "The approved source list was excellent - made the research very straightforward. We found one source (example-feed.com) was temporarily down on Day 1, but it came back online and we were able to include it.\n\nSuggestion for future similar requests: including 1-2 example outputs from previous research rounds would help calibrate the depth and format expectations.",
+  "feedback": {
+    "request_clarity": "clear",
+    "constraints_reasonable": true,
+    "deadline_achievable": true,
+    "suggestions": "Consider providing example outputs from similar past research to help calibrate expectations. The template was helpful but real examples would be even better."
+  },
+  "audit": {
+    "created_at": "2026-01-18T16:30:00Z",
+    "trace_id": "trace-threat-intel-q1-001",
+    "steward_attestation": {
+      "attested": true,
+      "attested_at": "2026-01-18T16:30:00Z",
+      "attestation_method": "manual_review"
+    }
+  }
+}

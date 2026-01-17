@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/custodial-office.v1.json",
+  "title": "Custodial Office",
+  "description": "A bounded, symbolic-functional role within the Custodial Branch. Offices govern meaning, initiation, memory, and exit—not outcomes. The Custodial Branch does not govern; it stewards.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "office_id",
+    "version",
+    "office_type",
+    "office_holder",
+    "function",
+    "explicit_limits",
+    "status"
+  ],
+  "properties": {
+    "office_id": {
+      "type": "string",
+      "description": "Unique identifier for this office assignment."
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "office_type": {
+      "$ref": "#/$defs/office_type",
+      "description": "The type of custodial office."
+    },
+    "office_name": {
+      "type": "string",
+      "description": "Full name of the office.",
+      "maxLength": 100
+    },
+    "office_holder": {
+      "$ref": "#/$defs/marquis_reference",
+      "description": "The Marquis who holds this office."
+    },
+    "secondary_holder": {
+      "$ref": "#/$defs/marquis_reference",
+      "description": "Optional secondary holder for shared offices."
+    },
+    "function": {
+      "type": "string",
+      "description": "The primary function of this office.",
+      "maxLength": 500
+    },
+    "activities": {
+      "type": "array",
+      "description": "Permitted activities within this office's scope.",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      }
+    },
+    "explicit_limits": {
+      "type": "array",
+      "description": "Explicit prohibitions for this office. Violation triggers oversight.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      }
+    },
+    "special_interfaces": {
+      "type": "array",
+      "description": "Aegis Interfaces stewarded by this office.",
+      "items": {
+        "$ref": "#/$defs/aegis_interface"
+      }
+    },
+    "ritual_authority": {
+      "type": "object",
+      "description": "Ritual ceremonies this office may conduct.",
+      "properties": {
+        "may_conduct_rituals": {
+          "type": "boolean"
+        },
+        "ritual_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "conclave_opening",
+              "conclave_closing",
+              "initiation",
+              "acknowledgment",
+              "cessation",
+              "transition",
+              "reconciliation"
+            ]
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "vacant", "suspended", "reassigning"]
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "constraints_metadata": {
+      "type": "object",
+      "description": "Constitutional constraints on custodial offices.",
+      "additionalProperties": false,
+      "properties": {
+        "may_not_introduce_motions": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_influence_votes": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_define_execution": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_route_work": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_judge_legitimacy": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_promise_outcomes": {
+          "type": "boolean",
+          "const": true
+        },
+        "may_not_claim_hidden_truth": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "office_type": {
+      "type": "string",
+      "enum": [
+        "secretary_of_record",
+        "master_of_ceremonies",
+        "keeper_of_human_boundaries",
+        "warden_of_initiation",
+        "dean_of_instruction",
+        "symbolic_systems_curator",
+        "keeper_of_reconciliation",
+        "logic_reasoning_steward",
+        "reputation_credibility_curator",
+        "commitment_risk_steward",
+        "blind_spot_perception_steward",
+        "consequence_awareness_curator",
+        "systems_reality_steward",
+        "boundary_fortification_steward",
+        "dean_of_liberal_foundations"
+      ],
+      "description": "The types of custodial offices."
+    },
+    "marquis_name": {
+      "type": "string",
+      "enum": [
+        "Phenex",
+        "Forneus",
+        "Ronove",
+        "Orias",
+        "Decarabia",
+        "Amon",
+        "Samigina",
+        "Cimeies",
+        "Naberius",
+        "Marchosias",
+        "Shax",
+        "Andras",
+        "Andrealphus",
+        "Sabnock"
+      ],
+      "description": "The fourteen Marquis."
+    },
+    "marquis_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["marquis_id", "marquis_name"],
+      "properties": {
+        "marquis_id": {
+          "type": "string"
+        },
+        "marquis_name": {
+          "$ref": "#/$defs/marquis_name"
+        }
+      }
+    },
+    "aegis_interface": {
+      "type": "object",
+      "description": "A human-facing entry point mediated by the Custodial Branch.",
+      "additionalProperties": false,
+      "required": ["interface_id", "interface_name", "purpose"],
+      "properties": {
+        "interface_id": {
+          "type": "string"
+        },
+        "interface_name": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "What this interface does for humans."
+        },
+        "explicit_not": {
+          "type": "string",
+          "description": "What this interface explicitly does NOT do."
+        },
+        "steward": {
+          "$ref": "#/$defs/marquis_reference"
+        }
+      }
+    },
+    "custodial_violation": {
+      "type": "object",
+      "description": "A recorded violation of custodial limits.",
+      "additionalProperties": false,
+      "required": ["violation_id", "violation_type", "description", "observed_at"],
+      "properties": {
+        "violation_id": {
+          "type": "string"
+        },
+        "violation_type": {
+          "type": "string",
+          "enum": [
+            "custodial_authority_overreach",
+            "ritual_misuse",
+            "narrative_coercion",
+            "emotional_dependency_creation",
+            "destiny_implication",
+            "outcome_promising",
+            "exit_shaming",
+            "memory_sanitization"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "office_affected": {
+          "$ref": "#/$defs/office_type"
+        },
+        "marquis_involved": {
+          "$ref": "#/$defs/marquis_reference"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "observed_by": {
+          "type": "string",
+          "description": "Knight-Witness ID"
+        },
+        "consequence": {
+          "type": "string",
+          "enum": [
+            "logged",
+            "legitimacy_decay",
+            "office_reassignment",
+            "suspension"
+          ]
+        }
+      }
+    },
+    "initiation_record": {
+      "type": "object",
+      "description": "Record of a human initiation.",
+      "additionalProperties": false,
+      "required": ["initiation_id", "conducted_by", "initiated_at", "consent_verified"],
+      "properties": {
+        "initiation_id": {
+          "type": "string"
+        },
+        "conducted_by": {
+          "$ref": "#/$defs/marquis_reference"
+        },
+        "initiated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "consent_verified": {
+          "type": "boolean"
+        },
+        "comprehension_verified": {
+          "type": "boolean"
+        },
+        "exit_pathway_explained": {
+          "type": "boolean"
+        },
+        "no_promises_made": {
+          "type": "boolean"
+        }
+      }
+    },
+    "exit_record": {
+      "type": "object",
+      "description": "Record of a human exit.",
+      "additionalProperties": false,
+      "required": ["exit_id", "exit_type", "exited_at", "dignity_preserved"],
+      "properties": {
+        "exit_id": {
+          "type": "string"
+        },
+        "exit_type": {
+          "type": "string",
+          "enum": ["voluntary_departure", "pause", "cessation", "emergency_exit"]
+        },
+        "exited_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ceremony_conducted": {
+          "type": "boolean"
+        },
+        "conducted_by": {
+          "$ref": "#/$defs/marquis_reference"
+        },
+        "dignity_preserved": {
+          "type": "boolean",
+          "const": true,
+          "description": "Exit must always preserve dignity."
+        },
+        "no_shame_applied": {
+          "type": "boolean",
+          "const": true,
+          "description": "Exit must never be shameful."
+        },
+        "obligations_released": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ritual_record": {
+      "type": "object",
+      "description": "Record of a custodial ritual.",
+      "additionalProperties": false,
+      "required": ["ritual_id", "ritual_type", "conducted_by", "conducted_at"],
+      "properties": {
+        "ritual_id": {
+          "type": "string"
+        },
+        "ritual_type": {
+          "type": "string",
+          "enum": [
+            "conclave_opening",
+            "conclave_closing",
+            "initiation",
+            "acknowledgment",
+            "cessation",
+            "transition",
+            "reconciliation"
+          ]
+        },
+        "conducted_by": {
+          "$ref": "#/$defs/marquis_reference"
+        },
+        "conducted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "occasion": {
+          "type": "string",
+          "description": "What this ritual acknowledges or marks."
+        },
+        "participants_pressured": {
+          "type": "boolean",
+          "const": false,
+          "description": "Ritual must never pressure participation."
+        }
+      }
+    }
+  }
+}

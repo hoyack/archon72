@@ -11,6 +11,7 @@ Constitutional AI Governance System with 72 Agents
 - [Environment Variables](#environment-variables)
 - [Make Commands](#make-commands)
 - [Architecture](#architecture)
+- [Archon Governance Schema](#archon-governance-schema)
 - [Constitutional Truths](#constitutional-truths)
 - [Conclave System](#conclave-system)
 - [Execution Planner](#execution-planner)
@@ -240,7 +241,7 @@ archon72/
 │   └── execution-patterns.yaml  # Implementation patterns for Execution Planner
 │
 ├── docs/                        # Documentation and data
-│   ├── archons-base.csv         # 72 Archon identity profiles (name, rank, backstory)
+│   ├── archons-base.json        # 72 Archon canonical profiles (governance, voice bindings)
 │   ├── constitutional-implementation-rules.md
 │   ├── operations/              # Operational runbooks
 │   ├── security/                # Security documentation
@@ -350,7 +351,8 @@ archon72/
 | File | Purpose |
 |------|---------|
 | `config/archon-llm-bindings.yaml` | Maps each Archon to LLM provider/model with rank-based defaults |
-| `docs/archons-base.csv` | Master list of 72 Archon identities (UUID, name, rank, backstory, system prompt) |
+| `docs/archons-base.json` | Canonical 72 Archon manifest with governance fields and ElevenLabs voice bindings |
+| `scripts/validate_archons_base.py` | Validates archons-base.json against governance requirements R-1 through R-10 |
 | `src/api/main.py` | FastAPI application with route registration and startup hooks |
 | `src/application/services/conclave_service.py` | Orchestrates formal Conclave meetings with parliamentary procedure |
 | `src/application/services/secretary_service.py` | Extracts recommendations from Conclave transcripts |
@@ -395,6 +397,104 @@ archon72/
 - API → Application, Domain, Infrastructure
 
 Run `make check-imports` to validate architecture boundaries.
+
+## Archon Governance Schema
+
+The `docs/archons-base.json` file is the canonical source of truth for all 72 Archon definitions, including governance permissions, branch assignments, and voice bindings.
+
+### Schema Structure (v2.2.0)
+
+```json
+{
+  "version": "2.2.0",
+  "governance_prd_version": "1.0",
+  "last_updated_at": "2026-01-16T...",
+  "source_of_truth": "liber_infernum",
+  "enums": { ... },           // 11 enum types
+  "governance_matrix": { ... }, // 7 branch definitions
+  "realms": [ ... ],          // 9 King realm assignments
+  "portfolios": [ ... ],      // 11 President portfolio assignments
+  "archons": [ ... ],         // 72 Archon records
+  "system_voices": { ... }    // Non-archon voices (Supreme Architect)
+}
+```
+
+### Archon Counts by Rank
+
+| Rank | Count | Branch | Role |
+|------|-------|--------|------|
+| King | 9 | Legislative | Define WHAT (introduce motions, define intent) |
+| President | 11 | Executive | Define HOW (translate intent to execution specs) |
+| Duke | 23 | Administrative (Senior) | Own domains, allocate resources |
+| Earl | 6 | Administrative (Strategic) | Execute tasks, optimize within constraints |
+| Prince | 7 | Judicial | Evaluate compliance, issue findings |
+| Marquis | 15 | Advisory | Provide testimony, issue non-binding advisories |
+| Knight | 1 | Witness | Observe all, record violations (Furcas only) |
+| **Total** | **72** | | |
+
+### Governance Permissions by Branch
+
+| Branch | Key Permissions | Key Prohibitions |
+|--------|-----------------|------------------|
+| Legislative | introduce_motion, define_what, deliberate, ratify | no_define_how, no_supervise_execution |
+| Executive | translate_what_to_how, decompose_tasks, escalate_blockers | no_redefine_intent, no_self_ratify |
+| Administrative | own_domain, execute_task, coordinate_agents | no_reinterpret_intent, no_suppress_failure |
+| Judicial | evaluate_compliance, issue_finding, invalidate_execution | no_introduce_motion, no_define_execution |
+| Advisory | provide_testimony, issue_advisory, analyze_risk | advisories_non_binding, no_judge_advised_domain |
+| Witness | observe_all, record_violations, publish_witness_statement | no_propose, no_debate, no_judge, no_enforce |
+
+### Rank-Specific Fields
+
+Each Archon record includes common fields plus rank-specific governance fields:
+
+| Rank | Additional Fields |
+|------|-------------------|
+| King | `realm_id`, `realm_label`, `realm_scope` |
+| President | `portfolio_id`, `portfolio_label`, `portfolio_scope` |
+| Duke | `execution_domains` |
+| Earl | `execution_domains`, `max_concurrent_tasks` |
+| Prince | `judicial_scope`, `allowed_remedies`, `recusal_rules` |
+| Marquis | `advisory_domains`, `advisory_windows`, `recusal_rules` |
+| Knight | `witness_violation_types`, `witness_statement_schema_version` |
+
+### Voice Bindings
+
+All 72 Archons have ElevenLabs voice IDs for text-to-speech:
+
+```json
+{
+  "name": "Bael",
+  "rank": "King",
+  "elevenlabs_voice_id": "Lk29MNavZhOG5FkVspXl",
+  ...
+}
+```
+
+The `system_voices` section contains non-archon voices:
+- **Supreme Architect** (`mvsi7032MOMSPunnESTu`) - System narrator voice
+
+### Validation
+
+Run the validation script to verify schema compliance:
+
+```bash
+# Validate archons-base.json
+python scripts/validate_archons_base.py
+
+# Expected output: "ALL VALIDATIONS PASSED"
+```
+
+The validator checks:
+- R-1: Manifest metadata (version, governance_prd_version, last_updated_at, source_of_truth)
+- R-2: Constitutional fields per archon (id, name, rank, branch, permissions, prohibitions, voice_id)
+- R-3: King realm assignments (exactly 9 with unique realm_id)
+- R-4: President portfolio assignments (exactly 11 with unique portfolio_id)
+- R-5: Duke/Earl execution domains
+- R-6: Prince judicial constraints (judicial_scope, allowed_remedies, recusal_rules)
+- R-7: Marquis advisory scope (advisory_domains, advisory_windows, recusal_rules)
+- R-8: Knight-Witness singular identity (exactly 1, branch=witness, hard prohibitions)
+- R-9: Safety language normalization (no prohibited terms)
+- R-10: Archon counts (9+11+23+6+7+15+1 = 72)
 
 ## Constitutional Truths
 
@@ -993,7 +1093,7 @@ This closes the governance loop: ratified motions → execution plans → blocke
 2. **Senior Directors** (Dukes) - 23 archons
 3. **Directors** (Marquis) - 15 archons
 4. **Managing Directors** (Presidents) - 11 archons
-5. **Strategic Directors** (Prince/Earl/Knight) - 14 archons, speak last
+5. **Strategic Directors** (Prince/Earl/Knight) - 14 archons (7+6+1), speak last
 
 ### Voting Threshold
 
@@ -1002,6 +1102,24 @@ Motions require a **2/3 supermajority** (67%) to pass.
 ## Development
 
 See `_bmad-output/project-context.md` for AI agent development guidelines.
+
+### Definition of Done
+
+A story is not "done" until all of the following are satisfied:
+
+1. **All acceptance criteria pass** - Verified via tests
+2. **Tests written and passing** - Unit tests for new functionality
+3. **Code review approved** - Via dev-story or code-review workflow
+4. **Documentation reflects the change** - See checklist below
+
+**Documentation Checklist:**
+- [ ] Architecture docs updated (if patterns/structure changed)
+- [ ] API docs updated (if endpoints/contracts changed)
+- [ ] README updated (if setup/usage changed)
+- [ ] Inline comments added for complex logic
+- [ ] N/A - no documentation impact
+
+> **Team Agreement (Gov Epic 8 Retrospective):** Story not "done" until documentation reflects the change.
 
 ## License
 

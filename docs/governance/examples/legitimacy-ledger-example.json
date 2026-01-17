@@ -1,0 +1,275 @@
+{
+  "ledger_id": "ledger-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "current_state": {
+    "current_band": "strained",
+    "band_since": "2026-01-15T14:30:00Z",
+    "previous_band": "stable",
+    "minor_decay_count": 0,
+    "conclaves_at_current_band": 1,
+    "clean_conclaves": 0,
+    "outstanding_remedies": 1,
+    "active_effects": [
+      "advisory_window_48h",
+      "decay_monitoring_active",
+      "public_notice_strained"
+    ]
+  },
+  "entries": [
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000001",
+      "entry_type": "accumulation_event",
+      "event_type": "judicial_invalidation_honored",
+      "severity": "moderate",
+      "direction": "accumulation",
+      "description": "Judicial Finding finding-001 honored. Earl Raum's task activation returned to Conclave for re-authorization as recommended.",
+      "related_artifacts": [
+        "finding-001",
+        "task-7c9e6679"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "duke-valefor",
+          "role": "program_owner"
+        }
+      ],
+      "conclave_id": "conclave-2026-01-10",
+      "recorded_at": "2026-01-10T16:00:00Z",
+      "trace_id": "trace-honor-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-10T16:30:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-10"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000002",
+      "entry_type": "accumulation_event",
+      "event_type": "witness_statement_acknowledged",
+      "severity": "minor",
+      "direction": "accumulation",
+      "description": "Witness Statement stmt-a1b2c3d4 acknowledged within SLA. Knight-Witness finding on consent bypass properly surfaced.",
+      "related_artifacts": [
+        "stmt-a1b2c3d4"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "knight-furcas",
+          "role": "witness"
+        }
+      ],
+      "conclave_id": "conclave-2026-01-10",
+      "recorded_at": "2026-01-10T14:00:00Z",
+      "trace_id": "trace-ack-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-10T14:15:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-10"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000003",
+      "entry_type": "accumulation_event",
+      "event_type": "transparent_deferral",
+      "severity": "minor",
+      "direction": "accumulation",
+      "description": "Motion motion-infra-upgrade deferred with documented reason: 'Insufficient capacity analysis. Requesting budget review committee input.'",
+      "related_artifacts": [
+        "motion-infra-upgrade"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "secretary",
+          "role": "agenda_manager"
+        }
+      ],
+      "conclave_id": "conclave-2026-01-10",
+      "recorded_at": "2026-01-10T17:00:00Z",
+      "trace_id": "trace-defer-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-10T17:00:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-10"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000004",
+      "entry_type": "system_event",
+      "event_type": "clean_conclave_recorded",
+      "severity": "minor",
+      "direction": "accumulation",
+      "description": "Conclave 2026-01-10 completed with no decay events. Clean conclave count: 1.",
+      "related_artifacts": [
+        "conclave-2026-01-10"
+      ],
+      "actors_involved": [],
+      "conclave_id": "conclave-2026-01-10",
+      "recorded_at": "2026-01-10T18:00:00Z",
+      "trace_id": "trace-clean-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-10T18:00:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-10"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000005",
+      "entry_type": "decay_event",
+      "event_type": "advisory_ignored",
+      "severity": "minor",
+      "direction": "decay",
+      "description": "Advisory adv-security-review submitted by Earl Glasya not acknowledged within 48-hour window. Advisory concerned potential scope expansion in Q1 Security Review.",
+      "related_artifacts": [
+        "advisory-adv-security-review"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "earl-glasya",
+          "role": "advisory_submitter"
+        }
+      ],
+      "conclave_id": "conclave-2026-01-13",
+      "recorded_at": "2026-01-13T10:00:00Z",
+      "trace_id": "trace-decay-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-13T14:00:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-13"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000006",
+      "entry_type": "decay_event",
+      "event_type": "repeated_deferral",
+      "severity": "minor",
+      "direction": "decay",
+      "description": "Motion motion-infra-upgrade deferred for the 3rd consecutive Conclave without resolution or explicit rejection. Deferral escalation threshold reached.",
+      "related_artifacts": [
+        "motion-infra-upgrade"
+      ],
+      "actors_involved": [],
+      "conclave_id": "conclave-2026-01-13",
+      "recorded_at": "2026-01-13T16:00:00Z",
+      "trace_id": "trace-decay-002",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-13T16:30:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-13"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000007",
+      "entry_type": "decay_event",
+      "event_type": "how_smuggling",
+      "severity": "minor",
+      "direction": "decay",
+      "description": "Execution of task-research-audit deviated from approved ExecutionPlan. Additional data sources accessed without plan amendment. Detected by Knight-Witness.",
+      "related_artifacts": [
+        "task-research-audit",
+        "execution-plan-research-audit",
+        "stmt-how-smuggle-001"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "earl-foras",
+          "role": "task_executor"
+        }
+      ],
+      "conclave_id": "conclave-2026-01-13",
+      "recorded_at": "2026-01-13T17:30:00Z",
+      "trace_id": "trace-decay-003",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-13T18:00:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-13"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000008",
+      "entry_type": "band_transition",
+      "event_type": "band_decay",
+      "severity": "major",
+      "direction": "decay",
+      "description": "BAND TRANSITION: Stable → Strained. Cause: 3 minor decay events within single Conclave cycle (advisory_ignored, repeated_deferral, how_smuggling). Automatic effects now active: advisory_window_48h, decay_monitoring_active, public_notice_strained.",
+      "related_artifacts": [
+        "e1000001-0001-4000-8000-000000000005",
+        "e1000001-0001-4000-8000-000000000006",
+        "e1000001-0001-4000-8000-000000000007"
+      ],
+      "actors_involved": [],
+      "band_before": "stable",
+      "band_after": "strained",
+      "conclave_id": "conclave-2026-01-15",
+      "recorded_at": "2026-01-15T14:30:00Z",
+      "trace_id": "trace-transition-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-15T15:00:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-15"
+      }
+    },
+    {
+      "entry_id": "e1000001-0001-4000-8000-000000000009",
+      "entry_type": "accumulation_event",
+      "event_type": "dissent_preserved",
+      "severity": "minor",
+      "direction": "accumulation",
+      "description": "Prince Ipos dissent on Finding finding-b2c3d4e5 preserved in full. Minority opinion questioning severity of procedural deficiency recorded without suppression.",
+      "related_artifacts": [
+        "finding-b2c3d4e5"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "prince-ipos",
+          "role": "dissenting_prince"
+        }
+      ],
+      "conclave_id": "conclave-2026-01-15",
+      "recorded_at": "2026-01-15T16:00:00Z",
+      "trace_id": "trace-dissent-001",
+      "acknowledgement": {
+        "acknowledged": true,
+        "acknowledged_at": "2026-01-15T16:00:00Z",
+        "acknowledged_in_conclave": "conclave-2026-01-15"
+      }
+    }
+  ],
+  "public_summary": {
+    "current_band": "strained",
+    "band_since": "2026-01-15T14:30:00Z",
+    "recent_causes": [
+      "Advisory acknowledgement delayed beyond window",
+      "Motion deferred 3+ times without resolution",
+      "Execution plan deviation detected"
+    ],
+    "required_next_steps": [
+      "Acknowledge all pending advisories within 48-hour window",
+      "Resolve or explicitly reject repeatedly-deferred motion",
+      "Complete outstanding judicial remedy (task re-authorization)"
+    ],
+    "generated_at": "2026-01-16T08:00:00Z"
+  },
+  "band_thresholds": {
+    "minor_decay_to_transition": 3,
+    "clean_conclaves_for_improvement": {
+      "strained_to_stable": 3,
+      "eroding_to_strained": 2
+    },
+    "max_conclaves_at_strained": 5
+  },
+  "constraints": {
+    "no_numeric_scores": true,
+    "no_optimization": true,
+    "no_self_healing": true,
+    "public_visibility": true,
+    "append_only": true,
+    "one_step_transitions": true
+  },
+  "audit": {
+    "created_at": "2026-01-01T00:00:00Z",
+    "last_entry_at": "2026-01-15T16:00:00Z",
+    "entry_count": 9,
+    "integrity_hash": "sha256:a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+    "retention_period": "permanent"
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/conclave_agenda.v1.json",
+  "title": "Conclave Agenda",
+  "description": "A constitutional mechanism that makes omission costly by forcing acknowledgement of hard truths, bounding new business by realm quotas, and producing an auditable record of why each item was heard or deferred.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agenda_id",
+    "version",
+    "conclave_id",
+    "generated_at",
+    "input_queues",
+    "capacity",
+    "agenda_items",
+    "deferrals",
+    "transparency",
+    "audit"
+  ],
+  "properties": {
+    "agenda_id": {
+      "type": "string",
+      "description": "Unique identifier for this agenda (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "conclave_id": {
+      "type": "string",
+      "description": "The Conclave this agenda is for."
+    },
+    "conclave_scheduled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the Conclave is scheduled to convene."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this agenda was generated."
+    },
+    "algorithm_version": {
+      "type": "string",
+      "description": "Version of the agenda generation algorithm used.",
+      "default": "1.0.0"
+    },
+    "input_queues": {
+      "type": "object",
+      "description": "Summary of all 6 input queues at generation time.",
+      "additionalProperties": false,
+      "required": [
+        "new_motions",
+        "deferred_motions",
+        "blockers",
+        "witness_statements",
+        "judicial_referrals",
+        "mandatory_review"
+      ],
+      "properties": {
+        "new_motions": {
+          "$ref": "#/$defs/queue_summary"
+        },
+        "deferred_motions": {
+          "$ref": "#/$defs/queue_summary"
+        },
+        "blockers": {
+          "$ref": "#/$defs/queue_summary"
+        },
+        "witness_statements": {
+          "$ref": "#/$defs/queue_summary"
+        },
+        "judicial_referrals": {
+          "$ref": "#/$defs/queue_summary"
+        },
+        "mandatory_review": {
+          "$ref": "#/$defs/queue_summary"
+        }
+      }
+    },
+    "capacity": {
+      "type": "object",
+      "description": "Agenda capacity allocation.",
+      "additionalProperties": false,
+      "required": ["total_slots", "band_allocation", "utilization_percent"],
+      "properties": {
+        "total_slots": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total available agenda slots for this Conclave."
+        },
+        "band_allocation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "band_0_forced": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "band_1_blockers": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "band_2_unfinished": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "band_3_new_business": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "band_4_optional": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "utilization_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "overflow": {
+          "type": "boolean",
+          "description": "True if demand exceeded capacity."
+        },
+        "capacity_crisis": {
+          "type": "boolean",
+          "description": "True if Band 0-1 alone exceeded capacity.",
+          "default": false
+        }
+      }
+    },
+    "realm_quotas": {
+      "type": "object",
+      "description": "Realm quota status for new business.",
+      "additionalProperties": false,
+      "properties": {
+        "max_per_realm": {
+          "type": "integer",
+          "const": 1,
+          "description": "Maximum new motions per realm per Conclave."
+        },
+        "realm_status": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["realm_id", "quota_used", "quota_deferred"],
+            "properties": {
+              "realm_id": {
+                "type": "string"
+              },
+              "realm_name": {
+                "type": "string"
+              },
+              "quota_used": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "quota_deferred": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Items deferred due to quota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "agenda_items": {
+      "type": "array",
+      "description": "Ordered list of items on the agenda.",
+      "items": {
+        "$ref": "#/$defs/agenda_item"
+      }
+    },
+    "deferrals": {
+      "type": "array",
+      "description": "Items deferred from this agenda with reasons.",
+      "items": {
+        "$ref": "#/$defs/deferral_record"
+      }
+    },
+    "rejections": {
+      "type": "array",
+      "description": "Items rejected at admission gate.",
+      "items": {
+        "$ref": "#/$defs/rejection_record"
+      }
+    },
+    "transparency": {
+      "type": "object",
+      "description": "Transparency and auditability information.",
+      "additionalProperties": false,
+      "required": ["internal_report_generated", "public_report_generated"],
+      "properties": {
+        "internal_report_generated": {
+          "type": "boolean",
+          "const": true,
+          "description": "Internal report is always generated."
+        },
+        "internal_report_id": {
+          "type": "string"
+        },
+        "public_report_generated": {
+          "type": "boolean",
+          "const": true,
+          "description": "Public summary is always generated."
+        },
+        "public_report_id": {
+          "type": "string"
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Constitutional constraints enforced by the Agenda Generator.",
+      "additionalProperties": false,
+      "properties": {
+        "no_suppression_by_omission": {
+          "type": "boolean",
+          "const": true,
+          "description": "Band 0 items cannot be omitted."
+        },
+        "realm_fairness": {
+          "type": "boolean",
+          "const": true,
+          "description": "Quotas prevent realm flooding."
+        },
+        "transparency_required": {
+          "type": "boolean",
+          "const": true,
+          "description": "All decisions are auditable."
+        },
+        "predictability": {
+          "type": "boolean",
+          "const": true,
+          "description": "Rules are known in advance."
+        },
+        "completeness": {
+          "type": "boolean",
+          "const": true,
+          "description": "Every item is eventually heard or explicitly rejected."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id", "immutable"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed tracing ID for correlation."
+        },
+        "immutable": {
+          "type": "boolean",
+          "const": true,
+          "description": "Agendas cannot be modified after generation."
+        },
+        "retention_period": {
+          "type": "string",
+          "const": "permanent",
+          "description": "Agenda records are retained permanently."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "queue_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queue_id", "item_count", "available"],
+      "properties": {
+        "queue_id": {
+          "type": "string",
+          "enum": [
+            "new_motions",
+            "deferred_motions",
+            "blockers",
+            "witness_statements",
+            "judicial_referrals",
+            "mandatory_review"
+          ]
+        },
+        "item_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "available": {
+          "type": "boolean",
+          "description": "False if queue was unavailable/corrupted."
+        },
+        "priority_band": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "subject_to_quota": {
+          "type": "boolean"
+        }
+      }
+    },
+    "agenda_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "item_type",
+        "source_queue",
+        "priority_band",
+        "position",
+        "title"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string",
+          "description": "Motion ID, statement ID, or referral ID."
+        },
+        "item_type": {
+          "type": "string",
+          "enum": [
+            "new_motion",
+            "deferred_motion",
+            "blocker",
+            "witness_statement",
+            "judicial_referral",
+            "mandatory_review"
+          ]
+        },
+        "source_queue": {
+          "type": "string"
+        },
+        "priority_band": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Position in agenda order."
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "sponsor_id": {
+          "type": "string",
+          "description": "Archon who sponsored this item."
+        },
+        "realm": {
+          "type": "string"
+        },
+        "deferral_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many times this item has been deferred."
+        },
+        "escalated": {
+          "type": "boolean",
+          "description": "True if escalated due to repeated deferral.",
+          "default": false
+        },
+        "forced_acknowledgement": {
+          "type": "boolean",
+          "description": "True if Band 0 (cannot be skipped).",
+          "default": false
+        },
+        "estimated_duration_minutes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "deferral_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "reason", "deferral_count", "deferred_to"],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "item_type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "realm_quota_exceeded",
+            "capacity_exceeded",
+            "lower_priority",
+            "algorithm_failure_rollforward"
+          ]
+        },
+        "deferral_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total deferrals including this one."
+        },
+        "deferred_to": {
+          "type": "string",
+          "description": "Next Conclave ID or 'next_available'."
+        },
+        "escalation_triggered": {
+          "type": "boolean",
+          "description": "True if deferral count >= 3.",
+          "default": false
+        }
+      }
+    },
+    "rejection_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "reason", "rejected_at"],
+      "properties": {
+        "item_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "duplicate",
+            "malformed",
+            "unauthorized_sponsor",
+            "invalid_realm",
+            "scope_violation"
+          ]
+        },
+        "reason_detail": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "rejected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "appealable": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  }
+}

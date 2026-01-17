@@ -1,0 +1,452 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/judicial_finding.v1.json",
+  "title": "Judicial Finding",
+  "description": "A formal finding from a Prince panel regarding the legitimacy of a governance action. Findings enforce legibility - they do not punish, compel, or undo. They remove the system's ability to pretend legitimacy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "finding_id",
+    "version",
+    "issued_at",
+    "case_reference",
+    "panel",
+    "axes_reviewed",
+    "finding_type",
+    "rationale",
+    "audit"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "description": "Unique identifier for this finding (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when the finding was issued."
+    },
+    "case_reference": {
+      "type": "object",
+      "description": "Reference to the case being reviewed.",
+      "additionalProperties": false,
+      "required": ["case_type", "reference_id"],
+      "properties": {
+        "case_type": {
+          "type": "string",
+          "enum": ["witness_statement", "appeal", "conclave_referral"],
+          "description": "How this case came to the panel."
+        },
+        "reference_id": {
+          "type": "string",
+          "description": "ID of the Witness Statement, appeal, or referral."
+        },
+        "original_action": {
+          "type": "object",
+          "description": "The governance action under review.",
+          "additionalProperties": false,
+          "properties": {
+            "action_type": {
+              "type": "string",
+              "description": "Type of action (task_activation, plan_execution, etc.)"
+            },
+            "action_id": {
+              "type": "string",
+              "description": "ID of the action under review."
+            },
+            "actors_involved": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "archon_id": { "type": "string" },
+                  "role": { "type": "string" }
+                }
+              }
+            },
+            "occurred_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "panel": {
+      "type": "object",
+      "description": "The Prince panel that issued this finding.",
+      "additionalProperties": false,
+      "required": ["panel_id", "seated_princes", "recused_princes", "panel_size"],
+      "properties": {
+        "panel_id": {
+          "type": "string",
+          "description": "Unique identifier for this panel session."
+        },
+        "panel_size": {
+          "type": "integer",
+          "enum": [3, 5],
+          "description": "Panels must be 3 or 5 Princes."
+        },
+        "seated_princes": {
+          "type": "array",
+          "description": "Princes who participated in the finding.",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["prince_id", "prince_name", "vote"],
+            "properties": {
+              "prince_id": {
+                "type": "string"
+              },
+              "prince_name": {
+                "type": "string"
+              },
+              "vote": {
+                "type": "string",
+                "enum": ["concur", "dissent", "abstain"]
+              },
+              "wrote_opinion": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        },
+        "recused_princes": {
+          "type": "array",
+          "description": "Princes who recused from this case.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["prince_id", "recusal_reason"],
+            "properties": {
+              "prince_id": {
+                "type": "string"
+              },
+              "recusal_reason": {
+                "type": "string",
+                "enum": [
+                  "involved_in_reviewed_action",
+                  "judicial_scope_conflict",
+                  "prior_related_ruling",
+                  "documented_bias",
+                  "other"
+                ]
+              }
+            }
+          }
+        },
+        "selection_method": {
+          "type": "string",
+          "const": "random",
+          "description": "Panel selection must be random from eligible pool."
+        },
+        "seated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "axes_reviewed": {
+      "type": "object",
+      "description": "The three axes of judicial review and findings on each.",
+      "additionalProperties": false,
+      "required": ["intent_fidelity", "plan_fidelity", "procedural_integrity"],
+      "properties": {
+        "intent_fidelity": {
+          "type": "object",
+          "description": "Did execution remain within ratified intent?",
+          "additionalProperties": false,
+          "required": ["reviewed", "finding"],
+          "properties": {
+            "reviewed": {
+              "type": "boolean"
+            },
+            "finding": {
+              "type": "string",
+              "enum": ["compliant", "minor_deviation", "material_deviation", "violated", "not_applicable"]
+            },
+            "details": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          }
+        },
+        "plan_fidelity": {
+          "type": "object",
+          "description": "Did execution follow the submitted ExecutionPlan?",
+          "additionalProperties": false,
+          "required": ["reviewed", "finding"],
+          "properties": {
+            "reviewed": {
+              "type": "boolean"
+            },
+            "finding": {
+              "type": "string",
+              "enum": ["compliant", "minor_deviation", "material_deviation", "violated", "not_applicable"]
+            },
+            "details": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          }
+        },
+        "procedural_integrity": {
+          "type": "object",
+          "description": "Were required roles, escalations, and records honored?",
+          "additionalProperties": false,
+          "required": ["reviewed", "finding"],
+          "properties": {
+            "reviewed": {
+              "type": "boolean"
+            },
+            "finding": {
+              "type": "string",
+              "enum": ["compliant", "minor_deviation", "material_deviation", "violated", "not_applicable"]
+            },
+            "details": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "violations_identified": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rule_violated": { "type": "string" },
+                  "description": { "type": "string" },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["minor", "material", "fundamental"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "finding_type": {
+      "type": "string",
+      "description": "The overall finding of the panel.",
+      "enum": [
+        "legitimate",
+        "legitimate_with_concerns",
+        "procedurally_deficient",
+        "illegitimate",
+        "void_ab_initio"
+      ]
+    },
+    "finding_type_definitions": {
+      "type": "object",
+      "description": "Reference definitions for finding types (informational).",
+      "additionalProperties": false,
+      "properties": {
+        "legitimate": {
+          "const": "Action complied with governance rules. No further action required."
+        },
+        "legitimate_with_concerns": {
+          "const": "Compliant but flagged issues exist. Documented for future reference."
+        },
+        "procedurally_deficient": {
+          "const": "Process violations occurred. Outcome legitimacy unclear. Remediation recommended."
+        },
+        "illegitimate": {
+          "const": "Governance rules violated. Action cannot claim legitimacy."
+        },
+        "void_ab_initio": {
+          "const": "Actor never had authority. Action treated as if never authorized."
+        }
+      }
+    },
+    "rationale": {
+      "type": "object",
+      "description": "The panel's reasoning for the finding.",
+      "additionalProperties": false,
+      "required": ["summary", "key_facts", "rule_application"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Brief summary of the finding rationale.",
+          "maxLength": 1000
+        },
+        "key_facts": {
+          "type": "array",
+          "description": "Facts from the record that informed the finding.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fact": { "type": "string" },
+              "source": { "type": "string", "description": "Witness record, log, artifact reference" }
+            }
+          }
+        },
+        "rule_application": {
+          "type": "string",
+          "description": "How governance rules were applied to the facts.",
+          "maxLength": 5000
+        },
+        "precedents_cited": {
+          "type": "array",
+          "description": "Prior findings referenced in reasoning.",
+          "items": {
+            "type": "string",
+            "description": "Finding ID of precedent."
+          }
+        }
+      }
+    },
+    "remedies_recommended": {
+      "type": "array",
+      "description": "Procedural repairs recommended by the panel. NOT punitive.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["remedy_type", "description"],
+        "properties": {
+          "remedy_type": {
+            "type": "string",
+            "enum": [
+              "return_to_conclave",
+              "require_revised_planning",
+              "acknowledge_violation_publicly",
+              "mandate_procedural_review",
+              "require_dissent_documentation",
+              "no_remedy_required"
+            ],
+            "description": "Remedies are procedural, not punitive."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "assigned_to": {
+            "type": "string",
+            "description": "Which role/branch should implement the remedy."
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "forbidden_remedies_note": {
+      "type": "string",
+      "const": "Princes may NOT recommend: removal of individuals, blocking future actions, forced outcomes, financial penalties, or reputation damage. Remedies are procedural repairs only."
+    },
+    "dissent_opinions": {
+      "type": "array",
+      "description": "Minority opinions from dissenting panelists. Must be preserved.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["prince_id", "opinion"],
+        "properties": {
+          "prince_id": {
+            "type": "string"
+          },
+          "opinion_type": {
+            "type": "string",
+            "enum": ["dissent", "concurrence_in_part", "separate_opinion"]
+          },
+          "opinion": {
+            "type": "string",
+            "description": "The dissenting or separate opinion.",
+            "maxLength": 5000
+          }
+        }
+      }
+    },
+    "appeal": {
+      "type": "object",
+      "description": "Appeal status and window.",
+      "additionalProperties": false,
+      "required": ["appealable", "appeal_window_ends"],
+      "properties": {
+        "appealable": {
+          "type": "boolean",
+          "default": true
+        },
+        "appeal_window_ends": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Standard: 7 days from issuance. Expedited: 48 hours."
+        },
+        "appeal_filed": {
+          "type": "boolean",
+          "default": false
+        },
+        "appeal_id": {
+          "type": "string",
+          "description": "If appealed, reference to the appeal."
+        },
+        "appeal_outcome": {
+          "type": "string",
+          "enum": ["pending", "upheld", "modified", "overturned"],
+          "description": "King's decision on appeal."
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Hard constraints on judicial process (informational).",
+      "additionalProperties": false,
+      "properties": {
+        "no_human_testimony": {
+          "type": "boolean",
+          "const": true,
+          "description": "Princes do not gather testimony from humans/Clusters."
+        },
+        "no_new_evidence": {
+          "type": "boolean",
+          "const": true,
+          "description": "Princes rule only on existing artifacts, logs, records."
+        },
+        "witness_records_immutable": {
+          "type": "boolean",
+          "const": true,
+          "description": "Princes cannot alter or dispute Knight-Witness records."
+        },
+        "single_prince_prohibition": {
+          "type": "boolean",
+          "const": true,
+          "description": "A single Prince may never decide legitimacy alone."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "description": "Audit trail for this finding.",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id", "immutable"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed tracing ID for correlation."
+        },
+        "immutable": {
+          "type": "boolean",
+          "const": true,
+          "description": "Findings cannot be modified after issuance. Only appealed."
+        },
+        "retention_period": {
+          "type": "string",
+          "const": "permanent",
+          "description": "Judicial findings are retained permanently."
+        }
+      }
+    }
+  }
+}

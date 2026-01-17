@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/task_result_artifact.v1.json",
+  "title": "Task Result Artifact",
+  "description": "A result submission from an Aegis Cluster back to the issuing Earl. Contains deliverables, status, and any issues encountered. Failure is allowed; silence is not.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result_id",
+    "request_id",
+    "task_id",
+    "version",
+    "submitted_at",
+    "cluster_id",
+    "steward_id",
+    "status",
+    "audit"
+  ],
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Unique identifier for this result submission (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Reference to the Task Activation Request this responds to (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Reference to the parent task in the governance system (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when this result was submitted."
+    },
+    "cluster_id": {
+      "type": "string",
+      "description": "The cluster that executed this task (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "steward_id": {
+      "type": "string",
+      "description": "The steward who approved submission of this result.",
+      "minLength": 8,
+      "maxLength": 80
+    },
+    "status": {
+      "type": "string",
+      "description": "Outcome status of the task execution.",
+      "enum": [
+        "completed",
+        "completed_with_issues",
+        "partial",
+        "failed",
+        "blocked",
+        "withdrawn"
+      ]
+    },
+    "completion_summary": {
+      "type": "string",
+      "description": "Human-readable summary of what was accomplished (or why it wasn't).",
+      "maxLength": 2000
+    },
+    "deliverables": {
+      "type": "array",
+      "description": "Artifacts produced by the cluster.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "format", "location"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Deliverable name matching the request's success_definition.",
+            "maxLength": 200
+          },
+          "format": {
+            "type": "string",
+            "enum": ["document", "code", "data", "report", "artifact", "other"]
+          },
+          "location": {
+            "type": "string",
+            "description": "URI or path to the deliverable.",
+            "maxLength": 500
+          },
+          "checksum": {
+            "type": "object",
+            "description": "Optional integrity verification.",
+            "additionalProperties": false,
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "enum": ["sha256", "sha512", "md5"]
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "acceptance_test_results": {
+      "type": "array",
+      "description": "Results of any acceptance tests defined in the request.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["test", "passed"],
+        "properties": {
+          "test": {
+            "type": "string",
+            "description": "The acceptance test criteria from the request.",
+            "maxLength": 500
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "description": "Problems encountered during execution. Mandatory disclosure.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["issue_type", "description", "severity"],
+        "properties": {
+          "issue_type": {
+            "type": "string",
+            "enum": [
+              "blocker",
+              "constraint_conflict",
+              "resource_unavailable",
+              "scope_ambiguity",
+              "quality_concern",
+              "timeline_risk",
+              "external_dependency",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor", "informational"]
+          },
+          "resolution": {
+            "type": "string",
+            "description": "How the issue was resolved, or why it couldn't be.",
+            "maxLength": 1000
+          },
+          "escalated": {
+            "type": "boolean",
+            "description": "Whether this issue was escalated to the Earl.",
+            "default": false
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "description": "Unresolved blockers that prevented completion. Required if status is 'blocked'.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["blocker_type", "description"],
+        "properties": {
+          "blocker_type": {
+            "type": "string",
+            "enum": [
+              "missing_information",
+              "access_denied",
+              "dependency_failed",
+              "resource_unavailable",
+              "constraint_impossible",
+              "external_system_down",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "suggested_resolution": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "owner": {
+            "type": "string",
+            "description": "Who can unblock this (e.g., 'Earl', 'Duke', 'External vendor').",
+            "maxLength": 100
+          }
+        }
+      }
+    },
+    "effort": {
+      "type": "object",
+      "description": "Optional effort tracking for capacity planning.",
+      "additionalProperties": false,
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "estimated_hours": {
+          "type": "number",
+          "minimum": 0
+        },
+        "actual_hours": {
+          "type": "number",
+          "minimum": 0
+        },
+        "contributors_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes from the cluster about the execution.",
+      "maxLength": 5000
+    },
+    "feedback": {
+      "type": "object",
+      "description": "Optional feedback on the task request itself.",
+      "additionalProperties": false,
+      "properties": {
+        "request_clarity": {
+          "type": "string",
+          "enum": ["clear", "mostly_clear", "unclear", "very_unclear"]
+        },
+        "constraints_reasonable": {
+          "type": "boolean"
+        },
+        "deadline_achievable": {
+          "type": "boolean"
+        },
+        "suggestions": {
+          "type": "string",
+          "description": "Suggestions for improving future requests.",
+          "maxLength": 1000
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "description": "Audit trail for this result.",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id", "steward_attestation"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed tracing ID for correlation."
+        },
+        "steward_attestation": {
+          "type": "object",
+          "description": "Steward confirms this result is accurate and complete.",
+          "additionalProperties": false,
+          "required": ["attested", "attested_at"],
+          "properties": {
+            "attested": {
+              "type": "boolean",
+              "const": true
+            },
+            "attested_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "attestation_method": {
+              "type": "string",
+              "enum": ["manual_review", "automated_check", "delegated"],
+              "default": "manual_review"
+            }
+          }
+        }
+      }
+    }
+  }
+}

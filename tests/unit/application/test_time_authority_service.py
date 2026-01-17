@@ -1,17 +1,22 @@
-"""Unit tests for TimeAuthorityService (Story 1.5, Task 1).
+"""Unit tests for TimeAuthorityService (Story 1.5, Task 1 + HARDENING-1).
 
-Tests clock drift detection and logging functionality.
+Tests clock drift detection and TimeAuthorityProtocol implementation.
 No infrastructure dependencies - pure unit tests.
 
 Constitutional Constraints Tested:
 - FR6: Events have dual timestamps
 - FR7: Sequence is authoritative ordering
 - CT-12: Witnessing creates accountability (drift logged for investigation)
+
+HARDENING-1 Additions:
+- AC4: TimeAuthorityService implements TimeAuthorityProtocol
+- Protocol methods: now(), utcnow(), monotonic()
 """
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
+from src.application.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.time_authority_service import (
     DEFAULT_DRIFT_THRESHOLD_SECONDS,
     TimeAuthorityService,
@@ -282,3 +287,82 @@ class TestTimeAuthorityServiceEdgeCases:
             # Same instant = zero drift
             assert drift == timedelta(seconds=0)
             mock_logger.bind.assert_not_called()
+
+
+class TestTimeAuthorityProtocolImplementation:
+    """Tests for TimeAuthorityProtocol implementation (HARDENING-1, AC4)."""
+
+    def test_implements_time_authority_protocol(self) -> None:
+        """TimeAuthorityService implements TimeAuthorityProtocol."""
+        service = TimeAuthorityService()
+        assert isinstance(service, TimeAuthorityProtocol)
+
+    def test_now_returns_datetime(self) -> None:
+        """now() returns a datetime object."""
+        service = TimeAuthorityService()
+        result = service.now()
+        assert isinstance(result, datetime)
+
+    def test_now_returns_timezone_aware_utc(self) -> None:
+        """now() returns UTC timezone-aware datetime."""
+        service = TimeAuthorityService()
+        result = service.now()
+        assert result.tzinfo is not None
+        assert result.tzinfo == timezone.utc
+
+    def test_now_returns_current_time(self) -> None:
+        """now() returns approximately current time."""
+        service = TimeAuthorityService()
+        before = datetime.now(timezone.utc)
+        result = service.now()
+        after = datetime.now(timezone.utc)
+
+        assert before <= result <= after
+
+    def test_utcnow_returns_datetime(self) -> None:
+        """utcnow() returns a datetime object."""
+        service = TimeAuthorityService()
+        result = service.utcnow()
+        assert isinstance(result, datetime)
+
+    def test_utcnow_returns_utc_timezone(self) -> None:
+        """utcnow() returns UTC timezone-aware datetime."""
+        service = TimeAuthorityService()
+        result = service.utcnow()
+        assert result.tzinfo is not None
+        assert result.tzinfo == timezone.utc
+
+    def test_now_and_utcnow_return_same_timezone(self) -> None:
+        """now() and utcnow() both return UTC for consistency."""
+        service = TimeAuthorityService()
+        now_result = service.now()
+        utcnow_result = service.utcnow()
+
+        # Both should be in UTC
+        assert now_result.tzinfo == timezone.utc
+        assert utcnow_result.tzinfo == timezone.utc
+
+    def test_monotonic_returns_float(self) -> None:
+        """monotonic() returns a float."""
+        service = TimeAuthorityService()
+        result = service.monotonic()
+        assert isinstance(result, float)
+
+    def test_monotonic_is_monotonically_increasing(self) -> None:
+        """monotonic() values never decrease."""
+        service = TimeAuthorityService()
+        values = [service.monotonic() for _ in range(100)]
+
+        for i in range(1, len(values)):
+            assert values[i] >= values[i - 1], "monotonic() must never decrease"
+
+    def test_monotonic_increases_with_time(self) -> None:
+        """monotonic() increases as time passes."""
+        import time
+
+        service = TimeAuthorityService()
+        before = service.monotonic()
+        time.sleep(0.01)  # Sleep 10ms
+        after = service.monotonic()
+
+        assert after > before

@@ -37,3 +37,23 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
+      # HARDENING-1: Prevent direct datetime.now() calls in production code
+      # All services must use TimeAuthorityProtocol injection instead
+      - id: no-datetime-now
+        name: no direct datetime.now() calls
+        entry: python3
+        args: [scripts/check_no_datetime_now.py]
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      # HARDENING-2: Prevent inline BranchConflictRule definitions
+      # All branch conflict rules must be defined in config/permissions/rank-matrix.yaml
+      - id: no-inline-branch-conflict-rules
+        name: no inline BranchConflictRule definitions
+        entry: python3
+        args: [scripts/check_no_inline_branch_conflict_rules.py]
+        language: system
+        types: [python]
+        pass_filenames: false

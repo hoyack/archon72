@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/judicial_panel.v1.json",
+  "title": "Judicial Panel",
+  "description": "A panel of Princes convened to review a governance action. Panels must be 3 or 5 Princes, randomly selected, with mandatory recusals enforced.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "panel_id",
+    "version",
+    "created_at",
+    "case_reference",
+    "status",
+    "composition",
+    "timeline",
+    "audit"
+  ],
+  "properties": {
+    "panel_id": {
+      "type": "string",
+      "description": "Unique identifier for this panel (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "case_reference": {
+      "type": "object",
+      "description": "The case this panel was convened to review.",
+      "additionalProperties": false,
+      "required": ["case_type", "reference_id"],
+      "properties": {
+        "case_type": {
+          "type": "string",
+          "enum": ["witness_statement", "appeal", "conclave_referral"]
+        },
+        "reference_id": {
+          "type": "string"
+        },
+        "urgency": {
+          "type": "string",
+          "enum": ["standard", "expedited", "emergency"],
+          "default": "standard"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "forming",
+        "seated",
+        "reviewing",
+        "deliberating",
+        "finding_drafted",
+        "finding_issued",
+        "appealed",
+        "closed"
+      ]
+    },
+    "composition": {
+      "type": "object",
+      "description": "Panel membership and recusals.",
+      "additionalProperties": false,
+      "required": ["target_size", "eligible_princes", "recused_princes", "seated_princes"],
+      "properties": {
+        "target_size": {
+          "type": "integer",
+          "enum": [3, 5],
+          "description": "Panels must be exactly 3 or 5 Princes."
+        },
+        "eligible_princes": {
+          "type": "array",
+          "description": "All Princes eligible for this panel (after recusals).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recused_princes": {
+          "type": "array",
+          "description": "Princes who were automatically recused.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["prince_id", "prince_name", "recusal_reason", "recusal_automatic"],
+            "properties": {
+              "prince_id": {
+                "type": "string"
+              },
+              "prince_name": {
+                "type": "string"
+              },
+              "recusal_reason": {
+                "type": "string",
+                "enum": [
+                  "involved_in_reviewed_action",
+                  "judicial_scope_conflict",
+                  "prior_related_ruling",
+                  "documented_bias",
+                  "voluntary",
+                  "other"
+                ]
+              },
+              "recusal_automatic": {
+                "type": "boolean",
+                "description": "True if system-enforced, false if voluntary."
+              }
+            }
+          }
+        },
+        "seated_princes": {
+          "type": "array",
+          "description": "Princes randomly selected and seated on this panel.",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["prince_id", "prince_name", "seated_at"],
+            "properties": {
+              "prince_id": {
+                "type": "string"
+              },
+              "prince_name": {
+                "type": "string"
+              },
+              "seated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "judicial_scope": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "This Prince's declared judicial scope."
+              }
+            }
+          }
+        },
+        "selection_method": {
+          "type": "string",
+          "const": "random",
+          "description": "Selection must be random from eligible pool."
+        },
+        "selection_seed": {
+          "type": "string",
+          "description": "Random seed used for selection (for auditability)."
+        }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "description": "Key dates in the panel lifecycle.",
+      "additionalProperties": false,
+      "properties": {
+        "case_received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "panel_seated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "review_started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deliberation_started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finding_issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "appeal_window_ends_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "case_closed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "sla": {
+      "type": "object",
+      "description": "Service level expectations based on urgency.",
+      "additionalProperties": false,
+      "properties": {
+        "max_time_to_seat": {
+          "type": "string",
+          "description": "ISO-8601 duration. Standard: PT24H, Expedited: PT4H, Emergency: PT1H"
+        },
+        "max_review_period": {
+          "type": "string",
+          "description": "ISO-8601 duration. Standard: P7D, Expedited: P2D, Emergency: PT24H"
+        },
+        "appeal_window": {
+          "type": "string",
+          "description": "ISO-8601 duration. Standard: P7D, Expedited: PT48H"
+        }
+      }
+    },
+    "artifacts_reviewed": {
+      "type": "array",
+      "description": "Artifacts, logs, and records reviewed by the panel.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifact_type", "artifact_id"],
+        "properties": {
+          "artifact_type": {
+            "type": "string",
+            "enum": [
+              "witness_statement",
+              "audit_log",
+              "task_activation_request",
+              "task_result_artifact",
+              "execution_plan",
+              "conclave_motion",
+              "prior_finding",
+              "other"
+            ]
+          },
+          "artifact_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "deliberation_record": {
+      "type": "object",
+      "description": "Record of panel deliberation.",
+      "additionalProperties": false,
+      "properties": {
+        "sessions_held": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "deliberation_summary": {
+          "type": "string",
+          "description": "Summary of key discussion points (not verbatim).",
+          "maxLength": 5000
+        },
+        "consensus_reached": {
+          "type": "boolean"
+        },
+        "vote_breakdown": {
+          "type": "object",
+          "properties": {
+            "concur": { "type": "integer" },
+            "dissent": { "type": "integer" },
+            "abstain": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "finding_reference": {
+      "type": "string",
+      "description": "Reference to the Judicial Finding issued by this panel."
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Hard constraints enforced on all panels.",
+      "additionalProperties": false,
+      "properties": {
+        "minimum_panel_size": {
+          "type": "integer",
+          "const": 3
+        },
+        "maximum_panel_size": {
+          "type": "integer",
+          "const": 5
+        },
+        "single_prince_prohibition": {
+          "type": "boolean",
+          "const": true,
+          "description": "A single Prince may never decide legitimacy alone."
+        },
+        "random_selection_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "recusal_enforcement": {
+          "type": "string",
+          "const": "automatic",
+          "description": "Recusals are system-enforced, not honor-based."
+        },
+        "dissent_must_be_recorded": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,11 +1,15 @@
-"""CSV + YAML adapter for Archon profile repository.
+"""JSON + YAML adapter for Archon profile repository.
 
-This adapter loads Archon identity data from CSV (docs/archons-base.csv)
+This adapter loads Archon identity data from JSON (docs/archons-base.json)
 and merges it with LLM configuration from YAML (config/archon-llm-bindings.yaml)
 to produce complete ArchonProfile instances.
+
+Aligned with Government PRD (docs/new-requirements.md):
+- Branch assignments per separation of powers
+- Governance permissions per rank
+- Knight-Witness (Furcas) as special observer
 """
 
-import csv
 import json
 from datetime import datetime
 from pathlib import Path
@@ -19,54 +23,61 @@ from src.application.ports.archon_profile_repository import (
     ArchonProfileRepository,
     ArchonProfileLoadError,
 )
-from src.domain.models.archon_profile import ArchonProfile
+from src.domain.models.archon_profile import ArchonProfile, RANK_TO_BRANCH
 from src.domain.models.llm_config import LLMConfig, DEFAULT_LLM_CONFIG
 
 
 logger = get_logger(__name__)
 
 
-class CsvYamlArchonProfileAdapter(ArchonProfileRepository):
-    """Adapter that loads Archon profiles from CSV with YAML LLM bindings.
+class JsonYamlArchonProfileAdapter(ArchonProfileRepository):
+    """Adapter that loads Archon profiles from JSON with YAML LLM bindings.
 
     This implementation:
-    1. Loads identity data from a CSV file (name, backstory, system_prompt, etc.)
+    1. Loads identity data from a JSON file (name, backstory, system_prompt, branch, etc.)
     2. Loads LLM configurations from a YAML file (provider, model, temperature, etc.)
     3. Merges them into complete ArchonProfile instances
     4. Supports rank-based defaults and per-archon overrides
 
-    The CSV is the source of truth for identity; YAML is for operational config.
+    The JSON is the source of truth for identity and governance; YAML is for operational config.
+
+    Per Government PRD (docs/new-requirements.md):
+    - Branch assignments define separation of powers
+    - Governance permissions/constraints derived from branch
+    - Knight-Witness (Furcas) is queryable via get_witness()
     """
 
     def __init__(
         self,
-        csv_path: Path | str,
+        json_path: Path | str,
         llm_config_path: Path | str,
     ) -> None:
         """Initialize the adapter with file paths.
 
         Args:
-            csv_path: Path to the archons CSV file
+            json_path: Path to the archons JSON file
             llm_config_path: Path to the LLM bindings YAML file
 
         Raises:
             ArchonProfileLoadError: If files cannot be loaded or parsed
         """
-        self._csv_path = Path(csv_path)
+        self._json_path = Path(json_path)
         self._llm_config_path = Path(llm_config_path)
 
         # Load and cache profiles at initialization
         self._profiles: dict[UUID, ArchonProfile] = {}
         self._profiles_by_name: dict[str, ArchonProfile] = {}
+        self._profiles_by_branch: dict[str, list[ArchonProfile]] = {}
+        self._witness: ArchonProfile | None = None
         self._load_profiles()
 
     def _load_profiles(self) -> None:
-        """Load and merge CSV identities with YAML LLM configs."""
+        """Load and merge JSON identities with YAML LLM configs."""
         # Load LLM configurations first
         llm_configs = self._load_llm_configs()
 
-        # Load CSV identities and merge with LLM configs
-        identities = self._load_csv_identities()
+        # Load JSON identities and merge with LLM configs
+        identities = self._load_json_identities()
 
         for archon_id, identity in identities.items():
             llm_config = self._resolve_llm_config(
@@ -74,6 +85,11 @@ class CsvYamlArchonProfileAdapter(ArchonProfileRepository):
                 aegis_rank=identity["aegis_rank"],
                 llm_configs=llm_configs,
             )
+
+            # Determine branch: use JSON value or derive from rank
+            branch = identity.get("branch", "")
+            if not branch:
+                branch = RANK_TO_BRANCH.get(identity["original_rank"], "")
 
             profile = ArchonProfile(
                 id=archon_id,
@@ -92,68 +108,77 @@ class CsvYamlArchonProfileAdapter(ArchonProfileRepository):
                 max_legions=identity["max_legions"],
                 created_at=identity["created_at"],
                 updated_at=identity["updated_at"],
+                branch=branch,
                 llm_config=llm_config,
             )
 
             self._profiles[archon_id] = profile
             self._profiles_by_name[profile.name.lower()] = profile
 
+            # Index by branch
+            if branch not in self._profiles_by_branch:
+                self._profiles_by_branch[branch] = []
+            self._profiles_by_branch[branch].append(profile)
+
+            # Track witness (Furcas)
+            if branch == "witness":
+                self._witness = profile
+
         logger.info(
             "archon_profiles_loaded",
             count=len(self._profiles),
-            csv_path=str(self._csv_path),
+            json_path=str(self._json_path),
             llm_config_path=str(self._llm_config_path),
+            branches=list(self._profiles_by_branch.keys()),
+            witness=self._witness.name if self._witness else None,
         )
 
-    def _load_csv_identities(self) -> dict[UUID, dict[str, Any]]:
-        """Load archon identity data from CSV file."""
-        if not self._csv_path.exists():
+    def _load_json_identities(self) -> dict[UUID, dict[str, Any]]:
+        """Load archon identity data from JSON file."""
+        if not self._json_path.exists():
             raise ArchonProfileLoadError(
-                source=str(self._csv_path),
+                source=str(self._json_path),
                 reason="File not found",
             )
 
         identities: dict[UUID, dict[str, Any]] = {}
 
         try:
-            with open(self._csv_path, newline="", encoding="utf-8") as csvfile:
-                reader = csv.DictReader(csvfile)
+            with open(self._json_path, encoding="utf-8") as jsonfile:
+                data = json.load(jsonfile)
 
-                for row in reader:
-                    archon_id = UUID(row["id"])
+                # Handle both array format and object with "archons" key
+                archons = data.get("archons", data) if isinstance(data, dict) else data
 
-                    # Parse JSON fields
-                    suggested_tools = self._parse_json_field(
-                        row.get("suggested_tools", "[]")
-                    )
-                    attributes = self._parse_json_field(row.get("attributes", "{}"))
+                for archon in archons:
+                    archon_id = UUID(archon["id"])
 
-                    # Parse timestamps
-                    created_at = self._parse_timestamp(row.get("created_at", ""))
-                    updated_at = self._parse_timestamp(row.get("updated_at", ""))
+                    # Get timestamps with fallback
+                    created_at = self._parse_timestamp(archon.get("created_at", ""))
+                    updated_at = self._parse_timestamp(archon.get("updated_at", ""))
 
                     identities[archon_id] = {
-                        "name": row["name"],
-                        "aegis_rank": row["aegis_rank"],
-                        "original_rank": row["original_rank"],
-                        "rank_level": int(row["rank_level"]),
-                        "role": row["role"],
-                        "goal": row["goal"],
-                        "backstory": row["backstory"],
-                        "system_prompt": row["system_prompt"],
-                        "suggested_tools": suggested_tools,
-                        "allow_delegation": row.get("allow_delegation", "").lower()
-                        == "true",
-                        "attributes": attributes,
-                        "max_members": int(row.get("max_members", 0)),
-                        "max_legions": int(row.get("max_legions", 0)),
+                        "name": archon["name"],
+                        "aegis_rank": archon["aegis_rank"],
+                        "original_rank": archon.get("original_rank", archon.get("rank", "")),
+                        "rank_level": int(archon["rank_level"]),
+                        "branch": archon.get("branch", ""),
+                        "role": archon["role"],
+                        "goal": archon["goal"],
+                        "backstory": archon["backstory"],
+                        "system_prompt": archon["system_prompt"],
+                        "suggested_tools": archon.get("suggested_tools", []),
+                        "allow_delegation": archon.get("allow_delegation", True),
+                        "attributes": archon.get("attributes", {}),
+                        "max_members": int(archon.get("max_members", 0)),
+                        "max_legions": int(archon.get("max_legions", 0)),
                         "created_at": created_at,
                         "updated_at": updated_at,
                     }
 
-        except (csv.Error, KeyError, ValueError) as e:
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
             raise ArchonProfileLoadError(
-                source=str(self._csv_path),
+                source=str(self._json_path),
                 reason=str(e),
             ) from e
 
@@ -296,19 +321,35 @@ class CsvYamlArchonProfileAdapter(ArchonProfileRepository):
         """Check if an Archon with the given ID exists."""
         return archon_id in self._profiles
 
+    def get_by_branch(self, branch: str) -> list[ArchonProfile]:
+        """Retrieve all Archons in a specific governance branch."""
+        return self._profiles_by_branch.get(branch, [])
+
+    def get_witness(self) -> ArchonProfile | None:
+        """Retrieve the Knight-Witness (Furcas)."""
+        return self._witness
+
+    def get_all_names(self) -> list[str]:
+        """Retrieve all Archon names in canonical order."""
+        return [p.name for p in self.get_all()]
+
+
+# Backwards compatibility alias
+CsvYamlArchonProfileAdapter = JsonYamlArchonProfileAdapter
+
 
 def create_archon_profile_repository(
-    csv_path: Path | str | None = None,
+    json_path: Path | str | None = None,
     llm_config_path: Path | str | None = None,
 ) -> ArchonProfileRepository:
     """Factory function to create an ArchonProfileRepository.
 
     Uses default paths if not specified:
-    - CSV: docs/archons-base.csv
+    - JSON: docs/archons-base.json (single source of truth for all 72 Archons)
     - YAML: config/archon-llm-bindings.yaml
 
     Args:
-        csv_path: Optional path to archons CSV
+        json_path: Optional path to archons JSON file
         llm_config_path: Optional path to LLM config YAML
 
     Returns:
@@ -317,10 +358,10 @@ def create_archon_profile_repository(
     # Determine project root (assumes this file is in src/infrastructure/adapters/config/)
     project_root = Path(__file__).parent.parent.parent.parent.parent
 
-    csv_path = csv_path or project_root / "docs" / "archons-base.csv"
+    json_path = json_path or project_root / "docs" / "archons-base.json"
     llm_config_path = llm_config_path or project_root / "config" / "archon-llm-bindings.yaml"
 
-    return CsvYamlArchonProfileAdapter(
-        csv_path=csv_path,
+    return JsonYamlArchonProfileAdapter(
+        json_path=json_path,
         llm_config_path=llm_config_path,
     )

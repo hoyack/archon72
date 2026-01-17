@@ -1,0 +1,371 @@
+{
+  "program_id": "program-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "version": "1.0.0",
+  "execution_plan_id": "exec-plan-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "execution_plan_title": "Ethical Guidelines for Predictive Risk Assessments Implementation",
+  "motion_id": "motion-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "program_owner": {
+    "duke_id": "duke-aim",
+    "duke_name": "Aim",
+    "domain": "Destructive Processes"
+  },
+  "assigned_earls": [
+    {
+      "earl_id": "earl-bifrons",
+      "earl_name": "Bifrons",
+      "domain": "Transition Management",
+      "assigned_tasks": ["task-eth-001", "task-eth-002", "task-eth-003"],
+      "assigned_at": "2026-01-24T11:00:00Z"
+    },
+    {
+      "earl_id": "earl-andromalius",
+      "earl_name": "Andromalius",
+      "domain": "Recovery & Justice",
+      "assigned_tasks": ["task-forecast-001", "task-forecast-002", "task-forecast-003"],
+      "assigned_at": "2026-01-24T11:00:00Z"
+    },
+    {
+      "earl_id": "earl-marchosias",
+      "earl_name": "Marchosias",
+      "domain": "Combat Readiness",
+      "assigned_tasks": ["task-signal-001", "task-signal-002"],
+      "assigned_at": "2026-01-24T11:00:00Z"
+    },
+    {
+      "earl_id": "earl-raum",
+      "earl_name": "Raum",
+      "domain": "Destruction & Reconciliation",
+      "assigned_tasks": ["task-adversarial-001", "task-adversarial-002"],
+      "assigned_at": "2026-01-24T11:00:00Z"
+    }
+  ],
+  "participating_clusters": [
+    {
+      "cluster_id": "cluster-17",
+      "cluster_name": "Research & Analysis",
+      "participation_status": "in_progress",
+      "tasks_assigned": ["task-eth-001", "task-eth-002", "task-eth-003"],
+      "capacity_committed": 7,
+      "accepted_at": "2026-01-24T14:00:00Z"
+    },
+    {
+      "cluster_id": "cluster-31",
+      "cluster_name": "Forecasting Systems",
+      "participation_status": "declined",
+      "tasks_assigned": ["task-forecast-001", "task-forecast-002", "task-forecast-003"],
+      "declined_at": "2026-01-24T15:00:00Z",
+      "decline_reason": "Cluster at maximum capacity due to concurrent quarterly forecasting cycle. Estimated availability in 3 weeks."
+    },
+    {
+      "cluster_id": "cluster-25",
+      "cluster_name": "Data Engineering",
+      "participation_status": "in_progress",
+      "tasks_assigned": ["task-signal-001", "task-signal-002"],
+      "capacity_committed": 7,
+      "accepted_at": "2026-01-24T14:30:00Z"
+    },
+    {
+      "cluster_id": "cluster-44",
+      "cluster_name": "Security & Red Team",
+      "participation_status": "accepted",
+      "tasks_assigned": ["task-adversarial-001", "task-adversarial-002"],
+      "capacity_committed": 9,
+      "accepted_at": "2026-01-24T16:00:00Z"
+    },
+    {
+      "cluster_id": "cluster-33",
+      "cluster_name": "Analytics Platform",
+      "participation_status": "accepted",
+      "tasks_assigned": ["task-forecast-001", "task-forecast-002", "task-forecast-003"],
+      "capacity_committed": 11,
+      "accepted_at": "2026-01-26T10:00:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-eth-001",
+      "description": "Define procedural framework for uncertainty quantification requirements",
+      "source_plan_task_id": "task-eth-001",
+      "assigned_earl": {
+        "earl_id": "earl-bifrons",
+        "earl_name": "Bifrons"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis"
+      },
+      "status": "completed",
+      "activation_request_id": "tar-eth-001",
+      "result_artifact_id": "tra-eth-001-result",
+      "activated_at": "2026-01-24T16:00:00Z",
+      "completed_at": "2026-02-07T16:00:00Z"
+    },
+    {
+      "task_id": "task-eth-002",
+      "description": "Establish human review checkpoint criteria for consequential decisions",
+      "source_plan_task_id": "task-eth-002",
+      "assigned_earl": {
+        "earl_id": "earl-bifrons",
+        "earl_name": "Bifrons"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis"
+      },
+      "status": "in_progress",
+      "activation_request_id": "tar-eth-002",
+      "activated_at": "2026-02-08T09:00:00Z"
+    },
+    {
+      "task_id": "task-eth-003",
+      "description": "Create explanation pathway documentation template for predictive systems",
+      "source_plan_task_id": "task-eth-003",
+      "assigned_earl": {
+        "earl_id": "earl-bifrons",
+        "earl_name": "Bifrons"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis"
+      },
+      "status": "pending"
+    },
+    {
+      "task_id": "task-forecast-001",
+      "description": "Define confidence interval standards for prediction outputs",
+      "source_plan_task_id": "task-forecast-001",
+      "assigned_earl": {
+        "earl_id": "earl-andromalius",
+        "earl_name": "Andromalius"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-33",
+        "cluster_name": "Analytics Platform"
+      },
+      "status": "in_progress",
+      "activation_request_id": "tar-forecast-001",
+      "activated_at": "2026-02-08T10:00:00Z"
+    },
+    {
+      "task_id": "task-forecast-002",
+      "description": "Design prediction revisability mechanism for new information integration",
+      "source_plan_task_id": "task-forecast-002",
+      "assigned_earl": {
+        "earl_id": "earl-andromalius",
+        "earl_name": "Andromalius"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-33",
+        "cluster_name": "Analytics Platform"
+      },
+      "status": "pending"
+    },
+    {
+      "task_id": "task-forecast-003",
+      "description": "Establish feedback loop framework comparing predictions to outcomes",
+      "source_plan_task_id": "task-forecast-003",
+      "assigned_earl": {
+        "earl_id": "earl-andromalius",
+        "earl_name": "Andromalius"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-33",
+        "cluster_name": "Analytics Platform"
+      },
+      "status": "pending"
+    },
+    {
+      "task_id": "task-signal-001",
+      "description": "Implement audit trail capture for prediction-with-caveat presentation",
+      "source_plan_task_id": "task-signal-001",
+      "assigned_earl": {
+        "earl_id": "earl-marchosias",
+        "earl_name": "Marchosias"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-25",
+        "cluster_name": "Data Engineering"
+      },
+      "status": "in_progress",
+      "activation_request_id": "tar-signal-001",
+      "activated_at": "2026-02-08T09:30:00Z"
+    },
+    {
+      "task_id": "task-signal-002",
+      "description": "Design telemetry for tracking human review completion before consequential decisions",
+      "source_plan_task_id": "task-signal-002",
+      "assigned_earl": {
+        "earl_id": "earl-marchosias",
+        "earl_name": "Marchosias"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-25",
+        "cluster_name": "Data Engineering"
+      },
+      "status": "pending"
+    },
+    {
+      "task_id": "task-adversarial-001",
+      "description": "Design discrimination detection test suite for predictive models",
+      "source_plan_task_id": "task-adversarial-001",
+      "assigned_earl": {
+        "earl_id": "earl-raum",
+        "earl_name": "Raum"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-44",
+        "cluster_name": "Security & Red Team"
+      },
+      "status": "accepted",
+      "activation_request_id": "tar-adversarial-001",
+      "activated_at": "2026-02-08T11:00:00Z"
+    },
+    {
+      "task_id": "task-adversarial-002",
+      "description": "Develop uncertainty suppression detection scenarios",
+      "source_plan_task_id": "task-adversarial-002",
+      "assigned_earl": {
+        "earl_id": "earl-raum",
+        "earl_name": "Raum"
+      },
+      "target_cluster": {
+        "cluster_id": "cluster-44",
+        "cluster_name": "Security & Red Team"
+      },
+      "status": "pending"
+    }
+  ],
+  "capacity_state": {
+    "clusters_committed": 4,
+    "clusters_declined": 1,
+    "clusters_pending": 0,
+    "saturation_percentage": 78,
+    "bottleneck_areas": ["cluster-31"],
+    "deferral_risk": "medium"
+  },
+  "capacity_events": [
+    {
+      "event_id": "cap-event-001",
+      "event_type": "cluster_accepted",
+      "cluster_id": "cluster-17",
+      "description": "Cluster 17 accepted ethics tasks with 7 capacity units",
+      "recorded_at": "2026-01-24T14:00:00Z"
+    },
+    {
+      "event_id": "cap-event-002",
+      "event_type": "cluster_declined",
+      "cluster_id": "cluster-31",
+      "task_id": "task-forecast-001",
+      "description": "Cluster 31 declined forecasting tasks due to quarterly cycle capacity constraints",
+      "recorded_at": "2026-01-24T15:00:00Z"
+    },
+    {
+      "event_id": "cap-event-003",
+      "event_type": "cluster_accepted",
+      "cluster_id": "cluster-25",
+      "description": "Cluster 25 accepted signal tasks with 7 capacity units",
+      "recorded_at": "2026-01-24T14:30:00Z"
+    },
+    {
+      "event_id": "cap-event-004",
+      "event_type": "cluster_accepted",
+      "cluster_id": "cluster-44",
+      "description": "Cluster 44 accepted adversarial tasks with 9 capacity units",
+      "recorded_at": "2026-01-24T16:00:00Z"
+    },
+    {
+      "event_id": "cap-event-005",
+      "event_type": "cluster_accepted",
+      "cluster_id": "cluster-33",
+      "description": "Cluster 33 accepted reassigned forecasting tasks with 11 capacity units after blocker resolution",
+      "recorded_at": "2026-01-26T10:00:00Z"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "blocker-admin-001",
+      "blocker_type": "cluster_refusal",
+      "description": "Cluster 31 (Forecasting Systems) declined participation in forecasting tasks (task-forecast-001, 002, 003) due to capacity constraints from quarterly forecasting cycle. Tasks require reassignment to alternative cluster.",
+      "severity": "major",
+      "raised_by": {
+        "duke_id": "duke-aim",
+        "duke_name": "Aim"
+      },
+      "raised_at": "2026-01-24T15:30:00Z",
+      "escalated": false,
+      "resolution": {
+        "resolved": true,
+        "resolved_at": "2026-01-26T10:00:00Z",
+        "resolution_method": "task_reassigned",
+        "resolution_notes": "Forecasting tasks reassigned to Cluster 33 (Analytics Platform) which has compatible capabilities and available capacity. Original timeline extended by 2 days to accommodate reassignment."
+      }
+    },
+    {
+      "blocker_id": "blocker-admin-002",
+      "blocker_type": "constraint_violation",
+      "description": "During task-eth-001 execution, Cluster 17 identified that proposed uncertainty quantification framework may conflict with existing regulatory compliance requirements. Requires clarification on whether motion constraints take precedence over pre-existing compliance obligations.",
+      "severity": "critical",
+      "raised_by": {
+        "duke_id": "duke-aim",
+        "duke_name": "Aim"
+      },
+      "raised_at": "2026-02-01T11:00:00Z",
+      "escalated": true,
+      "escalated_to": "conclave",
+      "escalated_at": "2026-02-01T14:00:00Z",
+      "resolution": {
+        "resolved": true,
+        "resolved_at": "2026-02-03T16:00:00Z",
+        "resolution_method": "constraint_clarified",
+        "resolution_notes": "Conclave clarified that motion constraints operate within existing legal/regulatory framework. Where conflict exists, regulatory requirements take precedence. Motion constraints apply to discretionary aspects of implementation only."
+      }
+    }
+  ],
+  "escalations": [
+    {
+      "escalation_id": "escalation-001",
+      "escalation_type": "constraint_conflict",
+      "escalated_to": "conclave",
+      "description": "Critical blocker regarding uncertainty quantification framework potentially conflicting with regulatory compliance requirements. Cluster 17 cannot proceed until conflict is resolved. Duke Aim requests Conclave clarification on constraint precedence.",
+      "blocker_ids": ["blocker-admin-002"],
+      "raised_by": {
+        "duke_id": "duke-aim",
+        "duke_name": "Aim"
+      },
+      "raised_at": "2026-02-01T14:00:00Z",
+      "response": {
+        "received": true,
+        "received_at": "2026-02-03T16:00:00Z",
+        "decision": "proceed",
+        "decision_rationale": "Motion constraints operate within existing legal framework. Regulatory requirements take precedence where direct conflict exists. Implementation may proceed with this clarification documented."
+      }
+    }
+  ],
+  "progress": {
+    "tasks_total": 10,
+    "tasks_activated": 5,
+    "tasks_accepted": 5,
+    "tasks_declined": 0,
+    "tasks_in_progress": 4,
+    "tasks_completed": 1,
+    "tasks_failed": 0,
+    "completion_percentage": 10
+  },
+  "status": "executing",
+  "halt_record": null,
+  "completion": null,
+  "constraints_metadata": {
+    "may_not_modify_plan": true,
+    "may_not_invent_tasks": true,
+    "may_not_pressure_clusters": true,
+    "may_not_conceal_failure": true,
+    "must_escalate_critical_blockers": true
+  },
+  "created_at": "2026-01-24T10:30:00Z",
+  "activated_at": "2026-01-24T16:00:00Z",
+  "audit": {
+    "created_at": "2026-01-24T10:30:00Z",
+    "updated_at": "2026-02-08T11:00:00Z",
+    "trace_id": "trace-program-prediction-ethics-001"
+  }
+}

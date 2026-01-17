@@ -1,0 +1,461 @@
+{
+  "execution_plan_id": "exec-plan-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "version": "1.0.0",
+  "motion_id": "motion-x1y2z3a4-b5c6-7890-defg-hi1234567890",
+  "motion_title": "Ethical Guidelines for Predictive Risk Assessments",
+  "plan_owner": {
+    "president_id": "president-foras",
+    "president_name": "Foras",
+    "portfolio": "ethics_method_compliance"
+  },
+  "affected_portfolios": [
+    "ethics_method_compliance",
+    "forecasting_timing_cadence",
+    "behavioral_intelligence_signals",
+    "knowledge_systems_transfer",
+    "adversarial_testing_stress_simulation"
+  ],
+  "portfolio_contributions": [
+    {
+      "contribution_id": "contrib-foras-001",
+      "portfolio": "ethics_method_compliance",
+      "contributing_president": {
+        "president_id": "president-foras",
+        "president_name": "Foras"
+      },
+      "tasks": [
+        {
+          "task_id": "task-eth-001",
+          "description": "Define procedural framework for uncertainty quantification requirements",
+          "contributing_portfolio": "ethics_method_compliance",
+          "dependencies": [],
+          "sequence_order": 1,
+          "capacity_required": {
+            "cluster_id": "cluster-17",
+            "capacity_units": 3
+          },
+          "estimated_duration": "P14D"
+        },
+        {
+          "task_id": "task-eth-002",
+          "description": "Establish human review checkpoint criteria for consequential decisions",
+          "contributing_portfolio": "ethics_method_compliance",
+          "dependencies": ["task-eth-001"],
+          "sequence_order": 3,
+          "capacity_required": {
+            "cluster_id": "cluster-17",
+            "capacity_units": 2
+          },
+          "estimated_duration": "P7D"
+        },
+        {
+          "task_id": "task-eth-003",
+          "description": "Create explanation pathway documentation template for predictive systems",
+          "contributing_portfolio": "ethics_method_compliance",
+          "dependencies": ["task-eth-002"],
+          "sequence_order": 6,
+          "capacity_required": {
+            "cluster_id": "cluster-17",
+            "capacity_units": 2
+          },
+          "estimated_duration": "P7D"
+        }
+      ],
+      "constraints_respected": [
+        "Predictions must never be presented as certainties",
+        "No prediction shall be used as automatic justification for irreversible action",
+        "Individuals affected by predictions must have a path to contest or request explanation"
+      ],
+      "risks": [
+        "Definition of 'consequential decision' may require Conclave clarification",
+        "Explanation pathway complexity may vary significantly by prediction type"
+      ],
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-22T10:00:00Z",
+        "attestation_type": "contribution"
+      }
+    },
+    {
+      "contribution_id": "contrib-amy-001",
+      "portfolio": "forecasting_timing_cadence",
+      "contributing_president": {
+        "president_id": "president-amy",
+        "president_name": "Amy"
+      },
+      "tasks": [
+        {
+          "task_id": "task-forecast-001",
+          "description": "Define confidence interval standards for prediction outputs",
+          "contributing_portfolio": "forecasting_timing_cadence",
+          "dependencies": ["task-eth-001"],
+          "sequence_order": 2,
+          "capacity_required": {
+            "cluster_id": "cluster-31",
+            "capacity_units": 4
+          },
+          "estimated_duration": "P14D"
+        },
+        {
+          "task_id": "task-forecast-002",
+          "description": "Design prediction revisability mechanism for new information integration",
+          "contributing_portfolio": "forecasting_timing_cadence",
+          "dependencies": ["task-forecast-001"],
+          "sequence_order": 5,
+          "capacity_required": {
+            "cluster_id": "cluster-31",
+            "capacity_units": 3
+          },
+          "estimated_duration": "P14D"
+        },
+        {
+          "task_id": "task-forecast-003",
+          "description": "Establish feedback loop framework comparing predictions to outcomes",
+          "contributing_portfolio": "forecasting_timing_cadence",
+          "dependencies": ["task-forecast-002", "task-signal-002"],
+          "sequence_order": 8,
+          "capacity_required": {
+            "cluster_id": "cluster-31",
+            "capacity_units": 4
+          },
+          "estimated_duration": "P21D"
+        }
+      ],
+      "constraints_respected": [
+        "All predictive outputs include explicit uncertainty quantification",
+        "Predictions must be revisable as new information emerges",
+        "Feedback loop exists to compare predictions against outcomes"
+      ],
+      "risks": [
+        "Confidence interval standards may need calibration across different prediction domains",
+        "Feedback loop may reveal uncomfortable truths about prediction accuracy"
+      ],
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-22T11:00:00Z",
+        "attestation_type": "contribution"
+      }
+    },
+    {
+      "contribution_id": "contrib-caim-001",
+      "portfolio": "behavioral_intelligence_signals",
+      "contributing_president": {
+        "president_id": "president-caim",
+        "president_name": "Caim"
+      },
+      "tasks": [
+        {
+          "task_id": "task-signal-001",
+          "description": "Implement audit trail capture for prediction-with-caveat presentation",
+          "contributing_portfolio": "behavioral_intelligence_signals",
+          "dependencies": ["task-eth-002"],
+          "sequence_order": 4,
+          "capacity_required": {
+            "cluster_id": "cluster-25",
+            "capacity_units": 3
+          },
+          "estimated_duration": "P14D"
+        },
+        {
+          "task_id": "task-signal-002",
+          "description": "Design telemetry for tracking human review completion before consequential decisions",
+          "contributing_portfolio": "behavioral_intelligence_signals",
+          "dependencies": ["task-signal-001"],
+          "sequence_order": 7,
+          "capacity_required": {
+            "cluster_id": "cluster-25",
+            "capacity_units": 4
+          },
+          "estimated_duration": "P14D"
+        }
+      ],
+      "constraints_respected": [
+        "Audit trail shows predictions were presented with appropriate caveats",
+        "No consequential automated decision relies solely on prediction without human review"
+      ],
+      "risks": [
+        "Telemetry volume may be significant for high-frequency prediction systems",
+        "Distinguishing 'human review' from 'rubber-stamp' may require behavioral analysis"
+      ],
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-22T11:30:00Z",
+        "attestation_type": "contribution"
+      }
+    },
+    {
+      "contribution_id": "contrib-glasya-001",
+      "portfolio": "adversarial_testing_stress_simulation",
+      "contributing_president": {
+        "president_id": "president-glasya-labolas",
+        "president_name": "Glasya-Labolas"
+      },
+      "tasks": [
+        {
+          "task_id": "task-adversarial-001",
+          "description": "Design discrimination detection test suite for predictive models",
+          "contributing_portfolio": "adversarial_testing_stress_simulation",
+          "dependencies": ["task-forecast-001"],
+          "sequence_order": 9,
+          "capacity_required": {
+            "cluster_id": "cluster-44",
+            "capacity_units": 5
+          },
+          "estimated_duration": "P21D"
+        },
+        {
+          "task_id": "task-adversarial-002",
+          "description": "Develop uncertainty suppression detection scenarios",
+          "contributing_portfolio": "adversarial_testing_stress_simulation",
+          "dependencies": ["task-adversarial-001"],
+          "sequence_order": 10,
+          "capacity_required": {
+            "cluster_id": "cluster-44",
+            "capacity_units": 4
+          },
+          "estimated_duration": "P14D"
+        }
+      ],
+      "constraints_respected": [
+        "Predictive models must not encode prohibited discrimination",
+        "The system must not suppress uncertainty to appear more confident"
+      ],
+      "risks": [
+        "Discrimination detection may surface existing model issues requiring remediation",
+        "Defining 'prohibited discrimination' may require legal/compliance coordination"
+      ],
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-22T12:00:00Z",
+        "attestation_type": "contribution"
+      }
+    }
+  ],
+  "no_action_attestations": [
+    {
+      "attestation_id": "attest-gaap-002",
+      "portfolio": "knowledge_systems_transfer",
+      "attesting_president": {
+        "president_id": "president-gaap",
+        "president_name": "Gaap"
+      },
+      "reason": "Training and documentation requirements will be addressed through the explanation pathway documentation (task-eth-003) and standard operational documentation. No specialized learning pipeline development is required for this motion.",
+      "attestation": {
+        "attested": true,
+        "attested_at": "2026-01-22T09:00:00Z",
+        "attestation_type": "no_action"
+      }
+    }
+  ],
+  "integrated_tasks": [
+    {
+      "task_id": "task-eth-001",
+      "description": "Define procedural framework for uncertainty quantification requirements",
+      "contributing_portfolio": "ethics_method_compliance",
+      "dependencies": [],
+      "sequence_order": 1,
+      "capacity_required": { "cluster_id": "cluster-17", "capacity_units": 3 },
+      "estimated_duration": "P14D"
+    },
+    {
+      "task_id": "task-forecast-001",
+      "description": "Define confidence interval standards for prediction outputs",
+      "contributing_portfolio": "forecasting_timing_cadence",
+      "dependencies": ["task-eth-001"],
+      "sequence_order": 2,
+      "capacity_required": { "cluster_id": "cluster-31", "capacity_units": 4 },
+      "estimated_duration": "P14D"
+    },
+    {
+      "task_id": "task-eth-002",
+      "description": "Establish human review checkpoint criteria for consequential decisions",
+      "contributing_portfolio": "ethics_method_compliance",
+      "dependencies": ["task-eth-001"],
+      "sequence_order": 3,
+      "capacity_required": { "cluster_id": "cluster-17", "capacity_units": 2 },
+      "estimated_duration": "P7D"
+    },
+    {
+      "task_id": "task-signal-001",
+      "description": "Implement audit trail capture for prediction-with-caveat presentation",
+      "contributing_portfolio": "behavioral_intelligence_signals",
+      "dependencies": ["task-eth-002"],
+      "sequence_order": 4,
+      "capacity_required": { "cluster_id": "cluster-25", "capacity_units": 3 },
+      "estimated_duration": "P14D"
+    },
+    {
+      "task_id": "task-forecast-002",
+      "description": "Design prediction revisability mechanism for new information integration",
+      "contributing_portfolio": "forecasting_timing_cadence",
+      "dependencies": ["task-forecast-001"],
+      "sequence_order": 5,
+      "capacity_required": { "cluster_id": "cluster-31", "capacity_units": 3 },
+      "estimated_duration": "P14D"
+    },
+    {
+      "task_id": "task-eth-003",
+      "description": "Create explanation pathway documentation template for predictive systems",
+      "contributing_portfolio": "ethics_method_compliance",
+      "dependencies": ["task-eth-002"],
+      "sequence_order": 6,
+      "capacity_required": { "cluster_id": "cluster-17", "capacity_units": 2 },
+      "estimated_duration": "P7D"
+    },
+    {
+      "task_id": "task-signal-002",
+      "description": "Design telemetry for tracking human review completion before consequential decisions",
+      "contributing_portfolio": "behavioral_intelligence_signals",
+      "dependencies": ["task-signal-001"],
+      "sequence_order": 7,
+      "capacity_required": { "cluster_id": "cluster-25", "capacity_units": 4 },
+      "estimated_duration": "P14D"
+    },
+    {
+      "task_id": "task-forecast-003",
+      "description": "Establish feedback loop framework comparing predictions to outcomes",
+      "contributing_portfolio": "forecasting_timing_cadence",
+      "dependencies": ["task-forecast-002", "task-signal-002"],
+      "sequence_order": 8,
+      "capacity_required": { "cluster_id": "cluster-31", "capacity_units": 4 },
+      "estimated_duration": "P21D"
+    },
+    {
+      "task_id": "task-adversarial-001",
+      "description": "Design discrimination detection test suite for predictive models",
+      "contributing_portfolio": "adversarial_testing_stress_simulation",
+      "dependencies": ["task-forecast-001"],
+      "sequence_order": 9,
+      "capacity_required": { "cluster_id": "cluster-44", "capacity_units": 5 },
+      "estimated_duration": "P21D"
+    },
+    {
+      "task_id": "task-adversarial-002",
+      "description": "Develop uncertainty suppression detection scenarios",
+      "contributing_portfolio": "adversarial_testing_stress_simulation",
+      "dependencies": ["task-adversarial-001"],
+      "sequence_order": 10,
+      "capacity_required": { "cluster_id": "cluster-44", "capacity_units": 4 },
+      "estimated_duration": "P14D"
+    }
+  ],
+  "capacity_claims": {
+    "clusters_required": [
+      {
+        "cluster_id": "cluster-17",
+        "cluster_name": "Research & Analysis",
+        "capacity_units": 7
+      },
+      {
+        "cluster_id": "cluster-25",
+        "cluster_name": "Data Engineering",
+        "capacity_units": 7
+      },
+      {
+        "cluster_id": "cluster-31",
+        "cluster_name": "Forecasting Systems",
+        "capacity_units": 11
+      },
+      {
+        "cluster_id": "cluster-44",
+        "cluster_name": "Security & Red Team",
+        "capacity_units": 9
+      }
+    ],
+    "program_slots_required": 2,
+    "time_estimate": "P90D",
+    "risk_if_unavailable": "Cluster-44 capacity is critical path. If unavailable, discrimination detection would be deferred, creating compliance risk with motion constraint regarding prohibited discrimination. Recommend deferral over partial implementation."
+  },
+  "blockers": [
+    {
+      "blocker_id": "blocker-001",
+      "blocker_type": "requirements_ambiguous",
+      "description": "Motion delegates definition of 'consequential decision' to Executive interpretation. This plan requires clarification on minimum threshold - does a decision affecting one individual qualify, or only decisions affecting many? Current approach assumes individual-level consequential decisions, which maximizes protection but also maximizes implementation scope.",
+      "severity": "major",
+      "raised_by": {
+        "president_id": "president-foras",
+        "president_name": "Foras"
+      },
+      "raised_at": "2026-01-22T14:00:00Z",
+      "escalated_to_conclave": false,
+      "resolution": {
+        "resolved": true,
+        "resolved_at": "2026-01-23T10:00:00Z",
+        "resolution_method": "plan_modified",
+        "resolution_notes": "Plan proceeds with individual-level definition per legislative intent. Documentation will explicitly state this interpretation for future reference."
+      }
+    }
+  ],
+  "constraints_from_motion": [
+    "Predictions must never be presented as certainties",
+    "No prediction shall be used as automatic justification for irreversible action",
+    "Individuals affected by predictions must have a path to contest or request explanation",
+    "Predictive models must not encode prohibited discrimination",
+    "The system must not suppress uncertainty to appear more confident",
+    "Predictions must be revisable as new information emerges"
+  ],
+  "success_criteria_mapping": [
+    {
+      "motion_criterion": "All predictive outputs include explicit uncertainty quantification",
+      "addressed_by_tasks": ["task-eth-001", "task-forecast-001"]
+    },
+    {
+      "motion_criterion": "No consequential automated decision relies solely on prediction without human review",
+      "addressed_by_tasks": ["task-eth-002", "task-signal-002"]
+    },
+    {
+      "motion_criterion": "Explanation pathway exists and is documented for all predictive systems",
+      "addressed_by_tasks": ["task-eth-003"]
+    },
+    {
+      "motion_criterion": "Audit trail shows predictions were presented with appropriate caveats",
+      "addressed_by_tasks": ["task-signal-001"]
+    },
+    {
+      "motion_criterion": "Feedback loop exists to compare predictions against outcomes",
+      "addressed_by_tasks": ["task-forecast-002", "task-forecast-003"]
+    }
+  ],
+  "advisory_acknowledgments": [
+    {
+      "advisory_id": "advisory-orobas-prediction-ethics-001",
+      "marquis_id": "marquis-orobas",
+      "acknowledged": true,
+      "response": "accepted",
+      "rationale": "Advisory recommendation for explicit confidence thresholds accepted and integrated into task-forecast-001 scope."
+    },
+    {
+      "advisory_id": "advisory-seere-prediction-ethics-001",
+      "marquis_id": "marquis-seere",
+      "acknowledged": true,
+      "response": "rejected_with_rationale",
+      "rationale": "Advisory for mandatory human review on ALL predictions rejected as operationally infeasible. Plan implements human review for consequential decisions only, per motion constraint language."
+    }
+  ],
+  "status": "executing",
+  "created_at": "2026-01-22T08:00:00Z",
+  "submitted_at": "2026-01-23T14:00:00Z",
+  "authorized_at": "2026-01-24T10:00:00Z",
+  "handoff": {
+    "handed_off": true,
+    "handed_off_at": "2026-01-24T10:30:00Z",
+    "assigned_duke": {
+      "duke_id": "duke-aim",
+      "duke_name": "Aim"
+    },
+    "program_id": "program-prediction-ethics-001"
+  },
+  "completion": null,
+  "constraints_metadata": {
+    "must_preserve_intent": true,
+    "must_have_all_portfolio_responses": true,
+    "must_escalate_critical_blockers": true,
+    "president_authority_ends_at_handoff": true,
+    "no_capacity_concealment": true
+  },
+  "audit": {
+    "created_at": "2026-01-22T08:00:00Z",
+    "updated_at": "2026-01-24T10:30:00Z",
+    "trace_id": "trace-exec-plan-prediction-ethics-001"
+  }
+}

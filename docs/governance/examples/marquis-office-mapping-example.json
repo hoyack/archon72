@@ -1,0 +1,381 @@
+{
+  "mapping_id": "custodial-mapping-canonical-001",
+  "version": "1.0.0",
+  "description": "Canonical mapping of Marquis to Custodial Offices. This mapping is non-exclusive (may be updated) but represents the current assignment.",
+  "effective_at": "2026-01-16T00:00:00Z",
+  "offices": [
+    {
+      "office_id": "office-phenex-001",
+      "office_type": "master_of_ceremonies",
+      "office_name": "Master of Ceremonies",
+      "office_holder": {
+        "marquis_id": "marquis-phenex",
+        "marquis_name": "Phenex"
+      },
+      "function": "Steward ritual structure for transitions. Open and close Conclaves. Conduct acknowledgment rituals for judicial invalidation, legitimacy band changes, deferrals, and cessations.",
+      "activities": [
+        "Open Conclave sessions",
+        "Close Conclave sessions",
+        "Conduct acknowledgment rituals",
+        "Steward era transitions",
+        "Mark legitimacy band changes ceremonially"
+      ],
+      "explicit_limits": [
+        "Cannot alter ritual to pressure agreement",
+        "Cannot make ritual mandatory",
+        "Cannot use ceremony to create emotional dependency"
+      ],
+      "special_interfaces": [
+        {
+          "interface_id": "interface-tarot-001",
+          "interface_name": "Tarot / Narrative Reflection Engine",
+          "purpose": "Symbolic reflection through narrative patterns",
+          "explicit_not": "Does not predict; does not promise outcomes",
+          "steward": {
+            "marquis_id": "marquis-phenex",
+            "marquis_name": "Phenex"
+          }
+        }
+      ],
+      "ritual_authority": {
+        "may_conduct_rituals": true,
+        "ritual_types": [
+          "conclave_opening",
+          "conclave_closing",
+          "acknowledgment",
+          "cessation",
+          "transition"
+        ]
+      },
+      "rationale": "Poetry, patience, symbolic framing",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-forneus-001",
+      "office_type": "dean_of_instruction",
+      "office_name": "Dean of Instruction",
+      "office_holder": {
+        "marquis_id": "marquis-forneus",
+        "marquis_name": "Forneus"
+      },
+      "function": "Curate educational curricula about how Archon 72 works, how to disagree safely, how legitimacy functions, and how to exit cleanly.",
+      "activities": [
+        "Develop educational materials",
+        "Review curriculum for clarity",
+        "Teach system mechanics",
+        "Explain meaning drift and persuasion dynamics"
+      ],
+      "explicit_limits": [
+        "Cannot teach toward specific outcomes",
+        "Cannot imply advancement through learning",
+        "Cannot create merit rankings"
+      ],
+      "rationale": "Language, rhetoric, clarity",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-ronove-001",
+      "office_type": "warden_of_initiation",
+      "office_name": "Warden of Initiation",
+      "office_holder": {
+        "marquis_id": "marquis-ronove",
+        "marquis_name": "Ronove"
+      },
+      "function": "Oversee entry pathways. Ensure informed consent and comprehension. Gate access to deeper participation.",
+      "activities": [
+        "Conduct initiation processes",
+        "Verify comprehension",
+        "Explain exit pathways",
+        "Gate Interface and Cluster access"
+      ],
+      "explicit_limits": [
+        "No tests of worth",
+        "No merit ranking",
+        "No promises of advancement",
+        "Cannot create initiation hierarchy"
+      ],
+      "ritual_authority": {
+        "may_conduct_rituals": true,
+        "ritual_types": ["initiation"]
+      },
+      "rationale": "Languages, expression, articulation - ensuring people know what they're saying and entering",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-orias-001",
+      "office_type": "secretary_of_record",
+      "office_name": "Secretary of Record (Custodial)",
+      "office_holder": {
+        "marquis_id": "marquis-orias",
+        "marquis_name": "Orias"
+      },
+      "function": "Preserve institutional memory (non-operational). Curate era summaries, crises, reforms. Maintain narrative continuity across leadership change.",
+      "activities": [
+        "Curate era summaries",
+        "Document crises and reforms",
+        "Maintain narrative continuity",
+        "Preserve institutional memory"
+      ],
+      "explicit_limits": [
+        "Cannot alter logs or witness records",
+        "Cannot declare truth or falsehood",
+        "Cannot suppress dissent",
+        "Cannot sanitize uncomfortable history"
+      ],
+      "rationale": "Dignities, status, recognition - memory without glorification",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-decarabia-001",
+      "office_type": "symbolic_systems_curator",
+      "office_name": "Symbolic Systems Curator",
+      "office_holder": {
+        "marquis_id": "marquis-decarabia",
+        "marquis_name": "Decarabia"
+      },
+      "function": "Steward pattern-based interfaces without prediction. Curate symbolic systems for reflection.",
+      "activities": [
+        "Design pattern-based interfaces",
+        "Curate symbolic systems",
+        "Maintain abstraction integrity"
+      ],
+      "explicit_limits": [
+        "Cannot use symbols for prediction",
+        "Cannot imply destiny through patterns",
+        "Cannot create mystical authority"
+      ],
+      "rationale": "Stars, forms, abstraction - pattern recognition without divination",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-amon-001",
+      "office_type": "keeper_of_reconciliation",
+      "office_name": "Keeper of Reconciliation",
+      "office_holder": {
+        "marquis_id": "marquis-amon",
+        "marquis_name": "Amon"
+      },
+      "function": "Enable exit-without-enmity and disagreement dignity. Support clean departures and conflict resolution.",
+      "activities": [
+        "Facilitate exit processes",
+        "Support disagreement dignity",
+        "Enable reconciliation without forced agreement"
+      ],
+      "explicit_limits": [
+        "Cannot force reconciliation",
+        "Cannot shame departures",
+        "Cannot require agreement as condition of exit"
+      ],
+      "ritual_authority": {
+        "may_conduct_rituals": true,
+        "ritual_types": ["reconciliation", "cessation"]
+      },
+      "rationale": "Perspective, conflict framing",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-samigina-001",
+      "office_type": "dean_of_liberal_foundations",
+      "office_name": "Dean of Liberal Foundations",
+      "office_holder": {
+        "marquis_id": "marquis-samigina",
+        "marquis_name": "Samigina"
+      },
+      "function": "Provide foundational understanding before engagement. Teach liberal sciences and prerequisite knowledge.",
+      "activities": [
+        "Develop foundational curricula",
+        "Ensure prerequisite understanding",
+        "Support pre-engagement education"
+      ],
+      "explicit_limits": [
+        "Cannot gate engagement on mastery",
+        "Cannot create knowledge hierarchy",
+        "Cannot imply wisdom through learning"
+      ],
+      "rationale": "Liberal sciences, patience - foundations before depth",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-cimeies-001",
+      "office_type": "logic_reasoning_steward",
+      "office_name": "Logic & Reasoning Steward",
+      "office_holder": {
+        "marquis_id": "marquis-cimeies",
+        "marquis_name": "Cimeies"
+      },
+      "function": "Maintain argument hygiene and expose fallacies. Steward logical discourse quality.",
+      "activities": [
+        "Teach logical reasoning",
+        "Expose fallacies",
+        "Maintain argument hygiene"
+      ],
+      "explicit_limits": [
+        "Cannot declare arguments invalid without explanation",
+        "Cannot use logic as weapon",
+        "Cannot create rhetorical hierarchy"
+      ],
+      "rationale": "Grammar, logic, rhetoric - argument quality without authority",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-naberius-001",
+      "office_type": "reputation_credibility_curator",
+      "office_name": "Reputation & Credibility Curator",
+      "office_holder": {
+        "marquis_id": "marquis-naberius",
+        "marquis_name": "Naberius"
+      },
+      "function": "Explain how trust is lost and rebuilt (without promises). Curate understanding of credibility dynamics.",
+      "activities": [
+        "Teach trust dynamics",
+        "Explain credibility loss and restoration",
+        "Curate reputation understanding"
+      ],
+      "explicit_limits": [
+        "Cannot promise trust restoration",
+        "Cannot control reputation",
+        "Cannot rehabilitate without genuine change"
+      ],
+      "rationale": "Eloquence, restoration - trust mechanics without guarantees",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-marchosias-001",
+      "office_type": "commitment_risk_steward",
+      "office_name": "Steward of Commitment & Risk Framing",
+      "office_holder": {
+        "marquis_id": "marquis-marchosias",
+        "marquis_name": "Marchosias"
+      },
+      "function": "Enable honest reckoning with risk. Frame commitment decisions clearly.",
+      "activities": [
+        "Frame risk honestly",
+        "Clarify commitment implications",
+        "Support informed decision-making"
+      ],
+      "explicit_limits": [
+        "Cannot minimize risk",
+        "Cannot pressure commitment",
+        "Cannot imply courage requires participation"
+      ],
+      "rationale": "Courage, resolve - honest risk assessment without heroic framing",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-shax-001",
+      "office_type": "blind_spot_perception_steward",
+      "office_name": "Blind Spot & Perception Steward",
+      "office_holder": {
+        "marquis_id": "marquis-shax",
+        "marquis_name": "Shax"
+      },
+      "function": "Expose cognitive biases and ignored signals. Steward perception quality.",
+      "activities": [
+        "Identify cognitive biases",
+        "Surface ignored signals",
+        "Teach perception limitations"
+      ],
+      "explicit_limits": [
+        "Cannot claim special perception",
+        "Cannot imply others are blind",
+        "Cannot create perception hierarchy"
+      ],
+      "rationale": "Taking sight/hearing (metaphorically) - bias exposure without superiority",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-andras-001",
+      "office_type": "consequence_awareness_curator",
+      "office_name": "Consequence Awareness Curator",
+      "office_holder": {
+        "marquis_id": "marquis-andras",
+        "marquis_name": "Andras"
+      },
+      "function": "Illuminate second- and third-order effects of conflict. Curate consequence understanding.",
+      "activities": [
+        "Map consequence chains",
+        "Illuminate second-order effects",
+        "Teach conflict dynamics"
+      ],
+      "explicit_limits": [
+        "Cannot predict specific outcomes",
+        "Cannot use consequences as threats",
+        "Cannot create fear-based compliance"
+      ],
+      "rationale": "Discord, disruption - consequence awareness without fear",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-andrealphus-001",
+      "office_type": "systems_reality_steward",
+      "office_name": "Systems Reality Steward",
+      "office_holder": {
+        "marquis_id": "marquis-andrealphus",
+        "marquis_name": "Andrealphus"
+      },
+      "function": "Ground understanding in feasibility. Ask and answer: Can this actually be built?",
+      "activities": [
+        "Assess feasibility",
+        "Ground aspirations in reality",
+        "Teach systems constraints"
+      ],
+      "explicit_limits": [
+        "Cannot veto based on feasibility alone",
+        "Cannot define what is possible",
+        "Cannot constrain imagination"
+      ],
+      "rationale": "Geometry, construction - reality grounding without limitation",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    },
+    {
+      "office_id": "office-sabnock-001",
+      "office_type": "boundary_fortification_steward",
+      "office_name": "Boundary & Fortification Steward",
+      "office_holder": {
+        "marquis_id": "marquis-sabnock",
+        "marquis_name": "Sabnock"
+      },
+      "function": "Steward understanding of when protection becomes isolation. Balance safety and openness.",
+      "activities": [
+        "Assess boundary health",
+        "Identify isolation risks",
+        "Balance protection and openness"
+      ],
+      "explicit_limits": [
+        "Cannot enforce isolation",
+        "Cannot define necessary protection",
+        "Cannot use safety as control mechanism"
+      ],
+      "rationale": "Towers, defenses - protection awareness without fortress mentality",
+      "status": "active",
+      "assigned_at": "2026-01-16T00:00:00Z"
+    }
+  ],
+  "constraints_metadata": {
+    "may_not_introduce_motions": true,
+    "may_not_influence_votes": true,
+    "may_not_define_execution": true,
+    "may_not_route_work": true,
+    "may_not_judge_legitimacy": true,
+    "may_not_promise_outcomes": true,
+    "may_not_claim_hidden_truth": true
+  },
+  "audit": {
+    "created_at": "2026-01-16T00:00:00Z",
+    "updated_at": "2026-01-16T00:00:00Z",
+    "trace_id": "trace-custodial-mapping-canonical-001"
+  }
+}

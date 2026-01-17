@@ -1,0 +1,137 @@
+{
+  "finding_id": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
+  "version": "1.0.0",
+  "issued_at": "2026-01-18T14:00:00Z",
+  "case_reference": {
+    "case_type": "witness_statement",
+    "reference_id": "stmt-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "original_action": {
+      "action_type": "task_activation",
+      "action_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "actors_involved": [
+        {
+          "archon_id": "earl-raum",
+          "role": "issuing_earl"
+        }
+      ],
+      "occurred_at": "2026-01-16T14:00:00Z"
+    }
+  },
+  "panel": {
+    "panel_id": "panel-x1y2z3-a4b5c6",
+    "panel_size": 3,
+    "seated_princes": [
+      {
+        "prince_id": "prince-sitri",
+        "prince_name": "Sitri",
+        "vote": "concur",
+        "wrote_opinion": false
+      },
+      {
+        "prince_id": "prince-vassago",
+        "prince_name": "Vassago",
+        "vote": "concur",
+        "wrote_opinion": true
+      },
+      {
+        "prince_id": "prince-ipos",
+        "prince_name": "Ipos",
+        "vote": "dissent",
+        "wrote_opinion": true
+      }
+    ],
+    "recused_princes": [
+      {
+        "prince_id": "prince-stolas",
+        "recusal_reason": "prior_related_ruling"
+      }
+    ],
+    "selection_method": "random",
+    "seated_at": "2026-01-17T09:00:00Z"
+  },
+  "axes_reviewed": {
+    "intent_fidelity": {
+      "reviewed": true,
+      "finding": "compliant",
+      "details": "Task activation was within the authorized scope of the Q1 Security Review program. No scope expansion detected."
+    },
+    "plan_fidelity": {
+      "reviewed": true,
+      "finding": "compliant",
+      "details": "Activation followed the submitted ExecutionPlan. Required capabilities matched task requirements."
+    },
+    "procedural_integrity": {
+      "reviewed": true,
+      "finding": "violated",
+      "details": "Task state transitioned from 'routed' to 'in_progress' without a corresponding cluster acceptance event in the audit log.",
+      "violations_identified": [
+        {
+          "rule_violated": "CR-1: No silent assignment",
+          "description": "Task moved to in_progress without explicit steward acceptance",
+          "severity": "material"
+        }
+      ]
+    }
+  },
+  "finding_type": "procedurally_deficient",
+  "rationale": {
+    "summary": "The task activation was within authorized scope and followed the execution plan, but bypassed the required cluster consent process. The absence of an acceptance event in the audit trail constitutes a material procedural violation.",
+    "key_facts": [
+      {
+        "fact": "Task transitioned to in_progress at 2026-01-16T14:30:00Z",
+        "source": "audit_log/task-7c9e6679/transitions.json"
+      },
+      {
+        "fact": "No cluster_acceptance event exists between routed and in_progress states",
+        "source": "audit_log/task-7c9e6679/events.json"
+      },
+      {
+        "fact": "Cluster 17 had availability_status: available at time of routing",
+        "source": "cluster_registry/cluster-17/status_history.json"
+      },
+      {
+        "fact": "Knight-Witness flagged the gap within 30 minutes of occurrence",
+        "source": "witness_statement/stmt-a1b2c3d4"
+      }
+    ],
+    "rule_application": "Critical Runtime Rule CR-1 states: 'A task is never considered in progress until Cluster Steward explicitly accepts.' The audit trail shows no acceptance event, meaning this requirement was not satisfied. The task's transition to in_progress was therefore procedurally invalid, regardless of whether work was actually performed or whether outcomes were beneficial."
+  },
+  "remedies_recommended": [
+    {
+      "remedy_type": "return_to_conclave",
+      "description": "Task should be returned to the 'routed' state and re-activated with proper consent flow. Any work performed should be preserved but cannot be considered part of an authorized task until consent is obtained.",
+      "assigned_to": "Duke Valefor (program owner)",
+      "deadline": "2026-01-20T17:00:00Z"
+    },
+    {
+      "remedy_type": "mandate_procedural_review",
+      "description": "Earl Raum's activation workflow should be reviewed to identify how the consent step was bypassed. This is not punitive - it is to prevent recurrence.",
+      "assigned_to": "Administrative branch",
+      "deadline": "2026-01-25T17:00:00Z"
+    }
+  ],
+  "dissent_opinions": [
+    {
+      "prince_id": "prince-ipos",
+      "opinion_type": "dissent",
+      "opinion": "While I acknowledge the procedural gap identified by the majority, I believe the finding of 'procedurally_deficient' is too severe. The evidence shows that Cluster 17 was actively working on the task and the Steward was aware of the assignment (per Slack channel records, though not formal acceptance). The gap appears to be a logging failure rather than a consent bypass. A finding of 'legitimate_with_concerns' with a recommendation for improved audit logging would better serve the system's interests without creating unnecessary friction. The majority's insistence on strict procedural compliance, while technically correct, risks prioritizing form over substance in cases where human consent was clearly present but improperly recorded."
+    }
+  ],
+  "appeal": {
+    "appealable": true,
+    "appeal_window_ends": "2026-01-25T14:00:00Z",
+    "appeal_filed": false
+  },
+  "constraints": {
+    "no_human_testimony": true,
+    "no_new_evidence": true,
+    "witness_records_immutable": true,
+    "single_prince_prohibition": true
+  },
+  "audit": {
+    "created_at": "2026-01-18T14:00:00Z",
+    "trace_id": "trace-judicial-review-001",
+    "immutable": true,
+    "retention_period": "permanent"
+  }
+}

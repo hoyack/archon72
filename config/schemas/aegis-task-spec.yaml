@@ -1,0 +1,264 @@
+# AegisTaskSpec Schema v1.0
+# Per Government PRD FR-GOV-9: President produces execution specifications
+# Per Government PRD AR-6: Integration with Aegis Network for task execution
+#
+# This schema defines the contract between:
+# - President Service (producer): Creates task specifications from ratified motions
+# - Aegis Network (consumer): Executes tasks according to specifications
+# - Prince Service (evaluator): Measures outcomes against success criteria
+
+version: "1.0"
+schema_name: "AegisTaskSpec"
+description: |
+  Formal contract for task specifications in the Archon 72 governance system.
+  Produced by President Service after Conclave ratification.
+  Consumed by Aegis Network for execution.
+  Evaluated by Prince Service for compliance.
+
+# Core Fields
+fields:
+  task_id:
+    type: "uuid"
+    required: true
+    description: "Unique identifier for this task specification"
+
+  motion_ref:
+    type: "uuid"
+    required: true
+    description: "Reference to the ratified motion that authorized this task"
+
+  session_ref:
+    type: "uuid"
+    required: false
+    description: "Reference to the Conclave session that ratified the motion"
+
+  intent_summary:
+    type: "string"
+    required: true
+    max_length: 500
+    description: |
+      Summary of WHAT the task should accomplish.
+      Must be derived from the ratified motion intent.
+      MUST NOT contain execution details (HOW).
+
+  created_at:
+    type: "datetime"
+    required: true
+    description: "When this task spec was created"
+
+  created_by:
+    type: "string"
+    required: true
+    description: "Archon ID of the President who created this spec"
+
+  status:
+    type: "enum"
+    required: true
+    values:
+      - "draft"       # Being created
+      - "pending"     # Awaiting execution
+      - "executing"   # Currently being executed
+      - "completed"   # Execution finished
+      - "judged"      # Prince has evaluated
+    description: "Current status of the task"
+
+# Success Criteria
+success_criteria:
+  type: "array"
+  required: true
+  min_items: 1
+  description: |
+    List of measurable criteria for task success.
+    Each criterion must be objectively evaluable by Prince.
+  item_schema:
+    criterion_id:
+      type: "uuid"
+      required: true
+    description:
+      type: "string"
+      required: true
+      max_length: 200
+    measurement_type:
+      type: "enum"
+      required: true
+      values:
+        - "boolean"     # Pass/fail
+        - "numeric"     # Measurable value
+        - "threshold"   # Value must meet threshold
+        - "completion"  # All sub-items complete
+    target_value:
+      type: "any"
+      required: false
+      description: "Target value for numeric/threshold measurements"
+    threshold_operator:
+      type: "enum"
+      required: false
+      values: ["eq", "gt", "gte", "lt", "lte", "between"]
+    weight:
+      type: "float"
+      required: false
+      default: 1.0
+      description: "Weight of this criterion in overall success calculation"
+
+# Dependencies
+dependencies:
+  type: "array"
+  required: false
+  default: []
+  description: "Other tasks that must complete before this task"
+  item_schema:
+    dependency_id:
+      type: "uuid"
+      required: true
+    dependency_type:
+      type: "enum"
+      required: true
+      values:
+        - "blocks"      # Must complete before this task starts
+        - "informs"     # Output is input to this task
+        - "parallel"    # Can run simultaneously but shares resources
+    task_ref:
+      type: "uuid"
+      required: true
+      description: "ID of the dependent task"
+    required:
+      type: "boolean"
+      required: false
+      default: true
+      description: "If true, failure of dependency fails this task"
+
+# Constraints
+constraints:
+  type: "array"
+  required: false
+  default: []
+  description: "Boundaries and limitations for task execution"
+  item_schema:
+    constraint_id:
+      type: "uuid"
+      required: true
+    constraint_type:
+      type: "enum"
+      required: true
+      values:
+        - "time_limit"      # Maximum execution time
+        - "resource_limit"  # Maximum resource usage
+        - "scope_limit"     # What the task CANNOT do
+        - "approval_gate"   # Requires approval to proceed
+        - "constitutional"  # Must adhere to constitutional constraint
+    description:
+      type: "string"
+      required: true
+    value:
+      type: "any"
+      required: false
+      description: "Constraint value (e.g., time limit in seconds)"
+    prd_reference:
+      type: "string"
+      required: false
+      description: "Reference to PRD constraint (e.g., 'FR-GOV-12')"
+
+# Expected Outputs
+expected_outputs:
+  type: "array"
+  required: true
+  min_items: 1
+  description: "Artifacts or results the task should produce"
+  item_schema:
+    output_id:
+      type: "uuid"
+      required: true
+    name:
+      type: "string"
+      required: true
+    output_type:
+      type: "enum"
+      required: true
+      values:
+        - "file"        # File artifact
+        - "event"       # Event in event store
+        - "state"       # State change
+        - "report"      # Human-readable report
+        - "witness"     # Witness statement
+    description:
+      type: "string"
+      required: false
+    required:
+      type: "boolean"
+      required: false
+      default: true
+
+# Measurement Points
+measurement_points:
+  type: "array"
+  required: false
+  default: []
+  description: |
+    Points during execution where progress can be measured.
+    Used by Prince to evaluate partial compliance.
+  item_schema:
+    point_id:
+      type: "uuid"
+      required: true
+    name:
+      type: "string"
+      required: true
+    trigger:
+      type: "enum"
+      required: true
+      values:
+        - "start"           # At task start
+        - "checkpoint"      # At defined checkpoint
+        - "completion"      # At task completion
+        - "periodic"        # At regular intervals
+        - "event"           # On specific event
+    criteria_refs:
+      type: "array"
+      required: false
+      description: "Which success criteria to evaluate at this point"
+      items:
+        type: "uuid"
+
+# Metadata
+metadata:
+  type: "object"
+  required: false
+  description: "Additional task metadata"
+  fields:
+    priority:
+      type: "enum"
+      values: ["low", "normal", "high", "critical"]
+      default: "normal"
+    tags:
+      type: "array"
+      items:
+        type: "string"
+    estimated_duration_seconds:
+      type: "integer"
+    max_retries:
+      type: "integer"
+      default: 0
+    assigned_executor:
+      type: "string"
+      description: "Archon ID of assigned Duke/Earl (optional)"
+
+# Witnessing Fields
+witnessing:
+  type: "object"
+  required: false
+  description: "Witnessing requirements for this task"
+  fields:
+    require_witness_on_start:
+      type: "boolean"
+      default: true
+    require_witness_on_complete:
+      type: "boolean"
+      default: true
+    require_witness_on_failure:
+      type: "boolean"
+      default: true
+    witness_checkpoints:
+      type: "array"
+      description: "Measurement points that require witnessing"
+      items:
+        type: "uuid"

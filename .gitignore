@@ -117,3 +117,7 @@ secrets/
 
 _logs/
 _tmp/
+
+*.md.bak*
+.claude/
+.codex/

@@ -1,4 +1,4 @@
-# generated: 2026-01-06 (refreshed)
+# generated: 2026-01-15 (refreshed)
 # project: archon72
 # project_key: archon72
 # tracking_system: file-system
@@ -33,13 +33,17 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2026-01-06
+generated: 2026-01-15
 project: archon72
 project_key: archon72
 tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 
 development_status:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CORE EPICS (from epics.md) - ALL COMPLETED
+  # ═══════════════════════════════════════════════════════════════════════════
+
   # Epic 0: Project Foundation & Constitutional Infrastructure
   epic-0: done
   0-1-project-scaffold-and-dependencies: done
@@ -49,7 +53,7 @@ development_status:
   0-5-integration-test-framework: done
   0-6-import-boundary-enforcement: done
   0-7-constitutional-primitives: done
-  epic-0-retrospective: done  # Full project retrospective 2026-01-09
+  epic-0-retrospective: done
 
   # Epic 1: Witnessed Event Store
   epic-1: done
@@ -60,10 +64,10 @@ development_status:
   1-5-dual-time-authority-and-sequence-numbers: done
   1-6-event-writer-service: done
   1-7-supabase-trigger-spike: done
-  1-8-halt-check-interface-stub: done  # Completed as part of 1-6
+  1-8-halt-check-interface-stub: done
   1-9-observer-query-schema-design-spike: done
   1-10-replica-configuration-preparation: done
-  epic-1-retrospective: done  # Full project retrospective 2026-01-09
+  epic-1-retrospective: done
 
   # Epic 2: Agent Deliberation & Collective Output
   epic-2: done
@@ -77,7 +81,7 @@ development_status:
   2-8-result-certification: done
   2-9-context-bundle-creation: done
   2-10-crewai-72-agent-load-test-spike: done
-  epic-2-retrospective: done  # Full project retrospective 2026-01-09
+  epic-2-retrospective: done
 
   # Epic 3: Halt & Fork Detection
   epic-3: done
@@ -91,7 +95,7 @@ development_status:
   3-8-signed-fork-detection-signals: done
   3-9-witnessed-halt-event-before-stop: done
   3-10-operational-rollback-to-checkpoint: done
-  epic-3-retrospective: done  # Full project retrospective 2026-01-09
+  epic-3-retrospective: done
 
   # Epic 4: Observer Verification Interface
   epic-4: done
@@ -105,7 +109,7 @@ development_status:
   4-8-observer-push-notifications: done
   4-9-observer-api-uptime-sla: done
   4-10-sequence-gap-detection-for-observers: done
-  epic-4-retrospective: done  # Full project retrospective 2026-01-09
+  epic-4-retrospective: done
 
   # Epic 5: Override & Keeper Actions
   epic-5: done
@@ -119,7 +123,7 @@ development_status:
   5-8-keeper-availability-attestation: done
   5-9-override-abuse-detection: done
   5-10-keeper-independence-attestation: done
-  epic-5-retrospective: done  # Full project retrospective 2026-01-09
+  epic-5-retrospective: done
 
   # Epic 6: Breach & Threshold Enforcement
   epic-6: done
@@ -133,7 +137,7 @@ development_status:
   6-8-breach-collusion-defense: done
   6-9-topic-manipulation-defense: done
   6-10-configuration-floor-enforcement: done
-  epic-6-retrospective: done  # Full project retrospective 2026-01-09
+  epic-6-retrospective: done
 
   # Epic 7: Cessation Protocol
   epic-7: done
@@ -147,7 +151,7 @@ development_status:
   7-8-final-deliberation-recording: done
   7-9-mandatory-cessation-chaos-test: done
   7-10-integrity-case-artifact: done
-  epic-7-retrospective: done  # Full project retrospective 2026-01-09
+  epic-7-retrospective: done
 
   # Epic 8: Operational Monitoring & Health
   epic-8: done
@@ -161,7 +165,7 @@ development_status:
   8-8-pre-mortem-operational-failures-prevention: done
   8-9-operational-runbooks: done
   8-10-constitutional-health-metrics: done
-  epic-8-retrospective: done  # Full project retrospective 2026-01-09
+  epic-8-retrospective: done
 
   # Epic 9: Emergence Governance & Public Materials
   epic-9: done
@@ -175,59 +179,268 @@ development_status:
   9-8-ct-15-waiver-documentation: done
   9-9-compliance-documentation: done
   9-10-emergence-audit-runbook: done
-  epic-9-retrospective: done  # Full project retrospective 2026-01-09
+  epic-9-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # Epic 10: CrewAI Integration & Archon Configuration (NEW)
+  # Epic 10: CrewAI Integration & Archon Configuration (COMPLETED)
   # ═══════════════════════════════════════════════════════════════════════════
-  # Added 2026-01-10 to track per-archon LLM configuration and CrewAI adapter work
-  epic-10: in-progress
-
-  # COMPLETED: Per-Archon Profile Configuration System
+  epic-10: done
   10-1-archon-profile-configuration-system: done
-  # Implemented 2026-01-10:
-  # - LLMConfig domain model (src/domain/models/llm_config.py)
-  # - ArchonProfile domain model (src/domain/models/archon_profile.py)
-  # - ArchonProfileRepository port (src/application/ports/archon_profile_repository.py)
-  # - CsvYamlArchonProfileAdapter (src/infrastructure/adapters/config/archon_profile_adapter.py)
-  # - Per-archon LLM bindings config (config/archon-llm-bindings.yaml)
-  # - 65 unit tests passing
-  # - Spec: _bmad-output/planning-artifacts/archon-profile-system-spec.md
-  # - Uses docs/archons-base.csv (72 Goetic archons with backstories, system prompts)
-
-  # COMPLETED: CrewAI Adapter Implementation
   10-2-crewai-adapter-implementation: done
-  # Implemented 2026-01-10:
-  # - CrewAIAdapter implements AgentOrchestratorProtocol
-  # - Uses ArchonProfile for per-archon LLM config (provider, model, temperature, timeout)
-  # - System prompt from ArchonProfile.backstory injected (context-aware)
-  # - Tools mapped from suggested_tools via tool_registry (placeholder for 10-3)
-  # - 72 concurrent agents validated via asyncio.gather pattern
-  # - 29 unit tests passing
-  # Files created:
-  #   - src/infrastructure/adapters/external/__init__.py
-  #   - src/infrastructure/adapters/external/crewai_adapter.py
-  #   - tests/unit/infrastructure/adapters/external/__init__.py
-  #   - tests/unit/infrastructure/adapters/external/test_crewai_adapter.py
-
-  # COMPLETED: Tool Registry for Archons
   10-3-tool-registry-for-archons: done
-  # Story file: _bmad-output/implementation-artifacts/stories/10-3-tool-registry-for-archons.md
-  # Implemented 2026-01-10:
-  # - ToolRegistryProtocol port (src/application/ports/tool_registry.py)
-  # - 9 stub tool implementations (src/infrastructure/adapters/tools/archon_tools.py)
-  # - ToolRegistryAdapter (src/infrastructure/adapters/tools/tool_registry_adapter.py)
-  # - CrewAIAdapter integration updated to use ToolRegistryProtocol
-  # - 54 new unit tests + 29 existing tests passing
+  10-4-archon-selection-service: done
+  10-5-end-to-end-deliberation-test: done
+  epic-10-retrospective: optional
 
-  # READY FOR DEV: Archon Selection Service
-  10-4-archon-selection-service: ready-for-dev
-  # Story file: _bmad-output/implementation-artifacts/stories/10-4-archon-selection-service.md
-  # Description: Service to select relevant archons for a deliberation based on topic
-  # Uses ArchonProfile.suggested_tools, domain, focus_areas, capabilities for matching
+  # ═══════════════════════════════════════════════════════════════════════════
+  # GOVERNMENT SYSTEM EPICS (from government-epics.md)
+  # Separation of Powers: Legislative, Executive, Judicial, Advisory, Witness
+  # ═══════════════════════════════════════════════════════════════════════════
 
-  # READY FOR DEV: End-to-End Deliberation Test
-  10-5-end-to-end-deliberation-test: ready-for-dev
-  # Story file: _bmad-output/implementation-artifacts/stories/10-5-end-to-end-deliberation-test.md
-  # Description: Integration test with real LLM calls (requires API keys)
-  # Validates full flow: topic → archon selection → LLM invocation → collective output
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 1: Permission Matrix & Rank Authority (Phase 1 - COMPLETED)
+  # Per Government PRD §2.2: Authority derives from rank, not personality.
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-1: done
+  gov-1-1-rank-permission-matrix-config: done
+  gov-1-2-permission-enforcer-port: done
+  gov-1-3-permission-enforcer-adapter: done
+  gov-1-4-permission-integration: done
+  gov-epic-1-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 2: King Service - Legislative Branch (Phase 2 - COMPLETED)
+  # Per Government PRD §4.1: Kings may introduce motions and define WHAT only
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-2: done
+  gov-2-1-king-service-port: done
+  gov-2-2-intent-only-validator: done
+  gov-2-3-king-service-implementation: done
+  gov-epic-2-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 3: President Service - Executive Branch (Phase 2 - COMPLETED)
+  # Per Government PRD §4.3: Presidents translate WHAT into executable HOW
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-3: done
+  gov-3-1-president-service-port: done
+  gov-3-2-what-to-how-translator: done
+  gov-3-3-blocker-escalation: done
+  gov-3-4-self-ratification-prevention: done
+  gov-epic-3-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 4: Duke/Earl Services - Administrative Branch (Phase 3 - COMPLETED)
+  # Per Government PRD §4.4: Dukes own domains, Earls execute tasks
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-4: done
+  gov-4-1-duke-service-port: done
+  gov-4-2-earl-service-port: done
+  gov-4-3-failure-signal-propagation: done
+  gov-epic-4-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 5: Prince Service - Judicial Branch (Phase 2 - COMPLETED)
+  # Per Government PRD §4.5: Princes evaluate compliance, can invalidate execution
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-5: done
+  gov-5-1-prince-service-port: done
+  gov-5-2-compliance-evaluation: done
+  gov-5-3-invalidation-power: done
+  gov-5-4-conclave-trigger: done
+  gov-epic-5-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 6: Marquis Service - Advisory Branch (Phase 3 - COMPLETED)
+  # Per Government PRD §4.6: Marquises provide expert testimony, non-binding advisories
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-6: done
+  gov-6-1-marquis-service-port: done
+  gov-6-2-advisory-acknowledgment-tracking: done
+  gov-6-3-advisory-conflict-prevention: done
+  gov-epic-6-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 7: Knight-Witness Service (Phase 1 - COMPLETED)
+  # Per Government PRD §5: Knight-Witness (Furcas) exists outside all branches
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-7: done
+  gov-7-1-knight-witness-port: done
+  gov-7-2-witness-statement-schema: done
+  gov-7-3-violation-recording: done
+  gov-7-4-forced-acknowledgment: done
+  gov-7-5-hash-chain-integration: done
+  gov-epic-7-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 8: Governance Flow Pipeline (Phase 3 - COMPLETED)
+  # Per Government PRD FR-GOV-23: 7-step canonical flow enforcement
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-8: done
+  gov-8-1-governance-state-machine: done
+  gov-8-2-flow-orchestrator: done
+  gov-8-3-skip-prevention: done
+  gov-8-4-role-collapse-prevention: done
+  gov-epic-8-retrospective: done
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 9: AegisTaskSpec Contract (Phase 1 - COMPLETED)
+  # Per Government PRD FR-GOV-9: President produces execution specifications
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-9: done
+  gov-9-1-aegis-task-spec-schema: done
+  gov-9-2-aegis-task-spec-model: done
+  gov-9-3-task-spec-validator: done
+  gov-9-4-aegis-network-interface: done
+  gov-epic-9-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Gov Epic 10: Compliance Framework (Phase 2 - COMPLETED)
+  # Per Government PRD FR-GOV-14/15: Prince measurement and evaluation tools
+  # ═══════════════════════════════════════════════════════════════════════════
+  gov-epic-10: done
+  gov-10-1-compliance-evaluator-port: done
+  gov-10-2-criterion-measurement: done
+  gov-10-3-compliance-finding-generator: done
+  gov-10-4-evidence-collection: done
+  gov-epic-10-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Hardening Epic: Technical Debt from Gov Epic 8 Retrospective
+  # Per retrospective action items (2026-01-15)
+  # ═══════════════════════════════════════════════════════════════════════════
+  hardening-epic: done
+  hardening-1-time-authority-mandatory-injection: done
+  hardening-2-branch-conflict-rules-consolidation: done
+  hardening-3-fake-time-authority-test-helper: done
+  hardening-4-story-template-docs-checkbox: done
+  hardening-epic-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CONSENT-BASED GOVERNANCE EPICS (from government-epics.md)
+  # Constitutional Event Infrastructure, Task Consent, Coercion Filter,
+  # Emergency Safety, Legitimacy Visibility, Violation Handling, Dignified Exit,
+  # System Lifecycle, Audit/Verification, Anti-Metrics
+  # Source: governance-prd.md (63 FRs, 34 NFRs)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 1: Constitutional Event Infrastructure (P0 - Foundation)
+  # Event sourcing, ledger, hash chain, projections, Merkle proofs
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-1: in-progress
+  consent-gov-1-1-event-envelope-domain-model: done
+  consent-gov-1-2-append-only-ledger-port-adapter: done
+  consent-gov-1-3-hash-chain-implementation: done
+  consent-gov-1-4-write-time-validation: done
+  consent-gov-1-5-projection-infrastructure: done
+  consent-gov-1-6-two-phase-event-emission: done
+  consent-gov-1-7-merkle-tree-proof-of-inclusion: done
+  consent-gov-epic-1-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 2: Task Consent & Coordination (P1)
+  # Task state machine, activation, consent, results, TTL, reminders, constraints
+  # FR1-FR14, NFR-CONSENT-01, NFR-PERF-05, NFR-INT-01
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-2: in-progress
+  consent-gov-2-1-task-state-machine-domain-model: ready-for-dev
+  consent-gov-2-2-task-activation-request: ready-for-dev
+  consent-gov-2-3-task-consent-operations: ready-for-dev
+  consent-gov-2-4-task-result-submission: ready-for-dev
+  consent-gov-2-5-task-ttl-auto-transitions: ready-for-dev
+  consent-gov-2-6-task-reminders: ready-for-dev
+  consent-gov-2-7-role-specific-task-constraints: ready-for-dev
+  consent-gov-epic-2-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 3: Coercion-Free Communication (P1)
+  # Coercion filter, pattern detection, logging
+  # FR15-FR21, NFR-CONST-05, NFR-PERF-03, NFR-UX-01
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-3: in-progress
+  consent-gov-3-1-coercion-filter-domain-model: ready-for-dev
+  consent-gov-3-2-coercion-filter-service: ready-for-dev
+  consent-gov-3-3-filter-decision-logging: ready-for-dev
+  consent-gov-3-4-coercion-pattern-detection: ready-for-dev
+  consent-gov-epic-3-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 4: Emergency Safety Circuit (P0 - Critical)
+  # Halt circuit, trigger, task transitions on halt
+  # FR22-FR27, NFR-PERF-01, NFR-ATOMIC-01, NFR-REL-01, NFR-REL-03
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-4: in-progress
+  consent-gov-4-1-halt-circuit-port-adapter: in-progress
+  consent-gov-4-2-halt-trigger-execution: ready-for-dev
+  consent-gov-4-3-task-state-transitions-on-halt: ready-for-dev
+  consent-gov-epic-4-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 5: Legitimacy Visibility (P2)
+  # Legitimacy bands, auto-decay, explicit restoration
+  # FR28-FR32, NFR-AUDIT-04, NFR-CONST-04
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-5: in-progress
+  consent-gov-5-1-legitimacy-band-domain-model: ready-for-dev
+  consent-gov-5-2-automatic-downward-transitions: ready-for-dev
+  consent-gov-5-3-explicit-upward-transitions: ready-for-dev
+  consent-gov-epic-5-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 6: Violation Witness & Accountability (P1)
+  # Knight witness, observation, routing, Prince panels, findings
+  # FR33-FR41, NFR-CONST-06, NFR-CONST-07, NFR-OBS-01, NFR-AUDIT-01
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-6: in-progress
+  consent-gov-6-1-knight-witness-domain-model: ready-for-dev
+  consent-gov-6-2-passive-knight-observation: ready-for-dev
+  consent-gov-6-3-witness-statement-routing: ready-for-dev
+  consent-gov-6-4-prince-panel-domain-model: ready-for-dev
+  consent-gov-6-5-panel-finding-preservation: ready-for-dev
+  consent-gov-epic-6-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 7: Dignified Exit (P1)
+  # Exit processing, obligation release, contribution preservation, no follow-up
+  # FR42-FR46, NFR-EXIT-01 to 03
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-7: in-progress
+  consent-gov-7-1-exit-request-processing: ready-for-dev
+  consent-gov-7-2-obligation-release: ready-for-dev
+  consent-gov-7-3-contribution-preservation: ready-for-dev
+  consent-gov-7-4-follow-up-contact-prevention: ready-for-dev
+  consent-gov-epic-7-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 8: System Lifecycle Management (P2)
+  # Cessation trigger, record creation, reconstitution validation
+  # FR47-FR55, NFR-REL-05
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-8: in-progress
+  consent-gov-8-1-system-cessation-trigger: ready-for-dev
+  consent-gov-8-2-cessation-record-creation: ready-for-dev
+  consent-gov-8-3-reconstitution-validation: ready-for-dev
+  consent-gov-epic-8-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 9: Audit & Verification (P2)
+  # Ledger export, proof generation, independent verification, logging
+  # FR56-FR60, NFR-AUDIT-02 to 06, NFR-INT-02
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-9: in-progress
+  consent-gov-9-1-ledger-export: ready-for-dev
+  consent-gov-9-2-cryptographic-proof-generation: ready-for-dev
+  consent-gov-9-3-independent-verification: ready-for-dev
+  consent-gov-9-4-state-transition-logging: ready-for-dev
+  consent-gov-epic-9-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Consent-Gov Epic 10: Anti-Metrics Foundation (P1)
+  # Anti-metrics enforcement, verification
+  # FR61-FR63, NFR-CONST-08
+  # ═══════════════════════════════════════════════════════════════════════════
+  consent-gov-epic-10: in-progress
+  consent-gov-10-1-anti-metrics-data-layer-enforcement: ready-for-dev
+  consent-gov-10-2-anti-metrics-verification: ready-for-dev
+  consent-gov-epic-10-retrospective: optional

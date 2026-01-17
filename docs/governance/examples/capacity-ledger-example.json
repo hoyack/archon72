@@ -1,0 +1,325 @@
+{
+  "ledger_id": "cap-ledger-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": "1.0.0",
+  "snapshot_at": "2026-01-16T12:00:00Z",
+  "current_state": {
+    "overall_state": "constrained",
+    "state_since": "2026-01-14T08:00:00Z",
+    "cluster_capacity": {
+      "total_slots": 12,
+      "available_slots": 3,
+      "consumed_slots": 9,
+      "utilization_percent": 75
+    },
+    "program_capacity": {
+      "total_slots": 9,
+      "available_slots": 2,
+      "consumed_slots": 7,
+      "utilization_percent": 78
+    },
+    "task_capacity": {
+      "total_slots": 25,
+      "available_slots": 5,
+      "consumed_slots": 20,
+      "utilization_percent": 80
+    },
+    "pending_claims": 2,
+    "active_deferrals": 3,
+    "crisis_active": false
+  },
+  "declarations": [
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000001",
+      "declaration_type": "cluster_capacity",
+      "source_id": "cluster-17",
+      "source_name": "Research & Analysis Cluster",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "limited",
+      "total_slots": 4,
+      "available_slots": 2,
+      "consumed_slots": 2,
+      "constraints": [
+        "No sensitive data tasks this week",
+        "Reduced hours: 09:00-17:00 EST only"
+      ],
+      "reason_for_limitation": "Team member on planned leave; reduced coverage",
+      "attestation": true,
+      "witnessed": true
+    },
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000002",
+      "declaration_type": "cluster_capacity",
+      "source_id": "cluster-22",
+      "source_name": "Security Operations Cluster",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "available",
+      "total_slots": 4,
+      "available_slots": 1,
+      "consumed_slots": 3,
+      "constraints": [],
+      "attestation": true,
+      "witnessed": true
+    },
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000003",
+      "declaration_type": "cluster_capacity",
+      "source_id": "cluster-31",
+      "source_name": "Infrastructure Cluster",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "unavailable",
+      "total_slots": 4,
+      "available_slots": 0,
+      "consumed_slots": 4,
+      "constraints": [
+        "Emergency maintenance window in progress"
+      ],
+      "reason_for_limitation": "Critical system upgrade; all capacity committed",
+      "attestation": true,
+      "witnessed": true
+    },
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000004",
+      "declaration_type": "duke_program_load",
+      "source_id": "duke-valefor",
+      "source_name": "Duke Valefor",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "limited",
+      "total_slots": 3,
+      "available_slots": 1,
+      "consumed_slots": 2,
+      "constraints": [
+        "Cannot accept programs requiring judicial oversight"
+      ],
+      "attestation": true,
+      "witnessed": true
+    },
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000005",
+      "declaration_type": "duke_program_load",
+      "source_id": "duke-bune",
+      "source_name": "Duke Bune",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "saturated",
+      "total_slots": 3,
+      "available_slots": 0,
+      "consumed_slots": 3,
+      "constraints": [],
+      "reason_for_limitation": "Q1 programs at maximum load",
+      "attestation": true,
+      "witnessed": true
+    },
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000006",
+      "declaration_type": "earl_task_saturation",
+      "source_id": "earl-raum",
+      "source_name": "Earl Raum",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "saturated",
+      "total_slots": 5,
+      "available_slots": 0,
+      "consumed_slots": 5,
+      "constraints": [],
+      "reason_for_limitation": "Waiting on Cluster 17 results for task-003",
+      "attestation": true,
+      "witnessed": true
+    },
+    {
+      "declaration_id": "decl-00000001-0001-4000-8000-000000000007",
+      "declaration_type": "earl_task_saturation",
+      "source_id": "earl-glasya",
+      "source_name": "Earl Glasya-Labolas",
+      "declared_at": "2026-01-15T08:00:00Z",
+      "valid_until": "2026-01-22T08:00:00Z",
+      "availability": "limited",
+      "total_slots": 5,
+      "available_slots": 2,
+      "consumed_slots": 3,
+      "constraints": [
+        "Security-clearance tasks only"
+      ],
+      "attestation": true,
+      "witnessed": true
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim-00000001-0001-4000-8000-000000000001",
+      "execution_plan_id": "plan-q2-expansion",
+      "claimant_id": "president-paimon",
+      "claimed_at": "2026-01-14T10:00:00Z",
+      "claimed_capacity": {
+        "clusters_required": 3,
+        "cluster_capabilities_required": ["research", "analysis", "infrastructure"],
+        "program_slots_required": 2,
+        "task_slots_required": 8,
+        "estimated_duration": "P14D"
+      },
+      "risk_if_unavailable": "high",
+      "priority_justification": "Q2 deadline commitment to stakeholders; delays impact external partnerships",
+      "alternatives_if_constrained": [
+        "Reduce scope to 2 clusters, extend duration to P21D",
+        "Defer infrastructure component to Q3"
+      ],
+      "status": "deferred",
+      "resolution": {
+        "resolved_at": "2026-01-14T14:00:00Z",
+        "resolution_type": "deferred",
+        "capacity_allocated": {
+          "clusters_allocated": 0,
+          "program_slots_allocated": 0,
+          "task_slots_allocated": 0
+        }
+      }
+    },
+    {
+      "claim_id": "claim-00000001-0001-4000-8000-000000000002",
+      "execution_plan_id": "plan-security-audit-q1",
+      "claimant_id": "president-beleth",
+      "claimed_at": "2026-01-15T09:00:00Z",
+      "claimed_capacity": {
+        "clusters_required": 1,
+        "cluster_capabilities_required": ["security"],
+        "program_slots_required": 1,
+        "task_slots_required": 3,
+        "estimated_duration": "P7D"
+      },
+      "risk_if_unavailable": "critical",
+      "priority_justification": "Regulatory compliance deadline; non-negotiable",
+      "alternatives_if_constrained": [],
+      "status": "fulfilled",
+      "resolution": {
+        "resolved_at": "2026-01-15T10:00:00Z",
+        "resolution_type": "capacity_available",
+        "capacity_allocated": {
+          "clusters_allocated": 1,
+          "program_slots_allocated": 1,
+          "task_slots_allocated": 3
+        }
+      }
+    },
+    {
+      "claim_id": "claim-00000001-0001-4000-8000-000000000003",
+      "execution_plan_id": "plan-research-partnership",
+      "claimant_id": "president-paimon",
+      "claimed_at": "2026-01-16T08:00:00Z",
+      "claimed_capacity": {
+        "clusters_required": 2,
+        "cluster_capabilities_required": ["research"],
+        "program_slots_required": 1,
+        "task_slots_required": 4,
+        "estimated_duration": "P21D"
+      },
+      "risk_if_unavailable": "medium",
+      "priority_justification": "University partnership timeline; some flexibility available",
+      "alternatives_if_constrained": [
+        "Delay start by 2 weeks",
+        "Reduce initial scope to 1 cluster"
+      ],
+      "status": "pending"
+    }
+  ],
+  "deferrals": [
+    {
+      "deferral_id": "defer-00000001-0001-4000-8000-000000000001",
+      "item_type": "execution_plan",
+      "item_id": "plan-q2-expansion",
+      "item_title": "Q2 Strategic Expansion Initiative",
+      "deferred_at": "2026-01-14T14:00:00Z",
+      "reason": "insufficient_cluster_capacity",
+      "reason_detail": "Required 3 clusters including infrastructure capability; Cluster 31 (Infrastructure) unavailable due to emergency maintenance. Research clusters at reduced capacity.",
+      "severity": "strategic",
+      "deferred_by": "capacity_governance_system",
+      "acknowledged_by": "president-paimon",
+      "next_review_at": "2026-01-20T14:00:00Z",
+      "deferral_count": 1,
+      "escalation_threshold": 3,
+      "escalated": false,
+      "resolved": false
+    },
+    {
+      "deferral_id": "defer-00000001-0001-4000-8000-000000000002",
+      "item_type": "program",
+      "item_id": "program-vendor-integration",
+      "item_title": "Vendor Integration Program",
+      "deferred_at": "2026-01-10T12:00:00Z",
+      "reason": "insufficient_program_slots",
+      "reason_detail": "Duke Bune at maximum program load; no other Duke with appropriate scope available.",
+      "severity": "operational",
+      "deferred_by": "capacity_governance_system",
+      "acknowledged_by": "duke-bune",
+      "next_review_at": "2026-01-17T12:00:00Z",
+      "deferral_count": 2,
+      "escalation_threshold": 3,
+      "escalated": false,
+      "resolved": false
+    },
+    {
+      "deferral_id": "defer-00000001-0001-4000-8000-000000000003",
+      "item_type": "task",
+      "item_id": "task-competitor-analysis",
+      "item_title": "Q1 Competitor Analysis Deep Dive",
+      "deferred_at": "2026-01-08T10:00:00Z",
+      "reason": "insufficient_cluster_capacity",
+      "reason_detail": "Required research cluster with market analysis capability; Cluster 17 at reduced capacity for 3 consecutive weeks.",
+      "severity": "operational",
+      "deferred_by": "earl-raum",
+      "acknowledged_by": "earl-raum",
+      "next_review_at": "2026-01-15T10:00:00Z",
+      "deferral_count": 3,
+      "escalation_threshold": 3,
+      "escalated": true,
+      "resolved": false
+    }
+  ],
+  "violations": [
+    {
+      "violation_id": "viol-00000001-0001-4000-8000-000000000001",
+      "violation_type": "optimistic_declaration",
+      "detected_at": "2026-01-12T14:00:00Z",
+      "description": "Cluster 17 declared 3 available slots on 2026-01-10, then revised to 2 slots on 2026-01-11, then to 1 slot on 2026-01-12. Pattern of optimistic declarations followed by downward revisions.",
+      "related_artifacts": [
+        "decl-cluster17-0110",
+        "decl-cluster17-0111",
+        "decl-cluster17-0112"
+      ],
+      "actors_involved": [
+        {
+          "archon_id": "cluster-17-steward",
+          "role": "declaring_steward"
+        }
+      ],
+      "witness_statement_id": "stmt-capacity-001",
+      "legitimacy_impact": "minor_decay"
+    }
+  ],
+  "state_history": [
+    {
+      "state_before": "balanced",
+      "state_after": "constrained",
+      "transitioned_at": "2026-01-14T08:00:00Z",
+      "trigger": "Cluster 31 declared unavailable; utilization crossed 80% threshold"
+    }
+  ],
+  "constraints": {
+    "no_hidden_prioritization": true,
+    "no_optimization_for_fairness": true,
+    "no_central_allocator": true,
+    "deferral_must_be_named": true,
+    "scarcity_must_be_visible": true,
+    "append_only": true
+  },
+  "audit": {
+    "created_at": "2026-01-01T00:00:00Z",
+    "last_entry_at": "2026-01-16T08:00:00Z",
+    "declaration_count": 7,
+    "claim_count": 3,
+    "deferral_count": 3,
+    "retention_period": "permanent"
+  }
+}

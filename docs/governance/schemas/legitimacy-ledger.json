@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/legitimacy_ledger.v1.json",
+  "title": "Legitimacy Ledger",
+  "description": "An append-only record and banded state machine that makes procedural erosion visible, irreversible in the short term, and expensive to ignore.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ledger_id",
+    "version",
+    "current_state",
+    "entries",
+    "constraints",
+    "audit"
+  ],
+  "properties": {
+    "ledger_id": {
+      "type": "string",
+      "description": "Unique identifier for this ledger instance.",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "current_state": {
+      "type": "object",
+      "description": "Current legitimacy state.",
+      "additionalProperties": false,
+      "required": ["current_band", "band_since", "minor_decay_count"],
+      "properties": {
+        "current_band": {
+          "$ref": "#/$defs/legitimacy_band"
+        },
+        "band_since": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the current band was entered."
+        },
+        "previous_band": {
+          "$ref": "#/$defs/legitimacy_band"
+        },
+        "minor_decay_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minor decay events since last band transition. Resets on band change."
+        },
+        "conclaves_at_current_band": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of Conclaves at current band."
+        },
+        "clean_conclaves": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Consecutive Conclaves with no decay events (for recovery tracking)."
+        },
+        "outstanding_remedies": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Judicial remedies not yet completed."
+        },
+        "active_effects": {
+          "type": "array",
+          "description": "Automatic effects currently in force due to band.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "description": "Append-only list of legitimacy events.",
+      "items": {
+        "$ref": "#/$defs/ledger_entry"
+      }
+    },
+    "public_summary": {
+      "type": "object",
+      "description": "Externally visible legitimacy summary.",
+      "additionalProperties": false,
+      "properties": {
+        "current_band": {
+          "$ref": "#/$defs/legitimacy_band"
+        },
+        "band_since": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recent_causes": {
+          "type": "array",
+          "description": "High-level descriptions of recent decay causes.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        },
+        "required_next_steps": {
+          "type": "array",
+          "description": "Actions required to prevent further decay or enable recovery.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "band_thresholds": {
+      "type": "object",
+      "description": "Configuration for band transitions.",
+      "additionalProperties": false,
+      "properties": {
+        "minor_decay_to_transition": {
+          "type": "integer",
+          "const": 3,
+          "description": "Minor decay events per Conclave cycle to trigger band decay."
+        },
+        "clean_conclaves_for_improvement": {
+          "type": "object",
+          "properties": {
+            "strained_to_stable": {
+              "type": "integer",
+              "const": 3
+            },
+            "eroding_to_strained": {
+              "type": "integer",
+              "const": 2
+            }
+          }
+        },
+        "max_conclaves_at_strained": {
+          "type": "integer",
+          "const": 5,
+          "description": "Mandatory improvement plan required if exceeded."
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Non-negotiable constraints on the legitimacy system.",
+      "additionalProperties": false,
+      "properties": {
+        "no_numeric_scores": {
+          "type": "boolean",
+          "const": true,
+          "description": "Bands, not points. Scores invite gaming."
+        },
+        "no_optimization": {
+          "type": "boolean",
+          "const": true,
+          "description": "You don't 'win' legitimacy."
+        },
+        "no_self_healing": {
+          "type": "boolean",
+          "const": true,
+          "description": "Only procedure can stabilize legitimacy."
+        },
+        "public_visibility": {
+          "type": "boolean",
+          "const": true,
+          "description": "At least coarse band is publicly visible."
+        },
+        "append_only": {
+          "type": "boolean",
+          "const": true,
+          "description": "Ledger entries cannot be modified or deleted."
+        },
+        "one_step_transitions": {
+          "type": "boolean",
+          "const": true,
+          "description": "Bands can only move one step at a time (except catastrophic)."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "last_entry_at", "integrity_hash"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_entry_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "entry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "integrity_hash": {
+          "type": "string",
+          "description": "Cryptographic hash of ledger contents for tamper detection."
+        },
+        "retention_period": {
+          "type": "string",
+          "const": "permanent"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "legitimacy_band": {
+      "type": "string",
+      "enum": ["stable", "strained", "eroding", "compromised", "failed"],
+      "description": "Legitimacy bands from healthy to failed."
+    },
+    "ledger_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "entry_type",
+        "event_type",
+        "severity",
+        "direction",
+        "description",
+        "recorded_at",
+        "trace_id"
+      ],
+      "properties": {
+        "entry_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+        },
+        "entry_type": {
+          "type": "string",
+          "enum": ["decay_event", "accumulation_event", "band_transition", "system_event"],
+          "description": "Category of ledger entry."
+        },
+        "event_type": {
+          "type": "string",
+          "description": "Specific event that occurred.",
+          "enum": [
+            "judicial_invalidation_honored",
+            "judicial_invalidation_ignored",
+            "witness_statement_acknowledged",
+            "witness_statement_late",
+            "witness_facts_disputed",
+            "witness_record_modification",
+            "advisory_acknowledged",
+            "advisory_ignored",
+            "blocker_escalated",
+            "critical_blocker_bypass",
+            "transparent_deferral",
+            "repeated_deferral",
+            "missing_deferral_reason",
+            "dissent_preserved",
+            "consent_model_bypass",
+            "role_boundary_violation",
+            "how_smuggling",
+            "remedy_completed",
+            "remedy_incomplete",
+            "constitutional_rule_change",
+            "continuation_after_illegitimacy",
+            "systematic_consent_suppression",
+            "judicial_panel_tampering",
+            "forced_agenda_manipulation",
+            "band_improvement",
+            "band_decay",
+            "clean_conclave_recorded",
+            "improvement_plan_submitted",
+            "reauthorization_granted"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["minor", "moderate", "major", "catastrophic"],
+          "description": "Impact level of the event."
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["accumulation", "decay", "neutral"],
+          "description": "Whether this event builds or erodes legitimacy."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Human-readable description of the event."
+        },
+        "related_artifacts": {
+          "type": "array",
+          "description": "IDs of related governance artifacts.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actors_involved": {
+          "type": "array",
+          "description": "Archons involved in this event.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "archon_id": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "band_before": {
+          "$ref": "#/$defs/legitimacy_band",
+          "description": "Band before this event (for transitions)."
+        },
+        "band_after": {
+          "$ref": "#/$defs/legitimacy_band",
+          "description": "Band after this event (for transitions)."
+        },
+        "conclave_id": {
+          "type": "string",
+          "description": "Conclave during which this event occurred."
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed tracing ID for correlation."
+        },
+        "acknowledgement": {
+          "type": "object",
+          "description": "Conclave acknowledgement of this entry.",
+          "properties": {
+            "acknowledged": {
+              "type": "boolean"
+            },
+            "acknowledged_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "acknowledged_in_conclave": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

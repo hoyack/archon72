@@ -1,6 +1,11 @@
-"""Time Authority Service for clock drift detection (Story 1.5, FR6-FR7).
+"""Time Authority Service for consistent timestamps and clock drift detection.
 
-This service monitors clock drift between local timestamps and the time authority
+HARDENING-1: TimeAuthorityService Mandatory Injection
+This service implements TimeAuthorityProtocol to provide consistent timestamps
+throughout the system. All services requiring timestamps MUST inject this service.
+
+Original Purpose (Story 1.5, FR6-FR7):
+This service also monitors clock drift between local timestamps and the time authority
 (database). Drift detection is for investigation/monitoring only - it does NOT
 reject events because sequence is the authoritative ordering.
 
@@ -13,15 +18,21 @@ Constitutional Truths Honored:
 - CT-11: Silent failure destroys legitimacy -> HALT OVER DEGRADE
 - CT-12: Witnessing creates accountability -> Events must be verifiable
 
+Team Agreement (Gov Epic 8 Retrospective):
+> No `datetime.now()` calls in production code - always inject time authority
+
 Note:
     Clock drift does NOT invalidate events. The sequence number is the
     authoritative ordering mechanism. Drift is logged for time sync
     investigation purposes only.
 """
 
-from datetime import datetime, timedelta
+import time
+from datetime import datetime, timedelta, timezone
 
 from structlog import get_logger
+
+from src.application.ports.time_authority import TimeAuthorityProtocol
 
 logger = get_logger()
 
@@ -29,7 +40,7 @@ logger = get_logger()
 DEFAULT_DRIFT_THRESHOLD_SECONDS: float = 5.0
 
 
-class TimeAuthorityService:
+class TimeAuthorityService(TimeAuthorityProtocol):
     """Service for time authority and clock drift detection (FR6-FR7).
 
     Constitutional Constraint (CT-12):
@@ -62,6 +73,49 @@ class TimeAuthorityService:
                 Defaults to 5 seconds per AC4.
         """
         self._threshold = timedelta(seconds=drift_threshold_seconds)
+
+    # =========================================================================
+    # TimeAuthorityProtocol Implementation (HARDENING-1, AC4)
+    # =========================================================================
+
+    def now(self) -> datetime:
+        """Return current UTC time with timezone awareness.
+
+        Returns:
+            Current datetime in UTC timezone.
+
+        Note:
+            Always returns timezone-aware UTC datetime for consistency.
+            Per CT-3, sequence numbers are authoritative - time is secondary.
+        """
+        return datetime.now(timezone.utc)
+
+    def utcnow(self) -> datetime:
+        """Return current UTC time.
+
+        Returns:
+            Current datetime in UTC timezone.
+
+        Note:
+            Equivalent to now() - both return UTC for consistency.
+        """
+        return datetime.now(timezone.utc)
+
+    def monotonic(self) -> float:
+        """Return monotonic clock value for measuring elapsed time.
+
+        Returns:
+            Monotonically increasing float value (in seconds).
+
+        Note:
+            Use for measuring elapsed time, not for timestamps.
+            Values never decrease (unlike wall clock).
+        """
+        return time.monotonic()
+
+    # =========================================================================
+    # Clock Drift Detection (Original Story 1.5 functionality)
+    # =========================================================================
 
     def check_drift(
         self,

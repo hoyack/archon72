@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.com/schemas/task_activation_request.v1.json",
+  "title": "Task Activation Request",
+  "description": "A request from an Earl to activate work in an Aegis Cluster. This is NOT an order - it is a call for participation that clusters may accept, decline, or request clarification on.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "task_id",
+    "version",
+    "issued_at",
+    "issued_by",
+    "task_summary",
+    "human_readable_summary",
+    "constraints",
+    "success_definition",
+    "required_capabilities",
+    "task_type",
+    "response_policy",
+    "audit"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "Unique identifier for this activation request (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Reference to the parent task in the governance system (UUID).",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when this request was issued."
+    },
+    "issued_by": {
+      "type": "object",
+      "description": "The Earl issuing this activation request. Only Earls may issue activation requests.",
+      "additionalProperties": false,
+      "required": ["archon_id", "archon_name", "rank"],
+      "properties": {
+        "archon_id": {
+          "type": "string",
+          "description": "Stable identifier for the Earl."
+        },
+        "archon_name": {
+          "type": "string",
+          "description": "Display name of the Earl (e.g., 'Raum', 'Bifrons')."
+        },
+        "rank": {
+          "type": "string",
+          "const": "Earl",
+          "description": "Must be Earl. No other rank may issue activation requests."
+        }
+      }
+    },
+    "authorization_chain": {
+      "type": "object",
+      "description": "Provenance showing how this task was authorized (President → Duke → Earl).",
+      "additionalProperties": false,
+      "required": ["president_archon_id", "duke_archon_id", "program_id"],
+      "properties": {
+        "president_archon_id": {
+          "type": "string",
+          "description": "The President who authorized the plan."
+        },
+        "duke_archon_id": {
+          "type": "string",
+          "description": "The Duke who manages the program."
+        },
+        "program_id": {
+          "type": "string",
+          "description": "Reference to the program this task belongs to."
+        },
+        "plan_id": {
+          "type": "string",
+          "description": "Reference to the originating plan (optional)."
+        }
+      }
+    },
+    "task_summary": {
+      "type": "string",
+      "description": "Brief technical summary of the task (for system matching).",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "human_readable_summary": {
+      "type": "string",
+      "description": "Plain-language description for the Cluster Steward. No jargon. Explains what, why, and expected outcome.",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "constraints": {
+      "type": "array",
+      "description": "Explicit boundaries on how this task may be executed.",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["constraint_type", "description"],
+        "properties": {
+          "constraint_type": {
+            "type": "string",
+            "enum": [
+              "data_handling",
+              "source_restriction",
+              "output_format",
+              "tool_restriction",
+              "communication_boundary",
+              "time_boundary",
+              "approval_required",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["must", "should", "may"],
+            "default": "must"
+          }
+        }
+      }
+    },
+    "success_definition": {
+      "type": "object",
+      "description": "Clear, measurable criteria for task completion.",
+      "additionalProperties": false,
+      "required": ["criteria", "deliverables"],
+      "properties": {
+        "criteria": {
+          "type": "string",
+          "description": "What 'done' looks like in plain language.",
+          "minLength": 10,
+          "maxLength": 1000
+        },
+        "deliverables": {
+          "type": "array",
+          "description": "Expected outputs from the task.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "format"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "format": {
+                "type": "string",
+                "enum": ["document", "code", "data", "report", "artifact", "other"]
+              },
+              "optional": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        },
+        "acceptance_tests": {
+          "type": "array",
+          "description": "Optional validation criteria.",
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "required_capabilities": {
+      "type": "array",
+      "description": "Capability tags required to execute this task. Must match Cluster capabilities.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "research",
+          "analysis",
+          "writing",
+          "review",
+          "design",
+          "dev_backend",
+          "dev_frontend",
+          "devops",
+          "security",
+          "data_engineering",
+          "qa_testing",
+          "product_ops",
+          "community_ops",
+          "incident_response",
+          "compliance_ops",
+          "other"
+        ]
+      }
+    },
+    "task_type": {
+      "type": "string",
+      "description": "Classification of task type. Must match Cluster consent_policy.task_types_allowed.",
+      "enum": [
+        "research_summary",
+        "implementation_work",
+        "security_review",
+        "incident_support",
+        "content_creation",
+        "testing_validation",
+        "ops_runbook",
+        "governance_support",
+        "other"
+      ]
+    },
+    "sensitivity_level": {
+      "type": "string",
+      "description": "Data sensitivity classification. Affects which steward auth_levels can accept.",
+      "enum": ["standard", "sensitive", "restricted"],
+      "default": "standard"
+    },
+    "response_policy": {
+      "type": "object",
+      "description": "Timing expectations for cluster response. Dynamic backoff is recommended.",
+      "additionalProperties": false,
+      "required": ["response_expected_within", "deadline"],
+      "properties": {
+        "response_expected_within": {
+          "type": "string",
+          "description": "ISO-8601 duration for expected accept/decline response (e.g., 'PT4H' for 4 hours).",
+          "pattern": "^P(?:\\d+Y)?(?:\\d+M)?(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?$"
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Hard deadline for task completion if accepted."
+        },
+        "backoff_policy": {
+          "type": "object",
+          "description": "Dynamic backoff configuration for unresponsive clusters.",
+          "additionalProperties": false,
+          "properties": {
+            "initial_wait": {
+              "type": "string",
+              "description": "ISO-8601 duration before first reminder.",
+              "default": "PT4H"
+            },
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "default": 3
+            },
+            "escalate_after": {
+              "type": "string",
+              "description": "ISO-8601 duration after which to escalate silence to Knight-Witness.",
+              "default": "PT24H"
+            },
+            "respect_hours_of_operation": {
+              "type": "boolean",
+              "description": "If true, backoff timers pause outside cluster operating hours.",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "Additional context to help the cluster understand and execute the task.",
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "type": "string",
+          "description": "Why this task exists and how it fits into the larger program.",
+          "maxLength": 2000
+        },
+        "related_tasks": {
+          "type": "array",
+          "description": "References to related or dependent tasks.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "array",
+          "description": "Links or references to helpful resources.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "uri"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "uri": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500
+              }
+            }
+          }
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "description": "Routing preferences and constraints.",
+      "additionalProperties": false,
+      "properties": {
+        "preferred_clusters": {
+          "type": "array",
+          "description": "Cluster IDs to prioritize (suggestions, not commands).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_clusters": {
+          "type": "array",
+          "description": "Cluster IDs to exclude (e.g., conflict of interest).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "domain_focus_preferred": {
+          "type": "array",
+          "description": "Preferred domain expertise.",
+          "items": {
+            "type": "string",
+            "maxLength": 80
+          }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "description": "Audit trail for this request.",
+      "additionalProperties": false,
+      "required": ["created_at", "trace_id"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed tracing ID for correlation."
+        },
+        "parent_request_id": {
+          "type": "string",
+          "description": "If this is a retry or split, reference to original request."
+        }
+      }
+    }
+  }
+}

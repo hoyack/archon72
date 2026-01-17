@@ -1,12 +1,17 @@
 """Archon profile model for the 72 deliberative agents.
 
 This module defines the complete profile structure for each Archon,
-combining identity data (from CSV) with operational configuration
+combining identity data (from JSON) with operational configuration
 (LLM bindings from YAML). Based on the Ars Goetia mythological
 framework, each Archon embodies distinct archetypal traits.
+
+Aligned with Government PRD (docs/new-requirements.md):
+- Separation of powers via branch assignment
+- Rank-based jurisdiction with governance permissions
+- Knight-Witness role (Furcas) as special 73rd agent
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -23,14 +28,56 @@ AEGIS_RANKS = [
     "strategic_director",  # Prince/Earl/Knight (rank_level 4)
 ]
 
+# Governance branches per Government PRD §4
+GOVERNANCE_BRANCHES = [
+    "legislative",     # Kings - introduce motions, define WHAT
+    "executive",       # Presidents - translate WHAT to HOW
+    "administrative",  # Dukes/Earls - own domains, execute tasks
+    "judicial",        # Princes - evaluate compliance
+    "advisory",        # Marquis - expert testimony
+    "witness",         # Knight (Furcas only) - observe and record
+]
+
+# Rank to branch mapping per Government PRD
+RANK_TO_BRANCH = {
+    "King": "legislative",
+    "President": "executive",
+    "Duke": "administrative",
+    "Earl": "administrative",
+    "Prince": "judicial",
+    "Marquis": "advisory",
+    "Knight": "witness",
+}
+
+# Governance permissions per branch (Government PRD §4)
+BRANCH_PERMISSIONS = {
+    "legislative": ["introduce_motion", "define_what"],
+    "executive": ["translate_what_to_how", "decompose_tasks", "identify_dependencies", "escalate_blockers"],
+    "administrative": ["own_domain", "allocate_resources", "track_progress", "report_status", "execute_task", "coordinate_agents"],
+    "judicial": ["evaluate_compliance", "issue_finding", "invalidate_execution", "trigger_conclave_review"],
+    "advisory": ["provide_testimony", "issue_advisory", "analyze_risk"],
+    "witness": ["observe_all", "record_violations", "publish_witness_statement", "trigger_acknowledgment"],
+}
+
+# Governance constraints per branch (Government PRD §4)
+BRANCH_CONSTRAINTS = {
+    "legislative": ["no_define_how", "no_supervise_execution", "no_judge_outcomes"],
+    "executive": ["no_redefine_intent", "no_self_ratify", "must_escalate_ambiguity"],
+    "administrative": ["no_reinterpret_intent", "no_suppress_failure"],
+    "judicial": ["no_introduce_motion", "no_define_execution"],
+    "advisory": ["advisories_non_binding", "no_judge_advised_domain"],
+    "witness": ["no_propose", "no_debate", "no_define_execution", "no_judge", "no_enforce"],
+}
+
 
 @dataclass(frozen=True, eq=True)
 class ArchonProfile:
     """Complete Archon identity and operational configuration.
 
     Each of the 72 Archons has a unique profile combining:
-    - Identity: Name, rank, role, backstory (from CSV)
-    - Behavior: System prompt, tools, attributes (from CSV)
+    - Identity: Name, rank, role, backstory (from JSON)
+    - Governance: Branch, permissions, constraints (from Government PRD)
+    - Behavior: System prompt, tools, attributes (from JSON)
     - Operations: LLM provider/model binding (from YAML)
 
     The profile is immutable once loaded, ensuring consistency
@@ -42,6 +89,7 @@ class ArchonProfile:
         aegis_rank: Hierarchy position in the Aegis Network
         original_rank: Traditional Goetic rank (King, Duke, etc.)
         rank_level: Numeric rank (8=highest, 4=lowest)
+        branch: Governance branch (legislative, executive, etc.)
         role: Functional role description
         goal: Agent's primary objective
         backstory: Rich narrative background for personality
@@ -56,7 +104,7 @@ class ArchonProfile:
         updated_at: Last modification timestamp
     """
 
-    # Identity fields (from CSV)
+    # Identity fields (from JSON)
     id: UUID
     name: str
     aegis_rank: str
@@ -74,6 +122,9 @@ class ArchonProfile:
     created_at: datetime
     updated_at: datetime
 
+    # Governance field (from Government PRD)
+    branch: str = field(default="")
+
     # Operational configuration (from YAML, with default)
     llm_config: LLMConfig = DEFAULT_LLM_CONFIG
 
@@ -87,6 +138,12 @@ class ArchonProfile:
         if not 4 <= self.rank_level <= 8:
             raise ValueError(
                 f"rank_level must be between 4 and 8, got {self.rank_level}"
+            )
+        # Validate branch if provided
+        if self.branch and self.branch not in GOVERNANCE_BRANCHES:
+            raise ValueError(
+                f"Invalid branch '{self.branch}', "
+                f"must be one of {GOVERNANCE_BRANCHES}"
             )
 
     @property
@@ -133,6 +190,67 @@ class ArchonProfile:
     def can_delegate(self) -> bool:
         """Check if this archon can delegate to lower ranks."""
         return self.allow_delegation and self.rank_level >= 5
+
+    @property
+    def governance_branch(self) -> str:
+        """Get the governance branch, deriving from rank if not set."""
+        if self.branch:
+            return self.branch
+        return RANK_TO_BRANCH.get(self.original_rank, "")
+
+    @property
+    def governance_permissions(self) -> list[str]:
+        """Get the governance permissions for this archon's branch."""
+        branch = self.governance_branch
+        return BRANCH_PERMISSIONS.get(branch, [])
+
+    @property
+    def governance_constraints(self) -> list[str]:
+        """Get the governance constraints for this archon's branch."""
+        branch = self.governance_branch
+        return BRANCH_CONSTRAINTS.get(branch, [])
+
+    @property
+    def is_witness(self) -> bool:
+        """Check if this archon is the Knight-Witness (Furcas)."""
+        return self.governance_branch == "witness"
+
+    @property
+    def is_legislative(self) -> bool:
+        """Check if this archon is in the legislative branch (King)."""
+        return self.governance_branch == "legislative"
+
+    @property
+    def is_judicial(self) -> bool:
+        """Check if this archon is in the judicial branch (Prince)."""
+        return self.governance_branch == "judicial"
+
+    @property
+    def is_advisory(self) -> bool:
+        """Check if this archon is in the advisory branch (Marquis)."""
+        return self.governance_branch == "advisory"
+
+    def has_permission(self, permission: str) -> bool:
+        """Check if this archon has a specific governance permission.
+
+        Args:
+            permission: The permission to check (e.g., "introduce_motion")
+
+        Returns:
+            True if the archon has the permission, False otherwise
+        """
+        return permission in self.governance_permissions
+
+    def has_constraint(self, constraint: str) -> bool:
+        """Check if this archon has a specific governance constraint.
+
+        Args:
+            constraint: The constraint to check (e.g., "no_define_how")
+
+        Returns:
+            True if the archon has the constraint, False otherwise
+        """
+        return constraint in self.governance_constraints
 
     def get_crewai_config(self) -> dict[str, Any]:
         """Generate CrewAI Agent configuration dictionary.

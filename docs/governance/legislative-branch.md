@@ -74,9 +74,15 @@ They do not represent the system as a whole.
 
 ## Motions (Legislative Output)
 
+### Pre-Motion Artifacts (Motion Seeds)
+
+**Motion Seeds** are recorded proposals that have **no agenda standing** and do **not** require Admission Gate validation.
+
 ### Motion Definition
 
 A **Motion** is a declaration of intent consisting of:
+
+It exists only after formal introduction by a King; non-introduced proposals remain Motion Seeds.
 
 | Component | Description |
 |-----------|-------------|
@@ -95,6 +101,8 @@ A Motion must be:
 | **Realm-valid** | Sponsored by King(s) of affected Realm(s) |
 | **Free of HOW** | No tasks, steps, timelines, or tool specifications |
 | **Explicitly scoped** | Clear boundaries of what is and is not covered |
+
+See [Conclave Agenda Control](./conclave-agenda.md) for agenda sequencing and admission mechanics.
 
 ### Motion Types
 
@@ -452,4 +460,3 @@ See [schemas/motion.json](./schemas/motion.json) for the complete JSON Schema.
 - [Legitimacy System](./legitimacy-system.md) - How legislative behavior affects legitimacy
 - [Appeal & Cessation](./appeal-cessation.md) - King appeal rights and limits
 - [Enforcement Flow](./enforcement-flow.md) - Witness oversight of Legislative Branch
-

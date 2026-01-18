@@ -39,10 +39,8 @@ The Agenda Generator must satisfy these non-negotiable requirements:
 The Agenda Generator consumes from exactly 6 input queues. No other source can place items on the agenda.
 Queues 1-2 handle Motion Seeds (pre-admission submissions), not ratified Motions.
 
-### Queue 1: New Motion Seeds
-See also: [Legislative Branch](legislative-branch.md).
-
 ### Queue 1: Motion Seeds (Non-binding Proposals)
+See also: [Legislative Branch](legislative-branch.md).
 
 | Property | Value |
 |----------|-------|
@@ -156,7 +154,6 @@ Motion Seeds that were previously submitted but not resolved. Deferral count is 
 **Standard priority. Subject to realm quotas.**
 
 Sources:
-- New Motion Seeds (Queue 1)
 - Motion Seeds (Queue 1)
 
 Seeds submitted for consideration. Limited to 1 per realm per Conclave to prevent flooding.
@@ -217,10 +214,7 @@ Only new Motion Seeds are quota-constrained.
 
 ## Motion Admission Gate
 
-Before entering any queue, Motion Seeds pass through the Motion Admission Gate, which validates:
-The admission gate evaluates Motions, not Seeds.
-
-Before entering any queue, motions pass through an admission gate that validates:
+Before entering any queue, Motions pass through the Motion Admission Gate, which validates:
 
 ### Required Fields
 
@@ -236,7 +230,7 @@ Before entering any queue, motions pass through an admission gate that validates
 
 ### Rejection Criteria
 
-Motion Seeds are rejected (not deferred) if:
+Motions are rejected (not deferred) if:
 
 | Criterion | Reason |
 |-----------|--------|
@@ -246,7 +240,7 @@ Motion Seeds are rejected (not deferred) if:
 | Invalid realm | Realm does not exist |
 | Scope violation | Motion requests action outside sponsor's authority |
 
-Rejected motions receive a rejection record with reason. Rejection can be appealed.
+Rejected Motions receive a rejection record with reason. Rejection can be appealed.
 
 ### Admission Record
 

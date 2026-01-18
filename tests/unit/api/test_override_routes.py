@@ -11,7 +11,6 @@ Constitutional Constraints:
 
 import inspect
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -113,18 +112,20 @@ class TestOverrideRoutes:
 
     def test_endpoints_use_correct_response_models(self) -> None:
         """Test that endpoints use correct response models."""
-        from src.api.routes.override import router
         from src.api.models.override import (
             OverrideEventResponse,
             OverrideEventsListResponse,
         )
+        from src.api.routes.override import router
 
         # Find routes and check response models
         for route in router.routes:
             if hasattr(route, "path"):
                 if route.path == "" and hasattr(route, "response_model"):
                     assert route.response_model == OverrideEventsListResponse
-                elif "/{override_id}" in route.path and hasattr(route, "response_model"):
+                elif "/{override_id}" in route.path and hasattr(
+                    route, "response_model"
+                ):
                     assert route.response_model == OverrideEventResponse
 
     def test_get_overrides_pagination_parameters(self) -> None:

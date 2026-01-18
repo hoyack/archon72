@@ -115,25 +115,31 @@ class TaskStatus(str, Enum):
 
 
 # State category sets for fast lookup
-_PRE_CONSENT_STATES: frozenset[TaskStatus] = frozenset({
-    TaskStatus.AUTHORIZED,
-    TaskStatus.ACTIVATED,
-    TaskStatus.ROUTED,
-})
+_PRE_CONSENT_STATES: frozenset[TaskStatus] = frozenset(
+    {
+        TaskStatus.AUTHORIZED,
+        TaskStatus.ACTIVATED,
+        TaskStatus.ROUTED,
+    }
+)
 
-_POST_CONSENT_STATES: frozenset[TaskStatus] = frozenset({
-    TaskStatus.ACCEPTED,
-    TaskStatus.IN_PROGRESS,
-    TaskStatus.REPORTED,
-    TaskStatus.AGGREGATED,
-})
+_POST_CONSENT_STATES: frozenset[TaskStatus] = frozenset(
+    {
+        TaskStatus.ACCEPTED,
+        TaskStatus.IN_PROGRESS,
+        TaskStatus.REPORTED,
+        TaskStatus.AGGREGATED,
+    }
+)
 
-_TERMINAL_STATES: frozenset[TaskStatus] = frozenset({
-    TaskStatus.COMPLETED,
-    TaskStatus.DECLINED,
-    TaskStatus.QUARANTINED,
-    TaskStatus.NULLIFIED,
-})
+_TERMINAL_STATES: frozenset[TaskStatus] = frozenset(
+    {
+        TaskStatus.COMPLETED,
+        TaskStatus.DECLINED,
+        TaskStatus.QUARANTINED,
+        TaskStatus.NULLIFIED,
+    }
+)
 
 
 class IllegalStateTransitionError(ConstitutionalViolationError):
@@ -232,8 +238,7 @@ class TaskState:
             )
         if not self.earl_id.strip():
             raise ConstitutionalViolationError(
-                "FR13: TaskState validation failed - "
-                "earl_id must be non-empty string"
+                "FR13: TaskState validation failed - earl_id must be non-empty string"
             )
 
     def _validate_current_status(self) -> None:
@@ -261,15 +266,18 @@ class TaskState:
         """Validate timeouts are positive timedelta."""
         if not isinstance(self.ttl, timedelta) or self.ttl <= timedelta(0):
             raise ConstitutionalViolationError(
-                "FR13: TaskState validation failed - "
-                "ttl must be positive timedelta"
+                "FR13: TaskState validation failed - ttl must be positive timedelta"
             )
-        if not isinstance(self.inactivity_timeout, timedelta) or self.inactivity_timeout <= timedelta(0):
+        if not isinstance(
+            self.inactivity_timeout, timedelta
+        ) or self.inactivity_timeout <= timedelta(0):
             raise ConstitutionalViolationError(
                 "FR13: TaskState validation failed - "
                 "inactivity_timeout must be positive timedelta"
             )
-        if not isinstance(self.reporting_timeout, timedelta) or self.reporting_timeout <= timedelta(0):
+        if not isinstance(
+            self.reporting_timeout, timedelta
+        ) or self.reporting_timeout <= timedelta(0):
             raise ConstitutionalViolationError(
                 "FR13: TaskState validation failed - "
                 "reporting_timeout must be positive timedelta"
@@ -305,9 +313,7 @@ class TaskState:
         # Import here to avoid circular dependency
         from src.domain.governance.task.task_state_rules import TaskTransitionRules
 
-        if not TaskTransitionRules.is_valid_transition(
-            self.current_status, new_status
-        ):
+        if not TaskTransitionRules.is_valid_transition(self.current_status, new_status):
             raise IllegalStateTransitionError(
                 current_state=self.current_status,
                 attempted_state=new_status,

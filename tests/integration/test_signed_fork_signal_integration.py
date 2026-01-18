@@ -37,9 +37,7 @@ class MockSigningService:
         self.verify_call_count = 0
         self._signatures: dict[bytes, str] = {}
 
-    async def sign_fork_signal(
-        self, signable_content: bytes
-    ) -> tuple[str, str, int]:
+    async def sign_fork_signal(self, signable_content: bytes) -> tuple[str, str, int]:
         """Sign content and return signature."""
         self.sign_call_count += 1
         # Generate deterministic signature for content

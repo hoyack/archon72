@@ -55,18 +55,25 @@ class TestWaiverDocumentedEventPayload:
             documented_by=WAIVER_SYSTEM_AGENT_ID,
         )
 
-    def test_payload_creation_success(self, valid_payload: WaiverDocumentedEventPayload) -> None:
+    def test_payload_creation_success(
+        self, valid_payload: WaiverDocumentedEventPayload
+    ) -> None:
         """Test successful payload creation with all fields."""
         assert valid_payload.waiver_id == "CT-15-MVP-WAIVER"
         assert valid_payload.constitutional_truth_id == "CT-15"
-        assert valid_payload.constitutional_truth_statement == "Legitimacy requires consent"
+        assert (
+            valid_payload.constitutional_truth_statement
+            == "Legitimacy requires consent"
+        )
         assert valid_payload.what_is_waived == "Full consent mechanism implementation"
         assert valid_payload.rationale == "MVP focuses on constitutional infrastructure"
         assert valid_payload.target_phase == "Phase 2 - Seeker Journey"
         assert valid_payload.status == WaiverStatus.ACTIVE
         assert valid_payload.documented_by == WAIVER_SYSTEM_AGENT_ID
 
-    def test_payload_is_immutable(self, valid_payload: WaiverDocumentedEventPayload) -> None:
+    def test_payload_is_immutable(
+        self, valid_payload: WaiverDocumentedEventPayload
+    ) -> None:
         """Test payload is immutable (frozen dataclass)."""
         with pytest.raises(AttributeError):
             valid_payload.waiver_id = "different-id"  # type: ignore

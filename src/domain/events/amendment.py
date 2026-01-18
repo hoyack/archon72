@@ -204,9 +204,7 @@ class AmendmentProposedEventPayload:
 
         # FR127: Core guarantees require impact analysis
         if self.is_core_guarantee and self.impact_analysis is None:
-            raise ValueError(
-                "FR127: Core guarantee amendments require impact analysis"
-            )
+            raise ValueError("FR127: Core guarantee amendments require impact analysis")
 
     def signable_content(self) -> bytes:
         """Return canonical content for witnessing (CT-12).

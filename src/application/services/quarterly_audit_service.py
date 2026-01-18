@@ -44,7 +44,6 @@ from src.domain.events.audit import (
 from src.domain.models.material_audit import (
     REMEDIATION_DEADLINE_DAYS,
     AuditQuarter,
-    AuditStatus,
     MaterialAudit,
     MaterialViolation,
     RemediationStatus,

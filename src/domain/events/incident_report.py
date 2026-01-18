@@ -26,7 +26,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from src.domain.models.incident_report import IncidentStatus, IncidentType
+from src.domain.models.incident_report import IncidentType
 
 # Event type constants for incident report events
 INCIDENT_REPORT_CREATED_EVENT_TYPE: str = "incident.report.created"

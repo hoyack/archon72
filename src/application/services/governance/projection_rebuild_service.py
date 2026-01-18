@@ -21,16 +21,14 @@ References:
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Callable, Awaitable
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 from src.application.ports.governance import (
     GovernanceLedgerPort,
     LedgerReadOptions,
-    PersistedGovernanceEvent,
-    ProjectionCheckpoint,
     ProjectionPort,
 )
 from src.domain.governance.events.event_envelope import GovernanceEvent
@@ -118,7 +116,7 @@ class ProjectionRebuildService:
         self,
         ledger_port: GovernanceLedgerPort,
         projection_port: ProjectionPort,
-        time_authority: "TimeAuthority",
+        time_authority: TimeAuthority,
         batch_size: int = 100,
     ) -> None:
         """Initialize the rebuild service.
@@ -336,7 +334,9 @@ class ProjectionRebuildService:
         return {
             "projection_name": projection_name,
             "checkpoint_sequence": checkpoint.last_sequence if checkpoint else None,
-            "checkpoint_event_id": str(checkpoint.last_event_id) if checkpoint else None,
+            "checkpoint_event_id": str(checkpoint.last_event_id)
+            if checkpoint
+            else None,
             "ledger_max_sequence": max_sequence,
             "events_behind": (
                 max_sequence - checkpoint.last_sequence if checkpoint else max_sequence

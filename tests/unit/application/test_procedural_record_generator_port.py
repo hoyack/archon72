@@ -31,7 +31,9 @@ class TestProceduralRecordData:
             participant_ids=("agent-1", "agent-2"),
             vote_summary=MappingProxyType({"aye": 45, "nay": 20}),
             timeline_events=(
-                MappingProxyType({"timestamp": "2025-12-28T10:00:00Z", "event": "started"}),
+                MappingProxyType(
+                    {"timestamp": "2025-12-28T10:00:00Z", "event": "started"}
+                ),
             ),
             decisions=("Approved Motion A",),
             record_hash="a" * 64,

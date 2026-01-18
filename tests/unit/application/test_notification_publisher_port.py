@@ -42,6 +42,7 @@ class TestNotificationPublisherPort:
 
         # Check it takes event parameter
         import inspect
+
         sig = inspect.signature(method)
         params = list(sig.parameters.keys())
 

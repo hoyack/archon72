@@ -3,8 +3,6 @@
 Tests the abstract protocol and DataClassification enum.
 """
 
-import pytest
-
 from src.application.ports.separation_validator import (
     DataClassification,
     SeparationValidatorPort,
@@ -57,7 +55,7 @@ class TestSeparationValidatorPort:
 
     def test_protocol_is_runtime_checkable(self) -> None:
         """Test protocol can be used for isinstance checks."""
-        from typing import runtime_checkable, Protocol
+        from typing import Protocol
 
         # SeparationValidatorPort should be a Protocol
         assert issubclass(SeparationValidatorPort, Protocol)

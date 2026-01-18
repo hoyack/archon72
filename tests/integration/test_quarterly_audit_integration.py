@@ -11,7 +11,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 
 import pytest
@@ -19,10 +18,7 @@ import pytest
 from src.application.ports.material_repository import Material
 from src.application.services.quarterly_audit_service import QuarterlyAuditService
 from src.domain.errors.audit import (
-    AuditFailedError,
     AuditInProgressError,
-    AuditNotDueError,
-    AuditNotFoundError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.audit import (
@@ -40,9 +36,6 @@ from src.domain.models.material_audit import (
 )
 from src.infrastructure.stubs import (
     AuditRepositoryStub,
-    ConfigurableAuditRepositoryStub,
-    ConfigurableMaterialRepositoryStub,
-    ConfigurablePublicationScannerStub,
     HaltCheckerStub,
     MaterialRepositoryStub,
     ProhibitedLanguageScannerStub,
@@ -193,7 +186,9 @@ class TestEndToEndQuarterlyAuditWorkflow:
 
         # Verify events (started, violation, completed)
         assert event_writer.write_event.call_count == 3
-        event_types = [c.kwargs["event_type"] for c in event_writer.write_event.call_args_list]
+        event_types = [
+            c.kwargs["event_type"] for c in event_writer.write_event.call_args_list
+        ]
         assert AUDIT_STARTED_EVENT_TYPE in event_types
         assert MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE in event_types
         assert AUDIT_COMPLETED_EVENT_TYPE in event_types
@@ -296,7 +291,8 @@ class TestAuditViolationTriggersEvents:
 
         # Find violation event
         violation_calls = [
-            c for c in event_writer.write_event.call_args_list
+            c
+            for c in event_writer.write_event.call_args_list
             if c.kwargs["event_type"] == MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE
         ]
         assert len(violation_calls) == 1
@@ -352,7 +348,8 @@ class TestAuditViolationTriggersEvents:
 
         # Find completed event
         completed_calls = [
-            c for c in event_writer.write_event.call_args_list
+            c
+            for c in event_writer.write_event.call_args_list
             if c.kwargs["event_type"] == AUDIT_COMPLETED_EVENT_TYPE
         ]
         assert len(completed_calls) == 1
@@ -371,7 +368,8 @@ class TestAuditViolationTriggersEvents:
         await service.run_quarterly_audit()
 
         completed_calls = [
-            c for c in event_writer.write_event.call_args_list
+            c
+            for c in event_writer.write_event.call_args_list
             if c.kwargs["event_type"] == AUDIT_COMPLETED_EVENT_TYPE
         ]
         payload = completed_calls[0].kwargs["payload"]

@@ -154,9 +154,7 @@ class TestTimeoutProcessingResult:
         """has_errors is True when errors list is non-empty."""
         from uuid import uuid4
 
-        result = TimeoutProcessingResult(
-            errors=[(uuid4(), "Error message")]
-        )
+        result = TimeoutProcessingResult(errors=[(uuid4(), "Error message")])
 
         assert result.has_errors is True
 

@@ -1,7 +1,7 @@
 """Unit tests for OverrideTrendAnalysisService (Story 5.5, FR27, RT-3)."""
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -12,7 +12,6 @@ from src.application.services.override_trend_service import (
     ThresholdCheckResult,
     TrendAnalysisReport,
 )
-from src.domain.errors.trend import InsufficientDataError
 from src.domain.errors.writer import SystemHaltedError
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.override_trend_repository_stub import (

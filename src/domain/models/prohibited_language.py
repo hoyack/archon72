@@ -11,10 +11,9 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
+import unicodedata
 from dataclasses import dataclass
 from typing import Final
-import unicodedata
-
 
 # Default prohibited terms list (FR55)
 # These terms must never appear in system outputs

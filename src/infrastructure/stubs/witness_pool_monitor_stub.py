@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.witness_pool_monitor import (
     MINIMUM_WITNESSES_HIGH_STAKES,
@@ -20,7 +19,6 @@ from src.application.ports.witness_pool_monitor import (
     WitnessPoolMonitorProtocol,
     WitnessPoolStatus,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -70,8 +68,8 @@ class WitnessPoolMonitorStub(WitnessPoolMonitorProtocol):
             f"WITNESS:{i:03d}" for i in range(initial_pool_size)
         ]
         self._excluded_witnesses: list[str] = []
-        self._degraded_since: Optional[datetime] = None
-        self._force_degraded: Optional[bool] = None
+        self._degraded_since: datetime | None = None
+        self._force_degraded: bool | None = None
 
     async def get_pool_status(self) -> WitnessPoolStatus:
         """Get current pool status.
@@ -126,7 +124,7 @@ class WitnessPoolMonitorStub(WitnessPoolMonitorProtocol):
         can_proceed, _ = status.can_perform(high_stakes)
         return can_proceed
 
-    async def get_degraded_since(self) -> Optional[datetime]:
+    async def get_degraded_since(self) -> datetime | None:
         """Get when degraded mode started.
 
         Returns:
@@ -168,9 +166,7 @@ class WitnessPoolMonitorStub(WitnessPoolMonitorProtocol):
         Args:
             size: Number of witnesses in the pool.
         """
-        self._available_witnesses = [
-            f"WITNESS:{i:03d}" for i in range(size)
-        ]
+        self._available_witnesses = [f"WITNESS:{i:03d}" for i in range(size)]
         self._force_degraded = None  # Re-calculate based on size
         logger.info(
             "[DEV MODE] Pool size set",
@@ -221,9 +217,7 @@ class WitnessPoolMonitorStub(WitnessPoolMonitorProtocol):
 
     def clear(self) -> None:
         """Clear all state for test isolation."""
-        self._available_witnesses = [
-            f"WITNESS:{i:03d}" for i in range(15)
-        ]
+        self._available_witnesses = [f"WITNESS:{i:03d}" for i in range(15)]
         self._excluded_witnesses = []
         self._degraded_since = None
         self._force_degraded = None

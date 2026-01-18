@@ -10,7 +10,6 @@ Constitutional Reference:
 - NFR-CONST-07: Witness statements cannot be suppressed
 """
 
-from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 import pytest

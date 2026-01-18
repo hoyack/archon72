@@ -3,10 +3,10 @@
 Tests the President Service executive functions per Government PRD FR-GOV-9/FR-GOV-10.
 """
 
-import pytest
-from dataclasses import replace
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.application.ports.king_service import Motion, MotionStatus
 from src.application.ports.president_service import (
@@ -21,7 +21,6 @@ from src.infrastructure.adapters.government.president_service_adapter import (
     PresidentServiceAdapter,
     create_president_service,
 )
-
 
 # =============================================================================
 # FIXTURES
@@ -255,7 +254,9 @@ class TestTaskDecomposition:
         tasks = await president_service.decompose_tasks(intent, motion_ref)
 
         for task in tasks:
-            assert len(task.success_criteria) > 0, f"Task {task.name} has no success criteria"
+            assert len(task.success_criteria) > 0, (
+                f"Task {task.name} has no success criteria"
+            )
 
     @pytest.mark.asyncio
     async def test_completion_verification_task(

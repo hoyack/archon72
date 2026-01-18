@@ -8,8 +8,7 @@ Constitutional Constraints:
 - FR124: Seed independence verification
 """
 
-import pytest
-
+from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.topic_manipulation import (
     DailyRateLimitExceededError,
     PredictableSeedError,
@@ -17,7 +16,6 @@ from src.domain.errors.topic_manipulation import (
     TopicManipulationDefenseError,
 )
 from src.domain.exceptions import ConclaveError
-from src.domain.errors.constitutional import ConstitutionalViolationError
 
 
 class TestTopicManipulationDefenseError:

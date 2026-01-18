@@ -43,31 +43,39 @@ class PetitionIndexRecord:
     """
 
     # Valid petition types
-    VALID_TYPES: ClassVar[frozenset[str]] = frozenset({
-        "exit",
-        "dignity_restoration",
-        "review",
-        "reconsideration",
-    })
+    VALID_TYPES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "exit",
+            "dignity_restoration",
+            "review",
+            "reconsideration",
+        }
+    )
 
     # Valid petition statuses in lifecycle order
-    VALID_STATUSES: ClassVar[frozenset[str]] = frozenset({
-        "filed",
-        "acknowledged",
-        "under_review",
-        "resolved",
-    })
+    VALID_STATUSES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "filed",
+            "acknowledged",
+            "under_review",
+            "resolved",
+        }
+    )
 
     # Valid resolution outcomes
-    VALID_OUTCOMES: ClassVar[frozenset[str]] = frozenset({
-        "granted",
-        "denied",
-        "withdrawn",
-    })
+    VALID_OUTCOMES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "granted",
+            "denied",
+            "withdrawn",
+        }
+    )
 
     # Status transitions that are allowed
     ALLOWED_TRANSITIONS: ClassVar[dict[str, frozenset[str]]] = {
-        "filed": frozenset({"acknowledged", "resolved"}),  # Can be immediately resolved (withdrawn)
+        "filed": frozenset(
+            {"acknowledged", "resolved"}
+        ),  # Can be immediately resolved (withdrawn)
         "acknowledged": frozenset({"under_review", "resolved"}),
         "under_review": frozenset({"resolved"}),
         "resolved": frozenset(),  # Terminal state
@@ -97,7 +105,10 @@ class PetitionIndexRecord:
                 f"Invalid petition status '{self.current_status}'. "
                 f"Valid statuses: {sorted(self.VALID_STATUSES)}"
             )
-        if self.resolution_outcome is not None and self.resolution_outcome not in self.VALID_OUTCOMES:
+        if (
+            self.resolution_outcome is not None
+            and self.resolution_outcome not in self.VALID_OUTCOMES
+        ):
             raise ValueError(
                 f"Invalid resolution outcome '{self.resolution_outcome}'. "
                 f"Valid outcomes: {sorted(self.VALID_OUTCOMES)}"

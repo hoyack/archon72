@@ -56,6 +56,7 @@ def _compute_raw_content_hash(content: str) -> str:
     """
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
+
 logger = get_logger()
 
 
@@ -171,7 +172,9 @@ class CollectiveOutputService:
         # HALT FIRST (Golden Rule #1)
         if await self._halt_checker.is_halted():
             reason = await self._halt_checker.get_halt_reason()
-            raise SystemHaltedError(f"Cannot create collective output - system halted: {reason}")
+            raise SystemHaltedError(
+                f"Cannot create collective output - system halted: {reason}"
+            )
 
         # Generate output ID
         output_id = uuid4()
@@ -315,7 +318,9 @@ class CollectiveOutputService:
         # HALT FIRST (Golden Rule #1)
         if await self._halt_checker.is_halted():
             reason = await self._halt_checker.get_halt_reason()
-            raise SystemHaltedError(f"Cannot view collective output - system halted: {reason}")
+            raise SystemHaltedError(
+                f"Cannot view collective output - system halted: {reason}"
+            )
 
         # FR9 ENFORCEMENT (CT-11: Silent failure destroys legitimacy)
         # Raises FR9ViolationError if not committed - never silently return None

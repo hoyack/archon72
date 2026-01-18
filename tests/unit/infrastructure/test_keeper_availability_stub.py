@@ -23,7 +23,9 @@ class TestRecordAttestation:
     """Test record_attestation method."""
 
     @pytest.mark.asyncio
-    async def test_record_attestation_success(self, stub: KeeperAvailabilityStub) -> None:
+    async def test_record_attestation_success(
+        self, stub: KeeperAvailabilityStub
+    ) -> None:
         """Test successfully recording an attestation."""
         now = datetime.now(timezone.utc)
         period_start = now.replace(hour=0, minute=0, second=0, microsecond=0)

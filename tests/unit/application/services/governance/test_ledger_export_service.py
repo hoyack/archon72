@@ -25,12 +25,12 @@ import pytest
 from src.application.services.governance.ledger_export_service import (
     EMAIL_PATTERN,
     LEDGER_EXPORTED_EVENT,
-    LedgerExportService,
     NAME_PATTERN,
     TECHNICAL_TERMS,
     UUID_PATTERN,
+    LedgerExportService,
 )
-from src.domain.governance.audit.errors import PartialExportError, PIIDetectedError
+from src.domain.governance.audit.errors import PIIDetectedError
 from src.domain.governance.audit.ledger_export import EXPORT_FORMAT_VERSION
 
 
@@ -147,7 +147,9 @@ def create_fake_event(
 class FakeLedgerPort:
     """Fake ledger port for testing."""
 
-    def __init__(self, events: list[FakePersistedGovernanceEvent] | None = None) -> None:
+    def __init__(
+        self, events: list[FakePersistedGovernanceEvent] | None = None
+    ) -> None:
         self.events = events or []
 
     async def count_events(self, options=None) -> int:
@@ -403,7 +405,7 @@ class TestJSONExport:
         json_str = await export_service.export_to_json(requester_id, pretty_print=False)
 
         # Should not have pretty-print indentation
-        assert "  \"metadata\"" not in json_str
+        assert '  "metadata"' not in json_str
 
     async def test_json_contains_metadata(
         self,

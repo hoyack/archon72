@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import json
 import threading
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID
 
 from structlog import get_logger
@@ -55,7 +55,7 @@ class EventEmitterProtocol(Protocol):
         event_type: str,
         actor: str,
         payload: dict[str, Any],
-        trace_id: Optional[str] = None,
+        trace_id: str | None = None,
     ) -> None:
         """Emit an event to the ledger."""
         ...
@@ -98,8 +98,8 @@ class HaltCircuitAdapter(HaltPort):
     def __init__(
         self,
         time_authority: TimeAuthorityProtocol,
-        redis_client: Optional["Redis"] = None,
-        event_emitter: Optional[EventEmitterProtocol] = None,
+        redis_client: Redis | None = None,
+        event_emitter: EventEmitterProtocol | None = None,
     ) -> None:
         """Initialize the three-channel halt circuit.
 
@@ -151,8 +151,8 @@ class HaltCircuitAdapter(HaltPort):
         self,
         reason: HaltReason,
         message: str,
-        operator_id: Optional[UUID] = None,
-        trace_id: Optional[str] = None,
+        operator_id: UUID | None = None,
+        trace_id: str | None = None,
     ) -> HaltStatus:
         """Trigger halt through all three channels.
 
@@ -183,7 +183,9 @@ class HaltCircuitAdapter(HaltPort):
             if self._halted.is_set():
                 logger.info(
                     "halt_already_triggered",
-                    existing_reason=self._status.reason.value if self._status.reason else None,
+                    existing_reason=self._status.reason.value
+                    if self._status.reason
+                    else None,
                     existing_message=self._status.message,
                 )
                 return self._status
@@ -268,10 +270,16 @@ class HaltCircuitAdapter(HaltPort):
         try:
             await self._event_emitter.emit(
                 event_type="constitutional.halt.recorded",
-                actor=str(self._status.operator_id) if self._status.operator_id else "system",
+                actor=str(self._status.operator_id)
+                if self._status.operator_id
+                else "system",
                 payload={
-                    "halted_at": self._status.halted_at.isoformat() if self._status.halted_at else None,
-                    "reason": self._status.reason.value if self._status.reason else None,
+                    "halted_at": self._status.halted_at.isoformat()
+                    if self._status.halted_at
+                    else None,
+                    "reason": self._status.reason.value
+                    if self._status.reason
+                    else None,
                     "message": self._status.message,
                 },
                 trace_id=self._status.trace_id,

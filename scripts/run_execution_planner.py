@@ -89,17 +89,19 @@ def main():
     # Check for ratification results
     ratification_file = args.review_pipeline_path / "ratification_results.json"
     if not ratification_file.exists():
-        print(f"Error: No ratification_results.json found in: {args.review_pipeline_path}")
+        print(
+            f"Error: No ratification_results.json found in: {args.review_pipeline_path}"
+        )
         sys.exit(1)
 
     # Print header
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("EXECUTION PLANNER")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Input: {args.review_pipeline_path}")
     print(f"Verbose: {args.verbose}")
     print(f"Mode: {'LLM-powered' if args.real_agent else 'Heuristic'}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Initialize service
     planner_agent = None
@@ -132,27 +134,27 @@ def main():
 
 def print_planning_summary(result, session_dir):
     """Print the planning pipeline summary."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("PLANNING COMPLETE")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Session: {result.session_name}")
     print(f"Session ID: {result.session_id}")
 
-    print(f"\n--- Summary ---")
+    print("\n--- Summary ---")
     print(f"  Motions processed: {result.total_motions_processed}")
     print(f"  Execution plans generated: {len(result.plans)}")
     print(f"  Total tasks created: {result.total_tasks_generated}")
     print(f"  Blockers identified: {result.total_blockers_identified}")
     print(f"  Blockers requiring Conclave: {result.blockers_requiring_conclave}")
 
-    print(f"\n--- Pattern Usage ---")
+    print("\n--- Pattern Usage ---")
     for pattern_id, count in sorted(
         result.patterns_used.items(), key=lambda x: x[1], reverse=True
     ):
         print(f"  {pattern_id}: {count} motions")
 
     print(f"\nOutput saved to: {session_dir}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Print plan summaries
     print("EXECUTION PLANS:")
@@ -171,8 +173,12 @@ def print_planning_summary(result, session_dir):
 
         blocker_warning = f" ⚠️ {len(plan.blockers)} blockers" if plan.blockers else ""
 
-        print(f"{i:2}. {pattern_emoji} [{plan.classification.primary_pattern}] {plan.motion_title[:45]}...")
-        print(f"    Tasks: {plan.total_tasks} | Effort: {plan.estimated_total_effort}{blocker_warning}")
+        print(
+            f"{i:2}. {pattern_emoji} [{plan.classification.primary_pattern}] {plan.motion_title[:45]}..."
+        )
+        print(
+            f"    Tasks: {plan.total_tasks} | Effort: {plan.estimated_total_effort}{blocker_warning}"
+        )
 
         if plan.blockers:
             conclave_count = sum(1 for b in plan.blockers if b.escalate_to_conclave)

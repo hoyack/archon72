@@ -3,8 +3,6 @@
 Tests AC7: Violation types defined for block outcomes.
 """
 
-import pytest
-
 from src.domain.governance.filter.violation_type import ViolationType
 
 
@@ -71,7 +69,11 @@ class TestViolationType:
     def test_coercion_description(self) -> None:
         """Coercion description is clear."""
         desc = ViolationType.COERCION.description
-        assert "coerce" in desc.lower() or "force" in desc.lower() or "pressure" in desc.lower()
+        assert (
+            "coerce" in desc.lower()
+            or "force" in desc.lower()
+            or "pressure" in desc.lower()
+        )
 
     def test_harassment_description(self) -> None:
         """Harassment description is clear."""

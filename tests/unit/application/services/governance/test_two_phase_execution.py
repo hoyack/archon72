@@ -12,7 +12,7 @@ Constitutional Reference:
 """
 
 from unittest.mock import AsyncMock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -235,9 +235,7 @@ class TestDefaultResultPayload:
         assert call_args.kwargs["result_payload"] == {}
 
     @pytest.mark.asyncio
-    async def test_can_set_result_multiple_times(
-        self, mock_emitter: AsyncMock
-    ) -> None:
+    async def test_can_set_result_multiple_times(self, mock_emitter: AsyncMock) -> None:
         """Last set_result should be used for commit."""
         async with TwoPhaseExecution(
             emitter=mock_emitter,
@@ -265,22 +263,24 @@ class TestNestedExecution:
         id2 = uuid4()
         mock_emitter.emit_intent.side_effect = [id1, id2]
 
-        async with TwoPhaseExecution(
-            emitter=mock_emitter,
-            operation_type="executive.task.accept",
-            actor_id="archon-42",
-            target_entity_id="task-001",
-            intent_payload={},
-        ) as outer:
-            async with TwoPhaseExecution(
+        async with (
+            TwoPhaseExecution(
+                emitter=mock_emitter,
+                operation_type="executive.task.accept",
+                actor_id="archon-42",
+                target_entity_id="task-001",
+                intent_payload={},
+            ) as outer,
+            TwoPhaseExecution(
                 emitter=mock_emitter,
                 operation_type="judicial.panel.convene",
                 actor_id="archon-42",
                 target_entity_id="panel-001",
                 intent_payload={},
-            ) as inner:
-                assert outer.correlation_id == id1
-                assert inner.correlation_id == id2
+            ) as inner,
+        ):
+            assert outer.correlation_id == id1
+            assert inner.correlation_id == id2
 
         assert mock_emitter.emit_intent.call_count == 2
         assert mock_emitter.emit_commit.call_count == 2

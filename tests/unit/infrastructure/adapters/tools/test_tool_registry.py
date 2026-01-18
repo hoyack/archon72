@@ -7,13 +7,11 @@ Tests verify:
 - Factory function creates populated registry
 """
 
-import pytest
-
 from src.application.ports.tool_registry import ToolRegistryProtocol
 from src.infrastructure.adapters.tools.archon_tools import (
     ALL_ARCHON_TOOLS,
-    InsightTool,
     CommunicationTool,
+    InsightTool,
 )
 from src.infrastructure.adapters.tools.tool_registry_adapter import (
     ToolRegistryAdapter,
@@ -209,7 +207,7 @@ class TestToolRegistryIntegration:
         registry = create_tool_registry()
 
         # Simulate 72 agents requesting tools
-        for i in range(72):
+        for _i in range(72):
             # Each agent might request different tool combinations
             tool_requests = ["insight_tool", "communication_tool"]
             tools = registry.get_tools(tool_requests)

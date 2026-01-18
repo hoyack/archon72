@@ -13,26 +13,20 @@ Constitutional Constraints:
 - SR-7: Alert when quorum drops to exactly 3
 """
 
-from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock
-from uuid import uuid4
 
 import pytest
 
 from src.application.services.keeper_availability_service import (
-    KeeperAttestationStatus,
     KeeperAvailabilityService,
 )
 from src.domain.errors.keeper_availability import (
-    DuplicateAttestationError,
     KeeperQuorumViolationError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.keeper_availability import (
     KEEPER_ATTESTATION_EVENT_TYPE,
-    KEEPER_MISSED_ATTESTATION_EVENT_TYPE,
     KEEPER_QUORUM_WARNING_EVENT_TYPE,
-    KEEPER_REPLACEMENT_INITIATED_EVENT_TYPE,
 )
 from src.domain.models.keeper_attestation import (
     MINIMUM_KEEPER_QUORUM,
@@ -46,7 +40,9 @@ class TestAC1WeeklyAttestationEvents:
     """AC1: KeeperAttestationEvent logged with Keeper attribution (FR77, FR78)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         KeeperAvailabilityService,
         KeeperAvailabilityStub,
         AsyncMock,
@@ -88,7 +84,7 @@ class TestAC1WeeklyAttestationEvents:
         await availability.add_keeper(keeper_id)
 
         # Submit attestation
-        attestation = await service.submit_attestation(keeper_id, signature)
+        await service.submit_attestation(keeper_id, signature)
 
         # Verify event was written with correct attribution
         mock_event_writer.write_event.assert_called_once()
@@ -118,7 +114,7 @@ class TestAC1WeeklyAttestationEvents:
 
         period_start, period_end = get_current_period()
 
-        attestation = await service.submit_attestation(keeper_id, b"x" * 64)
+        await service.submit_attestation(keeper_id, b"x" * 64)
 
         payload = mock_event_writer.write_event.call_args.kwargs["payload"]
 
@@ -131,7 +127,9 @@ class TestAC2QuorumWarningEvent:
     """AC2: KeeperQuorumWarningEvent if quorum = 3 (SR-7)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         KeeperAvailabilityService,
         KeeperAvailabilityStub,
         AsyncMock,
@@ -212,7 +210,9 @@ class TestAC3SystemHaltOnQuorumViolation:
     """AC3: System halt if quorum < 3 (FR79)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         KeeperAvailabilityService,
         KeeperAvailabilityStub,
         AsyncMock,
@@ -288,7 +288,9 @@ class TestAC4ReplacementProcessOnMissedAttestations:
     """AC4: 2 missed attestations triggers replacement process (FR78)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         KeeperAvailabilityService,
         KeeperAvailabilityStub,
         AsyncMock,
@@ -395,7 +397,9 @@ class TestEndToEndScenarios:
     """End-to-end scenario tests."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         KeeperAvailabilityService,
         KeeperAvailabilityStub,
         AsyncMock,

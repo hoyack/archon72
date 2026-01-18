@@ -367,14 +367,12 @@ class PrinceServiceAdapter(PrinceServiceProtocol):
         # Simple evaluation logic - check if evidence supports criterion
         # Production would use more sophisticated analysis
         evidence_text = " ".join(
-            e.description.lower() + " " + str(e.data).lower()
-            for e in evidence
+            e.description.lower() + " " + str(e.data).lower() for e in evidence
         )
 
         # Extract key words from criterion
         criterion_words = set(
-            word.lower()
-            for word in re.findall(r"\b\w{4,}\b", criterion_description)
+            word.lower() for word in re.findall(r"\b\w{4,}\b", criterion_description)
         )
 
         # Check overlap
@@ -470,24 +468,28 @@ class PrinceServiceAdapter(PrinceServiceProtocol):
         if not criteria:
             # No criteria provided - check for general intent match
             intent_words = set(
-                word.lower()
-                for word in re.findall(r"\b\w{4,}\b", original_intent)
+                word.lower() for word in re.findall(r"\b\w{4,}\b", original_intent)
             )
 
             summary = execution_result.get("summary", "")
             summary_words = set(
-                word.lower()
-                for word in re.findall(r"\b\w{4,}\b", summary)
+                word.lower() for word in re.findall(r"\b\w{4,}\b", summary)
             )
 
-            overlap = len(intent_words & summary_words) / len(intent_words) if intent_words else 0
+            overlap = (
+                len(intent_words & summary_words) / len(intent_words)
+                if intent_words
+                else 0
+            )
 
             result = CriterionResult(
                 criterion_id="intent_match",
                 criterion_description=f"Intent: {original_intent[:50]}...",
                 verdict=(
-                    CriterionVerdict.MET if overlap >= 0.5
-                    else CriterionVerdict.PARTIALLY_MET if overlap >= 0.25
+                    CriterionVerdict.MET
+                    if overlap >= 0.5
+                    else CriterionVerdict.PARTIALLY_MET
+                    if overlap >= 0.25
                     else CriterionVerdict.NOT_MET
                 ),
                 notes=f"Intent keyword overlap: {overlap:.2f}",
@@ -599,7 +601,9 @@ class PrinceServiceAdapter(PrinceServiceProtocol):
             return ComplianceVerdict.INVALID
 
         # Count criteria results
-        met_count = sum(1 for r in criteria_results if r.verdict == CriterionVerdict.MET)
+        met_count = sum(
+            1 for r in criteria_results if r.verdict == CriterionVerdict.MET
+        )
         partial_count = sum(
             1 for r in criteria_results if r.verdict == CriterionVerdict.PARTIALLY_MET
         )

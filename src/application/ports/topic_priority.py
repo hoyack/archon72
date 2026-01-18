@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional
 
 
 class TopicPriorityLevel(str, Enum):
@@ -88,7 +87,7 @@ class TopicPriorityProtocol(ABC):
         ...
 
     @abstractmethod
-    async def get_next_topic_for_deliberation(self) -> Optional[str]:
+    async def get_next_topic_for_deliberation(self) -> str | None:
         """Get highest priority topic not yet deliberated.
 
         FR119: Always returns autonomous/constitutional topics before

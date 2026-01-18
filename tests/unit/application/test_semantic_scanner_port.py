@@ -89,7 +89,9 @@ class TestSemanticScanResultWithSuspicion:
         )
 
         assert result.confidence_score == 0.0
-        assert result.violation_suspected is True  # Still suspicious, just low confidence
+        assert (
+            result.violation_suspected is True
+        )  # Still suspicious, just low confidence
 
     def test_with_suspicion_max_confidence(self) -> None:
         """Test with_suspicion at maximum confidence (1.0)."""

@@ -44,7 +44,9 @@ except ImportError:
 
 # Genesis hash constant (prev_hash for first event in chain)
 # 64 zeros as hex-encoded 32-byte hash
-GENESIS_PREV_HASH = "blake3:0000000000000000000000000000000000000000000000000000000000000000"
+GENESIS_PREV_HASH = (
+    "blake3:0000000000000000000000000000000000000000000000000000000000000000"
+)
 
 # Default algorithm for new events
 DEFAULT_ALGORITHM = "blake3"
@@ -335,9 +337,6 @@ def validate_hash_format(prefixed_hash: str) -> bool:
 
         # Check if hex_digest is valid lowercase hexadecimal
         int(hex_digest, 16)
-        if hex_digest != hex_digest.lower():
-            return False
-
-        return True
+        return hex_digest == hex_digest.lower()
     except (ValueError, AttributeError):
         return False

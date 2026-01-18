@@ -227,7 +227,9 @@ class TestGetProhibitedPatterns:
     def test_contains_cessation_reversal(self) -> None:
         """Should contain cessation reversal pattern."""
         patterns = get_prohibited_patterns()
-        assert any("cessation" in p.lower() and "reversal" in p.lower() for p in patterns)
+        assert any(
+            "cessation" in p.lower() and "reversal" in p.lower() for p in patterns
+        )
 
     def test_contains_uncease(self) -> None:
         """Should contain uncease pattern."""

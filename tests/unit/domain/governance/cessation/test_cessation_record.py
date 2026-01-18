@@ -6,10 +6,11 @@ Tests the immutable Cessation Record that serves as the final
 historical document of system cessation.
 """
 
-import pytest
 from dataclasses import FrozenInstanceError
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.domain.governance.cessation.cessation_record import (
     CessationRecord,
@@ -29,7 +30,10 @@ class TestSystemSnapshot:
             pending_motions=3,
             in_progress_executions=2,
             legitimacy_band="ELEVATED",
-            component_statuses={"king_service": "healthy", "president_service": "healthy"},
+            component_statuses={
+                "king_service": "healthy",
+                "president_service": "healthy",
+            },
             captured_at=now,
         )
 
@@ -242,6 +246,7 @@ class TestCessationRecord:
         assert not hasattr(CessationRecord, "modified_at")
         # Check the dataclass fields
         from dataclasses import fields
+
         field_names = [f.name for f in fields(CessationRecord)]
         assert "modified_at" not in field_names
         assert "updated_by" not in field_names

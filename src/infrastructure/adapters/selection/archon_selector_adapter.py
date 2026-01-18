@@ -17,12 +17,12 @@ from structlog import get_logger
 
 from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.application.ports.archon_selector import (
-    ArchonSelection,
-    ArchonSelectionMetadata,
-    ArchonSelectorProtocol,
     DEFAULT_MAX_ARCHONS,
     DEFAULT_MIN_ARCHONS,
     DEFAULT_RELEVANCE_THRESHOLD,
+    ArchonSelection,
+    ArchonSelectionMetadata,
+    ArchonSelectorProtocol,
     SelectionMode,
     TopicContext,
 )
@@ -117,8 +117,7 @@ class ArchonSelectorAdapter(ArchonSelectorProtocol):
             selected = scored
         elif mode == SelectionMode.RELEVANT:
             selected = [
-                (p, m) for p, m in scored
-                if m.relevance_score >= relevance_threshold
+                (p, m) for p, m in scored if m.relevance_score >= relevance_threshold
             ]
         elif mode == SelectionMode.WEIGHTED:
             # All archons but sorted by relevance
@@ -141,8 +140,7 @@ class ArchonSelectorAdapter(ArchonSelectorProtocol):
                 if executives:
                     # Score executives and pick the best one
                     exec_scored = [
-                        (e, self.calculate_relevance(e, topic))
-                        for e in executives
+                        (e, self.calculate_relevance(e, topic)) for e in executives
                     ]
                     exec_scored.sort(key=lambda x: x[1].relevance_score, reverse=True)
                     best_exec = exec_scored[0]
@@ -294,6 +292,7 @@ def create_archon_selector(
         from src.infrastructure.adapters.config.archon_profile_adapter import (
             create_archon_profile_repository,
         )
+
         profile_repository = create_archon_profile_repository()
 
     return ArchonSelectorAdapter(profile_repository=profile_repository)

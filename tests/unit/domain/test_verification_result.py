@@ -7,7 +7,7 @@ Tests for:
 - Helper methods and properties
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -148,7 +148,9 @@ class TestVerificationResult:
         completed = started + timedelta(milliseconds=300)
         checks = (
             VerificationCheck("hash_chain", True, "OK", 50.0),
-            VerificationCheck("witness_pool", False, "Failed", 50.0, "witness_pool_insufficient"),
+            VerificationCheck(
+                "witness_pool", False, "Failed", 50.0, "witness_pool_insufficient"
+            ),
         )
 
         result = VerificationResult(
@@ -165,7 +167,11 @@ class TestVerificationResult:
         """Should require bypass_reason when status is BYPASSED."""
         started = datetime.now(timezone.utc)
         completed = started + timedelta(milliseconds=100)
-        checks = (VerificationCheck("hash_chain", False, "Failed", 50.0, "hash_chain_corrupted"),)
+        checks = (
+            VerificationCheck(
+                "hash_chain", False, "Failed", 50.0, "hash_chain_corrupted"
+            ),
+        )
 
         with pytest.raises(ValueError, match="bypass_reason required"):
             VerificationResult(
@@ -179,7 +185,11 @@ class TestVerificationResult:
         """Should create bypassed result with reason."""
         started = datetime.now(timezone.utc)
         completed = started + timedelta(milliseconds=100)
-        checks = (VerificationCheck("hash_chain", False, "Failed", 50.0, "hash_chain_corrupted"),)
+        checks = (
+            VerificationCheck(
+                "hash_chain", False, "Failed", 50.0, "hash_chain_corrupted"
+            ),
+        )
 
         result = VerificationResult(
             status=VerificationStatus.BYPASSED,
@@ -200,7 +210,9 @@ class TestVerificationResult:
         completed = started - timedelta(seconds=1)  # Before started
         checks = (VerificationCheck("test", True, "OK", 50.0),)
 
-        with pytest.raises(ValueError, match="completed_at cannot be before started_at"):
+        with pytest.raises(
+            ValueError, match="completed_at cannot be before started_at"
+        ):
             VerificationResult(
                 status=VerificationStatus.PASSED,
                 checks=checks,
@@ -230,8 +242,12 @@ class TestVerificationResult:
         completed = started + timedelta(milliseconds=200)
         checks = (
             VerificationCheck("hash_chain", True, "OK", 50.0),
-            VerificationCheck("witness_pool", False, "Failed", 50.0, "witness_pool_insufficient"),
-            VerificationCheck("keeper_keys", False, "Failed", 50.0, "keeper_keys_failed"),
+            VerificationCheck(
+                "witness_pool", False, "Failed", 50.0, "witness_pool_insufficient"
+            ),
+            VerificationCheck(
+                "keeper_keys", False, "Failed", 50.0, "keeper_keys_failed"
+            ),
         )
 
         result = VerificationResult(
@@ -252,7 +268,9 @@ class TestVerificationResult:
         completed = started + timedelta(milliseconds=200)
         checks = (
             VerificationCheck("hash_chain", True, "OK", 50.0),
-            VerificationCheck("witness_pool", False, "Failed", 50.0, "witness_pool_insufficient"),
+            VerificationCheck(
+                "witness_pool", False, "Failed", 50.0, "witness_pool_insufficient"
+            ),
             VerificationCheck("checkpoint", True, "OK", 50.0),
         )
 
@@ -384,7 +402,13 @@ class TestVerificationResult:
         completed = started + timedelta(milliseconds=150)
         checks = (
             VerificationCheck("hash_chain", True, "OK", 50.0),
-            VerificationCheck("witness_pool", False, "Pool too small", 50.0, "witness_pool_insufficient"),
+            VerificationCheck(
+                "witness_pool",
+                False,
+                "Pool too small",
+                50.0,
+                "witness_pool_insufficient",
+            ),
         )
 
         result = VerificationResult(
@@ -406,7 +430,9 @@ class TestVerificationResult:
         started = datetime.now(timezone.utc)
         completed = started + timedelta(milliseconds=150)
         checks = (
-            VerificationCheck("hash_chain", False, "Corrupted", 50.0, "hash_chain_corrupted"),
+            VerificationCheck(
+                "hash_chain", False, "Corrupted", 50.0, "hash_chain_corrupted"
+            ),
         )
 
         result = VerificationResult(

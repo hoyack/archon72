@@ -13,8 +13,6 @@ Why This Matters:
 - CT-13: Integrity outranks availability - constitutional record must be pure
 """
 
-from typing import Optional
-
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
 
@@ -46,8 +44,8 @@ class OperationalToEventStoreError(SeparationViolationError):
     def __init__(
         self,
         data_type: str,
-        intended_target: Optional[str] = None,
-        correct_target: Optional[str] = None,
+        intended_target: str | None = None,
+        correct_target: str | None = None,
     ) -> None:
         """Initialize OperationalToEventStoreError.
 
@@ -84,8 +82,8 @@ class ConstitutionalToOperationalError(SeparationViolationError):
     def __init__(
         self,
         data_type: str,
-        intended_target: Optional[str] = None,
-        correct_target: Optional[str] = None,
+        intended_target: str | None = None,
+        correct_target: str | None = None,
     ) -> None:
         """Initialize ConstitutionalToOperationalError.
 

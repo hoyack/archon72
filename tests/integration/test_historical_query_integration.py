@@ -9,9 +9,6 @@ Constitutional Constraints:
 - CT-13: Reads allowed during halt (per Story 3.5)
 """
 
-from datetime import datetime, timezone
-from uuid import uuid4
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -144,9 +141,7 @@ class TestHistoricalQueryResponseStructureIntegration:
 
         Per FR89: Proof contains chain of hash entries.
         """
-        response = client.get(
-            "/v1/observer/events?as_of_sequence=1&include_proof=true"
-        )
+        response = client.get("/v1/observer/events?as_of_sequence=1&include_proof=true")
 
         if response.status_code == 200:
             data = response.json()
@@ -178,7 +173,9 @@ class TestHistoricalQueryConstitutionalComplianceIntegration:
 
         # Must not require authentication
         assert response.status_code != 401, "FR44 violated: Auth should not be required"
-        assert response.status_code != 403, "FR44 violated: Access should not be forbidden"
+        assert response.status_code != 403, (
+            "FR44 violated: Access should not be forbidden"
+        )
 
     def test_fr88_compliance_sequence_query(self, client) -> None:
         """Test FR88 compliance: Query for state as of sequence.
@@ -214,9 +211,7 @@ class TestHistoricalQueryConstitutionalComplianceIntegration:
         Historical queries SHALL return hash chain proof
         connecting queried state to current head.
         """
-        response = client.get(
-            "/v1/observer/events?as_of_sequence=1&include_proof=true"
-        )
+        response = client.get("/v1/observer/events?as_of_sequence=1&include_proof=true")
 
         if response.status_code == 200:
             data = response.json()
@@ -234,9 +229,7 @@ class TestHistoricalQueryCombinedWithFiltersIntegration:
 
     def test_historical_query_with_event_type_filter(self, client) -> None:
         """Test combining as_of_sequence with event_type filter."""
-        response = client.get(
-            "/v1/observer/events?as_of_sequence=100&event_type=vote"
-        )
+        response = client.get("/v1/observer/events?as_of_sequence=100&event_type=vote")
 
         # Should accept both parameters
         assert response.status_code in (200, 404, 500)

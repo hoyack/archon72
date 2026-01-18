@@ -75,32 +75,44 @@ class TaskTransitionRules:
     # Pre-computed transition lookup table (O(1) validation)
     # Per AC4: NFR-PERF-05 requires ≤10ms resolution
     VALID_TRANSITIONS: ClassVar[dict[TaskStatus, frozenset[TaskStatus]]] = {
-        TaskStatus.AUTHORIZED: frozenset({
-            TaskStatus.ACTIVATED,
-            TaskStatus.NULLIFIED,  # Halt (pre-consent) per FR22-FR27
-        }),
-        TaskStatus.ACTIVATED: frozenset({
-            TaskStatus.ROUTED,
-            TaskStatus.NULLIFIED,  # Halt (pre-consent)
-        }),
-        TaskStatus.ROUTED: frozenset({
-            TaskStatus.ACCEPTED,    # Explicit acceptance
-            TaskStatus.DECLINED,    # Explicit decline OR TTL expiry
-            TaskStatus.NULLIFIED,   # Halt (pre-consent)
-        }),
-        TaskStatus.ACCEPTED: frozenset({
-            TaskStatus.IN_PROGRESS,
-            TaskStatus.DECLINED,    # Changed mind before starting
-            TaskStatus.QUARANTINED, # Halt (post-consent)
-        }),
-        TaskStatus.IN_PROGRESS: frozenset({
-            TaskStatus.REPORTED,
-            TaskStatus.QUARANTINED, # Timeout or halt
-        }),
-        TaskStatus.REPORTED: frozenset({
-            TaskStatus.AGGREGATED,
-            TaskStatus.COMPLETED,   # Direct completion for single-cluster
-        }),
+        TaskStatus.AUTHORIZED: frozenset(
+            {
+                TaskStatus.ACTIVATED,
+                TaskStatus.NULLIFIED,  # Halt (pre-consent) per FR22-FR27
+            }
+        ),
+        TaskStatus.ACTIVATED: frozenset(
+            {
+                TaskStatus.ROUTED,
+                TaskStatus.NULLIFIED,  # Halt (pre-consent)
+            }
+        ),
+        TaskStatus.ROUTED: frozenset(
+            {
+                TaskStatus.ACCEPTED,  # Explicit acceptance
+                TaskStatus.DECLINED,  # Explicit decline OR TTL expiry
+                TaskStatus.NULLIFIED,  # Halt (pre-consent)
+            }
+        ),
+        TaskStatus.ACCEPTED: frozenset(
+            {
+                TaskStatus.IN_PROGRESS,
+                TaskStatus.DECLINED,  # Changed mind before starting
+                TaskStatus.QUARANTINED,  # Halt (post-consent)
+            }
+        ),
+        TaskStatus.IN_PROGRESS: frozenset(
+            {
+                TaskStatus.REPORTED,
+                TaskStatus.QUARANTINED,  # Timeout or halt
+            }
+        ),
+        TaskStatus.REPORTED: frozenset(
+            {
+                TaskStatus.AGGREGATED,
+                TaskStatus.COMPLETED,  # Direct completion for single-cluster
+            }
+        ),
         TaskStatus.AGGREGATED: frozenset({TaskStatus.COMPLETED}),
         # Terminal states - no transitions out
         TaskStatus.COMPLETED: frozenset(),
@@ -110,9 +122,11 @@ class TaskTransitionRules:
     }
 
     # States that represent consent gates (require explicit action to pass)
-    CONSENT_GATE_STATES: ClassVar[frozenset[TaskStatus]] = frozenset({
-        TaskStatus.ROUTED,  # Must accept or decline explicitly
-    })
+    CONSENT_GATE_STATES: ClassVar[frozenset[TaskStatus]] = frozenset(
+        {
+            TaskStatus.ROUTED,  # Must accept or decline explicitly
+        }
+    )
 
     # Halt target for pre-consent states
     PRE_CONSENT_HALT_TARGET: ClassVar[TaskStatus] = TaskStatus.NULLIFIED

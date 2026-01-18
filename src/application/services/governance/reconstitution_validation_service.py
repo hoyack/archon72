@@ -21,7 +21,7 @@ Constitutional Context:
 - FR55: System can reject reconstitution that inherits legitimacy band
 """
 
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.application.ports.governance.two_phase_emitter_port import (
@@ -35,7 +35,6 @@ from src.domain.governance.cessation import (
     ValidationResult,
     ValidationStatus,
 )
-
 
 # Baseline legitimacy for new instances - must be STABLE
 BASELINE_LEGITIMACY_BAND = "STABLE"
@@ -65,7 +64,7 @@ REJECTION_MESSAGES = {
 class CessationRecordPort(Protocol):
     """Port for cessation record operations."""
 
-    async def get_record(self) -> Optional[CessationRecord]:
+    async def get_record(self) -> CessationRecord | None:
         """Get cessation record if exists."""
         ...
 
@@ -83,7 +82,7 @@ class ReconstitutionPort(Protocol):
     async def get_validation_result(
         self,
         artifact_id: UUID,
-    ) -> Optional[ValidationResult]:
+    ) -> ValidationResult | None:
         """Get validation result for artifact."""
         ...
 
@@ -197,12 +196,14 @@ class ReconstitutionValidationService:
             cessation = await self._cessation.get_record()
             if cessation is None or cessation.record_id != artifact.cessation_record_id:
                 rejection_reasons.append(RejectionReason.MISSING_CESSATION_REFERENCE)
-                rejection_messages.append(
-                    "Referenced cessation record does not exist."
-                )
+                rejection_messages.append("Referenced cessation record does not exist.")
 
         # Determine result status
-        status = ValidationStatus.VALID if not rejection_reasons else ValidationStatus.REJECTED
+        status = (
+            ValidationStatus.VALID
+            if not rejection_reasons
+            else ValidationStatus.REJECTED
+        )
 
         result = ValidationResult(
             artifact_id=artifact.artifact_id,

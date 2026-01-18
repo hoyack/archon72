@@ -17,16 +17,15 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.services.governance.exit_service import (
-    ExitService,
-    EXIT_INITIATED_EVENT,
     EXIT_COMPLETED_EVENT,
+    EXIT_INITIATED_EVENT,
+    ExitService,
 )
+from src.domain.governance.exit.errors import AlreadyExitedError
 from src.domain.governance.exit.exit_request import ExitRequest
 from src.domain.governance.exit.exit_result import ExitResult
 from src.domain.governance.exit.exit_status import ExitStatus
-from src.domain.governance.exit.errors import AlreadyExitedError
 from src.domain.governance.task.task_state import TaskStatus
-
 
 # =============================================================================
 # Test Fixtures
@@ -44,7 +43,9 @@ class FakeTimeAuthority:
         """Get current time, advancing slightly each call."""
         self._call_count += 1
         # Advance 50ms each call to simulate real time passing
-        result = self._current_time + timedelta(milliseconds=50 * (self._call_count - 1))
+        result = self._current_time + timedelta(
+            milliseconds=50 * (self._call_count - 1)
+        )
         return result
 
     def set_time(self, time: datetime) -> None:
@@ -61,11 +62,13 @@ class FakeEventEmitter:
 
     async def emit(self, event_type: str, actor: str, payload: dict) -> None:
         """Record emitted event."""
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_events(self, event_type: str) -> list[dict]:
         """Get events of specific type."""
@@ -126,7 +129,9 @@ class FakeExitPort:
         """Mark cluster as already exited."""
         self._exited_clusters.add(cluster_id)
 
-    def add_task_in_state(self, cluster_id: UUID, task_id: UUID, state: TaskStatus) -> None:
+    def add_task_in_state(
+        self, cluster_id: UUID, task_id: UUID, state: TaskStatus
+    ) -> None:
         """Add a task in specific state."""
         if cluster_id not in self._active_tasks:
             self._active_tasks[cluster_id] = []
@@ -242,7 +247,9 @@ class TestExitFromAnyState:
     """Tests for exit from any task state (AC4, AC8, AC9)."""
 
     @pytest.mark.asyncio
-    async def test_exit_from_authorized_state(self, exit_service, exit_port, cluster_id):
+    async def test_exit_from_authorized_state(
+        self, exit_service, exit_port, cluster_id
+    ):
         """Can exit while having AUTHORIZED tasks (AC9)."""
         task_id = uuid4()
         exit_port.add_task_in_state(cluster_id, task_id, TaskStatus.AUTHORIZED)
@@ -283,7 +290,9 @@ class TestExitFromAnyState:
         assert result.status == ExitStatus.COMPLETED
 
     @pytest.mark.asyncio
-    async def test_exit_from_in_progress_state(self, exit_service, exit_port, cluster_id):
+    async def test_exit_from_in_progress_state(
+        self, exit_service, exit_port, cluster_id
+    ):
         """Can exit while having IN_PROGRESS tasks (AC9)."""
         task_id = uuid4()
         exit_port.add_task_in_state(cluster_id, task_id, TaskStatus.IN_PROGRESS)
@@ -303,7 +312,9 @@ class TestExitFromAnyState:
         assert result.status == ExitStatus.COMPLETED
 
     @pytest.mark.asyncio
-    async def test_exit_from_aggregated_state(self, exit_service, exit_port, cluster_id):
+    async def test_exit_from_aggregated_state(
+        self, exit_service, exit_port, cluster_id
+    ):
         """Can exit while having AGGREGATED tasks (AC9)."""
         task_id = uuid4()
         exit_port.add_task_in_state(cluster_id, task_id, TaskStatus.AGGREGATED)
@@ -322,7 +333,9 @@ class TestExitFromAnyState:
         assert result.tasks_affected == 0
 
     @pytest.mark.asyncio
-    async def test_exit_regardless_of_task_status(self, exit_service, exit_port, cluster_id):
+    async def test_exit_regardless_of_task_status(
+        self, exit_service, exit_port, cluster_id
+    ):
         """Exit works regardless of current task status (AC8)."""
         # Add tasks in multiple states
         exit_port.add_task_in_state(cluster_id, uuid4(), TaskStatus.AUTHORIZED)
@@ -335,15 +348,18 @@ class TestExitFromAnyState:
         assert result.tasks_affected == 3
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("task_state", [
-        TaskStatus.AUTHORIZED,
-        TaskStatus.ACTIVATED,
-        TaskStatus.ROUTED,
-        TaskStatus.ACCEPTED,
-        TaskStatus.IN_PROGRESS,
-        TaskStatus.REPORTED,
-        TaskStatus.AGGREGATED,
-    ])
+    @pytest.mark.parametrize(
+        "task_state",
+        [
+            TaskStatus.AUTHORIZED,
+            TaskStatus.ACTIVATED,
+            TaskStatus.ROUTED,
+            TaskStatus.ACCEPTED,
+            TaskStatus.IN_PROGRESS,
+            TaskStatus.REPORTED,
+            TaskStatus.AGGREGATED,
+        ],
+    )
     async def test_exit_available_from_state_parametrized(
         self,
         exit_port,
@@ -370,7 +386,9 @@ class TestEventEmission:
     """Tests for event emission (AC5, AC6)."""
 
     @pytest.mark.asyncio
-    async def test_initiated_event_emitted(self, exit_service, event_emitter, cluster_id):
+    async def test_initiated_event_emitted(
+        self, exit_service, event_emitter, cluster_id
+    ):
         """Event custodial.exit.initiated emitted at start (AC5)."""
         await exit_service.initiate_exit(cluster_id)
 
@@ -381,7 +399,9 @@ class TestEventEmission:
         assert event["actor"] == str(cluster_id)
 
     @pytest.mark.asyncio
-    async def test_initiated_event_payload(self, exit_service, event_emitter, cluster_id):
+    async def test_initiated_event_payload(
+        self, exit_service, event_emitter, cluster_id
+    ):
         """Initiated event has correct payload (AC5)."""
         await exit_service.initiate_exit(cluster_id)
 
@@ -395,7 +415,9 @@ class TestEventEmission:
         assert payload["cluster_id"] == str(cluster_id)
 
     @pytest.mark.asyncio
-    async def test_completed_event_emitted(self, exit_service, event_emitter, cluster_id):
+    async def test_completed_event_emitted(
+        self, exit_service, event_emitter, cluster_id
+    ):
         """Event custodial.exit.completed emitted on completion (AC6)."""
         await exit_service.initiate_exit(cluster_id)
 
@@ -406,7 +428,9 @@ class TestEventEmission:
         assert event["actor"] == "system"
 
     @pytest.mark.asyncio
-    async def test_completed_event_payload(self, exit_service, event_emitter, cluster_id):
+    async def test_completed_event_payload(
+        self, exit_service, event_emitter, cluster_id
+    ):
         """Completed event has correct payload (AC6)."""
         await exit_service.initiate_exit(cluster_id)
 
@@ -421,7 +445,9 @@ class TestEventEmission:
         assert "duration_ms" in payload
 
     @pytest.mark.asyncio
-    async def test_both_events_emitted_in_order(self, exit_service, event_emitter, cluster_id):
+    async def test_both_events_emitted_in_order(
+        self, exit_service, event_emitter, cluster_id
+    ):
         """Both initiated and completed events emitted in order."""
         await exit_service.initiate_exit(cluster_id)
 
@@ -433,7 +459,9 @@ class TestEventEmission:
 
         # Verify order in overall event list
         event_types = [e["event_type"] for e in event_emitter.events]
-        assert event_types.index(EXIT_INITIATED_EVENT) < event_types.index(EXIT_COMPLETED_EVENT)
+        assert event_types.index(EXIT_INITIATED_EVENT) < event_types.index(
+            EXIT_COMPLETED_EVENT
+        )
 
 
 # =============================================================================
@@ -493,7 +521,9 @@ class TestErrorHandling:
     """Tests for error handling."""
 
     @pytest.mark.asyncio
-    async def test_already_exited_raises_error(self, exit_service, exit_port, cluster_id):
+    async def test_already_exited_raises_error(
+        self, exit_service, exit_port, cluster_id
+    ):
         """Cannot exit twice - raises AlreadyExitedError."""
         exit_port.mark_as_exited(cluster_id)
 
@@ -501,7 +531,9 @@ class TestErrorHandling:
             await exit_service.initiate_exit(cluster_id)
 
     @pytest.mark.asyncio
-    async def test_already_exited_error_message(self, exit_service, exit_port, cluster_id):
+    async def test_already_exited_error_message(
+        self, exit_service, exit_port, cluster_id
+    ):
         """AlreadyExitedError contains cluster ID."""
         exit_port.mark_as_exited(cluster_id)
 

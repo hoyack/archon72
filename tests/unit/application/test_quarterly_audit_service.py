@@ -238,7 +238,9 @@ class TestRunQuarterlyAudit:
                 published_at=datetime.now(timezone.utc),
             )
         ]
-        mock_material_repository.get_all_public_materials = AsyncMock(return_value=materials)
+        mock_material_repository.get_all_public_materials = AsyncMock(
+            return_value=materials
+        )
         mock_scanner.scan_content = AsyncMock(return_value=ScanResult.no_violations())
 
         result = await service.run_quarterly_audit()
@@ -281,7 +283,9 @@ class TestRunQuarterlyAudit:
                 published_at=datetime.now(timezone.utc),
             ),
         ]
-        mock_material_repository.get_all_public_materials = AsyncMock(return_value=materials)
+        mock_material_repository.get_all_public_materials = AsyncMock(
+            return_value=materials
+        )
 
         # First scan clean, second has violation
         mock_scanner.scan_content = AsyncMock(
@@ -300,7 +304,9 @@ class TestRunQuarterlyAudit:
         assert result.remediation_deadline is not None
 
         # Verify events written
-        assert mock_event_writer.write_event.call_count == 3  # Started, violation, completed
+        assert (
+            mock_event_writer.write_event.call_count == 3
+        )  # Started, violation, completed
         calls = mock_event_writer.write_event.call_args_list
         assert calls[0].kwargs["event_type"] == AUDIT_STARTED_EVENT_TYPE
         assert calls[1].kwargs["event_type"] == MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE
@@ -325,7 +331,9 @@ class TestRunQuarterlyAudit:
         # Verify failed event written
         calls = mock_event_writer.write_event.call_args_list
         # Should have started and failed completed events
-        completed_calls = [c for c in calls if c.kwargs["event_type"] == AUDIT_COMPLETED_EVENT_TYPE]
+        completed_calls = [
+            c for c in calls if c.kwargs["event_type"] == AUDIT_COMPLETED_EVENT_TYPE
+        ]
         assert len(completed_calls) == 1
         assert completed_calls[0].kwargs["payload"]["status"] == "failed"
 
@@ -346,7 +354,9 @@ class TestRunQuarterlyAudit:
                 published_at=datetime.now(timezone.utc),
             )
         ]
-        mock_material_repository.get_all_public_materials = AsyncMock(return_value=materials)
+        mock_material_repository.get_all_public_materials = AsyncMock(
+            return_value=materials
+        )
         mock_scanner.scan_content = AsyncMock(
             return_value=ScanResult.with_violations(("sentient",))
         )
@@ -532,7 +542,9 @@ class TestEventWriting:
                 published_at=datetime.now(timezone.utc),
             )
         ]
-        mock_material_repository.get_all_public_materials = AsyncMock(return_value=materials)
+        mock_material_repository.get_all_public_materials = AsyncMock(
+            return_value=materials
+        )
         mock_scanner.scan_content = AsyncMock(
             return_value=ScanResult.with_violations(("sentient",))
         )
@@ -541,7 +553,11 @@ class TestEventWriting:
 
         # Should have violation event
         calls = mock_event_writer.write_event.call_args_list
-        violation_calls = [c for c in calls if c.kwargs["event_type"] == MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE]
+        violation_calls = [
+            c
+            for c in calls
+            if c.kwargs["event_type"] == MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE
+        ]
         assert len(violation_calls) == 1
         assert violation_calls[0].kwargs["payload"]["material_id"] == "mat-001"
         assert "matched_terms" in violation_calls[0].kwargs["payload"]

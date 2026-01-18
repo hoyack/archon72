@@ -1,6 +1,6 @@
 """Unit tests for witness pool monitoring service (Story 6.6, FR117)."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -172,7 +172,6 @@ class TestCheckPoolHealth:
         )
 
         status1 = await service.check_pool_health()
-        degraded_time = status1.degraded_since
 
         # Second check should have same degraded_since
         status2 = await service.check_pool_health()
@@ -257,7 +256,9 @@ class TestHandlePoolDegraded:
             degraded_since=now,
         )
 
-        payload = await service.handle_pool_degraded(status, operation_type="high_stakes")
+        payload = await service.handle_pool_degraded(
+            status, operation_type="high_stakes"
+        )
 
         assert isinstance(payload, WitnessPoolDegradedEventPayload)
         assert payload.is_blocking is True
@@ -391,7 +392,9 @@ class TestCanProceedWithOperation:
             witness_pool=mock_witness_pool,
         )
 
-        can_proceed, reason = await service.can_proceed_with_operation(high_stakes=False)
+        can_proceed, reason = await service.can_proceed_with_operation(
+            high_stakes=False
+        )
 
         assert can_proceed is True
 

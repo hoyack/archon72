@@ -194,7 +194,7 @@ class TestLatencyLoggingIntegration:
         assert service.is_monitoring is False
 
         # Logging happens via structlog - we can see it in captured output
-        captured = capsys.readouterr()
+        capsys.readouterr()
         # The implementation logs "fork_check_completed" with latency_ms
         # The test passes if no exceptions were raised
 
@@ -227,9 +227,7 @@ class TestFullForkMonitoringPipeline:
         return _create
 
     @pytest.mark.asyncio
-    async def test_full_fork_detection_pipeline(
-        self, create_event: callable
-    ) -> None:
+    async def test_full_fork_detection_pipeline(self, create_event: callable) -> None:
         """Test the full fork detection pipeline from events to callback."""
         # Create conflicting events
         shared_prev = "full" * 16  # 64 chars

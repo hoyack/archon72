@@ -10,7 +10,6 @@ Production implementations are in src/infrastructure/adapters/.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 
 class EventQueryStub:
@@ -85,7 +84,8 @@ class EventQueryStub:
             List of matching events, ordered by timestamp.
         """
         matching = [
-            e for e in self._events
+            e
+            for e in self._events
             if str(e.get("event_type", "")).startswith(type_prefix)
         ]
         # Sort by timestamp
@@ -106,10 +106,7 @@ class EventQueryStub:
         Returns:
             List of matching events, ordered by timestamp.
         """
-        matching = [
-            e for e in self._events
-            if e.get("event_type") == event_type
-        ]
+        matching = [e for e in self._events if e.get("event_type") == event_type]
         # Sort by timestamp
         matching.sort(key=lambda e: str(e.get("timestamp", "")))
         return matching[:limit]
@@ -165,10 +162,7 @@ class EventQueryStub:
         Returns:
             Number of matching events.
         """
-        return sum(
-            1 for e in self._events
-            if e.get("event_type") == event_type
-        )
+        return sum(1 for e in self._events if e.get("event_type") == event_type)
 
     async def get_distinct_payload_values(
         self,
@@ -207,8 +201,8 @@ class EventQueryStub:
     async def query_events_by_time_range(
         self,
         type_prefix: str,
-        start_time: Optional[str] = None,
-        end_time: Optional[str] = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, object]]:
         """Query events within a time range.
@@ -242,16 +236,12 @@ class EventQueryStub:
 
             # Check time range
             if start_time:
-                start_dt = datetime.fromisoformat(
-                    start_time.replace("Z", "+00:00")
-                )
+                start_dt = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
                 if event_time < start_dt:
                     continue
 
             if end_time:
-                end_dt = datetime.fromisoformat(
-                    end_time.replace("Z", "+00:00")
-                )
+                end_dt = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
                 if event_time > end_dt:
                     continue
 
@@ -285,17 +275,19 @@ class EventQueryStub:
         base_time = datetime.now().isoformat() + "Z"
 
         # Add started event
-        self.add_event({
-            "event_id": f"{audit_id}-started",
-            "event_type": "audit.started",
-            "timestamp": base_time,
-            "payload": {
-                "audit_id": audit_id,
-                "quarter": quarter,
-                "scheduled_at": base_time,
-                "started_at": base_time,
-            },
-        })
+        self.add_event(
+            {
+                "event_id": f"{audit_id}-started",
+                "event_type": "audit.started",
+                "timestamp": base_time,
+                "payload": {
+                    "audit_id": audit_id,
+                    "quarter": quarter,
+                    "scheduled_at": base_time,
+                    "started_at": base_time,
+                },
+            }
+        )
 
         # Add completed event
         completed_payload: dict[str, object] = {
@@ -310,9 +302,11 @@ class EventQueryStub:
         if status == "violations_found":
             completed_payload["remediation_deadline"] = base_time
 
-        self.add_event({
-            "event_id": f"{audit_id}-completed",
-            "event_type": "audit.completed",
-            "timestamp": base_time,
-            "payload": completed_payload,
-        })
+        self.add_event(
+            {
+                "event_id": f"{audit_id}-completed",
+                "event_type": "audit.completed",
+                "timestamp": base_time,
+                "payload": completed_payload,
+            }
+        )

@@ -19,7 +19,6 @@ from src.application.ports.anomaly_detector import (
 )
 from src.domain.events.override_abuse import AnomalyType
 
-
 # Default baseline values for testing
 DEFAULT_BASELINE_DAILY_RATE: float = 0.1  # 0.1 overrides per day average
 DEFAULT_OVERRIDE_COUNT: int = 0
@@ -161,7 +160,8 @@ class AnomalyDetectorStub(AnomalyDetectorProtocol):
         # Filter anomalies to those affecting the specified keepers
         keeper_set = set(keeper_ids)
         filtered = [
-            a for a in self._coordinated_anomalies
+            a
+            for a in self._coordinated_anomalies
             if any(k in keeper_set for k in a.affected_keepers)
         ]
         return filtered if filtered else list(self._coordinated_anomalies)

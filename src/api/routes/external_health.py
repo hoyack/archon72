@@ -16,7 +16,6 @@ Key Design Principles:
 from fastapi import APIRouter
 
 from src.api.models.external_health import ExternalHealthResponse
-from src.application.ports.external_health import ExternalHealthStatus
 from src.application.services.external_health_service import get_external_health_service
 
 router = APIRouter(tags=["external-health"])

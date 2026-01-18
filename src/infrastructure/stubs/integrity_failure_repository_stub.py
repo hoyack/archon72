@@ -11,7 +11,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.integrity_failure_repository import (
@@ -33,7 +32,7 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
     def __init__(self) -> None:
         """Initialize the stub with empty storage."""
         self._failures: dict[UUID, IntegrityFailure] = {}
-        self._last_successful_check: Optional[datetime] = None
+        self._last_successful_check: datetime | None = None
 
     def clear(self) -> None:
         """Clear all stored failures (for test cleanup)."""
@@ -87,15 +86,10 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
             Total count of failures in the window.
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
-        count = sum(
-            1 for f in self._failures.values()
-            if f.failure_timestamp >= cutoff
-        )
+        count = sum(1 for f in self._failures.values() if f.failure_timestamp >= cutoff)
         return count
 
-    async def get_failures_in_window(
-        self, window_days: int
-    ) -> list[IntegrityFailure]:
+    async def get_failures_in_window(self, window_days: int) -> list[IntegrityFailure]:
         """Get all integrity failures within a rolling window.
 
         Args:
@@ -105,10 +99,7 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
             List of failures within the window, ordered by timestamp.
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
-        failures = [
-            f for f in self._failures.values()
-            if f.failure_timestamp >= cutoff
-        ]
+        failures = [f for f in self._failures.values() if f.failure_timestamp >= cutoff]
         return sorted(failures, key=lambda f: f.failure_timestamp)
 
     async def get_consecutive_failures_in_window(
@@ -129,15 +120,15 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
 
         # Get all failures in window
         failures_in_window = [
-            f for f in self._failures.values()
-            if f.failure_timestamp >= cutoff
+            f for f in self._failures.values() if f.failure_timestamp >= cutoff
         ]
         failures_in_window.sort(key=lambda f: f.failure_timestamp)
 
         # If there's a successful check in the window, only count failures after it
         if self._last_successful_check and self._last_successful_check >= cutoff:
             failures_in_window = [
-                f for f in failures_in_window
+                f
+                for f in failures_in_window
                 if f.failure_timestamp > self._last_successful_check
             ]
 
@@ -161,7 +152,7 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
         failure_timestamp: datetime,
         failure_type: str = "integrity_check_failed",
         description: str = "Test failure",
-        event_id: Optional[UUID] = None,
+        event_id: UUID | None = None,
     ) -> IntegrityFailure:
         """Add a failure directly (for testing).
 
@@ -176,6 +167,7 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
             The created IntegrityFailure.
         """
         from uuid import uuid4
+
         failure = IntegrityFailure(
             failure_id=failure_id,
             failure_timestamp=failure_timestamp,
@@ -190,6 +182,6 @@ class IntegrityFailureRepositoryStub(IntegrityFailureRepositoryProtocol):
         """Get total number of stored failures."""
         return len(self._failures)
 
-    def get_last_successful_check(self) -> Optional[datetime]:
+    def get_last_successful_check(self) -> datetime | None:
         """Get timestamp of last successful check."""
         return self._last_successful_check

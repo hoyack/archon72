@@ -8,8 +8,7 @@ Tests:
 - Scan error handling (CT-11 fail loud)
 """
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -180,7 +179,9 @@ class TestProhibitedLanguageBlockingServiceViolations:
         return scanner
 
     @pytest.fixture
-    def service(self, violation_scanner: AsyncMock) -> ProhibitedLanguageBlockingService:
+    def service(
+        self, violation_scanner: AsyncMock
+    ) -> ProhibitedLanguageBlockingService:
         """Create a service that detects violations."""
         event_writer = AsyncMock()
 

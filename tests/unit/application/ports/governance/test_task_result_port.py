@@ -14,9 +14,8 @@ References:
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import TYPE_CHECKING, Any
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
 

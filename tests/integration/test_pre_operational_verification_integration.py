@@ -8,8 +8,8 @@ Constitutional Constraints:
 - CT-13: Integrity outranks availability
 """
 
-from datetime import datetime, timezone, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import datetime, timedelta, timezone
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -18,9 +18,7 @@ from src.api.startup import run_pre_operational_verification
 from src.application.services.pre_operational_verification_service import (
     PreOperationalVerificationService,
 )
-from src.domain.errors.pre_operational import PreOperationalVerificationError
 from src.domain.models.verification_result import (
-    VerificationResult,
     VerificationStatus,
 )
 

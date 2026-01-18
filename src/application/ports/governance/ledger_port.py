@@ -52,9 +52,7 @@ class PersistedGovernanceEvent:
     def __post_init__(self) -> None:
         """Validate sequence is positive."""
         if self.sequence <= 0:
-            raise ValueError(
-                f"Sequence must be positive, got {self.sequence}"
-            )
+            raise ValueError(f"Sequence must be positive, got {self.sequence}")
 
     @property
     def event_id(self) -> UUID:

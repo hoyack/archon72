@@ -44,8 +44,8 @@ from src.domain.events.user_content_prohibition import (
     UserContentProhibitionEventPayload,
 )
 from src.domain.models.user_content import (
-    FeatureRequest,
     FeaturedStatus,
+    FeatureRequest,
     UserContent,
     UserContentProhibitionFlag,
     UserContentStatus,
@@ -138,9 +138,7 @@ class UserContentProhibitionService:
         if await self._halt_checker.is_halted():
             raise SystemHaltedError("System halted")
 
-    async def evaluate_for_featuring(
-        self, request: FeatureRequest
-    ) -> UserContent:
+    async def evaluate_for_featuring(self, request: FeatureRequest) -> UserContent:
         """Evaluate user content for featuring eligibility (FR58).
 
         Scans user content for prohibited terms. Creates witnessed events
@@ -347,9 +345,7 @@ class UserContentProhibitionService:
                 results.append(content)
             except UserContentCannotBeFeaturedException:
                 # Content was flagged - get it from repository
-                content = await self._content_repository.get_content(
-                    request.content_id
-                )
+                content = await self._content_repository.get_content(request.content_id)
                 if content:
                     results.append(content)
 
@@ -379,9 +375,7 @@ class UserContentProhibitionService:
 
         return content.prohibition_flag
 
-    async def clear_prohibition_flag(
-        self, content_id: str, reason: str
-    ) -> UserContent:
+    async def clear_prohibition_flag(self, content_id: str, reason: str) -> UserContent:
         """Clear the prohibition flag from user content (FR58).
 
         This is for admin/manual review override. Clears the prohibition

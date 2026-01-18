@@ -120,9 +120,7 @@ class TestSetTerminated:
         """set_terminated() should handle datetime objects in payload."""
         stub = TerminalEventDetectorStub()
         execution_timestamp = datetime(2024, 6, 15, 14, 0, 0, tzinfo=timezone.utc)
-        event = create_test_event(
-            payload={"execution_timestamp": execution_timestamp}
-        )
+        event = create_test_event(payload={"execution_timestamp": execution_timestamp})
 
         stub.set_terminated(event)
 
@@ -184,7 +182,7 @@ class TestClearTermination:
         """Should support multiple set/clear cycles."""
         stub = TerminalEventDetectorStub()
 
-        for i in range(3):
+        for _i in range(3):
             # Not terminated
             assert await stub.is_system_terminated() is False
 
@@ -253,6 +251,7 @@ class TestStubIsolation:
     @pytest.mark.asyncio
     async def test_stub_in_fixture_pattern(self) -> None:
         """Stub should work with pytest fixture pattern."""
+
         # Simulating a fixture that creates fresh stub
         def create_detector() -> TerminalEventDetectorStub:
             return TerminalEventDetectorStub()

@@ -10,9 +10,9 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from types import MappingProxyType
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -434,7 +434,9 @@ class TestCountUnacknowledgedBreaches:
         result = await service.count_unacknowledged_breaches()
 
         assert result == 5
-        mock_breach_repository.count_unacknowledged_in_window.assert_called_once_with(90)
+        mock_breach_repository.count_unacknowledged_in_window.assert_called_once_with(
+            90
+        )
 
     @pytest.mark.asyncio
     async def test_count_unacknowledged_breaches_custom_window(
@@ -448,7 +450,9 @@ class TestCountUnacknowledgedBreaches:
         result = await service.count_unacknowledged_breaches(window_days=30)
 
         assert result == 3
-        mock_breach_repository.count_unacknowledged_in_window.assert_called_once_with(30)
+        mock_breach_repository.count_unacknowledged_in_window.assert_called_once_with(
+            30
+        )
 
     @pytest.mark.asyncio
     async def test_count_unacknowledged_breaches_halted_raises_system_halted_error(

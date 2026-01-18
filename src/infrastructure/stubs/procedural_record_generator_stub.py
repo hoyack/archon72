@@ -171,14 +171,10 @@ class ProceduralRecordGeneratorStub:
 
         # DEV MODE signature - in production this would use HSM
         signable_content = f"[DEV MODE]{record_hash}"
-        signature = hashlib.sha256(
-            signable_content.encode("utf-8")
-        ).hexdigest()
+        signature = hashlib.sha256(signable_content.encode("utf-8")).hexdigest()
 
         # Convert to immutable types per CT-12 (witnessing creates accountability)
-        immutable_timeline = tuple(
-            MappingProxyType(event) for event in timeline_events
-        )
+        immutable_timeline = tuple(MappingProxyType(event) for event in timeline_events)
 
         record = ProceduralRecordData(
             record_id=record_id,

@@ -90,7 +90,9 @@ def create_content_ref(sha256_hash: str) -> ContentRef:
     if len(sha256_hash) != 64:
         raise ValueError(f"SHA-256 hash must be 64 chars, got {len(sha256_hash)}")
     if not re.match(r"^[a-f0-9]{64}$", sha256_hash):
-        raise ValueError(f"SHA-256 hash must be lowercase hex, got: {sha256_hash[:20]}...")
+        raise ValueError(
+            f"SHA-256 hash must be lowercase hex, got: {sha256_hash[:20]}..."
+        )
     return f"{CONTENT_REF_PREFIX}{sha256_hash}"
 
 

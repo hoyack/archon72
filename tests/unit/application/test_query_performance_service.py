@@ -45,16 +45,22 @@ class TestTrackQuery:
     async def test_marks_query_complete(self, service: QueryPerformanceService) -> None:
         """Test that query is marked as complete."""
         query_id = await service.start_query(event_count=100)
-        compliant = await service.track_query(query_id, event_count=100, duration_ms=1000.0)
+        compliant = await service.track_query(
+            query_id, event_count=100, duration_ms=1000.0
+        )
 
         assert compliant is True
         assert query_id not in service._active_queries
 
     @pytest.mark.asyncio
-    async def test_returns_compliance_status(self, service: QueryPerformanceService) -> None:
+    async def test_returns_compliance_status(
+        self, service: QueryPerformanceService
+    ) -> None:
         """Test that compliance status is returned."""
         query_id = await service.start_query(event_count=100)
-        compliant = await service.track_query(query_id, event_count=100, duration_ms=500.0)
+        compliant = await service.track_query(
+            query_id, event_count=100, duration_ms=500.0
+        )
 
         assert isinstance(compliant, bool)
         assert compliant is True  # 500ms is well under 30s SLA
@@ -131,7 +137,9 @@ class TestUpdateBatchProgress:
     """Tests for update_batch_progress method."""
 
     @pytest.mark.asyncio
-    async def test_updates_batch_progress(self, service: QueryPerformanceService) -> None:
+    async def test_updates_batch_progress(
+        self, service: QueryPerformanceService
+    ) -> None:
         """Test that batch progress is updated for large queries."""
         # Start a large query that requires batching
         query_id = await service.start_query(
@@ -167,7 +175,9 @@ class TestGetComplianceStats:
     """Tests for get_compliance_stats method."""
 
     @pytest.mark.asyncio
-    async def test_returns_initial_stats(self, service: QueryPerformanceService) -> None:
+    async def test_returns_initial_stats(
+        self, service: QueryPerformanceService
+    ) -> None:
         """Test that initial stats are returned."""
         stats = await service.get_compliance_stats()
 
@@ -177,7 +187,9 @@ class TestGetComplianceStats:
         assert stats["compliance_rate"] == 100.0  # Perfect when no queries
 
     @pytest.mark.asyncio
-    async def test_tracks_compliant_queries(self, service: QueryPerformanceService) -> None:
+    async def test_tracks_compliant_queries(
+        self, service: QueryPerformanceService
+    ) -> None:
         """Test that compliant queries are tracked."""
         query_id = await service.start_query(event_count=100)
         await service.track_query(query_id, event_count=100, duration_ms=1000.0)
@@ -207,7 +219,9 @@ class TestGetActiveQueries:
     """Tests for get_active_queries method."""
 
     @pytest.mark.asyncio
-    async def test_returns_active_queries(self, service: QueryPerformanceService) -> None:
+    async def test_returns_active_queries(
+        self, service: QueryPerformanceService
+    ) -> None:
         """Test that active queries are returned."""
         query_id = await service.start_query(event_count=100)
 

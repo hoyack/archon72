@@ -64,8 +64,8 @@ class PostgresMerkleTreeAdapter(MerkleTreePort):
 
     def __init__(
         self,
-        session_factory: "async_sessionmaker[AsyncSession]",
-        ledger_port: "GovernanceLedgerPort",
+        session_factory: async_sessionmaker[AsyncSession],
+        ledger_port: GovernanceLedgerPort,
         verbose: bool = False,
     ) -> None:
         """Initialize the PostgreSQL Merkle tree adapter.
@@ -417,9 +417,7 @@ class PostgresMerkleTreeAdapter(MerkleTreePort):
                 LIMIT :limit OFFSET :offset
             """)
 
-            result = await session.execute(
-                query, {"limit": limit, "offset": offset}
-            )
+            result = await session.execute(query, {"limit": limit, "offset": offset})
             rows = result.fetchall()
 
             return [self._row_to_epoch_info(row) for row in rows]

@@ -12,7 +12,6 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -38,10 +37,7 @@ def has_api_keys() -> bool:
     Returns:
         True if at least one API key is configured
     """
-    return bool(
-        os.environ.get("ANTHROPIC_API_KEY")
-        or os.environ.get("OPENAI_API_KEY")
-    )
+    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY"))
 
 
 def get_available_provider() -> str | None:
@@ -115,8 +111,7 @@ def estimate_cost(
     """
     costs = COST_PER_1K_TOKENS.get(model, DEFAULT_COST)
     cost_usd = (
-        input_tokens / 1000 * costs["input"]
-        + output_tokens / 1000 * costs["output"]
+        input_tokens / 1000 * costs["input"] + output_tokens / 1000 * costs["output"]
     )
 
     return CostEstimate(
@@ -203,10 +198,7 @@ def validate_response(
 
     # Check for topic relevance
     if topic_keywords:
-        found_keywords = [
-            kw for kw in topic_keywords
-            if kw.lower() in lower_response
-        ]
+        found_keywords = [kw for kw in topic_keywords if kw.lower() in lower_response]
         if not found_keywords:
             warnings.append(
                 f"Response may be off-topic: none of {topic_keywords} found"
@@ -232,7 +224,7 @@ class Timer:
         self.end_time: float = 0.0
         self.elapsed: float = 0.0
 
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Timer:
         self.start_time = time.perf_counter()
         return self
 
@@ -247,28 +239,30 @@ class Timer:
 
 
 @pytest.fixture
-def archon_profile_repository() -> "ArchonProfileRepository":
+def archon_profile_repository() -> ArchonProfileRepository:
     """Create real archon profile repository from YAML files."""
     from src.infrastructure.adapters.config.archon_profile_adapter import (
         create_archon_profile_repository,
     )
+
     return create_archon_profile_repository()
 
 
 @pytest.fixture
-def tool_registry() -> "ToolRegistryProtocol":
+def tool_registry() -> ToolRegistryProtocol:
     """Create tool registry with all archon tools."""
     from src.infrastructure.adapters.tools.tool_registry_adapter import (
         create_tool_registry,
     )
+
     return create_tool_registry(include_all_archon_tools=True)
 
 
 @pytest.fixture
 def crewai_adapter(
-    archon_profile_repository: "ArchonProfileRepository",
-    tool_registry: "ToolRegistryProtocol",
-) -> "CrewAIAdapter":
+    archon_profile_repository: ArchonProfileRepository,
+    tool_registry: ToolRegistryProtocol,
+) -> CrewAIAdapter:
     """Create real CrewAI adapter for integration testing.
 
     This fixture creates a fully configured CrewAI adapter

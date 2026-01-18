@@ -23,7 +23,10 @@ class TestEventTypeConstant:
 
     def test_event_type_follows_naming_convention(self) -> None:
         """Event type follows project naming convention."""
-        assert RECOVERY_WAITING_PERIOD_STARTED_EVENT_TYPE == "recovery.waiting_period_started"
+        assert (
+            RECOVERY_WAITING_PERIOD_STARTED_EVENT_TYPE
+            == "recovery.waiting_period_started"
+        )
 
 
 class TestRecoveryWaitingPeriodStartedPayload:

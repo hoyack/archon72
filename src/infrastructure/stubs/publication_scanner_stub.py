@@ -81,9 +81,7 @@ class PublicationScannerStub(PublicationScannerProtocol):
         """Reset to default prohibited terms."""
         self._scanner.reset_to_defaults()
 
-    def configure_next_scan_blocked(
-        self, matched_terms: tuple[str, ...]
-    ) -> None:
+    def configure_next_scan_blocked(self, matched_terms: tuple[str, ...]) -> None:
         """Configure the next scan to return a blocked result.
 
         Args:

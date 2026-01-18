@@ -21,6 +21,7 @@ References:
 - [Source: government-epics.md#GOV-2-1]
 """
 
+from src.domain.governance.task.problem_report import ProblemCategory, ProblemReport
 from src.domain.governance.task.task_activation_request import (
     FilteredContent,
     FilterOutcome,
@@ -33,14 +34,13 @@ from src.domain.governance.task.task_events import (
     TASK_EVENT_TYPES,
     create_transition_event,
 )
+from src.domain.governance.task.task_result import TaskResult
 from src.domain.governance.task.task_state import (
     IllegalStateTransitionError,
     TaskState,
     TaskStatus,
 )
 from src.domain.governance.task.task_state_rules import TaskTransitionRules
-from src.domain.governance.task.task_result import TaskResult
-from src.domain.governance.task.problem_report import ProblemCategory, ProblemReport
 
 __all__ = [
     # Task state machine (Story 2-1)

@@ -23,7 +23,7 @@ import contextlib
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from structlog import get_logger
 
@@ -42,9 +42,7 @@ class SigningServiceProtocol(Protocol):
     Allows dependency injection of signing service for fork signals.
     """
 
-    async def sign_fork_signal(
-        self, signable_content: bytes
-    ) -> tuple[str, str, int]:
+    async def sign_fork_signal(self, signable_content: bytes) -> tuple[str, str, int]:
         """Sign fork signal content.
 
         Args:
@@ -81,7 +79,8 @@ class ForkHandleResult:
     """
 
     rate_limited: bool
-    signed_signal: Optional[SignedForkSignal]
+    signed_signal: SignedForkSignal | None
+
 
 logger = get_logger()
 
@@ -128,8 +127,8 @@ class ForkMonitoringService:
         fork_monitor: ForkMonitor,
         on_fork_detected: ForkDetectedCallback,
         service_id: str,
-        signing_service: Optional[SigningServiceProtocol] = None,
-        rate_limiter: Optional[ForkSignalRateLimiterPort] = None,
+        signing_service: SigningServiceProtocol | None = None,
+        rate_limiter: ForkSignalRateLimiterPort | None = None,
     ) -> None:
         """Initialize the fork monitoring service.
 

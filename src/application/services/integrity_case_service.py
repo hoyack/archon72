@@ -41,16 +41,15 @@ Usage:
 
 from __future__ import annotations
 
-import structlog
 from datetime import datetime, timezone
-from typing import Any, Optional
-from uuid import uuid4
+from typing import Any
+
+import structlog
 
 from src.application.ports.integrity_case_repository import (
     IntegrityCaseRepositoryProtocol,
 )
 from src.domain.events.integrity_case import (
-    INTEGRITY_CASE_UPDATED_EVENT_TYPE,
     IntegrityCaseUpdatedEventPayload,
 )
 from src.domain.models.integrity_case import (
@@ -60,7 +59,6 @@ from src.domain.models.integrity_case import (
     IntegrityCaseArtifact,
     IntegrityGuarantee,
 )
-
 
 logger = structlog.get_logger(__name__)
 
@@ -163,9 +161,7 @@ class IntegrityCaseService:
 
         return json_ld
 
-    async def get_guarantee(
-        self, guarantee_id: str
-    ) -> Optional[IntegrityGuarantee]:
+    async def get_guarantee(self, guarantee_id: str) -> IntegrityGuarantee | None:
         """Get a specific guarantee by ID (FR144).
 
         Looks up a single guarantee by its guarantee_id.
@@ -243,9 +239,7 @@ class IntegrityCaseService:
 
         return history
 
-    async def get_artifact_version(
-        self, version: str
-    ) -> Optional[IntegrityCaseArtifact]:
+    async def get_artifact_version(self, version: str) -> IntegrityCaseArtifact | None:
         """Get a specific historical version of the artifact.
 
         Args:

@@ -75,9 +75,7 @@ class CessationConsiderationNotFoundError(CessationError):
             consideration_id: The ID that could not be found.
         """
         self.consideration_id = consideration_id
-        super().__init__(
-            f"FR32: Cessation consideration not found: {consideration_id}"
-        )
+        super().__init__(f"FR32: Cessation consideration not found: {consideration_id}")
 
 
 class InvalidCessationDecisionError(CessationError):

@@ -3,6 +3,7 @@
 Tests the HaltGuardStub for testing scenarios.
 """
 
+import contextlib
 from datetime import datetime, timezone
 
 import pytest
@@ -235,10 +236,8 @@ class TestHaltGuardStubReset:
         stub.trigger_halt("Test")
 
         # Make a check that raises (to increment counter)
-        try:
+        with contextlib.suppress(WriteBlockedDuringHaltError):
             await stub.check_write_allowed()
-        except WriteBlockedDuringHaltError:
-            pass
 
         stub.reset()
 
@@ -253,4 +252,5 @@ class TestHaltGuardStubExports:
     def test_stub_exported_from_stubs_package(self) -> None:
         """Verify HaltGuardStub is exported from stubs __init__."""
         from src.infrastructure.stubs import HaltGuardStub as ExportedClass
+
         assert ExportedClass is HaltGuardStub

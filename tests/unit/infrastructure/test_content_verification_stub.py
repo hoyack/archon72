@@ -107,9 +107,7 @@ class TestContentVerificationStub:
         assert len(result.computed_hash) == 64  # SHA-256 hex length
 
     @pytest.mark.asyncio
-    async def test_verify_unknown_content(
-        self, stub: ContentVerificationStub
-    ) -> None:
+    async def test_verify_unknown_content(self, stub: ContentVerificationStub) -> None:
         """verify_content handles unknown content ID gracefully."""
         unknown_id = uuid4()
         content = b"some content"

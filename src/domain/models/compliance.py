@@ -21,11 +21,11 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
-import uuid
+from typing import Any
 
 
 class ComplianceFramework(Enum):
@@ -90,7 +90,7 @@ class ComplianceRequirement:
     framework: ComplianceFramework
     description: str
     status: ComplianceStatus
-    implementation_reference: Optional[str] = None
+    implementation_reference: str | None = None
     evidence: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
@@ -117,7 +117,7 @@ class ComplianceRequirement:
 
 
 def _compute_overall_status(
-    requirements: tuple[ComplianceRequirement, ...]
+    requirements: tuple[ComplianceRequirement, ...],
 ) -> ComplianceStatus:
     """Compute overall status from requirements.
 
@@ -171,7 +171,7 @@ class ComplianceAssessment:
     assessment_date: datetime
     requirements: tuple[ComplianceRequirement, ...]
     gaps: tuple[str, ...] = field(default_factory=tuple)
-    remediation_plan: Optional[str] = None
+    remediation_plan: str | None = None
 
     @property
     def overall_status(self) -> ComplianceStatus:

@@ -102,7 +102,7 @@ class RecoveryWaitingPeriodPort(ABC):
         ...
 
     @abstractmethod
-    async def get_remaining_time(self) -> Optional[timedelta]:
+    async def get_remaining_time(self) -> timedelta | None:
         """Get remaining time in the active waiting period.
 
         Used for displaying remaining time when early recovery is rejected (AC3).

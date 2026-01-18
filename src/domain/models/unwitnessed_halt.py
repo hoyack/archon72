@@ -51,7 +51,7 @@ class UnwitnessedHaltRecord:
     halt_id: UUID
 
     # Full crisis payload for later reconciliation
-    crisis_payload: "ConstitutionalCrisisPayload"
+    crisis_payload: ConstitutionalCrisisPayload
 
     # Reason why witnessed write failed
     failure_reason: str

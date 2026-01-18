@@ -12,14 +12,11 @@ Constitutional Constraints:
 from __future__ import annotations
 
 import inspect
-from datetime import datetime, timezone
-from typing import Protocol, get_type_hints, runtime_checkable
-from uuid import UUID, uuid4
+from typing import Protocol, get_type_hints
 
 import pytest
 
 from src.application.ports.checkpoint_repository import CheckpointRepository
-from src.domain.models.checkpoint import Checkpoint
 
 
 class TestCheckpointRepositoryPortStructure:
@@ -46,7 +43,7 @@ class TestGetAllCheckpointsMethod:
         assert method is not None
 
         # Should be a coroutine function
-        sig = inspect.signature(method)
+        inspect.signature(method)
 
         # Check return type hints include list[Checkpoint]
         hints = get_type_hints(method)

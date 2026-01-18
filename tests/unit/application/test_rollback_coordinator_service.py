@@ -16,7 +16,6 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.ports.rollback_coordinator import RollbackCoordinator
 from src.application.services.rollback_coordinator_service import (
     RollbackCoordinatorService,
 )
@@ -352,4 +351,6 @@ class TestGetStatus:
 
         assert status["in_progress"] is True
         assert status["selected_checkpoint_id"] == str(sample_checkpoint.checkpoint_id)
-        assert status["selected_checkpoint_sequence"] == sample_checkpoint.event_sequence
+        assert (
+            status["selected_checkpoint_sequence"] == sample_checkpoint.event_sequence
+        )

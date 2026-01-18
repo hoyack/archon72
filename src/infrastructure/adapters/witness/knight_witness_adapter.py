@@ -336,7 +336,9 @@ class KnightWitnessAdapter(KnightWitnessProtocol):
             List of WitnessStatements for the target
         """
         statement_ids = self._statements_by_target.get(target_id, [])
-        statements = [self._statements[sid] for sid in statement_ids if sid in self._statements]
+        statements = [
+            self._statements[sid] for sid in statement_ids if sid in self._statements
+        ]
 
         if target_type:
             statements = [s for s in statements if s.target_type == target_type]
@@ -357,7 +359,9 @@ class KnightWitnessAdapter(KnightWitnessProtocol):
         Returns:
             List of violation WitnessStatements
         """
-        violations = [self._statements[sid] for sid in self._violations if sid in self._statements]
+        violations = [
+            self._statements[sid] for sid in self._violations if sid in self._statements
+        ]
 
         if since:
             violations = [v for v in violations if v.timestamp >= since]
@@ -365,8 +369,7 @@ class KnightWitnessAdapter(KnightWitnessProtocol):
         if violator_id:
             violator_str = str(violator_id)
             violations = [
-                v for v in violations
-                if v.metadata.get("violator_id") == violator_str
+                v for v in violations if v.metadata.get("violator_id") == violator_str
             ]
 
         return violations
@@ -384,7 +387,9 @@ class KnightWitnessAdapter(KnightWitnessProtocol):
         self._statements[statement.statement_id] = statement
 
         if statement.target_id:
-            self._statements_by_target[statement.target_id].append(statement.statement_id)
+            self._statements_by_target[statement.target_id].append(
+                statement.statement_id
+            )
 
     def _create_acknowledgment_request(self, statement: WitnessStatement) -> None:
         """Create an acknowledgment request for a statement.

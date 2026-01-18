@@ -46,7 +46,7 @@ class ToolRegistryProtocol(ABC):
     """
 
     @abstractmethod
-    def get_tool(self, name: str) -> "BaseTool | None":
+    def get_tool(self, name: str) -> BaseTool | None:
         """Get a tool by name.
 
         Args:
@@ -59,7 +59,7 @@ class ToolRegistryProtocol(ABC):
         ...
 
     @abstractmethod
-    def get_tools(self, names: list[str]) -> list["BaseTool"]:
+    def get_tools(self, names: list[str]) -> list[BaseTool]:
         """Get multiple tools by name.
 
         Returns only the tools that exist in the registry.
@@ -84,7 +84,7 @@ class ToolRegistryProtocol(ABC):
         ...
 
     @abstractmethod
-    def register_tool(self, name: str, tool: "BaseTool") -> None:
+    def register_tool(self, name: str, tool: BaseTool) -> None:
         """Register a tool with the given name.
 
         If a tool with this name already exists, it will be replaced.

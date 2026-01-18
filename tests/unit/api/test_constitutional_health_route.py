@@ -7,10 +7,10 @@ Constitutional Constraints:
 - AC5: Constitutional health API endpoint
 """
 
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -18,8 +18,6 @@ from src.api.routes.constitutional_health import router
 from src.domain.errors import SystemHaltedError
 from src.domain.models.constitutional_health import (
     ConstitutionalHealthSnapshot,
-    ConstitutionalHealthStatus,
-    MetricName,
 )
 
 

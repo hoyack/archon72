@@ -3,8 +3,7 @@
 Tests the threshold configuration service.
 """
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -80,7 +79,9 @@ class TestThresholdConfigurationServiceGetThreshold:
 
         assert result.current_value == 15
         assert result.constitutional_floor == 10  # Floor unchanged
-        repository.get_threshold_override.assert_called_once_with("cessation_breach_count")
+        repository.get_threshold_override.assert_called_once_with(
+            "cessation_breach_count"
+        )
 
 
 class TestThresholdConfigurationServiceGetAllThresholds:

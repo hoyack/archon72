@@ -16,8 +16,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
-
 
 # Status constants for consistency
 SYSTEM_STATUS_OPERATIONAL: str = "OPERATIONAL"
@@ -50,8 +48,8 @@ class HaltStatusHeader:
     """
 
     system_status: str
-    halt_reason: Optional[str]
-    halted_at: Optional[datetime]
+    halt_reason: str | None
+    halted_at: datetime | None
 
     @classmethod
     def operational(cls) -> HaltStatusHeader:
@@ -79,7 +77,7 @@ class HaltStatusHeader:
     def halted(
         cls,
         reason: str,
-        halted_at: Optional[datetime] = None,
+        halted_at: datetime | None = None,
     ) -> HaltStatusHeader:
         """Factory for halted status.
 
@@ -113,8 +111,8 @@ class HaltStatusHeader:
     def from_halt_state(
         cls,
         is_halted: bool,
-        reason: Optional[str] = None,
-        halted_at: Optional[datetime] = None,
+        reason: str | None = None,
+        halted_at: datetime | None = None,
     ) -> HaltStatusHeader:
         """Factory method creating header from halt state.
 

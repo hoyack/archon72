@@ -73,7 +73,9 @@ class TestInsufficientApproversError:
     def test_raises_correctly(self) -> None:
         """Test that the error can be raised and caught."""
         with pytest.raises(InsufficientApproversError) as exc_info:
-            raise InsufficientApproversError("ADR-6: Halt clear requires 2 Keepers, got 0")
+            raise InsufficientApproversError(
+                "ADR-6: Halt clear requires 2 Keepers, got 0"
+            )
         assert "2 Keepers" in str(exc_info.value)
 
 

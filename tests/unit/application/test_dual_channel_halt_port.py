@@ -10,7 +10,6 @@ ADR-3: Partition Behavior + Halt Durability
 """
 
 from abc import ABC
-from typing import Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -37,27 +36,27 @@ class TestDualChannelHaltTransportInterface:
     def test_has_write_halt_method(self) -> None:
         """Interface should define write_halt method."""
         assert hasattr(DualChannelHaltTransport, "write_halt")
-        assert callable(getattr(DualChannelHaltTransport, "write_halt"))
+        assert callable(DualChannelHaltTransport.write_halt)
 
     def test_has_is_halted_method(self) -> None:
         """Interface should define is_halted method."""
         assert hasattr(DualChannelHaltTransport, "is_halted")
-        assert callable(getattr(DualChannelHaltTransport, "is_halted"))
+        assert callable(DualChannelHaltTransport.is_halted)
 
     def test_has_get_halt_reason_method(self) -> None:
         """Interface should define get_halt_reason method."""
         assert hasattr(DualChannelHaltTransport, "get_halt_reason")
-        assert callable(getattr(DualChannelHaltTransport, "get_halt_reason"))
+        assert callable(DualChannelHaltTransport.get_halt_reason)
 
     def test_has_check_channels_consistent_method(self) -> None:
         """Interface should define check_channels_consistent method."""
         assert hasattr(DualChannelHaltTransport, "check_channels_consistent")
-        assert callable(getattr(DualChannelHaltTransport, "check_channels_consistent"))
+        assert callable(DualChannelHaltTransport.check_channels_consistent)
 
     def test_has_resolve_conflict_method(self) -> None:
         """Interface should define resolve_conflict method."""
         assert hasattr(DualChannelHaltTransport, "resolve_conflict")
-        assert callable(getattr(DualChannelHaltTransport, "resolve_conflict"))
+        assert callable(DualChannelHaltTransport.resolve_conflict)
 
     def test_has_confirmation_timeout_property(self) -> None:
         """Interface should define confirmation_timeout_seconds property."""
@@ -129,15 +128,13 @@ class TestDualChannelHaltTransportConcreteImplementation:
             def confirmation_timeout_seconds(self) -> float:
                 return CONFIRMATION_TIMEOUT_SECONDS
 
-            async def write_halt(
-                self, reason: str, crisis_event_id: UUID
-            ) -> None:
+            async def write_halt(self, reason: str, crisis_event_id: UUID) -> None:
                 pass
 
             async def is_halted(self) -> bool:
                 return False
 
-            async def get_halt_reason(self) -> Optional[str]:
+            async def get_halt_reason(self) -> str | None:
                 return None
 
             async def check_channels_consistent(self) -> bool:

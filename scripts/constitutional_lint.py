@@ -15,8 +15,8 @@ Exit codes:
 
 import re
 import sys
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -32,70 +32,61 @@ class Violation:
 # These are derived from Language Surgery (2025-12-28)
 FORBIDDEN_PATTERNS = [
     # Enforcement language
-    (r'\benforce\b', 'verify'),
-    (r'\benforcement\b', 'verification'),
-    (r'\benforces\b', 'verifies'),
-    (r'\benforcing\b', 'verifying'),
-
+    (r"\benforce\b", "verify"),
+    (r"\benforcement\b", "verification"),
+    (r"\benforces\b", "verifies"),
+    (r"\benforcing\b", "verifying"),
     # Safety theater
-    (r'\bensure\s+safety\b', 'enable visibility'),
-    (r'\bensures\s+safety\b', 'enables visibility'),
-    (r'\bsafeguard\b', 'expose'),
-    (r'\bsafeguards\b', 'exposes'),
-
+    (r"\bensure\s+safety\b", "enable visibility"),
+    (r"\bensures\s+safety\b", "enables visibility"),
+    (r"\bsafeguard\b", "expose"),
+    (r"\bsafeguards\b", "exposes"),
     # Authority claims
-    (r'\bauthority\b', 'scope'),
-    (r'\bauthoritative\b', 'scoped'),
-    (r'\bauthorities\b', 'scopes'),
-
+    (r"\bauthority\b", "scope"),
+    (r"\bauthoritative\b", "scoped"),
+    (r"\bauthorities\b", "scopes"),
     # Binding as power (careful: "binding" in UI context is OK)
-    (r'\bbinding\s+force\b', 'recorded consequence'),
-    (r'\bbinding\s+decision\b', 'recorded decision'),
-    (r'\blegally\s+binding\b', 'recorded with consequence'),
-
+    (r"\bbinding\s+force\b", "recorded consequence"),
+    (r"\bbinding\s+decision\b", "recorded decision"),
+    (r"\blegally\s+binding\b", "recorded with consequence"),
     # Automatic decisions (automation without witness)
-    (r'\bautomatic\s+decision\b', 'witnessed decision'),
-    (r'\bautomatically\s+decide\b', 'explicitly decide'),
-    (r'\bauto-approve\b', 'explicitly approve'),
-
+    (r"\bautomatic\s+decision\b", "witnessed decision"),
+    (r"\bautomatically\s+decide\b", "explicitly decide"),
+    (r"\bauto-approve\b", "explicitly approve"),
     # Prevention claims
-    (r'\bprevent\s+harm\b', 'detect harm'),
-    (r'\bprevents\s+harm\b', 'detects harm'),
-    (r'\bpreventing\s+harm\b', 'detecting harm'),
-
+    (r"\bprevent\s+harm\b", "detect harm"),
+    (r"\bprevents\s+harm\b", "detects harm"),
+    (r"\bpreventing\s+harm\b", "detecting harm"),
     # Guarantee claims
-    (r'\bguarantee\b', 'verify'),
-    (r'\bguarantees\b', 'verifies'),
-    (r'\bguaranteed\b', 'verified'),
+    (r"\bguarantee\b", "verify"),
+    (r"\bguarantees\b", "verifies"),
+    (r"\bguaranteed\b", "verified"),
 ]
 
 # Directories to scan
-SCAN_DIRS = ['src', 'docs', 'migrations', 'input_boundary']
+SCAN_DIRS = ["src", "docs", "migrations", "input_boundary"]
 
 # File extensions to check
-SCAN_EXTENSIONS = {'.py', '.md', '.sql', '.yaml', '.yml', '.json'}
+SCAN_EXTENSIONS = {".py", ".md", ".sql", ".yaml", ".yml", ".json"}
 
 # Files/patterns to exclude
 EXCLUDE_PATTERNS = [
-    r'constitutional_lint\.py$',  # This file
-    r'constitutional-implementation-rules\.md$',  # The rules doc (contains examples)
-    r'language-surgery',  # Language surgery analysis docs
-    r'/bs/',  # Brainstorming files (meta-discussion)
-    r'brainstorming',  # Brainstorming directories
-    r'__pycache__',
-    r'\.git',
-    r'node_modules',
-    r'\.venv',
+    r"constitutional_lint\.py$",  # This file
+    r"constitutional-implementation-rules\.md$",  # The rules doc (contains examples)
+    r"language-surgery",  # Language surgery analysis docs
+    r"/bs/",  # Brainstorming files (meta-discussion)
+    r"brainstorming",  # Brainstorming directories
+    r"__pycache__",
+    r"\.git",
+    r"node_modules",
+    r"\.venv",
 ]
 
 
 def should_exclude(path: Path) -> bool:
     """Check if a path should be excluded from scanning."""
     path_str = str(path)
-    for pattern in EXCLUDE_PATTERNS:
-        if re.search(pattern, path_str):
-            return True
-    return False
+    return any(re.search(pattern, path_str) for pattern in EXCLUDE_PATTERNS)
 
 
 def scan_file(file_path: Path) -> list[Violation]:
@@ -103,26 +94,28 @@ def scan_file(file_path: Path) -> list[Violation]:
     violations = []
 
     try:
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, PermissionError):
         return violations
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     for line_num, line in enumerate(lines, start=1):
         # Skip comments that are explaining the rules (detection context)
-        if 'WRONG' in line or 'forbidden' in line.lower() or 'never' in line.lower():
+        if "WRONG" in line or "forbidden" in line.lower() or "never" in line.lower():
             continue
 
         for pattern, suggestion in FORBIDDEN_PATTERNS:
             if re.search(pattern, line, re.IGNORECASE):
-                violations.append(Violation(
-                    file=file_path,
-                    line_number=line_num,
-                    line_content=line.strip(),
-                    pattern=pattern,
-                    suggestion=suggestion,
-                ))
+                violations.append(
+                    Violation(
+                        file=file_path,
+                        line_number=line_num,
+                        line_content=line.strip(),
+                        pattern=pattern,
+                        suggestion=suggestion,
+                    )
+                )
 
     return violations
 
@@ -136,7 +129,7 @@ def scan_directory(root: Path) -> list[Violation]:
         if not dir_path.exists():
             continue
 
-        for file_path in dir_path.rglob('*'):
+        for file_path in dir_path.rglob("*"):
             if not file_path.is_file():
                 continue
             if file_path.suffix not in SCAN_EXTENSIONS:
@@ -201,5 +194,5 @@ def main() -> int:
     return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

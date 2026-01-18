@@ -15,7 +15,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 
 
 class EventQueryProtocol(Protocol):
@@ -142,8 +142,8 @@ class EventQueryProtocol(Protocol):
     async def query_events_by_time_range(
         self,
         type_prefix: str,
-        start_time: Optional[str] = None,
-        end_time: Optional[str] = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, object]]:
         """Query events within a time range (FR108).

@@ -308,7 +308,7 @@ class TopicManipulationDefenseService:
         if not within_limit:
             # Create rate limit event
             reset_time = await self._limiter.get_limit_reset_time(source_id)
-            event = TopicRateLimitDailyEventPayload(
+            TopicRateLimitDailyEventPayload(
                 source_id=source_id,
                 topics_today=topics_today + 1,
                 daily_limit=DAILY_TOPIC_LIMIT,

@@ -13,7 +13,7 @@ Tests cover:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -27,14 +27,12 @@ from src.domain.errors import SystemHaltedError
 from src.domain.errors.petition import (
     DuplicateCosignatureError,
     InvalidSignatureError,
-    PetitionClosedError,
     PetitionNotFoundError,
 )
 from src.domain.events.petition import (
-    PETITION_THRESHOLD_COSIGNERS,
     PetitionStatus,
 )
-from src.domain.models.petition import CoSigner, Petition
+from src.domain.models.petition import Petition
 from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
 from src.infrastructure.stubs.signature_verifier_stub import SignatureVerifierStub
 

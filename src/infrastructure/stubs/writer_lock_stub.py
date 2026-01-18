@@ -143,10 +143,12 @@ class WriterLockStub(WriterLockProtocol):
         Returns:
             WriterLockStub configured to expire after N operations.
         """
-        return cls(WriterLockConfig(
-            mode=WriterLockMode.TTL_EXPIRES,
-            operations_until_expire=operations_until_expire,
-        ))
+        return cls(
+            WriterLockConfig(
+                mode=WriterLockMode.TTL_EXPIRES,
+                operations_until_expire=operations_until_expire,
+            )
+        )
 
     @classmethod
     def with_heartbeat_failure(cls, renewals_until_fail: int = 3) -> WriterLockStub:
@@ -161,10 +163,12 @@ class WriterLockStub(WriterLockProtocol):
         Returns:
             WriterLockStub configured to fail heartbeat after N renewals.
         """
-        return cls(WriterLockConfig(
-            mode=WriterLockMode.HEARTBEAT_FAILS,
-            renewals_until_fail=renewals_until_fail,
-        ))
+        return cls(
+            WriterLockConfig(
+                mode=WriterLockMode.HEARTBEAT_FAILS,
+                renewals_until_fail=renewals_until_fail,
+            )
+        )
 
     @classmethod
     def with_contention(cls, contention_count: int = 2) -> WriterLockStub:
@@ -179,10 +183,12 @@ class WriterLockStub(WriterLockProtocol):
         Returns:
             WriterLockStub configured to simulate contention.
         """
-        return cls(WriterLockConfig(
-            mode=WriterLockMode.CONTENTION,
-            contention_count=contention_count,
-        ))
+        return cls(
+            WriterLockConfig(
+                mode=WriterLockMode.CONTENTION,
+                contention_count=contention_count,
+            )
+        )
 
     @classmethod
     def reset_global_state(cls) -> None:

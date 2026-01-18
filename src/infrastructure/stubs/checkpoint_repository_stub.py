@@ -13,7 +13,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
 
 from src.application.ports.checkpoint_repository import CheckpointRepository
@@ -65,7 +64,7 @@ class CheckpointRepositoryStub(CheckpointRepository):
     async def get_checkpoint_by_id(
         self,
         checkpoint_id: UUID,
-    ) -> Optional[Checkpoint]:
+    ) -> Checkpoint | None:
         """Get a specific checkpoint by its ID.
 
         Args:
@@ -76,7 +75,7 @@ class CheckpointRepositoryStub(CheckpointRepository):
         """
         return self._checkpoints.get(checkpoint_id)
 
-    async def get_latest_checkpoint(self) -> Optional[Checkpoint]:
+    async def get_latest_checkpoint(self) -> Checkpoint | None:
         """Get the most recent checkpoint.
 
         Returns:
@@ -145,7 +144,7 @@ class CheckpointRepositoryStub(CheckpointRepository):
     async def get_checkpoint_for_sequence(
         self,
         sequence: int,
-    ) -> Optional[Checkpoint]:
+    ) -> Checkpoint | None:
         """Get the checkpoint containing a given event sequence (FR136).
 
         Finds the checkpoint whose event_sequence is >= the given sequence.

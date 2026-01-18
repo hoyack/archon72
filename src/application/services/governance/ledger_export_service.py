@@ -24,14 +24,12 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict
+from collections.abc import AsyncIterator
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, AsyncIterator, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID, uuid4
 
 from src.domain.governance.audit.errors import (
-    ExportValidationError,
-    PartialExportError,
     PIIDetectedError,
 )
 from src.domain.governance.audit.ledger_export import (
@@ -120,7 +118,7 @@ class LedgerExportService:
 
     def __init__(
         self,
-        ledger_port: "GovernanceLedgerPort",
+        ledger_port: GovernanceLedgerPort,
         event_emitter: EventEmitterPort,
         time_authority: TimeAuthorityPort,
     ) -> None:
@@ -302,7 +300,7 @@ class LedgerExportService:
             },
         }
 
-    def _event_to_dict(self, persisted: "PersistedGovernanceEvent") -> dict[str, Any]:
+    def _event_to_dict(self, persisted: PersistedGovernanceEvent) -> dict[str, Any]:
         """Convert a persisted event to dictionary.
 
         Args:
@@ -325,7 +323,7 @@ class LedgerExportService:
             "payload": dict(event.payload),
         }
 
-    async def _get_all_events(self) -> list["PersistedGovernanceEvent"]:
+    async def _get_all_events(self) -> list[PersistedGovernanceEvent]:
         """Get ALL events from the ledger.
 
         This reads the complete ledger with no filtering.
@@ -345,7 +343,7 @@ class LedgerExportService:
 
         # Read all events in batches to avoid memory issues
         # but return complete list
-        all_events: list["PersistedGovernanceEvent"] = []
+        all_events: list[PersistedGovernanceEvent] = []
         batch_size = 10000
         offset = 0
 
@@ -362,7 +360,7 @@ class LedgerExportService:
 
         return all_events
 
-    def _check_no_pii(self, events: list["PersistedGovernanceEvent"]) -> None:
+    def _check_no_pii(self, events: list[PersistedGovernanceEvent]) -> None:
         """Check that no events contain PII.
 
         This is a defensive check - PII should never be stored.
@@ -425,7 +423,7 @@ class LedgerExportService:
             return True
         return bool(UUID_PATTERN.match(actor_id))
 
-    def _validate_hash_chain(self, events: list["PersistedGovernanceEvent"]) -> bool:
+    def _validate_hash_chain(self, events: list[PersistedGovernanceEvent]) -> bool:
         """Validate the hash chain of events.
 
         Args:
@@ -457,9 +455,7 @@ class LedgerExportService:
 
         return True
 
-    def _detect_hash_algorithm(
-        self, events: list["PersistedGovernanceEvent"]
-    ) -> str:
+    def _detect_hash_algorithm(self, events: list[PersistedGovernanceEvent]) -> str:
         """Detect the hash algorithm used in the ledger.
 
         Args:

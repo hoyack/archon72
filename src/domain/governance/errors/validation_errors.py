@@ -126,9 +126,21 @@ class HashChainBreakError(WriteTimeValidationError):
 
     def __str__(self) -> str:
         """Format error message with truncated hashes for readability."""
-        expected_short = self.expected_prev_hash[:24] + "..." if len(self.expected_prev_hash) > 24 else self.expected_prev_hash
-        actual_short = self.actual_prev_hash[:24] + "..." if len(self.actual_prev_hash) > 24 else self.actual_prev_hash
-        seq_info = f" (after sequence {self.latest_sequence})" if self.latest_sequence > 0 else ""
+        expected_short = (
+            self.expected_prev_hash[:24] + "..."
+            if len(self.expected_prev_hash) > 24
+            else self.expected_prev_hash
+        )
+        actual_short = (
+            self.actual_prev_hash[:24] + "..."
+            if len(self.actual_prev_hash) > 24
+            else self.actual_prev_hash
+        )
+        seq_info = (
+            f" (after sequence {self.latest_sequence})"
+            if self.latest_sequence > 0
+            else ""
+        )
         return (
             f"AD-6: Hash chain break detected for event {self.event_id}{seq_info}: "
             f"expected prev_hash='{expected_short}', actual prev_hash='{actual_short}'"

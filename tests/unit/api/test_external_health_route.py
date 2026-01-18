@@ -15,7 +15,6 @@ Key Test Scenarios:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import FastAPI
@@ -25,7 +24,6 @@ from src.api.models.external_health import ExternalHealthResponse
 from src.api.routes.external_health import router
 from src.application.ports.external_health import ExternalHealthStatus
 from src.application.services.external_health_service import (
-    ExternalHealthService,
     init_external_health_service,
     reset_external_health_service,
 )
@@ -73,7 +71,10 @@ class TestExternalHealthEndpoint:
     """Tests for /health/external endpoint."""
 
     def test_returns_up_when_healthy(
-        self, client: TestClient, halt_checker: HaltCheckerStub, freeze_checker: FreezeCheckerStub
+        self,
+        client: TestClient,
+        halt_checker: HaltCheckerStub,
+        freeze_checker: FreezeCheckerStub,
     ) -> None:
         """Test endpoint returns UP status when system is healthy.
 
@@ -126,7 +127,10 @@ class TestExternalHealthEndpoint:
         assert "timestamp" in data
 
     def test_halted_takes_precedence_over_frozen(
-        self, client: TestClient, halt_checker: HaltCheckerStub, freeze_checker: FreezeCheckerStub
+        self,
+        client: TestClient,
+        halt_checker: HaltCheckerStub,
+        freeze_checker: FreezeCheckerStub,
     ) -> None:
         """Test that HALTED status takes precedence over FROZEN.
 
@@ -211,7 +215,10 @@ class TestExternalHealthEndpoint:
         assert diff < 5  # Within 5 seconds
 
     def test_status_transitions(
-        self, client: TestClient, halt_checker: HaltCheckerStub, freeze_checker: FreezeCheckerStub
+        self,
+        client: TestClient,
+        halt_checker: HaltCheckerStub,
+        freeze_checker: FreezeCheckerStub,
     ) -> None:
         """Test status correctly reflects state transitions.
 

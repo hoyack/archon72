@@ -15,36 +15,30 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability -> All warnings witnessed
 """
 
-from datetime import datetime, timedelta, timezone
-from uuid import uuid4
-
 import pytest
 
 from src.application.services.failure_prevention_service import (
     FailurePreventionService,
 )
 from src.application.services.load_shedding_service import (
-    DEFAULT_CAPACITY_THRESHOLD,
     LoadSheddingService,
+)
+from src.application.services.pattern_violation_service import (
+    PatternViolationService,
 )
 from src.application.services.query_performance_service import (
     QUERY_SLA_THRESHOLD_EVENTS,
     QUERY_SLA_TIMEOUT_SECONDS,
     QueryPerformanceService,
 )
-from src.application.services.pattern_violation_service import (
-    PatternViolationService,
-)
 from src.domain.errors.failure_prevention import (
     ConstitutionalEventSheddingError,
-    FailureModeViolationError,
     QueryPerformanceViolationError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.models.failure_mode import (
     DEFAULT_FAILURE_MODES,
     EarlyWarning,
-    FailureMode,
     FailureModeId,
     FailureModeSeverity,
     FailureModeStatus,
@@ -265,7 +259,9 @@ class TestQueryPerformanceMonitoring:
 
         # Start and complete a fast query
         query_id = await service.start_query(event_count=1000)
-        compliant = await service.track_query(query_id, event_count=1000, duration_ms=5000.0)
+        compliant = await service.track_query(
+            query_id, event_count=1000, duration_ms=5000.0
+        )
 
         assert compliant is True
 
@@ -411,7 +407,9 @@ class TestPatternViolationDetection:
 
         violations = service.detect_violations()
         assert len(violations) == 1
-        assert violations[0].violation_type == PatternViolationType.RAW_STRING_EVENT_TYPE
+        assert (
+            violations[0].violation_type == PatternViolationType.RAW_STRING_EVENT_TYPE
+        )
 
     def test_pv002_plain_string_hash_detection(self) -> None:
         """Test that PV-002 plain string hash is detected (AC6)."""
@@ -580,7 +578,9 @@ class TestEndToEndFlow:
 
         # 2. Track completion
         await service.track_query(q1, event_count=1000, duration_ms=1000.0)
-        await service.track_query(q2, event_count=5000, duration_ms=35000.0)  # SLA violation
+        await service.track_query(
+            q2, event_count=5000, duration_ms=35000.0
+        )  # SLA violation
 
         # 3. Update batch progress for large query
         await service.update_batch_progress(q3, processed_events=5000)

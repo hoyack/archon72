@@ -18,36 +18,29 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-import math
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.halt_checker import HaltChecker
 from src.application.ports.witness_anomaly_detector import (
     PairExclusion,
     WitnessAnomalyDetectorProtocol,
-    WitnessAnomalyResult,
 )
 from src.domain.errors.witness_anomaly import (
     AnomalyScanError,
-    WitnessCollusionSuspectedError,
-    WitnessPairExcludedError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.witness_anomaly import (
-    WITNESS_ANOMALY_EVENT_TYPE,
     ReviewStatus,
     WitnessAnomalyEventPayload,
     WitnessAnomalyType,
 )
 
-
 # Confidence threshold for reporting anomalies (ADR-7)
 CONFIDENCE_THRESHOLD: float = 0.7
 
 # Chi-square critical values
-CHI_SQUARE_P05: float = 3.84   # p < 0.05
-CHI_SQUARE_P01: float = 6.63   # p < 0.01
+CHI_SQUARE_P05: float = 3.84  # p < 0.05
+CHI_SQUARE_P01: float = 6.63  # p < 0.01
 CHI_SQUARE_P001: float = 10.83  # p < 0.001
 
 # Default exclusion duration in hours
@@ -118,10 +111,16 @@ def chi_square_to_confidence(chi_square: float) -> float:
         return (chi_square / CHI_SQUARE_P05) * 0.5
     elif chi_square < CHI_SQUARE_P01:
         # p < 0.05, medium confidence (0.5 to 0.7)
-        return 0.5 + (chi_square - CHI_SQUARE_P05) / (CHI_SQUARE_P01 - CHI_SQUARE_P05) * 0.2
+        return (
+            0.5
+            + (chi_square - CHI_SQUARE_P05) / (CHI_SQUARE_P01 - CHI_SQUARE_P05) * 0.2
+        )
     elif chi_square < CHI_SQUARE_P001:
         # p < 0.01, high confidence (0.7 to 0.9)
-        return 0.7 + (chi_square - CHI_SQUARE_P01) / (CHI_SQUARE_P001 - CHI_SQUARE_P01) * 0.2
+        return (
+            0.7
+            + (chi_square - CHI_SQUARE_P01) / (CHI_SQUARE_P001 - CHI_SQUARE_P01) * 0.2
+        )
     else:
         # p < 0.001, very high confidence (0.9 to 1.0)
         return min(0.9 + (chi_square - CHI_SQUARE_P001) / 20.0, 1.0)
@@ -231,8 +230,10 @@ class WitnessAnomalyDetectionService:
                     detected_payloads.append(payload)
 
             # Run unavailability pattern analysis
-            unavailability_results = await self._anomaly_detector.analyze_unavailability_patterns(
-                window_hours
+            unavailability_results = (
+                await self._anomaly_detector.analyze_unavailability_patterns(
+                    window_hours
+                )
             )
 
             for result in unavailability_results:
@@ -343,8 +344,12 @@ class WitnessAnomalyDetectionService:
 
             if left_colon != -1 and right_colon != -1:
                 # Use the colon closer to the middle
-                split_pos = left_colon if (mid_point - left_colon) <= (right_colon - mid_point) else right_colon
-                witnesses = (pair_key[:split_pos], pair_key[split_pos + 1:])
+                split_pos = (
+                    left_colon
+                    if (mid_point - left_colon) <= (right_colon - mid_point)
+                    else right_colon
+                )
+                witnesses = (pair_key[:split_pos], pair_key[split_pos + 1 :])
             else:
                 witnesses = (pair_key,)
 
@@ -360,7 +365,9 @@ class WitnessAnomalyDetectionService:
             expected_count=0.0,  # Not applicable for exclusion
             detected_at=now,
             review_status=ReviewStatus.PENDING,
-            details=f"Pair excluded: {reason}" if reason else "Pair excluded for anomaly",
+            details=f"Pair excluded: {reason}"
+            if reason
+            else "Pair excluded for anomaly",
         )
 
         return payload
@@ -395,7 +402,7 @@ class WitnessAnomalyDetectionService:
     async def get_exclusion_details(
         self,
         pair_key: str,
-    ) -> Optional[PairExclusion]:
+    ) -> PairExclusion | None:
         """Get details of a pair exclusion.
 
         Constitutional Pattern:

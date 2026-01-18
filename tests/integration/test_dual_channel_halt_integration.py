@@ -21,7 +21,6 @@ Test Strategy:
 - Verify conflict detection and resolution
 """
 
-import asyncio
 import time
 from datetime import datetime, timezone
 from uuid import uuid4

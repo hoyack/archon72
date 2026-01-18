@@ -37,7 +37,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -92,8 +92,8 @@ class RollbackCoordinatorService:
 
     def __init__(
         self,
-        halt_checker: "HaltChecker",
-        checkpoint_repository: "CheckpointRepository",
+        halt_checker: HaltChecker,
+        checkpoint_repository: CheckpointRepository,
     ) -> None:
         """Initialize RollbackCoordinatorService.
 
@@ -103,10 +103,10 @@ class RollbackCoordinatorService:
         """
         self._halt_checker = halt_checker
         self._checkpoint_repo = checkpoint_repository
-        self._selected_target: Optional["Checkpoint"] = None
+        self._selected_target: Checkpoint | None = None
         self._log = log.bind(service="rollback_coordinator")
 
-    async def query_checkpoints(self) -> list["Checkpoint"]:
+    async def query_checkpoints(self) -> list[Checkpoint]:
         """Query available checkpoints (AC1).
 
         Returns all available checkpoint anchors that can be used
@@ -127,7 +127,7 @@ class RollbackCoordinatorService:
 
     async def select_rollback_target(
         self,
-        checkpoint_id: "UUID",
+        checkpoint_id: UUID,
         selecting_keepers: tuple[str, ...],
         reason: str,
     ) -> RollbackTargetSelectedPayload:
@@ -197,7 +197,7 @@ class RollbackCoordinatorService:
 
     async def execute_rollback(
         self,
-        ceremony_evidence: "CeremonyEvidence",
+        ceremony_evidence: CeremonyEvidence,
     ) -> RollbackCompletedPayload:
         """Execute rollback to selected checkpoint (AC3).
 

@@ -10,14 +10,12 @@ These tests verify that:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 
 from src.application.ports.governance.anti_metrics_verification_port import (
     RouteInfo,
-    RouteInspectorPort,
-    SchemaInspectorPort,
 )
 from src.infrastructure.adapters.governance.verification_cli import (
     FastAPIRouteInspector,

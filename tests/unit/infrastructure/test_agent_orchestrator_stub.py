@@ -14,6 +14,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
+import contextlib
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -234,10 +235,8 @@ class TestAgentOrchestratorStubGetStatus:
             fail_agents={"archon-fail"},
         )
 
-        try:
+        with contextlib.suppress(AgentInvocationError):
             await stub.invoke("archon-fail", make_context())
-        except AgentInvocationError:
-            pass
 
         status = await stub.get_agent_status("archon-fail")
 
@@ -382,7 +381,9 @@ class TestAgentOrchestratorStubInvokeSequential:
 
         progress_calls: list[tuple[int, int, str, str]] = []
 
-        def track_progress(current: int, total: int, agent_id: str, status: str) -> None:
+        def track_progress(
+            current: int, total: int, agent_id: str, status: str
+        ) -> None:
             progress_calls.append((current, total, agent_id, status))
 
         await stub.invoke_sequential(requests, on_progress=track_progress)
@@ -413,14 +414,17 @@ class TestAgentOrchestratorStubInvokeSequential:
 
         progress_calls: list[tuple[int, int, str, str]] = []
 
-        def track_progress(current: int, total: int, agent_id: str, status: str) -> None:
+        def track_progress(
+            current: int, total: int, agent_id: str, status: str
+        ) -> None:
             progress_calls.append((current, total, agent_id, status))
 
         await stub.invoke_sequential(requests, on_progress=track_progress)
 
         # archon-1 should have "failed" status
         archon_1_statuses = [
-            status for (_, _, agent_id, status) in progress_calls
+            status
+            for (_, _, agent_id, status) in progress_calls
             if agent_id == "archon-1"
         ]
         assert "starting" in archon_1_statuses

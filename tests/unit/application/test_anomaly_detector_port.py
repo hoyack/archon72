@@ -8,7 +8,6 @@ from __future__ import annotations
 import pytest
 
 from src.application.ports.anomaly_detector import (
-    AnomalyDetectorProtocol,
     AnomalyResult,
     FrequencyData,
 )

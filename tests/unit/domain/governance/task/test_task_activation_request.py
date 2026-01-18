@@ -279,7 +279,7 @@ class TestTaskActivationResult:
 
     def test_successful_result(self):
         """Successful result should have correct attributes."""
-        from src.domain.governance.task.task_state import TaskState, TaskStatus
+        from src.domain.governance.task.task_state import TaskState
 
         task_state = TaskState.create(
             task_id=uuid4(),

@@ -41,8 +41,9 @@ class TestHealthService:
     @pytest.mark.asyncio
     async def test_check_liveness_with_recorded_startup(self) -> None:
         """Test liveness check returns positive uptime after startup recorded."""
-        from src.infrastructure.monitoring.metrics import get_metrics_collector
         import time
+
+        from src.infrastructure.monitoring.metrics import get_metrics_collector
 
         collector = get_metrics_collector()
         collector.record_startup("api")

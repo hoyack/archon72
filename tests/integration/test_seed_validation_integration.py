@@ -11,8 +11,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 import pytest
 
 from src.application.services.seed_validation_service import (
@@ -354,7 +352,9 @@ class TestEndToEndScenarios:
             validation_ids.append(result.validation_id)
 
         # Each validation should have a unique ID
-        assert len(set(validation_ids)) == len(validation_ids), "Validation IDs should be unique"
+        assert len(set(validation_ids)) == len(validation_ids), (
+            "Validation IDs should be unique"
+        )
 
     @pytest.mark.asyncio
     async def test_attack_detection_scenario(

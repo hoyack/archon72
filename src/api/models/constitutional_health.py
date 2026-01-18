@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -54,10 +53,8 @@ class ConstitutionalMetricResponse(BaseModel):
     status: ConstitutionalHealthStatusResponse = Field(
         description="Current status: healthy/warning/unhealthy"
     )
-    is_blocking: bool = Field(
-        default=False, description="True if blocking ceremonies"
-    )
-    description: Optional[str] = Field(
+    is_blocking: bool = Field(default=False, description="True if blocking ceremonies")
+    description: str | None = Field(
         default=None, description="Human-readable description of metric"
     )
 
@@ -90,61 +87,61 @@ class ConstitutionalHealthResponse(BaseModel):
     metrics: dict[str, ConstitutionalMetricResponse] = Field(
         description="All constitutional health metrics keyed by name"
     )
-    checked_at: datetime = Field(
-        description="UTC timestamp when health was checked"
-    )
+    checked_at: datetime = Field(description="UTC timestamp when health was checked")
     health_type: str = Field(
         default="constitutional",
         description="Health type: always 'constitutional' for this endpoint",
     )
 
-    model_config = {"json_schema_extra": {
-        "example": {
-            "status": "warning",
-            "ceremonies_blocked": False,
-            "blocking_reasons": [],
-            "metrics": {
-                "breach_count": {
-                    "name": "breach_count",
-                    "value": 8,
-                    "warning_threshold": 8,
-                    "critical_threshold": 10,
-                    "status": "warning",
-                    "is_blocking": False,
-                    "description": "Unacknowledged breaches in 90-day window",
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "status": "warning",
+                "ceremonies_blocked": False,
+                "blocking_reasons": [],
+                "metrics": {
+                    "breach_count": {
+                        "name": "breach_count",
+                        "value": 8,
+                        "warning_threshold": 8,
+                        "critical_threshold": 10,
+                        "status": "warning",
+                        "is_blocking": False,
+                        "description": "Unacknowledged breaches in 90-day window",
+                    },
+                    "override_rate": {
+                        "name": "override_rate",
+                        "value": 1,
+                        "warning_threshold": 3,
+                        "critical_threshold": 6,
+                        "status": "healthy",
+                        "is_blocking": False,
+                        "description": "Daily override rate",
+                    },
+                    "dissent_health": {
+                        "name": "dissent_health",
+                        "value": 25.5,
+                        "warning_threshold": 10.0,
+                        "critical_threshold": 5.0,
+                        "status": "healthy",
+                        "is_blocking": False,
+                        "description": "30-day rolling average dissent percentage",
+                    },
+                    "witness_coverage": {
+                        "name": "witness_coverage",
+                        "value": 20,
+                        "warning_threshold": 12,
+                        "critical_threshold": 6,
+                        "status": "healthy",
+                        "is_blocking": False,
+                        "description": "Effective witness pool size",
+                    },
                 },
-                "override_rate": {
-                    "name": "override_rate",
-                    "value": 1,
-                    "warning_threshold": 3,
-                    "critical_threshold": 6,
-                    "status": "healthy",
-                    "is_blocking": False,
-                    "description": "Daily override rate",
-                },
-                "dissent_health": {
-                    "name": "dissent_health",
-                    "value": 25.5,
-                    "warning_threshold": 10.0,
-                    "critical_threshold": 5.0,
-                    "status": "healthy",
-                    "is_blocking": False,
-                    "description": "30-day rolling average dissent percentage",
-                },
-                "witness_coverage": {
-                    "name": "witness_coverage",
-                    "value": 20,
-                    "warning_threshold": 12,
-                    "critical_threshold": 6,
-                    "status": "healthy",
-                    "is_blocking": False,
-                    "description": "Effective witness pool size",
-                },
-            },
-            "checked_at": "2025-01-08T10:30:00Z",
-            "health_type": "constitutional",
+                "checked_at": "2025-01-08T10:30:00Z",
+                "health_type": "constitutional",
+            }
         }
-    }}
+    }
 
 
 class ConstitutionalHealthAlertResponse(BaseModel):

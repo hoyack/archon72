@@ -16,13 +16,7 @@ import pytest
 from src.application.services.hash_verification_service import (
     HashVerificationService,
 )
-from src.domain.errors.hash_verification import (
-    HashChainBrokenError,
-    HashMismatchError,
-    HashVerificationScanInProgressError,
-)
 from src.domain.errors.writer import SystemHaltedError
-from src.domain.events.hash_verification import HashVerificationResult
 from src.infrastructure.stubs.event_store_stub import EventStoreStub
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub

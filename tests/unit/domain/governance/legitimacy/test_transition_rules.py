@@ -7,11 +7,11 @@ Tests AC6: Upward transitions require explicit acknowledgment
 
 import pytest
 
-from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
-from src.domain.governance.legitimacy.transition_type import TransitionType
 from src.domain.governance.legitimacy.band_transition_rules import (
     BandTransitionRules,
 )
+from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
+from src.domain.governance.legitimacy.transition_type import TransitionType
 
 
 class TestAutomaticDownwardTransitions:
@@ -233,16 +233,12 @@ class TestHelperMethods:
 
     def test_get_next_restoration_target_from_stable_is_none(self) -> None:
         """No restoration target from STABLE."""
-        target = BandTransitionRules.get_next_restoration_target(
-            LegitimacyBand.STABLE
-        )
+        target = BandTransitionRules.get_next_restoration_target(LegitimacyBand.STABLE)
         assert target is None
 
     def test_get_next_restoration_target_from_failed_is_none(self) -> None:
         """No restoration target from FAILED (terminal)."""
-        target = BandTransitionRules.get_next_restoration_target(
-            LegitimacyBand.FAILED
-        )
+        target = BandTransitionRules.get_next_restoration_target(LegitimacyBand.FAILED)
         assert target is None
 
     def test_calculate_decay_target_one_step(self) -> None:

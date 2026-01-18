@@ -47,7 +47,6 @@ from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     _sanitize_json_string,
 )
 
-
 # Module path for patching CrewAI classes
 CREWAI_MODULE = "src.infrastructure.adapters.external.secretary_crewai_adapter"
 
@@ -119,7 +118,9 @@ def sample_recommendations() -> list[ExtractedRecommendation]:
 
 
 @pytest.fixture
-def sample_cluster(sample_recommendations: list[ExtractedRecommendation]) -> RecommendationCluster:
+def sample_cluster(
+    sample_recommendations: list[ExtractedRecommendation],
+) -> RecommendationCluster:
     """Create a sample recommendation cluster."""
     cluster = RecommendationCluster(
         cluster_id=uuid4(),
@@ -141,52 +142,58 @@ def sample_cluster(sample_recommendations: list[ExtractedRecommendation]) -> Rec
 @pytest.fixture
 def mock_crewai_extraction_response() -> str:
     """Mock CrewAI extraction output."""
-    return json.dumps([
-        {
-            "category": "establish",
-            "type": "policy",
-            "text": "Establish an AI Ethics Council",
-            "keywords": ["ethics", "council", "ai"],
-            "stance": "FOR",
-            "source_archon": "Paimon",
-            "source_line_start": 100,
-            "source_line_end": 110,
-        },
-        {
-            "category": "implement",
-            "type": "task",
-            "text": "Implement review process",
-            "keywords": ["review", "audit"],
-            "stance": None,
-            "source_archon": "Paimon",
-            "source_line_start": 105,
-            "source_line_end": 108,
-        },
-    ])
+    return json.dumps(
+        [
+            {
+                "category": "establish",
+                "type": "policy",
+                "text": "Establish an AI Ethics Council",
+                "keywords": ["ethics", "council", "ai"],
+                "stance": "FOR",
+                "source_archon": "Paimon",
+                "source_line_start": 100,
+                "source_line_end": 110,
+            },
+            {
+                "category": "implement",
+                "type": "task",
+                "text": "Implement review process",
+                "keywords": ["review", "audit"],
+                "stance": None,
+                "source_archon": "Paimon",
+                "source_line_start": 105,
+                "source_line_end": 108,
+            },
+        ]
+    )
 
 
 @pytest.fixture
 def mock_crewai_clustering_response() -> str:
     """Mock CrewAI clustering output."""
-    return json.dumps([
-        {
-            "theme": "Ethics Council",
-            "canonical_summary": "Establish ethics oversight body",
-            "member_ids": ["id1", "id2"],
-            "archon_names": ["Paimon", "Belial"],
-            "archon_count": 2,
-        },
-    ])
+    return json.dumps(
+        [
+            {
+                "theme": "Ethics Council",
+                "canonical_summary": "Establish ethics oversight body",
+                "member_ids": ["id1", "id2"],
+                "archon_names": ["Paimon", "Belial"],
+                "archon_count": 2,
+            },
+        ]
+    )
 
 
 @pytest.fixture
 def mock_crewai_motion_response() -> str:
     """Mock CrewAI motion generation output."""
-    return json.dumps({
-        "title": "Motion to Establish AI Ethics Council",
-        "motion_text": "The Conclave hereby resolves to establish an AI Ethics Council.",
-        "rationale": "Based on recommendations from 2 Archons.",
-    })
+    return json.dumps(
+        {
+            "title": "Motion to Establish AI Ethics Council",
+            "motion_text": "The Conclave hereby resolves to establish an AI Ethics Council.",
+            "rationale": "Based on recommendations from 2 Archons.",
+        }
+    )
 
 
 @pytest.fixture
@@ -206,13 +213,17 @@ class TestSecretaryCrewAIAdapterInit:
     """Tests for SecretaryCrewAIAdapter initialization."""
 
     @patch(f"{CREWAI_MODULE}.Agent")
-    def test_implements_protocol(self, _mock_agent: MagicMock, tmp_checkpoint_dir: Path) -> None:
+    def test_implements_protocol(
+        self, _mock_agent: MagicMock, tmp_checkpoint_dir: Path
+    ) -> None:
         """AC1: Adapter implements SecretaryAgentProtocol."""
         adapter = SecretaryCrewAIAdapter(checkpoint_dir=tmp_checkpoint_dir)
         assert isinstance(adapter, SecretaryAgentProtocol)
 
     @patch(f"{CREWAI_MODULE}.Agent")
-    def test_creates_dual_agents(self, mock_agent: MagicMock, tmp_checkpoint_dir: Path) -> None:
+    def test_creates_dual_agents(
+        self, mock_agent: MagicMock, tmp_checkpoint_dir: Path
+    ) -> None:
         """AC2: Creates both text and JSON agents."""
         SecretaryCrewAIAdapter(checkpoint_dir=tmp_checkpoint_dir)
 
@@ -220,7 +231,9 @@ class TestSecretaryCrewAIAdapterInit:
         assert mock_agent.call_count == 2
 
     @patch(f"{CREWAI_MODULE}.Agent")
-    def test_creates_checkpoint_dir(self, _mock_agent: MagicMock, tmp_path: Path) -> None:
+    def test_creates_checkpoint_dir(
+        self, _mock_agent: MagicMock, tmp_path: Path
+    ) -> None:
         """AC3: Creates checkpoint directory if it doesn't exist."""
         checkpoint_dir = tmp_path / "new_checkpoints"
         assert not checkpoint_dir.exists()
@@ -230,7 +243,9 @@ class TestSecretaryCrewAIAdapterInit:
         assert checkpoint_dir.exists()
 
     @patch(f"{CREWAI_MODULE}.Agent")
-    def test_uses_custom_profile(self, _mock_agent: MagicMock, tmp_checkpoint_dir: Path) -> None:
+    def test_uses_custom_profile(
+        self, _mock_agent: MagicMock, tmp_checkpoint_dir: Path
+    ) -> None:
         """Test adapter uses custom profile when provided."""
         custom_profile = SecretaryAgentProfile(
             role="Custom Secretary",
@@ -422,7 +437,9 @@ class TestValidateExtractions:
     ) -> None:
         """Test validation returns confidence score."""
         mock_crew = MagicMock()
-        mock_crew.kickoff.return_value = '{"validated_count": 2, "confidence": 0.95, "missed_count": 0}'
+        mock_crew.kickoff.return_value = (
+            '{"validated_count": 2, "confidence": 0.95, "missed_count": 0}'
+        )
         mock_crew_class.return_value = mock_crew
 
         adapter = SecretaryCrewAIAdapter(checkpoint_dir=tmp_checkpoint_dir)
@@ -487,15 +504,17 @@ class TestClusterSemantically:
         """Test clustering groups recommendations by theme."""
         # Convert recommendation IDs to strings for the mock response
         rec_ids = [str(r.recommendation_id) for r in sample_recommendations]
-        mock_response = json.dumps([
-            {
-                "theme": "Ethics Oversight",
-                "canonical_summary": "Establish ethics governance",
-                "member_ids": rec_ids,
-                "archon_names": ["Paimon", "Belial"],
-                "archon_count": 2,
-            },
-        ])
+        mock_response = json.dumps(
+            [
+                {
+                    "theme": "Ethics Oversight",
+                    "canonical_summary": "Establish ethics governance",
+                    "member_ids": rec_ids,
+                    "archon_names": ["Paimon", "Belial"],
+                    "archon_count": 2,
+                },
+            ]
+        )
 
         mock_crew = MagicMock()
         mock_crew.kickoff.return_value = mock_response
@@ -557,12 +576,18 @@ class TestDetectConflicts:
     ) -> None:
         """Test conflict detection returns conflicts."""
         mock_crew = MagicMock()
-        mock_crew.kickoff.return_value = json.dumps({
-            "conflicts": [
-                {"archon_a": "Paimon", "archon_b": "Belial", "description": "Test conflict"},
-            ],
-            "conflict_count": 1,
-        })
+        mock_crew.kickoff.return_value = json.dumps(
+            {
+                "conflicts": [
+                    {
+                        "archon_a": "Paimon",
+                        "archon_b": "Belial",
+                        "description": "Test conflict",
+                    },
+                ],
+                "conflict_count": 1,
+            }
+        )
         mock_crew_class.return_value = mock_crew
 
         adapter = SecretaryCrewAIAdapter(checkpoint_dir=tmp_checkpoint_dir)
@@ -684,7 +709,7 @@ class TestProcessFullTranscript:
             # Step 2: Validation
             '{"validated_count": 2, "confidence": 0.9, "missed_count": 0}',
             # Step 3: Clustering
-            '[]',  # Empty clusters for simplicity
+            "[]",  # Empty clusters for simplicity
             # Step 4: Conflicts
             '{"conflicts": [], "conflict_count": 0}',
         ]
@@ -719,7 +744,7 @@ class TestProcessFullTranscript:
         mock_crew.kickoff.side_effect = [
             mock_crewai_extraction_response,
             '{"validated_count": 2, "confidence": 0.9, "missed_count": 0}',
-            '[]',
+            "[]",
             '{"conflicts": [], "conflict_count": 0}',
         ]
         mock_crew_class.return_value = mock_crew
@@ -753,7 +778,7 @@ class TestProcessFullTranscript:
         mock_crew.kickoff.side_effect = [
             mock_crewai_extraction_response,  # Extraction succeeds
             RuntimeError("Validation API error"),  # Validation fails
-            '[]',  # Clustering succeeds
+            "[]",  # Clustering succeeds
             '{"conflicts": [], "conflict_count": 0}',  # Conflicts succeeds
         ]
         mock_crew_class.return_value = mock_crew
@@ -881,7 +906,9 @@ class TestCategoryTypeParsing:
         assert adapter._parse_category("establish") == RecommendationCategory.ESTABLISH
         assert adapter._parse_category("implement") == RecommendationCategory.IMPLEMENT
         assert adapter._parse_category("mandate") == RecommendationCategory.MANDATE
-        assert adapter._parse_category("PILOT") == RecommendationCategory.PILOT  # Case insensitive
+        assert (
+            adapter._parse_category("PILOT") == RecommendationCategory.PILOT
+        )  # Case insensitive
 
     @patch(f"{CREWAI_MODULE}.Agent")
     def test_parse_category_unknown(
@@ -906,7 +933,9 @@ class TestCategoryTypeParsing:
 
         assert adapter._parse_type("policy") == RecommendationType.POLICY
         assert adapter._parse_type("task") == RecommendationType.TASK
-        assert adapter._parse_type("AMENDMENT") == RecommendationType.AMENDMENT  # Case insensitive
+        assert (
+            adapter._parse_type("AMENDMENT") == RecommendationType.AMENDMENT
+        )  # Case insensitive
 
     @patch(f"{CREWAI_MODULE}.Agent")
     def test_parse_type_unknown(

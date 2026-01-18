@@ -18,19 +18,19 @@ Available routers:
 - legitimacy: Legitimacy restoration API (FR30-32, Story 5-3 - auth for restore)
 """
 
-from src.api.routes.health import router as health_router
+from src.api.routes.complexity_budget import router as complexity_budget_router
+from src.api.routes.compliance import router as compliance_router
+from src.api.routes.constitutional_health import router as constitutional_health_router
 from src.api.routes.external_health import router as external_health_router
+from src.api.routes.failure_prevention import router as failure_prevention_router
+from src.api.routes.halt import router as halt_router
+from src.api.routes.health import router as health_router
+from src.api.routes.incident import router as incident_router
+from src.api.routes.legitimacy import router as legitimacy_router
 from src.api.routes.observer import router as observer_router
 from src.api.routes.override import router as override_router
 from src.api.routes.petition import router as petition_router
-from src.api.routes.incident import router as incident_router
-from src.api.routes.complexity_budget import router as complexity_budget_router
-from src.api.routes.failure_prevention import router as failure_prevention_router
-from src.api.routes.constitutional_health import router as constitutional_health_router
 from src.api.routes.waiver import router as waiver_router
-from src.api.routes.compliance import router as compliance_router
-from src.api.routes.halt import router as halt_router
-from src.api.routes.legitimacy import router as legitimacy_router
 
 __all__: list[str] = [
     "health_router",

@@ -13,20 +13,17 @@ Constitutional Constraints verified:
 - CT-12: Witnessing creates accountability (anomaly events must be witnessable)
 """
 
-from datetime import datetime, timedelta, timezone
-
 import pytest
 
 from src.application.ports.witness_anomaly_detector import WitnessAnomalyResult
+from src.application.services.verifiable_witness_selection_service import (
+    VerifiableWitnessSelectionService,
+)
 from src.application.services.witness_anomaly_detection_service import (
-    CONFIDENCE_THRESHOLD,
     WitnessAnomalyDetectionService,
 )
 from src.application.services.witness_pool_monitoring_service import (
     WitnessPoolMonitoringService,
-)
-from src.application.services.verifiable_witness_selection_service import (
-    VerifiableWitnessSelectionService,
 )
 from src.domain.errors.witness_anomaly import (
     WitnessPoolDegradedError,
@@ -36,14 +33,16 @@ from src.domain.events.witness_anomaly import (
     ReviewStatus,
     WitnessAnomalyType,
 )
+from src.infrastructure.stubs.entropy_source_stub import SecureEntropySourceStub
+from src.infrastructure.stubs.event_store_stub import EventStoreStub
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.witness_anomaly_detector_stub import (
     WitnessAnomalyDetectorStub,
 )
+from src.infrastructure.stubs.witness_pair_history_stub import (
+    InMemoryWitnessPairHistory,
+)
 from src.infrastructure.stubs.witness_pool_monitor_stub import WitnessPoolMonitorStub
-from src.infrastructure.stubs.entropy_source_stub import SecureEntropySourceStub
-from src.infrastructure.stubs.witness_pair_history_stub import InMemoryWitnessPairHistory
-from src.infrastructure.stubs.event_store_stub import EventStoreStub
 
 
 class TestFR116WitnessAnomalyDetection:
@@ -63,7 +62,9 @@ class TestFR116WitnessAnomalyDetection:
 
     @pytest.fixture
     def detection_service(
-        self, halt_checker: HaltCheckerStub, anomaly_detector: WitnessAnomalyDetectorStub
+        self,
+        halt_checker: HaltCheckerStub,
+        anomaly_detector: WitnessAnomalyDetectorStub,
     ) -> WitnessAnomalyDetectionService:
         """Create anomaly detection service."""
         return WitnessAnomalyDetectionService(
@@ -233,8 +234,12 @@ class TestFR117WitnessPoolMonitoring:
         assert status.is_degraded is False
         assert status.available_count == 15
 
-        can_high, _ = await monitoring_service.can_proceed_with_operation(high_stakes=True)
-        can_low, _ = await monitoring_service.can_proceed_with_operation(high_stakes=False)
+        can_high, _ = await monitoring_service.can_proceed_with_operation(
+            high_stakes=True
+        )
+        can_low, _ = await monitoring_service.can_proceed_with_operation(
+            high_stakes=False
+        )
 
         assert can_high is True
         assert can_low is True
@@ -253,7 +258,9 @@ class TestFR117WitnessPoolMonitoring:
         assert status.is_degraded is True
         assert status.available_count == 8
 
-        can_high, reason = await monitoring_service.can_proceed_with_operation(high_stakes=True)
+        can_high, reason = await monitoring_service.can_proceed_with_operation(
+            high_stakes=True
+        )
 
         assert can_high is False
         assert "FR117" in reason
@@ -267,7 +274,9 @@ class TestFR117WitnessPoolMonitoring:
         """Test FR117: Degraded pool allows low-stakes operations."""
         pool_monitor.set_pool_size(8)
 
-        can_low, _ = await monitoring_service.can_proceed_with_operation(high_stakes=False)
+        can_low, _ = await monitoring_service.can_proceed_with_operation(
+            high_stakes=False
+        )
 
         assert can_low is True
 
@@ -514,7 +523,9 @@ class TestAnomalyEventPayloadCreation:
 
     @pytest.fixture
     def detection_service(
-        self, halt_checker: HaltCheckerStub, anomaly_detector: WitnessAnomalyDetectorStub
+        self,
+        halt_checker: HaltCheckerStub,
+        anomaly_detector: WitnessAnomalyDetectorStub,
     ) -> WitnessAnomalyDetectionService:
         """Create anomaly detection service."""
         return WitnessAnomalyDetectionService(
@@ -664,12 +675,16 @@ class TestEndToEndAnomalyWorkflow:
         assert status.degraded_since is not None
 
         # Step 4: High-stakes blocked
-        can_proceed, reason = await monitoring_service.can_proceed_with_operation(high_stakes=True)
+        can_proceed, reason = await monitoring_service.can_proceed_with_operation(
+            high_stakes=True
+        )
         assert can_proceed is False
         assert "FR117" in reason
 
         # Step 5: Low-stakes allowed
-        can_proceed, _ = await monitoring_service.can_proceed_with_operation(high_stakes=False)
+        can_proceed, _ = await monitoring_service.can_proceed_with_operation(
+            high_stakes=False
+        )
         assert can_proceed is True
 
         # Step 6: Create surfacing event
@@ -684,5 +699,7 @@ class TestEndToEndAnomalyWorkflow:
         assert status.is_degraded is False
         assert status.degraded_since is None
 
-        can_proceed, _ = await monitoring_service.can_proceed_with_operation(high_stakes=True)
+        can_proceed, _ = await monitoring_service.can_proceed_with_operation(
+            high_stakes=True
+        )
         assert can_proceed is True

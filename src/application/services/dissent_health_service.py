@@ -125,6 +125,7 @@ class DissentHealthService:
         # HALT FIRST (Golden Rule #1)
         if await self._halt_checker.is_halted():
             from src.domain.errors.writer import SystemHaltedError
+
             reason = await self._halt_checker.get_halt_reason()
             raise SystemHaltedError(reason or "System halted")
 
@@ -164,6 +165,7 @@ class DissentHealthService:
         # HALT FIRST (Golden Rule #1)
         if await self._halt_checker.is_halted():
             from src.domain.errors.writer import SystemHaltedError
+
             reason = await self._halt_checker.get_halt_reason()
             raise SystemHaltedError(reason or "System halted")
 
@@ -202,6 +204,7 @@ class DissentHealthService:
         # HALT FIRST (Golden Rule #1)
         if await self._halt_checker.is_halted():
             from src.domain.errors.writer import SystemHaltedError
+
             reason = await self._halt_checker.get_halt_reason()
             raise SystemHaltedError(reason or "System halted")
 

@@ -166,9 +166,13 @@ class TestProhibitedLanguageBlockedEventPayload:
 
     def test_system_agent_id_constant(self) -> None:
         """Test system agent ID constant value."""
-        assert PROHIBITED_LANGUAGE_SYSTEM_AGENT_ID == "system:prohibited_language_blocker"
+        assert (
+            PROHIBITED_LANGUAGE_SYSTEM_AGENT_ID == "system:prohibited_language_blocker"
+        )
 
-    def test_payload_creation(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_payload_creation(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test payload can be created with valid data."""
         assert valid_payload.content_id == "test-content-123"
         assert valid_payload.matched_terms == ("emergence", "consciousness")
@@ -186,7 +190,9 @@ class TestProhibitedLanguageBlockedEventPayload:
 
     def test_payload_empty_matched_terms_raises(self) -> None:
         """Test empty matched_terms raises ValueError."""
-        with pytest.raises(ValueError, match="FR55: At least one matched term required"):
+        with pytest.raises(
+            ValueError, match="FR55: At least one matched term required"
+        ):
             ProhibitedLanguageBlockedEventPayload(
                 content_id="test-123",
                 matched_terms=(),
@@ -218,15 +224,21 @@ class TestProhibitedLanguageBlockedEventPayload:
         )
         assert len(payload.content_preview) == MAX_CONTENT_PREVIEW_LENGTH
 
-    def test_event_type_property(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_event_type_property(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test event_type property returns correct type."""
         assert valid_payload.event_type == PROHIBITED_LANGUAGE_BLOCKED_EVENT_TYPE
 
-    def test_terms_count_property(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_terms_count_property(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test terms_count property returns correct count."""
         assert valid_payload.terms_count == 2
 
-    def test_to_dict_serialization(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_to_dict_serialization(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test to_dict() produces correct dictionary."""
         result = valid_payload.to_dict()
 
@@ -237,30 +249,40 @@ class TestProhibitedLanguageBlockedEventPayload:
         assert "content_preview" in result
         assert result["terms_count"] == 2
 
-    def test_signable_content_determinism(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_signable_content_determinism(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test signable_content() is deterministic."""
         content1 = valid_payload.signable_content()
         content2 = valid_payload.signable_content()
         assert content1 == content2
 
-    def test_signable_content_bytes(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_signable_content_bytes(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test signable_content() returns bytes."""
         content = valid_payload.signable_content()
         assert isinstance(content, bytes)
 
-    def test_content_hash_hex_string(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_content_hash_hex_string(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test content_hash() returns hex string."""
         hash_value = valid_payload.content_hash()
         assert isinstance(hash_value, str)
         assert len(hash_value) == 64  # SHA-256 hex
 
-    def test_content_hash_determinism(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_content_hash_determinism(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test content_hash() is deterministic."""
         hash1 = valid_payload.content_hash()
         hash2 = valid_payload.content_hash()
         assert hash1 == hash2
 
-    def test_payload_is_frozen(self, valid_payload: ProhibitedLanguageBlockedEventPayload) -> None:
+    def test_payload_is_frozen(
+        self, valid_payload: ProhibitedLanguageBlockedEventPayload
+    ) -> None:
         """Test payload is immutable (frozen dataclass)."""
         with pytest.raises(AttributeError):
             valid_payload.content_id = "new-id"  # type: ignore[misc]

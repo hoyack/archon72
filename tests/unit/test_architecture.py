@@ -19,7 +19,9 @@ def test_main_layers_exist(src_path: Path) -> None:
     layers = ["domain", "application", "infrastructure", "api"]
     for layer in layers:
         assert (src_path / layer).is_dir(), f"Missing layer: {layer}"
-        assert (src_path / layer / "__init__.py").is_file(), f"Missing {layer}/__init__.py"
+        assert (src_path / layer / "__init__.py").is_file(), (
+            f"Missing {layer}/__init__.py"
+        )
         assert (src_path / layer / "README.md").is_file(), f"Missing {layer}/README.md"
 
 
@@ -29,7 +31,9 @@ def test_domain_subdirectories_exist(src_path: Path) -> None:
     subdirs = ["events", "entities", "value_objects", "ports"]
     for subdir in subdirs:
         assert (domain / subdir).is_dir(), f"Missing domain subdir: {subdir}"
-        assert (domain / subdir / "__init__.py").is_file(), f"Missing {subdir}/__init__.py"
+        assert (domain / subdir / "__init__.py").is_file(), (
+            f"Missing {subdir}/__init__.py"
+        )
 
 
 def test_domain_has_no_external_layer_imports(src_path: Path) -> None:

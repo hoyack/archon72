@@ -27,9 +27,7 @@ from src.application.ports.failure_propagation import (
 from src.application.ports.knight_witness import (
     KnightWitnessProtocol,
     ViolationRecord,
-    WitnessStatementType,
 )
-
 
 # Default configuration values
 DEFAULT_TIMEOUT_SECONDS = 30
@@ -76,12 +74,16 @@ class MonitoredFailure:
                 0.5 if self.signal.severity == FailureSeverity.CRITICAL else 1.0
             )
             timeout_seconds = int(DEFAULT_TIMEOUT_SECONDS * multiplier)
-            self.timeout_at = self.monitor_started_at + timedelta(seconds=timeout_seconds)
+            self.timeout_at = self.monitor_started_at + timedelta(
+                seconds=timeout_seconds
+            )
 
     @property
     def is_timed_out(self) -> bool:
         """Check if the failure has exceeded its timeout."""
-        return datetime.now(timezone.utc) > self.timeout_at if self.timeout_at else False
+        return (
+            datetime.now(timezone.utc) > self.timeout_at if self.timeout_at else False
+        )
 
 
 class SuppressionDetectionService:
@@ -163,7 +165,9 @@ class SuppressionDetectionService:
                 else 1.0
             )
             effective_timeout = int(self._config.timeout_seconds * multiplier)
-            timeout_at = datetime.now(timezone.utc) + timedelta(seconds=effective_timeout)
+            timeout_at = datetime.now(timezone.utc) + timedelta(
+                seconds=effective_timeout
+            )
 
         monitored = MonitoredFailure(
             signal=signal,
@@ -231,7 +235,9 @@ class SuppressionDetectionService:
                         "severity": monitored.signal.severity.value,
                         "detected_at": monitored.signal.detected_at.isoformat(),
                         "timeout_at": monitored.timeout_at.isoformat(),
-                        "exceeded_by_seconds": (now - monitored.timeout_at).total_seconds(),
+                        "exceeded_by_seconds": (
+                            now - monitored.timeout_at
+                        ).total_seconds(),
                         "check_count": monitored.checked_count,
                     },
                 )
@@ -372,9 +378,7 @@ class SuppressionDetectionService:
         violations = list(self._violations.values())
 
         if archon_id is not None:
-            violations = [
-                v for v in violations if v.suppressing_archon_id == archon_id
-            ]
+            violations = [v for v in violations if v.suppressing_archon_id == archon_id]
 
         if since is not None:
             violations = [v for v in violations if v.detected_at >= since]

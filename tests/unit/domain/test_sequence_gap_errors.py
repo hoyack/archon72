@@ -9,8 +9,6 @@ Constitutional Constraints:
 - CT-11: Silent failure destroys legitimacy
 """
 
-import pytest
-
 from src.domain.errors.sequence_gap import (
     SequenceGapDetectedError,
     SequenceGapResolutionRequiredError,

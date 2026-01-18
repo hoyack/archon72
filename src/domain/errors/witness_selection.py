@@ -13,7 +13,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
@@ -49,8 +48,8 @@ class EntropyUnavailableError(WitnessSelectionError):
 
     def __init__(
         self,
-        source_identifier: Optional[str] = None,
-        reason: Optional[str] = None,
+        source_identifier: str | None = None,
+        reason: str | None = None,
     ) -> None:
         """Initialize entropy unavailable error.
 

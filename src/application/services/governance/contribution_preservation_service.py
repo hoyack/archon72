@@ -26,7 +26,6 @@ from uuid import UUID
 
 from src.domain.governance.exit.preservation_result import PreservationResult
 
-
 # Event type constant
 CONTRIBUTIONS_PRESERVED_EVENT = "custodial.contributions.preserved"
 

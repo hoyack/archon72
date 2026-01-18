@@ -9,13 +9,80 @@ governance system, including:
 - Knight Observer (Story 6-2)
 """
 
+from src.application.services.governance.cessation_record_service import (
+    CessationRecordService,
+)
+from src.application.services.governance.cessation_trigger_service import (
+    DEFAULT_GRACE_PERIOD_SECONDS,
+    CessationTriggerService,
+)
+from src.application.services.governance.contact_prevention_service import (
+    ContactPreventionService,
+)
+from src.application.services.governance.contribution_preservation_service import (
+    CONTRIBUTIONS_PRESERVED_EVENT,
+    ContributionPreservationService,
+)
+from src.application.services.governance.exit_service import (
+    EXIT_COMPLETED_EVENT,
+    EXIT_INITIATED_EVENT,
+    ExitService,
+)
+from src.application.services.governance.filter_logging_service import (
+    FILTER_DECISION_LOGGED_EVENT,
+    FilterLoggingService,
+)
+from src.application.services.governance.halt_task_transition_service import (
+    HaltTaskTransitionService,
+    TaskStateQueryPort,
+)
+from src.application.services.governance.knight_observer_service import (
+    GapDetection,
+    KnightObserverService,
+    ObservationMetrics,
+)
+from src.application.services.governance.ledger_export_service import (
+    LEDGER_EXPORTED_EVENT,
+    LedgerExportService,
+)
+from src.application.services.governance.ledger_proof_service import (
+    PROOF_GENERATED_EVENT,
+    PROOF_VERIFIED_EVENT,
+    LedgerProofService,
+)
 from src.application.services.governance.ledger_validation_service import (
     LedgerValidationService,
+)
+from src.application.services.governance.legitimacy_decay_service import (
+    BAND_DECREASED_EVENT,
+    LegitimacyDecayService,
+)
+from src.application.services.governance.obligation_release_service import (
+    OBLIGATIONS_RELEASED_EVENT,
+    PENDING_REQUESTS_CANCELLED_EVENT,
+    RELEASE_CATEGORIES,
+    TASK_NULLIFIED_ON_EXIT_EVENT,
+    TASK_RELEASED_ON_EXIT_EVENT,
+    ObligationReleaseService,
+)
+from src.application.services.governance.panel_finding_service import (
+    DISSENT_RECORDED_EVENT,
+    FINDING_ISSUED_EVENT,
+    PanelFindingService,
+    compute_finding_hash,
 )
 from src.application.services.governance.projection_rebuild_service import (
     ProjectionRebuildService,
     RebuildResult,
     VerificationResult,
+)
+from src.application.services.governance.reconstitution_validation_service import (
+    BASELINE_LEGITIMACY_BAND,
+    REJECTION_MESSAGES,
+    ReconstitutionValidationService,
+)
+from src.application.services.governance.task_constraint_service import (
+    TaskConstraintService,
 )
 from src.application.services.governance.task_reminder_service import (
     TaskReminderScheduler,
@@ -25,86 +92,19 @@ from src.application.services.governance.task_timeout_service import (
     TaskTimeoutScheduler,
     TaskTimeoutService,
 )
-from src.application.services.governance.task_constraint_service import (
-    TaskConstraintService,
-)
-from src.application.services.governance.halt_task_transition_service import (
-    HaltTaskTransitionService,
-    TaskStateQueryPort,
-)
-from src.application.services.governance.filter_logging_service import (
-    FilterLoggingService,
-    FILTER_DECISION_LOGGED_EVENT,
-)
-from src.application.services.governance.knight_observer_service import (
-    KnightObserverService,
-    ObservationMetrics,
-    GapDetection,
-)
-from src.application.services.governance.witness_routing_service import (
-    WitnessRoutingService,
-    determine_priority,
-    ROUTING_RULES,
-    HIGH_PRIORITY_KEYWORDS,
-)
-from src.application.services.governance.panel_finding_service import (
-    PanelFindingService,
-    compute_finding_hash,
-    FINDING_ISSUED_EVENT,
-    DISSENT_RECORDED_EVENT,
-)
-from src.application.services.governance.legitimacy_decay_service import (
-    LegitimacyDecayService,
-    BAND_DECREASED_EVENT,
+from src.application.services.governance.transition_logging_service import (
+    TRANSITION_LOGGED_EVENT,
+    TransitionLoggingService,
 )
 from src.application.services.governance.violation_event_subscriber import (
-    ViolationEventSubscriber,
     VIOLATION_EVENT_PATTERN,
+    ViolationEventSubscriber,
 )
-from src.application.services.governance.exit_service import (
-    ExitService,
-    EXIT_INITIATED_EVENT,
-    EXIT_COMPLETED_EVENT,
-)
-from src.application.services.governance.obligation_release_service import (
-    ObligationReleaseService,
-    OBLIGATIONS_RELEASED_EVENT,
-    TASK_NULLIFIED_ON_EXIT_EVENT,
-    TASK_RELEASED_ON_EXIT_EVENT,
-    PENDING_REQUESTS_CANCELLED_EVENT,
-    RELEASE_CATEGORIES,
-)
-from src.application.services.governance.contribution_preservation_service import (
-    ContributionPreservationService,
-    CONTRIBUTIONS_PRESERVED_EVENT,
-)
-from src.application.services.governance.contact_prevention_service import (
-    ContactPreventionService,
-)
-from src.application.services.governance.cessation_trigger_service import (
-    CessationTriggerService,
-    DEFAULT_GRACE_PERIOD_SECONDS,
-)
-from src.application.services.governance.cessation_record_service import (
-    CessationRecordService,
-)
-from src.application.services.governance.reconstitution_validation_service import (
-    ReconstitutionValidationService,
-    BASELINE_LEGITIMACY_BAND,
-    REJECTION_MESSAGES,
-)
-from src.application.services.governance.ledger_export_service import (
-    LedgerExportService,
-    LEDGER_EXPORTED_EVENT,
-)
-from src.application.services.governance.ledger_proof_service import (
-    LedgerProofService,
-    PROOF_GENERATED_EVENT,
-    PROOF_VERIFIED_EVENT,
-)
-from src.application.services.governance.transition_logging_service import (
-    TransitionLoggingService,
-    TRANSITION_LOGGED_EVENT,
+from src.application.services.governance.witness_routing_service import (
+    HIGH_PRIORITY_KEYWORDS,
+    ROUTING_RULES,
+    WitnessRoutingService,
+    determine_priority,
 )
 
 # Event type constants for Contact Prevention (Story 7-4)

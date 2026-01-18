@@ -19,7 +19,6 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
@@ -58,7 +57,7 @@ class YamlPatternLibraryAdapter(PatternLibraryPort):
         """
         self._config_path = config_path
         self._patterns: list[CoercionPattern] = []
-        self._version: Optional[PatternLibraryVersion] = None
+        self._version: PatternLibraryVersion | None = None
         self._loaded = False
 
     async def load(self) -> None:
@@ -269,7 +268,7 @@ class YamlPatternLibraryAdapter(PatternLibraryPort):
     async def get_pattern_by_id(
         self,
         pattern_id: str,
-    ) -> Optional[CoercionPattern]:
+    ) -> CoercionPattern | None:
         """Get a specific pattern by ID."""
         self._ensure_loaded()
         for p in self._patterns:

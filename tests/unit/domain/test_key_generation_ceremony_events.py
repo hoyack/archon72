@@ -28,19 +28,31 @@ class TestEventTypeConstants:
 
     def test_started_event_type(self) -> None:
         """Started event type is correct."""
-        assert KEY_GENERATION_CEREMONY_STARTED_EVENT_TYPE == "ceremony.key_generation.started"
+        assert (
+            KEY_GENERATION_CEREMONY_STARTED_EVENT_TYPE
+            == "ceremony.key_generation.started"
+        )
 
     def test_witnessed_event_type(self) -> None:
         """Witnessed event type is correct."""
-        assert KEY_GENERATION_CEREMONY_WITNESSED_EVENT_TYPE == "ceremony.key_generation.witnessed"
+        assert (
+            KEY_GENERATION_CEREMONY_WITNESSED_EVENT_TYPE
+            == "ceremony.key_generation.witnessed"
+        )
 
     def test_completed_event_type(self) -> None:
         """Completed event type is correct."""
-        assert KEY_GENERATION_CEREMONY_COMPLETED_EVENT_TYPE == "ceremony.key_generation.completed"
+        assert (
+            KEY_GENERATION_CEREMONY_COMPLETED_EVENT_TYPE
+            == "ceremony.key_generation.completed"
+        )
 
     def test_failed_event_type(self) -> None:
         """Failed event type is correct."""
-        assert KEY_GENERATION_CEREMONY_FAILED_EVENT_TYPE == "ceremony.key_generation.failed"
+        assert (
+            KEY_GENERATION_CEREMONY_FAILED_EVENT_TYPE
+            == "ceremony.key_generation.failed"
+        )
 
 
 class TestStartedPayload:

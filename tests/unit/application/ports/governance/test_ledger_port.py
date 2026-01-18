@@ -23,7 +23,6 @@ from src.application.ports.governance.ledger_port import (
     PersistedGovernanceEvent,
 )
 from src.domain.governance.events.event_envelope import (
-    EventMetadata,
     GovernanceEvent,
 )
 
@@ -34,43 +33,43 @@ class TestGovernanceLedgerPortInterface:
     def test_port_has_append_event_method(self) -> None:
         """GovernanceLedgerPort has append_event() method (AC1)."""
         assert hasattr(GovernanceLedgerPort, "append_event")
-        method = getattr(GovernanceLedgerPort, "append_event")
+        method = GovernanceLedgerPort.append_event
         assert callable(method)
 
     def test_port_has_read_events_method(self) -> None:
         """GovernanceLedgerPort has read_events() method (AC1)."""
         assert hasattr(GovernanceLedgerPort, "read_events")
-        method = getattr(GovernanceLedgerPort, "read_events")
+        method = GovernanceLedgerPort.read_events
         assert callable(method)
 
     def test_port_has_get_latest_event_method(self) -> None:
         """GovernanceLedgerPort has get_latest_event() method (AC1)."""
         assert hasattr(GovernanceLedgerPort, "get_latest_event")
-        method = getattr(GovernanceLedgerPort, "get_latest_event")
+        method = GovernanceLedgerPort.get_latest_event
         assert callable(method)
 
     def test_port_has_get_max_sequence_method(self) -> None:
         """GovernanceLedgerPort has get_max_sequence() method (AC1)."""
         assert hasattr(GovernanceLedgerPort, "get_max_sequence")
-        method = getattr(GovernanceLedgerPort, "get_max_sequence")
+        method = GovernanceLedgerPort.get_max_sequence
         assert callable(method)
 
     def test_port_has_get_event_by_sequence_method(self) -> None:
         """GovernanceLedgerPort has get_event_by_sequence() method."""
         assert hasattr(GovernanceLedgerPort, "get_event_by_sequence")
-        method = getattr(GovernanceLedgerPort, "get_event_by_sequence")
+        method = GovernanceLedgerPort.get_event_by_sequence
         assert callable(method)
 
     def test_port_has_get_event_by_id_method(self) -> None:
         """GovernanceLedgerPort has get_event_by_id() method."""
         assert hasattr(GovernanceLedgerPort, "get_event_by_id")
-        method = getattr(GovernanceLedgerPort, "get_event_by_id")
+        method = GovernanceLedgerPort.get_event_by_id
         assert callable(method)
 
     def test_port_has_count_events_method(self) -> None:
         """GovernanceLedgerPort has count_events() method."""
         assert hasattr(GovernanceLedgerPort, "count_events")
-        method = getattr(GovernanceLedgerPort, "count_events")
+        method = GovernanceLedgerPort.count_events
         assert callable(method)
 
     def test_port_has_no_update_method(self) -> None:
@@ -120,7 +119,9 @@ class TestGovernanceLedgerPortInterface:
             method = getattr(GovernanceLedgerPort, method_name)
             # Check if method is async (coroutine function)
             # For Protocol methods, we check the annotations
-            assert inspect.iscoroutinefunction(method) or True  # Protocol methods may not be coroutines directly
+            assert (
+                inspect.iscoroutinefunction(method) or True
+            )  # Protocol methods may not be coroutines directly
 
     def test_append_event_accepts_governance_event(self) -> None:
         """append_event() parameter type is GovernanceEvent (AC8)."""
@@ -262,8 +263,10 @@ class TestNoMutationPathsExist:
     def test_no_methods_contain_update_in_name(self) -> None:
         """No methods have 'update' in their name."""
         method_names = [
-            name for name in dir(GovernanceLedgerPort)
-            if not name.startswith("_") and callable(getattr(GovernanceLedgerPort, name, None))
+            name
+            for name in dir(GovernanceLedgerPort)
+            if not name.startswith("_")
+            and callable(getattr(GovernanceLedgerPort, name, None))
         ]
 
         update_methods = [name for name in method_names if "update" in name.lower()]
@@ -272,8 +275,10 @@ class TestNoMutationPathsExist:
     def test_no_methods_contain_delete_in_name(self) -> None:
         """No methods have 'delete' in their name."""
         method_names = [
-            name for name in dir(GovernanceLedgerPort)
-            if not name.startswith("_") and callable(getattr(GovernanceLedgerPort, name, None))
+            name
+            for name in dir(GovernanceLedgerPort)
+            if not name.startswith("_")
+            and callable(getattr(GovernanceLedgerPort, name, None))
         ]
 
         delete_methods = [name for name in method_names if "delete" in name.lower()]
@@ -282,8 +287,10 @@ class TestNoMutationPathsExist:
     def test_no_methods_contain_remove_in_name(self) -> None:
         """No methods have 'remove' in their name."""
         method_names = [
-            name for name in dir(GovernanceLedgerPort)
-            if not name.startswith("_") and callable(getattr(GovernanceLedgerPort, name, None))
+            name
+            for name in dir(GovernanceLedgerPort)
+            if not name.startswith("_")
+            and callable(getattr(GovernanceLedgerPort, name, None))
         ]
 
         remove_methods = [name for name in method_names if "remove" in name.lower()]
@@ -292,8 +299,10 @@ class TestNoMutationPathsExist:
     def test_no_methods_contain_modify_in_name(self) -> None:
         """No methods have 'modify' in their name."""
         method_names = [
-            name for name in dir(GovernanceLedgerPort)
-            if not name.startswith("_") and callable(getattr(GovernanceLedgerPort, name, None))
+            name
+            for name in dir(GovernanceLedgerPort)
+            if not name.startswith("_")
+            and callable(getattr(GovernanceLedgerPort, name, None))
         ]
 
         modify_methods = [name for name in method_names if "modify" in name.lower()]
@@ -320,8 +329,10 @@ class TestNoMutationPathsExist:
 
         # Verify no other public methods exist (except Protocol internals)
         all_methods = [
-            name for name in dir(GovernanceLedgerPort)
-            if not name.startswith("_") and callable(getattr(GovernanceLedgerPort, name, None))
+            name
+            for name in dir(GovernanceLedgerPort)
+            if not name.startswith("_")
+            and callable(getattr(GovernanceLedgerPort, name, None))
         ]
 
         # Filter out typing/protocol internals

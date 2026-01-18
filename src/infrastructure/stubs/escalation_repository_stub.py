@@ -9,7 +9,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.escalation_repository import EscalationRepositoryProtocol
@@ -79,7 +78,7 @@ class EscalationRepositoryStub(EscalationRepositoryProtocol):
 
     async def get_acknowledgment_for_breach(
         self, breach_id: UUID
-    ) -> Optional[BreachAcknowledgedEventPayload]:
+    ) -> BreachAcknowledgedEventPayload | None:
         """Get the acknowledgment for a specific breach.
 
         Args:
@@ -92,7 +91,7 @@ class EscalationRepositoryStub(EscalationRepositoryProtocol):
 
     async def get_escalation_for_breach(
         self, breach_id: UUID
-    ) -> Optional[EscalationEventPayload]:
+    ) -> EscalationEventPayload | None:
         """Get the escalation for a specific breach.
 
         Args:

@@ -18,7 +18,7 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.models.compliance import (
     ComplianceAssessment,
@@ -40,9 +40,7 @@ class ComplianceRepositoryProtocol(Protocol):
     - CT-12: Witnessing creates accountability
     """
 
-    async def get_assessment(
-        self, assessment_id: str
-    ) -> Optional[ComplianceAssessment]:
+    async def get_assessment(self, assessment_id: str) -> ComplianceAssessment | None:
         """Retrieve an assessment by its ID.
 
         Args:
@@ -68,7 +66,7 @@ class ComplianceRepositoryProtocol(Protocol):
 
     async def get_latest_assessment(
         self, framework: ComplianceFramework
-    ) -> Optional[ComplianceAssessment]:
+    ) -> ComplianceAssessment | None:
         """Retrieve the most recent assessment for a framework.
 
         Args:

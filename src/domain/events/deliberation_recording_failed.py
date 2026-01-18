@@ -23,7 +23,9 @@ from typing import Any
 from uuid import UUID
 
 # Event type constant following lowercase.dot.notation convention
-DELIBERATION_RECORDING_FAILED_EVENT_TYPE: str = "cessation.deliberation_recording_failed"
+DELIBERATION_RECORDING_FAILED_EVENT_TYPE: str = (
+    "cessation.deliberation_recording_failed"
+)
 
 # Maximum Archon count for validation
 MAX_ARCHON_COUNT: int = 72

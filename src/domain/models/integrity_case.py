@@ -45,7 +45,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class GuaranteeCategory(Enum):
@@ -113,8 +113,8 @@ class IntegrityGuarantee:
     mechanism: str
     invalidation_conditions: tuple[str, ...]
     is_constitutional: bool
-    ct_reference: Optional[str] = None
-    adr_reference: Optional[str] = None
+    ct_reference: str | None = None
+    adr_reference: str | None = None
 
     def __post_init__(self) -> None:
         """Validate guarantee completeness."""
@@ -220,12 +220,10 @@ class IntegrityCaseArtifact:
     created_at: datetime = field(
         default_factory=lambda: datetime(2026, 1, 1, tzinfo=timezone.utc)
     )
-    last_updated: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    amendment_event_id: Optional[str] = None
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    amendment_event_id: str | None = None
 
-    def get_guarantee(self, guarantee_id: str) -> Optional[IntegrityGuarantee]:
+    def get_guarantee(self, guarantee_id: str) -> IntegrityGuarantee | None:
         """Get a specific guarantee by ID.
 
         Args:

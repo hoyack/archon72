@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.integrity_case_repository import (
     IntegrityCaseRepositoryProtocol,
@@ -91,7 +90,7 @@ class IntegrityCaseRepositoryStub(IntegrityCaseRepositoryProtocol):
         """
         return self._current
 
-    async def get_version(self, version: str) -> Optional[IntegrityCaseArtifact]:
+    async def get_version(self, version: str) -> IntegrityCaseArtifact | None:
         """Retrieve a specific historical version of the artifact.
 
         Args:
@@ -119,6 +118,7 @@ class IntegrityCaseRepositoryStub(IntegrityCaseRepositoryProtocol):
         """
         if self._is_ceased:
             from src.domain.errors.ceased import SystemCeasedError
+
             raise SystemCeasedError("Cannot update integrity case after cessation")
 
         # Store the new version
@@ -158,7 +158,7 @@ class IntegrityCaseRepositoryStub(IntegrityCaseRepositoryProtocol):
         """Get number of guarantees in current artifact."""
         return len(self._current.guarantees)
 
-    def get_guarantee(self, guarantee_id: str) -> Optional[IntegrityGuarantee]:
+    def get_guarantee(self, guarantee_id: str) -> IntegrityGuarantee | None:
         """Get a specific guarantee from current artifact (for testing)."""
         return self._current.get_guarantee(guarantee_id)
 

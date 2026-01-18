@@ -42,7 +42,9 @@ class TestViolationType:
 
     def test_constitutional_constraint_value(self) -> None:
         """Test CONSTITUTIONAL_CONSTRAINT enum value (FR86)."""
-        assert ViolationType.CONSTITUTIONAL_CONSTRAINT.value == "CONSTITUTIONAL_CONSTRAINT"
+        assert (
+            ViolationType.CONSTITUTIONAL_CONSTRAINT.value == "CONSTITUTIONAL_CONSTRAINT"
+        )
 
     def test_all_violation_types_exist(self) -> None:
         """Test all expected violation types are present."""

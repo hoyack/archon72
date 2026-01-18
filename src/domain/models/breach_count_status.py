@@ -9,10 +9,11 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -145,11 +146,7 @@ class BreachCountStatus:
         # Split window in half for comparison
         midpoint = now - timedelta(days=window_days // 2)
 
-        recent_count = sum(
-            1
-            for b in breaches
-            if b.detection_timestamp > midpoint
-        )
+        recent_count = sum(1 for b in breaches if b.detection_timestamp > midpoint)
         older_count = len(breaches) - recent_count
 
         # Determine trajectory with a tolerance of 2 breaches

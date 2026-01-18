@@ -335,7 +335,9 @@ def get_environment_info() -> EnvironmentInfo:
 # =============================================================================
 
 
-async def measure_instantiation(agent_count: int = AGENT_COUNT) -> tuple[list[MockAgent], float, float]:
+async def measure_instantiation(
+    agent_count: int = AGENT_COUNT,
+) -> tuple[list[MockAgent], float, float]:
     """Measure agent instantiation time and memory.
 
     Args:
@@ -471,7 +473,9 @@ async def run_full_spike(
     start = time.perf_counter()
     agents = [create_mock_agent(i) for i in range(1, agent_count + 1)]
     metrics.total_instantiation_time_ms = (time.perf_counter() - start) * 1000
-    metrics.per_agent_instantiation_ms = metrics.total_instantiation_time_ms / agent_count
+    metrics.per_agent_instantiation_ms = (
+        metrics.total_instantiation_time_ms / agent_count
+    )
     metrics.memory_after_instantiation_mb = get_current_memory_mb()
 
     logger.info(
@@ -501,7 +505,9 @@ async def run_full_spike(
 
     # Calculate per-agent memory
     memory_for_agents = metrics.memory_after_instantiation_mb - metrics.memory_before_mb
-    metrics.per_agent_memory_mb = memory_for_agents / agent_count if agent_count > 0 else 0
+    metrics.per_agent_memory_mb = (
+        memory_for_agents / agent_count if agent_count > 0 else 0
+    )
 
     # =========================================================================
     # Phase 3: Calculate Percentiles
@@ -514,7 +520,9 @@ async def run_full_spike(
     del agents
     gc.collect()
     metrics.memory_after_cleanup_mb = get_current_memory_mb()
-    metrics.memory_leaked_mb = metrics.memory_after_cleanup_mb - metrics.memory_before_mb
+    metrics.memory_leaked_mb = (
+        metrics.memory_after_cleanup_mb - metrics.memory_before_mb
+    )
 
     tracemalloc.stop()
 
@@ -551,7 +559,9 @@ async def test_72_agent_instantiation() -> None:
     tracemalloc.stop()
 
     # Verify count
-    assert len(agents) == AGENT_COUNT, f"Expected {AGENT_COUNT} agents, got {len(agents)}"
+    assert len(agents) == AGENT_COUNT, (
+        f"Expected {AGENT_COUNT} agents, got {len(agents)}"
+    )
 
     # Verify unique naming
     agent_ids = [a.agent_id for a in agents]
@@ -593,7 +603,9 @@ async def test_72_agent_concurrent_execution() -> None:
     )
 
     # Verify all executed
-    assert len(outputs) == AGENT_COUNT, f"Expected {AGENT_COUNT} outputs, got {len(outputs)}"
+    assert len(outputs) == AGENT_COUNT, (
+        f"Expected {AGENT_COUNT} outputs, got {len(outputs)}"
+    )
     assert len(failures) == 0, f"Unexpected failures: {failures}"
 
     # Verify concurrent execution (total time should be ~execution_latency, not 72x)
@@ -602,7 +614,9 @@ async def test_72_agent_concurrent_execution() -> None:
 
     # If truly concurrent, avg latency should be close to the execution latency
     # (not 72x the latency which would indicate sequential execution)
-    assert avg_latency < 200, f"Average latency too high ({avg_latency:.1f}ms), suggesting sequential execution"
+    assert avg_latency < 200, (
+        f"Average latency too high ({avg_latency:.1f}ms), suggesting sequential execution"
+    )
 
     logger.info(
         "test_concurrent_result",
@@ -891,7 +905,7 @@ async def test_timeout_handling() -> None:
                 timeout=timeout_sec,
             )
             return f"Output from {agent.role}"
-        except (TimeoutError, asyncio.TimeoutError):
+        except TimeoutError:
             return None
 
     results = await asyncio.gather(

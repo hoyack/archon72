@@ -3,7 +3,6 @@
 Tests error classes for topic diversity violations and rate limiting.
 """
 
-
 from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.topic import (
     TopicDiversityViolationError,

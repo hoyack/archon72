@@ -63,8 +63,7 @@ class RankViolationError(Exception):
         self.reason = reason
         self.prd_reference = prd_reference
         super().__init__(
-            f"Rank violation by {archon_id} on {action}: {reason} "
-            f"(per {prd_reference})"
+            f"Rank violation by {archon_id} on {action}: {reason} (per {prd_reference})"
         )
 
 

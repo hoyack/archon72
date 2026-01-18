@@ -13,16 +13,17 @@ References:
     - NFR-CONST-06: Panel findings cannot be deleted or modified
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
 
+import pytest
+
 from src.domain.governance.panel import (
-    PanelFinding,
     Determination,
-    RemedyType,
     Dissent,
     FindingRecord,
+    PanelFinding,
+    RemedyType,
 )
 
 
@@ -44,7 +45,11 @@ def _create_finding(
         majority_rationale="Test rationale.",
         dissent=dissent,
         issued_at=datetime.now(timezone.utc),
-        voting_record={uuid4(): "violation", uuid4(): "violation", uuid4(): "no_violation"},
+        voting_record={
+            uuid4(): "violation",
+            uuid4(): "violation",
+            uuid4(): "no_violation",
+        },
     )
 
 
@@ -234,7 +239,10 @@ class TestFindingRecordCreation:
 
         assert record.finding.dissent is not None
         assert len(record.finding.dissent.dissenting_member_ids) == 2
-        assert record.finding.dissent.rationale == "Strong disagreement with majority view."
+        assert (
+            record.finding.dissent.rationale
+            == "Strong disagreement with majority view."
+        )
 
     def test_create_record_preserves_voting_record(self) -> None:
         """Record preserves voting record (AC5)."""
@@ -248,7 +256,11 @@ class TestFindingRecordCreation:
             majority_rationale="Test.",
             dissent=None,
             issued_at=datetime.now(timezone.utc),
-            voting_record={member1: "violation", member2: "violation", member3: "no_violation"},
+            voting_record={
+                member1: "violation",
+                member2: "violation",
+                member3: "no_violation",
+            },
         )
         record = _create_record(finding=finding)
 

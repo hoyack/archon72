@@ -19,8 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Final, Literal, Optional
-
+from typing import Final, Literal
 
 # Event type constants matching those in src/domain/events/audit.py
 AUDIT_STARTED_EVENT_TYPE: Final[str] = "audit.started"
@@ -71,7 +70,7 @@ class AuditEvent:
     event_id: str
     event_type: str
     audit_id: str
-    quarter: Optional[str]
+    quarter: str | None
     timestamp: datetime
     payload: dict[str, object]
 
@@ -104,7 +103,7 @@ class AuditEvent:
         return self.event_type == AuditEventType.VIOLATION_FLAGGED.value
 
     @property
-    def completion_status(self) -> Optional[str]:
+    def completion_status(self) -> str | None:
         """Get completion status from payload if this is a completed event.
 
         Returns:

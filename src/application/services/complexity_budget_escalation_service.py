@@ -17,7 +17,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from structlog import get_logger
@@ -26,7 +26,6 @@ from src.application.ports.complexity_budget_repository import (
     ComplexityBudgetRepositoryPort,
 )
 from src.application.ports.halt_checker import HaltChecker
-from src.domain.errors.complexity_budget import ComplexityBudgetEscalationError
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.complexity_budget import (
     COMPLEXITY_BUDGET_ESCALATED_EVENT_TYPE,
@@ -110,10 +109,7 @@ class ComplexityBudgetEscalationService:
             days=self._escalation_period_days
         )
 
-        pending = [
-            breach for breach in unresolved
-            if breach.breached_at < cutoff
-        ]
+        pending = [breach for breach in unresolved if breach.breached_at < cutoff]
 
         log.info(
             "pending_breaches_checked",
@@ -190,10 +186,7 @@ class ComplexityBudgetEscalationService:
         days_since = await self.get_days_since_breach(breach)
 
         # Determine escalation level based on time elapsed
-        if days_since >= SECOND_ESCALATION_PERIOD_DAYS:
-            escalation_level = 2
-        else:
-            escalation_level = 1
+        escalation_level = 2 if days_since >= SECOND_ESCALATION_PERIOD_DAYS else 1
 
         # =====================================================================
         # Create escalation payload (RT-6)

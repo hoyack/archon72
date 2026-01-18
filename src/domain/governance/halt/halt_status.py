@@ -17,7 +17,6 @@ Requirements: FR22-FR27, NFR-PERF-01, NFR-REL-01
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 
@@ -74,11 +73,11 @@ class HaltStatus:
     """
 
     is_halted: bool
-    halted_at: Optional[datetime]
-    reason: Optional[HaltReason]
-    operator_id: Optional[UUID]
-    message: Optional[str]
-    trace_id: Optional[str] = None
+    halted_at: datetime | None
+    reason: HaltReason | None
+    operator_id: UUID | None
+    message: str | None
+    trace_id: str | None = None
 
     @classmethod
     def not_halted(cls) -> "HaltStatus":
@@ -102,8 +101,8 @@ class HaltStatus:
         reason: HaltReason,
         message: str,
         halted_at: datetime,
-        operator_id: Optional[UUID] = None,
-        trace_id: Optional[str] = None,
+        operator_id: UUID | None = None,
+        trace_id: str | None = None,
     ) -> "HaltStatus":
         """Create a status indicating system is halted.
 

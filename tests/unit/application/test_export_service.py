@@ -14,13 +14,10 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.api.models.observer import AttestationMetadata, ExportFormat
-from src.application.ports.event_store import EventStorePort
 from src.application.ports.hsm import HSMMode, HSMProtocol, SignatureResult
 from src.application.services.export_service import ExportService
 from src.domain.events import Event
 from src.infrastructure.stubs.event_store_stub import EventStoreStub
-
 
 # =============================================================================
 # Test Fixtures

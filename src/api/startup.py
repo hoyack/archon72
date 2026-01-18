@@ -58,12 +58,12 @@ from src.domain.models.signable import (
 )
 from src.domain.models.verification_result import VerificationStatus
 from src.infrastructure.monitoring.metrics import get_metrics_collector
+from src.infrastructure.observability import configure_structlog
 from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
 from src.infrastructure.stubs.event_replicator_stub import EventReplicatorStub
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
 from src.infrastructure.stubs.hash_verifier_stub import HashVerifierStub
-from src.infrastructure.observability import configure_structlog
 from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 from src.infrastructure.stubs.witness_pool_monitor_stub import WitnessPoolMonitorStub
 

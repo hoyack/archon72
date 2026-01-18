@@ -24,10 +24,6 @@ from src.application.services.cessation_consideration_service import (
     CESSATION_SYSTEM_AGENT_ID,
     CessationConsiderationService,
 )
-from src.domain.errors.cessation import (
-    CessationConsiderationNotFoundError,
-    InvalidCessationDecisionError,
-)
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.breach import (
     BreachEventPayload,
@@ -37,7 +33,6 @@ from src.domain.events.breach import (
 from src.domain.events.cessation import (
     CESSATION_CONSIDERATION_EVENT_TYPE,
     CESSATION_DECISION_EVENT_TYPE,
-    CessationConsiderationEventPayload,
     CessationDecision,
 )
 from src.domain.models.breach_count_status import (
@@ -144,9 +139,7 @@ async def create_breaches_in_repo(
 
     breaches = []
     for i in range(count):
-        breach = create_breach(
-            detection_timestamp=base_timestamp - timedelta(days=i)
-        )
+        breach = create_breach(detection_timestamp=base_timestamp - timedelta(days=i))
         await breach_repository.save(breach)
         breaches.append(breach)
     return breaches
@@ -165,7 +158,7 @@ class TestFR32CessationTrigger:
     ) -> None:
         """FR32: >10 unacknowledged breaches SHALL trigger cessation consideration."""
         # Create 11 unacknowledged breaches (within 90 days)
-        breaches = await create_breaches_in_repo(breach_repository, 11)
+        await create_breaches_in_repo(breach_repository, 11)
 
         # Trigger cessation check
         result = await cessation_service.check_and_trigger_cessation()
@@ -224,7 +217,7 @@ class TestFR32CessationTrigger:
         await create_breaches_in_repo(breach_repository, 11)
 
         # Trigger cessation
-        result = await cessation_service.check_and_trigger_cessation()
+        await cessation_service.check_and_trigger_cessation()
 
         # Verify event writer was called (witnessing handled by write_event)
         mock_event_writer.write_event.assert_called_once()

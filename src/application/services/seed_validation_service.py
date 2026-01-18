@@ -27,7 +27,6 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
 
 import structlog
@@ -161,7 +160,7 @@ class SeedValidationService:
             seed_bytes = await self._entropy_source.get_entropy()
         except Exception as e:
             # Create rejection event for entropy failure
-            rejection_event = SeedRejectedEventPayload(
+            SeedRejectedEventPayload(
                 rejection_id=str(uuid4()),
                 seed_purpose=purpose,
                 rejection_reason=f"Entropy unavailable: {e}",
@@ -188,7 +187,7 @@ class SeedValidationService:
 
         if not source_validation.is_independent:
             # Create rejection event
-            rejection_event = SeedRejectedEventPayload(
+            SeedRejectedEventPayload(
                 rejection_id=str(uuid4()),
                 seed_purpose=purpose,
                 rejection_reason=source_validation.validation_reason,
@@ -216,7 +215,7 @@ class SeedValidationService:
 
         if predictability.is_predictable:
             # Create rejection event
-            rejection_event = SeedRejectedEventPayload(
+            SeedRejectedEventPayload(
                 rejection_id=str(uuid4()),
                 seed_purpose=purpose,
                 rejection_reason=predictability.recommendation,

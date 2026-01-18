@@ -10,18 +10,19 @@ Tests:
 - AC10: Task includes all required metadata
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.governance.task.task_state import (
-    TaskStatus,
-    TaskState,
-    IllegalStateTransitionError,
-    _PRE_CONSENT_STATES,
     _POST_CONSENT_STATES,
+    _PRE_CONSENT_STATES,
     _TERMINAL_STATES,
+    IllegalStateTransitionError,
+    TaskState,
+    TaskStatus,
 )
 
 
@@ -157,7 +158,9 @@ class TestTaskState:
 
     def test_taskstate_validation_empty_earl_id(self):
         """Empty earl_id raises ConstitutionalViolationError."""
-        with pytest.raises(ConstitutionalViolationError, match="earl_id must be non-empty"):
+        with pytest.raises(
+            ConstitutionalViolationError, match="earl_id must be non-empty"
+        ):
             TaskState(
                 task_id=uuid4(),
                 earl_id="  ",
@@ -169,7 +172,9 @@ class TestTaskState:
 
     def test_taskstate_validation_invalid_status(self):
         """Invalid current_status raises ConstitutionalViolationError."""
-        with pytest.raises(ConstitutionalViolationError, match="current_status must be TaskStatus"):
+        with pytest.raises(
+            ConstitutionalViolationError, match="current_status must be TaskStatus"
+        ):
             TaskState(
                 task_id=uuid4(),
                 earl_id="earl-1",
@@ -181,7 +186,9 @@ class TestTaskState:
 
     def test_taskstate_validation_invalid_timestamps(self):
         """Invalid timestamps raise ConstitutionalViolationError."""
-        with pytest.raises(ConstitutionalViolationError, match="created_at must be datetime"):
+        with pytest.raises(
+            ConstitutionalViolationError, match="created_at must be datetime"
+        ):
             TaskState(
                 task_id=uuid4(),
                 earl_id="earl-1",
@@ -232,7 +239,12 @@ class TestTaskState:
 
     def test_is_terminal_property(self):
         """is_terminal property works correctly."""
-        for status in [TaskStatus.COMPLETED, TaskStatus.DECLINED, TaskStatus.QUARANTINED, TaskStatus.NULLIFIED]:
+        for status in [
+            TaskStatus.COMPLETED,
+            TaskStatus.DECLINED,
+            TaskStatus.QUARANTINED,
+            TaskStatus.NULLIFIED,
+        ]:
             task = TaskState(
                 task_id=uuid4(),
                 earl_id="earl-1",
@@ -532,7 +544,9 @@ class TestTaskStateWithCluster:
             state_entered_at=datetime.now(timezone.utc),
         )
 
-        with pytest.raises(ConstitutionalViolationError, match="cluster_id must be non-empty"):
+        with pytest.raises(
+            ConstitutionalViolationError, match="cluster_id must be non-empty"
+        ):
             task.with_cluster("  ")
 
 

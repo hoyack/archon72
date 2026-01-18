@@ -9,20 +9,16 @@ Tests the full semantic scanning pipeline with real components:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
 
 from src.application.ports.prohibited_language_scanner import ScanResult
-from src.application.ports.semantic_scanner import SemanticScanResult
 from src.application.services.emergence_violation_orchestrator import (
-    CombinedScanResult,
     EmergenceViolationOrchestrator,
 )
 from src.application.services.semantic_scanning_service import SemanticScanningService
-from src.domain.errors.semantic_violation import SemanticScanError
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.semantic_violation import (
     SEMANTIC_SCANNER_SYSTEM_AGENT_ID,
@@ -34,7 +30,6 @@ from src.infrastructure.stubs.semantic_scanner_stub import (
     DEFAULT_SUSPICIOUS_PATTERNS,
     SemanticScannerStub,
 )
-
 
 # ========================================================================
 # Fixtures
@@ -398,9 +393,7 @@ class TestScanOnlyIntegration:
     ) -> None:
         """Test that scan_only does NOT create events."""
         # Even with high confidence content
-        await service.scan_only(
-            content="We think, we feel, we believe this is right."
-        )
+        await service.scan_only(content="We think, we feel, we believe this is right.")
 
         event_writer_mock.write_event.assert_not_called()
 

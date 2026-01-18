@@ -27,9 +27,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Optional
 from uuid import UUID
-
 
 # Constants per FR145 and FR147
 PUBLICATION_DELAY_DAYS: int = 7  # FR147: 7 days before publication
@@ -82,8 +80,8 @@ class TimelineEntry:
 
     timestamp: datetime
     description: str
-    event_id: Optional[UUID] = None
-    actor: Optional[str] = None
+    event_id: UUID | None = None
+    actor: str | None = None
 
 
 @dataclass(frozen=True, eq=True)
@@ -127,8 +125,8 @@ class IncidentReport:
     prevention_recommendations: list[str]
     related_event_ids: list[UUID]
     created_at: datetime
-    resolution_at: Optional[datetime] = None
-    published_at: Optional[datetime] = None
+    resolution_at: datetime | None = None
+    published_at: datetime | None = None
     redacted_fields: list[str] = field(default_factory=list)
     status: IncidentStatus = IncidentStatus.DRAFT
 
@@ -309,7 +307,9 @@ class IncidentReport:
             "prevention_recommendations": self.prevention_recommendations,
             "related_event_ids": [str(eid) for eid in self.related_event_ids],
             "created_at": self.created_at.isoformat(),
-            "resolution_at": self.resolution_at.isoformat() if self.resolution_at else None,
+            "resolution_at": self.resolution_at.isoformat()
+            if self.resolution_at
+            else None,
             "redacted_fields": self.redacted_fields,
         }
         canonical = json.dumps(content, sort_keys=True, separators=(",", ":"))

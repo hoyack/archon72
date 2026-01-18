@@ -21,7 +21,6 @@ from uuid import UUID, uuid4
 from structlog import get_logger
 
 from src.application.ports.branch_action_tracker import (
-    ACTION_BRANCH_MAP,
     BranchActionTrackerProtocol,
     GovernanceAction,
     GovernanceBranch,
@@ -89,8 +88,12 @@ class CollapsedRoles:
         return {
             "existing_branch": self.existing_branch.value,
             "attempted_branch": self.attempted_branch.value,
-            "existing_action": self.existing_action.value if self.existing_action else None,
-            "attempted_action": self.attempted_action.value if self.attempted_action else None,
+            "existing_action": self.existing_action.value
+            if self.existing_action
+            else None,
+            "attempted_action": self.attempted_action.value
+            if self.attempted_action
+            else None,
         }
 
 
@@ -452,7 +455,9 @@ class RoleCollapseDetectionService:
             CollapseCheckResult with detection result
         """
         # Get branches this Archon has already acted in for this motion
-        existing_branches = await self._tracker.get_archon_branches(archon_id, motion_id)
+        existing_branches = await self._tracker.get_archon_branches(
+            archon_id, motion_id
+        )
 
         if not existing_branches:
             logger.debug(
@@ -707,8 +712,7 @@ class RoleCollapseDetectionService:
         """
         if motion_id:
             return [
-                e for e in self._audit_entries
-                if e.violation.motion_id == motion_id
+                e for e in self._audit_entries if e.violation.motion_id == motion_id
             ]
         return list(self._audit_entries)
 

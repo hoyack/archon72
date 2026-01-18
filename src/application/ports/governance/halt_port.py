@@ -18,7 +18,8 @@ Requirements: FR22-FR27, NFR-PERF-01, NFR-REL-01, NFR-ATOMIC-01
 """
 
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, TypeVar
+from collections.abc import Callable
+from typing import TypeVar
 from uuid import UUID
 
 from src.domain.governance.halt import HaltedException, HaltReason, HaltStatus
@@ -87,8 +88,8 @@ class HaltPort(ABC):
         self,
         reason: HaltReason,
         message: str,
-        operator_id: Optional[UUID] = None,
-        trace_id: Optional[str] = None,
+        operator_id: UUID | None = None,
+        trace_id: str | None = None,
     ) -> HaltStatus:
         """Trigger system halt.
 

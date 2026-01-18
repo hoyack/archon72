@@ -43,11 +43,13 @@ class LegitimacyStateRecord:
     """
 
     # Valid legitimacy bands in descending order
-    VALID_BANDS: ClassVar[frozenset[str]] = frozenset({
-        "full",
-        "provisional",
-        "suspended",
-    })
+    VALID_BANDS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "full",
+            "provisional",
+            "suspended",
+        }
+    )
 
     # Band hierarchy (higher number = better legitimacy)
     BAND_LEVELS: ClassVar[dict[str, int]] = {

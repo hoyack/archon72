@@ -12,7 +12,7 @@ Constitutional Constraints Tested:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -66,7 +66,9 @@ class TestConflictDeclaration:
         )
 
         assert declaration.declaration_type == DeclarationType.FINANCIAL
-        assert declaration.description == "Investment in competing AI governance platform"
+        assert (
+            declaration.description == "Investment in competing AI governance platform"
+        )
         assert declaration.related_party == "Acme AI Corp"
         assert declaration.disclosed_at == now
 
@@ -126,7 +128,7 @@ class TestIndependenceAttestation:
         attestation_year: int = 2026,
         conflicts: list | None = None,
         organizations: list | None = None,
-    ) -> "IndependenceAttestation":
+    ) -> IndependenceAttestation:
         """Helper to create a valid attestation for testing."""
         from src.domain.models.independence_attestation import IndependenceAttestation
 
@@ -275,7 +277,9 @@ class TestIndependenceAttestation:
             attestation.delete()  # type: ignore[attr-defined]
 
         # DeletePreventionMixin uses FR80 reference
-        assert "FR80" in str(exc_info.value) or "Deletion prohibited" in str(exc_info.value)
+        assert "FR80" in str(exc_info.value) or "Deletion prohibited" in str(
+            exc_info.value
+        )
 
     def test_hash_based_on_id(self) -> None:
         """Test hash is based on id for set membership."""
@@ -324,7 +328,9 @@ class TestAttestationConstants:
 
     def test_deadline_grace_period_days(self) -> None:
         """Test DEADLINE_GRACE_PERIOD_DAYS is 30."""
-        from src.domain.models.independence_attestation import DEADLINE_GRACE_PERIOD_DAYS
+        from src.domain.models.independence_attestation import (
+            DEADLINE_GRACE_PERIOD_DAYS,
+        )
 
         assert DEADLINE_GRACE_PERIOD_DAYS == 30
 

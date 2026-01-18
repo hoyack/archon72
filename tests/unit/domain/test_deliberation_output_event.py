@@ -153,9 +153,8 @@ class TestNoInfrastructureImports:
                         assert not alias.name.startswith(forbidden), (
                             f"Forbidden import: {alias.name}"
                         )
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    for forbidden in forbidden_modules:
-                        assert not node.module.startswith(forbidden), (
-                            f"Forbidden import: {node.module}"
-                        )
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                for forbidden in forbidden_modules:
+                    assert not node.module.startswith(forbidden), (
+                        f"Forbidden import: {node.module}"
+                    )

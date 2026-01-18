@@ -20,7 +20,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from src.domain.events.hash_verification import HashVerificationResult
 
@@ -49,9 +49,9 @@ class HashScanResult:
     passed: bool
     completed_at: datetime
     duration_seconds: float
-    failed_event_id: Optional[str] = None
-    expected_hash: Optional[str] = None
-    actual_hash: Optional[str] = None
+    failed_event_id: str | None = None
+    expected_hash: str | None = None
+    actual_hash: str | None = None
 
     def __post_init__(self) -> None:
         """Validate consistency of failed scan data."""
@@ -87,10 +87,10 @@ class HashScanStatus:
         verification_interval_seconds: Configured interval between scans.
     """
 
-    last_scan_id: Optional[str] = None
-    last_scan_at: Optional[datetime] = None
-    next_scan_at: Optional[datetime] = None
-    last_scan_passed: Optional[bool] = None
+    last_scan_id: str | None = None
+    last_scan_at: datetime | None = None
+    next_scan_at: datetime | None = None
+    last_scan_passed: bool | None = None
     events_verified_total: int = 0
     verification_interval_seconds: int = 3600  # Default 1 hour
 
@@ -173,7 +173,7 @@ class HashVerifierProtocol(Protocol):
     @abstractmethod
     async def run_full_scan(
         self,
-        max_events: Optional[int] = None,
+        max_events: int | None = None,
     ) -> HashScanResult:
         """Run full hash chain verification.
 

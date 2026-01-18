@@ -23,13 +23,41 @@ Constitutional Constraints:
 - NFR-INT-01: Async protocol for Earl→Cluster
 """
 
+from src.application.ports.governance.cessation_port import (
+    CessationPort,
+    ExecutionHalterPort,
+    MotionBlockerPort,
+)
+from src.application.ports.governance.cessation_record_port import (
+    CessationRecordPort,
+)
 from src.application.ports.governance.coercion_filter_port import (
     CoercionFilterPort,
     FilterResult,
 )
+from src.application.ports.governance.contact_block_port import (
+    ContactBlockPort,
+)
+from src.application.ports.governance.contribution_port import (
+    ContributionPort,
+)
+from src.application.ports.governance.exit_port import (
+    ExitPort,
+)
+from src.application.ports.governance.filter_decision_log_port import (
+    FilterDecisionLogPort,
+)
 from src.application.ports.governance.halt_port import (
     HaltChecker,
     HaltPort,
+)
+from src.application.ports.governance.halt_task_transition_port import (
+    ConcurrentModificationError,
+    HaltTaskTransitionPort,
+    HaltTransitionResult,
+    HaltTransitionType,
+    TaskStateCategory,
+    TaskTransitionRecord,
 )
 from src.application.ports.governance.halt_trigger_port import (
     HaltExecutionResult,
@@ -37,14 +65,44 @@ from src.application.ports.governance.halt_trigger_port import (
     HaltTriggerPort,
     UnauthorizedHaltError,
 )
+from src.application.ports.governance.ledger_export_port import (
+    LedgerExportPort,
+    PIICheckerPort,
+)
 from src.application.ports.governance.ledger_port import (
     GovernanceLedgerPort,
     LedgerReadOptions,
     PersistedGovernanceEvent,
 )
+from src.application.ports.governance.legitimacy_decay_port import (
+    DecayResult,
+    LegitimacyDecayPort,
+)
+from src.application.ports.governance.legitimacy_port import (
+    LegitimacyPort,
+    LegitimacyQueryPort,
+)
+from src.application.ports.governance.legitimacy_restoration_port import (
+    LegitimacyRestorationPort,
+    RestorationAcknowledgment,
+    RestorationRequest,
+    RestorationResult,
+)
+from src.application.ports.governance.panel_finding_port import (
+    PanelFindingPort,
+)
+from src.application.ports.governance.panel_port import (
+    PanelPort,
+)
+from src.application.ports.governance.panel_queue_port import (
+    PanelQueuePort,
+)
 from src.application.ports.governance.participant_message_port import (
     MessageDeliveryError,
     ParticipantMessagePort,
+)
+from src.application.ports.governance.pattern_library_port import (
+    PatternLibraryPort,
 )
 from src.application.ports.governance.projection_port import (
     ActorRegistryProjectionPort,
@@ -53,6 +111,13 @@ from src.application.ports.governance.projection_port import (
     ProjectionCheckpoint,
     ProjectionPort,
     TaskStateProjectionPort,
+)
+from src.application.ports.governance.proof_port import (
+    HashChainPort,
+    ProofPort,
+)
+from src.application.ports.governance.reconstitution_port import (
+    ReconstitutionPort,
 )
 from src.application.ports.governance.task_activation_port import (
     TaskActivationPort,
@@ -67,14 +132,13 @@ from src.application.ports.governance.task_consent_port import (
     TaskConsentResult,
     UnauthorizedConsentError,
 )
-from src.application.ports.governance.task_result_port import (
-    InvalidResultStateError,
-    ProblemCategory,
-    ProblemReportValue,
-    ResultSubmissionResult,
-    TaskResultPort,
-    TaskResultValue,
-    UnauthorizedResultError,
+from src.application.ports.governance.task_constraint_port import (
+    ROLE_ALLOWED_OPERATIONS,
+    ROLE_PROHIBITED_OPERATIONS,
+    ConstraintViolation,
+    ConstraintViolationError,
+    TaskConstraintPort,
+    TaskOperation,
 )
 from src.application.ports.governance.task_reminder_port import (
     ReminderMilestone,
@@ -84,13 +148,14 @@ from src.application.ports.governance.task_reminder_port import (
     ReminderTrackingPort,
     TaskReminderPort,
 )
-from src.application.ports.governance.task_constraint_port import (
-    ConstraintViolation,
-    ConstraintViolationError,
-    ROLE_ALLOWED_OPERATIONS,
-    ROLE_PROHIBITED_OPERATIONS,
-    TaskConstraintPort,
-    TaskOperation,
+from src.application.ports.governance.task_result_port import (
+    InvalidResultStateError,
+    ProblemCategory,
+    ProblemReportValue,
+    ResultSubmissionResult,
+    TaskResultPort,
+    TaskResultValue,
+    UnauthorizedResultError,
 )
 from src.application.ports.governance.task_timeout_port import (
     TaskTimeoutConfig,
@@ -98,80 +163,15 @@ from src.application.ports.governance.task_timeout_port import (
     TimeoutProcessingResult,
     TimeoutSchedulerPort,
 )
-from src.application.ports.governance.halt_task_transition_port import (
-    ConcurrentModificationError,
-    HaltTaskTransitionPort,
-    HaltTransitionResult,
-    HaltTransitionType,
-    TaskStateCategory,
-    TaskTransitionRecord,
-)
-from src.application.ports.governance.filter_decision_log_port import (
-    FilterDecisionLogPort,
-)
-from src.application.ports.governance.pattern_library_port import (
-    PatternLibraryPort,
-)
-from src.application.ports.governance.witness_port import (
-    WitnessPort,
-)
-from src.application.ports.governance.panel_queue_port import (
-    PanelQueuePort,
-)
-from src.application.ports.governance.panel_port import (
-    PanelPort,
-)
-from src.application.ports.governance.panel_finding_port import (
-    PanelFindingPort,
-)
-from src.application.ports.governance.legitimacy_port import (
-    LegitimacyPort,
-    LegitimacyQueryPort,
-)
-from src.application.ports.governance.legitimacy_decay_port import (
-    DecayResult,
-    LegitimacyDecayPort,
-)
-from src.application.ports.governance.legitimacy_restoration_port import (
-    LegitimacyRestorationPort,
-    RestorationAcknowledgment,
-    RestorationRequest,
-    RestorationResult,
-)
-from src.application.ports.governance.exit_port import (
-    ExitPort,
-)
-from src.application.ports.governance.contribution_port import (
-    ContributionPort,
-)
-from src.application.ports.governance.contact_block_port import (
-    ContactBlockPort,
-)
-from src.application.ports.governance.cessation_port import (
-    CessationPort,
-    ExecutionHalterPort,
-    MotionBlockerPort,
-)
-from src.application.ports.governance.cessation_record_port import (
-    CessationRecordPort,
-)
-from src.application.ports.governance.reconstitution_port import (
-    ReconstitutionPort,
-)
-from src.application.ports.governance.ledger_export_port import (
-    LedgerExportPort,
-    PIICheckerPort,
-)
-from src.application.ports.governance.proof_port import (
-    HashChainPort,
-    ProofPort,
+from src.application.ports.governance.transition_log_port import (
+    TransitionLogPort,
 )
 from src.application.ports.governance.verification_port import (
     StateReplayerPort,
     VerificationPort,
 )
-from src.application.ports.governance.transition_log_port import (
-    TransitionLogPort,
+from src.application.ports.governance.witness_port import (
+    WitnessPort,
 )
 
 __all__ = [

@@ -417,9 +417,7 @@ class TestAtomicEventWriterTimeAuthority:
     ) -> None:
         """Test that event is still returned even when drift is detected (AC4)."""
         # Simulate drift detection returning large drift
-        mock_time_authority.check_drift = MagicMock(
-            return_value=timedelta(seconds=10)
-        )
+        mock_time_authority.check_drift = MagicMock(return_value=timedelta(seconds=10))
 
         mock_event = MagicMock()
         mock_event.event_id = uuid4()

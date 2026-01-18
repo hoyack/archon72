@@ -98,7 +98,7 @@ class TestDualTimestampsOnInsert:
         )
 
         # Insert multiple events
-        for i in range(3):
+        for _i in range(3):
             await db_session.execute(
                 text("""
                     INSERT INTO events_test_seq (event_id, local_timestamp)
@@ -272,7 +272,9 @@ class TestClockDriftDetection:
         local_ts = now
         authority_ts = now + timedelta(seconds=10)  # 10 seconds drift
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 

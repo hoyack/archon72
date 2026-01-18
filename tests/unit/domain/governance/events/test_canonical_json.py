@@ -193,15 +193,7 @@ class TestCanonicalJsonComplexStructures:
 
     def test_deeply_nested_structure(self) -> None:
         """Deeply nested structures are handled correctly."""
-        data = {
-            "level1": {
-                "level2": {
-                    "level3": {
-                        "value": 42
-                    }
-                }
-            }
-        }
+        data = {"level1": {"level2": {"level3": {"value": 42}}}}
         result = canonical_json(data)
         assert result == '{"level1":{"level2":{"level3":{"value":42}}}}'
 

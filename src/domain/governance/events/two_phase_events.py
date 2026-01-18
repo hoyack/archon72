@@ -97,9 +97,7 @@ def _validate_non_empty_string(value: Any, field_name: str) -> None:
             f"{field_name} must be string, got {type(value).__name__}"
         )
     if not value.strip():
-        raise TwoPhaseEventTypeError(
-            f"{field_name} must be non-empty string"
-        )
+        raise TwoPhaseEventTypeError(f"{field_name} must be non-empty string")
 
 
 @dataclass(frozen=True, eq=True)

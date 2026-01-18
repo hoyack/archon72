@@ -96,7 +96,9 @@ class ConfigurationFloorValidatorStub(ConfigurationFloorValidatorProtocol):
             new_value=new_value,
         )
         self._validation_count += 1
-        return await self._service.validate_configuration_change(threshold_name, new_value)
+        return await self._service.validate_configuration_change(
+            threshold_name, new_value
+        )
 
     def get_all_floors(self) -> tuple[ConstitutionalThreshold, ...]:
         """Get all constitutional floor definitions.

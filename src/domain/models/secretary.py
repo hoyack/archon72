@@ -55,7 +55,7 @@ class ConsensusLevel(Enum):
     SINGLE = "single"  # 1 Archon only
 
     @classmethod
-    def from_count(cls, count: int) -> "ConsensusLevel":
+    def from_count(cls, count: int) -> ConsensusLevel:
         """Determine consensus level from supporter count."""
         if count >= 15:
             return cls.CRITICAL
@@ -102,7 +102,7 @@ class SourceReference:
         line_number: int,
         timestamp: datetime,
         raw_text: str,
-    ) -> "SourceReference":
+    ) -> SourceReference:
         return cls(
             archon_id=archon_id,
             archon_name=archon_name,
@@ -146,7 +146,7 @@ class ExtractedRecommendation:
         motion_id: UUID | None = None,
         motion_title: str | None = None,
         stance: str | None = None,
-    ) -> "ExtractedRecommendation":
+    ) -> ExtractedRecommendation:
         return cls(
             recommendation_id=uuid4(),
             source=source,
@@ -197,7 +197,7 @@ class RecommendationCluster:
         category: RecommendationCategory,
         recommendation_type: RecommendationType,
         keywords: list[str],
-    ) -> "RecommendationCluster":
+    ) -> RecommendationCluster:
         return cls(
             cluster_id=uuid4(),
             theme=theme,
@@ -269,7 +269,7 @@ class QueuedMotion:
         cluster: RecommendationCluster,
         session_id: UUID,
         session_name: str,
-    ) -> "QueuedMotion":
+    ) -> QueuedMotion:
         """Create a queued motion from a recommendation cluster."""
         return cls(
             queued_motion_id=uuid4(),
@@ -327,7 +327,7 @@ class TaskItem:
         cls,
         cluster: RecommendationCluster,
         session_id: UUID,
-    ) -> "TaskItem":
+    ) -> TaskItem:
         """Create a task from a recommendation cluster."""
         return cls(
             task_id=uuid4(),
@@ -364,7 +364,7 @@ class ConflictingPosition:
         theme: str,
         position_a: ExtractedRecommendation,
         position_b: ExtractedRecommendation,
-    ) -> "ConflictingPosition":
+    ) -> ConflictingPosition:
         return cls(
             conflict_id=uuid4(),
             theme=theme,
@@ -415,7 +415,7 @@ class SecretaryReport:
         session_id: UUID,
         session_name: str,
         transcript_path: str,
-    ) -> "SecretaryReport":
+    ) -> SecretaryReport:
         return cls(
             report_id=uuid4(),
             source_session_id=session_id,

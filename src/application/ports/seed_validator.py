@@ -13,7 +13,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from src.domain.events.seed_validation import SeedValidationResult
 
@@ -32,7 +31,7 @@ class SeedSourceValidation:
     source_id: str
     is_independent: bool
     validation_reason: str
-    last_verified_at: Optional[datetime]
+    last_verified_at: datetime | None
 
 
 @dataclass(frozen=True)

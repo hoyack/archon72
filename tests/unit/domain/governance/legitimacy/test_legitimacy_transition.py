@@ -3,9 +3,10 @@
 Tests AC7: All transitions recorded with timestamp
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
 from src.domain.governance.legitimacy.legitimacy_transition import (

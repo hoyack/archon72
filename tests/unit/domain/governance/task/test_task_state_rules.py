@@ -8,9 +8,6 @@ Tests:
 - AC9: Unit tests for invalid transition rejection
 """
 
-import pytest
-from datetime import datetime, timezone
-
 from src.domain.governance.task.task_state import TaskStatus
 from src.domain.governance.task.task_state_rules import TaskTransitionRules
 
@@ -177,19 +174,23 @@ class TestGetAllowedTransitions:
     def test_authorized_allowed_transitions(self):
         """authorized has correct allowed transitions (including halt)."""
         allowed = TaskTransitionRules.get_allowed_transitions(TaskStatus.AUTHORIZED)
-        assert allowed == frozenset({
-            TaskStatus.ACTIVATED,
-            TaskStatus.NULLIFIED,  # Halt (pre-consent) per FR22-FR27
-        })
+        assert allowed == frozenset(
+            {
+                TaskStatus.ACTIVATED,
+                TaskStatus.NULLIFIED,  # Halt (pre-consent) per FR22-FR27
+            }
+        )
 
     def test_routed_allowed_transitions(self):
         """routed has correct allowed transitions (consent gate)."""
         allowed = TaskTransitionRules.get_allowed_transitions(TaskStatus.ROUTED)
-        assert allowed == frozenset({
-            TaskStatus.ACCEPTED,
-            TaskStatus.DECLINED,
-            TaskStatus.NULLIFIED,
-        })
+        assert allowed == frozenset(
+            {
+                TaskStatus.ACCEPTED,
+                TaskStatus.DECLINED,
+                TaskStatus.NULLIFIED,
+            }
+        )
 
     def test_terminal_states_have_empty_allowed(self):
         """Terminal states have no allowed transitions."""
@@ -331,7 +332,10 @@ class TestAllValidTransitionsCovered:
         # This test documents the complete transition matrix
         expected_transitions = {
             (TaskStatus.AUTHORIZED, TaskStatus.ACTIVATED),
-            (TaskStatus.AUTHORIZED, TaskStatus.NULLIFIED),  # Halt (pre-consent) per FR22-FR27
+            (
+                TaskStatus.AUTHORIZED,
+                TaskStatus.NULLIFIED,
+            ),  # Halt (pre-consent) per FR22-FR27
             (TaskStatus.ACTIVATED, TaskStatus.ROUTED),
             (TaskStatus.ACTIVATED, TaskStatus.NULLIFIED),
             (TaskStatus.ROUTED, TaskStatus.ACCEPTED),
@@ -355,8 +359,7 @@ class TestAllValidTransitionsCovered:
 
         # Count total valid transitions from VALID_TRANSITIONS
         total_valid = sum(
-            len(targets)
-            for targets in TaskTransitionRules.VALID_TRANSITIONS.values()
+            len(targets) for targets in TaskTransitionRules.VALID_TRANSITIONS.values()
         )
         assert total_valid == len(expected_transitions), (
             f"Expected {len(expected_transitions)} valid transitions, "

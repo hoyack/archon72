@@ -21,7 +21,6 @@ import hmac
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
 
 from src.application.ports.event_store import EventStorePort
@@ -41,12 +40,9 @@ from src.domain.errors.hash_verification import (
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.hash_utils import compute_content_hash
 from src.domain.events.hash_verification import (
-    HASH_VERIFICATION_BREACH_EVENT_TYPE,
     HashVerificationBreachEventPayload,
-    HashVerificationCompletedEventPayload,
     HashVerificationResult,
 )
-
 
 # System agent ID for hash verification operations
 HASH_VERIFICATION_SYSTEM_AGENT_ID: str = "system:hash_verification"
@@ -72,13 +68,13 @@ class HashVerificationState:
         current_scan_id: ID of scan in progress (if any).
     """
 
-    last_scan_id: Optional[str] = None
-    last_scan_at: Optional[datetime] = None
-    last_scan_passed: Optional[bool] = None
+    last_scan_id: str | None = None
+    last_scan_at: datetime | None = None
+    last_scan_passed: bool | None = None
     events_verified_total: int = 0
     verification_interval_seconds: int = DEFAULT_VERIFICATION_INTERVAL_SECONDS
     scan_in_progress: bool = False
-    current_scan_id: Optional[str] = None
+    current_scan_id: str | None = None
 
 
 class HashVerificationService(HashVerifierProtocol):
@@ -120,7 +116,7 @@ class HashVerificationService(HashVerifierProtocol):
         halt_checker: HaltChecker,
         halt_trigger: HaltTrigger,
         event_store: EventStorePort,
-        event_writer: Optional[object] = None,
+        event_writer: object | None = None,
         timeout_seconds: float = DEFAULT_SCAN_TIMEOUT_SECONDS,
     ) -> None:
         """Initialize the hash verification service.
@@ -196,7 +192,7 @@ class HashVerificationService(HashVerifierProtocol):
 
     async def run_full_scan(
         self,
-        max_events: Optional[int] = None,
+        max_events: int | None = None,
     ) -> HashScanResult:
         """Run full hash chain verification.
 
@@ -229,7 +225,7 @@ class HashVerificationService(HashVerifierProtocol):
         self._state.current_scan_id = scan_id
 
         start_time = time.monotonic()
-        now = datetime.now(timezone.utc)
+        datetime.now(timezone.utc)
         events_scanned = 0
         start_sequence = 0
         end_sequence = 0
@@ -338,9 +334,9 @@ class HashVerificationService(HashVerifierProtocol):
         sequence_range: tuple[int, int],
         start_time: float,
         passed: bool,
-        failed_event_id: Optional[str] = None,
-        expected_hash: Optional[str] = None,
-        actual_hash: Optional[str] = None,
+        failed_event_id: str | None = None,
+        expected_hash: str | None = None,
+        actual_hash: str | None = None,
     ) -> HashScanResult:
         """Complete a scan and update state.
 
@@ -389,9 +385,8 @@ class HashVerificationService(HashVerifierProtocol):
         if self._state.last_scan_at and self._state.verification_interval_seconds:
             from datetime import timedelta
 
-            next_scan_at = (
-                self._state.last_scan_at
-                + timedelta(seconds=self._state.verification_interval_seconds)
+            next_scan_at = self._state.last_scan_at + timedelta(
+                seconds=self._state.verification_interval_seconds
             )
 
         return HashScanStatus(

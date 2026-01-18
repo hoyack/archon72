@@ -5,7 +5,6 @@ the result of validating a proposed legitimacy band transition.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -21,7 +20,7 @@ class TransitionValidation:
     """
 
     is_valid: bool
-    reason: Optional[str]
+    reason: str | None
 
     @classmethod
     def valid(cls) -> "TransitionValidation":

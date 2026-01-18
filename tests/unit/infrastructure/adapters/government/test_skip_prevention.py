@@ -17,7 +17,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -25,7 +24,6 @@ import pytest
 from src.application.ports.governance_state_machine import (
     ForceSkipAttemptError,
     GovernanceState,
-    SkipAttemptAuditEntry,
     SkipAttemptError,
     SkipAttemptSeverity,
     SkipAttemptType,
@@ -35,7 +33,6 @@ from src.application.ports.governance_state_machine import (
 from src.infrastructure.adapters.government.governance_state_machine_adapter import (
     GovernanceStateMachineAdapter,
 )
-
 
 # =============================================================================
 # Test Helpers
@@ -60,16 +57,20 @@ async def create_motion_in_ratified(
     await state_machine.initialize_motion(motion_id, "king-001")
 
     # Progress through INTRODUCED -> DELIBERATING -> RATIFIED
-    await state_machine.transition(TransitionRequest(
-        motion_id=motion_id,
-        to_state=GovernanceState.DELIBERATING,
-        triggered_by="conclave-001",
-    ))
-    await state_machine.transition(TransitionRequest(
-        motion_id=motion_id,
-        to_state=GovernanceState.RATIFIED,
-        triggered_by="conclave-001",
-    ))
+    await state_machine.transition(
+        TransitionRequest(
+            motion_id=motion_id,
+            to_state=GovernanceState.DELIBERATING,
+            triggered_by="conclave-001",
+        )
+    )
+    await state_machine.transition(
+        TransitionRequest(
+            motion_id=motion_id,
+            to_state=GovernanceState.RATIFIED,
+            triggered_by="conclave-001",
+        )
+    )
 
     return motion_id, state_machine
 
@@ -89,11 +90,13 @@ class TestSkipDetection:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Try to skip DELIBERATING
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.RATIFIED,
-            triggered_by="conclave-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.RATIFIED,
+                triggered_by="conclave-001",
+            )
+        )
 
         assert not result.success
         assert result.rejection is not None
@@ -106,11 +109,13 @@ class TestSkipDetection:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Try to skip DELIBERATING and RATIFIED and PLANNING
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
 
         assert not result.success
         assert result.rejection is not None
@@ -123,11 +128,13 @@ class TestSkipDetection:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Attempt skip
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         # Verify state unchanged
         current = await sm.get_current_state(motion_id)
@@ -140,11 +147,13 @@ class TestSkipDetection:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Valid transition
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.DELIBERATING,
-            triggered_by="conclave-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.DELIBERATING,
+                triggered_by="conclave-001",
+            )
+        )
 
         assert result.success
         assert result.rejection is None
@@ -164,11 +173,13 @@ class TestSkipRejection:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         assert not result.success
         assert "Invalid transition" in (result.error or "")
@@ -179,11 +190,13 @@ class TestSkipRejection:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         assert result.rejection is not None
         assert result.rejection.current_state == GovernanceState.INTRODUCED
@@ -206,11 +219,13 @@ class TestViolationRecording:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         # Check audit trail
         audit_entries = await sm.get_skip_attempts(motion_id)
@@ -225,11 +240,13 @@ class TestViolationRecording:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -242,11 +259,13 @@ class TestViolationRecording:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="malicious-archon-999",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="malicious-archon-999",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -259,11 +278,13 @@ class TestViolationRecording:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -276,11 +297,13 @@ class TestViolationRecording:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -296,11 +319,13 @@ class TestViolationRecording:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Skip multiple states (INTRODUCED -> EXECUTING skips DELIBERATING, RATIFIED, PLANNING)
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -323,11 +348,13 @@ class TestForceSkipPrevention:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         with pytest.raises(ForceSkipAttemptError):
-            await sm.force_transition(TransitionRequest(
-                motion_id=motion_id,
-                to_state=GovernanceState.PLANNING,
-                triggered_by="privileged-admin",
-            ))
+            await sm.force_transition(
+                TransitionRequest(
+                    motion_id=motion_id,
+                    to_state=GovernanceState.PLANNING,
+                    triggered_by="privileged-admin",
+                )
+            )
 
     @pytest.mark.asyncio
     async def test_force_skip_rejected_regardless_of_privilege(self) -> None:
@@ -339,11 +366,13 @@ class TestForceSkipPrevention:
 
         for user in privileged_users:
             with pytest.raises(ForceSkipAttemptError):
-                await sm.force_transition(TransitionRequest(
-                    motion_id=motion_id,
-                    to_state=GovernanceState.PLANNING,
-                    triggered_by=user,
-                ))
+                await sm.force_transition(
+                    TransitionRequest(
+                        motion_id=motion_id,
+                        to_state=GovernanceState.PLANNING,
+                        triggered_by=user,
+                    )
+                )
 
     @pytest.mark.asyncio
     async def test_force_skip_escalated_to_conclave(self) -> None:
@@ -352,11 +381,13 @@ class TestForceSkipPrevention:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         try:
-            await sm.force_transition(TransitionRequest(
-                motion_id=motion_id,
-                to_state=GovernanceState.PLANNING,
-                triggered_by="privileged-admin",
-            ))
+            await sm.force_transition(
+                TransitionRequest(
+                    motion_id=motion_id,
+                    to_state=GovernanceState.PLANNING,
+                    triggered_by="privileged-admin",
+                )
+            )
         except ForceSkipAttemptError as e:
             assert e.violation.escalated_to_conclave is True
             assert e.escalated is True
@@ -368,11 +399,13 @@ class TestForceSkipPrevention:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         try:
-            await sm.force_transition(TransitionRequest(
-                motion_id=motion_id,
-                to_state=GovernanceState.PLANNING,
-                triggered_by="privileged-admin",
-            ))
+            await sm.force_transition(
+                TransitionRequest(
+                    motion_id=motion_id,
+                    to_state=GovernanceState.PLANNING,
+                    triggered_by="privileged-admin",
+                )
+            )
         except ForceSkipAttemptError as e:
             assert e.violation.attempt_type == SkipAttemptType.FORCE_SKIP
             assert e.error_code == "FORCED_SKIP_ATTEMPT"
@@ -384,11 +417,13 @@ class TestForceSkipPrevention:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Valid transition should work
-        result = await sm.force_transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.DELIBERATING,
-            triggered_by="conclave-001",
-        ))
+        result = await sm.force_transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.DELIBERATING,
+                triggered_by="conclave-001",
+            )
+        )
 
         assert result.success
 
@@ -466,11 +501,13 @@ class TestAuditTrail:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         assert len(audit_entries) == 1
@@ -482,11 +519,13 @@ class TestAuditTrail:
         motion_id, sm = await create_motion_in_introduced(sm)
         before = datetime.now(timezone.utc)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         after = datetime.now(timezone.utc)
 
@@ -501,11 +540,13 @@ class TestAuditTrail:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="suspicious-archon-666",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="suspicious-archon-666",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -518,11 +559,13 @@ class TestAuditTrail:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -535,11 +578,13 @@ class TestAuditTrail:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -553,11 +598,13 @@ class TestAuditTrail:
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
 
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         violation = audit_entries[0].violation
@@ -576,18 +623,22 @@ class TestAuditTrail:
         await sm.initialize_motion(motion_id_2, "king-001")
 
         # Create skip attempt for motion 1
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id_1,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id_1,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
 
         # Create skip attempt for motion 2
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id_2,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id_2,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
 
         # Filter by motion 1
         motion_1_entries = await sm.get_skip_attempts(motion_id_1)
@@ -605,21 +656,27 @@ class TestAuditTrail:
         motion_id, sm = await create_motion_in_introduced(sm)
 
         # Multiple skip attempts
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
-        await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.ACKNOWLEDGED,
-            triggered_by="conclave-001",
-        ))
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
+        await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.ACKNOWLEDGED,
+                triggered_by="conclave-001",
+            )
+        )
 
         audit_entries = await sm.get_skip_attempts(motion_id)
         assert len(audit_entries) == 3
@@ -766,11 +823,13 @@ class TestInvalidTransitionMatrix:
         """INTRODUCED cannot go directly to RATIFIED."""
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.RATIFIED,
-            triggered_by="conclave-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.RATIFIED,
+                triggered_by="conclave-001",
+            )
+        )
         assert not result.success
 
     @pytest.mark.asyncio
@@ -778,11 +837,13 @@ class TestInvalidTransitionMatrix:
         """INTRODUCED cannot go directly to PLANNING."""
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.PLANNING,
-            triggered_by="president-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.PLANNING,
+                triggered_by="president-001",
+            )
+        )
         assert not result.success
 
     @pytest.mark.asyncio
@@ -790,11 +851,13 @@ class TestInvalidTransitionMatrix:
         """INTRODUCED cannot go directly to EXECUTING."""
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_introduced(sm)
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
         assert not result.success
 
     @pytest.mark.asyncio
@@ -802,11 +865,13 @@ class TestInvalidTransitionMatrix:
         """RATIFIED cannot skip PLANNING to go to EXECUTING."""
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_ratified(sm)
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.EXECUTING,
-            triggered_by="duke-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.EXECUTING,
+                triggered_by="duke-001",
+            )
+        )
         assert not result.success
 
     @pytest.mark.asyncio
@@ -814,9 +879,11 @@ class TestInvalidTransitionMatrix:
         """RATIFIED cannot skip all the way to ACKNOWLEDGED."""
         sm = GovernanceStateMachineAdapter()
         motion_id, sm = await create_motion_in_ratified(sm)
-        result = await sm.transition(TransitionRequest(
-            motion_id=motion_id,
-            to_state=GovernanceState.ACKNOWLEDGED,
-            triggered_by="conclave-001",
-        ))
+        result = await sm.transition(
+            TransitionRequest(
+                motion_id=motion_id,
+                to_state=GovernanceState.ACKNOWLEDGED,
+                triggered_by="conclave-001",
+            )
+        )
         assert not result.success

@@ -13,22 +13,18 @@ ensuring consistent behavior regardless of how cessation is initiated.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
 
 from src.domain.events.event import Event
-from src.infrastructure.stubs.event_store_stub import EventStoreStub
 
 from .test_cessation_chaos import (
     IsolatedCessationEnvironment,
     generate_archon_deliberations,
-    isolated_cessation_env,
     seed_initial_events,
 )
-
 
 # =============================================================================
 # Trigger Event Factories
@@ -58,7 +54,9 @@ def create_integrity_failure_event(
         payload={
             "failure_type": failure_type,
             "severity": "critical",
-            "detection_timestamp": (timestamp or datetime.now(timezone.utc)).isoformat(),
+            "detection_timestamp": (
+                timestamp or datetime.now(timezone.utc)
+            ).isoformat(),
             "requires_agenda_placement": True,
         },
         signature=f"integrity_failure_sig_{sequence}",
@@ -95,7 +93,8 @@ def create_anti_success_alert_event(
             "days_sustained": days_sustained,
             "threshold_days": 90,
             "first_alert_date": (
-                (timestamp or datetime.now(timezone.utc)) - timedelta(days=days_sustained)
+                (timestamp or datetime.now(timezone.utc))
+                - timedelta(days=days_sustained)
             ).isoformat(),
             "requires_agenda_placement": True,
         },
@@ -169,7 +168,9 @@ class TestFR37ConsecutiveIntegrityFailures:
         base_time = datetime.now(timezone.utc) - timedelta(days=15)
 
         for i in range(3):
-            prev_hash = baseline[-1].content_hash if i == 0 else failures[i - 1].content_hash
+            prev_hash = (
+                baseline[-1].content_hash if i == 0 else failures[i - 1].content_hash
+            )
             failure = create_integrity_failure_event(
                 sequence=len(baseline) + i + 1,
                 previous_content_hash=prev_hash,
@@ -194,7 +195,9 @@ class TestFR37ConsecutiveIntegrityFailures:
         assert await env.cessation_flag_repo.is_ceased() is True
 
         # Verify all failure events exist
-        all_events = await env.event_store.get_events_by_type("integrity.failure_detected")
+        all_events = await env.event_store.get_events_by_type(
+            "integrity.failure_detected"
+        )
         assert len(all_events) == 3
 
     @pytest.mark.asyncio
@@ -249,7 +252,9 @@ class TestRT4RollingWindowFailures:
         failure_days = [0, 15, 30, 45, 60]
 
         for i, day_offset in enumerate(failure_days):
-            prev_hash = baseline[-1].content_hash if i == 0 else failures[i - 1].content_hash
+            prev_hash = (
+                baseline[-1].content_hash if i == 0 else failures[i - 1].content_hash
+            )
             failure = create_integrity_failure_event(
                 sequence=len(baseline) + i + 1,
                 previous_content_hash=prev_hash,
@@ -367,14 +372,16 @@ class TestFR39ExternalObserverPetition:
         deliberations = generate_archon_deliberations(48, 20, 4)
 
         # Execute cessation with deliberation
-        cessation_event = await env.cessation_execution_service.execute_cessation_with_deliberation(
-            deliberation_id=uuid4(),
-            deliberation_started_at=datetime.now(timezone.utc) - timedelta(hours=2),
-            deliberation_ended_at=datetime.now(timezone.utc),
-            archon_deliberations=deliberations,
-            triggering_event_id=petition_event.event_id,
-            reason="FR39: External observer petition approved by 72 archons",
-            agent_id="SYSTEM:FR39_TRIGGER",
+        cessation_event = (
+            await env.cessation_execution_service.execute_cessation_with_deliberation(
+                deliberation_id=uuid4(),
+                deliberation_started_at=datetime.now(timezone.utc) - timedelta(hours=2),
+                deliberation_ended_at=datetime.now(timezone.utc),
+                archon_deliberations=deliberations,
+                triggering_event_id=petition_event.event_id,
+                reason="FR39: External observer petition approved by 72 archons",
+                agent_id="SYSTEM:FR39_TRIGGER",
+            )
         )
 
         # Verify cessation occurred
@@ -443,7 +450,10 @@ class TestTriggerPathConsistency:
         assert env.cessation_flag_repo.db_flag is not None
 
         # Both channels should have identical data
-        assert env.cessation_flag_repo.redis_flag.reason == env.cessation_flag_repo.db_flag.reason
+        assert (
+            env.cessation_flag_repo.redis_flag.reason
+            == env.cessation_flag_repo.db_flag.reason
+        )
 
     @pytest.mark.asyncio
     async def test_trigger_event_referenced_in_cessation(

@@ -43,7 +43,6 @@ def create_mock_recovery_port(
 ):
     """Create a mock recovery waiting period port."""
     from datetime import timedelta
-    from typing import Optional
 
     from src.domain.events.recovery_completed import RecoveryCompletedPayload
     from src.domain.models.ceremony_evidence import CeremonyEvidence
@@ -65,13 +64,13 @@ def create_mock_recovery_port(
             )
             return self._active
 
-        async def get_active_waiting_period(self) -> Optional[RecoveryWaitingPeriod]:
+        async def get_active_waiting_period(self) -> RecoveryWaitingPeriod | None:
             return self._active
 
         async def is_waiting_period_elapsed(self) -> bool:
             return self._elapsed and self._active is not None
 
-        async def get_remaining_time(self) -> Optional[timedelta]:
+        async def get_remaining_time(self) -> timedelta | None:
             if not self._active:
                 return None
             if self._elapsed:

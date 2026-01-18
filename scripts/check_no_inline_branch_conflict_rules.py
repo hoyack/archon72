@@ -25,27 +25,21 @@ from pathlib import Path
 
 # Patterns to detect inline BranchConflictRule definitions
 # Matches: BranchConflictRule( - instantiation of the dataclass
-INLINE_RULE_PATTERN = re.compile(
-    r'BranchConflictRule\s*\(',
-    re.MULTILINE
-)
+INLINE_RULE_PATTERN = re.compile(r"BranchConflictRule\s*\(", re.MULTILINE)
 
 # Pattern for constant list definitions (the old pattern we removed)
 # Matches: BRANCH_CONFLICT_RULES = [
-CONSTANT_LIST_PATTERN = re.compile(
-    r'BRANCH_CONFLICT_RULES\s*[:\=]',
-    re.MULTILINE
-)
+CONSTANT_LIST_PATTERN = re.compile(r"BRANCH_CONFLICT_RULES\s*[:\=]", re.MULTILINE)
 
 # Files that are ALLOWED to instantiate BranchConflictRule
 # These are the only exceptions to the rule
 ALLOWED_FILES = {
     # The loader creates BranchConflictRule instances from YAML
-    'src/infrastructure/adapters/config/branch_conflict_rules_loader.py',
+    "src/infrastructure/adapters/config/branch_conflict_rules_loader.py",
 }
 
 # Test files are allowed to instantiate for testing purposes
-TEST_PREFIXES = ('tests/', 'test_')
+TEST_PREFIXES = ("tests/", "test_")
 
 
 def check_file(file_path: Path) -> list[tuple[int, str, str]]:
@@ -60,27 +54,27 @@ def check_file(file_path: Path) -> list[tuple[int, str, str]]:
     violations: list[tuple[int, str, str]] = []
 
     try:
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return violations
 
     for line_num, line in enumerate(content.splitlines(), start=1):
         # Skip comments
         stripped = line.lstrip()
-        if stripped.startswith('#'):
+        if stripped.startswith("#"):
             continue
 
         # Skip import statements
-        if stripped.startswith('from ') or stripped.startswith('import '):
+        if stripped.startswith("from ") or stripped.startswith("import "):
             continue
 
         # Check for inline instantiation
         if INLINE_RULE_PATTERN.search(line):
-            violations.append((line_num, line.strip(), 'inline instantiation'))
+            violations.append((line_num, line.strip(), "inline instantiation"))
 
         # Check for constant list definition
         if CONSTANT_LIST_PATTERN.search(line):
-            violations.append((line_num, line.strip(), 'constant list definition'))
+            violations.append((line_num, line.strip(), "constant list definition"))
 
     return violations
 
@@ -91,7 +85,7 @@ def main() -> int:
     Returns:
         Exit code: 0 for success, 1 for violations found.
     """
-    src_path = Path('src')
+    src_path = Path("src")
 
     if not src_path.exists():
         print("Warning: src/ directory not found, skipping check")
@@ -100,7 +94,7 @@ def main() -> int:
     all_violations: dict[str, list[tuple[int, str, str]]] = {}
 
     # Scan all Python files in src/
-    for py_file in src_path.rglob('*.py'):
+    for py_file in src_path.rglob("*.py"):
         relative_path = str(py_file)
 
         # Skip allowed files
@@ -123,7 +117,9 @@ def main() -> int:
     print("HARDENING-2 VIOLATION: Inline BranchConflictRule definitions detected!")
     print()
     print("Team Agreement (Hardening Epic Story 2):")
-    print("  > Branch conflict rules MUST be defined in config/permissions/rank-matrix.yaml")
+    print(
+        "  > Branch conflict rules MUST be defined in config/permissions/rank-matrix.yaml"
+    )
     print("  > No inline BranchConflictRule instantiations in Python code")
     print()
     print("Violations found:")
@@ -148,7 +144,9 @@ def main() -> int:
     print("      prd_ref: 'PRD 2.1'")
     print()
     print("Example usage:")
-    print("  from src.infrastructure.adapters.config.branch_conflict_rules_loader import (")
+    print(
+        "  from src.infrastructure.adapters.config.branch_conflict_rules_loader import ("
+    )
     print("      BranchConflictRulesLoaderProtocol,")
     print("      YamlBranchConflictRulesLoader,")
     print("  )")
@@ -161,5 +159,5 @@ def main() -> int:
     return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

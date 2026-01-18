@@ -7,11 +7,11 @@ FR122: Verification toolkit SHALL detect sequence gaps in observer's local copy
 FR123: Gap detection SHALL report gap ranges (start, end sequences)
 """
 
+import contextlib
 import json
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 
 @dataclass
@@ -28,11 +28,11 @@ class LocalEvent:
     content_hash: str
     prev_hash: str
     signature: str
-    agent_id: Optional[str]
+    agent_id: str | None
     witness_id: str
     witness_signature: str
     local_timestamp: str
-    authority_timestamp: Optional[str]
+    authority_timestamp: str | None
     hash_algorithm_version: str
     sig_alg_version: str
 
@@ -82,7 +82,7 @@ class ObserverDatabase:
             path: Path to SQLite database file.
         """
         self.path = Path(path)
-        self._conn: Optional[sqlite3.Connection] = None
+        self._conn: sqlite3.Connection | None = None
 
     def connect(self) -> None:
         """Open database connection."""
@@ -171,7 +171,7 @@ class ObserverDatabase:
         cursor = self._conn.execute("SELECT sequence FROM events ORDER BY sequence")
         return [row[0] for row in cursor.fetchall()]
 
-    def get_sequence_range(self) -> tuple[Optional[int], Optional[int]]:
+    def get_sequence_range(self) -> tuple[int | None, int | None]:
         """Get min and max sequence numbers.
 
         Returns:
@@ -180,9 +180,7 @@ class ObserverDatabase:
         if not self._conn:
             raise RuntimeError("Database not connected")
 
-        cursor = self._conn.execute(
-            "SELECT MIN(sequence), MAX(sequence) FROM events"
-        )
+        cursor = self._conn.execute("SELECT MIN(sequence), MAX(sequence) FROM events")
         row = cursor.fetchone()
         return (row[0], row[1])
 
@@ -229,18 +227,16 @@ class ObserverDatabase:
             event = dict(row)
             # Parse payload back to dict
             if event["payload"]:
-                try:
+                with contextlib.suppress(json.JSONDecodeError):
                     event["payload"] = json.loads(event["payload"])
-                except json.JSONDecodeError:
-                    pass
             events.append(event)
 
         return events
 
     def find_gaps(
         self,
-        start: Optional[int] = None,
-        end: Optional[int] = None,
+        start: int | None = None,
+        end: int | None = None,
     ) -> list[tuple[int, int]]:
         """Find sequence gaps in local database.
 

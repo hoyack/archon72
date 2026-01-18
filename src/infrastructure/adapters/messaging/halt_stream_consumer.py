@@ -22,7 +22,7 @@ Message Fields (expected):
 
 import asyncio
 import contextlib
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import structlog
 
@@ -114,7 +114,7 @@ class HaltStreamConsumer:
         self._consumer_name = consumer_name
         self._running = False
         self._halt_received = False
-        self._halt_info: Optional[dict[str, str]] = None
+        self._halt_info: dict[str, str] | None = None
 
     @property
     def stream_name(self) -> str:
@@ -126,7 +126,7 @@ class HaltStreamConsumer:
         """Check if a halt message has been received."""
         return self._halt_received
 
-    def get_halt_info(self) -> Optional[dict[str, str]]:
+    def get_halt_info(self) -> dict[str, str] | None:
         """Get information about the received halt signal.
 
         Returns:
@@ -237,7 +237,7 @@ class HaltStreamConsumer:
                     block=1000,  # 1 second block
                 )
 
-                for stream_name, stream_messages in messages:
+                for _stream_name, stream_messages in messages:
                     for message_id, fields in stream_messages:
                         await self._process_halt_message(fields)
                         await self._redis.xack(

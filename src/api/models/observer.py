@@ -59,25 +59,27 @@ from src.application.dtos.observer import (
 # and re-exported here for backward compatibility with existing API routes.
 
 # SSRF protection constants are kept here as they're only used by API-specific models
-_BLOCKED_HOSTS = frozenset({
-    'localhost',
-    '127.0.0.1',
-    '::1',
-    '0.0.0.0',
-    '169.254.169.254',  # AWS/GCP metadata
-    'metadata.google.internal',  # GCP metadata
-    'metadata.google.com',
-})
+_BLOCKED_HOSTS = frozenset(
+    {
+        "localhost",
+        "127.0.0.1",
+        "::1",
+        "0.0.0.0",
+        "169.254.169.254",  # AWS/GCP metadata
+        "metadata.google.internal",  # GCP metadata
+        "metadata.google.com",
+    }
+)
 
 _BLOCKED_NETWORKS = (
-    ipaddress.ip_network('10.0.0.0/8'),       # Private Class A
-    ipaddress.ip_network('172.16.0.0/12'),    # Private Class B
-    ipaddress.ip_network('192.168.0.0/16'),   # Private Class C
-    ipaddress.ip_network('169.254.0.0/16'),   # Link-local / metadata
-    ipaddress.ip_network('127.0.0.0/8'),      # Loopback
-    ipaddress.ip_network('::1/128'),          # IPv6 loopback
-    ipaddress.ip_network('fc00::/7'),         # IPv6 private
-    ipaddress.ip_network('fe80::/10'),        # IPv6 link-local
+    ipaddress.ip_network("10.0.0.0/8"),  # Private Class A
+    ipaddress.ip_network("172.16.0.0/12"),  # Private Class B
+    ipaddress.ip_network("192.168.0.0/16"),  # Private Class C
+    ipaddress.ip_network("169.254.0.0/16"),  # Link-local / metadata
+    ipaddress.ip_network("127.0.0.0/8"),  # Loopback
+    ipaddress.ip_network("::1/128"),  # IPv6 loopback
+    ipaddress.ip_network("fc00::/7"),  # IPv6 private
+    ipaddress.ip_network("fe80::/10"),  # IPv6 link-local
 )
 
 
@@ -123,7 +125,7 @@ class ObserverEventResponse(BaseModel):
     witness_id: str
     witness_signature: str
     local_timestamp: DateTimeWithZ
-    authority_timestamp: Optional[DateTimeWithZ] = None
+    authority_timestamp: DateTimeWithZ | None = None
     hash_algorithm_version: str = Field(default="SHA256")
     sig_alg_version: str = Field(default="Ed25519")
 
@@ -400,8 +402,8 @@ class ChainVerificationResult(BaseModel):
     start_sequence: int
     end_sequence: int
     is_valid: bool
-    first_invalid_sequence: Optional[int] = None
-    error_message: Optional[str] = None
+    first_invalid_sequence: int | None = None
+    error_message: str | None = None
     verified_count: int
 
     model_config = {
@@ -536,17 +538,17 @@ class EventFilterParams(BaseModel):
         event_type: Filter by event type(s), comma-separated for multiple.
     """
 
-    start_date: Optional[datetime] = Field(
+    start_date: datetime | None = Field(
         default=None,
         description="Filter events from this date (ISO 8601 format, e.g., 2026-01-01T00:00:00Z)",
         json_schema_extra={"example": "2026-01-01T00:00:00Z"},
     )
-    end_date: Optional[datetime] = Field(
+    end_date: datetime | None = Field(
         default=None,
         description="Filter events until this date (ISO 8601 format, e.g., 2026-01-31T23:59:59Z)",
         json_schema_extra={"example": "2026-01-31T23:59:59Z"},
     )
-    event_type: Optional[str] = Field(
+    event_type: str | None = Field(
         default=None,
         description="Filter by event type(s), comma-separated for multiple (e.g., vote,halt,breach)",
         json_schema_extra={"example": "vote,halt,breach"},
@@ -699,11 +701,11 @@ class HistoricalQueryMetadata(BaseModel):
         current_head_sequence: Current head sequence at time of query.
     """
 
-    queried_as_of_sequence: Optional[int] = Field(
+    queried_as_of_sequence: int | None = Field(
         default=None,
         description="Sequence number queried (if specified)",
     )
-    queried_as_of_timestamp: Optional[datetime] = Field(
+    queried_as_of_timestamp: datetime | None = Field(
         default=None,
         description="Timestamp queried (if specified)",
     )
@@ -858,7 +860,7 @@ class CheckpointAnchor(BaseModel):
         pattern=r"^(genesis|rfc3161|pending)$",
         description="Type of external anchor",
     )
-    anchor_reference: Optional[str] = Field(
+    anchor_reference: str | None = Field(
         default=None,
         description="External anchor reference (Bitcoin txid, TSA response)",
     )
@@ -925,12 +927,12 @@ class AttestationMetadata(BaseModel):
     sequence_start: int = Field(ge=1)
     sequence_end: int = Field(ge=1)
     event_count: int = Field(ge=0)
-    filter_criteria: Optional[dict[str, Any]] = None
+    filter_criteria: dict[str, Any] | None = None
     chain_hash_at_export: str = Field(
         description="Content hash of latest event at export time",
         pattern=r"^[a-f0-9]{64}$",
     )
-    export_signature: Optional[str] = Field(
+    export_signature: str | None = Field(
         default=None,
         description="Signature of export metadata (HSM-signed when available)",
     )
@@ -968,12 +970,12 @@ class RegulatoryExportResponse(BaseModel):
     """
 
     format: ExportFormat
-    attestation: Optional[AttestationMetadata] = None
-    data_url: Optional[str] = Field(
+    attestation: AttestationMetadata | None = None
+    data_url: str | None = Field(
         default=None,
         description="URL to download export data (for large exports)",
     )
-    inline_data: Optional[str] = Field(
+    inline_data: str | None = Field(
         default=None,
         description="Export data inline (for small exports)",
     )
@@ -1034,12 +1036,14 @@ class WebhookSubscription(BaseModel):
         secret: Optional secret for webhook signature verification (min 32 chars).
     """
 
-    webhook_url: Annotated[str, Field(description="HTTPS URL for webhook delivery (external only)")]
+    webhook_url: Annotated[
+        str, Field(description="HTTPS URL for webhook delivery (external only)")
+    ]
     event_types: list[NotificationEventType] = Field(
         default=[NotificationEventType.ALL],
         description="Event types to subscribe to",
     )
-    secret: Optional[str] = Field(
+    secret: str | None = Field(
         default=None,
         min_length=32,
         description="Secret for HMAC signature verification (optional, min 32 chars)",
@@ -1055,7 +1059,7 @@ class WebhookSubscription(BaseModel):
         },
     }
 
-    @field_validator('webhook_url')
+    @field_validator("webhook_url")
     @classmethod
     def validate_webhook_url_ssrf(cls, v: str) -> str:
         """Validate webhook URL to prevent SSRF attacks.
@@ -1084,7 +1088,7 @@ class WebhookSubscription(BaseModel):
             raise ValueError("Invalid URL format")
 
         # 1. Require HTTPS only (production security)
-        if parsed.scheme != 'https':
+        if parsed.scheme != "https":
             raise ValueError(
                 "webhook_url must use HTTPS scheme for security. "
                 "HTTP is not allowed to prevent credential interception."
@@ -1105,7 +1109,7 @@ class WebhookSubscription(BaseModel):
             )
 
         # 4. Check for cloud metadata patterns
-        if 'metadata' in hostname_lower or hostname_lower.endswith('.internal'):
+        if "metadata" in hostname_lower or hostname_lower.endswith(".internal"):
             raise ValueError(
                 f"webhook_url hostname '{hostname}' appears to be a metadata endpoint. "
                 "Cloud metadata endpoints are blocked for security."
@@ -1114,7 +1118,9 @@ class WebhookSubscription(BaseModel):
         # 5. Resolve DNS and validate IP addresses
         try:
             # Get all IP addresses for the hostname
-            addr_info = socket.getaddrinfo(hostname, parsed.port or 443, proto=socket.IPPROTO_TCP)
+            addr_info = socket.getaddrinfo(
+                hostname, parsed.port or 443, proto=socket.IPPROTO_TCP
+            )
             resolved_ips = {info[4][0] for info in addr_info}
         except socket.gaierror:
             raise ValueError(
@@ -1269,7 +1275,7 @@ class SSEConnectionInfo(BaseModel):
     connection_id: UUID = Field(default_factory=uuid4)
     connected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     event_types: list[NotificationEventType]
-    last_event_id: Optional[str] = Field(
+    last_event_id: str | None = Field(
         default=None,
         description="Last-Event-ID for reconnection",
     )
@@ -1323,7 +1329,7 @@ class DependencyHealth(BaseModel):
 
     name: str
     status: ObserverHealthStatus
-    latency_ms: Optional[float] = Field(
+    latency_ms: float | None = Field(
         default=None,
         ge=0,
         description="Response latency in milliseconds",
@@ -1332,7 +1338,7 @@ class DependencyHealth(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc),
         description="When this dependency was last checked",
     )
-    error: Optional[str] = Field(
+    error: str | None = Field(
         default=None,
         description="Error message if unhealthy",
     )
@@ -1379,7 +1385,7 @@ class ObserverHealthResponse(BaseModel):
         ge=0,
         description="How long the API has been running",
     )
-    last_checkpoint_sequence: Optional[int] = Field(
+    last_checkpoint_sequence: int | None = Field(
         default=None,
         ge=1,
         description="Last checkpoint anchor sequence for fallback verification",
@@ -1418,7 +1424,7 @@ class ObserverReadyResponse(BaseModel):
     """
 
     ready: bool
-    reason: Optional[str] = Field(
+    reason: str | None = Field(
         default=None,
         description="Reason if not ready",
     )
@@ -1452,7 +1458,7 @@ class CheckpointFallback(BaseModel):
         fallback_instructions: Instructions for using fallback verification.
     """
 
-    latest_checkpoint: Optional[CheckpointAnchor] = Field(
+    latest_checkpoint: CheckpointAnchor | None = Field(
         default=None,
         description="Most recent checkpoint anchor",
     )
@@ -1538,7 +1544,7 @@ class ObserverMetrics(BaseModel):
         ge=0,
         description="Total error responses",
     )
-    last_checkpoint_age_seconds: Optional[float] = Field(
+    last_checkpoint_age_seconds: float | None = Field(
         default=None,
         ge=0,
         description="Age of last checkpoint in seconds",
@@ -1645,12 +1651,12 @@ class CessationHealthResponse(BaseModel):
         ge=0,
         description="How long the API has been running",
     )
-    last_checkpoint_sequence: Optional[int] = Field(
+    last_checkpoint_sequence: int | None = Field(
         default=None,
         ge=1,
         description="Last checkpoint anchor sequence for fallback verification",
     )
-    cessation_info: Optional[CessationInfo] = Field(
+    cessation_info: CessationInfo | None = Field(
         default=None,
         description="Cessation information if system has ceased",
     )
@@ -1711,7 +1717,7 @@ class CessationTriggerConditionResponse(BaseModel):
     threshold: float = Field(
         description="Numeric threshold value that triggers cessation",
     )
-    window_days: Optional[int] = Field(
+    window_days: int | None = Field(
         default=None,
         description="Rolling window in days (null if not applicable)",
     )
@@ -2149,11 +2155,11 @@ class IntegrityGuaranteeResponse(BaseModel):
     name: str = Field(description="Human-readable name for the guarantee")
     description: str = Field(description="What the system guarantees")
     fr_reference: str = Field(description="Functional requirement reference(s)")
-    ct_reference: Optional[str] = Field(
+    ct_reference: str | None = Field(
         default=None,
         description="Constitutional constraint reference if applicable",
     )
-    adr_reference: Optional[str] = Field(
+    adr_reference: str | None = Field(
         default=None,
         description="ADR reference if applicable",
     )
@@ -2205,8 +2211,10 @@ class IntegrityCaseResponse(BaseModel):
     schema_version: str = Field(description="API schema version")
     constitution_version: str = Field(description="Constitutional rules version")
     created_at: DateTimeWithZ = Field(description="When the artifact was created")
-    last_updated: DateTimeWithZ = Field(description="When the artifact was last updated")
-    amendment_event_id: Optional[str] = Field(
+    last_updated: DateTimeWithZ = Field(
+        description="When the artifact was last updated"
+    )
+    amendment_event_id: str | None = Field(
         default=None,
         description="ID of the last amendment that updated this artifact",
     )
@@ -2268,9 +2276,11 @@ class IntegrityCaseJsonLdResponse(BaseModel):
     constitution_version: str = Field(description="Constitutional rules version")
     created_at: str = Field(description="When the artifact was created")
     last_updated: str = Field(description="When the artifact was last updated")
-    amendment_event_id: Optional[str] = Field(default=None)
+    amendment_event_id: str | None = Field(default=None)
     guarantee_count: int = Field(ge=0, description="Total number of guarantees")
-    guarantees: list[dict[str, Any]] = Field(description="All guarantees with JSON-LD types")
+    guarantees: list[dict[str, Any]] = Field(
+        description="All guarantees with JSON-LD types"
+    )
 
     model_config = {
         "populate_by_name": True,

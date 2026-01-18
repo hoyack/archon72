@@ -22,7 +22,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from src.domain.events.collusion import InvestigationResolution
 
@@ -75,10 +75,10 @@ class Investigation:
     triggering_anomalies: tuple[str, ...]
     breach_event_ids: tuple[str, ...]
     correlation_score: float
-    resolved_at: Optional[datetime] = None
-    resolution: Optional[InvestigationResolution] = None
-    resolved_by: Optional[str] = None
-    resolution_reason: Optional[str] = None
+    resolved_at: datetime | None = None
+    resolution: InvestigationResolution | None = None
+    resolved_by: str | None = None
+    resolution_reason: str | None = None
 
     def __post_init__(self) -> None:
         """Validate correlation score is within bounds."""
@@ -95,7 +95,10 @@ class Investigation:
     @property
     def is_resolved(self) -> bool:
         """Check if investigation has been resolved."""
-        return self.status in (InvestigationStatus.CLEARED, InvestigationStatus.CONFIRMED)
+        return self.status in (
+            InvestigationStatus.CLEARED,
+            InvestigationStatus.CONFIRMED,
+        )
 
 
 @runtime_checkable
@@ -172,7 +175,7 @@ class CollusionInvestigatorProtocol(Protocol):
     async def get_investigation(
         self,
         investigation_id: str,
-    ) -> Optional[Investigation]:
+    ) -> Investigation | None:
         """Retrieve an investigation by ID.
 
         Args:

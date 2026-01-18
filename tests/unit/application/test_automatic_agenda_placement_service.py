@@ -12,12 +12,11 @@ This module tests the automatic agenda placement service including:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 
-from src.application.ports.anti_success_alert_repository import SustainedAlertInfo
 from src.application.services.automatic_agenda_placement_service import (
     AGENDA_PLACEMENT_SYSTEM_AGENT_ID,
     ANTI_SUCCESS_SUSTAINED_THRESHOLD_DAYS,

@@ -457,8 +457,7 @@ class TestGetBreachCountStatus:
         now = datetime.now(timezone.utc)
         # Create 5 recent breaches (within last 45 days)
         recent_breaches = [
-            _create_breach(detection_time=now - timedelta(days=i * 5))
-            for i in range(5)
+            _create_breach(detection_time=now - timedelta(days=i * 5)) for i in range(5)
         ]
         # Create 1 older breach (>45 days ago)
         older_breaches = [

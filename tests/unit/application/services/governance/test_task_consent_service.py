@@ -24,8 +24,6 @@ import pytest
 
 from src.application.ports.governance.task_consent_port import (
     InvalidTaskStateError,
-    PendingTaskView,
-    TaskConsentResult,
     UnauthorizedConsentError,
 )
 from src.application.services.governance.task_consent_service import (
@@ -161,10 +159,14 @@ class TestGetPendingRequests:
         expired_task = create_task(
             cluster_id="cluster-alpha",
             status=TaskStatus.ROUTED,
-            state_entered_at=datetime(2026, 1, 13, 10, 0, 0, tzinfo=timezone.utc),  # 3 days ago
+            state_entered_at=datetime(
+                2026, 1, 13, 10, 0, 0, tzinfo=timezone.utc
+            ),  # 3 days ago
             ttl=timedelta(hours=72),  # 72h TTL = expired
         )
-        mock_task_state_port.get_tasks_by_state_and_cluster.return_value = [expired_task]
+        mock_task_state_port.get_tasks_by_state_and_cluster.return_value = [
+            expired_task
+        ]
 
         result = await task_consent_service.get_pending_requests(
             cluster_id="cluster-alpha",

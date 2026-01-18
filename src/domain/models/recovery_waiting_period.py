@@ -28,7 +28,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.domain.errors.recovery import RecoveryWaitingPeriodNotElapsedError
@@ -69,7 +68,7 @@ class RecoveryWaitingPeriod:
         cls,
         crisis_event_id: UUID,
         initiated_by: tuple[str, ...],
-        started_at: Optional[datetime] = None,
+        started_at: datetime | None = None,
     ) -> RecoveryWaitingPeriod:
         """Factory to start a new 48-hour waiting period.
 
@@ -90,7 +89,7 @@ class RecoveryWaitingPeriod:
             initiated_by=initiated_by,
         )
 
-    def is_elapsed(self, current_time: Optional[datetime] = None) -> bool:
+    def is_elapsed(self, current_time: datetime | None = None) -> bool:
         """Check if the 48-hour period has elapsed.
 
         Args:
@@ -102,7 +101,7 @@ class RecoveryWaitingPeriod:
         now = current_time or datetime.now(timezone.utc)
         return now >= self.ends_at
 
-    def remaining_time(self, current_time: Optional[datetime] = None) -> timedelta:
+    def remaining_time(self, current_time: datetime | None = None) -> timedelta:
         """Get remaining time in waiting period.
 
         Args:
@@ -115,7 +114,7 @@ class RecoveryWaitingPeriod:
         remaining = self.ends_at - now
         return max(remaining, timedelta(0))
 
-    def check_elapsed(self, current_time: Optional[datetime] = None) -> None:
+    def check_elapsed(self, current_time: datetime | None = None) -> None:
         """Verify the 48-hour period has elapsed, raise error if not.
 
         This method enforces the constitutional waiting period requirement.

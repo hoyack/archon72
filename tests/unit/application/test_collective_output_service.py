@@ -210,7 +210,9 @@ class TestCollectiveOutputService:
 
         await service.create_collective_output(
             contributing_agents=["archon-1", "archon-2"],
-            vote_counts=VoteCounts(yes_count=36, no_count=36, abstain_count=0),  # 50% dissent
+            vote_counts=VoteCounts(
+                yes_count=36, no_count=36, abstain_count=0
+            ),  # 50% dissent
             content="Test content",
             linked_vote_ids=[uuid4(), uuid4()],
         )
@@ -241,7 +243,9 @@ class TestCollectiveOutputService:
 
         await service.create_collective_output(
             contributing_agents=["archon-1", "archon-2"],
-            vote_counts=VoteCounts(yes_count=72, no_count=0, abstain_count=0),  # Unanimous
+            vote_counts=VoteCounts(
+                yes_count=72, no_count=0, abstain_count=0
+            ),  # Unanimous
             content="Test content",
             linked_vote_ids=[uuid4(), uuid4()],
         )

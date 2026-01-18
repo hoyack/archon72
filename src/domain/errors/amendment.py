@@ -101,7 +101,9 @@ class AmendmentImpactAnalysisMissingError(AmendmentError):
         self.amendment_id = amendment_id
         self.affected_guarantees = affected_guarantees
 
-        guarantee_list = ", ".join(affected_guarantees) if affected_guarantees else "core guarantees"
+        guarantee_list = (
+            ", ".join(affected_guarantees) if affected_guarantees else "core guarantees"
+        )
         message = (
             f"FR127: Core guarantee amendment requires impact analysis "
             f"(amendment: {amendment_id}, affects: {guarantee_list})"
@@ -135,7 +137,7 @@ class AmendmentHistoryProtectionError(AmendmentError):
         """
         self.amendment_id = amendment_id
 
-        message = f"FR128: Amendment history cannot be made unreviewable"
+        message = "FR128: Amendment history cannot be made unreviewable"
         super().__init__(message)
 
 

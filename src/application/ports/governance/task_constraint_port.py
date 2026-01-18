@@ -30,7 +30,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 
@@ -101,7 +101,7 @@ class ConstraintViolation:
     attempted_operation: TaskOperation
     constraint_violated: str
     message: str
-    task_id: Optional[UUID] = None
+    task_id: UUID | None = None
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_event_payload(self) -> dict:
@@ -180,8 +180,8 @@ class TaskConstraintPort(Protocol):
         actor_id: UUID,
         actor_role: str,
         operation: TaskOperation,
-        task_id: Optional[UUID] = None,
-    ) -> Optional[ConstraintViolation]:
+        task_id: UUID | None = None,
+    ) -> ConstraintViolation | None:
         """Validate an operation against role constraints.
 
         Per AC3: Role constraints validated at operation time.
@@ -207,7 +207,7 @@ class TaskConstraintPort(Protocol):
         actor_id: UUID,
         actor_role: str,
         operation: TaskOperation,
-        task_id: Optional[UUID] = None,
+        task_id: UUID | None = None,
     ) -> None:
         """Validate an operation and raise if invalid.
 
@@ -262,38 +262,48 @@ class TaskConstraintPort(Protocol):
 
 # Role → Allowed Operations mapping (per Dev Notes)
 ROLE_ALLOWED_OPERATIONS: dict[str, frozenset[TaskOperation]] = {
-    "Earl": frozenset({
-        TaskOperation.CREATE_ACTIVATION,
-        TaskOperation.VIEW_TASK_STATE,
-        TaskOperation.VIEW_TASK_HISTORY,
-    }),
-    "Cluster": frozenset({
-        TaskOperation.ACCEPT,
-        TaskOperation.DECLINE,
-        TaskOperation.HALT,
-        TaskOperation.SUBMIT_RESULT,
-        TaskOperation.SUBMIT_PROBLEM,
-    }),
-    "system": frozenset({
-        TaskOperation.AUTO_DECLINE,
-        TaskOperation.AUTO_START,
-        TaskOperation.AUTO_QUARANTINE,
-        TaskOperation.SEND_REMINDER,
-    }),
+    "Earl": frozenset(
+        {
+            TaskOperation.CREATE_ACTIVATION,
+            TaskOperation.VIEW_TASK_STATE,
+            TaskOperation.VIEW_TASK_HISTORY,
+        }
+    ),
+    "Cluster": frozenset(
+        {
+            TaskOperation.ACCEPT,
+            TaskOperation.DECLINE,
+            TaskOperation.HALT,
+            TaskOperation.SUBMIT_RESULT,
+            TaskOperation.SUBMIT_PROBLEM,
+        }
+    ),
+    "system": frozenset(
+        {
+            TaskOperation.AUTO_DECLINE,
+            TaskOperation.AUTO_START,
+            TaskOperation.AUTO_QUARANTINE,
+            TaskOperation.SEND_REMINDER,
+        }
+    ),
 }
 
 # Role → Prohibited Operations mapping (per Dev Notes)
 # Explicitly prohibited operations (beyond just "not allowed")
 ROLE_PROHIBITED_OPERATIONS: dict[str, frozenset[TaskOperation]] = {
-    "Earl": frozenset({
-        TaskOperation.ACCEPT,      # Cannot accept on behalf of Cluster (AC1)
-        TaskOperation.DECLINE,     # Cannot decline on behalf of Cluster
-        TaskOperation.HALT,        # Cannot halt Cluster's work
-        TaskOperation.SUBMIT_RESULT,  # Cannot submit for Cluster
-        TaskOperation.SUBMIT_PROBLEM,  # Cannot submit for Cluster
-    }),
-    "Cluster": frozenset({
-        TaskOperation.CREATE_ACTIVATION,  # Cannot self-assign (AC2)
-    }),
+    "Earl": frozenset(
+        {
+            TaskOperation.ACCEPT,  # Cannot accept on behalf of Cluster (AC1)
+            TaskOperation.DECLINE,  # Cannot decline on behalf of Cluster
+            TaskOperation.HALT,  # Cannot halt Cluster's work
+            TaskOperation.SUBMIT_RESULT,  # Cannot submit for Cluster
+            TaskOperation.SUBMIT_PROBLEM,  # Cannot submit for Cluster
+        }
+    ),
+    "Cluster": frozenset(
+        {
+            TaskOperation.CREATE_ACTIVATION,  # Cannot self-assign (AC2)
+        }
+    ),
     "system": frozenset(),  # System has no prohibited operations
 }

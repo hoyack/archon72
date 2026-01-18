@@ -5,41 +5,6 @@ This module contains all Pydantic request/response models
 used by API endpoints.
 """
 
-from src.api.models.health import HealthResponse
-from src.api.models.observer import (
-    ChainVerificationResult,
-    EventFilterParams,
-    HashVerificationSpec,
-    ObserverEventResponse,
-    ObserverEventsListResponse,
-    PaginationMetadata,
-    SchemaDocumentation,
-)
-from src.api.models.override import (
-    OverrideEventResponse,
-    OverrideEventsListResponse,
-)
-from src.api.models.petition import (
-    CosignPetitionRequest,
-    CosignPetitionResponse,
-    CoSignerResponse,
-    ListPetitionsResponse,
-    PetitionDetailResponse,
-    PetitionErrorResponse,
-    PetitionSummaryResponse,
-    SubmitPetitionRequest,
-    SubmitPetitionResponse,
-)
-from src.api.models.incident import (
-    IncidentDetailResponse,
-    IncidentErrorResponse,
-    IncidentQueryParams,
-    IncidentSummaryResponse,
-    ListIncidentsResponse,
-    PendingPublicationResponse,
-    PublishedIncidentsResponse,
-    TimelineEntryResponse,
-)
 from src.api.models.complexity_budget import (
     ComplexityBreachListResponse,
     ComplexityBreachResponse,
@@ -48,6 +13,20 @@ from src.api.models.complexity_budget import (
     ComplexityMetricResponse,
     ComplexityTrendDataPoint,
     ComplexityTrendResponse,
+)
+from src.api.models.compliance import (
+    ComplianceAssessmentResponse,
+    ComplianceErrorResponse,
+    ComplianceFrameworksListResponse,
+    ComplianceGapsResponse,
+    CompliancePostureResponse,
+    ComplianceRequirementResponse,
+)
+from src.api.models.constitutional_health import (
+    ConstitutionalHealthAlertResponse,
+    ConstitutionalHealthResponse,
+    ConstitutionalHealthStatusResponse,
+    ConstitutionalMetricResponse,
 )
 from src.api.models.failure_prevention import (
     AcknowledgeWarningRequest,
@@ -64,30 +43,22 @@ from src.api.models.failure_prevention import (
     QueryPerformanceResponse,
     ThresholdResponse,
 )
-from src.api.models.constitutional_health import (
-    ConstitutionalHealthAlertResponse,
-    ConstitutionalHealthResponse,
-    ConstitutionalHealthStatusResponse,
-    ConstitutionalMetricResponse,
-)
-from src.api.models.waiver import (
-    WaiverErrorResponse,
-    WaiverResponse,
-    WaiversListResponse,
-)
-from src.api.models.compliance import (
-    ComplianceAssessmentResponse,
-    ComplianceErrorResponse,
-    ComplianceFrameworksListResponse,
-    ComplianceGapsResponse,
-    CompliancePostureResponse,
-    ComplianceRequirementResponse,
-)
 from src.api.models.halt import (
     HaltErrorResponse,
     HaltRequest,
     HaltResponse,
     HaltStatusResponse,
+)
+from src.api.models.health import HealthResponse
+from src.api.models.incident import (
+    IncidentDetailResponse,
+    IncidentErrorResponse,
+    IncidentQueryParams,
+    IncidentSummaryResponse,
+    ListIncidentsResponse,
+    PendingPublicationResponse,
+    PublishedIncidentsResponse,
+    TimelineEntryResponse,
 )
 from src.api.models.legitimacy import (
     LegitimacyErrorResponse,
@@ -96,6 +67,35 @@ from src.api.models.legitimacy import (
     RestorationHistoryResponse,
     RestorationRequest,
     RestorationResponse,
+)
+from src.api.models.observer import (
+    ChainVerificationResult,
+    EventFilterParams,
+    HashVerificationSpec,
+    ObserverEventResponse,
+    ObserverEventsListResponse,
+    PaginationMetadata,
+    SchemaDocumentation,
+)
+from src.api.models.override import (
+    OverrideEventResponse,
+    OverrideEventsListResponse,
+)
+from src.api.models.petition import (
+    CoSignerResponse,
+    CosignPetitionRequest,
+    CosignPetitionResponse,
+    ListPetitionsResponse,
+    PetitionDetailResponse,
+    PetitionErrorResponse,
+    PetitionSummaryResponse,
+    SubmitPetitionRequest,
+    SubmitPetitionResponse,
+)
+from src.api.models.waiver import (
+    WaiverErrorResponse,
+    WaiverResponse,
+    WaiversListResponse,
 )
 
 __all__: list[str] = [

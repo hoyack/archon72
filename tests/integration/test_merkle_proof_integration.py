@@ -37,7 +37,7 @@ class TestMerkleProofIntegration:
                 sequence=i,
                 event_type="test.event",
                 payload={"index": i},
-                prev_hash="0" * 64 if i == 1 else f"{i-1:064x}",
+                prev_hash="0" * 64 if i == 1 else f"{i - 1:064x}",
                 content_hash=f"{i:064x}",
                 signature="sig123",
                 witness_id="witness-001",
@@ -56,8 +56,8 @@ class TestMerkleProofIntegration:
         """Create ObserverService with test data."""
         event_store = AsyncMock()
         event_store.get_events_by_sequence_range.return_value = events
-        event_store.get_event_by_sequence.side_effect = (
-            lambda seq: next((e for e in events if e.sequence == seq), None)
+        event_store.get_event_by_sequence.side_effect = lambda seq: next(
+            (e for e in events if e.sequence == seq), None
         )
         event_store.get_max_sequence.return_value = len(events)
         event_store.get_events_up_to_sequence.return_value = events
@@ -119,6 +119,7 @@ class TestMerkleProofIntegration:
         current = proof.event_hash
         for entry in proof.path:
             import hashlib
+
             combined = "".join(sorted([entry.sibling_hash, current]))
             current = hashlib.sha256(combined.encode()).hexdigest()
 
@@ -190,9 +191,12 @@ class TestMerkleProofIntegration:
 
         service = self._create_service_with_checkpoint(events, checkpoint)
 
-        result_events, total, merkle_proof, hash_proof = (
-            await service.get_events_with_merkle_proof(as_of_sequence=50)
-        )
+        (
+            result_events,
+            total,
+            merkle_proof,
+            hash_proof,
+        ) = await service.get_events_with_merkle_proof(as_of_sequence=50)
 
         assert len(result_events) == 100
         assert merkle_proof is not None
@@ -207,9 +211,12 @@ class TestMerkleProofIntegration:
         service = self._create_service_with_checkpoint(events, checkpoint=None)
         service._checkpoint_repo.get_checkpoint_for_sequence.return_value = None
 
-        result_events, total, merkle_proof, hash_proof = (
-            await service.get_events_with_merkle_proof(as_of_sequence=50)
-        )
+        (
+            result_events,
+            total,
+            merkle_proof,
+            hash_proof,
+        ) = await service.get_events_with_merkle_proof(as_of_sequence=50)
 
         assert merkle_proof is None  # No checkpoint
         assert hash_proof is not None  # Falls back to hash chain
@@ -356,6 +363,7 @@ class TestMerkleProofIntegration:
 
             # Verify proof manually
             import hashlib
+
             current = proof.event_hash
             for entry in proof.path:
                 combined = "".join(sorted([entry.sibling_hash, current]))

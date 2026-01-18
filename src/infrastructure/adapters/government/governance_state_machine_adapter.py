@@ -21,11 +21,9 @@ from src.application.ports.governance_state_machine import (
     InvalidTransitionError,
     MotionStateRecord,
     SkipAttemptAuditEntry,
-    SkipAttemptError,
     SkipAttemptType,
     SkipAttemptViolation,
     StateTransition,
-    TERMINAL_STATES,
     TerminalStateError,
     TransitionRejection,
     TransitionRequest,
@@ -165,7 +163,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
                 current_state=current_state,
                 attempted_state=request.to_state,
                 reason=f"Invalid transition: {current_state.value} → {request.to_state.value}. "
-                       f"No step may be skipped per FR-GOV-23.",
+                f"No step may be skipped per FR-GOV-23.",
                 skipped_states=skipped_states,
             )
 
@@ -255,7 +253,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
                 motion_id=request.motion_id,
                 current_state=current_state,
                 attempted_state=request.to_state,
-                reason=f"Invalid transition. No step may be skipped per FR-GOV-23.",
+                reason="Invalid transition. No step may be skipped per FR-GOV-23.",
                 skipped_states=skipped_states,
             )
 
@@ -301,9 +299,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
         if current_state is None:
             return None
 
-        entered_at = self._state_entered_at.get(
-            motion_id, datetime.now(timezone.utc)
-        )
+        entered_at = self._state_entered_at.get(motion_id, datetime.now(timezone.utc))
         history = tuple(self._transition_history.get(motion_id, []))
 
         return MotionStateRecord(
@@ -511,7 +507,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
             current_state=current_state,
             attempted_state=request.to_state,
             reason=f"FORCED_SKIP_ATTEMPT: {current_state.value} → {request.to_state.value}. "
-                   f"Rejected and escalated to Conclave per AC4.",
+            f"Rejected and escalated to Conclave per AC4.",
             skipped_states=skipped_states,
         )
 
@@ -658,7 +654,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
             to_idx = canonical_order.index(to_state)
 
             if to_idx > from_idx + 1:
-                return canonical_order[from_idx + 1:to_idx]
+                return canonical_order[from_idx + 1 : to_idx]
         except ValueError:
             pass
 
@@ -723,7 +719,9 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
         if skip_violation:
             violation_type = f"STEP_SKIP_ATTEMPT:{skip_violation.attempt_type.value}"
         else:
-            violation_type = "skip_attempt" if rejection.skipped_states else "invalid_transition"
+            violation_type = (
+                "skip_attempt" if rejection.skipped_states else "invalid_transition"
+            )
 
         # Build evidence with enhanced details per AC3
         evidence: dict[str, Any] = {

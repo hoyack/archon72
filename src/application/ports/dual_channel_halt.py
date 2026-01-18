@@ -29,7 +29,7 @@ Developer Golden Rules:
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -56,8 +56,8 @@ class HaltFlagState:
     """
 
     is_halted: bool
-    reason: Optional[str]
-    crisis_event_id: Optional[UUID]
+    reason: str | None
+    crisis_event_id: UUID | None
 
 
 class DualChannelHaltTransport(ABC):
@@ -157,7 +157,7 @@ class DualChannelHaltTransport(ABC):
         ...
 
     @abstractmethod
-    async def get_halt_reason(self) -> Optional[str]:
+    async def get_halt_reason(self) -> str | None:
         """Get the reason for current halt state.
 
         Returns:

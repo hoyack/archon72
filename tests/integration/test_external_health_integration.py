@@ -24,7 +24,6 @@ from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
 from src.api.routes.external_health import router
-from src.application.ports.external_health import ExternalHealthStatus
 from src.application.services.external_health_service import (
     init_external_health_service,
     reset_external_health_service,

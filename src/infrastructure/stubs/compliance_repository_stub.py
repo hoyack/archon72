@@ -12,8 +12,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from src.application.ports.compliance_repository import ComplianceRepositoryProtocol
 from src.domain.models.compliance import (
     ComplianceAssessment,
@@ -40,9 +38,7 @@ class ComplianceRepositoryStub(ComplianceRepositoryProtocol):
         """Initialize the stub with empty storage."""
         self._assessments: dict[str, ComplianceAssessment] = {}
 
-    async def get_assessment(
-        self, assessment_id: str
-    ) -> Optional[ComplianceAssessment]:
+    async def get_assessment(self, assessment_id: str) -> ComplianceAssessment | None:
         """Retrieve an assessment by its ID.
 
         Args:
@@ -72,7 +68,7 @@ class ComplianceRepositoryStub(ComplianceRepositoryProtocol):
 
     async def get_latest_assessment(
         self, framework: ComplianceFramework
-    ) -> Optional[ComplianceAssessment]:
+    ) -> ComplianceAssessment | None:
         """Retrieve the most recent assessment for a framework.
 
         Args:
@@ -99,7 +95,8 @@ class ComplianceRepositoryStub(ComplianceRepositoryProtocol):
         for assessment in self._assessments.values():
             if (
                 assessment.framework not in latest
-                or assessment.assessment_date > latest[assessment.framework].assessment_date
+                or assessment.assessment_date
+                > latest[assessment.framework].assessment_date
             ):
                 latest[assessment.framework] = assessment
         return tuple(latest.values())

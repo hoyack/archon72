@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from src.application.ports.witness_anomaly_detector import (
     PairExclusion,
@@ -20,7 +19,6 @@ from src.application.ports.witness_anomaly_detector import (
     WitnessAnomalyResult,
 )
 from src.domain.events.witness_anomaly import WitnessAnomalyType
-
 
 logger = logging.getLogger(__name__)
 
@@ -174,9 +172,7 @@ class WitnessAnomalyDetectorStub(WitnessAnomalyDetectorProtocol):
         self._prune_expired_exclusions()
         return pair_key in self._excluded_pairs
 
-    async def get_exclusion_details(
-        self, pair_key: str
-    ) -> Optional[PairExclusion]:
+    async def get_exclusion_details(self, pair_key: str) -> PairExclusion | None:
         """Get details of a pair exclusion.
 
         Args:

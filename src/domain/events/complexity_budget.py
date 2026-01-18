@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from src.domain.models.complexity_budget import ComplexityDimension
@@ -69,9 +69,9 @@ class ComplexityBudgetBreachedPayload:
     actual_value: int
     breached_at: datetime
     requires_governance_ceremony: bool = True  # RT-6 default
-    resolution_deadline: Optional[datetime] = None
-    governance_approval_id: Optional[UUID] = None
-    resolved_at: Optional[datetime] = None
+    resolution_deadline: datetime | None = None
+    governance_approval_id: UUID | None = None
+    resolved_at: datetime | None = None
 
     @property
     def is_resolved(self) -> bool:
@@ -194,7 +194,9 @@ class ComplexityBudgetEscalatedPayload:
                 f"days_without_resolution cannot be negative, got {self.days_without_resolution}"
             )
         if self.escalation_level < 1:
-            raise ValueError(f"escalation_level must be at least 1, got {self.escalation_level}")
+            raise ValueError(
+                f"escalation_level must be at least 1, got {self.escalation_level}"
+            )
 
     def signable_content(self) -> bytes:
         """Return canonical content for witnessing (CT-12).

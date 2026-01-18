@@ -4,9 +4,10 @@ Story: consent-gov-1.4: Write-Time Validation
 AC3: Unknown event types rejected before append (with specific error)
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.application.services.governance.validators.event_type_validator import (
     EventTypeValidator,
@@ -50,14 +51,18 @@ class TestEventTypeValidator:
         await validator.validate(event)  # Should not raise
 
     @pytest.mark.asyncio
-    async def test_all_governance_event_types_valid(self, validator: EventTypeValidator) -> None:
+    async def test_all_governance_event_types_valid(
+        self, validator: EventTypeValidator
+    ) -> None:
         """All registered governance event types are valid."""
         for event_type in GOVERNANCE_EVENT_TYPES:
             event = make_event(event_type)
             await validator.validate(event)  # Should not raise
 
     @pytest.mark.asyncio
-    async def test_unknown_event_type_rejected(self, validator: EventTypeValidator) -> None:
+    async def test_unknown_event_type_rejected(
+        self, validator: EventTypeValidator
+    ) -> None:
         """Unknown event type raises UnknownEventTypeError."""
         event = make_event("fake.branch.action")
 
@@ -68,7 +73,9 @@ class TestEventTypeValidator:
         assert exc_info.value.event_id == event.event_id
 
     @pytest.mark.asyncio
-    async def test_suggestion_provided_for_typo(self, validator: EventTypeValidator) -> None:
+    async def test_suggestion_provided_for_typo(
+        self, validator: EventTypeValidator
+    ) -> None:
         """Suggestion provided for similar event types."""
         # Typo: "executive.task.acceptd" instead of "executive.task.accepted"
         event = make_event("executive.task.acceptd")
@@ -80,7 +87,9 @@ class TestEventTypeValidator:
         assert exc_info.value.suggestion == "executive.task.accepted"
 
     @pytest.mark.asyncio
-    async def test_no_suggestion_for_unrelated_type(self, validator: EventTypeValidator) -> None:
+    async def test_no_suggestion_for_unrelated_type(
+        self, validator: EventTypeValidator
+    ) -> None:
         """No suggestion for completely unrelated event types."""
         event = make_event("xyz.abc.def")
 
@@ -98,7 +107,9 @@ class TestEventTypeValidator:
         event = make_event("custom.branch.action")
         await non_strict_validator.validate(event)  # Should not raise
 
-    def test_allowed_types_includes_standard_types(self, validator: EventTypeValidator) -> None:
+    def test_allowed_types_includes_standard_types(
+        self, validator: EventTypeValidator
+    ) -> None:
         """allowed_types includes all standard governance event types."""
         assert validator.allowed_types == GOVERNANCE_EVENT_TYPES
 
@@ -111,12 +122,16 @@ class TestEventTypeValidator:
         assert "executive.task.accepted" in validator.allowed_types
 
     @pytest.mark.asyncio
-    async def test_is_valid_type_true_for_registered(self, validator: EventTypeValidator) -> None:
+    async def test_is_valid_type_true_for_registered(
+        self, validator: EventTypeValidator
+    ) -> None:
         """is_valid_type returns True for registered types."""
         assert validator.is_valid_type("executive.task.accepted") is True
 
     @pytest.mark.asyncio
-    async def test_is_valid_type_false_for_unknown(self, validator: EventTypeValidator) -> None:
+    async def test_is_valid_type_false_for_unknown(
+        self, validator: EventTypeValidator
+    ) -> None:
         """is_valid_type returns False for unknown types."""
         assert validator.is_valid_type("fake.branch.action") is False
 

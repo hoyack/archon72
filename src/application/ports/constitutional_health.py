@@ -15,7 +15,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.models.constitutional_health import (
     ConstitutionalHealthSnapshot,
@@ -140,7 +140,7 @@ class ConstitutionalHealthPort(Protocol):
         """
         ...
 
-    async def check_ceremony_allowed(self) -> tuple[bool, Optional[str]]:
+    async def check_ceremony_allowed(self) -> tuple[bool, str | None]:
         """Check if a ceremony can proceed (AC4).
 
         Provides detailed information about ceremony blocking status.

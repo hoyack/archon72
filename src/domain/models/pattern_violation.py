@@ -23,7 +23,6 @@ Usage:
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 from uuid import UUID, uuid4
 
 
@@ -107,8 +106,8 @@ class PatternViolation:
     remediation: str
     detected_at: datetime
     is_resolved: bool
-    resolved_at: Optional[datetime]
-    resolved_by: Optional[str]
+    resolved_at: datetime | None
+    resolved_by: str | None
 
     def __post_init__(self) -> None:
         """Validate violation data."""
@@ -125,8 +124,8 @@ class PatternViolation:
         violation_type: PatternViolationType,
         location: str,
         description: str,
-        severity: Optional[ViolationSeverity] = None,
-        remediation: Optional[str] = None,
+        severity: ViolationSeverity | None = None,
+        remediation: str | None = None,
     ) -> "PatternViolation":
         """Factory method to create a pattern violation.
 

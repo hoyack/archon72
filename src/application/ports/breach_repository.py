@@ -12,7 +12,7 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.events.breach import BreachEventPayload, BreachType
@@ -48,7 +48,7 @@ class BreachRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_by_id(self, breach_id: UUID) -> Optional[BreachEventPayload]:
+    async def get_by_id(self, breach_id: UUID) -> BreachEventPayload | None:
         """Retrieve a specific breach event by ID.
 
         Args:

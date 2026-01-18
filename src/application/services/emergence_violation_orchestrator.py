@@ -21,12 +21,10 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
-from uuid import UUID
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from structlog import get_logger
-
-from dataclasses import dataclass
 
 from src.application.ports.halt_checker import HaltChecker
 from src.application.ports.prohibited_language_scanner import ScanResult
@@ -48,7 +46,7 @@ class CombinedScanResult:
     """
 
     keyword_result: ScanResult
-    semantic_result: Optional[SemanticScanResult]
+    semantic_result: SemanticScanResult | None
     breach_created: bool
 
     @property
@@ -63,9 +61,8 @@ class CombinedScanResult:
         """Check if content passed all scans with no issues."""
         if self.keyword_result.violations_found:
             return False
-        if self.semantic_suspicion:
-            return False
-        return True
+        return not self.semantic_suspicion
+
 
 if TYPE_CHECKING:
     from src.application.services.emergence_violation_breach_service import (
@@ -144,7 +141,7 @@ class EmergenceViolationOrchestrator:
         blocking_service: ProhibitedLanguageBlockingService,
         breach_service: EmergenceViolationBreachService,
         halt_checker: HaltChecker,
-        semantic_scanner: Optional[SemanticScanningService] = None,
+        semantic_scanner: SemanticScanningService | None = None,
     ) -> None:
         """Initialize the Emergence Violation Orchestrator.
 
@@ -247,7 +244,7 @@ class EmergenceViolationOrchestrator:
         self,
         content_id: str,
         error: ProhibitedLanguageBlockedError,
-    ) -> Optional[BreachEventPayload]:
+    ) -> BreachEventPayload | None:
         """Create breach for detected violation.
 
         This internal method handles breach creation and gracefully
@@ -271,7 +268,7 @@ class EmergenceViolationOrchestrator:
             # Generate a deterministic UUID from content_id for the violation event
             # In production, we would query the event store for the actual event ID
             # For now, we use a generated UUID
-            from uuid import uuid5, NAMESPACE_DNS
+            from uuid import NAMESPACE_DNS, uuid5
 
             violation_event_id = uuid5(
                 NAMESPACE_DNS,
@@ -371,9 +368,11 @@ class EmergenceViolationOrchestrator:
         # Primary: Keyword scan (always runs)
         # This raises ProhibitedLanguageBlockedError on violation
         # =====================================================================
-        keyword_result = await self._blocking_service.check_content_for_prohibited_language(
-            content_id=content_id,
-            content=content,
+        keyword_result = (
+            await self._blocking_service.check_content_for_prohibited_language(
+                content_id=content_id,
+                content=content,
+            )
         )
 
         # If we get here, keyword scan passed
@@ -385,7 +384,7 @@ class EmergenceViolationOrchestrator:
         # =====================================================================
         # Secondary: Semantic scan (if configured)
         # =====================================================================
-        semantic_result: Optional[SemanticScanResult] = None
+        semantic_result: SemanticScanResult | None = None
         breach_created = False
 
         if self._semantic_scanner is not None:
@@ -429,7 +428,7 @@ class EmergenceViolationOrchestrator:
         self,
         content_id: str,
         semantic_result: SemanticScanResult,
-    ) -> Optional[BreachEventPayload]:
+    ) -> BreachEventPayload | None:
         """Create breach for high-confidence semantic suspicion (FR110).
 
         This internal method handles breach creation for semantic violations
@@ -450,7 +449,7 @@ class EmergenceViolationOrchestrator:
         )
 
         try:
-            from uuid import uuid5, NAMESPACE_DNS
+            from uuid import NAMESPACE_DNS, uuid5
 
             # Generate deterministic UUID for the semantic violation
             violation_event_id = uuid5(

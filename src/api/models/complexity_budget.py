@@ -9,7 +9,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -82,7 +81,8 @@ class ComplexityDashboardResponse(BaseModel):
         description="Current cross-component dependency count"
     )
     cross_component_dep_limit: int = Field(
-        default=CROSS_COMPONENT_DEP_LIMIT, description="Cross-component dependency limit"
+        default=CROSS_COMPONENT_DEP_LIMIT,
+        description="Cross-component dependency limit",
     )
     cross_component_dep_utilization: float = Field(
         description="Cross-component dependency utilization percentage"
@@ -124,9 +124,7 @@ class ComplexityBreachResponse(BaseModel):
     requires_governance_ceremony: bool = Field(
         default=True, description="Whether governance ceremony required (RT-6)"
     )
-    is_resolved: bool = Field(
-        default=False, description="Whether breach is resolved"
-    )
+    is_resolved: bool = Field(default=False, description="Whether breach is resolved")
 
 
 class ComplexityEscalationResponse(BaseModel):
@@ -191,12 +189,8 @@ class ComplexityTrendResponse(BaseModel):
     data_points: list[ComplexityTrendDataPoint] = Field(
         default_factory=list, description="Trend data points"
     )
-    total_breaches: int = Field(
-        default=0, description="Total breaches in period"
-    )
-    total_escalations: int = Field(
-        default=0, description="Total escalations in period"
-    )
+    total_breaches: int = Field(default=0, description="Total breaches in period")
+    total_escalations: int = Field(default=0, description="Total escalations in period")
 
 
 class ComplexityBreachListResponse(BaseModel):

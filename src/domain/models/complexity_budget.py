@@ -35,9 +35,7 @@ Usage:
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 from uuid import UUID, uuid4
-
 
 # Budget limits from architecture.md and epics.md (CT-14)
 ADR_LIMIT: int = 15
@@ -126,14 +124,16 @@ class ComplexityBudget:
     dimension: ComplexityDimension
     limit: int
     current_value: int
-    breach_id: Optional[UUID] = None
+    breach_id: UUID | None = None
 
     def __post_init__(self) -> None:
         """Validate budget data."""
         if self.limit <= 0:
             raise ValueError(f"limit must be positive, got {self.limit}")
         if self.current_value < 0:
-            raise ValueError(f"current_value cannot be negative, got {self.current_value}")
+            raise ValueError(
+                f"current_value cannot be negative, got {self.current_value}"
+            )
 
     @property
     def status(self) -> ComplexityBudgetStatus:
@@ -233,14 +233,16 @@ class ComplexitySnapshot:
     ceremony_types: int
     cross_component_deps: int
     timestamp: datetime
-    triggered_by: Optional[str] = None
+    triggered_by: str | None = None
 
     def __post_init__(self) -> None:
         """Validate snapshot data."""
         if self.adr_count < 0:
             raise ValueError(f"adr_count cannot be negative, got {self.adr_count}")
         if self.ceremony_types < 0:
-            raise ValueError(f"ceremony_types cannot be negative, got {self.ceremony_types}")
+            raise ValueError(
+                f"ceremony_types cannot be negative, got {self.ceremony_types}"
+            )
         if self.cross_component_deps < 0:
             raise ValueError(
                 f"cross_component_deps cannot be negative, got {self.cross_component_deps}"
@@ -252,7 +254,7 @@ class ComplexitySnapshot:
         adr_count: int,
         ceremony_types: int,
         cross_component_deps: int,
-        triggered_by: Optional[str] = None,
+        triggered_by: str | None = None,
     ) -> "ComplexitySnapshot":
         """Factory method to create a snapshot with auto-generated ID and timestamp.
 
@@ -326,9 +328,7 @@ class ComplexitySnapshot:
             Tuple of dimensions where current value >= limit.
         """
         return tuple(
-            budget.dimension
-            for budget in self.get_all_budgets()
-            if budget.is_breached
+            budget.dimension for budget in self.get_all_budgets() if budget.is_breached
         )
 
     @property
@@ -339,9 +339,7 @@ class ComplexitySnapshot:
             Tuple of dimensions at 80-99% utilization.
         """
         return tuple(
-            budget.dimension
-            for budget in self.get_all_budgets()
-            if budget.is_warning
+            budget.dimension for budget in self.get_all_budgets() if budget.is_warning
         )
 
     @property

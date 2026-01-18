@@ -26,7 +26,6 @@ from src.domain.events.override_event import (
     OverrideEventPayload,
     OverrideExpiredEventPayload,
 )
-from src.domain.models.override_reason import OverrideReason
 
 
 class TestOverrideEventPayload:

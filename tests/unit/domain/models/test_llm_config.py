@@ -3,11 +3,11 @@
 import pytest
 
 from src.domain.models.llm_config import (
-    LLMConfig,
     DEFAULT_LLM_CONFIG,
+    GPT4O_LLM_CONFIG,
     OPUS_LLM_CONFIG,
     SONNET_LLM_CONFIG,
-    GPT4O_LLM_CONFIG,
+    LLMConfig,
 )
 
 

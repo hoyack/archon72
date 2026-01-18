@@ -18,15 +18,13 @@ from __future__ import annotations
 
 import dataclasses
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import pytest
 
-from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.observation_content import ObservationContent
+from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
-from src.domain.governance.witness.errors import JudgmentLanguageError
 
 
 class TestObservationType:

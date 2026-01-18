@@ -7,15 +7,14 @@ from uuid import UUID
 
 import pytest
 
-from src.infrastructure.adapters.config.archon_profile_adapter import (
-    JsonYamlArchonProfileAdapter,
-    CsvYamlArchonProfileAdapter,  # Backwards compatibility alias
-    create_archon_profile_repository,
-)
 from src.application.ports.archon_profile_repository import (
     ArchonProfileLoadError,
 )
-
+from src.infrastructure.adapters.config.archon_profile_adapter import (
+    CsvYamlArchonProfileAdapter,  # Backwards compatibility alias
+    JsonYamlArchonProfileAdapter,
+    create_archon_profile_repository,
+)
 
 # Sample JSON content for testing
 SAMPLE_JSON = {
@@ -119,7 +118,7 @@ SAMPLE_JSON = {
 }
 
 # Sample YAML content for testing
-SAMPLE_YAML = '''
+SAMPLE_YAML = """
 _default:
   provider: anthropic
   model: claude-3-haiku-20240307
@@ -148,7 +147,7 @@ _rank_defaults:
   temperature: 0.8
   max_tokens: 8192
   timeout_ms: 90000
-'''
+"""
 
 
 @pytest.fixture
@@ -531,6 +530,13 @@ class TestIntegrationWithRealData:
         """Test that all governance branches are represented."""
         repo = create_archon_profile_repository()
 
-        for branch in ["legislative", "executive", "administrative", "judicial", "advisory", "witness"]:
+        for branch in [
+            "legislative",
+            "executive",
+            "administrative",
+            "judicial",
+            "advisory",
+            "witness",
+        ]:
             profiles = repo.get_by_branch(branch)
             assert len(profiles) > 0, f"No archons in {branch} branch"

@@ -12,13 +12,11 @@ Constitutional Constraints:
 - SR-7: Alert when quorum drops to exactly 3
 """
 
-from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from src.application.services.keeper_availability_service import (
-    KeeperAttestationStatus,
     KeeperAvailabilityService,
 )
 from src.domain.errors.keeper_availability import (
@@ -29,16 +27,12 @@ from src.domain.errors.keeper_availability import (
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.keeper_availability import (
     KEEPER_ATTESTATION_EVENT_TYPE,
-    KEEPER_MISSED_ATTESTATION_EVENT_TYPE,
     KEEPER_QUORUM_WARNING_EVENT_TYPE,
-    KEEPER_REPLACEMENT_INITIATED_EVENT_TYPE,
 )
 from src.domain.models.keeper_attestation import (
     ATTESTATION_PERIOD_DAYS,
     MINIMUM_KEEPER_QUORUM,
     MISSED_ATTESTATIONS_THRESHOLD,
-    KeeperAttestation,
-    get_current_period,
 )
 from src.infrastructure.stubs.keeper_availability_stub import KeeperAvailabilityStub
 

@@ -12,7 +12,6 @@ These tests verify that:
 """
 
 from datetime import datetime, timezone
-from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -50,7 +49,10 @@ class FakeTimeAuthority(TimeAuthorityProtocol):
         result = self._fixed_time
         if self._advance_on_call > 0:
             from datetime import timedelta
-            self._fixed_time = self._fixed_time + timedelta(milliseconds=self._advance_on_call)
+
+            self._fixed_time = self._fixed_time + timedelta(
+                milliseconds=self._advance_on_call
+            )
         return result
 
     def monotonic(self) -> float:
@@ -236,9 +238,7 @@ class TestTableVerification:
         table_name: str,
     ) -> None:
         """Prohibited tables are detected (AC: 1, 5)."""
-        dirty_schema = FakeSchemaInspector(
-            tables=["tasks", table_name, "clusters"]
-        )
+        dirty_schema = FakeSchemaInspector(tables=["tasks", table_name, "clusters"])
         service = AntiMetricsVerificationService(
             schema_inspector=dirty_schema,
             route_inspector=clean_route_inspector,
@@ -520,7 +520,10 @@ class TestIndependentVerification:
         report = await verification_service_no_emitter.verify_all()
 
         assert report is not None
-        assert report.overall_status in [VerificationStatus.PASS, VerificationStatus.FAIL]
+        assert report.overall_status in [
+            VerificationStatus.PASS,
+            VerificationStatus.FAIL,
+        ]
 
     @pytest.mark.asyncio
     async def test_verifier_id_optional(
@@ -617,9 +620,7 @@ class TestVerificationReport:
         time_authority: FakeTimeAuthority,
     ) -> None:
         """Violation report includes remediation steps."""
-        dirty_schema = FakeSchemaInspector(
-            tables=["cluster_metrics"]
-        )
+        dirty_schema = FakeSchemaInspector(tables=["cluster_metrics"])
         service = AntiMetricsVerificationService(
             schema_inspector=dirty_schema,
             route_inspector=clean_route_inspector,
@@ -773,7 +774,9 @@ class TestDomainModels:
                 violations_found=("violation1",),
             )
 
-        with pytest.raises(ValueError, match="Cannot have FAIL status without violations"):
+        with pytest.raises(
+            ValueError, match="Cannot have FAIL status without violations"
+        ):
             CheckResult(
                 check_type=VerificationCheck.SCHEMA_TABLES,
                 status=VerificationStatus.FAIL,
@@ -802,7 +805,9 @@ class TestDomainModels:
 
     def test_verification_report_validates_overall_status(self) -> None:
         """VerificationReport validates overall_status consistency."""
-        with pytest.raises(ValueError, match="Cannot have PASS overall status with failed"):
+        with pytest.raises(
+            ValueError, match="Cannot have PASS overall status with failed"
+        ):
             VerificationReport(
                 report_id=uuid4(),
                 verified_at=datetime.now(timezone.utc),

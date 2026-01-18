@@ -34,7 +34,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 
@@ -103,7 +102,7 @@ class TaskTransitionRecord:
     transition_type: HaltTransitionType
     transitioned_at: datetime
     halt_correlation_id: UUID
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     @property
     def is_success(self) -> bool:

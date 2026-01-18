@@ -9,7 +9,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -48,7 +47,10 @@ class TestComplianceDocumentationServiceInit:
 
     def test_system_agent_id_constant(self) -> None:
         """Test system agent ID constant is set correctly."""
-        assert COMPLIANCE_DOCUMENTATION_SYSTEM_AGENT_ID == "system:compliance-documentation"
+        assert (
+            COMPLIANCE_DOCUMENTATION_SYSTEM_AGENT_ID
+            == "system:compliance-documentation"
+        )
 
 
 class TestDocumentAssessment:

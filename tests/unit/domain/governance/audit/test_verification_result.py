@@ -18,11 +18,11 @@ from uuid import uuid4
 import pytest
 
 from src.domain.governance.audit.verification_result import (
-    VerificationStatus,
-    IssueType,
     DetectedIssue,
-    VerificationResult,
+    IssueType,
     VerificationFailedError,
+    VerificationResult,
+    VerificationStatus,
 )
 
 

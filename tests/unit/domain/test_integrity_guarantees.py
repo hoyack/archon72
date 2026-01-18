@@ -10,15 +10,15 @@ Constitutional Constraints:
 
 import pytest
 
+from src.domain.models.integrity_case import (
+    REQUIRED_CT_REFERENCES,
+    GuaranteeCategory,
+)
 from src.domain.primitives.integrity_guarantees import (
     ALL_GUARANTEES,
     INTEGRITY_GUARANTEE_REGISTRY,
     get_guarantee,
     validate_all_guarantees,
-)
-from src.domain.models.integrity_case import (
-    REQUIRED_CT_REFERENCES,
-    GuaranteeCategory,
 )
 
 
@@ -83,7 +83,9 @@ class TestIntegrityGuaranteeRegistry:
 
     def test_registry_lookup_ct13(self) -> None:
         """Registry should contain CT-13 guarantee."""
-        guarantee = INTEGRITY_GUARANTEE_REGISTRY.get_guarantee("ct-13-integrity-priority")
+        guarantee = INTEGRITY_GUARANTEE_REGISTRY.get_guarantee(
+            "ct-13-integrity-priority"
+        )
 
         assert guarantee is not None
         assert guarantee.ct_reference == "CT-13"
@@ -168,7 +170,11 @@ class TestGuaranteeContent:
         assert guarantee is not None
         mechanism_lower = guarantee.mechanism.lower()
         desc_lower = guarantee.description.lower()
-        assert "halt" in mechanism_lower or "halt" in desc_lower or "cessation" in desc_lower
+        assert (
+            "halt" in mechanism_lower
+            or "halt" in desc_lower
+            or "cessation" in desc_lower
+        )
 
     def test_fr_observer_has_public_access(self) -> None:
         """FR observer guarantee should mention public/unauthenticated access."""

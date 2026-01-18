@@ -50,9 +50,7 @@ class AgentUnresponsiveError(ConclaveError):
         self.missed_count = missed_count
 
         last_hb_str = (
-            str(last_heartbeat_timestamp)
-            if last_heartbeat_timestamp
-            else "never"
+            str(last_heartbeat_timestamp) if last_heartbeat_timestamp else "never"
         )
         message = (
             f"FR91: Agent {agent_id} is unresponsive - "
@@ -89,7 +87,6 @@ class HeartbeatSpoofingError(ConstitutionalViolationError):
         self.reason = reason
 
         message = (
-            f"FR90: Heartbeat spoofing detected for agent {agent_id} - "
-            f"reason: {reason}"
+            f"FR90: Heartbeat spoofing detected for agent {agent_id} - reason: {reason}"
         )
         super().__init__(message)

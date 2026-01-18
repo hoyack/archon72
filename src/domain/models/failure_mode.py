@@ -38,7 +38,6 @@ Usage:
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 from uuid import UUID, uuid4
 
 
@@ -134,7 +133,9 @@ class FailureModeThreshold:
     def __post_init__(self) -> None:
         """Validate threshold configuration."""
         if self.comparison not in ("greater", "less"):
-            raise ValueError(f"comparison must be 'greater' or 'less', got {self.comparison}")
+            raise ValueError(
+                f"comparison must be 'greater' or 'less', got {self.comparison}"
+            )
         if self.comparison == "greater":
             if self.warning_value > self.critical_value:
                 raise ValueError(
@@ -251,8 +252,8 @@ class FailureMode:
     description: str
     severity: FailureModeSeverity
     mitigation: str
-    adr_reference: Optional[str] = None
-    owner: Optional[str] = None
+    adr_reference: str | None = None
+    owner: str | None = None
 
     def __post_init__(self) -> None:
         """Validate failure mode data."""
@@ -316,7 +317,9 @@ class EarlyWarning:
     def __post_init__(self) -> None:
         """Validate warning data."""
         if self.threshold_type not in ("warning", "critical"):
-            raise ValueError(f"threshold_type must be 'warning' or 'critical', got {self.threshold_type}")
+            raise ValueError(
+                f"threshold_type must be 'warning' or 'critical', got {self.threshold_type}"
+            )
         if not self.recommended_action:
             raise ValueError("recommended_action cannot be empty")
         if not self.metric_name:

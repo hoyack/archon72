@@ -78,9 +78,7 @@ class TestHaltCheckerStubSharedStateMode:
         return HaltState.get_instance(f"checker-test-{uuid4()}")
 
     @pytest.mark.asyncio
-    async def test_is_halted_via_shared_state(
-        self, halt_state: HaltState
-    ) -> None:
+    async def test_is_halted_via_shared_state(self, halt_state: HaltState) -> None:
         """Should return True when shared state is halted."""
         stub = HaltCheckerStub(halt_state=halt_state)
         assert await stub.is_halted() is False

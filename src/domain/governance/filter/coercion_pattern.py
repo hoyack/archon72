@@ -22,7 +22,6 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class PatternSeverity(Enum):
@@ -121,9 +120,9 @@ class CoercionPattern:
     severity: PatternSeverity
     pattern: str  # Regex pattern
     description: str
-    replacement: Optional[str] = None  # For TRANSFORM severity
-    rejection_reason: Optional[str] = None  # For REJECT severity
-    violation_type: Optional[str] = None  # For BLOCK severity
+    replacement: str | None = None  # For TRANSFORM severity
+    rejection_reason: str | None = None  # For REJECT severity
+    violation_type: str | None = None  # For BLOCK severity
     case_sensitive: bool = False  # Default: case-insensitive matching
 
     def __post_init__(self) -> None:
@@ -166,7 +165,7 @@ class CoercionPattern:
         """Get regex flags based on case_sensitive setting."""
         return 0 if self.case_sensitive else re.IGNORECASE
 
-    def extract_match(self, content: str) -> Optional[str]:
+    def extract_match(self, content: str) -> str | None:
         """Extract the matched text from content.
 
         Args:
@@ -198,7 +197,10 @@ class CoercionPattern:
         Returns:
             List of (start, end) tuples for each match.
         """
-        return [(m.start(), m.end()) for m in re.finditer(self.pattern, content, self._get_flags())]
+        return [
+            (m.start(), m.end())
+            for m in re.finditer(self.pattern, content, self._get_flags())
+        ]
 
     def apply(self, content: str) -> str:
         """Apply transformation (for TRANSFORM severity only).

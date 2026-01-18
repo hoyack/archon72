@@ -40,7 +40,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-
 # Event type constant for integrity case updates
 INTEGRITY_CASE_UPDATED_EVENT_TYPE: str = "integrity_case.updated"
 
@@ -102,9 +101,7 @@ class IntegrityCaseUpdatedEventPayload:
             raise ValueError("reason must be non-empty")
         # At least one change must have occurred
         if not (
-            self.guarantees_added
-            or self.guarantees_modified
-            or self.guarantees_removed
+            self.guarantees_added or self.guarantees_modified or self.guarantees_removed
         ):
             raise ValueError(
                 "At least one of guarantees_added, guarantees_modified, "

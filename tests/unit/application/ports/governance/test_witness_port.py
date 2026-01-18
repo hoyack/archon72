@@ -14,15 +14,14 @@ References:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Protocol, runtime_checkable
 from uuid import UUID, uuid4
 
 import pytest
 
-from src.domain.governance.witness.observation_type import ObservationType
-from src.domain.governance.witness.observation_content import ObservationContent
-from src.domain.governance.witness.witness_statement import WitnessStatement
 from src.application.ports.governance.witness_port import WitnessPort
+from src.domain.governance.witness.observation_content import ObservationContent
+from src.domain.governance.witness.observation_type import ObservationType
+from src.domain.governance.witness.witness_statement import WitnessStatement
 
 
 class TestWitnessPortSuppressionPrevention:
@@ -106,9 +105,7 @@ class InMemoryWitnessAdapter:
         """Record witness statement to append-only store."""
         self._statements.append(statement)
 
-    async def get_statements_for_event(
-        self, event_id: UUID
-    ) -> list[WitnessStatement]:
+    async def get_statements_for_event(self, event_id: UUID) -> list[WitnessStatement]:
         """Get all witness statements for an event."""
         return [s for s in self._statements if s.content.event_id == event_id]
 

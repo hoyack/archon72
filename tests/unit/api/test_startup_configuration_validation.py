@@ -7,8 +7,9 @@ Constitutional Constraints:
 - CT-13: Integrity outranks availability -> Startup failure over running below floor
 """
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from src.api.startup import validate_configuration_floors_at_startup
 from src.domain.errors.configuration_floor import StartupFloorViolationError

@@ -9,7 +9,6 @@ Constitutional Constraints:
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 import structlog
 
@@ -27,7 +26,7 @@ class DowntimeIncident:
     """
 
     start_time: datetime
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     reason: str = "unknown"
 
     @property
@@ -104,7 +103,7 @@ class UptimeService:
         """
         self._window_hours = window_hours
         self._incidents: list[DowntimeIncident] = []
-        self._current_incident: Optional[DowntimeIncident] = None
+        self._current_incident: DowntimeIncident | None = None
         self._service_start: datetime = datetime.now(timezone.utc)
 
     def record_downtime_start(self, reason: str = "unknown") -> None:
@@ -134,7 +133,7 @@ class UptimeService:
             start_time=self._current_incident.start_time.isoformat(),
         )
 
-    def record_downtime_end(self) -> Optional[DowntimeIncident]:
+    def record_downtime_end(self) -> DowntimeIncident | None:
         """Record end of current downtime incident.
 
         Per CT-11: Recovery events are logged for accountability.

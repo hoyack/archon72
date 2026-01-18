@@ -15,17 +15,15 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability
 """
 
-from datetime import datetime, timezone
-from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.api.routes.waiver import get_waiver_service, router as waiver_router
+from src.api.routes.waiver import get_waiver_service
+from src.api.routes.waiver import router as waiver_router
 from src.application.services.waiver_documentation_service import (
-    WAIVER_DOCUMENTATION_SYSTEM_AGENT_ID,
     WaiverDocumentationService,
 )
 from src.domain.errors import SystemHaltedError
@@ -233,9 +231,7 @@ class TestWaiverAPIEndpoints:
         assert data["constitutional_truth_id"] == "CT-15"
 
     @pytest.mark.asyncio
-    async def test_get_nonexistent_waiver_returns_404(
-        self, client: TestClient
-    ) -> None:
+    async def test_get_nonexistent_waiver_returns_404(self, client: TestClient) -> None:
         """Test GET /v1/waivers/{waiver_id} returns 404 for nonexistent."""
         response = client.get("/v1/waivers/nonexistent")
         assert response.status_code == 404

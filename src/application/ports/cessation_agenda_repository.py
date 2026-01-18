@@ -13,7 +13,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.events.cessation_agenda import (
@@ -57,7 +57,7 @@ class CessationAgendaRepositoryProtocol(Protocol):
     async def get_by_id(
         self,
         placement_id: UUID,
-    ) -> Optional[CessationAgendaPlacementEventPayload]:
+    ) -> CessationAgendaPlacementEventPayload | None:
         """Retrieve a specific agenda placement by ID.
 
         Args:
@@ -73,7 +73,7 @@ class CessationAgendaRepositoryProtocol(Protocol):
 
     async def get_active_placement(
         self,
-    ) -> Optional[CessationAgendaPlacementEventPayload]:
+    ) -> CessationAgendaPlacementEventPayload | None:
         """Get the currently active agenda placement, if any.
 
         An agenda placement is "active" if it hasn't been resolved
@@ -90,7 +90,7 @@ class CessationAgendaRepositoryProtocol(Protocol):
     async def get_placement_by_trigger(
         self,
         trigger_type: AgendaTriggerType,
-    ) -> Optional[CessationAgendaPlacementEventPayload]:
+    ) -> CessationAgendaPlacementEventPayload | None:
         """Get the most recent placement for a specific trigger type.
 
         This supports idempotent checks - if a placement already exists

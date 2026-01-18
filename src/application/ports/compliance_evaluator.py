@@ -139,7 +139,10 @@ class CriterionMeasurement:
     @property
     def is_met(self) -> bool:
         """Check if criterion is met (fully or partially)."""
-        return self.verdict in (MeasurementVerdict.MET, MeasurementVerdict.PARTIALLY_MET)
+        return self.verdict in (
+            MeasurementVerdict.MET,
+            MeasurementVerdict.PARTIALLY_MET,
+        )
 
 
 @dataclass(frozen=True)
@@ -203,7 +206,9 @@ class ComplianceEvaluation:
     def partial_count(self) -> int:
         """Count of criteria partially met."""
         return sum(
-            1 for m in self.measurements if m.verdict == MeasurementVerdict.PARTIALLY_MET
+            1
+            for m in self.measurements
+            if m.verdict == MeasurementVerdict.PARTIALLY_MET
         )
 
     @property

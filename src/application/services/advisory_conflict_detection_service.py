@@ -25,9 +25,7 @@ from src.application.ports.knight_witness import (
     KnightWitnessProtocol,
     ObservationContext,
     ViolationRecord,
-    WitnessStatementType,
 )
-
 
 # =============================================================================
 # DOMAIN MODELS
@@ -513,7 +511,19 @@ class AdvisoryConflictDetectionService:
         keywords_j = set(j_lower.split())
 
         # Remove common stop words
-        stop_words = {"the", "a", "an", "on", "in", "for", "of", "to", "and", "or", "is"}
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "on",
+            "in",
+            "for",
+            "of",
+            "to",
+            "and",
+            "or",
+            "is",
+        }
         keywords_a -= stop_words
         keywords_j -= stop_words
 
@@ -821,9 +831,7 @@ class AdvisoryConflictDetectionService:
             List of audit entries for that conflict
         """
         return [
-            entry
-            for entry in self._audit_trail
-            if entry.conflict_id == conflict_id
+            entry for entry in self._audit_trail if entry.conflict_id == conflict_id
         ]
 
     async def get_audit_by_marquis(
@@ -838,11 +846,7 @@ class AdvisoryConflictDetectionService:
         Returns:
             List of audit entries for that Marquis
         """
-        return [
-            entry
-            for entry in self._audit_trail
-            if entry.marquis_id == marquis_id
-        ]
+        return [entry for entry in self._audit_trail if entry.marquis_id == marquis_id]
 
     async def get_audit_by_topic(
         self,

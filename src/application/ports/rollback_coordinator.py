@@ -50,7 +50,7 @@ class RollbackCoordinator(Protocol):
     2. Execution (AC3): Rollback executed, events orphaned, event recorded
     """
 
-    async def query_checkpoints(self) -> list["Checkpoint"]:
+    async def query_checkpoints(self) -> list[Checkpoint]:
         """Query available checkpoints for rollback (AC1).
 
         Returns all available checkpoint anchors that can be used
@@ -67,7 +67,7 @@ class RollbackCoordinator(Protocol):
         checkpoint_id: UUID,
         selecting_keepers: tuple[str, ...],
         reason: str,
-    ) -> "RollbackTargetSelectedPayload":
+    ) -> RollbackTargetSelectedPayload:
         """Record Keeper selection of rollback target (AC2).
 
         Records the Keepers' selection of a checkpoint for rollback.
@@ -93,8 +93,8 @@ class RollbackCoordinator(Protocol):
 
     async def execute_rollback(
         self,
-        ceremony_evidence: "CeremonyEvidence",
-    ) -> "RollbackCompletedPayload":
+        ceremony_evidence: CeremonyEvidence,
+    ) -> RollbackCompletedPayload:
         """Execute rollback to selected checkpoint (AC3).
 
         Executes the rollback operation:

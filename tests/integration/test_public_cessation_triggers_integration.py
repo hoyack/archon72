@@ -21,15 +21,15 @@ Developer Notes:
 - Constitutional floor enforcement is validated
 """
 
-import pytest
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.api.routes.observer import router
 from src.api.middleware.rate_limiter import ObserverRateLimiter
+from src.api.routes.observer import router
 
 
 # Create test FastAPI app
@@ -53,6 +53,7 @@ def client() -> TestClient:
 
     # Import and override the dependency
     from src.api.dependencies.observer import get_rate_limiter
+
     app.dependency_overrides[get_rate_limiter] = mock_rate_limiter
 
     return TestClient(app)
@@ -79,10 +80,10 @@ class TestPublicCessationTriggersIntegration:
         trigger_types = {c["trigger_type"] for c in data["trigger_conditions"]}
         expected_types = {
             "consecutive_failures",  # FR37
-            "rolling_window",        # RT-4
-            "anti_success_sustained", # FR38
-            "petition_threshold",    # FR39
-            "breach_threshold",      # FR32
+            "rolling_window",  # RT-4
+            "anti_success_sustained",  # FR38
+            "petition_threshold",  # FR39
+            "breach_threshold",  # FR32
         }
         assert trigger_types == expected_types
 
@@ -314,18 +315,14 @@ class TestConstitutionalFloorEnforcement:
                 f"{condition['constitutional_floor']} for {condition['trigger_type']}"
             )
 
-    def test_floors_match_constitutional_requirements(
-        self, client: TestClient
-    ) -> None:
+    def test_floors_match_constitutional_requirements(self, client: TestClient) -> None:
         """Test that constitutional floors match FR requirements."""
         response = client.get("/v1/observer/cessation-triggers")
 
         assert response.status_code == 200
 
         data = response.json()
-        conditions_by_type = {
-            c["trigger_type"]: c for c in data["trigger_conditions"]
-        }
+        conditions_by_type = {c["trigger_type"]: c for c in data["trigger_conditions"]}
 
         # FR37: Floor is 3 consecutive failures
         assert conditions_by_type["consecutive_failures"]["constitutional_floor"] == 3
@@ -334,7 +331,9 @@ class TestConstitutionalFloorEnforcement:
         assert conditions_by_type["rolling_window"]["constitutional_floor"] == 5
 
         # FR38: Floor is 90 days sustained
-        assert conditions_by_type["anti_success_sustained"]["constitutional_floor"] == 90
+        assert (
+            conditions_by_type["anti_success_sustained"]["constitutional_floor"] == 90
+        )
 
         # FR39: Floor is 100 co-signers
         assert conditions_by_type["petition_threshold"]["constitutional_floor"] == 100

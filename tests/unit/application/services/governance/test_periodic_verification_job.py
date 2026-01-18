@@ -9,9 +9,8 @@ These tests verify that:
 4. Job configuration works correctly
 """
 
-import asyncio
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -50,6 +49,7 @@ class FakeTimeAuthority(TimeAuthorityProtocol):
         result = self._time
         if self._advance_ms > 0:
             from datetime import timedelta
+
             self._time = self._time + timedelta(milliseconds=self._advance_ms)
         return result
 
@@ -59,6 +59,7 @@ class FakeTimeAuthority(TimeAuthorityProtocol):
     def advance(self, seconds: float) -> None:
         """Advance time by given seconds."""
         from datetime import timedelta
+
         self._time = self._time + timedelta(seconds=seconds)
 
 
@@ -302,6 +303,7 @@ class TestPeriodicVerificationJob:
         time_authority: FakeTimeAuthority,
     ) -> None:
         """Alert callback is invoked when violations are found."""
+
         # Create service with violations
         class DirtySchemaInspector(SchemaInspectorPort):
             async def get_all_tables(self) -> list[str]:
@@ -398,6 +400,7 @@ class TestPeriodicVerificationJob:
         time_authority: FakeTimeAuthority,
     ) -> None:
         """run_once handles errors gracefully."""
+
         # Create service that throws
         class FailingSchemaInspector(SchemaInspectorPort):
             async def get_all_tables(self) -> list[str]:
@@ -432,6 +435,7 @@ class TestPeriodicVerificationJob:
         time_authority: FakeTimeAuthority,
     ) -> None:
         """Setting alert callback to None disables alerts."""
+
         # Create service with violations
         class DirtySchemaInspector(SchemaInspectorPort):
             async def get_all_tables(self) -> list[str]:

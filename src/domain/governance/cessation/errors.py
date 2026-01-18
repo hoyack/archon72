@@ -15,7 +15,6 @@ Cessation cannot be cancelled - it is irreversible.
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 
@@ -50,8 +49,8 @@ class CessationAlreadyTriggeredError(CessationError):
         self,
         original_trigger_id: UUID,
         original_triggered_at: datetime,
-        original_operator_id: Optional[UUID] = None,
-        message: Optional[str] = None,
+        original_operator_id: UUID | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize CessationAlreadyTriggeredError.
 
@@ -96,8 +95,8 @@ class MotionBlockedByCessationError(CessationError):
         self,
         trigger_id: UUID,
         triggered_at: datetime,
-        motion_id: Optional[UUID] = None,
-        message: Optional[str] = None,
+        motion_id: UUID | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize MotionBlockedByCessationError.
 
@@ -138,7 +137,7 @@ class ExecutionBlockedByCessationError(CessationError):
     def __init__(
         self,
         trigger_id: UUID,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize ExecutionBlockedByCessationError.
 
@@ -173,8 +172,8 @@ class CessationRecordCreationError(CessationError):
     def __init__(
         self,
         message: str,
-        cause: Optional[Exception] = None,
-        trigger_id: Optional[UUID] = None,
+        cause: Exception | None = None,
+        trigger_id: UUID | None = None,
     ) -> None:
         """Initialize CessationRecordCreationError.
 
@@ -207,7 +206,7 @@ class CessationRecordAlreadyExistsError(CessationError):
     def __init__(
         self,
         existing_record_id: UUID,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize CessationRecordAlreadyExistsError.
 

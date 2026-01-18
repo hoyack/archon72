@@ -19,10 +19,9 @@ Test Coverage:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -35,16 +34,14 @@ from src.domain.events.cessation_deliberation import (
     ArchonDeliberation,
     ArchonPosition,
     CessationDeliberationEventPayload,
-    REQUIRED_ARCHON_COUNT,
 )
-from src.domain.events.collective_output import VoteCounts
 
 
 def create_72_deliberations(
     yes_count: int = 50,
     no_count: int = 20,
     abstain_count: int = 2,
-    timestamp: Optional[datetime] = None,
+    timestamp: datetime | None = None,
 ) -> list[ArchonDeliberation]:
     """Create exactly 72 Archon deliberations for testing."""
     if timestamp is None:

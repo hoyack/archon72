@@ -57,9 +57,7 @@ class BandTransitionRules:
 
         # Same band is not a valid transition
         if current == target:
-            return TransitionValidation.invalid(
-                "Already at target band"
-            )
+            return TransitionValidation.invalid("Already at target band")
 
         # Downward transition (increasing severity)
         if target.severity > current.severity:

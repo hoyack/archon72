@@ -23,7 +23,7 @@ Usage:
         )
 """
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -54,8 +54,8 @@ class ComplexityBudgetBreachedError(Exception):
         dimension: "ComplexityDimension",
         limit: int,
         actual_value: int,
-        breach_id: Optional[UUID] = None,
-        message: Optional[str] = None,
+        breach_id: UUID | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 
@@ -143,7 +143,7 @@ class ComplexityBudgetApprovalRequiredError(Exception):
         self,
         dimension: "ComplexityDimension",
         breach_id: UUID,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 
@@ -189,7 +189,7 @@ class ComplexityBudgetEscalationError(Exception):
         escalation_id: UUID,
         days_without_resolution: int,
         escalation_level: int = 1,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 

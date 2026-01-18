@@ -99,7 +99,7 @@ class TwoPhaseExecution:
         self._correlation_id: UUID | None = None
         self._result_payload: dict[str, Any] = {}
 
-    async def __aenter__(self) -> "TwoPhaseExecution":
+    async def __aenter__(self) -> TwoPhaseExecution:
         """Enter the context and emit intent event.
 
         This emits the intent event BEFORE the operation body executes,
@@ -120,7 +120,7 @@ class TwoPhaseExecution:
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
-        exc_tb: "TracebackType | None",
+        exc_tb: TracebackType | None,
     ) -> bool:
         """Exit the context and emit outcome event.
 

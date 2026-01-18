@@ -13,8 +13,8 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.ports.semantic_scanner import SemanticScanResult
 from src.application.ports.prohibited_language_scanner import ScanResult
+from src.application.ports.semantic_scanner import SemanticScanResult
 from src.application.services.emergence_violation_orchestrator import (
     CombinedScanResult,
     EmergenceViolationOrchestrator,

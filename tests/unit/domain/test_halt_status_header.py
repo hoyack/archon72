@@ -199,11 +199,13 @@ class TestHaltStatusHeaderExports:
     def test_halt_status_header_exported_from_models(self) -> None:
         """Verify HaltStatusHeader is exported from models __init__."""
         from src.domain.models import HaltStatusHeader as ExportedClass
+
         assert ExportedClass is HaltStatusHeader
 
     def test_constants_exported_from_models(self) -> None:
         """Verify constants are exported from models __init__."""
         from src.domain.models import SYSTEM_STATUS_HALTED as H
         from src.domain.models import SYSTEM_STATUS_OPERATIONAL as O
+
         assert H == "HALTED"
         assert O == "OPERATIONAL"

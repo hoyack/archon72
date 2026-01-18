@@ -39,8 +39,7 @@ class TestAC1NoReversalEventTypeInSchema:
 
         # Check that no "reversal" event type constants exist
         event_type_names = [
-            name for name in dir(events)
-            if name.endswith("_EVENT_TYPE")
+            name for name in dir(events) if name.endswith("_EVENT_TYPE")
         ]
 
         # None should contain "reversal", "undo", "revert" for cessation
@@ -76,7 +75,7 @@ class TestAC2WriterRejectsPostCessation:
     @pytest.mark.asyncio
     async def test_event_writer_rejects_post_cessation_writes(self) -> None:
         """EventWriterService should reject writes when system is terminated."""
-        from unittest.mock import AsyncMock, MagicMock
+        from unittest.mock import AsyncMock
 
         from src.application.services.event_writer_service import EventWriterService
         from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
@@ -187,9 +186,7 @@ class TestAC4ConstitutionalErrorReferences:
 
     def test_schema_irreversibility_error_mentions_nfr40(self) -> None:
         """SchemaIrreversibilityError should include NFR40 reference."""
-        error = SchemaIrreversibilityError(
-            "NFR40: Cannot write events after cessation"
-        )
+        error = SchemaIrreversibilityError("NFR40: Cannot write events after cessation")
         assert "NFR40" in str(error)
 
     def test_event_type_prohibited_error_mentions_nfr40(self) -> None:
@@ -352,8 +349,7 @@ class TestEventTypeValidatorIntegration:
         from src.domain import events
 
         event_type_names = [
-            name for name in dir(events)
-            if name.endswith("_EVENT_TYPE")
+            name for name in dir(events) if name.endswith("_EVENT_TYPE")
         ]
 
         for name in event_type_names:

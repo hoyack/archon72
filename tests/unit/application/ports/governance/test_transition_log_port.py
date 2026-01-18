@@ -7,8 +7,8 @@ Tests the port interface design to ensure:
 - Required methods for read operations
 """
 
-from typing import Protocol, get_type_hints, runtime_checkable
 import inspect
+from typing import Protocol
 
 from src.application.ports.governance.transition_log_port import TransitionLogPort
 
@@ -70,7 +70,8 @@ class TestAppendOnlyDesign:
         methods = [
             name
             for name in dir(TransitionLogPort)
-            if not name.startswith("_") and callable(getattr(TransitionLogPort, name, None))
+            if not name.startswith("_")
+            and callable(getattr(TransitionLogPort, name, None))
         ]
 
         # Write-like methods (that mutate state)
@@ -80,9 +81,7 @@ class TestAppendOnlyDesign:
         read_methods = {"query", "get_by_id", "count", "get_entity_history"}
 
         for method in methods:
-            if method in write_methods:
-                continue
-            elif method in read_methods:
+            if method in write_methods or method in read_methods:
                 continue
             else:
                 # If there are other methods, they should be documented

@@ -5,8 +5,7 @@ Tests the continuous fork monitoring application service.
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Callable
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -199,7 +198,7 @@ class TestForkMonitoringServiceLatencyLogging:
 
         # Verify the service ran (the important thing is it doesn't crash)
         # Latency logging happens via structlog which outputs to stderr
-        captured = capsys.readouterr()
+        capsys.readouterr()
         # The logging includes "fork_check_completed" and "latency_ms"
         # We can verify from the test output that it's working
         # The service is functional if we get here without errors
@@ -227,9 +226,7 @@ class TestForkMonitoringServiceSignedSignal:
         """Create a mock SigningService."""
         mock = AsyncMock()
         # sign_fork_signal returns (signature, key_id, alg_version)
-        mock.sign_fork_signal = AsyncMock(
-            return_value=("c2lnbmF0dXJl", "key-001", 1)
-        )
+        mock.sign_fork_signal = AsyncMock(return_value=("c2lnbmF0dXJl", "key-001", 1))
         mock.verify_fork_signal = AsyncMock(return_value=True)
         return mock
 

@@ -199,7 +199,8 @@ class TestPendingEscalationProperties:
         pending = PendingEscalation(
             breach_id=uuid4(),
             breach_type=BreachType.SIGNATURE_INVALID,
-            detection_timestamp=datetime.now(timezone.utc) - timedelta(days=6, hours=10),
+            detection_timestamp=datetime.now(timezone.utc)
+            - timedelta(days=6, hours=10),
             days_remaining=0,
             hours_remaining=14,
         )
@@ -251,7 +252,8 @@ class TestUrgencyLevel:
         pending = PendingEscalation(
             breach_id=uuid4(),
             breach_type=BreachType.THRESHOLD_VIOLATION,
-            detection_timestamp=datetime.now(timezone.utc) - timedelta(days=6, hours=12),
+            detection_timestamp=datetime.now(timezone.utc)
+            - timedelta(days=6, hours=12),
             days_remaining=0,
             hours_remaining=12,
         )

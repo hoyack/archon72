@@ -43,9 +43,7 @@ class SemanticScanResult:
     analysis_method: str
 
     @classmethod
-    def no_suspicion(
-        cls, method: str = DEFAULT_ANALYSIS_METHOD
-    ) -> SemanticScanResult:
+    def no_suspicion(cls, method: str = DEFAULT_ANALYSIS_METHOD) -> SemanticScanResult:
         """Create a clean scan result with no suspicions.
 
         Args:

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 
 
 @dataclass(frozen=True)
@@ -36,8 +36,8 @@ class OverrideTrendData:
     total_count: int
     daily_rate: float
     period_days: int
-    oldest_override: Optional[datetime]
-    newest_override: Optional[datetime]
+    oldest_override: datetime | None
+    newest_override: datetime | None
 
 
 class OverrideTrendRepositoryProtocol(Protocol):

@@ -14,8 +14,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import pytest
-
 from src.domain.governance.events.event_envelope import EventMetadata, GovernanceEvent
 from src.domain.governance.events.hash_chain import add_hash_to_event
 from src.domain.governance.events.merkle_tree import (
@@ -44,7 +42,9 @@ def _create_test_event(
     )
 
 
-def _create_hashed_events(count: int, algorithm: str = "blake3") -> list[GovernanceEvent]:
+def _create_hashed_events(
+    count: int, algorithm: str = "blake3"
+) -> list[GovernanceEvent]:
     """Create a list of hash-chained events."""
     events = [_create_test_event() for _ in range(count)]
     hashed_events = []
@@ -85,7 +85,9 @@ class TestEndToEndProofGeneration:
         for i, event in enumerate(events):
             proof = tree.generate_proof(i, event.event_id, epoch=0)
             result = verify_merkle_proof(proof)
-            assert result.is_valid, f"Proof for event {i} failed: {result.error_message}"
+            assert result.is_valid, (
+                f"Proof for event {i} failed: {result.error_message}"
+            )
 
     def test_generate_and_verify_proof_non_power_of_two(self) -> None:
         """Generate and verify proofs for non-power-of-two event count."""
@@ -98,7 +100,9 @@ class TestEndToEndProofGeneration:
         for i, event in enumerate(events):
             proof = tree.generate_proof(i, event.event_id, epoch=0)
             result = verify_merkle_proof(proof)
-            assert result.is_valid, f"Proof for event {i} failed: {result.error_message}"
+            assert result.is_valid, (
+                f"Proof for event {i} failed: {result.error_message}"
+            )
 
     def test_large_tree_all_proofs_valid(self) -> None:
         """All proofs valid for larger tree (100 events)."""
@@ -393,7 +397,9 @@ class TestConstitutionalConstraints:
 
         # Tamper by changing one hash
         tampered_hashes = original_hashes.copy()
-        tampered_hashes[5] = "blake3:tampered_00000000000000000000000000000000000000000000"
+        tampered_hashes[5] = (
+            "blake3:tampered_00000000000000000000000000000000000000000000"
+        )
 
         tree_original = MerkleTree(original_hashes, "blake3")
         tree_tampered = MerkleTree(tampered_hashes, "blake3")

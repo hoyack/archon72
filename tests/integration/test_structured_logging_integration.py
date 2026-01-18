@@ -4,7 +4,6 @@ Tests end-to-end correlation ID propagation and logging through the API.
 """
 
 import json
-from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -36,9 +35,7 @@ class TestLoggingMiddlewareIntegration:
         assert len(correlation_id) == 36
         assert correlation_id.count("-") == 4
 
-    def test_correlation_id_propagated_from_request(
-        self, client: TestClient
-    ) -> None:
+    def test_correlation_id_propagated_from_request(self, client: TestClient) -> None:
         """Test that correlation ID from request header is propagated (AC2)."""
         test_correlation_id = "test-correlation-id-12345"
 
@@ -50,9 +47,7 @@ class TestLoggingMiddlewareIntegration:
         # Response should contain the same correlation ID
         assert response.headers.get("X-Correlation-ID") == test_correlation_id
 
-    def test_correlation_id_consistent_across_request(
-        self, client: TestClient
-    ) -> None:
+    def test_correlation_id_consistent_across_request(self, client: TestClient) -> None:
         """Test correlation ID remains consistent throughout request (AC2)."""
         test_correlation_id = "consistent-correlation-id"
 
@@ -114,7 +109,9 @@ class TestStructuredLogOutput:
                     assert "timestamp" in log_entry, "Log entry missing timestamp"
                     assert "level" in log_entry, "Log entry missing level"
                     assert "event" in log_entry, "Log entry missing event"
-                    assert "correlation_id" in log_entry, "Log entry missing correlation_id"
+                    assert "correlation_id" in log_entry, (
+                        "Log entry missing correlation_id"
+                    )
                     assert log_entry["correlation_id"] == test_correlation_id
                     request_logs.append(log_entry)
             except json.JSONDecodeError:
@@ -138,10 +135,7 @@ class TestEnvironmentConfiguration:
         config = structlog.get_config()
         processors = config.get("processors", [])
 
-        json_found = any(
-            "JSONRenderer" in str(type(p))
-            for p in processors
-        )
+        json_found = any("JSONRenderer" in str(type(p)) for p in processors)
         assert json_found
 
     def test_development_environment_uses_console(self) -> None:
@@ -153,10 +147,7 @@ class TestEnvironmentConfiguration:
         config = structlog.get_config()
         processors = config.get("processors", [])
 
-        console_found = any(
-            "ConsoleRenderer" in str(type(p))
-            for p in processors
-        )
+        console_found = any("ConsoleRenderer" in str(type(p)) for p in processors)
         assert console_found
 
 
@@ -169,9 +160,7 @@ class TestCorrelationIdPropagation:
         configure_structlog(environment="production")
         return TestClient(app)
 
-    def test_correlation_id_in_error_responses(
-        self, client: TestClient
-    ) -> None:
+    def test_correlation_id_in_error_responses(self, client: TestClient) -> None:
         """Test that correlation ID is in response even on errors (AC2)."""
         test_correlation_id = "error-correlation-id"
 
@@ -184,9 +173,7 @@ class TestCorrelationIdPropagation:
         # Should still have correlation ID in response
         assert response.headers.get("X-Correlation-ID") == test_correlation_id
 
-    def test_each_request_gets_unique_correlation_id(
-        self, client: TestClient
-    ) -> None:
+    def test_each_request_gets_unique_correlation_id(self, client: TestClient) -> None:
         """Test that separate requests get unique correlation IDs (AC2)."""
         response1 = client.get("/health")
         response2 = client.get("/health")

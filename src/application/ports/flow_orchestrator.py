@@ -23,7 +23,6 @@ from uuid import UUID, uuid4
 
 from src.application.ports.governance_state_machine import GovernanceState
 
-
 # =============================================================================
 # Enums
 # =============================================================================

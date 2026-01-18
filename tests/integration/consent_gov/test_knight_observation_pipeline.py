@@ -29,7 +29,6 @@ import pytest
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
 
-
 # =============================================================================
 # Mock Fixtures for Knight Observer Dependencies
 # =============================================================================
@@ -493,7 +492,7 @@ class TestKnightObserverPanelEventTypes:
             "judicial.panel.dissent_recorded",
         }
 
-        assert KnightObserverService.PANEL_EVENT_TYPES == expected_panel_types
+        assert expected_panel_types == KnightObserverService.PANEL_EVENT_TYPES
 
     @pytest.mark.asyncio
     async def test_branch_prefixes_complete(

@@ -117,7 +117,9 @@ class SeedValidationEventPayload:
             "validation_result": self.validation_result.value,
             "validated_at": self.validated_at.isoformat(),
         }
-        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )
 
 
 @dataclass(frozen=True)
@@ -186,4 +188,6 @@ class SeedRejectedEventPayload:
             "attempted_source": self.attempted_source,
             "rejected_at": self.rejected_at.isoformat(),
         }
-        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )

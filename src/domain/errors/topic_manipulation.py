@@ -12,8 +12,8 @@ Constitutional Truths Honored:
 - CT-12: Witnessing creates accountability -> Errors logged for audit
 """
 
-from src.domain.exceptions import ConclaveError
 from src.domain.errors.constitutional import ConstitutionalViolationError
+from src.domain.exceptions import ConclaveError
 
 
 class TopicManipulationDefenseError(ConclaveError):
@@ -133,7 +133,6 @@ class SeedSourceDependenceError(ConstitutionalViolationError):
         self.failed_source = failed_source
 
         message = (
-            f"FR124: Seed source independence verification failed for "
-            f"{seed_purpose}"
+            f"FR124: Seed source independence verification failed for {seed_purpose}"
         )
         super().__init__(message)

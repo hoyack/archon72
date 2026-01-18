@@ -9,9 +9,7 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timezone
-from typing import Optional
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -261,7 +259,9 @@ class TestRunDetectionCycle:
 
         service = SequenceGapDetectionService(event_store=event_store)
 
-        with patch.object(service, "handle_gap_detected", new_callable=AsyncMock) as mock_handle:
+        with patch.object(
+            service, "handle_gap_detected", new_callable=AsyncMock
+        ) as mock_handle:
             await service.run_detection_cycle()
             mock_handle.assert_called_once()
             # Verify payload was passed
@@ -279,7 +279,9 @@ class TestRunDetectionCycle:
 
         service = SequenceGapDetectionService(event_store=event_store)
 
-        with patch.object(service, "handle_gap_detected", new_callable=AsyncMock) as mock_handle:
+        with patch.object(
+            service, "handle_gap_detected", new_callable=AsyncMock
+        ) as mock_handle:
             await service.run_detection_cycle()
             mock_handle.assert_not_called()
 

@@ -184,10 +184,7 @@ class AgentOrchestratorStub(AgentOrchestratorProtocol):
 
         # Execute all invocations concurrently
         outputs = await asyncio.gather(
-            *[
-                self.invoke(req.agent_id, req.context)
-                for req in requests
-            ],
+            *[self.invoke(req.agent_id, req.context) for req in requests],
             return_exceptions=True,
         )
 

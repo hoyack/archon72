@@ -12,10 +12,8 @@ and testing, not production.
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from src.application.ports.threshold_configuration import ThresholdRepositoryProtocol
-
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +46,7 @@ class ThresholdRepositoryStub(ThresholdRepositoryProtocol):
             },
         )
 
-    async def save_threshold_override(
-        self, name: str, value: int | float
-    ) -> None:
+    async def save_threshold_override(self, name: str, value: int | float) -> None:
         """Save a threshold override.
 
         Args:
@@ -69,9 +65,7 @@ class ThresholdRepositoryStub(ThresholdRepositoryProtocol):
             },
         )
 
-    async def get_threshold_override(
-        self, name: str
-    ) -> Optional[int | float]:
+    async def get_threshold_override(self, name: str) -> int | float | None:
         """Get a threshold override if one exists.
 
         Args:

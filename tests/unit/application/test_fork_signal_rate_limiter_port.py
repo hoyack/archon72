@@ -6,8 +6,6 @@ Constitutional Constraints:
 - FR85: More than 3 fork signals per hour triggers rate limiting
 """
 
-import pytest
-
 from src.application.ports.fork_signal_rate_limiter import ForkSignalRateLimiterPort
 
 
@@ -50,7 +48,6 @@ class TestForkSignalRateLimiterPortInterface:
         """Port should be a Protocol or ABC for type checking."""
         # Protocol or ABC both work for dependency injection
         # Just verify it can be used as a type hint
-        from typing import Protocol, runtime_checkable
 
         # Port should be usable as a type annotation
         # This is a compile-time check, but we verify the class exists

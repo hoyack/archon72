@@ -45,7 +45,9 @@ class TestConfigurationFloorViolationEventPayload:
 
     def test_event_type_constant(self) -> None:
         """Event type constant should be configuration.floor_violation."""
-        assert CONFIGURATION_FLOOR_VIOLATION_EVENT_TYPE == "configuration.floor_violation"
+        assert (
+            CONFIGURATION_FLOOR_VIOLATION_EVENT_TYPE == "configuration.floor_violation"
+        )
 
     def test_create_with_all_fields(self) -> None:
         """Should create payload with all required fields."""

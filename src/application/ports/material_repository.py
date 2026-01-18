@@ -105,9 +105,7 @@ class MaterialRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_materials_by_type(
-        self, material_type: str
-    ) -> list[Material]:
+    async def get_materials_by_type(self, material_type: str) -> list[Material]:
         """Get materials filtered by type.
 
         Args:

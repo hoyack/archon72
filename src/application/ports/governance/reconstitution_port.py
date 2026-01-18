@@ -10,7 +10,7 @@ Constitutional Context:
 - Validation results are persisted for audit trail
 """
 
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.governance.cessation import ValidationResult
@@ -42,7 +42,7 @@ class ReconstitutionPort(Protocol):
     async def get_validation_result(
         self,
         artifact_id: UUID,
-    ) -> Optional[ValidationResult]:
+    ) -> ValidationResult | None:
         """Get validation result for artifact.
 
         Args:

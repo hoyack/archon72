@@ -19,11 +19,9 @@ TOOLS_PATH = Path(__file__).parent.parent.parent / "tools" / "archon72-verify"
 if str(TOOLS_PATH) not in sys.path:
     sys.path.insert(0, str(TOOLS_PATH))
 
-from typer.testing import CliRunner
-
 from archon72_verify.cli import app
 from archon72_verify.database import ObserverDatabase
-
+from typer.testing import CliRunner
 
 runner = CliRunner()
 
@@ -53,7 +51,7 @@ def insert_test_events(db_path: Path, sequences: list[int]) -> None:
                 "test",
                 "{}",
                 f"hash_{seq}",
-                f"hash_{seq-1}" if seq > 1 else "0" * 64,
+                f"hash_{seq - 1}" if seq > 1 else "0" * 64,
                 "sig",
                 None,
                 "witness",
@@ -81,9 +79,7 @@ class TestObserverLocalDatabaseInit:
 
         # Verify schema was created
         conn = sqlite3.connect(str(temp_db_path))
-        cursor = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = {row[0] for row in cursor.fetchall()}
         conn.close()
 
@@ -94,9 +90,7 @@ class TestObserverLocalDatabaseInit:
         runner.invoke(app, ["init-db", str(temp_db_path)])
 
         conn = sqlite3.connect(str(temp_db_path))
-        cursor = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='index'"
-        )
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='index'")
         indexes = {row[0] for row in cursor.fetchall()}
         conn.close()
 
@@ -115,9 +109,7 @@ class TestObserverGapDetection:
         insert_test_events(temp_db_path, [100, 101, 104, 105])
 
         # Run gap detection
-        result = runner.invoke(
-            app, ["check-gaps", "--local-db", str(temp_db_path)]
-        )
+        result = runner.invoke(app, ["check-gaps", "--local-db", str(temp_db_path)])
 
         assert result.exit_code == 1  # Exit 1 = gaps found
         assert "102" in result.stdout
@@ -151,9 +143,7 @@ class TestObserverGapDetection:
         # Insert continuous events
         insert_test_events(temp_db_path, [1, 2, 3, 4, 5])
 
-        result = runner.invoke(
-            app, ["check-gaps", "--local-db", str(temp_db_path)]
-        )
+        result = runner.invoke(app, ["check-gaps", "--local-db", str(temp_db_path)])
 
         assert result.exit_code == 0
         assert "No gaps" in result.stdout
@@ -172,9 +162,7 @@ class TestObserverOfflineVerification:
 
         # Run without any network (--api-url not specified)
         # This should work completely offline
-        result = runner.invoke(
-            app, ["check-gaps", "--local-db", str(temp_db_path)]
-        )
+        result = runner.invoke(app, ["check-gaps", "--local-db", str(temp_db_path)])
 
         assert result.exit_code == 0
         assert "No gaps" in result.stdout
@@ -232,22 +220,24 @@ class TestObserverDatabaseAPI:
         # 2. Insert events with gap
         with ObserverDatabase(temp_db_path) as db:
             for seq in [1, 2, 5, 6]:
-                db.insert_event({
-                    "event_id": f"evt-{seq}",
-                    "sequence": seq,
-                    "event_type": "test",
-                    "payload": {"data": seq},
-                    "content_hash": f"hash_{seq}",
-                    "prev_hash": f"hash_{seq-1}" if seq > 1 else "0" * 64,
-                    "signature": "sig",
-                    "agent_id": None,
-                    "witness_id": "witness",
-                    "witness_signature": "wsig",
-                    "local_timestamp": "2026-01-01T00:00:00Z",
-                    "authority_timestamp": None,
-                    "hash_algorithm_version": "1.0",
-                    "sig_alg_version": "ed25519-v1",
-                })
+                db.insert_event(
+                    {
+                        "event_id": f"evt-{seq}",
+                        "sequence": seq,
+                        "event_type": "test",
+                        "payload": {"data": seq},
+                        "content_hash": f"hash_{seq}",
+                        "prev_hash": f"hash_{seq - 1}" if seq > 1 else "0" * 64,
+                        "signature": "sig",
+                        "agent_id": None,
+                        "witness_id": "witness",
+                        "witness_signature": "wsig",
+                        "local_timestamp": "2026-01-01T00:00:00Z",
+                        "authority_timestamp": None,
+                        "hash_algorithm_version": "1.0",
+                        "sig_alg_version": "ed25519-v1",
+                    }
+                )
 
         # 3. Detect gaps
         with ObserverDatabase(temp_db_path) as db:
@@ -263,22 +253,24 @@ class TestObserverDatabaseAPI:
             assert db.get_event_count() == 0
 
             for seq in range(1, 101):
-                db.insert_event({
-                    "event_id": f"evt-{seq}",
-                    "sequence": seq,
-                    "event_type": "test",
-                    "payload": {},
-                    "content_hash": f"hash_{seq}",
-                    "prev_hash": f"hash_{seq-1}" if seq > 1 else "0" * 64,
-                    "signature": "sig",
-                    "agent_id": None,
-                    "witness_id": "witness",
-                    "witness_signature": "wsig",
-                    "local_timestamp": "2026-01-01T00:00:00Z",
-                    "authority_timestamp": None,
-                    "hash_algorithm_version": "1.0",
-                    "sig_alg_version": "ed25519-v1",
-                })
+                db.insert_event(
+                    {
+                        "event_id": f"evt-{seq}",
+                        "sequence": seq,
+                        "event_type": "test",
+                        "payload": {},
+                        "content_hash": f"hash_{seq}",
+                        "prev_hash": f"hash_{seq - 1}" if seq > 1 else "0" * 64,
+                        "signature": "sig",
+                        "agent_id": None,
+                        "witness_id": "witness",
+                        "witness_signature": "wsig",
+                        "local_timestamp": "2026-01-01T00:00:00Z",
+                        "authority_timestamp": None,
+                        "hash_algorithm_version": "1.0",
+                        "sig_alg_version": "ed25519-v1",
+                    }
+                )
 
             assert db.get_event_count() == 100
 
@@ -289,22 +281,24 @@ class TestObserverDatabaseAPI:
 
             # Insert events 100-200
             for seq in range(100, 201):
-                db.insert_event({
-                    "event_id": f"evt-{seq}",
-                    "sequence": seq,
-                    "event_type": "test",
-                    "payload": {},
-                    "content_hash": f"hash_{seq}",
-                    "prev_hash": f"hash_{seq-1}" if seq > 100 else "0" * 64,
-                    "signature": "sig",
-                    "agent_id": None,
-                    "witness_id": "witness",
-                    "witness_signature": "wsig",
-                    "local_timestamp": "2026-01-01T00:00:00Z",
-                    "authority_timestamp": None,
-                    "hash_algorithm_version": "1.0",
-                    "sig_alg_version": "ed25519-v1",
-                })
+                db.insert_event(
+                    {
+                        "event_id": f"evt-{seq}",
+                        "sequence": seq,
+                        "event_type": "test",
+                        "payload": {},
+                        "content_hash": f"hash_{seq}",
+                        "prev_hash": f"hash_{seq - 1}" if seq > 100 else "0" * 64,
+                        "signature": "sig",
+                        "agent_id": None,
+                        "witness_id": "witness",
+                        "witness_signature": "wsig",
+                        "local_timestamp": "2026-01-01T00:00:00Z",
+                        "authority_timestamp": None,
+                        "hash_algorithm_version": "1.0",
+                        "sig_alg_version": "ed25519-v1",
+                    }
+                )
 
             min_seq, max_seq = db.get_sequence_range()
             assert min_seq == 100

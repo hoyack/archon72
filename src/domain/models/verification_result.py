@@ -35,7 +35,6 @@ Usage:
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class VerificationStatus(str, Enum):
@@ -78,15 +77,17 @@ class VerificationCheck:
     passed: bool
     details: str
     duration_ms: float
-    error_code: Optional[str] = None
-    metadata: Optional[dict[str, object]] = None
+    error_code: str | None = None
+    metadata: dict[str, object] | None = None
 
     def __post_init__(self) -> None:
         """Validate check data."""
         if not self.name:
             raise ValueError("name cannot be empty")
         if self.duration_ms < 0:
-            raise ValueError(f"duration_ms must be non-negative, got {self.duration_ms}")
+            raise ValueError(
+                f"duration_ms must be non-negative, got {self.duration_ms}"
+            )
         if not self.passed and not self.error_code:
             # Default error code for failed checks
             object.__setattr__(self, "error_code", f"{self.name}_failed")
@@ -119,7 +120,7 @@ class VerificationResult:
     started_at: datetime
     completed_at: datetime
     is_post_halt: bool = False
-    bypass_reason: Optional[str] = None
+    bypass_reason: str | None = None
     bypass_count: int = 0
 
     def __post_init__(self) -> None:
@@ -129,7 +130,9 @@ class VerificationResult:
         if self.completed_at < self.started_at:
             raise ValueError("completed_at cannot be before started_at")
         if self.bypass_count < 0:
-            raise ValueError(f"bypass_count must be non-negative, got {self.bypass_count}")
+            raise ValueError(
+                f"bypass_count must be non-negative, got {self.bypass_count}"
+            )
 
     @property
     def failed_checks(self) -> tuple[VerificationCheck, ...]:
@@ -176,7 +179,7 @@ class VerificationResult:
         """
         return len(self.failed_checks)
 
-    def get_check_by_name(self, name: str) -> Optional[VerificationCheck]:
+    def get_check_by_name(self, name: str) -> VerificationCheck | None:
         """Get a specific check by name.
 
         Args:

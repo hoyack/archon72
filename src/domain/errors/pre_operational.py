@@ -26,7 +26,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.domain.models.verification_result import VerificationCheck, VerificationResult
+    from src.domain.models.verification_result import (
+        VerificationCheck,
+        VerificationResult,
+    )
 
 
 class PreOperationalVerificationError(Exception):

@@ -8,7 +8,6 @@ from __future__ import annotations
 import pytest
 
 from src.application.ports.override_abuse_validator import (
-    OverrideAbuseValidatorProtocol,
     ValidationResult,
 )
 from src.domain.events.override_abuse import ViolationType
@@ -143,7 +142,10 @@ class TestOverrideAbuseValidatorProtocol:
         """Test is_evidence_destruction_attempt returns True for evidence destruction."""
         assert await validator.is_evidence_destruction_attempt("evidence") is True
         assert await validator.is_evidence_destruction_attempt("witness.remove") is True
-        assert await validator.is_evidence_destruction_attempt("signature.invalidate") is True
+        assert (
+            await validator.is_evidence_destruction_attempt("signature.invalidate")
+            is True
+        )
 
     @pytest.mark.asyncio
     async def test_is_evidence_destruction_attempt_false(
@@ -151,5 +153,9 @@ class TestOverrideAbuseValidatorProtocol:
         validator: OverrideAbuseValidatorStub,
     ) -> None:
         """Test is_evidence_destruction_attempt returns False for valid scope."""
-        assert await validator.is_evidence_destruction_attempt("voting.extension") is False
-        assert await validator.is_evidence_destruction_attempt("timeout.extend") is False
+        assert (
+            await validator.is_evidence_destruction_attempt("voting.extension") is False
+        )
+        assert (
+            await validator.is_evidence_destruction_attempt("timeout.extend") is False
+        )

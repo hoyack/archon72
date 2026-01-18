@@ -19,7 +19,6 @@ from typing import Any
 
 from src.domain.models.signable import SignableContent
 
-
 # Selection algorithm version for reproducibility
 # External observers MUST be able to verify selection by re-running algorithm
 SELECTION_ALGORITHM_VERSION = "1.0.0"
@@ -118,9 +117,7 @@ class WitnessSelectionRecord:
     selected_witness_id: str
     pool_snapshot: tuple[str, ...] = field(default_factory=tuple)
     algorithm_version: str = SELECTION_ALGORITHM_VERSION
-    selected_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    selected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def verify_selection(self) -> bool:
         """Verify that selection is consistent with recorded data.

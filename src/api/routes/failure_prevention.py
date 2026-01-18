@@ -10,7 +10,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
@@ -27,7 +26,6 @@ from src.api.models.failure_prevention import (
     PatternViolationResponse,
     PatternViolationScanResponse,
     QueryPerformanceResponse,
-    ThresholdResponse,
 )
 from src.application.ports.failure_mode_registry import FailureModeRegistryPort
 from src.application.services.failure_prevention_service import FailurePreventionService
@@ -39,10 +37,10 @@ from src.domain.models.failure_mode import FailureModeId
 router = APIRouter(prefix="/v1/failure-prevention", tags=["failure-prevention"])
 
 # Placeholder for dependency injection
-_failure_prevention_service: Optional[FailurePreventionService] = None
-_query_performance_service: Optional[QueryPerformanceService] = None
-_load_shedding_service: Optional[LoadSheddingService] = None
-_pattern_violation_service: Optional[PatternViolationService] = None
+_failure_prevention_service: FailurePreventionService | None = None
+_query_performance_service: QueryPerformanceService | None = None
+_load_shedding_service: LoadSheddingService | None = None
+_pattern_violation_service: PatternViolationService | None = None
 
 
 def get_failure_prevention_service() -> FailurePreventionService:
@@ -353,14 +351,12 @@ async def update_metric(
         )
 
     previous_status = await service.check_failure_mode(fm_id)
-    new_status = await service.record_metric(
-        fm_id, request.metric_name, request.value
-    )
+    new_status = await service.record_metric(fm_id, request.metric_name, request.value)
 
     # Check if warning was triggered
-    warning_triggered = (
-        previous_status.value == "healthy"
-        and new_status.value in ("warning", "critical")
+    warning_triggered = previous_status.value == "healthy" and new_status.value in (
+        "warning",
+        "critical",
     )
 
     return MetricUpdateResponse(

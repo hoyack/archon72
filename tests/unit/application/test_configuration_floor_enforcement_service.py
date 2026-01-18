@@ -16,10 +16,6 @@ import pytest
 from src.application.services.configuration_floor_enforcement_service import (
     ConfigurationFloorEnforcementService,
 )
-from src.domain.errors.configuration_floor import (
-    RuntimeFloorViolationError,
-    StartupFloorViolationError,
-)
 from src.domain.primitives.constitutional_thresholds import (
     CONSTITUTIONAL_THRESHOLD_REGISTRY,
 )
@@ -34,7 +30,9 @@ class TestConfigurationFloorEnforcementService:
         return AsyncMock()
 
     @pytest.fixture
-    def service(self, mock_halt_trigger: AsyncMock) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, mock_halt_trigger: AsyncMock
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with mock dependencies."""
         return ConfigurationFloorEnforcementService(
             halt_trigger=mock_halt_trigger,
@@ -50,14 +48,18 @@ class TestValidateStartupConfiguration:
         return AsyncMock()
 
     @pytest.fixture
-    def service(self, mock_halt_trigger: AsyncMock) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, mock_halt_trigger: AsyncMock
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with mock dependencies."""
         return ConfigurationFloorEnforcementService(
             halt_trigger=mock_halt_trigger,
         )
 
     @pytest.mark.asyncio
-    async def test_valid_configuration_passes(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_valid_configuration_passes(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Startup should pass when all values are at or above floors."""
         result = await service.validate_startup_configuration()
 
@@ -66,7 +68,9 @@ class TestValidateStartupConfiguration:
         assert result.validated_count == len(CONSTITUTIONAL_THRESHOLD_REGISTRY)
 
     @pytest.mark.asyncio
-    async def test_valid_configuration_returns_timestamp(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_valid_configuration_returns_timestamp(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Startup validation should include timestamp."""
         before = datetime.now(timezone.utc)
         result = await service.validate_startup_configuration()
@@ -84,17 +88,23 @@ class TestValidateConfigurationChange:
         return AsyncMock()
 
     @pytest.fixture
-    def service(self, mock_halt_trigger: AsyncMock) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, mock_halt_trigger: AsyncMock
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with mock dependencies."""
         return ConfigurationFloorEnforcementService(
             halt_trigger=mock_halt_trigger,
         )
 
     @pytest.mark.asyncio
-    async def test_valid_change_passes(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_valid_change_passes(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Runtime change at or above floor should be valid."""
         # cessation_breach_count has floor of 10
-        result = await service.validate_configuration_change("cessation_breach_count", 15)
+        result = await service.validate_configuration_change(
+            "cessation_breach_count", 15
+        )
 
         assert result.is_valid is True
         assert result.threshold_name == "cessation_breach_count"
@@ -103,10 +113,14 @@ class TestValidateConfigurationChange:
         assert result.rejection_reason is None
 
     @pytest.mark.asyncio
-    async def test_value_at_floor_passes(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_value_at_floor_passes(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Runtime change exactly at floor should be valid."""
         # cessation_breach_count has floor of 10
-        result = await service.validate_configuration_change("cessation_breach_count", 10)
+        result = await service.validate_configuration_change(
+            "cessation_breach_count", 10
+        )
 
         assert result.is_valid is True
 
@@ -118,7 +132,9 @@ class TestValidateConfigurationChange:
     ) -> None:
         """Runtime change below floor should be rejected (AC2)."""
         # cessation_breach_count has floor of 10
-        result = await service.validate_configuration_change("cessation_breach_count", 5)
+        result = await service.validate_configuration_change(
+            "cessation_breach_count", 5
+        )
 
         assert result.is_valid is False
         assert result.rejection_reason is not None
@@ -137,7 +153,9 @@ class TestValidateConfigurationChange:
         mock_halt_trigger.trigger_halt.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_unknown_threshold_rejected(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_unknown_threshold_rejected(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Unknown threshold name should be rejected."""
         result = await service.validate_configuration_change("unknown_threshold", 100)
 
@@ -154,19 +172,25 @@ class TestGetAllFloors:
         return AsyncMock()
 
     @pytest.fixture
-    def service(self, mock_halt_trigger: AsyncMock) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, mock_halt_trigger: AsyncMock
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with mock dependencies."""
         return ConfigurationFloorEnforcementService(
             halt_trigger=mock_halt_trigger,
         )
 
-    def test_returns_all_thresholds(self, service: ConfigurationFloorEnforcementService) -> None:
+    def test_returns_all_thresholds(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Should return all constitutional thresholds."""
         floors = service.get_all_floors()
 
         assert len(floors) == len(CONSTITUTIONAL_THRESHOLD_REGISTRY)
 
-    def test_includes_expected_thresholds(self, service: ConfigurationFloorEnforcementService) -> None:
+    def test_includes_expected_thresholds(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Should include known thresholds."""
         floors = service.get_all_floors()
         names = {t.threshold_name for t in floors}
@@ -185,13 +209,17 @@ class TestGetFloor:
         return AsyncMock()
 
     @pytest.fixture
-    def service(self, mock_halt_trigger: AsyncMock) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, mock_halt_trigger: AsyncMock
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with mock dependencies."""
         return ConfigurationFloorEnforcementService(
             halt_trigger=mock_halt_trigger,
         )
 
-    def test_returns_specific_threshold(self, service: ConfigurationFloorEnforcementService) -> None:
+    def test_returns_specific_threshold(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Should return specific threshold by name."""
         threshold = service.get_floor("cessation_breach_count")
 
@@ -199,7 +227,9 @@ class TestGetFloor:
         assert threshold.constitutional_floor == 10
         assert threshold.fr_reference == "FR32"
 
-    def test_raises_key_error_for_unknown(self, service: ConfigurationFloorEnforcementService) -> None:
+    def test_raises_key_error_for_unknown(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Should raise KeyError for unknown threshold."""
         with pytest.raises(KeyError):
             service.get_floor("unknown_threshold")
@@ -214,14 +244,18 @@ class TestGetConfigurationHealth:
         return AsyncMock()
 
     @pytest.fixture
-    def service(self, mock_halt_trigger: AsyncMock) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, mock_halt_trigger: AsyncMock
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with mock dependencies."""
         return ConfigurationFloorEnforcementService(
             halt_trigger=mock_halt_trigger,
         )
 
     @pytest.mark.asyncio
-    async def test_healthy_when_all_valid(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_healthy_when_all_valid(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Health should be true when all thresholds valid."""
         health = await service.get_configuration_health()
 
@@ -229,7 +263,9 @@ class TestGetConfigurationHealth:
         assert len(health.threshold_statuses) == len(CONSTITUTIONAL_THRESHOLD_REGISTRY)
 
     @pytest.mark.asyncio
-    async def test_includes_all_threshold_statuses(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_includes_all_threshold_statuses(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Should include status for each threshold."""
         health = await service.get_configuration_health()
         names = {s.threshold_name for s in health.threshold_statuses}
@@ -238,7 +274,9 @@ class TestGetConfigurationHealth:
         assert "recovery_waiting_hours" in names
 
     @pytest.mark.asyncio
-    async def test_statuses_show_floor_values(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_statuses_show_floor_values(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Each status should show floor value."""
         health = await service.get_configuration_health()
 
@@ -248,7 +286,9 @@ class TestGetConfigurationHealth:
             assert status.is_valid == (status.current_value >= status.floor_value)
 
     @pytest.mark.asyncio
-    async def test_health_includes_timestamp(self, service: ConfigurationFloorEnforcementService) -> None:
+    async def test_health_includes_timestamp(
+        self, service: ConfigurationFloorEnforcementService
+    ) -> None:
         """Health check should include timestamp."""
         before = datetime.now(timezone.utc)
         health = await service.get_configuration_health()

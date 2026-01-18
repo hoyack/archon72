@@ -39,12 +39,17 @@ EXECUTION_PATTERNS: list[ExecutionPattern] = [
         description="Contains numbered steps indicating task breakdown",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:first|second|third|fourth|fifth),?\s+(?:we|they|it|the)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:first|second|third|fourth|fifth),?\s+(?:we|they|it|the)\b", re.I
+        ),
         violation_type=IntentViolationType.TASK_LIST,
         description="Contains sequential ordering indicating task list",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"(?:^|\n)\s*[-*•]\s*(?:implement|create|build|develop|design)\b", re.I | re.M),
+        pattern=re.compile(
+            r"(?:^|\n)\s*[-*•]\s*(?:implement|create|build|develop|design)\b",
+            re.I | re.M,
+        ),
         violation_type=IntentViolationType.TASK_LIST,
         description="Contains bullet-point task list",
     ),
@@ -55,12 +60,16 @@ EXECUTION_PATTERNS: list[ExecutionPattern] = [
     ),
     # Timeline patterns
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:timeline|schedule|deadline|due\s*date)\s*[:\-]", re.I),
+        pattern=re.compile(
+            r"\b(?:timeline|schedule|deadline|due\s*date)\s*[:\-]", re.I
+        ),
         violation_type=IntentViolationType.TIMELINE,
         description="Contains timeline specification",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:by|within|before)\s+(?:\d+\s*(?:days?|weeks?|months?|hours?))", re.I),
+        pattern=re.compile(
+            r"\b(?:by|within|before)\s+(?:\d+\s*(?:days?|weeks?|months?|hours?))", re.I
+        ),
         violation_type=IntentViolationType.TIMELINE,
         description="Contains deadline specification",
     ),
@@ -70,23 +79,32 @@ EXECUTION_PATTERNS: list[ExecutionPattern] = [
         description="Contains phased timeline",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:start|begin|finish|complete)\s+(?:by|on|before)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:start|begin|finish|complete)\s+(?:by|on|before)\b", re.I
+        ),
         violation_type=IntentViolationType.TIMELINE,
         description="Contains start/end date specification",
     ),
     # Tool specification patterns
     ExecutionPattern(
-        pattern=re.compile(r"\busing\s+(?:python|java|javascript|rust|go|nodejs|react|django)\b", re.I),
+        pattern=re.compile(
+            r"\busing\s+(?:python|java|javascript|rust|go|nodejs|react|django)\b", re.I
+        ),
         violation_type=IntentViolationType.TOOL_SPECIFICATION,
         description="Specifies programming language/framework",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:implement|build|develop)\s+(?:with|using|in)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:implement|build|develop)\s+(?:with|using|in)\b", re.I
+        ),
         violation_type=IntentViolationType.TOOL_SPECIFICATION,
         description="Specifies implementation tools",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:use|utilize|leverage)\s+(?:the\s+)?(?:api|sdk|library|framework|tool)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:use|utilize|leverage)\s+(?:the\s+)?(?:api|sdk|library|framework|tool)\b",
+            re.I,
+        ),
         violation_type=IntentViolationType.TOOL_SPECIFICATION,
         description="Specifies tooling requirements",
     ),
@@ -97,7 +115,10 @@ EXECUTION_PATTERNS: list[ExecutionPattern] = [
     ),
     # Resource allocation patterns
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:allocate|assign|dedicate)\s+(?:\d+|a|the)\s*(?:team|developer|engineer|resource)", re.I),
+        pattern=re.compile(
+            r"\b(?:allocate|assign|dedicate)\s+(?:\d+|a|the)\s*(?:team|developer|engineer|resource)",
+            re.I,
+        ),
         violation_type=IntentViolationType.RESOURCE_ALLOCATION,
         description="Specifies resource allocation",
     ),
@@ -107,13 +128,18 @@ EXECUTION_PATTERNS: list[ExecutionPattern] = [
         description="Specifies budget allocation",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:requires?\s+\d+\s*(?:developers?|engineers?|hours?|days?))\b", re.I),
+        pattern=re.compile(
+            r"\b(?:requires?\s+\d+\s*(?:developers?|engineers?|hours?|days?))\b", re.I
+        ),
         violation_type=IntentViolationType.RESOURCE_ALLOCATION,
         description="Specifies resource requirements",
     ),
     # Execution method patterns
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:the\s+method|approach|process)\s+(?:is|will\s+be|should\s+be)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:the\s+method|approach|process)\s+(?:is|will\s+be|should\s+be)\b",
+            re.I,
+        ),
         violation_type=IntentViolationType.EXECUTION_METHOD,
         description="Defines execution method",
     ),
@@ -123,13 +149,18 @@ EXECUTION_PATTERNS: list[ExecutionPattern] = [
         description="Defines procedural execution",
     ),
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:call|invoke|execute)\s+(?:the\s+)?(?:function|method|api)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:call|invoke|execute)\s+(?:the\s+)?(?:function|method|api)\b", re.I
+        ),
         violation_type=IntentViolationType.EXECUTION_METHOD,
         description="Specifies execution calls",
     ),
     # Supervision direction patterns
     ExecutionPattern(
-        pattern=re.compile(r"\b(?:supervise|oversee|manage|direct)\s+(?:the\s+)?(?:execution|implementation|work)\b", re.I),
+        pattern=re.compile(
+            r"\b(?:supervise|oversee|manage|direct)\s+(?:the\s+)?(?:execution|implementation|work)\b",
+            re.I,
+        ),
         violation_type=IntentViolationType.SUPERVISION_DIRECTION,
         description="Contains supervision direction",
     ),

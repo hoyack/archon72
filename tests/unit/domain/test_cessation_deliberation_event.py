@@ -68,7 +68,10 @@ class TestArchonDeliberation:
         )
         assert deliberation.archon_id == "archon-001"
         assert deliberation.position == ArchonPosition.SUPPORT_CESSATION
-        assert deliberation.reasoning == "The system has violated constitutional constraints."
+        assert (
+            deliberation.reasoning
+            == "The system has violated constitutional constraints."
+        )
         assert deliberation.statement_timestamp == timestamp
 
     def test_create_oppose_deliberation(self) -> None:
@@ -287,7 +290,9 @@ class TestCessationDeliberationEventPayload:
                 vote_recorded_at=ended,
                 duration_seconds=100,
                 archon_deliberations=deliberations,
-                vote_counts=VoteCounts(yes_count=40, no_count=30, abstain_count=2),  # Wrong!
+                vote_counts=VoteCounts(
+                    yes_count=40, no_count=30, abstain_count=2
+                ),  # Wrong!
                 dissent_percentage=44.44,
             )
 

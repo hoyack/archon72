@@ -11,7 +11,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from src.application.ports.dissent_metrics import DissentRecord

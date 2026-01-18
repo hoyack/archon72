@@ -16,8 +16,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
-
 
 # Threshold constants (from existing code per story Dev Notes)
 # Breach count (Story 6.3, FR32)
@@ -164,7 +162,7 @@ class ConstitutionalHealthSnapshot:
     calculated_at: datetime
 
     # Calculated fields
-    _metrics: Optional[list[ConstitutionalHealthMetric]] = field(
+    _metrics: list[ConstitutionalHealthMetric] | None = field(
         default=None, repr=False, compare=False
     )
 

@@ -483,9 +483,18 @@ class TestEventTypes:
 
     def test_governance_event_type_enum_values(self) -> None:
         """GovernanceEventType enum has expected values."""
-        assert GovernanceEventType.EXECUTIVE_TASK_ACCEPTED.value == "executive.task.accepted"
-        assert GovernanceEventType.JUDICIAL_PANEL_CONVENED.value == "judicial.panel.convened"
-        assert GovernanceEventType.WITNESS_OBSERVATION_RECORDED.value == "witness.observation.recorded"
+        assert (
+            GovernanceEventType.EXECUTIVE_TASK_ACCEPTED.value
+            == "executive.task.accepted"
+        )
+        assert (
+            GovernanceEventType.JUDICIAL_PANEL_CONVENED.value
+            == "judicial.panel.convened"
+        )
+        assert (
+            GovernanceEventType.WITNESS_OBSERVATION_RECORDED.value
+            == "witness.observation.recorded"
+        )
 
 
 class TestSchemaVersions:

@@ -20,7 +20,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from src.application.ports.compliance_repository import ComplianceRepositoryProtocol
 from src.application.ports.halt_checker import HaltChecker
@@ -29,7 +29,11 @@ from src.domain.events.compliance import (
     COMPLIANCE_DOCUMENTED_EVENT_TYPE,
     COMPLIANCE_SYSTEM_AGENT_ID,
     ComplianceDocumentedEventPayload,
+)
+from src.domain.events.compliance import (
     ComplianceFramework as EventComplianceFramework,
+)
+from src.domain.events.compliance import (
     ComplianceStatus as EventComplianceStatus,
 )
 from src.domain.models.compliance import (
@@ -96,7 +100,7 @@ class ComplianceDocumentationService:
         framework: ComplianceFramework,
         requirements: list[ComplianceRequirement],
         gaps: list[str],
-        remediation_plan: Optional[str] = None,
+        remediation_plan: str | None = None,
         framework_version: str = "1.0",
         documented_by: str = COMPLIANCE_DOCUMENTATION_SYSTEM_AGENT_ID,
     ) -> ComplianceAssessment:
@@ -168,7 +172,9 @@ class ComplianceDocumentationService:
 
         return assessment
 
-    async def get_compliance_posture(self) -> dict[ComplianceFramework, ComplianceStatus]:
+    async def get_compliance_posture(
+        self,
+    ) -> dict[ComplianceFramework, ComplianceStatus]:
         """Get current compliance posture across all frameworks.
 
         Returns the latest status for each framework that has been assessed.
@@ -211,7 +217,7 @@ class ComplianceDocumentationService:
 
     async def get_framework_assessment(
         self, framework: ComplianceFramework
-    ) -> Optional[ComplianceAssessment]:
+    ) -> ComplianceAssessment | None:
         """Get the latest assessment for a specific framework.
 
         Constitutional Constraints:

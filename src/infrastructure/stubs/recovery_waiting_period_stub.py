@@ -26,7 +26,6 @@ WARNING: This stub is NOT for production use.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import UUID
 
 import structlog
@@ -65,7 +64,7 @@ class RecoveryWaitingPeriodStub(RecoveryWaitingPeriodPort):
 
     def __init__(self) -> None:
         """Initialize stub with empty state."""
-        self._active_period: Optional[RecoveryWaitingPeriod] = None
+        self._active_period: RecoveryWaitingPeriod | None = None
         self._force_elapsed: bool = False
         self._start_count: int = 0
         self._complete_count: int = 0
@@ -111,7 +110,7 @@ class RecoveryWaitingPeriodStub(RecoveryWaitingPeriodPort):
 
         return self._active_period
 
-    async def get_active_waiting_period(self) -> Optional[RecoveryWaitingPeriod]:
+    async def get_active_waiting_period(self) -> RecoveryWaitingPeriod | None:
         """Get the currently active waiting period, if any.
 
         Returns:
@@ -137,7 +136,7 @@ class RecoveryWaitingPeriodStub(RecoveryWaitingPeriodPort):
 
         return self._active_period.is_elapsed()
 
-    async def get_remaining_time(self) -> Optional[timedelta]:
+    async def get_remaining_time(self) -> timedelta | None:
         """Get remaining time in the active waiting period.
 
         Returns:

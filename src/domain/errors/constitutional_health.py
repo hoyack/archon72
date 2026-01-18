@@ -14,10 +14,7 @@ from typing import TYPE_CHECKING
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
 if TYPE_CHECKING:
-    from src.domain.models.constitutional_health import (
-        ConstitutionalHealthSnapshot,
-        ConstitutionalHealthStatus,
-    )
+    pass
 
 
 class ConstitutionalHealthError(ConstitutionalViolationError):

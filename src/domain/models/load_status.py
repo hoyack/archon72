@@ -20,7 +20,6 @@ Usage:
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 from uuid import UUID, uuid4
 
 
@@ -77,26 +76,34 @@ class LoadStatus:
     capacity_threshold: float
     shedding_active: bool
     timestamp: datetime
-    baseline_load: Optional[float]
+    baseline_load: float | None
     telemetry_shed_count: int
 
     def __post_init__(self) -> None:
         """Validate load status data."""
         if self.current_load < 0:
-            raise ValueError(f"current_load cannot be negative, got {self.current_load}")
+            raise ValueError(
+                f"current_load cannot be negative, got {self.current_load}"
+            )
         if self.capacity_threshold <= 0:
-            raise ValueError(f"capacity_threshold must be positive, got {self.capacity_threshold}")
+            raise ValueError(
+                f"capacity_threshold must be positive, got {self.capacity_threshold}"
+            )
         if self.telemetry_shed_count < 0:
-            raise ValueError(f"telemetry_shed_count cannot be negative, got {self.telemetry_shed_count}")
+            raise ValueError(
+                f"telemetry_shed_count cannot be negative, got {self.telemetry_shed_count}"
+            )
         if self.baseline_load is not None and self.baseline_load < 0:
-            raise ValueError(f"baseline_load cannot be negative, got {self.baseline_load}")
+            raise ValueError(
+                f"baseline_load cannot be negative, got {self.baseline_load}"
+            )
 
     @classmethod
     def create(
         cls,
         current_load: float,
         capacity_threshold: float = 80.0,
-        baseline_load: Optional[float] = None,
+        baseline_load: float | None = None,
     ) -> "LoadStatus":
         """Factory method to create load status.
 

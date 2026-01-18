@@ -119,7 +119,9 @@ class TestDevHSMVerification:
             result = await hsm.sign(content)
 
             # Tamper with signature
-            tampered_sig = bytes([b ^ 0xFF for b in result.signature[:8]]) + result.signature[8:]
+            tampered_sig = (
+                bytes([b ^ 0xFF for b in result.signature[:8]]) + result.signature[8:]
+            )
 
             is_valid = await hsm.verify(result.content, tampered_sig)
             assert is_valid is False
@@ -581,6 +583,8 @@ class TestDevModeConsistencyValidation:
         """Using prod HSM in development should pass but log info."""
         from src.domain.models.signable import validate_dev_mode_consistency
 
-        with patch.dict(os.environ, {"DEV_MODE": "false", "ENVIRONMENT": "development"}):
+        with patch.dict(
+            os.environ, {"DEV_MODE": "false", "ENVIRONMENT": "development"}
+        ):
             # Should not raise - using prod HSM in dev is unusual but allowed
             validate_dev_mode_consistency()

@@ -22,8 +22,7 @@ Usage:
     )
 """
 
-from typing import TYPE_CHECKING, Optional
-from uuid import UUID
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.domain.models.failure_mode import FailureModeId
@@ -48,9 +47,9 @@ class FailureModeViolationError(Exception):
         self,
         mode_id: "FailureModeId",
         violation_description: str,
-        location: Optional[str] = None,
-        remediation: Optional[str] = None,
-        message: Optional[str] = None,
+        location: str | None = None,
+        remediation: str | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 
@@ -67,9 +66,7 @@ class FailureModeViolationError(Exception):
         self.remediation = remediation
 
         if message is None:
-            parts = [
-                f"Pattern violation [{mode_id.value}]: {violation_description}."
-            ]
+            parts = [f"Pattern violation [{mode_id.value}]: {violation_description}."]
             if location:
                 parts.append(f"Location: {location}.")
             if remediation:
@@ -107,7 +104,7 @@ class EarlyWarningError(Exception):
         threshold: float,
         recommended_action: str,
         metric_name: str,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 
@@ -160,7 +157,7 @@ class QueryPerformanceViolationError(Exception):
         event_count: int,
         duration_seconds: float,
         sla_seconds: float = 30.0,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 
@@ -208,7 +205,7 @@ class ConstitutionalEventSheddingError(Exception):
         self,
         event_type: str,
         reason: str,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 
@@ -248,8 +245,8 @@ class LoadSheddingDecisionError(Exception):
     def __init__(
         self,
         reason: str,
-        current_load: Optional[float] = None,
-        message: Optional[str] = None,
+        current_load: float | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize the error.
 

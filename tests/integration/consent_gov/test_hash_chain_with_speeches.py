@@ -158,7 +158,9 @@ class TestHashChainWithSpeeches:
         for i, event in enumerate(chained):
             prev_event = chained[i - 1] if i > 0 else None
             result = verify_event_full(event, prev_event)
-            assert result.is_valid, f"Event {i} failed verification: {result.error_message}"
+            assert result.is_valid, (
+                f"Event {i} failed verification: {result.error_message}"
+            )
 
     @pytest.mark.asyncio
     async def test_detect_tampered_speech_content(
@@ -185,7 +187,10 @@ class TestHashChainWithSpeeches:
         result = verify_event_hash(tampered_event)
 
         assert not result.is_valid
-        assert "mismatch" in result.error_message.lower() or "tamper" in result.error_message.lower()
+        assert (
+            "mismatch" in result.error_message.lower()
+            or "tamper" in result.error_message.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_detect_broken_chain_link(

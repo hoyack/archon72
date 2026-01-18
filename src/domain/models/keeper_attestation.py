@@ -53,9 +53,9 @@ def get_current_period() -> tuple[datetime, datetime]:
     now = datetime.now(timezone.utc)
     # Find Monday of current week (weekday 0 = Monday)
     days_since_monday = now.weekday()
-    period_start = now.replace(
-        hour=0, minute=0, second=0, microsecond=0
-    ) - timedelta(days=days_since_monday)
+    period_start = now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
+        days=days_since_monday
+    )
     period_end = period_start + timedelta(days=ATTESTATION_PERIOD_DAYS)
     return period_start, period_end
 
@@ -162,9 +162,7 @@ class KeeperAttestation(DeletePreventionMixin):
         """
         return hash(self.id)
 
-    def is_valid_for_period(
-        self, period_start: datetime, period_end: datetime
-    ) -> bool:
+    def is_valid_for_period(self, period_start: datetime, period_end: datetime) -> bool:
         """Check if this attestation is valid for a specific period.
 
         An attestation is valid for a period if its period boundaries

@@ -21,7 +21,8 @@ Developer Golden Rules:
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -54,7 +55,7 @@ class CeasedResponseMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app: Callable,
-        freeze_checker: "FreezeCheckerProtocol",
+        freeze_checker: FreezeCheckerProtocol,
     ) -> None:
         """Initialize CeasedResponseMiddleware.
 
@@ -114,7 +115,7 @@ class CeasedResponseMiddleware(BaseHTTPMiddleware):
     async def _inject_cessation_info_to_json(
         self,
         response: Response,
-        details: "CessationDetails",
+        details: CessationDetails,
     ) -> Response:
         """Inject cessation_info into JSON response body.
 
@@ -165,7 +166,9 @@ class CeasedResponseMiddleware(BaseHTTPMiddleware):
             # Ensure cessation headers are present
             new_response.headers["X-System-Status"] = "CEASED"
             new_response.headers["X-Ceased-At"] = details.ceased_at.isoformat()
-            new_response.headers["X-Final-Sequence"] = str(details.final_sequence_number)
+            new_response.headers["X-Final-Sequence"] = str(
+                details.final_sequence_number
+            )
 
             return new_response
 

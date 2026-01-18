@@ -13,7 +13,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from src.domain.events.topic_manipulation import ManipulationPatternType
 
@@ -31,7 +30,7 @@ class ManipulationAnalysisResult:
     """
 
     manipulation_suspected: bool
-    pattern_type: Optional[ManipulationPatternType]
+    pattern_type: ManipulationPatternType | None
     confidence_score: float
     evidence_summary: str
     topic_ids_affected: tuple[str, ...]

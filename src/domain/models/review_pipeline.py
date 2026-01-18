@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
+
 # uuid4 used in service layer for ID generation
 
 
@@ -98,9 +99,7 @@ class ImplicitSupport:
     conflict_details: dict[str, str]  # archon_name -> conflict reason
     risk_tier: RiskTier
     is_novel_proposal: bool = False
-    calculated_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    calculated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def support_count(self) -> int:
@@ -143,9 +142,7 @@ class ReviewAssignment:
     conflict_flags: dict[str, str]  # motion_id -> conflict reason
     already_endorsed: list[str]  # Motion IDs with implicit support
     assignment_reasons: dict[str, str]  # motion_id -> "gap_archon"|"conflict"|"expert"
-    generated_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def assignment_count(self) -> int:
@@ -191,9 +188,7 @@ class ReviewResponse:
     reasoning: str = ""
     confidence: float = 0.8  # 0-1, self-reported
     review_duration_ms: int = 0  # Time taken for LLM review
-    reviewed_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    reviewed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def validate(self) -> list[str]:
         """Validate response completeness."""
@@ -223,7 +218,9 @@ class ReviewResponse:
             "archon_name": self.archon_name,
             "mega_motion_id": self.mega_motion_id,
             "stance": self.stance.value,
-            "amendment_type": self.amendment_type.value if self.amendment_type else None,
+            "amendment_type": self.amendment_type.value
+            if self.amendment_type
+            else None,
             "amendment_text": self.amendment_text,
             "amendment_rationale": self.amendment_rationale,
             "opposition_reason": self.opposition_reason,
@@ -265,9 +262,7 @@ class ReviewAggregation:
     endorsing_archons: list[str] = field(default_factory=list)
     opposing_archons: list[str] = field(default_factory=list)
 
-    aggregated_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    aggregated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @property
     def status(self) -> MotionStatus:
@@ -365,8 +360,12 @@ class DeliberationPanel:
             "neutrals": self.neutrals,
             "panel_size": self.panel_size,
             "time_limit_minutes": self.time_limit_minutes,
-            "scheduled_at": self.scheduled_at.isoformat() if self.scheduled_at else None,
-            "recommendation": self.recommendation.value if self.recommendation else None,
+            "scheduled_at": self.scheduled_at.isoformat()
+            if self.scheduled_at
+            else None,
+            "recommendation": self.recommendation.value
+            if self.recommendation
+            else None,
             "revised_motion_text": self.revised_motion_text,
             "revision_rationale": self.revision_rationale,
             "dissenting_opinions": self.dissenting_opinions,
@@ -376,7 +375,9 @@ class DeliberationPanel:
                 "amend": self.amend_votes,
                 "defer": self.defer_votes,
             },
-            "concluded_at": self.concluded_at.isoformat() if self.concluded_at else None,
+            "concluded_at": self.concluded_at.isoformat()
+            if self.concluded_at
+            else None,
             "deliberation_duration_minutes": self.deliberation_duration_minutes,
         }
 
@@ -537,7 +538,9 @@ class MotionReviewPipelineResult:
             "session_id": self.session_id,
             "session_name": self.session_name,
             "started_at": self.started_at.isoformat(),
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
             "input": {
                 "mega_motions": self.mega_motions_input,
                 "novel_proposals": self.novel_proposals_input,

@@ -11,11 +11,12 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import datetime, timezone
 from uuid import UUID
 
-from src.application.ports.incident_report_repository import IncidentReportRepositoryPort
+from src.application.ports.incident_report_repository import (
+    IncidentReportRepositoryPort,
+)
 from src.domain.models.incident_report import (
     IncidentReport,
     IncidentStatus,
@@ -54,7 +55,7 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
         for event_id in report.related_event_ids:
             self._event_index[event_id] = report.incident_id
 
-    async def get_by_id(self, incident_id: UUID) -> Optional[IncidentReport]:
+    async def get_by_id(self, incident_id: UUID) -> IncidentReport | None:
         """Retrieve a specific incident report by ID.
 
         Args:
@@ -75,8 +76,7 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
             List of incident reports matching the type, ordered by created_at desc.
         """
         filtered = [
-            r for r in self._reports.values()
-            if r.incident_type == incident_type
+            r for r in self._reports.values() if r.incident_type == incident_type
         ]
         return sorted(filtered, key=lambda r: r.created_at, reverse=True)
 
@@ -93,7 +93,8 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
         """
         now = datetime.now(timezone.utc)
         filtered = [
-            r for r in self._reports.values()
+            r
+            for r in self._reports.values()
             if r.status == IncidentStatus.PENDING_PUBLICATION
             and r.resolution_at is not None
             and now >= r.publish_eligible_at
@@ -107,8 +108,7 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
             List of published incident reports, ordered by published_at desc.
         """
         filtered = [
-            r for r in self._reports.values()
-            if r.status == IncidentStatus.PUBLISHED
+            r for r in self._reports.values() if r.status == IncidentStatus.PUBLISHED
         ]
         return sorted(
             filtered,
@@ -118,10 +118,10 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
 
     async def query(
         self,
-        incident_type: Optional[IncidentType] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        status: Optional[IncidentStatus] = None,
+        incident_type: IncidentType | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        status: IncidentStatus | None = None,
     ) -> list[IncidentReport]:
         """Query incident reports with optional filters (AC: 5).
 
@@ -151,9 +151,7 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
 
         return sorted(results, key=lambda r: r.created_at, reverse=True)
 
-    async def get_by_related_event(
-        self, event_id: UUID
-    ) -> Optional[IncidentReport]:
+    async def get_by_related_event(self, event_id: UUID) -> IncidentReport | None:
         """Find incident report by related event ID.
 
         Prevents duplicate incidents for the same triggering event.
@@ -185,9 +183,9 @@ class IncidentReportRepositoryStub(IncidentReportRepositoryPort):
         """
         target_date = date.date()
         count = sum(
-            1 for r in self._reports.values()
-            if r.incident_type == incident_type
-            and r.created_at.date() == target_date
+            1
+            for r in self._reports.values()
+            if r.incident_type == incident_type and r.created_at.date() == target_date
         )
         return count
 

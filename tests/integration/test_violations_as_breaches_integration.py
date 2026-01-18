@@ -15,14 +15,13 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
 
 from src.application.ports.prohibited_language_scanner import ScanResult
 from src.application.services.emergence_violation_breach_service import (
-    EMERGENCE_VIOLATED_REQUIREMENT,
     EmergenceViolationBreachService,
 )
 from src.application.services.emergence_violation_orchestrator import (
@@ -38,7 +37,6 @@ from src.domain.events.breach import (
 from src.infrastructure.stubs.emergence_violation_breach_service_stub import (
     EmergenceViolationBreachServiceStub,
 )
-
 
 # =============================================================================
 # Test Doubles (Inline for integration test isolation)
@@ -74,7 +72,7 @@ class InMemoryBreachDeclarationService:
         violated_requirement: str,
         severity: BreachSeverity,
         details: dict[str, Any],
-        source_event_id: Optional[UUID] = None,
+        source_event_id: UUID | None = None,
     ) -> BreachEventPayload:
         """Declare a breach (simulates full service)."""
         if self._halted:

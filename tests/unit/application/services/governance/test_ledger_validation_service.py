@@ -9,24 +9,22 @@ AC5: Specific error types with context
 AC7: Validation happens before transaction, not inside
 """
 
-import pytest
 from datetime import datetime, timezone
-from typing import Any
-from unittest.mock import AsyncMock
 from uuid import uuid4
 
+import pytest
+
 from src.application.services.governance.ledger_validation_service import (
-    EventValidator,
     LedgerValidationService,
     NoOpValidationService,
     ValidationResult,
 )
-from src.application.services.governance.validators.event_type_validator import (
-    EventTypeValidator,
-)
 from src.application.services.governance.validators.actor_validator import (
     ActorValidator,
     InMemoryActorRegistry,
+)
+from src.application.services.governance.validators.event_type_validator import (
+    EventTypeValidator,
 )
 from src.application.services.governance.validators.hash_chain_validator import (
     HashChainValidator,
@@ -37,11 +35,9 @@ from src.application.services.governance.validators.state_transition_validator i
     TaskState,
 )
 from src.domain.governance.errors.validation_errors import (
-    HashChainBreakError,
     IllegalStateTransitionError,
     UnknownActorError,
     UnknownEventTypeError,
-    WriteTimeValidationError,
 )
 from src.domain.governance.events.event_envelope import GovernanceEvent
 
@@ -540,30 +536,38 @@ class TestLedgerValidationServiceValidatorOrder:
 
         # Track event type validator
         original_et = event_type_validator.validate
+
         async def track_et(event: GovernanceEvent) -> None:
             call_order.append("event_type")
             await original_et(event)
+
         event_type_validator.validate = track_et  # type: ignore
 
         # Track actor validator
         original_actor = actor_validator.validate
+
         async def track_actor(event: GovernanceEvent) -> None:
             call_order.append("actor")
             await original_actor(event)
+
         actor_validator.validate = track_actor  # type: ignore
 
         # Track state transition validator
         original_state = state_transition_validator.validate
+
         async def track_state(event: GovernanceEvent) -> None:
             call_order.append("state_transition")
             await original_state(event)
+
         state_transition_validator.validate = track_state  # type: ignore
 
         # Track hash chain validator
         original_hash = hash_chain_validator.validate
+
         async def track_hash(event: GovernanceEvent) -> None:
             call_order.append("hash_chain")
             await original_hash(event)
+
         hash_chain_validator.validate = track_hash  # type: ignore
 
         service = LedgerValidationService(
@@ -588,10 +592,10 @@ class TestLedgerValidationServiceValidatorOrder:
         """
         # This test documents the recommended order
         validator_order = [
-            "event_type",       # ≤1ms
-            "actor",            # ≤3ms
-            "state_transition", # ≤10ms
-            "hash_chain",       # ≤50ms
+            "event_type",  # ≤1ms
+            "actor",  # ≤3ms
+            "state_transition",  # ≤10ms
+            "hash_chain",  # ≤50ms
         ]
 
         # Fail-fast means we want cheapest validators first

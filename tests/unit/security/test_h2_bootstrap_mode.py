@@ -12,8 +12,8 @@ from unittest.mock import patch
 import pytest
 
 from src.domain.models.key_generation_ceremony import (
-    BootstrapModeDisabledError,
     WITNESS_BOOTSTRAP_ENV_VAR,
+    BootstrapModeDisabledError,
     is_witness_bootstrap_enabled,
     validate_bootstrap_mode_for_unverified_witness,
 )

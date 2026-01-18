@@ -42,23 +42,25 @@ References:
 - NFR-EXIT-03: Exit path available from any task state
 """
 
-from src.domain.governance.exit.exit_status import ExitStatus
+from src.domain.governance.exit.contact_block import ContactBlock
+
+# Contact prevention (Story 7-4)
+from src.domain.governance.exit.contact_block_status import ContactBlockStatus
+from src.domain.governance.exit.contact_violation import ContactViolation
+from src.domain.governance.exit.contribution_record import ContributionRecord
+
+# Contribution preservation (Story 7-3)
+from src.domain.governance.exit.contribution_type import ContributionType
+from src.domain.governance.exit.errors import ExitBarrierError
 from src.domain.governance.exit.exit_request import ExitRequest
 from src.domain.governance.exit.exit_result import ExitResult
-from src.domain.governance.exit.errors import ExitBarrierError
-from src.domain.governance.exit.release_type import ReleaseType
+from src.domain.governance.exit.exit_status import ExitStatus
 from src.domain.governance.exit.obligation_release import (
     ObligationRelease,
     ReleaseResult,
 )
-# Contribution preservation (Story 7-3)
-from src.domain.governance.exit.contribution_type import ContributionType
-from src.domain.governance.exit.contribution_record import ContributionRecord
 from src.domain.governance.exit.preservation_result import PreservationResult
-# Contact prevention (Story 7-4)
-from src.domain.governance.exit.contact_block_status import ContactBlockStatus
-from src.domain.governance.exit.contact_block import ContactBlock
-from src.domain.governance.exit.contact_violation import ContactViolation
+from src.domain.governance.exit.release_type import ReleaseType
 
 __all__ = [
     "ExitStatus",

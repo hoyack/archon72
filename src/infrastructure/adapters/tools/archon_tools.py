@@ -23,8 +23,8 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
 from crewai_tools import BaseTool
+from pydantic import BaseModel, Field
 from structlog import get_logger
 
 logger = get_logger(__name__)
@@ -38,7 +38,9 @@ logger = get_logger(__name__)
 class InsightToolInput(BaseModel):
     """Input schema for InsightTool."""
 
-    query: str = Field(..., description="The topic or data to analyze for patterns and insights")
+    query: str = Field(
+        ..., description="The topic or data to analyze for patterns and insights"
+    )
     context: str = Field(default="", description="Additional context for the analysis")
 
 
@@ -46,14 +48,18 @@ class CommunicationToolInput(BaseModel):
     """Input schema for CommunicationTool."""
 
     message: str = Field(..., description="The message content to communicate")
-    target_agent: str = Field(default="", description="Optional target agent for directed communication")
+    target_agent: str = Field(
+        default="", description="Optional target agent for directed communication"
+    )
 
 
 class DisruptionToolInput(BaseModel):
     """Input schema for DisruptionTool."""
 
     assumption: str = Field(..., description="The assumption or viewpoint to challenge")
-    perspective: str = Field(default="", description="Alternative perspective to consider")
+    perspective: str = Field(
+        default="", description="Alternative perspective to consider"
+    )
 
 
 class KnowledgeRetrievalToolInput(BaseModel):
@@ -67,34 +73,45 @@ class CreationToolInput(BaseModel):
     """Input schema for CreationTool."""
 
     prompt: str = Field(..., description="The creative prompt or specification")
-    format: str = Field(default="text", description="Output format (text, json, markdown)")
+    format: str = Field(
+        default="text", description="Output format (text, json, markdown)"
+    )
 
 
 class TransactionToolInput(BaseModel):
     """Input schema for TransactionTool."""
 
     action: str = Field(..., description="The transaction action to perform")
-    parameters: str = Field(default="{}", description="JSON parameters for the transaction")
+    parameters: str = Field(
+        default="{}", description="JSON parameters for the transaction"
+    )
 
 
 class RelationshipToolInput(BaseModel):
     """Input schema for RelationshipTool."""
 
     entity: str = Field(..., description="The entity to analyze relationships for")
-    relationship_type: str = Field(default="", description="Optional type of relationship to focus on")
+    relationship_type: str = Field(
+        default="", description="Optional type of relationship to focus on"
+    )
 
 
 class LogisticsToolInput(BaseModel):
     """Input schema for LogisticsTool."""
 
     resource: str = Field(..., description="The resource to allocate or coordinate")
-    action: str = Field(default="analyze", description="Action: analyze, allocate, or coordinate")
+    action: str = Field(
+        default="analyze", description="Action: analyze, allocate, or coordinate"
+    )
 
 
 class WellnessToolInput(BaseModel):
     """Input schema for WellnessTool."""
 
-    metric: str = Field(default="overall", description="Health metric to check (overall, performance, state)")
+    metric: str = Field(
+        default="overall",
+        description="Health metric to check (overall, performance, state)",
+    )
 
 
 # ============================================================================

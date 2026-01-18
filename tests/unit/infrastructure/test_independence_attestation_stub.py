@@ -7,7 +7,7 @@ Constitutional Constraints:
 - FR76: Historical attestations must be preserved (no deletion)
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -17,7 +17,6 @@ from src.domain.errors.independence_attestation import (
 )
 from src.domain.models.independence_attestation import (
     ConflictDeclaration,
-    DeclarationType,
     IndependenceAttestation,
     get_current_attestation_year,
 )
@@ -157,8 +156,12 @@ class TestRecordAttestation:
         await stub.record_attestation(attestation1)
         await stub.record_attestation(attestation2)
 
-        result1 = await stub.get_attestation("KEEPER:alice", attestation1.attestation_year)
-        result2 = await stub.get_attestation("KEEPER:bob", attestation2.attestation_year)
+        result1 = await stub.get_attestation(
+            "KEEPER:alice", attestation1.attestation_year
+        )
+        result2 = await stub.get_attestation(
+            "KEEPER:bob", attestation2.attestation_year
+        )
 
         assert result1 is not None
         assert result2 is not None
@@ -185,9 +188,15 @@ class TestGetAttestationHistory:
         keeper_id = "KEEPER:alice"
 
         # Add in random order
-        await stub.record_attestation(create_attestation(keeper_id=keeper_id, year=2026))
-        await stub.record_attestation(create_attestation(keeper_id=keeper_id, year=2024))
-        await stub.record_attestation(create_attestation(keeper_id=keeper_id, year=2025))
+        await stub.record_attestation(
+            create_attestation(keeper_id=keeper_id, year=2026)
+        )
+        await stub.record_attestation(
+            create_attestation(keeper_id=keeper_id, year=2024)
+        )
+        await stub.record_attestation(
+            create_attestation(keeper_id=keeper_id, year=2025)
+        )
 
         result = await stub.get_attestation_history(keeper_id)
 
@@ -216,9 +225,15 @@ class TestGetLatestAttestation:
         """Test returns most recent attestation by year."""
         keeper_id = "KEEPER:alice"
 
-        await stub.record_attestation(create_attestation(keeper_id=keeper_id, year=2024))
-        await stub.record_attestation(create_attestation(keeper_id=keeper_id, year=2026))
-        await stub.record_attestation(create_attestation(keeper_id=keeper_id, year=2025))
+        await stub.record_attestation(
+            create_attestation(keeper_id=keeper_id, year=2024)
+        )
+        await stub.record_attestation(
+            create_attestation(keeper_id=keeper_id, year=2026)
+        )
+        await stub.record_attestation(
+            create_attestation(keeper_id=keeper_id, year=2025)
+        )
 
         result = await stub.get_latest_attestation(keeper_id)
 

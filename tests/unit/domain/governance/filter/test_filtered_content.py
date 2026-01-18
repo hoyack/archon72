@@ -6,13 +6,14 @@ Tests AC4: Filter version tracked for auditability.
 Tests AC8: Immutable value objects for filter decisions.
 """
 
-import pytest
-from datetime import datetime
 from dataclasses import FrozenInstanceError
+from datetime import datetime
 from hashlib import blake2b
 
-from src.domain.governance.filter.filtered_content import FilteredContent
+import pytest
+
 from src.domain.governance.filter.filter_version import FilterVersion
+from src.domain.governance.filter.filtered_content import FilteredContent
 
 
 class TestFilteredContent:
@@ -120,9 +121,7 @@ class TestFilteredContent:
 
         assert bool(content) is True
 
-    def test_filtered_content_bool_empty(
-        self, filter_version: FilterVersion
-    ) -> None:
+    def test_filtered_content_bool_empty(self, filter_version: FilterVersion) -> None:
         """Empty FilteredContent is falsy."""
         content = FilteredContent._create(
             content="",

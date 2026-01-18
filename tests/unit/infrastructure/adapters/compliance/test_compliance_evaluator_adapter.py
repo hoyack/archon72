@@ -3,8 +3,9 @@
 Tests the Compliance Evaluator measurement functions per Government PRD FR-GOV-14.
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from src.application.ports.compliance_evaluator import (
     EvaluationRequest,
@@ -18,7 +19,6 @@ from src.infrastructure.adapters.compliance.compliance_evaluator_adapter import 
     ComplianceEvaluatorAdapter,
     create_compliance_evaluator,
 )
-
 
 # =============================================================================
 # FIXTURES
@@ -57,7 +57,10 @@ def sample_evidence() -> list[ExecutionEvidence]:
             description="Performance optimization deployed",
             source="deployment_log",
             evidence_type="output",
-            data={"status": "deployed", "optimizations": ["caching", "connection_pooling"]},
+            data={
+                "status": "deployed",
+                "optimizations": ["caching", "connection_pooling"],
+            },
         ),
     ]
 
@@ -150,7 +153,10 @@ class TestCriterionMeasurementMet:
             evidence=sample_evidence,
         )
 
-        assert result.verdict in [MeasurementVerdict.MET, MeasurementVerdict.PARTIALLY_MET]
+        assert result.verdict in [
+            MeasurementVerdict.MET,
+            MeasurementVerdict.PARTIALLY_MET,
+        ]
         assert len(result.evidence_refs) > 0
 
     @pytest.mark.asyncio
@@ -218,7 +224,10 @@ class TestCriterionMeasurementNotMet:
 
         result = await evaluator.measure_criterion(criterion, evidence)
 
-        assert result.verdict in [MeasurementVerdict.NOT_MET, MeasurementVerdict.PARTIALLY_MET]
+        assert result.verdict in [
+            MeasurementVerdict.NOT_MET,
+            MeasurementVerdict.PARTIALLY_MET,
+        ]
 
 
 # =============================================================================
@@ -305,8 +314,9 @@ class TestOverallCompliance:
             required=True,
         )
 
-        from src.application.ports.compliance_evaluator import CriterionMeasurement
         from datetime import datetime, timezone
+
+        from src.application.ports.compliance_evaluator import CriterionMeasurement
 
         measurements = [
             CriterionMeasurement(
@@ -326,8 +336,9 @@ class TestOverallCompliance:
         evaluator: ComplianceEvaluatorAdapter,
     ) -> None:
         """Test partial compliance when some criteria partially met."""
-        from src.application.ports.compliance_evaluator import CriterionMeasurement
         from datetime import datetime, timezone
+
+        from src.application.ports.compliance_evaluator import CriterionMeasurement
 
         c1 = SuccessCriterion("c1", "First criterion", "measure", required=False)
         c2 = SuccessCriterion("c2", "Second criterion", "measure", required=False)
@@ -356,8 +367,9 @@ class TestOverallCompliance:
         evaluator: ComplianceEvaluatorAdapter,
     ) -> None:
         """Test failed compliance when required criteria not met."""
-        from src.application.ports.compliance_evaluator import CriterionMeasurement
         from datetime import datetime, timezone
+
+        from src.application.ports.compliance_evaluator import CriterionMeasurement
 
         c1 = SuccessCriterion("c1", "Required criterion", "measure", required=True)
 

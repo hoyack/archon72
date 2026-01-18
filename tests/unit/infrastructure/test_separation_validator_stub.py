@@ -136,11 +136,15 @@ class TestIsConstitutional:
         """Create stub instance."""
         return SeparationValidatorStub()
 
-    def test_constitutional_type_returns_true(self, stub: SeparationValidatorStub) -> None:
+    def test_constitutional_type_returns_true(
+        self, stub: SeparationValidatorStub
+    ) -> None:
         """Test constitutional type returns True."""
         assert stub.is_constitutional("deliberation_output") is True
 
-    def test_operational_type_returns_false(self, stub: SeparationValidatorStub) -> None:
+    def test_operational_type_returns_false(
+        self, stub: SeparationValidatorStub
+    ) -> None:
         """Test operational type returns False."""
         assert stub.is_constitutional("uptime_recorded") is False
 
@@ -161,7 +165,9 @@ class TestIsOperational:
         """Test operational type returns True."""
         assert stub.is_operational("uptime_recorded") is True
 
-    def test_constitutional_type_returns_false(self, stub: SeparationValidatorStub) -> None:
+    def test_constitutional_type_returns_false(
+        self, stub: SeparationValidatorStub
+    ) -> None:
         """Test constitutional type returns False."""
         assert stub.is_operational("deliberation_output") is False
 

@@ -18,14 +18,14 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
 import pytest
 
+from src.application.ports.governance.ledger_port import PersistedGovernanceEvent
 from src.application.services.governance.independent_verification_service import (
-    IndependentVerificationService,
     VERIFICATION_COMPLETED_EVENT,
+    IndependentVerificationService,
 )
 from src.domain.governance.audit.ledger_export import (
     ExportMetadata,
@@ -33,13 +33,10 @@ from src.domain.governance.audit.ledger_export import (
     VerificationInfo,
 )
 from src.domain.governance.audit.verification_result import (
-    DetectedIssue,
     IssueType,
-    VerificationResult,
     VerificationStatus,
 )
 from src.domain.governance.events.event_envelope import EventMetadata, GovernanceEvent
-from src.application.ports.governance.ledger_port import PersistedGovernanceEvent
 
 # Test algorithm
 TEST_ALGORITHM = "sha256"
@@ -72,11 +69,13 @@ class MockEventEmitter:
         actor: str,
         payload: dict[str, Any],
     ) -> None:
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_last(self, event_type: str) -> dict[str, Any] | None:
         for event in reversed(self.events):
@@ -88,7 +87,9 @@ class MockEventEmitter:
 class MockStateReplayer:
     """Mock state replayer for testing."""
 
-    def __init__(self, should_fail: bool = False, state_value: Any = "derived_state") -> None:
+    def __init__(
+        self, should_fail: bool = False, state_value: Any = "derived_state"
+    ) -> None:
         self._should_fail = should_fail
         self._state_value = state_value
 
@@ -98,9 +99,12 @@ class MockStateReplayer:
         return self._state_value
 
 
-def make_event_hash(content: str, sequence: int, prev_hash: str, algorithm: str = TEST_ALGORITHM) -> str:
+def make_event_hash(
+    content: str, sequence: int, prev_hash: str, algorithm: str = TEST_ALGORITHM
+) -> str:
     """Create a deterministic hash for testing."""
     import hashlib
+
     data = f"{content}:{sequence}:{prev_hash}"
     digest = hashlib.sha256(data.encode()).hexdigest()
     return f"{algorithm}:{digest}"
@@ -141,7 +145,7 @@ def create_valid_events(count: int = 5) -> list[PersistedGovernanceEvent]:
 
     for i in range(count):
         sequence = i + 1
-        event_type = f"executive.task.created"  # Valid event type with branch.noun.verb
+        event_type = "executive.task.created"  # Valid event type with branch.noun.verb
         actor_id = str(uuid4())
         timestamp = datetime(2026, 1, 17, 12, 0, i, tzinfo=timezone.utc)
         payload = {"index": i, "data": f"event_{i}"}
@@ -396,7 +400,9 @@ class TestHashChainVerification:
                     event_hash="sha256:tampered_hash_value",  # Wrong hash
                 )
                 tampered_events.append(
-                    PersistedGovernanceEvent(event=tampered_event, sequence=event.sequence)
+                    PersistedGovernanceEvent(
+                        event=tampered_event, sequence=event.sequence
+                    )
                 )
             else:
                 tampered_events.append(event)
@@ -434,7 +440,9 @@ class TestHashChainVerification:
                     event_hash=event.event.hash,
                 )
                 broken_events.append(
-                    PersistedGovernanceEvent(event=broken_event, sequence=event.sequence)
+                    PersistedGovernanceEvent(
+                        event=broken_event, sequence=event.sequence
+                    )
                 )
             else:
                 broken_events.append(event)
@@ -504,7 +512,9 @@ class TestSequenceVerification:
         )
 
         assert not result.sequence_complete
-        gap_issues = [i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP]
+        gap_issues = [
+            i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP
+        ]
         assert len(gap_issues) > 0
         assert gap_issues[0].expected == "3"
 
@@ -545,7 +555,9 @@ class TestSequenceVerification:
         )
 
         assert not result.sequence_complete
-        gap_issues = [i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP]
+        gap_issues = [
+            i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP
+        ]
         assert len(gap_issues) > 0
 
 
@@ -822,7 +834,9 @@ class TestTamperingDetection:
                     event_hash="sha256:modified_content_hash_value",  # New hash for modified content
                 )
                 modified_events.append(
-                    PersistedGovernanceEvent(event=modified_event, sequence=event.sequence)
+                    PersistedGovernanceEvent(
+                        event=modified_event, sequence=event.sequence
+                    )
                 )
             else:
                 modified_events.append(event)
@@ -900,7 +914,9 @@ class TestGapDetection:
         )
 
         assert not result.sequence_complete
-        gap_issues = [i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP]
+        gap_issues = [
+            i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP
+        ]
         assert len(gap_issues) > 0
         assert gap_issues[0].expected == "5"
 
@@ -921,7 +937,10 @@ class TestGapDetection:
             total_events=len(events_with_gaps),
             genesis_hash=events_with_gaps[0].event.hash,
             latest_hash=events_with_gaps[-1].event.hash,
-            sequence_range=(events_with_gaps[0].sequence, events_with_gaps[-1].sequence),
+            sequence_range=(
+                events_with_gaps[0].sequence,
+                events_with_gaps[-1].sequence,
+            ),
         )
 
         verification = VerificationInfo(
@@ -941,7 +960,9 @@ class TestGapDetection:
         )
 
         assert not result.sequence_complete
-        gap_issues = [i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP]
+        gap_issues = [
+            i for i in result.issues if i.issue_type == IssueType.SEQUENCE_GAP
+        ]
         assert len(gap_issues) >= 2
 
 

@@ -227,8 +227,7 @@ class TestEventImportBoundaries:
 
         # Check no infrastructure modules were imported
         infrastructure_modules = [
-            m for m in new_modules
-            if "infrastructure" in m or "api" in m
+            m for m in new_modules if "infrastructure" in m or "api" in m
         ]
 
         assert not infrastructure_modules, (

@@ -102,7 +102,9 @@ class PublishService:
             logger.warning(
                 "silent_edit_blocked",
                 content_id=str(content_id),
-                stored_hash=result.stored_hash[:8] + "..." if result.stored_hash else "none",
+                stored_hash=result.stored_hash[:8] + "..."
+                if result.stored_hash
+                else "none",
                 computed_hash=result.computed_hash[:8] + "...",
             )
             raise FR13ViolationError(

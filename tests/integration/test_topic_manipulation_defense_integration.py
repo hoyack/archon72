@@ -13,13 +13,9 @@ from __future__ import annotations
 
 import pytest
 
-from src.application.ports.topic_manipulation_detector import (
-    ManipulationAnalysisResult,
-)
-from src.application.ports.topic_priority import TopicPriorityLevel
 from src.application.ports.topic_daily_limiter import DAILY_TOPIC_LIMIT
+from src.application.ports.topic_priority import TopicPriorityLevel
 from src.application.services.topic_manipulation_defense_service import (
-    COORDINATION_THRESHOLD,
     TopicManipulationDefenseService,
 )
 from src.domain.errors.topic_manipulation import DailyRateLimitExceededError
@@ -224,7 +220,9 @@ class TestDailyRateLimiting:
 
         # Submit up to the limit
         for i in range(DAILY_TOPIC_LIMIT):
-            result = await service.submit_external_topic(f"topic-{i}", "external-source")
+            result = await service.submit_external_topic(
+                f"topic-{i}", "external-source"
+            )
             assert result.accepted
 
         # 11th topic should be rejected
@@ -292,7 +290,9 @@ class TestTopicPriority:
     ) -> None:
         """Test constitutional examination before autonomous topics."""
         priority.add_to_queue("autonomous-topic", TopicPriorityLevel.AUTONOMOUS)
-        priority.add_to_queue("constitutional-topic", TopicPriorityLevel.CONSTITUTIONAL_EXAMINATION)
+        priority.add_to_queue(
+            "constitutional-topic", TopicPriorityLevel.CONSTITUTIONAL_EXAMINATION
+        )
 
         topic = await service.get_next_topic_with_priority()
         assert topic == "constitutional-topic"
@@ -522,7 +522,9 @@ class TestEndToEndScenarios:
         # External petition topics
         limiter.add_external_source("community-member")
         for i in range(3):
-            result = await service.submit_external_topic(f"petition-{i}", "community-member")
+            result = await service.submit_external_topic(
+                f"petition-{i}", "community-member"
+            )
             assert result.accepted
             priority.add_to_queue(f"petition-{i}", TopicPriorityLevel.PETITION)
 

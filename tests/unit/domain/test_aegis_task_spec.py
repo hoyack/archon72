@@ -4,9 +4,9 @@ Tests the formal contract between President Service, Aegis Network, and Prince S
 Per Government PRD FR-GOV-9: President produces execution specifications.
 """
 
-import pytest
-from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.domain.models.aegis_task_spec import (
     AegisTaskSpec,
@@ -26,7 +26,6 @@ from src.domain.models.aegis_task_spec import (
     ThresholdOperator,
     WitnessingRequirements,
 )
-
 
 # =============================================================================
 # TEST SUCCESS CRITERION

@@ -33,7 +33,7 @@ References:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from structlog import get_logger
@@ -92,7 +92,7 @@ class HaltService(HaltTriggerPort):
         halt_port: HaltPort,
         ledger: GovernanceLedgerPort,
         time_authority: TimeAuthorityProtocol,
-        permission_enforcer: Optional["PermissionEnforcerProtocol"] = None,
+        permission_enforcer: PermissionEnforcerProtocol | None = None,
     ) -> None:
         """Initialize HaltService.
 
@@ -114,7 +114,7 @@ class HaltService(HaltTriggerPort):
         operator_id: UUID,
         reason: HaltReason,
         message: str,
-        trace_id: Optional[str] = None,
+        trace_id: str | None = None,
     ) -> HaltExecutionResult:
         """Trigger system halt with operator authorization.
 
@@ -163,7 +163,7 @@ class HaltService(HaltTriggerPort):
         self,
         reason: HaltReason,
         message: str,
-        trace_id: Optional[str] = None,
+        trace_id: str | None = None,
     ) -> HaltExecutionResult:
         """Trigger halt as system (no operator authorization).
 
@@ -248,10 +248,10 @@ class HaltService(HaltTriggerPort):
 
     async def _execute_halt(
         self,
-        operator_id: Optional[UUID],
+        operator_id: UUID | None,
         reason: HaltReason,
         message: str,
-        trace_id: Optional[str],
+        trace_id: str | None,
     ) -> HaltExecutionResult:
         """Execute the halt with two-phase event emission.
 
@@ -372,11 +372,11 @@ class HaltService(HaltTriggerPort):
 
     async def _emit_halt_triggered(
         self,
-        operator_id: Optional[UUID],
+        operator_id: UUID | None,
         reason: HaltReason,
         message: str,
         triggered_at,
-        trace_id: Optional[str],
+        trace_id: str | None,
     ) -> None:
         """Emit constitutional.halt.triggered event.
 
@@ -420,7 +420,7 @@ class HaltService(HaltTriggerPort):
     async def _emit_halt_executed(
         self,
         result: HaltExecutionResult,
-        trace_id: Optional[str],
+        trace_id: str | None,
     ) -> None:
         """Emit constitutional.halt.executed event.
 
@@ -454,13 +454,13 @@ class HaltService(HaltTriggerPort):
 
     async def _emit_halt_failed(
         self,
-        operator_id: Optional[UUID],
+        operator_id: UUID | None,
         reason: HaltReason,
         message: str,
         error: str,
         triggered_at,
         executed_at,
-        trace_id: Optional[str],
+        trace_id: str | None,
     ) -> None:
         """Emit halt failure event.
 
@@ -509,7 +509,7 @@ class HaltService(HaltTriggerPort):
     async def _emit_unauthorized_attempt(
         self,
         operator_id: UUID,
-        trace_id: Optional[str],
+        trace_id: str | None,
     ) -> None:
         """Emit security event for unauthorized halt attempt.
 

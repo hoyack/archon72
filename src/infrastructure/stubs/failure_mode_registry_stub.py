@@ -19,7 +19,6 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.failure_mode_registry import (
@@ -59,7 +58,9 @@ class FailureModeRegistryStub(FailureModeRegistryPort):
         self._thresholds: dict[tuple[FailureModeId, str], FailureModeThreshold] = {}
         self._warnings: list[EarlyWarning] = []
         self._acknowledged_warnings: set[UUID] = set()
-        self._metric_history: dict[tuple[FailureModeId, str], list[tuple[datetime, float]]] = {}
+        self._metric_history: dict[
+            tuple[FailureModeId, str], list[tuple[datetime, float]]
+        ] = {}
 
     def pre_populate_default_modes(self) -> None:
         """Pre-populate with all default failure modes from architecture.
@@ -80,7 +81,7 @@ class FailureModeRegistryStub(FailureModeRegistryPort):
 
     # Failure mode retrieval
 
-    async def get_failure_mode(self, mode_id: FailureModeId) -> Optional[FailureMode]:
+    async def get_failure_mode(self, mode_id: FailureModeId) -> FailureMode | None:
         """Get a specific failure mode by ID.
 
         Args:
@@ -198,7 +199,7 @@ class FailureModeRegistryStub(FailureModeRegistryPort):
         self,
         mode_id: FailureModeId,
         metric_name: str,
-    ) -> Optional[FailureModeThreshold]:
+    ) -> FailureModeThreshold | None:
         """Get threshold configuration for a mode and metric.
 
         Args:
@@ -257,8 +258,7 @@ class FailureModeRegistryStub(FailureModeRegistryPort):
             List of EarlyWarning objects that have not been acknowledged.
         """
         return [
-            w for w in self._warnings
-            if w.warning_id not in self._acknowledged_warnings
+            w for w in self._warnings if w.warning_id not in self._acknowledged_warnings
         ]
 
     async def get_warnings_for_mode(
@@ -377,8 +377,7 @@ class FailureModeRegistryStub(FailureModeRegistryPort):
 
         # Filter by date range and apply limit
         filtered = [
-            (ts, val) for ts, val in self._metric_history[key]
-            if start <= ts <= end
+            (ts, val) for ts, val in self._metric_history[key] if start <= ts <= end
         ]
         return filtered[:limit]
 
@@ -398,7 +397,13 @@ class FailureModeRegistryStub(FailureModeRegistryPort):
 
     def get_active_warning_count(self) -> int:
         """Get number of unacknowledged warnings."""
-        return len([w for w in self._warnings if w.warning_id not in self._acknowledged_warnings])
+        return len(
+            [
+                w
+                for w in self._warnings
+                if w.warning_id not in self._acknowledged_warnings
+            ]
+        )
 
     def get_acknowledged_count(self) -> int:
         """Get number of acknowledged warnings."""

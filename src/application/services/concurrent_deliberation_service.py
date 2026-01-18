@@ -192,6 +192,7 @@ class ConcurrentDeliberationService:
             )
             # Re-raise as AgentPoolExhaustedError is already in the reason
             from src.domain.errors.agent import AgentPoolExhaustedError
+
             raise AgentPoolExhaustedError(reason or "Pool acquisition failed")
 
         try:
@@ -312,9 +313,7 @@ class ConcurrentDeliberationService:
                 agent_id=request.agent_id,
                 error=str(e),
             )
-            raise AgentInvocationError(
-                f"Agent {request.agent_id} failed: {e}"
-            ) from e
+            raise AgentInvocationError(f"Agent {request.agent_id} failed: {e}") from e
         finally:
             self._pool.release(request.agent_id)
 

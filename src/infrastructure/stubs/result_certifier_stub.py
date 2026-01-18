@@ -163,7 +163,9 @@ class ResultCertifierStub:
                 "certification_verification_failed",
                 result_id=str(result_id),
                 expected_sig_prefix=cert.certification_signature[:8] + "...",
-                provided_sig_prefix=signature[:8] + "..." if len(signature) >= 8 else signature,
+                provided_sig_prefix=signature[:8] + "..."
+                if len(signature) >= 8
+                else signature,
             )
 
         return is_valid

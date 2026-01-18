@@ -17,7 +17,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # Request DTOs
 # =============================================================================
@@ -326,7 +325,9 @@ class RecommendationClusterResponse(BaseModel):
     canonical_summary: str = Field(description="Best representative summary")
     category: str = Field(description="Recommendation category")
     archon_count: int = Field(description="Number of supporting Archons")
-    consensus_level: str = Field(description="Consensus level (critical/high/medium/low/single)")
+    consensus_level: str = Field(
+        description="Consensus level (critical/high/medium/low/single)"
+    )
     archon_names: list[str] = Field(description="Names of supporting Archons")
     keywords: list[str] = Field(description="Keywords from all recommendations")
 
@@ -384,13 +385,19 @@ class SecretaryReportResponse(BaseModel):
     generated_at: datetime = Field(description="Report generation time")
     processing_duration_seconds: float = Field(description="Processing duration")
     total_speeches_analyzed: int = Field(description="Speeches analyzed")
-    total_recommendations_extracted: int = Field(description="Recommendations extracted")
+    total_recommendations_extracted: int = Field(
+        description="Recommendations extracted"
+    )
     cluster_count: int = Field(description="Clusters formed")
     motion_queue_count: int = Field(description="Motions queued")
     task_registry_count: int = Field(description="Tasks created")
     conflict_count: int = Field(description="Conflicts detected")
-    clusters_by_consensus: dict[str, int] = Field(description="Clusters by consensus level")
-    recommendations_by_category: dict[str, int] = Field(description="Recommendations by category")
+    clusters_by_consensus: dict[str, int] = Field(
+        description="Clusters by consensus level"
+    )
+    recommendations_by_category: dict[str, int] = Field(
+        description="Recommendations by category"
+    )
 
 
 class MotionQueueResponse(BaseModel):

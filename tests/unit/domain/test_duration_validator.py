@@ -32,7 +32,7 @@ class TestDurationConstants:
         """Verify max duration calculation is correct."""
         # 7 days * 24 hours * 60 minutes * 60 seconds
         expected = 7 * 24 * 60 * 60
-        assert MAX_DURATION_SECONDS == expected
+        assert expected == MAX_DURATION_SECONDS
 
 
 class TestValidDurations:
@@ -87,7 +87,9 @@ class TestInvalidDurations:
         with pytest.raises(DurationValidationError) as exc_info:
             validate_duration(MAX_DURATION_SECONDS + 1)
         assert "FR24" in str(exc_info.value)
-        assert "7 days" in str(exc_info.value) or str(MAX_DURATION_SECONDS) in str(exc_info.value)
+        assert "7 days" in str(exc_info.value) or str(MAX_DURATION_SECONDS) in str(
+            exc_info.value
+        )
 
     def test_very_large_duration_fails(self) -> None:
         """Test that very large duration raises DurationValidationError."""

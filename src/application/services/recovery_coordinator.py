@@ -20,7 +20,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -75,8 +75,8 @@ class RecoveryCoordinator:
 
     def __init__(
         self,
-        halt_checker: "HaltChecker",
-        recovery_port: "RecoveryWaitingPeriodPort",
+        halt_checker: HaltChecker,
+        recovery_port: RecoveryWaitingPeriodPort,
     ) -> None:
         """Initialize RecoveryCoordinator.
 
@@ -151,8 +151,8 @@ class RecoveryCoordinator:
 
     async def complete_recovery(
         self,
-        ceremony_evidence: "CeremonyEvidence",
-    ) -> "RecoveryCompletedPayload":
+        ceremony_evidence: CeremonyEvidence,
+    ) -> RecoveryCompletedPayload:
         """Complete recovery after 48-hour waiting period (AC2, AC4).
 
         Completes the recovery process if 48 hours have elapsed.
@@ -251,7 +251,7 @@ class RecoveryCoordinator:
         """
         return await self._recovery_port.is_waiting_period_elapsed()
 
-    async def get_remaining_time(self) -> Optional[timedelta]:
+    async def get_remaining_time(self) -> timedelta | None:
         """Get remaining time in waiting period.
 
         Convenience method for countdown displays.

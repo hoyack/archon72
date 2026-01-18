@@ -268,4 +268,6 @@ class TestInvestigationResolution:
     def test_enum_values(self) -> None:
         """Test enum has expected values."""
         assert InvestigationResolution.CLEARED.value == "cleared"
-        assert InvestigationResolution.CONFIRMED_COLLUSION.value == "confirmed_collusion"
+        assert (
+            InvestigationResolution.CONFIRMED_COLLUSION.value == "confirmed_collusion"
+        )

@@ -185,7 +185,9 @@ class EventWriterService:
             )
             # Still mark as not verified - no writes should proceed
             self._verified = False
-            raise SystemHaltedError(f"GAP-CHAOS-001: Cannot verify - system halted: {reason}")
+            raise SystemHaltedError(
+                f"GAP-CHAOS-001: Cannot verify - system halted: {reason}"
+            )
 
         # Step 2: Acquire writer lock before verification
         if not await self._writer_lock.is_held():
@@ -313,15 +315,25 @@ class EventWriterService:
         if self._terminal_detector is not None:
             if await self._terminal_detector.is_system_terminated():
                 terminal_event = await self._terminal_detector.get_terminal_event()
-                terminal_timestamp = await self._terminal_detector.get_termination_timestamp()
+                terminal_timestamp = (
+                    await self._terminal_detector.get_termination_timestamp()
+                )
                 log.critical(
                     "post_cessation_write_rejected",
-                    terminal_event_id=str(terminal_event.event_id) if terminal_event else None,
-                    terminal_sequence=terminal_event.sequence if terminal_event else None,
-                    termination_timestamp=terminal_timestamp.isoformat() if terminal_timestamp else None,
+                    terminal_event_id=str(terminal_event.event_id)
+                    if terminal_event
+                    else None,
+                    terminal_sequence=terminal_event.sequence
+                    if terminal_event
+                    else None,
+                    termination_timestamp=terminal_timestamp.isoformat()
+                    if terminal_timestamp
+                    else None,
                     message="NFR40: Cannot write events after cessation",
                 )
-                seq_info = f" at seq {terminal_event.sequence}" if terminal_event else ""
+                seq_info = (
+                    f" at seq {terminal_event.sequence}" if terminal_event else ""
+                )
                 raise SchemaIrreversibilityError(
                     f"NFR40: Cannot write events after cessation. System terminated{seq_info}"
                 )

@@ -5,7 +5,6 @@ In-memory implementation of CessationRepositoryProtocol for testing.
 
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.cessation_repository import CessationRepositoryProtocol
@@ -52,7 +51,7 @@ class CessationRepositoryStub(CessationRepositoryProtocol):
 
     async def get_active_consideration(
         self,
-    ) -> Optional[CessationConsiderationEventPayload]:
+    ) -> CessationConsiderationEventPayload | None:
         """Get the currently active cessation consideration, if any.
 
         A consideration is active if it exists and has no decision recorded.
@@ -75,7 +74,7 @@ class CessationRepositoryStub(CessationRepositoryProtocol):
     async def get_consideration_by_id(
         self,
         consideration_id: UUID,
-    ) -> Optional[CessationConsiderationEventPayload]:
+    ) -> CessationConsiderationEventPayload | None:
         """Get a cessation consideration by its ID.
 
         Args:
@@ -89,7 +88,7 @@ class CessationRepositoryStub(CessationRepositoryProtocol):
     async def get_decision_for_consideration(
         self,
         consideration_id: UUID,
-    ) -> Optional[CessationDecisionEventPayload]:
+    ) -> CessationDecisionEventPayload | None:
         """Get the decision for a cessation consideration, if any.
 
         Args:

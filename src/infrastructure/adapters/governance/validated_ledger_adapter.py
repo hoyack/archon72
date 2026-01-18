@@ -68,7 +68,7 @@ class ValidatedGovernanceLedgerAdapter(GovernanceLedgerPort):
     def __init__(
         self,
         base_adapter: GovernanceLedgerPort,
-        validation_service: "LedgerValidationService",
+        validation_service: LedgerValidationService,
     ) -> None:
         """Initialize the validated adapter.
 

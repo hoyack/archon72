@@ -23,7 +23,6 @@ References:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from src.domain.governance.filter import TransformationRule
 from src.domain.governance.filter.coercion_pattern import (
@@ -173,7 +172,7 @@ class PatternLibraryPort(ABC):
     async def get_pattern_by_id(
         self,
         pattern_id: str,
-    ) -> Optional[CoercionPattern]:
+    ) -> CoercionPattern | None:
         """Get a specific pattern by ID.
 
         Args:
@@ -213,7 +212,7 @@ class PatternLibraryPort(ABC):
     async def get_highest_severity_match(
         self,
         content: str,
-    ) -> Optional[CoercionPattern]:
+    ) -> CoercionPattern | None:
         """Get the highest severity pattern matching content.
 
         Args:

@@ -5,7 +5,10 @@ Tests AC5: Content transformation rules defined for accept outcomes.
 
 import pytest
 
-from src.domain.governance.filter.transformation import Transformation, TransformationRule
+from src.domain.governance.filter.transformation import (
+    Transformation,
+    TransformationRule,
+)
 
 
 class TestTransformationRule:

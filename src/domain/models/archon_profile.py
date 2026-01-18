@@ -16,29 +16,28 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from src.domain.models.llm_config import LLMConfig, DEFAULT_LLM_CONFIG
-
+from src.domain.models.llm_config import DEFAULT_LLM_CONFIG, LLMConfig
 
 # Aegis Network rank hierarchy (highest to lowest)
 AEGIS_RANKS = [
     "executive_director",  # King (rank_level 8)
-    "senior_director",     # Duke (rank_level 7)
-    "director",            # Marquis (rank_level 6)
-    "managing_director",   # President (rank_level 5)
+    "senior_director",  # Duke (rank_level 7)
+    "director",  # Marquis (rank_level 6)
+    "managing_director",  # President (rank_level 5)
     "strategic_director",  # Prince/Earl/Knight (rank_level 4)
 ]
 
 # Governance branches per Government PRD §4
 # Administrative branch split into senior (Dukes) and strategic (Earls) per schema v2.2.0
 GOVERNANCE_BRANCHES = [
-    "legislative",            # Kings - introduce motions, define WHAT
-    "executive",              # Presidents - translate WHAT to HOW
-    "administrative",         # Generic administrative (legacy compatibility)
+    "legislative",  # Kings - introduce motions, define WHAT
+    "executive",  # Presidents - translate WHAT to HOW
+    "administrative",  # Generic administrative (legacy compatibility)
     "administrative_senior",  # Dukes - own domains, allocate resources
     "administrative_strategic",  # Earls - execute tasks, coordinate agents
-    "judicial",               # Princes - evaluate compliance
-    "advisory",               # Marquis - expert testimony
-    "witness",                # Knight (Furcas only) - observe and record
+    "judicial",  # Princes - evaluate compliance
+    "advisory",  # Marquis - expert testimony
+    "witness",  # Knight (Furcas only) - observe and record
 ]
 
 # Base branch mapping for permission/constraint lookup
@@ -64,13 +63,46 @@ RANK_TO_BRANCH = {
 # Administrative sub-branches have distinct permissions per schema v2.2.0
 BRANCH_PERMISSIONS = {
     "legislative": ["introduce_motion", "define_what"],
-    "executive": ["translate_what_to_how", "decompose_tasks", "identify_dependencies", "escalate_blockers"],
-    "administrative": ["own_domain", "allocate_resources", "track_progress", "report_status", "execute_task", "coordinate_agents"],
-    "administrative_senior": ["own_domain", "allocate_resources", "track_progress", "report_status", "delegate_task"],
-    "administrative_strategic": ["execute_task", "coordinate_agents", "optimize_execution", "report_status"],
-    "judicial": ["evaluate_compliance", "issue_finding", "invalidate_execution", "trigger_conclave_review"],
+    "executive": [
+        "translate_what_to_how",
+        "decompose_tasks",
+        "identify_dependencies",
+        "escalate_blockers",
+    ],
+    "administrative": [
+        "own_domain",
+        "allocate_resources",
+        "track_progress",
+        "report_status",
+        "execute_task",
+        "coordinate_agents",
+    ],
+    "administrative_senior": [
+        "own_domain",
+        "allocate_resources",
+        "track_progress",
+        "report_status",
+        "delegate_task",
+    ],
+    "administrative_strategic": [
+        "execute_task",
+        "coordinate_agents",
+        "optimize_execution",
+        "report_status",
+    ],
+    "judicial": [
+        "evaluate_compliance",
+        "issue_finding",
+        "invalidate_execution",
+        "trigger_conclave_review",
+    ],
     "advisory": ["provide_testimony", "issue_advisory", "analyze_risk"],
-    "witness": ["observe_all", "record_violations", "publish_witness_statement", "trigger_acknowledgment"],
+    "witness": [
+        "observe_all",
+        "record_violations",
+        "publish_witness_statement",
+        "trigger_acknowledgment",
+    ],
 }
 
 # Governance constraints per branch (Government PRD §4)
@@ -79,11 +111,25 @@ BRANCH_CONSTRAINTS = {
     "legislative": ["no_define_how", "no_supervise_execution", "no_judge_outcomes"],
     "executive": ["no_redefine_intent", "no_self_ratify", "must_escalate_ambiguity"],
     "administrative": ["no_reinterpret_intent", "no_suppress_failure"],
-    "administrative_senior": ["no_reinterpret_intent", "no_suppress_failure", "no_direct_execution"],
-    "administrative_strategic": ["no_reinterpret_intent", "no_suppress_failure", "no_resource_allocation"],
+    "administrative_senior": [
+        "no_reinterpret_intent",
+        "no_suppress_failure",
+        "no_direct_execution",
+    ],
+    "administrative_strategic": [
+        "no_reinterpret_intent",
+        "no_suppress_failure",
+        "no_resource_allocation",
+    ],
     "judicial": ["no_introduce_motion", "no_define_execution"],
     "advisory": ["advisories_non_binding", "no_judge_advised_domain"],
-    "witness": ["no_propose", "no_debate", "no_define_execution", "no_judge", "no_enforce"],
+    "witness": [
+        "no_propose",
+        "no_debate",
+        "no_define_execution",
+        "no_judge",
+        "no_enforce",
+    ],
 }
 
 
@@ -149,8 +195,7 @@ class ArchonProfile:
         """Validate profile integrity."""
         if self.aegis_rank not in AEGIS_RANKS:
             raise ValueError(
-                f"Invalid aegis_rank '{self.aegis_rank}', "
-                f"must be one of {AEGIS_RANKS}"
+                f"Invalid aegis_rank '{self.aegis_rank}', must be one of {AEGIS_RANKS}"
             )
         if not 4 <= self.rank_level <= 8:
             raise ValueError(
@@ -159,8 +204,7 @@ class ArchonProfile:
         # Validate branch if provided
         if self.branch and self.branch not in GOVERNANCE_BRANCHES:
             raise ValueError(
-                f"Invalid branch '{self.branch}', "
-                f"must be one of {GOVERNANCE_BRANCHES}"
+                f"Invalid branch '{self.branch}', must be one of {GOVERNANCE_BRANCHES}"
             )
 
     @property

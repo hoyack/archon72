@@ -12,7 +12,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.complexity_budget_repository import (
@@ -61,7 +60,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
         # Keep snapshots sorted by timestamp
         self._snapshots.sort(key=lambda s: s.timestamp)
 
-    async def get_latest_snapshot(self) -> Optional[ComplexitySnapshot]:
+    async def get_latest_snapshot(self) -> ComplexitySnapshot | None:
         """Retrieve the most recent complexity snapshot.
 
         Returns:
@@ -85,10 +84,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
         Returns:
             List of snapshots within the date range, ordered by timestamp.
         """
-        return [
-            s for s in self._snapshots
-            if start <= s.timestamp <= end
-        ]
+        return [s for s in self._snapshots if start <= s.timestamp <= end]
 
     async def save_breach(self, breach: ComplexityBudgetBreachedPayload) -> None:
         """Save a complexity breach event (CT-14, RT-6).
@@ -103,7 +99,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
     async def get_breach(
         self,
         breach_id: UUID,
-    ) -> Optional[ComplexityBudgetBreachedPayload]:
+    ) -> ComplexityBudgetBreachedPayload | None:
         """Retrieve a specific breach event by ID.
 
         Args:
@@ -118,7 +114,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
     async def get_breach_by_id(
         self,
         breach_id: UUID,
-    ) -> Optional[ComplexityBudgetBreachedPayload]:
+    ) -> ComplexityBudgetBreachedPayload | None:
         """Alias for get_breach (for backwards compatibility)."""
         return await self.get_breach(breach_id)
 
@@ -141,7 +137,8 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
             List of unresolved breach events, ordered by breached_at timestamp.
         """
         unresolved = [
-            b for b in self._breaches.values()
+            b
+            for b in self._breaches.values()
             if b.breach_id not in self._resolved_breaches
         ]
         return sorted(unresolved, key=lambda b: b.breached_at)
@@ -149,7 +146,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
     async def resolve_breach(
         self,
         breach_id: UUID,
-        governance_approval_id: Optional[UUID] = None,
+        governance_approval_id: UUID | None = None,
     ) -> bool:
         """Mark a breach as resolved via governance ceremony (RT-6).
 
@@ -198,7 +195,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
     async def get_escalation_by_id(
         self,
         escalation_id: UUID,
-    ) -> Optional[ComplexityBudgetEscalatedPayload]:
+    ) -> ComplexityBudgetEscalatedPayload | None:
         """Retrieve a specific escalation event by ID.
 
         Args:
@@ -222,8 +219,7 @@ class ComplexityBudgetRepositoryStub(ComplexityBudgetRepositoryPort):
             List of escalation events for the breach, ordered by escalated_at.
         """
         escalations = [
-            e for e in self._escalations.values()
-            if e.breach_id == breach_id
+            e for e in self._escalations.values() if e.breach_id == breach_id
         ]
         return sorted(escalations, key=lambda e: e.escalated_at)
 

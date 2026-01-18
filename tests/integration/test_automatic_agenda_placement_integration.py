@@ -80,19 +80,19 @@ class TestConsecutiveFailureFlow:
         now = datetime.now(timezone.utc)
 
         # Simulate 3 consecutive integrity failures
-        failure1 = integrity_repo.add_failure(
+        integrity_repo.add_failure(
             uuid4(),
             now - timedelta(days=20),
             "hash_chain_verification_failed",
             "First hash chain mismatch detected",
         )
-        failure2 = integrity_repo.add_failure(
+        integrity_repo.add_failure(
             uuid4(),
             now - timedelta(days=12),
             "signature_verification_failed",
             "Second signature verification failure",
         )
-        failure3 = integrity_repo.add_failure(
+        integrity_repo.add_failure(
             uuid4(),
             now - timedelta(days=5),
             "witness_attestation_failed",

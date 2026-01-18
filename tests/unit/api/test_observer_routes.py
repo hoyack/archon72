@@ -10,10 +10,9 @@ Constitutional Constraints:
 - FR63: Exact hash algorithm, encoding, field ordering as immutable spec
 """
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4
 import inspect
+from datetime import datetime, timezone
+from uuid import uuid4
 
 import pytest
 from fastapi import FastAPI
@@ -115,12 +114,12 @@ class TestObserverRoutes:
 
     def test_endpoints_use_correct_response_models(self) -> None:
         """Test that endpoints use correct response models."""
-        from src.api.routes.observer import router
         from src.api.models.observer import (
             MerkleProof,
             ObserverEventResponse,
             ObserverEventsListResponse,
         )
+        from src.api.routes.observer import router
 
         # Find routes and check response models
         for route in router.routes:
@@ -142,9 +141,9 @@ class TestObserverRoutes:
 
     def test_get_events_pagination_parameters(self) -> None:
         """Test that GET /events accepts pagination parameters."""
-        from src.api.routes.observer import get_events
         import inspect
-        from fastapi import Query
+
+        from src.api.routes.observer import get_events
 
         sig = inspect.signature(get_events)
         params = sig.parameters
@@ -243,7 +242,9 @@ class TestObserverRoutesFilterParameters:
 
         assert "start_date" in params
         # Should be optional (default None)
-        assert params["start_date"].default is not None or params["start_date"].annotation
+        assert (
+            params["start_date"].default is not None or params["start_date"].annotation
+        )
 
     def test_get_events_has_end_date_parameter(self) -> None:
         """Test that GET /events has end_date parameter."""
@@ -340,8 +341,12 @@ class TestObserverRoutesFilterParameters:
         end_date_annotation = str(params["end_date"].annotation)
 
         # Should be Optional[datetime] or similar
-        assert "datetime" in start_date_annotation.lower() or "datetime" in str(type(params["start_date"].annotation))
-        assert "datetime" in end_date_annotation.lower() or "datetime" in str(type(params["end_date"].annotation))
+        assert "datetime" in start_date_annotation.lower() or "datetime" in str(
+            type(params["start_date"].annotation)
+        )
+        assert "datetime" in end_date_annotation.lower() or "datetime" in str(
+            type(params["end_date"].annotation)
+        )
 
     def test_event_type_param_is_string(self) -> None:
         """Test that event_type param accepts string (comma-separated types)."""
@@ -481,8 +486,8 @@ class TestSchemaDocumentationEndpoint:
 
     def test_schema_docs_response_model_correct(self) -> None:
         """Test that schema endpoint uses SchemaDocumentation model."""
-        from src.api.routes.observer import router
         from src.api.models.observer import SchemaDocumentation
+        from src.api.routes.observer import router
 
         for route in router.routes:
             if hasattr(route, "path") and route.path.endswith("/schema"):
@@ -578,7 +583,10 @@ class TestObserverRoutesHistoricalQueries:
         param = params["as_of_sequence"]
         if hasattr(param.default, "description"):
             assert param.default.description is not None
-            assert "FR88" in param.default.description or "sequence" in param.default.description.lower()
+            assert (
+                "FR88" in param.default.description
+                or "sequence" in param.default.description.lower()
+            )
 
     def test_include_proof_has_description(self) -> None:
         """Test that include_proof has a description."""
@@ -590,7 +598,10 @@ class TestObserverRoutesHistoricalQueries:
         param = params["include_proof"]
         if hasattr(param.default, "description"):
             assert param.default.description is not None
-            assert "FR89" in param.default.description or "proof" in param.default.description.lower()
+            assert (
+                "FR89" in param.default.description
+                or "proof" in param.default.description.lower()
+            )
 
 
 # =============================================================================
@@ -639,6 +650,7 @@ class TestSSEStreamEndpoint:
         We verify the endpoint function returns the correct response type.
         """
         from sse_starlette.sse import EventSourceResponse
+
         from src.api.routes.observer import stream_events
 
         # Check return type annotation
@@ -653,7 +665,6 @@ class TestSSEStreamEndpoint:
         Inspecting the stream_events function to verify it returns
         EventSourceResponse with cache-control header configured.
         """
-        import ast
         import inspect
 
         from src.api.routes.observer import stream_events

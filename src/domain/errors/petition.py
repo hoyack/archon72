@@ -40,7 +40,9 @@ class InvalidSignatureError(PetitionError):
         message: Detailed error message.
     """
 
-    def __init__(self, public_key: str, message: str = "Signature verification failed") -> None:
+    def __init__(
+        self, public_key: str, message: str = "Signature verification failed"
+    ) -> None:
         """Initialize the error.
 
         Args:

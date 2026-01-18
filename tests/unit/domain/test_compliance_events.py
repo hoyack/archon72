@@ -83,7 +83,9 @@ class TestComplianceDocumentedEventPayload:
             documented_by=COMPLIANCE_SYSTEM_AGENT_ID,
         )
 
-    def test_payload_creation_success(self, valid_payload: ComplianceDocumentedEventPayload) -> None:
+    def test_payload_creation_success(
+        self, valid_payload: ComplianceDocumentedEventPayload
+    ) -> None:
         """Test successful payload creation with all fields."""
         assert valid_payload.compliance_id == "EU_AI_ACT-ASSESSMENT-a1b2c3d4"
         assert valid_payload.framework == ComplianceFramework.EU_AI_ACT
@@ -93,7 +95,9 @@ class TestComplianceDocumentedEventPayload:
         assert valid_payload.remediation_plan is None
         assert valid_payload.documented_by == COMPLIANCE_SYSTEM_AGENT_ID
 
-    def test_payload_is_immutable(self, valid_payload: ComplianceDocumentedEventPayload) -> None:
+    def test_payload_is_immutable(
+        self, valid_payload: ComplianceDocumentedEventPayload
+    ) -> None:
         """Test payload is immutable (frozen dataclass)."""
         with pytest.raises(AttributeError):
             valid_payload.compliance_id = "different-id"  # type: ignore

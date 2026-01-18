@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.events.waiver import WaiverStatus
 
@@ -79,7 +79,7 @@ class WaiverRepositoryProtocol(Protocol):
     - SR-10: CT-15 waiver documentation -> Must be explicit
     """
 
-    async def get_waiver(self, waiver_id: str) -> Optional[WaiverRecord]:
+    async def get_waiver(self, waiver_id: str) -> WaiverRecord | None:
         """Retrieve a waiver by its ID.
 
         Args:

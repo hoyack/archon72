@@ -10,8 +10,7 @@ Constitutional Compliance:
 """
 
 from datetime import datetime
-from typing import Optional, Protocol
-from uuid import UUID
+from typing import Protocol
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
 from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
@@ -55,8 +54,8 @@ class LegitimacyPort(Protocol):
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         """Get transition history.
 
@@ -93,7 +92,7 @@ class LegitimacyPort(Protocol):
     async def get_state_at(
         self,
         timestamp: datetime,
-    ) -> Optional[LegitimacyState]:
+    ) -> LegitimacyState | None:
         """Get the legitimacy state at a specific point in time.
 
         Useful for historical queries and audit trails.
@@ -162,8 +161,8 @@ class LegitimacyQueryPort(Protocol):
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         """Get transition history.
 

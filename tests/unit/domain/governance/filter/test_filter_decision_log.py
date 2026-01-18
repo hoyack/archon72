@@ -148,7 +148,9 @@ class TestFilterDecisionLogAccepted:
         self, filter_version: FilterVersion, timestamp: datetime
     ) -> None:
         """ACCEPTED log cannot have rejection_reason."""
-        with pytest.raises(ValueError, match="ACCEPTED log cannot have rejection_reason"):
+        with pytest.raises(
+            ValueError, match="ACCEPTED log cannot have rejection_reason"
+        ):
             FilterDecisionLog(
                 decision_id=uuid4(),
                 decision=FilterDecision.ACCEPTED,
@@ -213,7 +215,9 @@ class TestFilterDecisionLogRejected:
         self, filter_version: FilterVersion, timestamp: datetime
     ) -> None:
         """REJECTED log requires rejection_reason."""
-        with pytest.raises(ValueError, match="REJECTED log must include rejection_reason"):
+        with pytest.raises(
+            ValueError, match="REJECTED log must include rejection_reason"
+        ):
             FilterDecisionLog(
                 decision_id=uuid4(),
                 decision=FilterDecision.REJECTED,
@@ -256,7 +260,9 @@ class TestFilterDecisionLogRejected:
             ),
         )
 
-        with pytest.raises(ValueError, match="REJECTED log cannot have transformations"):
+        with pytest.raises(
+            ValueError, match="REJECTED log cannot have transformations"
+        ):
             FilterDecisionLog(
                 decision_id=uuid4(),
                 decision=FilterDecision.REJECTED,
@@ -394,7 +400,9 @@ class TestInputHashValidation:
         self, filter_version: FilterVersion, timestamp: datetime
     ) -> None:
         """input_hash must be prefixed with algorithm."""
-        with pytest.raises(ValueError, match="input_hash must be prefixed with algorithm"):
+        with pytest.raises(
+            ValueError, match="input_hash must be prefixed with algorithm"
+        ):
             FilterDecisionLog(
                 decision_id=uuid4(),
                 decision=FilterDecision.ACCEPTED,

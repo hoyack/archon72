@@ -11,14 +11,13 @@ Tests cover:
 - READS DURING HALT allowed (CT-13)
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 
 from src.application.services.incident_reporting_service import (
-    DuplicateIncidentError,
     IncidentNotFoundError,
     IncidentNotResolvedError,
     IncidentReportingService,
@@ -27,7 +26,6 @@ from src.application.services.incident_reporting_service import (
 from src.domain.errors import SystemHaltedError
 from src.domain.models.incident_report import (
     DAILY_OVERRIDE_THRESHOLD,
-    PUBLICATION_DELAY_DAYS,
     IncidentReport,
     IncidentStatus,
     IncidentType,

@@ -9,13 +9,77 @@ from src.domain.errors.agent import (
     AgentNotFoundError,
     AgentPoolExhaustedError,
 )
+from src.domain.errors.amendment import (
+    AmendmentError,
+    AmendmentHistoryProtectionError,
+    AmendmentImpactAnalysisMissingError,
+    AmendmentNotFoundError,
+    AmendmentVisibilityIncompleteError,
+)
+from src.domain.errors.audit import (
+    AuditError,
+    AuditFailedError,
+    AuditInProgressError,
+    AuditNotDueError,
+    AuditNotFoundError,
+    MaterialViolationError,
+)
+from src.domain.errors.audit_event import (
+    AuditEventNotFoundError,
+    AuditEventQueryError,
+    AuditQueryTimeoutError,
+    AuditTrendCalculationError,
+    InsufficientAuditDataError,
+)
+from src.domain.errors.breach import (
+    BreachDeclarationError,
+    BreachError,
+    BreachQueryError,
+    InvalidBreachTypeError,
+)
+from src.domain.errors.ceased import (
+    CeasedWriteAttemptError,
+    SystemCeasedError,
+)
 from src.domain.errors.certification import (
     CertificationError,
     CertificationSignatureError,
     ResultHashMismatchError,
 )
+from src.domain.errors.cessation import (
+    BelowThresholdError,
+    CessationAlreadyTriggeredError,
+    CessationConsiderationNotFoundError,
+    CessationError,
+    InvalidCessationDecisionError,
+)
 from src.domain.errors.collective import FR11ViolationError
+from src.domain.errors.collusion import (
+    CollusionDefenseError,
+    CollusionInvestigationRequiredError,
+    InvestigationAlreadyResolvedError,
+    InvestigationNotFoundError,
+    WitnessPairPermanentlyBannedError,
+    WitnessPairSuspendedError,
+)
+from src.domain.errors.complexity_budget import (
+    ComplexityBudgetApprovalRequiredError,
+    ComplexityBudgetBreachedError,
+    ComplexityBudgetEscalationError,
+)
+from src.domain.errors.configuration_floor import (
+    ConfigurationFloorEnforcementError,
+    FloorModificationAttemptedError,
+    RuntimeFloorViolationError,
+    StartupFloorViolationError,
+)
 from src.domain.errors.constitutional import ConstitutionalViolationError
+from src.domain.errors.constitutional_health import (
+    CeremonyBlockedByConstitutionalHealthError,
+    ConstitutionalHealthCheckFailedError,
+    ConstitutionalHealthDegradedError,
+    ConstitutionalHealthError,
+)
 from src.domain.errors.context_bundle import (
     BundleCreationError,
     BundleNotFoundError,
@@ -24,10 +88,25 @@ from src.domain.errors.context_bundle import (
     InvalidBundleSignatureError,
     StaleBundleError,
 )
+from src.domain.errors.escalation import (
+    BreachAlreadyAcknowledgedError,
+    BreachAlreadyEscalatedError,
+    BreachNotFoundError,
+    EscalationError,
+    EscalationTimerNotStartedError,
+    InvalidAcknowledgmentError,
+)
 from src.domain.errors.event_store import (
     EventNotFoundError,
     EventStoreConnectionError,
     EventStoreError,
+)
+from src.domain.errors.failure_prevention import (
+    ConstitutionalEventSheddingError,
+    EarlyWarningError,
+    FailureModeViolationError,
+    LoadSheddingDecisionError,
+    QueryPerformanceViolationError,
 )
 from src.domain.errors.fork_signal import (
     ForkSignalRateLimitExceededError,
@@ -39,25 +118,12 @@ from src.domain.errors.halt_clear import (
     InsufficientApproversError,
     InvalidCeremonyError,
 )
-from src.domain.errors.read_only import (
-    ProvisionalBlockedDuringHaltError,
-    WriteBlockedDuringHaltError,
-)
-from src.domain.errors.recovery import (
-    RecoveryAlreadyInProgressError,
-    RecoveryNotPermittedError,
-    RecoveryWaitingPeriodNotElapsedError,
-    RecoveryWaitingPeriodNotStartedError,
-)
-from src.domain.errors.rollback import (
-    CheckpointNotFoundError,
-    InvalidRollbackTargetError,
-    RollbackAlreadyInProgressError,
-    RollbackNotPermittedError,
-)
-from src.domain.errors.sequence_gap import (
-    SequenceGapDetectedError,
-    SequenceGapResolutionRequiredError,
+from src.domain.errors.hash_verification import (
+    HashChainBrokenError,
+    HashMismatchError,
+    HashVerificationError,
+    HashVerificationScanInProgressError,
+    HashVerificationTimeoutError,
 )
 from src.domain.errors.heartbeat import AgentUnresponsiveError, HeartbeatSpoofingError
 from src.domain.errors.hsm import (
@@ -66,29 +132,20 @@ from src.domain.errors.hsm import (
     HSMModeViolationError,
     HSMNotConfiguredError,
 )
-from src.domain.errors.silent_edit import FR13ViolationError
-from src.domain.errors.topic import TopicDiversityViolationError, TopicRateLimitError
-from src.domain.errors.witness import (
-    NoWitnessAvailableError,
-    WitnessNotFoundError,
-    WitnessSigningError,
+from src.domain.errors.independence_attestation import (
+    AttestationDeadlineMissedError,
+    CapabilitySuspendedError,
+    DuplicateIndependenceAttestationError,
+    IndependenceAttestationError,
+    InvalidIndependenceSignatureError,
 )
-from src.domain.errors.override import (
-    DurationValidationError,
-    InvalidOverrideReasonError,
-    OverrideBlockedError,
-    OverrideLoggingFailedError,
-    WitnessSuppressionAttemptError,
-)
-from src.domain.errors.writer import (
-    SystemHaltedError,
-    WriterInconsistencyError,
-    WriterLockNotHeldError,
-    WriterNotVerifiedError,
-)
-from src.domain.errors.trend import (
-    InsufficientDataError,
-    TrendAnalysisError,
+from src.domain.errors.keeper_availability import (
+    DuplicateAttestationError,
+    InvalidAttestationSignatureError,
+    KeeperAttestationExpiredError,
+    KeeperAvailabilityError,
+    KeeperQuorumViolationError,
+    KeeperReplacementRequiredError,
 )
 from src.domain.errors.keeper_signature import (
     InvalidKeeperSignatureError,
@@ -106,103 +163,18 @@ from src.domain.errors.key_generation_ceremony import (
     InsufficientWitnessesError,
     InvalidCeremonyStateError,
 )
-from src.domain.errors.keeper_availability import (
-    DuplicateAttestationError,
-    InvalidAttestationSignatureError,
-    KeeperAttestationExpiredError,
-    KeeperAvailabilityError,
-    KeeperQuorumViolationError,
-    KeeperReplacementRequiredError,
+from src.domain.errors.override import (
+    DurationValidationError,
+    InvalidOverrideReasonError,
+    OverrideBlockedError,
+    OverrideLoggingFailedError,
+    WitnessSuppressionAttemptError,
 )
 from src.domain.errors.override_abuse import (
     ConstitutionalConstraintViolationError,
     EvidenceDestructionAttemptError,
     HistoryEditAttemptError,
     OverrideAbuseError,
-)
-from src.domain.errors.independence_attestation import (
-    AttestationDeadlineMissedError,
-    CapabilitySuspendedError,
-    DuplicateIndependenceAttestationError,
-    IndependenceAttestationError,
-    InvalidIndependenceSignatureError,
-)
-from src.domain.errors.breach import (
-    BreachDeclarationError,
-    BreachError,
-    BreachQueryError,
-    InvalidBreachTypeError,
-)
-from src.domain.errors.escalation import (
-    BreachAlreadyAcknowledgedError,
-    BreachAlreadyEscalatedError,
-    BreachNotFoundError,
-    EscalationError,
-    EscalationTimerNotStartedError,
-    InvalidAcknowledgmentError,
-)
-from src.domain.errors.cessation import (
-    BelowThresholdError,
-    CessationAlreadyTriggeredError,
-    CessationConsiderationNotFoundError,
-    CessationError,
-    InvalidCessationDecisionError,
-)
-from src.domain.errors.threshold import (
-    ConstitutionalFloorViolationError,
-    CounterResetAttemptedError,
-    ThresholdError,
-    ThresholdNotFoundError,
-)
-from src.domain.errors.witness_selection import (
-    AllWitnessesPairExhaustedError,
-    EntropyUnavailableError,
-    InsufficientWitnessPoolError,
-    WitnessPairRotationViolationError,
-    WitnessSelectionError,
-    WitnessSelectionVerificationError,
-)
-from src.domain.errors.witness_anomaly import (
-    AnomalyScanError,
-    WitnessAnomalyError,
-    WitnessCollusionSuspectedError,
-    WitnessPairExcludedError,
-    WitnessPoolDegradedError,
-    WitnessUnavailabilityPatternError,
-)
-from src.domain.errors.amendment import (
-    AmendmentError,
-    AmendmentHistoryProtectionError,
-    AmendmentImpactAnalysisMissingError,
-    AmendmentNotFoundError,
-    AmendmentVisibilityIncompleteError,
-)
-from src.domain.errors.collusion import (
-    CollusionDefenseError,
-    CollusionInvestigationRequiredError,
-    InvestigationAlreadyResolvedError,
-    InvestigationNotFoundError,
-    WitnessPairPermanentlyBannedError,
-    WitnessPairSuspendedError,
-)
-from src.domain.errors.hash_verification import (
-    HashChainBrokenError,
-    HashMismatchError,
-    HashVerificationError,
-    HashVerificationScanInProgressError,
-    HashVerificationTimeoutError,
-)
-from src.domain.errors.topic_manipulation import (
-    DailyRateLimitExceededError,
-    PredictableSeedError,
-    SeedSourceDependenceError,
-    TopicManipulationDefenseError,
-)
-from src.domain.errors.configuration_floor import (
-    ConfigurationFloorEnforcementError,
-    FloorModificationAttemptedError,
-    RuntimeFloorViolationError,
-    StartupFloorViolationError,
 )
 from src.domain.errors.petition import (
     DuplicateCosignatureError,
@@ -212,44 +184,11 @@ from src.domain.errors.petition import (
     PetitionError,
     PetitionNotFoundError,
 )
-from src.domain.errors.schema_irreversibility import (
-    CessationReversalAttemptError,
-    EventTypeProhibitedError,
-    SchemaIrreversibilityError,
-    TerminalEventViolationError,
-)
-from src.domain.errors.ceased import (
-    CeasedWriteAttemptError,
-    SystemCeasedError,
-)
-from src.domain.errors.separation import (
-    ConstitutionalToOperationalError,
-    OperationalToEventStoreError,
-    SeparationViolationError,
-)
 from src.domain.errors.pre_operational import (
     BypassNotAllowedError,
     PostHaltVerificationRequiredError,
     PreOperationalVerificationError,
     VerificationCheckError,
-)
-from src.domain.errors.complexity_budget import (
-    ComplexityBudgetApprovalRequiredError,
-    ComplexityBudgetBreachedError,
-    ComplexityBudgetEscalationError,
-)
-from src.domain.errors.failure_prevention import (
-    ConstitutionalEventSheddingError,
-    EarlyWarningError,
-    FailureModeViolationError,
-    LoadSheddingDecisionError,
-    QueryPerformanceViolationError,
-)
-from src.domain.errors.constitutional_health import (
-    CeremonyBlockedByConstitutionalHealthError,
-    ConstitutionalHealthCheckFailedError,
-    ConstitutionalHealthDegradedError,
-    ConstitutionalHealthError,
 )
 from src.domain.errors.prohibited_language import (
     ProhibitedLanguageBlockedError,
@@ -264,13 +203,59 @@ from src.domain.errors.publication import (
     PublicationScanError,
     PublicationValidationError,
 )
-from src.domain.errors.audit import (
-    AuditError,
-    AuditFailedError,
-    AuditInProgressError,
-    AuditNotDueError,
-    AuditNotFoundError,
-    MaterialViolationError,
+from src.domain.errors.read_only import (
+    ProvisionalBlockedDuringHaltError,
+    WriteBlockedDuringHaltError,
+)
+from src.domain.errors.recovery import (
+    RecoveryAlreadyInProgressError,
+    RecoveryNotPermittedError,
+    RecoveryWaitingPeriodNotElapsedError,
+    RecoveryWaitingPeriodNotStartedError,
+)
+from src.domain.errors.rollback import (
+    CheckpointNotFoundError,
+    InvalidRollbackTargetError,
+    RollbackAlreadyInProgressError,
+    RollbackNotPermittedError,
+)
+from src.domain.errors.schema_irreversibility import (
+    CessationReversalAttemptError,
+    EventTypeProhibitedError,
+    SchemaIrreversibilityError,
+    TerminalEventViolationError,
+)
+from src.domain.errors.semantic_violation import (
+    SemanticScanError,
+    SemanticViolationError,
+    SemanticViolationSuspectedError,
+)
+from src.domain.errors.separation import (
+    ConstitutionalToOperationalError,
+    OperationalToEventStoreError,
+    SeparationViolationError,
+)
+from src.domain.errors.sequence_gap import (
+    SequenceGapDetectedError,
+    SequenceGapResolutionRequiredError,
+)
+from src.domain.errors.silent_edit import FR13ViolationError
+from src.domain.errors.threshold import (
+    ConstitutionalFloorViolationError,
+    CounterResetAttemptedError,
+    ThresholdError,
+    ThresholdNotFoundError,
+)
+from src.domain.errors.topic import TopicDiversityViolationError, TopicRateLimitError
+from src.domain.errors.topic_manipulation import (
+    DailyRateLimitExceededError,
+    PredictableSeedError,
+    SeedSourceDependenceError,
+    TopicManipulationDefenseError,
+)
+from src.domain.errors.trend import (
+    InsufficientDataError,
+    TrendAnalysisError,
 )
 from src.domain.errors.user_content import (
     UserContentCannotBeFeaturedException,
@@ -278,17 +263,32 @@ from src.domain.errors.user_content import (
     UserContentNotFoundError,
     UserContentProhibitionError,
 )
-from src.domain.errors.audit_event import (
-    AuditEventNotFoundError,
-    AuditEventQueryError,
-    AuditQueryTimeoutError,
-    AuditTrendCalculationError,
-    InsufficientAuditDataError,
+from src.domain.errors.witness import (
+    NoWitnessAvailableError,
+    WitnessNotFoundError,
+    WitnessSigningError,
 )
-from src.domain.errors.semantic_violation import (
-    SemanticScanError,
-    SemanticViolationError,
-    SemanticViolationSuspectedError,
+from src.domain.errors.witness_anomaly import (
+    AnomalyScanError,
+    WitnessAnomalyError,
+    WitnessCollusionSuspectedError,
+    WitnessPairExcludedError,
+    WitnessPoolDegradedError,
+    WitnessUnavailabilityPatternError,
+)
+from src.domain.errors.witness_selection import (
+    AllWitnessesPairExhaustedError,
+    EntropyUnavailableError,
+    InsufficientWitnessPoolError,
+    WitnessPairRotationViolationError,
+    WitnessSelectionError,
+    WitnessSelectionVerificationError,
+)
+from src.domain.errors.writer import (
+    SystemHaltedError,
+    WriterInconsistencyError,
+    WriterLockNotHeldError,
+    WriterNotVerifiedError,
 )
 
 __all__: list[str] = [

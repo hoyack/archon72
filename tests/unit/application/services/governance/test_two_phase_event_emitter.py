@@ -27,12 +27,14 @@ from src.application.services.governance.two_phase_event_emitter import (
 def mock_ledger() -> AsyncMock:
     """Create a mock governance ledger."""
     ledger = AsyncMock()
+
     # Configure append_event to return a persisted event with event_id
     def make_persisted_event(event):
         persisted = MagicMock()
         persisted.event_id = event.event_id
         persisted.event = event
         return persisted
+
     ledger.append_event = AsyncMock(side_effect=make_persisted_event)
     return ledger
 
@@ -41,12 +43,16 @@ def mock_ledger() -> AsyncMock:
 def mock_time_authority() -> MagicMock:
     """Create a mock time authority."""
     time_authority = MagicMock()
-    time_authority.now.return_value = datetime(2026, 1, 16, 12, 0, 0, tzinfo=timezone.utc)
+    time_authority.now.return_value = datetime(
+        2026, 1, 16, 12, 0, 0, tzinfo=timezone.utc
+    )
     return time_authority
 
 
 @pytest.fixture
-def emitter(mock_ledger: AsyncMock, mock_time_authority: MagicMock) -> TwoPhaseEventEmitter:
+def emitter(
+    mock_ledger: AsyncMock, mock_time_authority: MagicMock
+) -> TwoPhaseEventEmitter:
     """Create a TwoPhaseEventEmitter with mocked dependencies."""
     return TwoPhaseEventEmitter(mock_ledger, mock_time_authority)
 
@@ -427,9 +433,7 @@ class TestConcurrentEmits:
         assert await emitter.get_pending_intent(id2) is not None
 
     @pytest.mark.asyncio
-    async def test_cannot_double_commit(
-        self, emitter: TwoPhaseEventEmitter
-    ) -> None:
+    async def test_cannot_double_commit(self, emitter: TwoPhaseEventEmitter) -> None:
         """Cannot commit the same intent twice."""
         correlation_id = await emitter.emit_intent(
             operation_type="executive.task.accept",

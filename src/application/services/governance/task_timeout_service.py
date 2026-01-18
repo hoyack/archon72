@@ -28,6 +28,7 @@ References:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from datetime import datetime
 from uuid import UUID, uuid4
@@ -183,9 +184,7 @@ class TaskTimeoutService(TaskTimeoutPort):
                     await self._auto_decline(task, now)
                     declined_ids.append(task.task_id)
                 except Exception as e:
-                    logger.error(
-                        f"Failed to auto-decline task {task.task_id}: {e}"
-                    )
+                    logger.error(f"Failed to auto-decline task {task.task_id}: {e}")
 
         if declined_ids:
             logger.info(f"Auto-declined {len(declined_ids)} tasks (TTL expired)")
@@ -223,9 +222,7 @@ class TaskTimeoutService(TaskTimeoutPort):
                     await self._auto_start(task, now)
                     started_ids.append(task.task_id)
                 except Exception as e:
-                    logger.error(
-                        f"Failed to auto-start task {task.task_id}: {e}"
-                    )
+                    logger.error(f"Failed to auto-start task {task.task_id}: {e}")
 
         if started_ids:
             logger.info(
@@ -264,9 +261,7 @@ class TaskTimeoutService(TaskTimeoutPort):
                     await self._auto_quarantine(task, now)
                     quarantined_ids.append(task.task_id)
                 except Exception as e:
-                    logger.error(
-                        f"Failed to auto-quarantine task {task.task_id}: {e}"
-                    )
+                    logger.error(f"Failed to auto-quarantine task {task.task_id}: {e}")
 
         if quarantined_ids:
             logger.info(
@@ -559,10 +554,8 @@ class TaskTimeoutScheduler(TimeoutSchedulerPort):
 
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
             self._task = None
 
         logger.info("TaskTimeoutScheduler stopped")

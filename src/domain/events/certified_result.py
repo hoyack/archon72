@@ -101,7 +101,9 @@ class CertifiedResultPayload:
     def _validate_result_hash(self) -> None:
         """Validate result_hash is 64 character hex string (SHA-256)."""
         if not isinstance(self.result_hash, str) or len(self.result_hash) != 64:
-            length = len(self.result_hash) if isinstance(self.result_hash, str) else "N/A"
+            length = (
+                len(self.result_hash) if isinstance(self.result_hash, str) else "N/A"
+            )
             raise ValueError(
                 f"result_hash must be 64 character hex string (SHA-256), got length {length}"
             )
@@ -115,7 +117,10 @@ class CertifiedResultPayload:
 
     def _validate_certification_key_id(self) -> None:
         """Validate certification_key_id is non-empty string."""
-        if not isinstance(self.certification_key_id, str) or not self.certification_key_id:
+        if (
+            not isinstance(self.certification_key_id, str)
+            or not self.certification_key_id
+        ):
             raise ValueError("certification_key_id must be non-empty string")
 
     def _validate_result_type(self) -> None:

@@ -88,7 +88,9 @@ def create_mock_event_store(
     store = MagicMock(spec=[])
 
     if events_by_payload_field is not None:
-        store.get_events_by_payload_field = AsyncMock(return_value=events_by_payload_field)
+        store.get_events_by_payload_field = AsyncMock(
+            return_value=events_by_payload_field
+        )
     elif events_by_type is not None:
         store.get_events_by_type = AsyncMock(return_value=events_by_type)
 
@@ -111,10 +113,12 @@ class TestTerminalEventDetectorBeforeCessation:
     @pytest.mark.asyncio
     async def test_not_terminated_with_non_terminal_events(self) -> None:
         """is_system_terminated() should return False without terminal events."""
-        event_store = create_mock_event_store(events_by_type=[
-            create_test_event(event_type="regular.event", sequence=1),
-            create_test_event(event_type="another.event", sequence=2),
-        ])
+        event_store = create_mock_event_store(
+            events_by_type=[
+                create_test_event(event_type="regular.event", sequence=1),
+                create_test_event(event_type="another.event", sequence=2),
+            ]
+        )
 
         detector = TerminalEventDetector(event_store)
         result = await detector.is_system_terminated()

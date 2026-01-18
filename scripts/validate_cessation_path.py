@@ -28,9 +28,8 @@ from __future__ import annotations
 import os
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
 from uuid import uuid4
 
 # Add project root to path for imports
@@ -110,6 +109,7 @@ def validate_cessation_service_imports(report: ValidationReport) -> None:
             CessationExecutionError,
             CessationExecutionService,
         )
+
         report.add(
             "CessationExecutionService import",
             True,
@@ -130,6 +130,7 @@ def validate_deliberation_service_imports(report: ValidationReport) -> None:
             DeliberationRecordingCompleteFailure,
             FinalDeliberationService,
         )
+
         report.add(
             "FinalDeliberationService import",
             True,
@@ -200,9 +201,9 @@ def validate_archon_deliberation(report: ValidationReport) -> None:
     """Validate 72-archon deliberation types."""
     try:
         from src.domain.events.cessation_deliberation import (
+            REQUIRED_ARCHON_COUNT,
             ArchonDeliberation,
             ArchonPosition,
-            REQUIRED_ARCHON_COUNT,
         )
 
         # Verify archon count
@@ -272,9 +273,9 @@ def validate_cessation_flag_repository(report: ValidationReport) -> None:
     """Validate cessation flag repository interface."""
     try:
         from src.domain.models.ceased_status_header import (
+            SYSTEM_STATUS_CEASED,
             CeasedStatusHeader,
             CessationDetails,
-            SYSTEM_STATUS_CEASED,
         )
 
         # Verify status constant
@@ -344,7 +345,6 @@ def validate_stubs_available(report: ValidationReport) -> None:
     try:
         from src.infrastructure.stubs.cessation_flag_repository_stub import (
             CessationFlagRepositoryStub,
-            FailureMode,
         )
         from src.infrastructure.stubs.event_store_stub import EventStoreStub
         from src.infrastructure.stubs.final_deliberation_recorder_stub import (
@@ -352,9 +352,9 @@ def validate_stubs_available(report: ValidationReport) -> None:
         )
 
         # Verify stubs can be instantiated
-        event_store = EventStoreStub()
-        flag_repo = CessationFlagRepositoryStub()
-        recorder = FinalDeliberationRecorderStub()
+        EventStoreStub()
+        CessationFlagRepositoryStub()
+        FinalDeliberationRecorderStub()
 
         report.add(
             "Test stubs available",
@@ -372,7 +372,6 @@ def validate_stubs_available(report: ValidationReport) -> None:
 
 def validate_chaos_tests_exist(report: ValidationReport) -> None:
     """Validate chaos tests exist."""
-    import os
 
     chaos_dir = "tests/chaos/cessation"
     expected_files = [

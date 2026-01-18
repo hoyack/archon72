@@ -17,12 +17,13 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.entropy_source import EntropySourceProtocol
 from src.application.ports.event_store import EventStorePort
 from src.application.ports.halt_checker import HaltChecker
-from src.application.ports.witness_anomaly_detector import WitnessAnomalyDetectorProtocol
+from src.application.ports.witness_anomaly_detector import (
+    WitnessAnomalyDetectorProtocol,
+)
 from src.application.ports.witness_pair_history import WitnessPairHistoryProtocol
 from src.application.ports.witness_pool import WitnessPoolProtocol
 from src.domain.errors.witness_selection import (
@@ -33,7 +34,6 @@ from src.domain.errors.witness_selection import (
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.witness_selection import (
-    WITNESS_SELECTION_EVENT_TYPE,
     WitnessSelectionEventPayload,
 )
 from src.domain.models.witness_pair import WitnessPair
@@ -43,7 +43,6 @@ from src.domain.models.witness_selection import (
     WitnessSelectionSeed,
     deterministic_select,
 )
-
 
 # System agent ID for witness selection service
 WITNESS_SELECTION_SYSTEM_AGENT_ID = "SYSTEM:witness_selection_service"
@@ -98,9 +97,9 @@ class VerifiableWitnessSelectionService:
         entropy_source: EntropySourceProtocol,
         event_store: EventStorePort,
         pair_history: WitnessPairHistoryProtocol,
-        previous_witness_id: Optional[str] = None,
+        previous_witness_id: str | None = None,
         minimum_witnesses: int = DEFAULT_MINIMUM_WITNESSES,
-        anomaly_detector: Optional[WitnessAnomalyDetectorProtocol] = None,
+        anomaly_detector: WitnessAnomalyDetectorProtocol | None = None,
     ) -> None:
         """Initialize the verifiable witness selection service.
 
@@ -178,7 +177,9 @@ class VerifiableWitnessSelectionService:
         pool_snapshot = await self._get_ordered_witness_pool()
 
         # FR117: Check pool size
-        required = HIGH_STAKES_MINIMUM_WITNESSES if high_stakes else self._minimum_witnesses
+        required = (
+            HIGH_STAKES_MINIMUM_WITNESSES if high_stakes else self._minimum_witnesses
+        )
         if len(pool_snapshot) < required:
             raise InsufficientWitnessPoolError(
                 available=len(pool_snapshot),
@@ -325,9 +326,7 @@ class VerifiableWitnessSelectionService:
                 current_seed = seed
             else:
                 # Deterministic modification for retry
-                current_seed = hashlib.sha256(
-                    seed + offset.to_bytes(4, "big")
-                ).digest()
+                current_seed = hashlib.sha256(seed + offset.to_bytes(4, "big")).digest()
 
             # Select candidate
             candidate = deterministic_select(current_seed, pool)

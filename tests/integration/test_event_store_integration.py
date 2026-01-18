@@ -38,7 +38,8 @@ class TestEventStoreSchema:
         the migration file to avoid SQL parsing issues with PL/pgSQL.
         """
         # Create events table
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -55,60 +56,77 @@ class TestEventStoreSchema:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create indexes
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_sequence ON events (sequence)"
-        ))
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type)"
-        ))
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_authority_timestamp ON events (authority_timestamp)"
-        ))
+        await db_session.execute(
+            text("CREATE INDEX IF NOT EXISTS idx_events_sequence ON events (sequence)")
+        )
+        await db_session.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type)"
+            )
+        )
+        await db_session.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_events_authority_timestamp ON events (authority_timestamp)"
+            )
+        )
 
         # Create trigger function for UPDATE
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION prevent_event_update()
             RETURNS TRIGGER AS $func$
             BEGIN
                 RAISE EXCEPTION 'FR102: Append-only violation - UPDATE prohibited';
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create trigger function for DELETE
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION prevent_event_delete()
             RETURNS TRIGGER AS $func$
             BEGIN
                 RAISE EXCEPTION 'FR102: Append-only violation - DELETE prohibited';
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create UPDATE trigger
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             DROP TRIGGER IF EXISTS prevent_event_update ON events
-        """))
-        await db_session.execute(text("""
+        """)
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER prevent_event_update
             BEFORE UPDATE ON events
             FOR EACH ROW
             EXECUTE FUNCTION prevent_event_update()
-        """))
+        """)
+        )
 
         # Create DELETE trigger
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             DROP TRIGGER IF EXISTS prevent_event_delete ON events
-        """))
-        await db_session.execute(text("""
+        """)
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER prevent_event_delete
             BEFORE DELETE ON events
             FOR EACH ROW
             EXECUTE FUNCTION prevent_event_delete()
-        """))
+        """)
+        )
 
         # Revoke TRUNCATE
         await db_session.execute(text("REVOKE TRUNCATE ON events FROM PUBLIC"))
@@ -146,7 +164,9 @@ class TestEventStoreSchema:
                 "ORDER BY ordinal_position"
             )
         )
-        columns = {row[0]: {"type": row[1], "nullable": row[2]} for row in result.fetchall()}
+        columns = {
+            row[0]: {"type": row[1], "nullable": row[2]} for row in result.fetchall()
+        }
 
         # Required columns from AC1
         required_columns = {
@@ -175,9 +195,7 @@ class TestEventStoreSchema:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_event_id_is_primary_key(
-        self, events_table: AsyncSession
-    ) -> None:
+    async def test_event_id_is_primary_key(self, events_table: AsyncSession) -> None:
         """AC1: event_id is the primary key."""
         result = await events_table.execute(
             text(
@@ -197,9 +215,7 @@ class TestEventStoreSchema:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_sequence_is_unique(
-        self, events_table: AsyncSession
-    ) -> None:
+    async def test_sequence_is_unique(self, events_table: AsyncSession) -> None:
         """AC1: sequence column is unique."""
         result = await events_table.execute(
             text(
@@ -222,12 +238,11 @@ class TestAppendOnlyEnforcement:
     """Tests for append-only enforcement via triggers (AC2, AC3, AC4)."""
 
     @pytest.fixture
-    async def events_table_with_data(
-        self, db_session: AsyncSession
-    ) -> AsyncSession:
+    async def events_table_with_data(self, db_session: AsyncSession) -> AsyncSession:
         """Create events table, triggers, and insert test data."""
         # Create events table
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -244,48 +259,57 @@ class TestAppendOnlyEnforcement:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create trigger function for UPDATE
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION prevent_event_update()
             RETURNS TRIGGER AS $func$
             BEGIN
                 RAISE EXCEPTION 'FR102: Append-only violation - UPDATE prohibited';
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create trigger function for DELETE
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION prevent_event_delete()
             RETURNS TRIGGER AS $func$
             BEGIN
                 RAISE EXCEPTION 'FR102: Append-only violation - DELETE prohibited';
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create triggers
-        await db_session.execute(text(
-            "DROP TRIGGER IF EXISTS prevent_event_update ON events"
-        ))
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("DROP TRIGGER IF EXISTS prevent_event_update ON events")
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER prevent_event_update
             BEFORE UPDATE ON events
             FOR EACH ROW
             EXECUTE FUNCTION prevent_event_update()
-        """))
+        """)
+        )
 
-        await db_session.execute(text(
-            "DROP TRIGGER IF EXISTS prevent_event_delete ON events"
-        ))
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("DROP TRIGGER IF EXISTS prevent_event_delete ON events")
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER prevent_event_delete
             BEFORE DELETE ON events
             FOR EACH ROW
             EXECUTE FUNCTION prevent_event_delete()
-        """))
+        """)
+        )
 
         # Revoke TRUNCATE
         await db_session.execute(text("REVOKE TRUNCATE ON events FROM PUBLIC"))
@@ -351,9 +375,7 @@ class TestAppendOnlyEnforcement:
         from sqlalchemy.exc import DBAPIError
 
         with pytest.raises((ProgrammingError, DBAPIError)) as exc_info:
-            await events_table_with_data.execute(
-                text("DELETE FROM events WHERE true")
-            )
+            await events_table_with_data.execute(text("DELETE FROM events WHERE true"))
 
         error_message = str(exc_info.value)
         assert "FR102" in error_message, f"Error should mention FR102: {error_message}"
@@ -452,7 +474,8 @@ class TestEventStoreIndexes:
     async def events_table(self, db_session: AsyncSession) -> AsyncSession:
         """Create the events table for testing."""
         # Create events table
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -469,26 +492,29 @@ class TestEventStoreIndexes:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create indexes
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_sequence ON events (sequence)"
-        ))
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type)"
-        ))
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_authority_timestamp ON events (authority_timestamp)"
-        ))
+        await db_session.execute(
+            text("CREATE INDEX IF NOT EXISTS idx_events_sequence ON events (sequence)")
+        )
+        await db_session.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type)"
+            )
+        )
+        await db_session.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_events_authority_timestamp ON events (authority_timestamp)"
+            )
+        )
 
         return db_session
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_sequence_index_exists(
-        self, events_table: AsyncSession
-    ) -> None:
+    async def test_sequence_index_exists(self, events_table: AsyncSession) -> None:
         """Verify index on sequence column exists."""
         result = await events_table.execute(
             text(
@@ -501,9 +527,7 @@ class TestEventStoreIndexes:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_event_type_index_exists(
-        self, events_table: AsyncSession
-    ) -> None:
+    async def test_event_type_index_exists(self, events_table: AsyncSession) -> None:
         """Verify index on event_type column exists."""
         result = await events_table.execute(
             text(

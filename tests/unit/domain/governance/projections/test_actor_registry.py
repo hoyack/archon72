@@ -175,10 +175,17 @@ class TestActorRegistryRecordValidTypes:
     def test_valid_types_contains_expected_values(self) -> None:
         """VALID_TYPES contains all expected actor types."""
         expected = {
-            "archon", "king", "president", "duke", "earl",
-            "prince", "marquis", "knight", "system"
+            "archon",
+            "king",
+            "president",
+            "duke",
+            "earl",
+            "prince",
+            "marquis",
+            "knight",
+            "system",
         }
-        assert ActorRegistryRecord.VALID_TYPES == frozenset(expected)
+        assert frozenset(expected) == ActorRegistryRecord.VALID_TYPES
 
     def test_all_valid_branches_can_be_created(self) -> None:
         """All VALID_BRANCHES can be used to create records."""
@@ -201,10 +208,14 @@ class TestActorRegistryRecordValidTypes:
     def test_valid_branches_contains_expected_values(self) -> None:
         """VALID_BRANCHES contains all expected branches."""
         expected = {
-            "legislative", "executive", "judicial",
-            "advisory", "witness", "system"
+            "legislative",
+            "executive",
+            "judicial",
+            "advisory",
+            "witness",
+            "system",
         }
-        assert ActorRegistryRecord.VALID_BRANCHES == frozenset(expected)
+        assert frozenset(expected) == ActorRegistryRecord.VALID_BRANCHES
 
 
 class TestActorRegistryRecordHelpers:
@@ -265,7 +276,15 @@ class TestActorRegistryRecordHelpers:
     def test_is_officer_for_officer_types(self) -> None:
         """is_officer returns True for officer types."""
         now = datetime.now(timezone.utc)
-        officer_types = ["king", "president", "duke", "earl", "prince", "marquis", "knight"]
+        officer_types = [
+            "king",
+            "president",
+            "duke",
+            "earl",
+            "prince",
+            "marquis",
+            "knight",
+        ]
 
         for actor_type in officer_types:
             branch = ActorRegistryRecord.TYPE_TO_BRANCH.get(actor_type, "legislative")

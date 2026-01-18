@@ -167,8 +167,8 @@ class TestTopicOriginServiceDiversityCheck:
             window_end=now,
             total_topics=100,
             autonomous_count=25,  # 25% <= 30%
-            petition_count=25,    # 25% <= 30%
-            scheduled_count=25,   # 25% <= 30%
+            petition_count=25,  # 25% <= 30%
+            scheduled_count=25,  # 25% <= 30%
         )
 
         tracker = AsyncMock()

@@ -35,7 +35,6 @@ from src.domain.models.integrity_case import (
     IntegrityGuarantee,
 )
 
-
 # =============================================================================
 # CT-1: Append-Only Audit Trail
 # =============================================================================
@@ -656,6 +655,7 @@ def validate_all_guarantees() -> list[str]:
         0
     """
     from src.domain.models.integrity_case import REQUIRED_CT_REFERENCES
+
     return INTEGRITY_GUARANTEE_REGISTRY.validate_completeness(REQUIRED_CT_REFERENCES)
 
 

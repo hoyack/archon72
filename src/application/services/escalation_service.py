@@ -18,7 +18,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from structlog import get_logger
@@ -79,7 +79,7 @@ class EscalationService:
         self,
         breach_repository: BreachRepositoryProtocol,
         escalation_repository: EscalationRepositoryProtocol,
-        event_writer: "EventWriterService",
+        event_writer: EventWriterService,
         halt_checker: HaltChecker,
     ) -> None:
         """Initialize the Escalation Service.
@@ -511,7 +511,7 @@ class EscalationService:
         esc = await self._escalation_repository.get_escalation_for_breach(breach_id)
         return esc is not None
 
-    async def get_breach_status(self, breach_id: UUID) -> Optional[dict[str, Any]]:
+    async def get_breach_status(self, breach_id: UUID) -> dict[str, Any] | None:
         """Get the escalation/acknowledgment status of a breach (FR31).
 
         Args:

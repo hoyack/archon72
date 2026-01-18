@@ -60,9 +60,7 @@ class TestIntegrityGuarantee:
             fr_reference="FR44",
             ct_reference=None,
             mechanism="Observer API with no authentication middleware",
-            invalidation_conditions=(
-                "Authentication added to Observer API",
-            ),
+            invalidation_conditions=("Authentication added to Observer API",),
             is_constitutional=False,
         )
 
@@ -125,7 +123,9 @@ class TestIntegrityGuarantee:
 
     def test_constitutional_category_requires_ct_reference(self) -> None:
         """Constitutional category should require ct_reference."""
-        with pytest.raises(ValueError, match="Constitutional guarantees require ct_reference"):
+        with pytest.raises(
+            ValueError, match="Constitutional guarantees require ct_reference"
+        ):
             IntegrityGuarantee(
                 guarantee_id="bad-ct",
                 category=GuaranteeCategory.CONSTITUTIONAL,

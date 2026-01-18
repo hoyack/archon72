@@ -21,20 +21,20 @@ import os
 import re
 import time
 
-from crewai import Agent, Crew, LLM, Task
+from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.execution_planner import (
     BlockerDetection,
+    BlockerDetectionError,
+    ClassificationError,
     ClassificationResult,
     ExecutionPlannerProtocol,
+    InstantiationError,
     MotionForPlanning,
+    PlanningError,
     PlanningResult,
     TaskInstantiation,
-    ClassificationError,
-    InstantiationError,
-    BlockerDetectionError,
-    PlanningError,
 )
 
 logger = get_logger(__name__)
@@ -56,7 +56,7 @@ def _escape_control_chars_in_strings(text: str) -> str:
             i += 1
             continue
 
-        if char == '\\' and in_string:
+        if char == "\\" and in_string:
             escape_next = True
             result.append(char)
             i += 1
@@ -69,20 +69,20 @@ def _escape_control_chars_in_strings(text: str) -> str:
             continue
 
         if in_string and ord(char) < 32:
-            if char == '\n':
-                result.append('\\n')
-            elif char == '\r':
-                result.append('\\r')
-            elif char == '\t':
-                result.append('\\t')
+            if char == "\n":
+                result.append("\\n")
+            elif char == "\r":
+                result.append("\\r")
+            elif char == "\t":
+                result.append("\\t")
             else:
-                result.append(f'\\u{ord(char):04x}')
+                result.append(f"\\u{ord(char):04x}")
         else:
             result.append(char)
 
         i += 1
 
-    return ''.join(result)
+    return "".join(result)
 
 
 def _parse_json_response(text: str) -> dict:
@@ -98,7 +98,7 @@ def _parse_json_response(text: str) -> dict:
             cleaned = "\n".join(lines[1:])
 
     # Fix trailing commas
-    cleaned = re.sub(r',\s*([\]}])', r'\1', cleaned)
+    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
     # Try to find JSON object
     start = cleaned.find("{")
@@ -273,7 +273,9 @@ Vote: {motion.yeas} Yeas, {motion.nays} Nays, {motion.abstentions} Abstentions
             classification = ClassificationResult(
                 motion_id=motion.motion_id,
                 primary_pattern_id=parsed.get("primary_pattern_id", "POLICY"),
-                primary_pattern_name=parsed.get("primary_pattern_name", "Policy Framework"),
+                primary_pattern_name=parsed.get(
+                    "primary_pattern_name", "Policy Framework"
+                ),
                 secondary_pattern_ids=parsed.get("secondary_pattern_ids", []),
                 confidence=float(parsed.get("confidence", 0.7)),
                 reasoning=parsed.get("reasoning", ""),
@@ -327,8 +329,7 @@ Vote: {motion.yeas} Yeas, {motion.nays} Nays, {motion.abstentions} Abstentions
         agent = self._create_task_planner_agent()
 
         templates_text = "\n".join(
-            f"- **{t['type']}**: {t['description']}"
-            for t in task_templates
+            f"- **{t['type']}**: {t['description']}" for t in task_templates
         )
 
         instantiate_prompt = f"""Create motion-specific tasks based on these templates.
@@ -433,7 +434,11 @@ For each template, create a concrete task with:
 
         # Find the pattern details
         pattern = next(
-            (p for p in available_patterns if p["id"] == classification.primary_pattern_id),
+            (
+                p
+                for p in available_patterns
+                if p["id"] == classification.primary_pattern_id
+            ),
             None,
         )
 
@@ -441,9 +446,10 @@ For each template, create a concrete task with:
         typical_blockers_text = ""
         if pattern:
             prerequisites_text = ", ".join(pattern.get("prerequisites", [])) or "None"
-            typical_blockers_text = "\n".join(
-                f"- {b}" for b in pattern.get("typical_blockers", [])
-            ) or "None known"
+            typical_blockers_text = (
+                "\n".join(f"- {b}" for b in pattern.get("typical_blockers", []))
+                or "None known"
+            )
 
         blocker_prompt = f"""Analyze this motion for potential execution blockers.
 
@@ -559,7 +565,11 @@ If no blockers are detected, return: {{"blockers": []}}
 
             # Step 2: Get pattern templates
             pattern = next(
-                (p for p in available_patterns if p["id"] == classification.primary_pattern_id),
+                (
+                    p
+                    for p in available_patterns
+                    if p["id"] == classification.primary_pattern_id
+                ),
                 None,
             )
 

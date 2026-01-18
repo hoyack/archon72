@@ -75,7 +75,9 @@ class TestHaltTriggerServiceInitialization:
 
     def test_init_without_either_raises_error(self) -> None:
         """Should raise ValueError if neither transport provided."""
-        with pytest.raises(ValueError, match="Either dual_channel_halt or halt_trigger"):
+        with pytest.raises(
+            ValueError, match="Either dual_channel_halt or halt_trigger"
+        ):
             HaltTriggerService(service_id="test-service")
 
 

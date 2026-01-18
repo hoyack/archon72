@@ -29,7 +29,9 @@ if TYPE_CHECKING:
 def mock_time_authority() -> MagicMock:
     """Create a mock TimeAuthority."""
     time_authority = MagicMock()
-    time_authority.now.return_value = datetime(2026, 1, 16, 12, 0, 0, tzinfo=timezone.utc)
+    time_authority.now.return_value = datetime(
+        2026, 1, 16, 12, 0, 0, tzinfo=timezone.utc
+    )
     return time_authority
 
 

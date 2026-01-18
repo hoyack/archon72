@@ -30,10 +30,8 @@ from src.infrastructure.stubs.cessation_flag_repository_stub import FailureMode
 from .test_cessation_chaos import (
     IsolatedCessationEnvironment,
     generate_archon_deliberations,
-    isolated_cessation_env,
     seed_initial_events,
 )
-
 
 # =============================================================================
 # CHAOS TESTS: Empty Event Store Rejection
@@ -273,9 +271,7 @@ class TestNetworkPartitionSimulation:
         )
 
         # Simulate Redis failure for read, but DB still works
-        env.cessation_flag_repo.set_failure_mode(
-            FailureMode(redis_read_fails=True)
-        )
+        env.cessation_flag_repo.set_failure_mode(FailureMode(redis_read_fails=True))
 
         # Should still be able to read from DB
         assert await env.cessation_flag_repo.is_ceased() is True
@@ -297,9 +293,7 @@ class TestNetworkPartitionSimulation:
         )
 
         # Simulate DB failure for read, but Redis still works
-        env.cessation_flag_repo.set_failure_mode(
-            FailureMode(db_read_fails=True)
-        )
+        env.cessation_flag_repo.set_failure_mode(FailureMode(db_read_fails=True))
 
         # Should still be able to read from Redis
         assert await env.cessation_flag_repo.is_ceased() is True
@@ -325,14 +319,16 @@ class TestDeliberationRecordingFailure:
         baseline = await seed_initial_events(env.event_store, count=1)
         deliberations = generate_archon_deliberations(48, 20, 4)
 
-        cessation_event = await env.cessation_execution_service.execute_cessation_with_deliberation(
-            deliberation_id=uuid4(),
-            deliberation_started_at=datetime.now(timezone.utc) - timedelta(hours=1),
-            deliberation_ended_at=datetime.now(timezone.utc),
-            archon_deliberations=deliberations,
-            triggering_event_id=baseline[0].event_id,
-            reason="Deliberation success test",
-            agent_id="SYSTEM:TEST",
+        cessation_event = (
+            await env.cessation_execution_service.execute_cessation_with_deliberation(
+                deliberation_id=uuid4(),
+                deliberation_started_at=datetime.now(timezone.utc) - timedelta(hours=1),
+                deliberation_ended_at=datetime.now(timezone.utc),
+                archon_deliberations=deliberations,
+                triggering_event_id=baseline[0].event_id,
+                reason="Deliberation success test",
+                agent_id="SYSTEM:TEST",
+            )
         )
 
         # Verify both deliberation and cessation occurred

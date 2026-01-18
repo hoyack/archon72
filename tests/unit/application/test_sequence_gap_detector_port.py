@@ -9,7 +9,6 @@ Constitutional Constraints:
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional
 
 import pytest
 
@@ -37,24 +36,32 @@ class TestSequenceGapDetectorPortInterface:
         assert hasattr(SequenceGapDetectorPort, "check_for_gaps")
         # Verify it's async
         import inspect
+
         assert inspect.iscoroutinefunction(SequenceGapDetectorPort.check_for_gaps)
 
     def test_has_get_last_check_timestamp_method(self) -> None:
         """Test port defines get_last_check_timestamp method."""
         assert hasattr(SequenceGapDetectorPort, "get_last_check_timestamp")
         import inspect
-        assert inspect.iscoroutinefunction(SequenceGapDetectorPort.get_last_check_timestamp)
+
+        assert inspect.iscoroutinefunction(
+            SequenceGapDetectorPort.get_last_check_timestamp
+        )
 
     def test_has_get_detection_interval_seconds_method(self) -> None:
         """Test port defines get_detection_interval_seconds method."""
         assert hasattr(SequenceGapDetectorPort, "get_detection_interval_seconds")
         import inspect
-        assert inspect.iscoroutinefunction(SequenceGapDetectorPort.get_detection_interval_seconds)
+
+        assert inspect.iscoroutinefunction(
+            SequenceGapDetectorPort.get_detection_interval_seconds
+        )
 
     def test_has_record_gap_detection_method(self) -> None:
         """Test port defines record_gap_detection method."""
         assert hasattr(SequenceGapDetectorPort, "record_gap_detection")
         import inspect
+
         assert inspect.iscoroutinefunction(SequenceGapDetectorPort.record_gap_detection)
 
 
@@ -76,12 +83,14 @@ class TestSequenceGapDetectorPortDocstrings:
     def test_module_docstring_references_fr18(self) -> None:
         """Test module docstring references FR18."""
         import src.application.ports.sequence_gap_detector as module
+
         assert module.__doc__ is not None
         assert "FR18" in module.__doc__
 
     def test_module_docstring_references_fr19(self) -> None:
         """Test module docstring references FR19."""
         import src.application.ports.sequence_gap_detector as module
+
         assert module.__doc__ is not None
         assert "FR19" in module.__doc__
 
@@ -94,10 +103,10 @@ class TestSequenceGapDetectorPortDocstrings:
 class ConcreteGapDetector(SequenceGapDetectorPort):
     """Concrete implementation for testing."""
 
-    async def check_for_gaps(self) -> Optional[SequenceGapDetectedPayload]:
+    async def check_for_gaps(self) -> SequenceGapDetectedPayload | None:
         return None
 
-    async def get_last_check_timestamp(self) -> Optional[datetime]:
+    async def get_last_check_timestamp(self) -> datetime | None:
         return None
 
     async def get_detection_interval_seconds(self) -> int:

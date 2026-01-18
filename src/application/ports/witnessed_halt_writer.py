@@ -49,8 +49,8 @@ class WitnessedHaltWriter(Protocol):
 
     async def write_halt_event(
         self,
-        crisis_payload: "ConstitutionalCrisisPayload",
-    ) -> "Event | None":
+        crisis_payload: ConstitutionalCrisisPayload,
+    ) -> Event | None:
         """Write a witnessed halt event.
 
         Attempts to write a ConstitutionalCrisisEvent to the event store

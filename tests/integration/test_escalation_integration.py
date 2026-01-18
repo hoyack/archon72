@@ -115,6 +115,7 @@ def create_breach(
 ) -> BreachEventPayload:
     """Create a breach event payload for testing."""
     from types import MappingProxyType
+
     from src.domain.events.breach import BreachSeverity
 
     return BreachEventPayload(

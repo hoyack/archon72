@@ -10,7 +10,6 @@ Constitutional Context:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -148,7 +147,7 @@ class LegitimacyStatusResponse(BaseModel):
         ...,
         description="Total successful restoration count",
     )
-    last_transition_type: Optional[str] = Field(
+    last_transition_type: str | None = Field(
         default=None,
         description="Type of last transition (automatic or acknowledged)",
     )
@@ -232,7 +231,7 @@ class LegitimacyErrorResponse(BaseModel):
         ...,
         description="Human-readable error message",
     )
-    detail: Optional[str] = Field(
+    detail: str | None = Field(
         default=None,
         description="Additional error details",
     )

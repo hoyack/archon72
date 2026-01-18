@@ -29,7 +29,7 @@ import asyncio
 import time
 from collections.abc import AsyncIterator
 from datetime import datetime, timezone
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -46,7 +46,6 @@ from src.api.dependencies.observer import (
     get_observer_service,
     get_rate_limiter,
 )
-from src.application.ports.final_deliberation_recorder import FinalDeliberationRecorder
 from src.api.middleware.rate_limiter import ObserverRateLimiter
 from src.api.models.observer import (
     ArchonDeliberationResponse,
@@ -61,7 +60,6 @@ from src.api.models.observer import (
     DependencyHealth,
     ExportFormat,
     FinalDeliberationResponse,
-    HashChainProof,
     HashVerificationSpec,
     HistoricalQueryMetadata,
     IntegrityCaseHistoryResponse,
@@ -82,12 +80,12 @@ from src.api.models.observer import (
     WebhookSubscription,
     WebhookSubscriptionResponse,
 )
+from src.application.ports.final_deliberation_recorder import FinalDeliberationRecorder
 from src.application.services.export_service import ExportService
 from src.application.services.integrity_case_service import IntegrityCaseService
 from src.application.services.notification_service import NotificationService
 from src.application.services.observer_service import ObserverService
 from src.domain.errors.event_store import EventNotFoundError
-
 
 router = APIRouter(prefix="/v1/observer", tags=["observer"])
 
@@ -204,24 +202,24 @@ async def get_events(
     request: Request,
     limit: int = Query(default=100, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
-    start_date: Optional[datetime] = Query(
+    start_date: datetime | None = Query(
         default=None,
         description="Filter events from this date (ISO 8601 format, e.g., 2026-01-01T00:00:00Z)",
     ),
-    end_date: Optional[datetime] = Query(
+    end_date: datetime | None = Query(
         default=None,
         description="Filter events until this date (ISO 8601 format, e.g., 2026-01-31T23:59:59Z)",
     ),
-    event_type: Optional[str] = Query(
+    event_type: str | None = Query(
         default=None,
         description="Filter by event type(s), comma-separated (e.g., vote,halt,breach)",
     ),
-    as_of_sequence: Optional[int] = Query(
+    as_of_sequence: int | None = Query(
         default=None,
         ge=1,
         description="Query state as of this sequence number (FR88). Returns events with sequence <= value.",
     ),
-    as_of_timestamp: Optional[datetime] = Query(
+    as_of_timestamp: datetime | None = Query(
         default=None,
         description="Query state as of this timestamp (FR88). Returns events up to the last event before timestamp.",
     ),
@@ -292,7 +290,7 @@ async def get_events(
     # Parse event types from comma-separated string with input validation
     # Security: Limit number of event types to prevent resource exhaustion
     MAX_EVENT_TYPES = 20
-    event_types: Optional[list[str]] = None
+    event_types: list[str] | None = None
     if event_type:
         raw_types = [t.strip() for t in event_type.split(",") if t.strip()]
         if len(raw_types) > MAX_EVENT_TYPES:
@@ -307,7 +305,12 @@ async def get_events(
         try:
             # Use Merkle proof method if requested (FR136)
             if include_merkle_proof:
-                events, total, merkle_proof, hash_proof = await observer_service.get_events_with_merkle_proof(
+                (
+                    events,
+                    total,
+                    merkle_proof,
+                    hash_proof,
+                ) = await observer_service.get_events_with_merkle_proof(
                     as_of_sequence=as_of_sequence,
                     limit=limit,
                     offset=offset,
@@ -371,7 +374,12 @@ async def get_events(
             raise HTTPException(status_code=404, detail=str(e))
 
     elif as_of_timestamp is not None:
-        events, total, resolved_seq, proof = await observer_service.get_events_as_of_timestamp(
+        (
+            events,
+            total,
+            resolved_seq,
+            proof,
+        ) = await observer_service.get_events_as_of_timestamp(
             as_of_timestamp=as_of_timestamp,
             limit=limit,
             offset=offset,
@@ -420,7 +428,9 @@ async def get_events(
 
     # Standard query (non-historical)
     # Check if any filters are applied
-    has_filters = start_date is not None or end_date is not None or event_types is not None
+    has_filters = (
+        start_date is not None or end_date is not None or event_types is not None
+    )
 
     if has_filters:
         # Use filtered query
@@ -498,7 +508,7 @@ async def get_event_by_sequence(
 @router.get("/events/stream")
 async def stream_events(
     request: Request,
-    event_types: Optional[str] = Query(
+    event_types: str | None = Query(
         default=None,
         description="Event types to receive, comma-separated (breach,halt,fork). Default: all",
     ),
@@ -552,7 +562,7 @@ async def stream_events(
     connection_id, queue = notification_service.register_sse_connection(parsed_types)
 
     # Get Last-Event-ID for reconnection support
-    last_event_id = request.headers.get("Last-Event-ID")
+    request.headers.get("Last-Event-ID")
 
     async def event_generator() -> AsyncIterator[dict[str, str]]:
         """Generate SSE events with keepalive."""
@@ -568,7 +578,7 @@ async def stream_events(
                         "data": payload.model_dump_json(),
                         "id": str(payload.notification_id),
                     }
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # Send keepalive comment
                     yield {"comment": "keepalive"}
         finally:
@@ -685,7 +695,9 @@ class CheckpointListResponse(BaseModel):
 @router.get("/checkpoints", response_model=CheckpointListResponse)
 async def list_checkpoints(
     request: Request,
-    limit: int = Query(default=10, ge=1, le=100, description="Maximum checkpoints to return"),
+    limit: int = Query(
+        default=10, ge=1, le=100, description="Maximum checkpoints to return"
+    ),
     offset: int = Query(default=0, ge=0, description="Number to skip"),
     observer_service: ObserverService = Depends(get_observer_service),
     rate_limiter: ObserverRateLimiter = Depends(get_rate_limiter),
@@ -710,7 +722,9 @@ async def list_checkpoints(
     """
     await rate_limiter.check_rate_limit(request)
 
-    checkpoints, total = await observer_service.list_checkpoints(limit=limit, offset=offset)
+    checkpoints, total = await observer_service.list_checkpoints(
+        limit=limit, offset=offset
+    )
 
     # Convert domain checkpoints to API models
     checkpoint_responses = [
@@ -720,7 +734,9 @@ async def list_checkpoints(
             sequence_end=cp.event_sequence,
             merkle_root=cp.anchor_hash,
             created_at=cp.timestamp,
-            anchor_type=cp.anchor_type if cp.anchor_type in ("genesis", "rfc3161", "pending") else "pending",
+            anchor_type=cp.anchor_type
+            if cp.anchor_type in ("genesis", "rfc3161", "pending")
+            else "pending",
             anchor_reference=None,  # Will be populated when external anchoring is implemented
             event_count=cp.event_sequence,  # Events from 1 to sequence
         )
@@ -783,7 +799,9 @@ async def get_checkpoint_for_sequence(
         sequence_end=checkpoint.event_sequence,
         merkle_root=checkpoint.anchor_hash,
         created_at=checkpoint.timestamp,
-        anchor_type=checkpoint.anchor_type if checkpoint.anchor_type in ("genesis", "rfc3161", "pending") else "pending",
+        anchor_type=checkpoint.anchor_type
+        if checkpoint.anchor_type in ("genesis", "rfc3161", "pending")
+        else "pending",
         anchor_reference=None,
         event_count=checkpoint.event_sequence,
     )
@@ -844,25 +862,25 @@ async def export_events(
         default=ExportFormat.JSONL,
         description="Export format: 'jsonl' for JSON Lines or 'csv' for CSV (FR139)",
     ),
-    start_sequence: Optional[int] = Query(
+    start_sequence: int | None = Query(
         default=None,
         ge=1,
         description="First sequence to export (inclusive)",
     ),
-    end_sequence: Optional[int] = Query(
+    end_sequence: int | None = Query(
         default=None,
         ge=1,
         description="Last sequence to export (inclusive)",
     ),
-    start_date: Optional[datetime] = Query(
+    start_date: datetime | None = Query(
         default=None,
         description="Filter events from this date (ISO 8601)",
     ),
-    end_date: Optional[datetime] = Query(
+    end_date: datetime | None = Query(
         default=None,
         description="Filter events until this date (ISO 8601)",
     ),
-    event_type: Optional[str] = Query(
+    event_type: str | None = Query(
         default=None,
         description="Filter by event type(s), comma-separated",
     ),
@@ -906,7 +924,7 @@ async def export_events(
     # Parse event types with input validation
     # Security: Limit number of event types to prevent resource exhaustion
     MAX_EVENT_TYPES = 20
-    event_types: Optional[list[str]] = None
+    event_types: list[str] | None = None
     if event_type:
         raw_types = [t.strip() for t in event_type.split(",") if t.strip()]
         if len(raw_types) > MAX_EVENT_TYPES:
@@ -1090,7 +1108,10 @@ async def unsubscribe_webhook(
     return {"status": "unsubscribed", "subscription_id": str(subscription_id)}
 
 
-@router.get("/subscriptions/webhook/{subscription_id}", response_model=WebhookSubscriptionResponse)
+@router.get(
+    "/subscriptions/webhook/{subscription_id}",
+    response_model=WebhookSubscriptionResponse,
+)
 async def get_webhook_subscription(
     request: Request,
     subscription_id: UUID,
@@ -1607,9 +1628,13 @@ class FinalDeliberationListResponse(BaseModel):
 )
 async def list_cessation_deliberations(
     request: Request,
-    limit: int = Query(default=100, ge=1, le=1000, description="Maximum deliberations to return"),
+    limit: int = Query(
+        default=100, ge=1, le=1000, description="Maximum deliberations to return"
+    ),
     offset: int = Query(default=0, ge=0, description="Number to skip"),
-    deliberation_recorder: FinalDeliberationRecorder = Depends(get_deliberation_recorder),
+    deliberation_recorder: FinalDeliberationRecorder = Depends(
+        get_deliberation_recorder
+    ),
     rate_limiter: ObserverRateLimiter = Depends(get_rate_limiter),
 ) -> FinalDeliberationListResponse:
     """List all final cessation deliberations (FR135 AC7).
@@ -1646,8 +1671,7 @@ async def list_cessation_deliberations(
 
     # Convert domain payloads to API responses
     deliberation_responses = [
-        _convert_deliberation_to_response(d)
-        for d in deliberations
+        _convert_deliberation_to_response(d) for d in deliberations
     ]
 
     has_more = (offset + len(deliberations)) < total
@@ -1672,7 +1696,9 @@ async def list_cessation_deliberations(
 async def get_cessation_deliberation(
     deliberation_id: UUID,
     request: Request,
-    deliberation_recorder: FinalDeliberationRecorder = Depends(get_deliberation_recorder),
+    deliberation_recorder: FinalDeliberationRecorder = Depends(
+        get_deliberation_recorder
+    ),
     rate_limiter: ObserverRateLimiter = Depends(get_rate_limiter),
 ) -> FinalDeliberationResponse:
     """Get a specific cessation deliberation by ID (FR135 AC7).
@@ -1739,9 +1765,6 @@ def _convert_deliberation_to_response(
     Returns:
         API response model with real verification data.
     """
-    from src.application.ports.final_deliberation_recorder import (
-        DeliberationWithEventMetadata,
-    )
 
     payload = record.payload
 

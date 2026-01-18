@@ -10,8 +10,6 @@ CT-7: Genesis anchoring is mandatory
 import hashlib
 import json
 from dataclasses import dataclass, field
-from typing import Optional
-
 
 GENESIS_HASH = "0" * 64  # 64 zeros for sequence 1
 
@@ -22,9 +20,9 @@ class VerificationResult:
 
     is_valid: bool
     events_verified: int
-    first_invalid_sequence: Optional[int] = None
-    error_type: Optional[str] = None
-    error_message: Optional[str] = None
+    first_invalid_sequence: int | None = None
+    error_type: str | None = None
+    error_message: str | None = None
     gaps_found: list[tuple[int, int]] = field(default_factory=list)
 
 
@@ -41,9 +39,9 @@ class ProofVerificationResult:
     from_sequence: int
     to_sequence: int
     current_head_hash: str
-    first_invalid_sequence: Optional[int] = None
-    error_type: Optional[str] = None
-    error_message: Optional[str] = None
+    first_invalid_sequence: int | None = None
+    error_type: str | None = None
+    error_message: str | None = None
 
 
 @dataclass
@@ -60,8 +58,8 @@ class MerkleVerificationResult:
     checkpoint_sequence: int
     checkpoint_root: str
     path_length: int
-    error_type: Optional[str] = None
-    error_message: Optional[str] = None
+    error_type: str | None = None
+    error_message: str | None = None
 
 
 class ChainVerifier:
@@ -200,8 +198,7 @@ class ChainVerifier:
                     first_invalid_sequence=sequence,
                     error_type="hash_mismatch",
                     error_message=(
-                        f"Sequence {sequence} content_hash doesn't match "
-                        "computed hash"
+                        f"Sequence {sequence} content_hash doesn't match computed hash"
                     ),
                     gaps_found=gaps,
                 )
@@ -231,9 +228,7 @@ class ChainVerifier:
         sorted_events = sorted(events, key=lambda e: e["sequence"])
         return self._find_sequence_gaps(sorted_events)
 
-    def _find_sequence_gaps(
-        self, sorted_events: list[dict]
-    ) -> list[tuple[int, int]]:
+    def _find_sequence_gaps(self, sorted_events: list[dict]) -> list[tuple[int, int]]:
         """Find sequence gaps in sorted events.
 
         Args:
@@ -450,7 +445,7 @@ class ChainVerifier:
                 first_invalid_sequence=sorted_chain[-1]["sequence"],
                 error_type="head_hash_mismatch",
                 error_message=(
-                    f"Final entry content_hash doesn't match current_head_hash"
+                    "Final entry content_hash doesn't match current_head_hash"
                 ),
             )
 
@@ -614,8 +609,8 @@ class ChainVerifier:
     def verify_database(
         self,
         db_path: str,
-        start: Optional[int] = None,
-        end: Optional[int] = None,
+        start: int | None = None,
+        end: int | None = None,
     ) -> VerificationResult:
         """Verify hash chain in local database.
 

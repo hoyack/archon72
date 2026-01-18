@@ -16,10 +16,8 @@ NFR27 Requirements:
 import os
 import threading
 import time
-from typing import Optional
 
 from prometheus_client import (
-    CONTENT_TYPE_LATEST,
     CollectorRegistry,
     Counter,
     Gauge,
@@ -54,7 +52,7 @@ class MetricsCollector:
         startup_times: Dict mapping service name to startup timestamp.
     """
 
-    def __init__(self, registry: Optional[CollectorRegistry] = None) -> None:
+    def __init__(self, registry: CollectorRegistry | None = None) -> None:
         """Initialize metrics collector with operational metrics.
 
         Args:
@@ -110,7 +108,14 @@ class MetricsCollector:
         self.http_requests_failed_total = Counter(
             name="http_requests_failed_total",
             documentation="Total failed HTTP requests (4xx, 5xx)",
-            labelnames=["service", "environment", "method", "endpoint", "status", "error_type"],
+            labelnames=[
+                "service",
+                "environment",
+                "method",
+                "endpoint",
+                "status",
+                "error_type",
+            ],
             registry=self._registry,
         )
 
@@ -121,9 +126,9 @@ class MetricsCollector:
             service: Service name (api, event-writer, observer, watchdog).
             seconds: Uptime in seconds.
         """
-        self.uptime_seconds.labels(
-            service=service, environment=self._environment
-        ).set(seconds)
+        self.uptime_seconds.labels(service=service, environment=self._environment).set(
+            seconds
+        )
 
     def increment_service_starts(self, service: str) -> None:
         """Increment service starts counter.
@@ -226,7 +231,7 @@ class MetricsCollector:
 
 
 # Singleton instance
-_metrics_collector: Optional[MetricsCollector] = None
+_metrics_collector: MetricsCollector | None = None
 
 
 def get_metrics_collector() -> MetricsCollector:

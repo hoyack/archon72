@@ -16,7 +16,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timezone
-from typing import AsyncGenerator
 from unittest.mock import AsyncMock
 
 import pytest
@@ -36,7 +35,6 @@ from src.domain.models.compliance import (
 from src.infrastructure.stubs.compliance_repository_stub import (
     ComplianceRepositoryStub,
 )
-
 
 # ==============================================================================
 # Test Fixtures
@@ -180,7 +178,9 @@ class TestComplianceRepositoryIntegration:
         await compliance_repository.save_assessment(assessment1)
         await compliance_repository.save_assessment(assessment2)
 
-        latest = await compliance_repository.get_latest_assessment(ComplianceFramework.GDPR)
+        latest = await compliance_repository.get_latest_assessment(
+            ComplianceFramework.GDPR
+        )
 
         assert latest is not None
         assert latest.assessment_id == "GDPR-ASSESSMENT-002"
@@ -531,7 +531,9 @@ class TestComplianceInitializationIntegration:
         assessment = await initialize_eu_ai_act_compliance(compliance_service)
 
         assert assessment.framework == ComplianceFramework.EU_AI_ACT
-        assert len(assessment.requirements) == 3  # Human oversight, transparency, audit trail
+        assert (
+            len(assessment.requirements) == 3
+        )  # Human oversight, transparency, audit trail
         assert assessment.overall_status == ComplianceStatus.COMPLIANT
 
     @pytest.mark.asyncio
@@ -563,7 +565,9 @@ class TestComplianceInitializationIntegration:
         assessment = await initialize_ieee_7001_compliance(compliance_service)
 
         assert assessment.framework == ComplianceFramework.IEEE_7001
-        assert len(assessment.requirements) == 3  # Traceability, versioning, verification
+        assert (
+            len(assessment.requirements) == 3
+        )  # Traceability, versioning, verification
         assert assessment.overall_status == ComplianceStatus.COMPLIANT
 
     @pytest.mark.asyncio
@@ -695,7 +699,6 @@ class TestNFR31To34Verification:
     ) -> None:
         """Test NFR31: GDPR data separation is documented."""
         from src.infrastructure.initialization.compliance_init import (
-            NFR31_REQUIREMENT,
             initialize_gdpr_compliance,
         )
 

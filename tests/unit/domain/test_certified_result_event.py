@@ -102,7 +102,9 @@ class TestCertifiedResultPayload:
 
     def test_invalid_result_hash_wrong_length(self) -> None:
         """Should raise ValueError if result_hash is not 64 characters."""
-        with pytest.raises(ValueError, match="result_hash must be 64 character hex string"):
+        with pytest.raises(
+            ValueError, match="result_hash must be 64 character hex string"
+        ):
             CertifiedResultPayload(
                 result_id=uuid4(),
                 deliberation_id=uuid4(),

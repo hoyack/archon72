@@ -19,7 +19,6 @@ Usage:
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
 
 
@@ -52,15 +51,19 @@ class BatchProgress:
     batch_size: int
     current_batch: int
     started_at: datetime
-    estimated_completion: Optional[datetime]
+    estimated_completion: datetime | None
     is_complete: bool
 
     def __post_init__(self) -> None:
         """Validate batch progress data."""
         if self.total_events < 0:
-            raise ValueError(f"total_events cannot be negative, got {self.total_events}")
+            raise ValueError(
+                f"total_events cannot be negative, got {self.total_events}"
+            )
         if self.processed_events < 0:
-            raise ValueError(f"processed_events cannot be negative, got {self.processed_events}")
+            raise ValueError(
+                f"processed_events cannot be negative, got {self.processed_events}"
+            )
         if self.processed_events > self.total_events:
             raise ValueError(
                 f"processed_events ({self.processed_events}) cannot exceed "
@@ -89,8 +92,10 @@ class BatchProgress:
             A new BatchProgress with generated ID and timestamps.
         """
         started_at = datetime.now(timezone.utc)
-        current_batch = (processed_events // batch_size) + 1 if processed_events > 0 else 1
-        total_batches = (total_events + batch_size - 1) // batch_size
+        current_batch = (
+            (processed_events // batch_size) + 1 if processed_events > 0 else 1
+        )
+        (total_events + batch_size - 1) // batch_size
 
         # Estimate completion based on progress so far
         estimated_completion = None
@@ -100,7 +105,9 @@ class BatchProgress:
                 rate = processed_events / elapsed
                 remaining = total_events - processed_events
                 remaining_seconds = remaining / rate if rate > 0 else 0
-                estimated_completion = started_at + timedelta(seconds=elapsed + remaining_seconds)
+                estimated_completion = started_at + timedelta(
+                    seconds=elapsed + remaining_seconds
+                )
 
         return cls(
             progress_id=uuid4(),
@@ -161,7 +168,9 @@ class BatchProgress:
         Returns:
             New BatchProgress with updated counts.
         """
-        new_processed = min(self.processed_events + additional_events, self.total_events)
+        new_processed = min(
+            self.processed_events + additional_events, self.total_events
+        )
         new_batch = (new_processed // self.batch_size) + 1
 
         # Recalculate estimated completion
@@ -171,7 +180,9 @@ class BatchProgress:
             rate = new_processed / elapsed
             remaining = self.total_events - new_processed
             remaining_seconds = remaining / rate if rate > 0 else 0
-            estimated_completion = self.started_at + timedelta(seconds=elapsed + remaining_seconds)
+            estimated_completion = self.started_at + timedelta(
+                seconds=elapsed + remaining_seconds
+            )
 
         return BatchProgress(
             progress_id=self.progress_id,
@@ -191,7 +202,9 @@ class BatchProgress:
         Returns:
             Summary string suitable for logging or display.
         """
-        status = "✅ Complete" if self.is_complete else f"🔄 {self.progress_percent:.1f}%"
+        status = (
+            "✅ Complete" if self.is_complete else f"🔄 {self.progress_percent:.1f}%"
+        )
         return (
             f"{status} Query {self.query_id}: "
             f"{self.processed_events}/{self.total_events} events "

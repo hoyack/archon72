@@ -179,9 +179,7 @@ class TestPetition:
         """Test has_cosigned returns False for unknown key."""
         assert not sample_petition.has_cosigned("unknown_key")
 
-    def test_add_cosigner_returns_new_petition(
-        self, sample_petition: Petition
-    ) -> None:
+    def test_add_cosigner_returns_new_petition(self, sample_petition: Petition) -> None:
         """Test add_cosigner returns new Petition instance."""
         cs = CoSigner(
             public_key="cs_key",
@@ -214,9 +212,7 @@ class TestPetition:
         for i in range(5):
             assert updated.has_cosigned(f"cs_key_{i}")
 
-    def test_with_status_returns_new_petition(
-        self, sample_petition: Petition
-    ) -> None:
+    def test_with_status_returns_new_petition(self, sample_petition: Petition) -> None:
         """Test with_status returns new Petition instance."""
         updated = sample_petition.with_status(PetitionStatus.CLOSED)
 

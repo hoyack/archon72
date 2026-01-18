@@ -220,7 +220,9 @@ class TestBreachAcknowledgedEventPayload:
             acknowledgment_id=UUID("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
             breach_id=UUID("87654321-4321-8765-4321-876543218765"),
             acknowledged_by="keeper:alice@archon72.io",
-            acknowledgment_timestamp=datetime(2025, 1, 7, 12, 0, 0, tzinfo=timezone.utc),
+            acknowledgment_timestamp=datetime(
+                2025, 1, 7, 12, 0, 0, tzinfo=timezone.utc
+            ),
             response_choice=ResponseChoice.CORRECTIVE,
         )
 

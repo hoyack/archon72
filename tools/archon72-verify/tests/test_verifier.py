@@ -7,7 +7,6 @@ import hashlib
 import json
 
 import pytest
-
 from archon72_verify.verifier import (
     GENESIS_HASH,
     ChainVerifier,
@@ -323,8 +322,8 @@ class TestChainVerifierVerifySignature:
 
     def test_verify_signature_missing_crypto(self):
         """Verify ImportError when cryptography not installed."""
-        verifier = ChainVerifier()
-        event = make_event(1)
+        ChainVerifier()
+        make_event(1)
 
         # This test checks behavior when crypto is available
         # (it is installed in the dev environment)
@@ -355,15 +354,17 @@ class TestChainVerifierVerifySignature:
 def make_proof_chain(from_seq: int, to_seq: int) -> list[dict]:
     """Helper to create a valid proof chain."""
     chain = []
-    prev_hash = GENESIS_HASH if from_seq == 1 else f"{from_seq-1:064x}"
+    prev_hash = GENESIS_HASH if from_seq == 1 else f"{from_seq - 1:064x}"
 
     for seq in range(from_seq, to_seq + 1):
         content_hash = f"{seq:064x}"
-        chain.append({
-            "sequence": seq,
-            "content_hash": content_hash,
-            "prev_hash": prev_hash,
-        })
+        chain.append(
+            {
+                "sequence": seq,
+                "content_hash": content_hash,
+                "prev_hash": prev_hash,
+            }
+        )
         prev_hash = content_hash
 
     return chain
@@ -514,7 +515,11 @@ class TestChainVerifierVerifyProof:
         chain = [
             {"sequence": 100, "content_hash": "a" * 64, "prev_hash": "0" * 64},
             {"sequence": 101, "content_hash": "b" * 64, "prev_hash": "a" * 64},
-            {"sequence": 102, "content_hash": "c" * 64, "prev_hash": "WRONG" * 16},  # Break!
+            {
+                "sequence": 102,
+                "content_hash": "c" * 64,
+                "prev_hash": "WRONG" * 16,
+            },  # Break!
             {"sequence": 103, "content_hash": "d" * 64, "prev_hash": "c" * 64},
         ]
         proof = {
@@ -597,6 +602,7 @@ class TestChainVerifierVerifyDatabase:
         """Verify valid chain in database passes."""
         import tempfile
         from pathlib import Path
+
         from archon72_verify.database import ObserverDatabase
 
         verifier = ChainVerifier()
@@ -607,7 +613,7 @@ class TestChainVerifierVerifyDatabase:
         # Add required database fields
         # NOTE: Do NOT add agent_id because make_event doesn't include it in hash
         for i, event in enumerate(events):
-            event["event_id"] = f"evt-{i+1}"
+            event["event_id"] = f"evt-{i + 1}"
             event["agent_id"] = None  # Must be None to match original hash
             event["authority_timestamp"] = "2026-01-01T00:00:01Z"
             event["hash_algorithm_version"] = "1.0"
@@ -630,6 +636,7 @@ class TestChainVerifierVerifyDatabase:
         """Verify corrupted chain in database is detected."""
         import tempfile
         from pathlib import Path
+
         from archon72_verify.database import ObserverDatabase
 
         verifier = ChainVerifier()
@@ -640,7 +647,7 @@ class TestChainVerifierVerifyDatabase:
 
         # Add required database fields
         for i, event in enumerate(events):
-            event["event_id"] = f"evt-{i+1}"
+            event["event_id"] = f"evt-{i + 1}"
             event["agent_id"] = None  # Must be None to match original hash
             event["authority_timestamp"] = "2026-01-01T00:00:01Z"
             event["hash_algorithm_version"] = "1.0"
@@ -662,6 +669,7 @@ class TestChainVerifierVerifyDatabase:
         """Verify gaps in database are detected."""
         import tempfile
         from pathlib import Path
+
         from archon72_verify.database import ObserverDatabase
 
         verifier = ChainVerifier()
@@ -700,6 +708,7 @@ class TestChainVerifierVerifyDatabase:
         """Verify empty database returns valid."""
         import tempfile
         from pathlib import Path
+
         from archon72_verify.database import ObserverDatabase
 
         verifier = ChainVerifier()

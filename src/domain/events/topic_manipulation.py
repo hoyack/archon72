@@ -120,7 +120,9 @@ class TopicManipulationSuspectedEventPayload:
             "detected_at": self.detected_at.isoformat(),
             "detection_window_hours": self.detection_window_hours,
         }
-        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )
 
 
 @dataclass(frozen=True)
@@ -190,7 +192,9 @@ class CoordinatedSubmissionSuspectedEventPayload:
             "source_ids": list(self.source_ids),
             "detected_at": self.detected_at.isoformat(),
         }
-        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )
 
 
 @dataclass(frozen=True)
@@ -264,4 +268,6 @@ class TopicRateLimitDailyEventPayload:
             "limit_start": self.limit_start.isoformat(),
             "limit_reset_at": self.limit_reset_at.isoformat(),
         }
-        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )

@@ -15,7 +15,6 @@ Test Strategy:
 - Verify timing constraints where applicable
 """
 
-import asyncio
 import time
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -56,9 +55,7 @@ class TestForkDetectionHaltIntegration:
         return HaltCheckerStub(halt_state=shared_halt_state)
 
     @pytest.fixture
-    def halt_trigger_service(
-        self, halt_trigger: HaltTriggerStub
-    ) -> HaltTriggerService:
+    def halt_trigger_service(self, halt_trigger: HaltTriggerStub) -> HaltTriggerService:
         """Create halt trigger service."""
         return HaltTriggerService(
             halt_trigger=halt_trigger,
@@ -121,7 +118,10 @@ class TestForkDetectionHaltIntegration:
         assert halt_trigger_service.crisis_event_id is not None
 
         # Halt trigger should have received the crisis event ID
-        assert halt_trigger.get_last_crisis_event_id() == halt_trigger_service.crisis_event_id
+        assert (
+            halt_trigger.get_last_crisis_event_id()
+            == halt_trigger_service.crisis_event_id
+        )
 
     @pytest.mark.asyncio
     async def test_halt_checker_returns_true_after_halt(
@@ -219,9 +219,7 @@ class TestFullForkMonitoringIntegration:
         return HaltCheckerStub(halt_state=shared_halt_state)
 
     @pytest.fixture
-    def halt_trigger_service(
-        self, halt_trigger: HaltTriggerStub
-    ) -> HaltTriggerService:
+    def halt_trigger_service(self, halt_trigger: HaltTriggerStub) -> HaltTriggerService:
         """Create halt trigger service."""
         return HaltTriggerService(
             halt_trigger=halt_trigger,

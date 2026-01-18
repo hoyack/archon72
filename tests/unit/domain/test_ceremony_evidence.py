@@ -5,7 +5,7 @@ ADR-6: Halt clearing is Tier 1 ceremony (2 Keepers required).
 """
 
 from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -170,8 +170,12 @@ class TestCeremonyEvidenceValidation:
             ceremony_id=uuid4(),
             ceremony_type=HALT_CLEAR_CEREMONY_TYPE,
             approvers=(
-                ApproverSignature("keeper-001", b"valid_sig", datetime.now(timezone.utc)),
-                ApproverSignature("keeper-002", b"", datetime.now(timezone.utc)),  # Empty!
+                ApproverSignature(
+                    "keeper-001", b"valid_sig", datetime.now(timezone.utc)
+                ),
+                ApproverSignature(
+                    "keeper-002", b"", datetime.now(timezone.utc)
+                ),  # Empty!
             ),
             created_at=datetime.now(timezone.utc),
         )

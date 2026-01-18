@@ -10,7 +10,6 @@ Production implementations should query actual event store data.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from src.application.ports.override_trend_repository import (
     OverrideTrendData,
@@ -47,7 +46,7 @@ class OverrideTrendRepositoryStub(OverrideTrendRepositoryProtocol):
         """
         self._override_history = sorted(history, reverse=True)  # newest first
 
-    def add_override(self, timestamp: Optional[datetime] = None) -> None:
+    def add_override(self, timestamp: datetime | None = None) -> None:
         """Add a single override to the history.
 
         Args:
@@ -88,10 +87,7 @@ class OverrideTrendRepositoryStub(OverrideTrendRepositoryProtocol):
         Returns:
             Total override count in the specified period.
         """
-        return sum(
-            1 for ts in self._override_history
-            if start_date <= ts <= end_date
-        )
+        return sum(1 for ts in self._override_history if start_date <= ts <= end_date)
 
     async def get_rolling_trend(self, days: int) -> OverrideTrendData:
         """Get rolling trend data for the last N days.
@@ -103,15 +99,13 @@ class OverrideTrendRepositoryStub(OverrideTrendRepositoryProtocol):
             OverrideTrendData with count, rate, and time boundaries.
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        overrides_in_window = [
-            ts for ts in self._override_history if ts >= cutoff
-        ]
+        overrides_in_window = [ts for ts in self._override_history if ts >= cutoff]
 
         total_count = len(overrides_in_window)
         daily_rate = total_count / days if days > 0 else 0.0
 
-        oldest: Optional[datetime] = None
-        newest: Optional[datetime] = None
+        oldest: datetime | None = None
+        newest: datetime | None = None
 
         if overrides_in_window:
             oldest = min(overrides_in_window)

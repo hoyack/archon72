@@ -95,7 +95,11 @@ class TestExecutionResult:
             executed_by="earl-archon-001",
             timestamp=datetime.now(timezone.utc),
             error="Task execution failed due to resource exhaustion",
-            error_details={"resource": "memory", "required": "16GB", "available": "8GB"},
+            error_details={
+                "resource": "memory",
+                "required": "16GB",
+                "available": "8GB",
+            },
         )
 
         assert result.status == ExecutionStatus.FAILED

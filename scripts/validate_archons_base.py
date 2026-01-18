@@ -58,7 +58,12 @@ class ArchonValidator:
 
     def validate_r1_manifest_metadata(self, data: dict[str, Any]) -> None:
         """R-1: Manifest metadata requirements."""
-        required = ["version", "governance_prd_version", "last_updated_at", "source_of_truth"]
+        required = [
+            "version",
+            "governance_prd_version",
+            "last_updated_at",
+            "source_of_truth",
+        ]
         for field in required:
             if field not in data:
                 self.error(f"R-1: Missing manifest field '{field}'")
@@ -114,7 +119,9 @@ class ArchonValidator:
 
     def validate_r4_president_portfolios(self, data: dict[str, Any]) -> None:
         """R-4: President portfolio assignments."""
-        presidents = [a for a in data.get("archons", []) if a.get("rank") == "President"]
+        presidents = [
+            a for a in data.get("archons", []) if a.get("rank") == "President"
+        ]
         portfolios = data.get("portfolios", [])
 
         # R-4.1: Exactly 11 Presidents
@@ -133,7 +140,9 @@ class ArchonValidator:
             self.error(f"R-4.3: Expected 11 portfolios, found {len(portfolios)}")
 
         # R-4.4: No duplicate portfolio_id
-        portfolio_ids = [a.get("portfolio_id") for a in presidents if a.get("portfolio_id")]
+        portfolio_ids = [
+            a.get("portfolio_id") for a in presidents if a.get("portfolio_id")
+        ]
         if len(portfolio_ids) != len(set(portfolio_ids)):
             self.error("R-4.4: Duplicate portfolio_id found among Presidents")
 
@@ -190,7 +199,9 @@ class ArchonValidator:
 
         # R-8.2: branch must be "witness"
         if knight.get("branch") != "witness":
-            self.error(f"R-8.2: Knight {name} branch must be 'witness', got '{knight.get('branch')}'")
+            self.error(
+                f"R-8.2: Knight {name} branch must be 'witness', got '{knight.get('branch')}'"
+            )
 
         # R-8.3: witness_violation_types
         if "witness_violation_types" not in knight:
@@ -198,10 +209,18 @@ class ArchonValidator:
 
         # R-8.4: witness_statement_schema_version
         if "witness_statement_schema_version" not in knight:
-            self.error(f"R-8.4: Knight {name} missing 'witness_statement_schema_version'")
+            self.error(
+                f"R-8.4: Knight {name} missing 'witness_statement_schema_version'"
+            )
 
         # R-8.5: Hard prohibitions in governance_prohibitions
-        required_prohibitions = {"no_propose", "no_debate", "no_define_execution", "no_judge", "no_enforce"}
+        required_prohibitions = {
+            "no_propose",
+            "no_debate",
+            "no_define_execution",
+            "no_judge",
+            "no_enforce",
+        }
         actual_prohibitions = set(knight.get("governance_prohibitions", []))
         missing = required_prohibitions - actual_prohibitions
         if missing:
@@ -226,7 +245,9 @@ class ArchonValidator:
                 text = archon.get(field, "").lower()
                 for pattern in problematic_patterns:
                     if re.search(pattern, text):
-                        self.error(f"R-9: {name}.{field} contains prohibited language matching '{pattern}'")
+                        self.error(
+                            f"R-9: {name}.{field} contains prohibited language matching '{pattern}'"
+                        )
 
     def validate_r10_counts(self, data: dict[str, Any]) -> None:
         """R-10: Validation rules for archon counts."""
@@ -251,7 +272,9 @@ class ArchonValidator:
         for rank, (min_count, max_count) in expected.items():
             actual = counts.get(rank, 0)
             if actual < min_count or actual > max_count:
-                self.error(f"R-10: {rank} count {actual} not in expected range [{min_count}, {max_count}]")
+                self.error(
+                    f"R-10: {rank} count {actual} not in expected range [{min_count}, {max_count}]"
+                )
 
         # Total must be 72
         total = len(archons)
@@ -266,9 +289,13 @@ class ArchonValidator:
         for realm in data.get("realms", []):
             archon_id = realm.get("archon_id")
             if archon_id not in archons:
-                self.error(f"Cross-ref: Realm {realm.get('realm_id')} references non-existent archon {archon_id}")
+                self.error(
+                    f"Cross-ref: Realm {realm.get('realm_id')} references non-existent archon {archon_id}"
+                )
             elif archons[archon_id].get("rank") != "King":
-                self.error(f"Cross-ref: Realm {realm.get('realm_id')} references non-King archon")
+                self.error(
+                    f"Cross-ref: Realm {realm.get('realm_id')} references non-King archon"
+                )
 
         # Check portfolios reference valid Presidents
         for portfolio in data.get("portfolios", []):
@@ -278,7 +305,9 @@ class ArchonValidator:
                     f"Cross-ref: Portfolio {portfolio.get('portfolio_id')} references non-existent archon {archon_id}"
                 )
             elif archons[archon_id].get("rank") != "President":
-                self.error(f"Cross-ref: Portfolio {portfolio.get('portfolio_id')} references non-President archon")
+                self.error(
+                    f"Cross-ref: Portfolio {portfolio.get('portfolio_id')} references non-President archon"
+                )
 
     def validate_governance_matrix(self, data: dict[str, Any]) -> None:
         """Validate governance_matrix structure."""
@@ -306,7 +335,9 @@ class ArchonValidator:
             if "permissions" not in branch_def:
                 self.error(f"Governance matrix branch '{branch}' missing 'permissions'")
             if "prohibitions" not in branch_def:
-                self.error(f"Governance matrix branch '{branch}' missing 'prohibitions'")
+                self.error(
+                    f"Governance matrix branch '{branch}' missing 'prohibitions'"
+                )
 
     def report(self) -> None:
         """Print validation report."""
@@ -325,7 +356,9 @@ class ArchonValidator:
         elif not self.errors:
             print(f"\n=== PASSED with {len(self.warnings)} warnings ===")
         else:
-            print(f"\n=== FAILED: {len(self.errors)} errors, {len(self.warnings)} warnings ===")
+            print(
+                f"\n=== FAILED: {len(self.errors)} errors, {len(self.warnings)} warnings ==="
+            )
 
 
 def main() -> int:

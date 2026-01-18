@@ -15,7 +15,7 @@ References:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -100,8 +100,8 @@ class TestTaskResultValidation:
 
         Per FR6: cluster_id is required for task result attribution.
         """
-        from src.domain.governance.task.task_result import TaskResult
         from src.domain.errors.constitutional import ConstitutionalViolationError
+        from src.domain.governance.task.task_result import TaskResult
 
         with pytest.raises(ConstitutionalViolationError):
             TaskResult(
@@ -113,8 +113,8 @@ class TestTaskResultValidation:
 
     def test_task_result_requires_non_whitespace_cluster_id(self) -> None:
         """Verify TaskResult rejects whitespace-only cluster_id."""
-        from src.domain.governance.task.task_result import TaskResult
         from src.domain.errors.constitutional import ConstitutionalViolationError
+        from src.domain.governance.task.task_result import TaskResult
 
         with pytest.raises(ConstitutionalViolationError):
             TaskResult(

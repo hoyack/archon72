@@ -10,7 +10,6 @@ Constitutional Compliance:
 
 from typing import Any, Protocol
 
-
 # Event pattern for violation events
 VIOLATION_EVENT_PATTERN = "constitutional.violation.*"
 

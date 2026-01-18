@@ -29,8 +29,8 @@ References:
 """
 
 from src.domain.governance.queue.priority import QueuePriority
-from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.queue.queued_statement import QueuedStatement
+from src.domain.governance.queue.status import QueueItemStatus
 
 __all__ = [
     "QueuePriority",

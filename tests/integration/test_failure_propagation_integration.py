@@ -11,8 +11,7 @@ Per Government PRD:
 """
 
 import asyncio
-from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -22,11 +21,8 @@ from src.application.ports.failure_propagation import (
     FailureSignal,
     FailureSignalType,
     PrinceNotificationContext,
-    SuppressionDetectionMethod,
-    SuppressionViolation,
 )
 from src.application.ports.knight_witness import (
-    KnightWitnessProtocol,
     ObservationContext,
     ViolationRecord,
     WitnessStatement,
@@ -39,7 +35,6 @@ from src.application.services.suppression_detection_service import (
 from src.infrastructure.adapters.government.failure_propagation_adapter import (
     FailurePropagationAdapter,
 )
-
 
 # =============================================================================
 # Test Fixtures
@@ -110,7 +105,9 @@ def suppression_config() -> SuppressionDetectionConfig:
 def full_pipeline(
     knight_witness: InMemoryKnightWitness,
     suppression_config: SuppressionDetectionConfig,
-) -> tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness]:
+) -> tuple[
+    FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness
+]:
     """Create a full failure propagation pipeline."""
     suppression_service = SuppressionDetectionService(
         knight_witness=knight_witness,  # type: ignore
@@ -135,7 +132,11 @@ class TestFailurePropagationPipeline:
     @pytest.mark.asyncio
     async def test_full_failure_flow_from_emit_to_prince(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test complete failure flow: emit -> witness -> propagate -> notify Prince."""
         adapter, suppression_service, knight = full_pipeline
@@ -168,7 +169,10 @@ class TestFailurePropagationPipeline:
             execution_result={"status": "failed", "error": "Connection timeout"},
             evidence=[{"type": "log", "data": "Connection refused"}],
             timeline=[
-                {"timestamp": datetime.now(timezone.utc).isoformat(), "event": "failed"},
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event": "failed",
+                },
             ],
         )
 
@@ -184,7 +188,11 @@ class TestFailurePropagationPipeline:
     @pytest.mark.asyncio
     async def test_multiple_failures_same_task(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test handling multiple failures for the same task."""
         adapter, suppression_service, knight = full_pipeline
@@ -217,7 +225,11 @@ class TestFailurePropagationPipeline:
     @pytest.mark.asyncio
     async def test_failure_motion_tracing(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that failures can be traced back to their originating motion."""
         adapter, suppression_service, knight = full_pipeline
@@ -257,7 +269,11 @@ class TestSuppressionDetectionFlow:
     @pytest.mark.asyncio
     async def test_suppression_detection_full_flow(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test full suppression detection flow with escalation."""
         adapter, suppression_service, knight = full_pipeline
@@ -296,7 +312,11 @@ class TestSuppressionDetectionFlow:
     @pytest.mark.asyncio
     async def test_properly_propagated_failure_not_flagged(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that properly propagated failures are not flagged as suppressed."""
         adapter, suppression_service, knight = full_pipeline
@@ -334,7 +354,11 @@ class TestEventStoreIntegrity:
     @pytest.mark.asyncio
     async def test_failure_signals_append_only(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that failure signals are append-only."""
         adapter, suppression_service, knight = full_pipeline
@@ -376,7 +400,11 @@ class TestEventStoreIntegrity:
     @pytest.mark.asyncio
     async def test_timeline_immutability(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that timeline entries cannot be modified."""
         adapter, suppression_service, knight = full_pipeline
@@ -414,7 +442,11 @@ class TestEventStoreIntegrity:
     @pytest.mark.asyncio
     async def test_all_failures_witnessed(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that all failures are witnessed by Knight (CT-12)."""
         adapter, suppression_service, knight = full_pipeline
@@ -445,7 +477,11 @@ class TestSeverityBasedHandling:
     @pytest.mark.asyncio
     async def test_critical_failures_expedited(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that critical failures get expedited handling."""
         adapter, suppression_service, knight = full_pipeline
@@ -469,7 +505,11 @@ class TestSeverityBasedHandling:
     @pytest.mark.asyncio
     async def test_severity_preserved_through_pipeline(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that severity is preserved through the entire pipeline."""
         adapter, suppression_service, knight = full_pipeline
@@ -511,7 +551,11 @@ class TestConcurrentFailureHandling:
     @pytest.mark.asyncio
     async def test_concurrent_failure_emissions(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that concurrent failure emissions are handled correctly."""
         adapter, suppression_service, knight = full_pipeline
@@ -548,7 +592,11 @@ class TestErrorRecovery:
     @pytest.mark.asyncio
     async def test_adapter_continues_after_reset(
         self,
-        full_pipeline: tuple[FailurePropagationAdapter, SuppressionDetectionService, InMemoryKnightWitness],
+        full_pipeline: tuple[
+            FailurePropagationAdapter,
+            SuppressionDetectionService,
+            InMemoryKnightWitness,
+        ],
     ) -> None:
         """Test that adapter continues working after reset."""
         adapter, suppression_service, knight = full_pipeline

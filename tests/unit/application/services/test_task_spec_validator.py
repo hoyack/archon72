@@ -3,9 +3,15 @@
 Tests validation of AegisTaskSpec instances per Government PRD.
 """
 
-import pytest
 from uuid import uuid4
 
+import pytest
+
+from src.application.services.task_spec_validator import (
+    TaskSpecValidator,
+    ValidationSeverity,
+    create_task_spec_validator,
+)
 from src.domain.models.aegis_task_spec import (
     AegisTaskSpec,
     Constraint,
@@ -18,14 +24,7 @@ from src.domain.models.aegis_task_spec import (
     MeasurementType,
     OutputType,
     SuccessCriterion,
-    ThresholdOperator,
 )
-from src.application.services.task_spec_validator import (
-    TaskSpecValidator,
-    ValidationSeverity,
-    create_task_spec_validator,
-)
-
 
 # =============================================================================
 # FIXTURES
@@ -257,7 +256,9 @@ class TestSuccessCriteriaValidation:
         result = validator.validate(spec)
 
         assert result.is_valid is False
-        assert any("weight" in i.field and "positive" in i.message for i in result.issues)
+        assert any(
+            "weight" in i.field and "positive" in i.message for i in result.issues
+        )
 
     def test_short_description_warning(
         self,
@@ -340,7 +341,9 @@ class TestDependencyValidation:
         )
 
         # Validator with a registry containing only the existing spec
-        validator = TaskSpecValidator(task_registry={existing_spec.task_id: existing_spec})
+        validator = TaskSpecValidator(
+            task_registry={existing_spec.task_id: existing_spec}
+        )
 
         dep = Dependency.create(
             dependency_type=DependencyType.BLOCKS,

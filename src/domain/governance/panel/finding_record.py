@@ -27,8 +27,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from src.domain.governance.panel.panel_finding import PanelFinding
 from src.domain.governance.panel.determination import Determination
+from src.domain.governance.panel.panel_finding import PanelFinding
 
 
 @dataclass(frozen=True, eq=True)

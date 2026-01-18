@@ -10,8 +10,6 @@ Constitutional Constraints:
 """
 
 import inspect
-from datetime import datetime, timezone
-from typing import Any
 
 import pytest
 from fastapi import FastAPI
@@ -131,7 +129,7 @@ class TestExportEndpointNoAuth:
         params = sig.parameters
 
         # Should not have any auth-related parameters
-        param_names = [p.lower() for p in params.keys()]
+        param_names = [p.lower() for p in params]
         assert "authorization" not in param_names
         assert "token" not in param_names
         assert "api_key" not in param_names
@@ -143,7 +141,7 @@ class TestExportEndpointNoAuth:
         sig = inspect.signature(get_attestation_for_range)
         params = sig.parameters
 
-        param_names = [p.lower() for p in params.keys()]
+        param_names = [p.lower() for p in params]
         assert "authorization" not in param_names
         assert "token" not in param_names
 

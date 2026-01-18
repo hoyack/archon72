@@ -20,12 +20,11 @@ import yaml
 from structlog import get_logger
 
 from src.application.ports.archon_profile_repository import (
-    ArchonProfileRepository,
     ArchonProfileLoadError,
+    ArchonProfileRepository,
 )
-from src.domain.models.archon_profile import ArchonProfile, RANK_TO_BRANCH
-from src.domain.models.llm_config import LLMConfig, DEFAULT_LLM_CONFIG
-
+from src.domain.models.archon_profile import RANK_TO_BRANCH, ArchonProfile
+from src.domain.models.llm_config import DEFAULT_LLM_CONFIG, LLMConfig
 
 logger = get_logger(__name__)
 
@@ -160,7 +159,9 @@ class JsonYamlArchonProfileAdapter(ArchonProfileRepository):
                     identities[archon_id] = {
                         "name": archon["name"],
                         "aegis_rank": archon["aegis_rank"],
-                        "original_rank": archon.get("original_rank", archon.get("rank", "")),
+                        "original_rank": archon.get(
+                            "original_rank", archon.get("rank", "")
+                        ),
                         "rank_level": int(archon["rank_level"]),
                         "branch": archon.get("branch", ""),
                         "role": archon["role"],
@@ -305,9 +306,7 @@ class JsonYamlArchonProfileAdapter(ArchonProfileRepository):
 
     def get_by_provider(self, provider: str) -> list[ArchonProfile]:
         """Retrieve all Archons bound to a specific LLM provider."""
-        return [
-            p for p in self._profiles.values() if p.llm_config.provider == provider
-        ]
+        return [p for p in self._profiles.values() if p.llm_config.provider == provider]
 
     def get_executives(self) -> list[ArchonProfile]:
         """Retrieve all executive director (King) Archons."""
@@ -359,7 +358,9 @@ def create_archon_profile_repository(
     project_root = Path(__file__).parent.parent.parent.parent.parent
 
     json_path = json_path or project_root / "docs" / "archons-base.json"
-    llm_config_path = llm_config_path or project_root / "config" / "archon-llm-bindings.yaml"
+    llm_config_path = (
+        llm_config_path or project_root / "config" / "archon-llm-bindings.yaml"
+    )
 
     return JsonYamlArchonProfileAdapter(
         json_path=json_path,

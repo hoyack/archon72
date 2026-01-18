@@ -11,7 +11,6 @@ Constitutional Compliance:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
@@ -36,7 +35,7 @@ class LegitimacyState:
     current_band: LegitimacyBand
     entered_at: datetime
     violation_count: int
-    last_triggering_event_id: Optional[UUID]
+    last_triggering_event_id: UUID | None
     last_transition_type: TransitionType
 
     def __post_init__(self) -> None:
@@ -84,7 +83,7 @@ class LegitimacyState:
         self,
         new_band: LegitimacyBand,
         entered_at: datetime,
-        triggering_event_id: Optional[UUID],
+        triggering_event_id: UUID | None,
         transition_type: TransitionType,
         increment_violations: bool = False,
     ) -> "LegitimacyState":

@@ -10,21 +10,16 @@ Per Government PRD:
 - CT-13: Integrity outranks availability
 """
 
-import asyncio
-from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
 
 from src.application.ports.failure_propagation import (
-    FailurePropagationProtocol,
     FailureSeverity,
     FailureSignal,
     FailureSignalType,
     PrinceNotificationContext,
-    PropagationResult,
-    SuppressionCheckResult,
     SuppressionDetectionMethod,
     SuppressionViolation,
 )
@@ -36,14 +31,12 @@ from src.application.ports.knight_witness import (
     WitnessStatementType,
 )
 from src.application.services.suppression_detection_service import (
-    MonitoredFailure,
     SuppressionDetectionConfig,
     SuppressionDetectionService,
 )
 from src.infrastructure.adapters.government.failure_propagation_adapter import (
     FailurePropagationAdapter,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -253,7 +246,10 @@ class TestSuppressionDetection:
         )
 
         assert result.violation is not None
-        assert result.violation.suppressing_archon_id == sample_failure_signal.source_archon_id
+        assert (
+            result.violation.suppressing_archon_id
+            == sample_failure_signal.source_archon_id
+        )
 
     def test_explicit_suppression_attempt_recorded(
         self,
@@ -543,7 +539,7 @@ class TestFailureChainIntegrity:
         motion_ref = uuid4()
 
         # Emit failures with motion reference
-        for i in range(2):
+        for _i in range(2):
             signal = FailureSignal.create(
                 signal_type=FailureSignalType.TASK_FAILED,
                 source_archon_id="duke_test",

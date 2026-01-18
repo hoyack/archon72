@@ -112,7 +112,9 @@ def configure_structlog(environment: str = "production") -> None:
     )
 
 
-def get_logger_for_service(service_name: str, component: str = "constitutional") -> structlog.BoundLogger:
+def get_logger_for_service(
+    service_name: str, component: str = "constitutional"
+) -> structlog.BoundLogger:
     """Get a pre-bound logger for a service.
 
     Creates a logger with service name and component already bound,

@@ -20,7 +20,7 @@ Design Decisions:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID, uuid4
 
 from src.domain.governance.audit.transition_log import (
@@ -83,7 +83,7 @@ class TransitionLoggingService:
 
     def __init__(
         self,
-        log_port: "TransitionLogPort",
+        log_port: TransitionLogPort,
         event_emitter: EventEmitterPort,
         time_authority: TimeAuthorityPort,
     ) -> None:
@@ -106,7 +106,7 @@ class TransitionLoggingService:
         to_state: str,
         actor: str,
         reason: str,
-        triggering_event_id: Optional[UUID] = None,
+        triggering_event_id: UUID | None = None,
     ) -> TransitionLog:
         """Log a state transition.
 
@@ -183,7 +183,7 @@ class TransitionLoggingService:
         """
         return await self._logs.get_entity_history(entity_type, entity_id)
 
-    async def get_by_id(self, log_id: UUID) -> Optional[TransitionLog]:
+    async def get_by_id(self, log_id: UUID) -> TransitionLog | None:
         """Get a specific transition log by ID.
 
         Args:
@@ -194,7 +194,7 @@ class TransitionLoggingService:
         """
         return await self._logs.get_by_id(log_id)
 
-    async def count(self, query: Optional[TransitionQuery] = None) -> int:
+    async def count(self, query: TransitionQuery | None = None) -> int:
         """Count transition logs matching query.
 
         Args:

@@ -19,11 +19,11 @@ from uuid import uuid4
 
 import pytest
 
+from src.domain.governance.witness.errors import JudgmentLanguageError
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement_factory import (
     WitnessStatementFactory,
 )
-from src.domain.governance.witness.errors import JudgmentLanguageError
 
 
 class FakeTimeAuthority:
@@ -104,7 +104,9 @@ class TestWitnessStatementFactory:
 
         assert statement.observation_type == ObservationType.BRANCH_ACTION
         assert statement.content.event_id == observed_event.event_id
-        assert statement.content.what == "Task state changed from AUTHORIZED to ACTIVATED"
+        assert (
+            statement.content.what == "Task state changed from AUTHORIZED to ACTIVATED"
+        )
         assert statement.content.where == "executive.task_coordination"
 
     def test_factory_sets_observation_timestamp(
@@ -435,6 +437,8 @@ class TestWitnessStatementFactory:
             positions = [f.result() for f in concurrent.futures.as_completed(futures)]
 
         # All positions should be unique (no duplicates from race conditions)
-        assert len(positions) == len(set(positions)), "Duplicate positions detected - race condition!"
+        assert len(positions) == len(set(positions)), (
+            "Duplicate positions detected - race condition!"
+        )
         # Positions should be 1-100
         assert set(positions) == set(range(1, 101))

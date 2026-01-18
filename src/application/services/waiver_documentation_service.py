@@ -18,7 +18,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from src.application.ports.halt_checker import HaltChecker
 from src.application.ports.waiver_repository import (
@@ -169,7 +169,7 @@ class WaiverDocumentationService:
 
         return waiver
 
-    async def get_waiver(self, waiver_id: str) -> Optional[WaiverRecord]:
+    async def get_waiver(self, waiver_id: str) -> WaiverRecord | None:
         """Retrieve a waiver by its ID.
 
         Constitutional Constraints:

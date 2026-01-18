@@ -80,7 +80,9 @@ class TestComputeSignableContent:
         content_pos = content_str.find("content_hash")
         prev_pos = content_str.find("prev_hash")
 
-        assert agent_pos < content_pos < prev_pos, "Keys should be sorted alphabetically"
+        assert agent_pos < content_pos < prev_pos, (
+            "Keys should be sorted alphabetically"
+        )
 
     def test_no_whitespace(self) -> None:
         """Canonical JSON should have no extra whitespace."""

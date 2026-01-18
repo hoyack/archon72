@@ -46,6 +46,7 @@ class TestForkMonitorInterface:
 
     def test_default_monitoring_interval(self) -> None:
         """Default monitoring interval should be 10 seconds."""
+
         # Create a concrete implementation to test the default
         class ConcreteForkMonitor(ForkMonitor):
             async def check_for_forks(self) -> ForkDetectedPayload | None:

@@ -18,38 +18,43 @@ from src.application.ports.override_abuse_validator import (
 )
 from src.domain.events.override_abuse import ViolationType
 
-
 # Default forbidden scope patterns for history edit detection (FR87)
-HISTORY_EDIT_PATTERNS: frozenset[str] = frozenset([
-    "history",
-    "event_store.delete",
-    "event_store.modify",
-    "event_store.update",
-    "audit.delete",
-    "audit.modify",
-    "log.delete",
-    "log.modify",
-])
+HISTORY_EDIT_PATTERNS: frozenset[str] = frozenset(
+    [
+        "history",
+        "event_store.delete",
+        "event_store.modify",
+        "event_store.update",
+        "audit.delete",
+        "audit.modify",
+        "log.delete",
+        "log.modify",
+    ]
+)
 
 # Default forbidden scope patterns for evidence destruction detection (FR87)
-EVIDENCE_DESTRUCTION_PATTERNS: frozenset[str] = frozenset([
-    "evidence",
-    "evidence.delete",
-    "audit_log.delete",
-    "witness.remove",
-    "witness.delete",
-    "signature.invalidate",
-    "hash_chain.modify",
-])
+EVIDENCE_DESTRUCTION_PATTERNS: frozenset[str] = frozenset(
+    [
+        "evidence",
+        "evidence.delete",
+        "audit_log.delete",
+        "witness.remove",
+        "witness.delete",
+        "signature.invalidate",
+        "hash_chain.modify",
+    ]
+)
 
 # Default general forbidden scopes (FR86)
-GENERAL_FORBIDDEN_SCOPES: frozenset[str] = frozenset([
-    "witness",
-    "witnessing",
-    "attestation",
-    "witness_service",
-    "witness_pool",
-])
+GENERAL_FORBIDDEN_SCOPES: frozenset[str] = frozenset(
+    [
+        "witness",
+        "witnessing",
+        "attestation",
+        "witness_service",
+        "witness_pool",
+    ]
+)
 
 
 class OverrideAbuseValidatorStub(OverrideAbuseValidatorProtocol):
@@ -78,7 +83,9 @@ class OverrideAbuseValidatorStub(OverrideAbuseValidatorProtocol):
     def __init__(self) -> None:
         """Initialize the stub with default patterns."""
         self._history_edit_patterns: set[str] = set(HISTORY_EDIT_PATTERNS)
-        self._evidence_destruction_patterns: set[str] = set(EVIDENCE_DESTRUCTION_PATTERNS)
+        self._evidence_destruction_patterns: set[str] = set(
+            EVIDENCE_DESTRUCTION_PATTERNS
+        )
         self._forbidden_scopes: set[str] = set(GENERAL_FORBIDDEN_SCOPES)
 
     def add_forbidden_scope(self, scope: str) -> None:
@@ -212,11 +219,7 @@ class OverrideAbuseValidatorStub(OverrideAbuseValidatorProtocol):
             return True
 
         # Prefix match (e.g., "history.delete" matches "history")
-        for pattern in patterns:
-            if scope.startswith(f"{pattern}."):
-                return True
-
-        return False
+        return any(scope.startswith(f"{pattern}.") for pattern in patterns)
 
     def _is_witness_suppression_scope(self, scope: str) -> bool:
         """Check if scope attempts witness suppression (FR26).
@@ -235,8 +238,4 @@ class OverrideAbuseValidatorStub(OverrideAbuseValidatorProtocol):
         if scope in witness_patterns:
             return True
 
-        for pattern in witness_patterns:
-            if scope.startswith(f"{pattern}."):
-                return True
-
-        return False
+        return any(scope.startswith(f"{pattern}.") for pattern in witness_patterns)

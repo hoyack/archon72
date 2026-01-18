@@ -217,7 +217,9 @@ class HaltTriggerService:
         )
 
         # Step 3: Trigger halt (AFTER event is recorded)
-        halt_reason = f"FR17: Constitutional crisis - {crisis_payload.detection_details}"
+        halt_reason = (
+            f"FR17: Constitutional crisis - {crisis_payload.detection_details}"
+        )
 
         self._log.critical(
             "triggering_system_halt",

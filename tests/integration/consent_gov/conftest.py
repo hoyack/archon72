@@ -25,7 +25,6 @@ from typing import Any
 
 import pytest
 
-
 # =============================================================================
 # Path Constants
 # =============================================================================
@@ -158,8 +157,7 @@ def _parse_checkpoint(checkpoint_data: dict[str, Any]) -> ConclaveCheckpoint:
     return ConclaveCheckpoint(
         session_id=checkpoint_data.get("session_id", ""),
         session_name=checkpoint_data.get("session_name", ""),
-        started_at=_parse_datetime(checkpoint_data.get("started_at"))
-        or datetime.now(),
+        started_at=_parse_datetime(checkpoint_data.get("started_at")) or datetime.now(),
         ended_at=_parse_datetime(checkpoint_data.get("ended_at")),
         present_participants=tuple(checkpoint_data.get("present_participants", [])),
         motions=motions,

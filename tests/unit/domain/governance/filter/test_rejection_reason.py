@@ -3,8 +3,6 @@
 Tests AC6: Rejection reasons defined for reject outcomes.
 """
 
-import pytest
-
 from src.domain.governance.filter.rejection_reason import RejectionReason
 
 

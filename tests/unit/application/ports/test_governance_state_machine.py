@@ -61,8 +61,8 @@ class TestTerminalStates:
     def test_rejected_is_terminal(self) -> None:
         """REJECTED is a terminal state."""
         from src.application.ports.governance_state_machine import (
-            GovernanceState,
             TERMINAL_STATES,
+            GovernanceState,
             is_terminal_state,
         )
 
@@ -72,8 +72,8 @@ class TestTerminalStates:
     def test_acknowledged_is_terminal(self) -> None:
         """ACKNOWLEDGED is a terminal state."""
         from src.application.ports.governance_state_machine import (
-            GovernanceState,
             TERMINAL_STATES,
+            GovernanceState,
             is_terminal_state,
         )
 
@@ -151,9 +151,7 @@ class TestValidTransitions:
             is_valid_transition,
         )
 
-        assert is_valid_transition(
-            GovernanceState.DELIBERATING, GovernanceState.TABLED
-        )
+        assert is_valid_transition(GovernanceState.DELIBERATING, GovernanceState.TABLED)
 
     def test_tabled_back_to_deliberating(self) -> None:
         """Tabled motions can return to DELIBERATING."""
@@ -162,9 +160,7 @@ class TestValidTransitions:
             is_valid_transition,
         )
 
-        assert is_valid_transition(
-            GovernanceState.TABLED, GovernanceState.DELIBERATING
-        )
+        assert is_valid_transition(GovernanceState.TABLED, GovernanceState.DELIBERATING)
 
     def test_ratified_to_planning(self) -> None:
         """Step 2b→3: RATIFIED can transition to PLANNING."""

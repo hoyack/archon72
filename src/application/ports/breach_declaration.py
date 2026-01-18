@@ -11,7 +11,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 from uuid import UUID
 
 from src.domain.events.breach import BreachEventPayload, BreachSeverity, BreachType
@@ -35,7 +35,7 @@ class BreachDeclarationProtocol(Protocol):
         violated_requirement: str,
         severity: BreachSeverity,
         details: dict[str, Any],
-        source_event_id: Optional[UUID] = None,
+        source_event_id: UUID | None = None,
     ) -> BreachEventPayload:
         """Declare a constitutional breach (FR30).
 
@@ -62,7 +62,7 @@ class BreachDeclarationProtocol(Protocol):
     async def get_breach_by_id(
         self,
         breach_id: UUID,
-    ) -> Optional[BreachEventPayload]:
+    ) -> BreachEventPayload | None:
         """Retrieve a specific breach by ID.
 
         Constitutional Constraint (CT-11):

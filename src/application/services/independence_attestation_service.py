@@ -21,7 +21,7 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -36,7 +36,6 @@ from src.application.ports.independence_attestation import (
 from src.application.services.event_writer_service import EventWriterService
 from src.application.services.keeper_signature_service import KeeperSignatureService
 from src.domain.errors.independence_attestation import (
-    AttestationDeadlineMissedError,
     CapabilitySuspendedError,
     DuplicateIndependenceAttestationError,
     InvalidIndependenceSignatureError,
@@ -52,8 +51,6 @@ from src.domain.events.independence_attestation import (
 )
 from src.domain.events.override_abuse import AnomalyType
 from src.domain.models.independence_attestation import (
-    ATTESTATION_DEADLINE_DAYS,
-    DEADLINE_GRACE_PERIOD_DAYS,
     ConflictDeclaration,
     IndependenceAttestation,
     calculate_deadline,
@@ -167,9 +164,7 @@ class IndependenceAttestationService:
         # Verify Keeper signature (NFR22)
         is_valid = await self._signature_service.verify_signature(
             keeper_id=keeper_id,
-            message=self._build_signable_content(
-                keeper_id, conflicts, organizations
-            ),
+            message=self._build_signable_content(keeper_id, conflicts, organizations),
             signature=signature,
         )
         if not is_valid:
@@ -264,7 +259,9 @@ class IndependenceAttestationService:
                 continue
 
             # Check for current year attestation
-            attestation = await self._repository.get_attestation(keeper_id, current_year)
+            attestation = await self._repository.get_attestation(
+                keeper_id, current_year
+            )
             if attestation is not None:
                 continue  # Has valid attestation
 
@@ -441,9 +438,7 @@ class IndependenceAttestationService:
                 confidence=0.5,  # Medium confidence for single change
             )
 
-    async def _suspend_keeper(
-        self, keeper_id: str, deadline: datetime
-    ) -> None:
+    async def _suspend_keeper(self, keeper_id: str, deadline: datetime) -> None:
         """Suspend a Keeper's capabilities for missed deadline.
 
         Args:

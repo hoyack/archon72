@@ -9,9 +9,10 @@ Constitutional Constraints Tested:
 """
 
 import json
-import pytest
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
+
+import pytest
 
 from src.domain.events.trigger_condition_changed import (
     TRIGGER_CONDITION_CHANGED_EVENT_TYPE,
@@ -272,6 +273,9 @@ class TestTriggerConditionChangedEventType:
 
     def test_event_type_constant_is_valid(self) -> None:
         """Test that event type constant follows naming convention."""
-        assert TRIGGER_CONDITION_CHANGED_EVENT_TYPE == "cessation.trigger_condition_changed"
+        assert (
+            TRIGGER_CONDITION_CHANGED_EVENT_TYPE
+            == "cessation.trigger_condition_changed"
+        )
         assert "." in TRIGGER_CONDITION_CHANGED_EVENT_TYPE
         assert TRIGGER_CONDITION_CHANGED_EVENT_TYPE.islower()

@@ -52,7 +52,7 @@ class PendingEscalation:
         breach_type: BreachType,
         detection_timestamp: datetime,
         current_time: datetime | None = None,
-    ) -> "PendingEscalation":
+    ) -> PendingEscalation:
         """Create a PendingEscalation from breach details.
 
         Calculates time remaining until 7-day escalation threshold.

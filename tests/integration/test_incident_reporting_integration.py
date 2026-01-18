@@ -23,11 +23,7 @@ from uuid import uuid4
 import pytest
 
 from src.application.services.incident_reporting_service import (
-    DuplicateIncidentError,
-    IncidentNotFoundError,
-    IncidentNotResolvedError,
     IncidentReportingService,
-    PublicationNotEligibleError,
 )
 from src.domain.errors import SystemHaltedError
 from src.domain.events.incident_report import (
@@ -36,7 +32,6 @@ from src.domain.events.incident_report import (
 )
 from src.domain.models.incident_report import (
     DAILY_OVERRIDE_THRESHOLD,
-    PUBLICATION_DELAY_DAYS,
     IncidentReport,
     IncidentStatus,
     IncidentType,

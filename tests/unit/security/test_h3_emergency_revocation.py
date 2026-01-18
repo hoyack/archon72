@@ -161,7 +161,9 @@ class TestEmergencyRevocationBypassesTransition:
         old_key_after = await registry.get_key_by_id(old_key.key_id)
         assert old_key_after is not None
         assert old_key_after.active_until == revoked_at
-        assert old_key_after.active_until <= now + timedelta(seconds=5)  # Within seconds
+        assert old_key_after.active_until <= now + timedelta(
+            seconds=5
+        )  # Within seconds
 
     @pytest.mark.asyncio
     async def test_emergency_revoked_key_no_longer_active(

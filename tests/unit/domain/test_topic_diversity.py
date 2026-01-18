@@ -88,7 +88,7 @@ class TestTopicDiversityStats:
     def test_exceeds_threshold_returns_none_when_compliant(self) -> None:
         """exceeds_threshold returns None when all types are within threshold."""
         now = datetime.now(timezone.utc)
-        stats = TopicDiversityStats(
+        TopicDiversityStats(
             window_start=now - timedelta(days=30),
             window_end=now,
             total_topics=100,

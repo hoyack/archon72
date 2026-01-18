@@ -17,7 +17,7 @@ Constitutional Compliance:
 """
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.governance.legitimacy.restoration_acknowledgment import (
@@ -81,8 +81,8 @@ class LegitimacyRestorationPort(Protocol):
 
     async def get_restoration_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[RestorationAcknowledgment]:
         """Get history of restoration acknowledgments.
 
@@ -100,7 +100,7 @@ class LegitimacyRestorationPort(Protocol):
     async def get_acknowledgment(
         self,
         acknowledgment_id: UUID,
-    ) -> Optional[RestorationAcknowledgment]:
+    ) -> RestorationAcknowledgment | None:
         """Get a specific acknowledgment by ID.
 
         Args:

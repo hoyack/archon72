@@ -9,10 +9,8 @@ ADR-3: Redis Streams for speed + DB halt flag for safety.
 - XACK for message acknowledgment
 """
 
-import asyncio
 from datetime import datetime, timezone
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -86,12 +84,14 @@ class TestHaltStreamConsumer:
     ) -> None:
         """has_halt_received should be True after processing a halt message."""
         crisis_id = uuid4()
-        await consumer._process_halt_message({
-            "reason": "FR17: Fork detected",
-            "crisis_event_id": str(crisis_id),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_service": "test-service",
-        })
+        await consumer._process_halt_message(
+            {
+                "reason": "FR17: Fork detected",
+                "crisis_event_id": str(crisis_id),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_service": "test-service",
+            }
+        )
 
         assert consumer.has_halt_received is True
 
@@ -109,12 +109,14 @@ class TestHaltStreamConsumer:
     ) -> None:
         """get_halt_info should return halt details after processing."""
         crisis_id = uuid4()
-        await consumer._process_halt_message({
-            "reason": "FR17: Fork detected",
-            "crisis_event_id": str(crisis_id),
-            "timestamp": "2026-01-07T00:00:00+00:00",
-            "source_service": "test-service",
-        })
+        await consumer._process_halt_message(
+            {
+                "reason": "FR17: Fork detected",
+                "crisis_event_id": str(crisis_id),
+                "timestamp": "2026-01-07T00:00:00+00:00",
+                "source_service": "test-service",
+            }
+        )
 
         info = consumer.get_halt_info()
         assert info is not None
@@ -129,9 +131,7 @@ class TestHaltStreamConsumer:
         assert consumer._consumer_group == DEFAULT_CONSUMER_GROUP
 
     @pytest.mark.asyncio
-    async def test_consumer_name_configured(
-        self, consumer: HaltStreamConsumer
-    ) -> None:
+    async def test_consumer_name_configured(self, consumer: HaltStreamConsumer) -> None:
         """Consumer name should be configurable."""
         assert consumer._consumer_name == "test-consumer-1"
 
@@ -147,17 +147,17 @@ class TestHaltStreamConsumer:
         assert consumer._running is False
 
     @pytest.mark.asyncio
-    async def test_reset_halt_state(
-        self, consumer: HaltStreamConsumer
-    ) -> None:
+    async def test_reset_halt_state(self, consumer: HaltStreamConsumer) -> None:
         """reset_halt_state should clear received halt info."""
         # Set up halt state
-        await consumer._process_halt_message({
-            "reason": "Test",
-            "crisis_event_id": str(uuid4()),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_service": "test",
-        })
+        await consumer._process_halt_message(
+            {
+                "reason": "Test",
+                "crisis_event_id": str(uuid4()),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_service": "test",
+            }
+        )
 
         assert consumer.has_halt_received is True
 

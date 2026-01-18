@@ -143,7 +143,9 @@ class ContributionRecord:
 
     def _validate_preserved_at(self) -> None:
         """Validate preserved_at is datetime or None."""
-        if self.preserved_at is not None and not isinstance(self.preserved_at, datetime):
+        if self.preserved_at is not None and not isinstance(
+            self.preserved_at, datetime
+        ):
             raise ValueError(
                 f"ContributionRecord validation failed - "
                 f"preserved_at must be datetime or None, got {type(self.preserved_at).__name__}"

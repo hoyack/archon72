@@ -13,6 +13,7 @@ Tests:
 
 from __future__ import annotations
 
+import contextlib
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
@@ -33,8 +34,8 @@ from src.domain.events.user_content_prohibition import (
     USER_CONTENT_SCANNER_SYSTEM_AGENT_ID,
 )
 from src.domain.models.user_content import (
-    FeatureRequest,
     FeaturedStatus,
+    FeatureRequest,
     UserContent,
     UserContentProhibitionFlag,
     UserContentStatus,
@@ -649,7 +650,9 @@ class TestClearProhibitionFlag:
         mock_event_writer.reset_mock()
 
         # Clear flag
-        await service.clear_prohibition_flag(sample_request.content_id, "admin override")
+        await service.clear_prohibition_flag(
+            sample_request.content_id, "admin override"
+        )
 
         mock_event_writer.write_event.assert_called_once()
         call_kwargs = mock_event_writer.write_event.call_args.kwargs
@@ -721,15 +724,15 @@ class TestFeaturedCandidates:
         ]
 
         for req in requests:
-            try:
+            with contextlib.suppress(UserContentCannotBeFeaturedException):
                 await service.evaluate_for_featuring(req)
-            except UserContentCannotBeFeaturedException:
-                pass
 
         candidates = await service.get_featured_candidates()
 
         assert len(candidates) == 2
-        assert all(c.featured_status == FeaturedStatus.PENDING_REVIEW for c in candidates)
+        assert all(
+            c.featured_status == FeaturedStatus.PENDING_REVIEW for c in candidates
+        )
 
     @pytest.mark.asyncio
     async def test_get_featured_candidates_checks_halt_first(

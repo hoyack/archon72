@@ -11,7 +11,6 @@ Constitutional Compliance:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
@@ -42,8 +41,8 @@ class LegitimacyTransition:
     to_band: LegitimacyBand
     transition_type: TransitionType
     actor: str
-    triggering_event_id: Optional[UUID]
-    acknowledgment_id: Optional[UUID]
+    triggering_event_id: UUID | None
+    acknowledgment_id: UUID | None
     timestamp: datetime
     reason: str
 
@@ -54,18 +53,14 @@ class LegitimacyTransition:
             self.transition_type == TransitionType.AUTOMATIC
             and self.triggering_event_id is None
         ):
-            raise ValueError(
-                "Automatic transitions must have triggering_event_id"
-            )
+            raise ValueError("Automatic transitions must have triggering_event_id")
 
         # Must have acknowledgment for acknowledged transitions
         if (
             self.transition_type == TransitionType.ACKNOWLEDGED
             and self.acknowledgment_id is None
         ):
-            raise ValueError(
-                "Acknowledged transitions must have acknowledgment_id"
-            )
+            raise ValueError("Acknowledged transitions must have acknowledgment_id")
 
         # Must have a reason
         if not self.reason or not self.reason.strip():

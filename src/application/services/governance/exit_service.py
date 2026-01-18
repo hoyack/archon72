@@ -21,11 +21,10 @@ from __future__ import annotations
 from typing import Protocol
 from uuid import UUID, uuid4
 
+from src.domain.governance.exit.errors import AlreadyExitedError
 from src.domain.governance.exit.exit_request import ExitRequest
 from src.domain.governance.exit.exit_result import ExitResult
 from src.domain.governance.exit.exit_status import ExitStatus
-from src.domain.governance.exit.errors import AlreadyExitedError
-
 
 # Event type constants
 EXIT_INITIATED_EVENT = "custodial.exit.initiated"

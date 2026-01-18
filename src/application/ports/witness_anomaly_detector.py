@@ -20,7 +20,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from src.domain.events.witness_anomaly import WitnessAnomalyType
 
@@ -205,9 +205,7 @@ class WitnessAnomalyDetectorProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def get_exclusion_details(
-        self, pair_key: str
-    ) -> Optional[PairExclusion]:
+    async def get_exclusion_details(self, pair_key: str) -> PairExclusion | None:
         """Get details of a pair exclusion.
 
         Args:

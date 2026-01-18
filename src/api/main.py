@@ -1,7 +1,7 @@
 """FastAPI application entry point for Archon 72."""
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI
 

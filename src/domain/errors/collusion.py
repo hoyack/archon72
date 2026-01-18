@@ -13,7 +13,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
@@ -120,7 +119,7 @@ class InvestigationAlreadyResolvedError(CollusionDefenseError):
     def __init__(
         self,
         investigation_id: str,
-        resolved_at: Optional[datetime] = None,
+        resolved_at: datetime | None = None,
     ) -> None:
         """Initialize the error.
 

@@ -24,12 +24,11 @@ from uuid import uuid4
 import pytest
 
 from src.domain.governance.events.event_envelope import (
-    EventMetadata,
     GovernanceEvent,
 )
 
 if TYPE_CHECKING:
-    from .conftest import ConclaveCheckpoint, DebateEntry, Motion
+    pass
 
 
 class TestMotionEventCreation:
@@ -363,6 +362,6 @@ class TestBulkEventCreation:
         """Events preserve order of debate entries."""
         events = [make_governance_event(e) for e in debate_entries]
 
-        for i, (event, entry) in enumerate(zip(events, debate_entries)):
+        for _i, (event, entry) in enumerate(zip(events, debate_entries, strict=False)):
             assert event.actor_id == entry.speaker_id
             assert event.payload["speaker_name"] == entry.speaker_name

@@ -20,11 +20,9 @@ Constitutional References:
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import uuid4
 
 import pytest
 
-from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.hash_chain import chain_events
 from src.domain.governance.events.merkle_tree import (
     MerkleTree,
@@ -33,7 +31,7 @@ from src.domain.governance.events.merkle_tree import (
 )
 
 if TYPE_CHECKING:
-    from .conftest import ConclaveCheckpoint, DebateEntry
+    pass
 
 
 class TestMerkleTreeWithSpeechHashes:
@@ -271,8 +269,12 @@ class TestMerkleProofForAllEvents:
         tree = MerkleTree(hashes, algorithm="sha256")
 
         # Get proofs for different positions
-        proof0 = tree.generate_proof(leaf_index=0, event_id=chained[0].event_id, epoch=1)
-        proof1 = tree.generate_proof(leaf_index=1, event_id=chained[1].event_id, epoch=1)
+        proof0 = tree.generate_proof(
+            leaf_index=0, event_id=chained[0].event_id, epoch=1
+        )
+        proof1 = tree.generate_proof(
+            leaf_index=1, event_id=chained[1].event_id, epoch=1
+        )
 
         # Proof paths should differ
         assert proof0.merkle_path != proof1.merkle_path

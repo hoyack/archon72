@@ -118,7 +118,9 @@ class HeartbeatEmitterStub(HeartbeatEmitterPort):
             New Heartbeat with signature field set.
         """
         # Create dev mode signature (not cryptographically valid)
-        dev_signature = f"{DEV_MODE_SIGNATURE_PREFIX}:{heartbeat.agent_id}:{heartbeat.heartbeat_id}"
+        dev_signature = (
+            f"{DEV_MODE_SIGNATURE_PREFIX}:{heartbeat.agent_id}:{heartbeat.heartbeat_id}"
+        )
 
         signed = Heartbeat(
             heartbeat_id=heartbeat.heartbeat_id,

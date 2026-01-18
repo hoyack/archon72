@@ -3,8 +3,6 @@
 Tests the threshold error classes.
 """
 
-import pytest
-
 from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.threshold import (
     ConstitutionalFloorViolationError,
@@ -72,7 +70,9 @@ class TestConstitutionalFloorViolationError:
 
     def test_inherits_from_constitutional_violation(self) -> None:
         """Test error inherits from ConstitutionalViolationError."""
-        assert issubclass(ConstitutionalFloorViolationError, ConstitutionalViolationError)
+        assert issubclass(
+            ConstitutionalFloorViolationError, ConstitutionalViolationError
+        )
 
     def test_with_float_values(self) -> None:
         """Test error works with float values."""

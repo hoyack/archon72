@@ -179,9 +179,7 @@ class TestExportEndpointIntegration:
 
     def test_export_with_sequence_filter(self, client) -> None:
         """Verify export respects sequence range filter."""
-        response = client.get(
-            "/v1/observer/export?start_sequence=2&end_sequence=4"
-        )
+        response = client.get("/v1/observer/export?start_sequence=2&end_sequence=4")
 
         content = response.text
         lines = [line for line in content.strip().split("\n") if line]

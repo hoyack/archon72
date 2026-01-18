@@ -10,7 +10,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.breach_repository import BreachRepositoryProtocol
@@ -47,7 +46,7 @@ class BreachRepositoryStub(BreachRepositoryProtocol):
         """
         self._breaches[breach.breach_id] = breach
 
-    async def get_by_id(self, breach_id: UUID) -> Optional[BreachEventPayload]:
+    async def get_by_id(self, breach_id: UUID) -> BreachEventPayload | None:
         """Retrieve a specific breach event by ID.
 
         Args:
@@ -76,10 +75,7 @@ class BreachRepositoryStub(BreachRepositoryProtocol):
         Returns:
             List of breach events matching the type, ordered by detection_timestamp.
         """
-        filtered = [
-            b for b in self._breaches.values()
-            if b.breach_type == breach_type
-        ]
+        filtered = [b for b in self._breaches.values() if b.breach_type == breach_type]
         return sorted(filtered, key=lambda b: b.detection_timestamp)
 
     async def filter_by_date_range(
@@ -97,8 +93,7 @@ class BreachRepositoryStub(BreachRepositoryProtocol):
             List of breach events within the date range, ordered by detection_timestamp.
         """
         filtered = [
-            b for b in self._breaches.values()
-            if start <= b.detection_timestamp <= end
+            b for b in self._breaches.values() if start <= b.detection_timestamp <= end
         ]
         return sorted(filtered, key=lambda b: b.detection_timestamp)
 
@@ -120,9 +115,9 @@ class BreachRepositoryStub(BreachRepositoryProtocol):
             ordered by detection_timestamp.
         """
         filtered = [
-            b for b in self._breaches.values()
-            if b.breach_type == breach_type
-            and start <= b.detection_timestamp <= end
+            b
+            for b in self._breaches.values()
+            if b.breach_type == breach_type and start <= b.detection_timestamp <= end
         ]
         return sorted(filtered, key=lambda b: b.detection_timestamp)
 
@@ -137,9 +132,9 @@ class BreachRepositoryStub(BreachRepositoryProtocol):
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
         count = sum(
-            1 for b in self._breaches.values()
-            if b.detection_timestamp >= cutoff
-            and b.breach_id not in self._acknowledged
+            1
+            for b in self._breaches.values()
+            if b.detection_timestamp >= cutoff and b.breach_id not in self._acknowledged
         )
         return count
 
@@ -156,9 +151,9 @@ class BreachRepositoryStub(BreachRepositoryProtocol):
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
         breaches = [
-            b for b in self._breaches.values()
-            if b.detection_timestamp >= cutoff
-            and b.breach_id not in self._acknowledged
+            b
+            for b in self._breaches.values()
+            if b.detection_timestamp >= cutoff and b.breach_id not in self._acknowledged
         ]
         return sorted(breaches, key=lambda b: b.detection_timestamp)
 

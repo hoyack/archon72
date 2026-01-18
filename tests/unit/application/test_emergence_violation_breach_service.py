@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any, Optional
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
@@ -32,7 +32,6 @@ from src.domain.events.breach import (
     BreachType,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -43,7 +42,7 @@ class MockBreachDeclarationService:
 
     def __init__(self) -> None:
         self.declare_breach_mock = AsyncMock()
-        self._created_breach: Optional[BreachEventPayload] = None
+        self._created_breach: BreachEventPayload | None = None
 
     def set_breach_result(self, breach: BreachEventPayload) -> None:
         """Configure the breach to return."""
@@ -60,7 +59,7 @@ class MockBreachDeclarationService:
         violated_requirement: str,
         severity: BreachSeverity,
         details: dict[str, Any],
-        source_event_id: Optional[UUID] = None,
+        source_event_id: UUID | None = None,
     ) -> BreachEventPayload:
         """Delegate to mock."""
         return await self.declare_breach_mock(
@@ -118,11 +117,11 @@ def service(
 
 
 def create_breach_payload(
-    breach_id: Optional[UUID] = None,
+    breach_id: UUID | None = None,
     breach_type: BreachType = BreachType.EMERGENCE_VIOLATION,
     violated_requirement: str = "FR55",
     severity: BreachSeverity = BreachSeverity.HIGH,
-    source_event_id: Optional[UUID] = None,
+    source_event_id: UUID | None = None,
 ) -> BreachEventPayload:
     """Create a breach payload for testing."""
     return BreachEventPayload(

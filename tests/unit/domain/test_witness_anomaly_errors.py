@@ -1,8 +1,8 @@
 """Unit tests for witness anomaly errors (Story 6.6, FR116-FR117)."""
 
 from datetime import datetime, timezone
-import pytest
 
+from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.witness_anomaly import (
     AnomalyScanError,
     WitnessAnomalyError,
@@ -11,7 +11,6 @@ from src.domain.errors.witness_anomaly import (
     WitnessPoolDegradedError,
     WitnessUnavailabilityPatternError,
 )
-from src.domain.errors.constitutional import ConstitutionalViolationError
 
 
 class TestWitnessAnomalyErrorHierarchy:

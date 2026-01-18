@@ -110,6 +110,9 @@ class WitnessSuppressionAttemptError(ConstitutionalViolationError):
             scope: The override scope that attempted witness suppression.
             message: Optional custom error message. Defaults to FR26 message.
         """
-        msg = message or f"FR26: Constitution supremacy - witnessing cannot be suppressed (scope: {scope})"
+        msg = (
+            message
+            or f"FR26: Constitution supremacy - witnessing cannot be suppressed (scope: {scope})"
+        )
         super().__init__(msg)
         self.scope = scope

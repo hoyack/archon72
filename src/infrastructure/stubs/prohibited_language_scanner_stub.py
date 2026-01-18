@@ -23,7 +23,6 @@ from src.application.ports.prohibited_language_scanner import (
 from src.domain.models.prohibited_language import (
     DEFAULT_PROHIBITED_TERMS,
     ProhibitedTermsList,
-    normalize_for_scanning,
 )
 
 

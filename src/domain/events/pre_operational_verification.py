@@ -23,7 +23,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
 # Event type constants for pre-operational verification events
 VERIFICATION_BYPASSED_EVENT_TYPE: str = "system.verification.bypassed"

@@ -5,15 +5,13 @@ consent-gov-5-2 story (FR29, AC1-AC9).
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
 
 import pytest
 
-from src.application.ports.governance.legitimacy_decay_port import DecayResult
 from src.application.services.governance.legitimacy_decay_service import (
-    LegitimacyDecayService,
     BAND_DECREASED_EVENT,
+    LegitimacyDecayService,
 )
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
 from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
@@ -50,8 +48,8 @@ class FakeLegitimacyPort:
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         result = self._transitions
         if since:
@@ -71,14 +69,14 @@ class FakeLegitimacyPort:
         self._state = LegitimacyState.initial(timestamp)
         return self._state
 
-    async def get_state_at(self, timestamp: datetime) -> Optional[LegitimacyState]:
+    async def get_state_at(self, timestamp: datetime) -> LegitimacyState | None:
         return self._state
 
 
 class FakeTimeAuthority:
     """Fake TimeAuthority for testing."""
 
-    def __init__(self, fixed_time: Optional[datetime] = None) -> None:
+    def __init__(self, fixed_time: datetime | None = None) -> None:
         self._fixed_time = fixed_time or datetime.now(timezone.utc)
 
     def now(self) -> datetime:
@@ -97,13 +95,15 @@ class FakeEventEmitter:
         actor: str,
         payload: dict,
     ) -> None:
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
-    def get_last(self, event_type: Optional[str] = None) -> Optional[dict]:
+    def get_last(self, event_type: str | None = None) -> dict | None:
         if event_type:
             for event in reversed(self.events):
                 if event["event_type"] == event_type:

@@ -9,8 +9,6 @@ Constitutional Constraints:
 
 import time
 
-import pytest
-
 from src.infrastructure.monitoring.metrics import (
     MetricsCollector,
     get_metrics_collector,
@@ -59,7 +57,10 @@ class TestMetricsCollector:
         # Verify counter was incremented by checking generated metrics
         output = generate_latest(collector.get_registry()).decode("utf-8")
         assert 'service_starts_total{environment="development",service="api"}' in output
-        assert 'service_starts_total{environment="development",service="observer"}' in output
+        assert (
+            'service_starts_total{environment="development",service="observer"}'
+            in output
+        )
 
     def test_histogram_recording(self) -> None:
         """Test request duration histogram records values."""
@@ -120,8 +121,12 @@ class TestMetricsCollector:
 
         # Increment failed request counter with error_type
         collector.increment_failed_requests("GET", "/v1/events/123", "404", "not_found")
-        collector.increment_failed_requests("POST", "/v1/events", "500", "internal_error")
-        collector.increment_failed_requests("GET", "/v1/observer", "503", "service_unavailable")
+        collector.increment_failed_requests(
+            "POST", "/v1/events", "500", "internal_error"
+        )
+        collector.increment_failed_requests(
+            "GET", "/v1/observer", "503", "service_unavailable"
+        )
 
         # Verify counter was incremented by checking generated metrics
         output = generate_latest(collector.get_registry()).decode("utf-8")
@@ -230,4 +235,4 @@ class TestMetricsExposition:
         from src.infrastructure.monitoring.metrics import METRICS_CONTENT_TYPE
 
         expected = "text/plain; version=0.0.4; charset=utf-8"
-        assert METRICS_CONTENT_TYPE == expected
+        assert expected == METRICS_CONTENT_TYPE

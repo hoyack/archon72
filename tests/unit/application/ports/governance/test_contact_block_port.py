@@ -8,9 +8,10 @@ Tests:
 - Fake implementation for testing
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
+
+import pytest
 
 from src.application.ports.governance.contact_block_port import ContactBlockPort
 from src.domain.governance.exit.contact_block import ContactBlock
@@ -176,9 +177,7 @@ class TestFakeContactBlockAdapter:
         assert await adapter.get_all_blocked() == []
 
     @pytest.mark.asyncio
-    async def test_get_all_blocked_returns_ids(
-        self, adapter: FakeContactBlockAdapter
-    ):
+    async def test_get_all_blocked_returns_ids(self, adapter: FakeContactBlockAdapter):
         """get_all_blocked returns all blocked IDs."""
         cluster_ids = [uuid4() for _ in range(3)]
 

@@ -20,7 +20,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.models.integrity_case import IntegrityCaseArtifact
 
@@ -58,7 +58,7 @@ class IntegrityCaseRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_version(self, version: str) -> Optional[IntegrityCaseArtifact]:
+    async def get_version(self, version: str) -> IntegrityCaseArtifact | None:
         """Retrieve a specific historical version of the artifact.
 
         Constitutional Constraint (FR144):

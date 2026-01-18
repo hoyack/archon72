@@ -61,7 +61,6 @@ Usage Patterns:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Union
 
 from src.application.ports.time_authority import TimeAuthorityProtocol
 

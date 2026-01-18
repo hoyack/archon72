@@ -11,7 +11,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.cessation_agenda_repository import (
@@ -35,7 +34,9 @@ class CessationAgendaRepositoryStub(CessationAgendaRepositoryProtocol):
     def __init__(self) -> None:
         """Initialize the stub with empty storage."""
         self._placements: dict[UUID, CessationAgendaPlacementEventPayload] = {}
-        self._by_trigger: dict[AgendaTriggerType, CessationAgendaPlacementEventPayload] = {}
+        self._by_trigger: dict[
+            AgendaTriggerType, CessationAgendaPlacementEventPayload
+        ] = {}
         self._resolved: set[UUID] = set()
 
     def clear(self) -> None:
@@ -59,7 +60,7 @@ class CessationAgendaRepositoryStub(CessationAgendaRepositoryProtocol):
     async def get_by_id(
         self,
         placement_id: UUID,
-    ) -> Optional[CessationAgendaPlacementEventPayload]:
+    ) -> CessationAgendaPlacementEventPayload | None:
         """Retrieve a specific agenda placement by ID.
 
         Args:
@@ -72,7 +73,7 @@ class CessationAgendaRepositoryStub(CessationAgendaRepositoryProtocol):
 
     async def get_active_placement(
         self,
-    ) -> Optional[CessationAgendaPlacementEventPayload]:
+    ) -> CessationAgendaPlacementEventPayload | None:
         """Get the currently active agenda placement, if any.
 
         An agenda placement is "active" if it hasn't been resolved
@@ -90,7 +91,7 @@ class CessationAgendaRepositoryStub(CessationAgendaRepositoryProtocol):
     async def get_placement_by_trigger(
         self,
         trigger_type: AgendaTriggerType,
-    ) -> Optional[CessationAgendaPlacementEventPayload]:
+    ) -> CessationAgendaPlacementEventPayload | None:
         """Get the most recent placement for a specific trigger type.
 
         Args:

@@ -10,7 +10,6 @@ Constitutional Constraints:
 """
 
 import asyncio
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -96,7 +95,9 @@ class TestWebhookSubscription:
         )
 
         # Mock the test notification
-        with patch.object(service, "_send_test_notification", return_value=True) as mock:
+        with patch.object(
+            service, "_send_test_notification", return_value=True
+        ) as mock:
             response = await service.subscribe_webhook(subscription)
 
         assert response.test_sent is True
@@ -402,7 +403,7 @@ class TestWebhookDelivery:
     @pytest.mark.asyncio
     async def test_delivery_confirmation_logged(self) -> None:
         """Test that delivery confirmation is logged (CT-11)."""
-        service = NotificationService()
+        NotificationService()
 
         payload = NotificationPayload(
             event_id=uuid4(),

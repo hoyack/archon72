@@ -51,9 +51,10 @@ class TestSystemCeasedError:
 
     def test_from_details_factory(self) -> None:
         """Should create error from CessationDetails."""
+        from uuid import uuid4
+
         from src.domain.errors.ceased import SystemCeasedError
         from src.domain.models.ceased_status_header import CessationDetails
-        from uuid import uuid4
 
         details = CessationDetails(
             ceased_at=datetime.now(timezone.utc),

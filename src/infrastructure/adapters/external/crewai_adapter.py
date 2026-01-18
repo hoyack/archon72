@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from crewai import Agent, Task, Crew, LLM
+from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.agent_orchestrator import (
@@ -215,9 +215,7 @@ class CrewAIAdapter(AgentOrchestratorProtocol):
         if profile:
             return profile
 
-        raise AgentNotFoundError(
-            f"Agent '{agent_id}' not found in profile repository"
-        )
+        raise AgentNotFoundError(f"Agent '{agent_id}' not found in profile repository")
 
     def _create_crewai_agent(
         self,
@@ -252,7 +250,7 @@ class CrewAIAdapter(AgentOrchestratorProtocol):
             )
 
         # Map tools from suggested_tools via ToolRegistry (Story 10-3)
-        tools: list["BaseTool"] = []
+        tools: list[BaseTool] = []
         if self._tool_registry:
             tools = self._tool_registry.get_tools(profile.suggested_tools)
             if len(tools) < len(profile.suggested_tools):
@@ -395,8 +393,10 @@ Be thorough but concise in your response.""",
                 generated_at=datetime.now(timezone.utc),
             )
 
-        except asyncio.TimeoutError:
-            error_msg = f"Agent {agent_id} timed out after {profile.llm_config.timeout_ms}ms"
+        except TimeoutError:
+            error_msg = (
+                f"Agent {agent_id} timed out after {profile.llm_config.timeout_ms}ms"
+            )
             self._agent_status[agent_id] = AgentStatusInfo(
                 agent_id=agent_id,
                 status=AgentStatus.FAILED,
@@ -451,10 +451,7 @@ Be thorough but concise in your response.""",
 
         # Execute all invocations concurrently
         outputs = await asyncio.gather(
-            *[
-                self.invoke(req.agent_id, req.context)
-                for req in requests
-            ],
+            *[self.invoke(req.agent_id, req.context) for req in requests],
             return_exceptions=True,
         )
 
@@ -658,10 +655,12 @@ def create_crewai_adapter(
         from src.infrastructure.adapters.config.archon_profile_adapter import (
             create_archon_profile_repository,
         )
+
         profile_repository = create_archon_profile_repository()
 
     if tool_registry is None and include_default_tools:
         from src.infrastructure.adapters.tools import create_tool_registry
+
         tool_registry = create_tool_registry()
 
     return CrewAIAdapter(

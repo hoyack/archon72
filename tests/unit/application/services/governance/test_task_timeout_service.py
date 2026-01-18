@@ -20,7 +20,7 @@ Constitutional Guarantees Tested:
 """
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -36,7 +36,6 @@ from src.application.services.governance.task_timeout_service import (
 )
 from src.domain.governance.task.task_state import TaskState, TaskStatus
 from tests.helpers.fake_time_authority import FakeTimeAuthority
-
 
 # ==============================================================================
 # Fixtures
@@ -898,9 +897,7 @@ class TestTimeoutProcessingResult:
 
     def test_has_errors_with_errors(self):
         """has_errors is True when errors exist."""
-        result = TimeoutProcessingResult(
-            errors=[(uuid4(), "Test error")]
-        )
+        result = TimeoutProcessingResult(errors=[(uuid4(), "Test error")])
 
         assert result.has_errors is True
 
@@ -953,6 +950,7 @@ class TestTaskTimeoutScheduler:
         await scheduler.start()
         # Give the task a moment to start
         import asyncio
+
         await asyncio.sleep(0.01)
 
         assert scheduler.is_running is True
@@ -967,6 +965,7 @@ class TestTaskTimeoutScheduler:
 
         await scheduler.start()
         import asyncio
+
         await asyncio.sleep(0.01)
         await scheduler.stop()
 

@@ -40,7 +40,9 @@ class KeyGenerationCeremonyStub(KeyGenerationCeremonyProtocol):
 
     def __init__(self) -> None:
         """Initialize empty ceremony store."""
-        self._ceremonies: dict[str, KeyGenerationCeremony] = {}  # ceremony_id -> Ceremony
+        self._ceremonies: dict[
+            str, KeyGenerationCeremony
+        ] = {}  # ceremony_id -> Ceremony
 
     async def get_ceremony(self, ceremony_id: str) -> KeyGenerationCeremony | None:
         """Get a ceremony by its ID.
@@ -230,7 +232,8 @@ class KeyGenerationCeremonyStub(KeyGenerationCeremonyProtocol):
             List of active ceremonies that have timed out.
         """
         return [
-            c for c in self._ceremonies.values()
+            c
+            for c in self._ceremonies.values()
             if c.is_active() and c.created_at < timeout_threshold
         ]
 

@@ -13,8 +13,6 @@ CRITICAL: Keeper identity is NOT anonymized per FR25.
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-import pytest
-
 from src.api.adapters.override import EventToOverrideAdapter
 from src.api.models.override import OverrideEventResponse
 from src.domain.events import Event

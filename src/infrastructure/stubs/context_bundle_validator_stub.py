@@ -65,7 +65,9 @@ class ContextBundleValidatorStub(ContextBundleValidatorPort):
         Args:
             signing_key_id: Expected signing key ID for validation.
         """
-        self._signing_key_id = signing_key_id or "BUNDLE:DEV_STUB:ContextBundleCreatorStub:v1"
+        self._signing_key_id = (
+            signing_key_id or "BUNDLE:DEV_STUB:ContextBundleCreatorStub:v1"
+        )
         logger.debug(
             "context_bundle_validator_stub_initialized",
             watermark=DEV_MODE_WATERMARK,
@@ -338,7 +340,7 @@ class ContextBundleValidatorStub(ContextBundleValidatorPort):
         if len(ref) != CONTENT_REF_LENGTH:
             return False
         # Check hex characters after prefix
-        hash_part = ref[len(CONTENT_REF_PREFIX):]
+        hash_part = ref[len(CONTENT_REF_PREFIX) :]
         try:
             int(hash_part, 16)
             return hash_part == hash_part.lower()

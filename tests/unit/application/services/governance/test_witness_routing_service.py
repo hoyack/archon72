@@ -12,7 +12,7 @@ Tests:
 """
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
@@ -29,8 +29,8 @@ from src.application.services.governance.witness_routing_service import (
     determine_priority,
 )
 from src.domain.governance.queue.priority import QueuePriority
-from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.queue.queued_statement import QueuedStatement
+from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.witness.observation_content import ObservationContent
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
@@ -39,7 +39,7 @@ from src.domain.governance.witness.witness_statement import WitnessStatement
 class FakeTimeAuthority(TimeAuthorityProtocol):
     """Fake time authority for testing."""
 
-    def __init__(self, fixed_time: Optional[datetime] = None) -> None:
+    def __init__(self, fixed_time: datetime | None = None) -> None:
         self._fixed_time = fixed_time or datetime(
             2026, 1, 17, 12, 0, 0, tzinfo=timezone.utc
         )
@@ -59,7 +59,7 @@ class FakePanelQueue(PanelQueuePort):
 
     def __init__(self) -> None:
         self._items: list[QueuedStatement] = []
-        self._enqueue_error: Optional[Exception] = None
+        self._enqueue_error: Exception | None = None
 
     def set_enqueue_error(self, error: Exception) -> None:
         """Configure queue to raise error on enqueue."""
@@ -72,7 +72,7 @@ class FakePanelQueue(PanelQueuePort):
 
     async def get_pending_statements(
         self,
-        priority: Optional[QueuePriority] = None,
+        priority: QueuePriority | None = None,
     ) -> list[QueuedStatement]:
         items = [i for i in self._items if i.status == QueueItemStatus.PENDING]
         if priority:
@@ -82,7 +82,7 @@ class FakePanelQueue(PanelQueuePort):
     async def get_statements_by_status(
         self,
         status: QueueItemStatus,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[QueuedStatement]:
         items = [i for i in self._items if i.status == status]
         if since:
@@ -91,7 +91,7 @@ class FakePanelQueue(PanelQueuePort):
 
     async def get_all_items(
         self,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[QueuedStatement]:
         items = self._items
         if since:
@@ -101,7 +101,7 @@ class FakePanelQueue(PanelQueuePort):
     async def get_item_by_id(
         self,
         queue_item_id: UUID,
-    ) -> Optional[QueuedStatement]:
+    ) -> QueuedStatement | None:
         for item in self._items:
             if item.queue_item_id == queue_item_id:
                 return item
@@ -462,9 +462,7 @@ class TestWitnessRoutingService:
 
         await routing_service.route_statement(statement)
 
-        commits = event_emitter.get_commits_by_type(
-            "judicial.witness.statement_queued"
-        )
+        commits = event_emitter.get_commits_by_type("judicial.witness.statement_queued")
         assert len(commits) == 1
         payload = commits[0]["result_payload"]
         assert payload["event_type"] == "judicial.witness.statement_queued"

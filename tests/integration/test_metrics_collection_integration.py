@@ -15,8 +15,8 @@ from src.api.middleware.metrics_middleware import MetricsMiddleware
 from src.api.routes.metrics import router as metrics_router
 from src.infrastructure.monitoring.metrics import (
     METRICS_CONTENT_TYPE,
-    reset_metrics_collector,
     get_metrics_collector,
+    reset_metrics_collector,
 )
 
 
@@ -223,9 +223,7 @@ class TestMetricsAccumulation:
         content = response.text
         assert "http_requests_failed_total" in content
 
-    def test_histogram_records_multiple_observations(
-        self, client: TestClient
-    ) -> None:
+    def test_histogram_records_multiple_observations(self, client: TestClient) -> None:
         """Test histogram records multiple request durations."""
         # Make multiple requests
         for _ in range(10):

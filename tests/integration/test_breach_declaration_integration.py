@@ -277,9 +277,7 @@ class TestFilterBreachesByType:
         )
 
         # Filter by HASH_MISMATCH
-        results = await service.filter_breaches(
-            breach_type=BreachType.HASH_MISMATCH
-        )
+        results = await service.filter_breaches(breach_type=BreachType.HASH_MISMATCH)
 
         assert len(results) == 2
         assert all(b.breach_type == BreachType.HASH_MISMATCH for b in results)
@@ -418,9 +416,7 @@ class TestHaltCheckPreventsOperations:
             await halted_service.list_all_breaches()
 
         with pytest.raises(SystemHaltedError):
-            await halted_service.filter_breaches(
-                breach_type=BreachType.HASH_MISMATCH
-            )
+            await halted_service.filter_breaches(breach_type=BreachType.HASH_MISMATCH)
 
         with pytest.raises(SystemHaltedError):
             await halted_service.get_breach_by_id(uuid4())
@@ -450,9 +446,7 @@ class TestMultipleBreachesSameType:
         assert len(set(breach_ids)) == 5
 
         # All can be queried
-        results = await service.filter_breaches(
-            breach_type=BreachType.HASH_MISMATCH
-        )
+        results = await service.filter_breaches(breach_type=BreachType.HASH_MISMATCH)
         assert len(results) == 5
 
 

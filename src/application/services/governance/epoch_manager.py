@@ -19,9 +19,8 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import TYPE_CHECKING
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from src.application.ports.governance.merkle_tree_port import EpochConfig, EpochInfo
 from src.domain.governance.events.hash_algorithms import DEFAULT_ALGORITHM
@@ -30,7 +29,6 @@ from src.domain.governance.events.merkle_tree import MerkleTree
 if TYPE_CHECKING:
     from src.application.ports.governance.ledger_port import (
         GovernanceLedgerPort,
-        LedgerReadOptions,
     )
     from src.application.ports.time_authority import TimeAuthority
 
@@ -51,8 +49,8 @@ class EpochManagerService:
         _built_epochs: In-memory cache of built epochs.
     """
 
-    ledger_port: "GovernanceLedgerPort"
-    time_authority: "TimeAuthority"
+    ledger_port: GovernanceLedgerPort
+    time_authority: TimeAuthority
     config: EpochConfig = field(default_factory=EpochConfig)
     _built_epochs: dict[int, EpochInfo] = field(default_factory=dict)
 

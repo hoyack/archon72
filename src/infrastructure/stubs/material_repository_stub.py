@@ -57,9 +57,7 @@ class MaterialRepositoryStub(MaterialRepositoryProtocol):
         """
         return list(self._materials.values())
 
-    async def get_materials_by_type(
-        self, material_type: str
-    ) -> list[Material]:
+    async def get_materials_by_type(self, material_type: str) -> list[Material]:
         """Get materials filtered by type.
 
         Args:
@@ -68,10 +66,7 @@ class MaterialRepositoryStub(MaterialRepositoryProtocol):
         Returns:
             List of materials matching the specified type.
         """
-        return [
-            m for m in self._materials.values()
-            if m.material_type == material_type
-        ]
+        return [m for m in self._materials.values() if m.material_type == material_type]
 
     async def get_material_count(self) -> int:
         """Get total count of public materials.

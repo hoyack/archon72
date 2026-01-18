@@ -25,7 +25,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-
 # Event type constants for hash verification
 HASH_VERIFICATION_BREACH_EVENT_TYPE: str = "hash.verification_breach"
 HASH_VERIFICATION_COMPLETED_EVENT_TYPE: str = "hash.verification_completed"

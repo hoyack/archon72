@@ -10,7 +10,6 @@ Constitutional Constraints Tested:
 - AC3: Sequence as authoritative order
 """
 
-
 from src.application.ports.event_store import validate_sequence_continuity
 
 
@@ -31,9 +30,7 @@ class TestValidateSequenceContinuity:
 
     def test_continuous_sequence_no_gaps(self) -> None:
         """Continuous sequence with no gaps."""
-        is_continuous, missing = validate_sequence_continuity(
-            sequences=[1, 2, 3, 4, 5]
-        )
+        is_continuous, missing = validate_sequence_continuity(sequences=[1, 2, 3, 4, 5])
         assert is_continuous is True
         assert missing == []
 
@@ -154,7 +151,6 @@ class TestValidateSequenceContinuity:
 # =============================================================================
 
 import inspect
-from abc import ABC
 
 from src.application.ports.event_store import EventStorePort
 
@@ -200,7 +196,9 @@ class TestEventStorePortOrphaningExtension:
 
     def test_query_with_include_orphaned_flag(self) -> None:
         """get_events_by_sequence_range_with_orphaned should exist."""
-        method = getattr(EventStorePort, "get_events_by_sequence_range_with_orphaned", None)
+        method = getattr(
+            EventStorePort, "get_events_by_sequence_range_with_orphaned", None
+        )
         assert method is not None
 
         sig = inspect.signature(method)

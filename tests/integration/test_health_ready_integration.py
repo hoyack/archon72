@@ -6,12 +6,13 @@ Tests for /v1/health liveness and /v1/ready readiness endpoints (AC5).
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, patch
 
+from src.api.models.health import DependencyCheck
 from src.api.routes.health import router as health_router
-from src.application.services.health_service import HealthService
-from src.api.models.health import DependencyCheck, ReadyResponse
-from src.infrastructure.monitoring.metrics import reset_metrics_collector, get_metrics_collector
+from src.infrastructure.monitoring.metrics import (
+    get_metrics_collector,
+    reset_metrics_collector,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -145,7 +146,7 @@ class TestReadyEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        for check_name, check_data in data["checks"].items():
+        for _check_name, check_data in data["checks"].items():
             assert "latency_ms" in check_data
 
 
@@ -156,7 +157,6 @@ class TestReadyUnhealthyScenarios:
         """Test /v1/ready returns 503 when database is down (AC5)."""
         from src.application.services.health_service import (
             DependencyChecker,
-            HealthService,
             configure_health_service,
             reset_health_service,
         )

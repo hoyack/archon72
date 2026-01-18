@@ -11,8 +11,8 @@ from unittest.mock import patch
 import pytest
 
 from src.domain.models.signable import (
-    DevModeEnvironmentMismatchError,
     PRODUCTION_ENVIRONMENTS,
+    DevModeEnvironmentMismatchError,
     _detect_environment,
     _is_production_environment,
     is_dev_mode,
@@ -123,7 +123,9 @@ class TestValidateDevModeConsistency:
 
     def test_production_mode_in_development_allowed(self) -> None:
         """DEV_MODE=false in development should be allowed (logs info)."""
-        with patch.dict(os.environ, {"DEV_MODE": "false", "ENVIRONMENT": "development"}):
+        with patch.dict(
+            os.environ, {"DEV_MODE": "false", "ENVIRONMENT": "development"}
+        ):
             # Should not raise
             validate_dev_mode_consistency()
 

@@ -30,7 +30,6 @@ from src.application.ports.advisory_acknowledgment import (
 from src.application.ports.knight_witness import (
     KnightWitnessProtocol,
     ObservationContext,
-    WitnessStatementType,
 )
 from src.application.ports.marquis_service import Advisory
 
@@ -409,7 +408,9 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
 
                     # Escalated violations require Conclave acknowledgment
                     if status == AcknowledgmentDeadlineStatus.ESCALATED:
-                        self._knight_witness.trigger_acknowledgment(statement.statement_id)
+                        self._knight_witness.trigger_acknowledgment(
+                            statement.statement_id
+                        )
 
         return violations
 
@@ -508,7 +509,9 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
                 metadata={
                     "window_id": str(window_id),
                     "topic": window.topic,
-                    "duration_seconds": (closed_window.closed_at - window.opened_at).total_seconds()
+                    "duration_seconds": (
+                        closed_window.closed_at - window.opened_at
+                    ).total_seconds()
                     if closed_window.closed_at
                     else None,
                 },

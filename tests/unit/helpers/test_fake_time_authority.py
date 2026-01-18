@@ -354,10 +354,14 @@ class TestInspectionMethods:
 class TestPytestFixtures:
     """AC6: Test pytest fixtures work correctly."""
 
-    def test_fake_time_authority_fixture(self, fake_time_authority: FakeTimeAuthority) -> None:
+    def test_fake_time_authority_fixture(
+        self, fake_time_authority: FakeTimeAuthority
+    ) -> None:
         """Verify fake_time_authority fixture provides fresh instance."""
         assert isinstance(fake_time_authority, FakeTimeAuthority)
-        assert fake_time_authority.now() == datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        assert fake_time_authority.now() == datetime(
+            2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc
+        )
 
     def test_frozen_time_authority_fixture(
         self, frozen_time_authority: FakeTimeAuthority

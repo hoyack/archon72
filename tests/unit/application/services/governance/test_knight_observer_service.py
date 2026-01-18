@@ -26,7 +26,6 @@ References:
 
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -35,16 +34,14 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.services.governance.knight_observer_service import (
-    KnightObserverService,
-    ObservationMetrics,
     GapDetection,
+    KnightObserverService,
 )
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
 from src.domain.governance.witness.witness_statement_factory import (
     WitnessStatementFactory,
 )
-
 
 # =============================================================================
 # Test Doubles
@@ -128,7 +125,8 @@ class FakeGovernanceLedgerPort:
         event = FakePersistedGovernanceEvent(
             event_id=uuid4(),
             event_type=event_type,
-            timestamp=timestamp or datetime(2026, 1, 17, 10, 30, 0, tzinfo=timezone.utc),
+            timestamp=timestamp
+            or datetime(2026, 1, 17, 10, 30, 0, tzinfo=timezone.utc),
             actor_id=actor_id,
             sequence=self._max_sequence,
             payload=payload or {},
@@ -147,7 +145,8 @@ class FakeGovernanceLedgerPort:
         event = FakePersistedGovernanceEvent(
             event_id=uuid4(),
             event_type=event_type,
-            timestamp=timestamp or datetime(2026, 1, 17, 10, 30, 0, tzinfo=timezone.utc),
+            timestamp=timestamp
+            or datetime(2026, 1, 17, 10, 30, 0, tzinfo=timezone.utc),
             actor_id=actor_id,
             sequence=sequence,
         )
@@ -333,7 +332,7 @@ class TestKnightObserverServiceBasics:
         await observer2.stop()
 
         # Should have observed only 1 event (sequence 3)
-        statements = witness_port.get_all_statements()
+        witness_port.get_all_statements()
         # Due to the factory counter being shared, we may have more
         # But the observer should only have processed events from seq 3
         assert observer2.total_events_observed == 1
@@ -350,7 +349,7 @@ class TestEventObservation:
         witness_port: FakeWitnessPort,
     ) -> None:
         """Observer creates witness statements for ledger events (AC1, AC4)."""
-        event = ledger.add_event("executive.task.activated", actor_id="archon-42")
+        ledger.add_event("executive.task.activated", actor_id="archon-42")
 
         await observer.observe_once()
 
@@ -471,7 +470,7 @@ class TestGapDetection:
     ) -> None:
         """No gap detection for properly sequential events."""
         ledger.add_event("executive.task.activated")  # seq 1
-        ledger.add_event("executive.task.accepted")   # seq 2
+        ledger.add_event("executive.task.accepted")  # seq 2
         ledger.add_event("executive.task.completed")  # seq 3
 
         metrics = await observer.observe_once()

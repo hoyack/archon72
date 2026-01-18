@@ -9,7 +9,6 @@ Dissent is preserved per FR39 - it cannot be overruled, suppressed, or hidden.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 from uuid import UUID
 
 
@@ -42,7 +41,7 @@ class Dissent:
         ... )
     """
 
-    dissenting_member_ids: List[UUID]
+    dissenting_member_ids: list[UUID]
     """UUIDs of members who dissented from the majority."""
 
     rationale: str

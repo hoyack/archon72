@@ -92,7 +92,10 @@ class AgentUnresponsivePayload:
 
     def _validate_missed_heartbeat_count(self) -> None:
         """Validate missed_heartbeat_count is non-negative."""
-        if not isinstance(self.missed_heartbeat_count, int) or self.missed_heartbeat_count < 0:
+        if (
+            not isinstance(self.missed_heartbeat_count, int)
+            or self.missed_heartbeat_count < 0
+        ):
             raise ValueError(
                 f"missed_heartbeat_count must be non-negative integer, got {self.missed_heartbeat_count}"
             )
@@ -106,7 +109,9 @@ class AgentUnresponsivePayload:
         return {
             "agent_id": self.agent_id,
             "session_id": str(self.session_id),
-            "last_heartbeat": self.last_heartbeat.isoformat() if self.last_heartbeat else None,
+            "last_heartbeat": self.last_heartbeat.isoformat()
+            if self.last_heartbeat
+            else None,
             "missed_heartbeat_count": self.missed_heartbeat_count,
             "detection_timestamp": self.detection_timestamp.isoformat(),
             "flagged_for_recovery": self.flagged_for_recovery,

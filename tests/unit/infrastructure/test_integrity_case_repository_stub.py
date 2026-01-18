@@ -50,9 +50,7 @@ class TestIntegrityCaseRepositoryStubGetCurrent:
         repo = IntegrityCaseRepositoryStub()
 
         artifact = await repo.get_current()
-        covered_cts = {
-            g.ct_reference for g in artifact.guarantees if g.ct_reference
-        }
+        covered_cts = {g.ct_reference for g in artifact.guarantees if g.ct_reference}
 
         for i in range(1, 16):
             assert f"CT-{i}" in covered_cts

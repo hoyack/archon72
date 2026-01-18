@@ -65,7 +65,9 @@ class TimeAuthorityService(TimeAuthorityProtocol):
         >>> service.check_drift(local_ts, authority_ts, "event-123")
     """
 
-    def __init__(self, drift_threshold_seconds: float = DEFAULT_DRIFT_THRESHOLD_SECONDS) -> None:
+    def __init__(
+        self, drift_threshold_seconds: float = DEFAULT_DRIFT_THRESHOLD_SECONDS
+    ) -> None:
         """Initialize the time authority service.
 
         Args:

@@ -35,12 +35,12 @@ References:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-from src.domain.governance.panel.panel_finding import PanelFinding
 from src.domain.governance.panel.determination import Determination
 from src.domain.governance.panel.finding_record import FindingRecord
+from src.domain.governance.panel.panel_finding import PanelFinding
 
 
 @runtime_checkable
@@ -122,7 +122,7 @@ class PanelFindingPort(Protocol):
     async def get_finding(
         self,
         finding_id: UUID,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         """Get a finding by its finding ID.
 
         Args:
@@ -136,7 +136,7 @@ class PanelFindingPort(Protocol):
     async def get_finding_by_record_id(
         self,
         record_id: UUID,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         """Get a finding by its record ID.
 
         Args:
@@ -154,7 +154,7 @@ class PanelFindingPort(Protocol):
     async def get_findings_for_statement(
         self,
         statement_id: UUID,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         """Get all findings for a witness statement.
 
         Provides bi-directional query from statement to findings.
@@ -175,7 +175,7 @@ class PanelFindingPort(Protocol):
     async def get_findings_by_panel(
         self,
         panel_id: UUID,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         """Get all findings from a specific panel.
 
         Args:
@@ -193,8 +193,8 @@ class PanelFindingPort(Protocol):
     async def get_findings_by_determination(
         self,
         determination: Determination,
-        since: Optional[datetime] = None,
-    ) -> List[FindingRecord]:
+        since: datetime | None = None,
+    ) -> list[FindingRecord]:
         """Get findings by determination type.
 
         Supports historical analysis of panel decisions.
@@ -216,7 +216,7 @@ class PanelFindingPort(Protocol):
         self,
         start: datetime,
         end: datetime,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         """Get findings recorded within a date range.
 
         Supports historical queries for audit and analysis.
@@ -237,7 +237,7 @@ class PanelFindingPort(Protocol):
     async def get_finding_by_position(
         self,
         position: int,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         """Get a finding by its ledger position.
 
         Args:
@@ -248,7 +248,7 @@ class PanelFindingPort(Protocol):
         """
         ...
 
-    async def get_latest_finding(self) -> Optional[FindingRecord]:
+    async def get_latest_finding(self) -> FindingRecord | None:
         """Get the most recently recorded finding.
 
         Returns:
@@ -258,8 +258,8 @@ class PanelFindingPort(Protocol):
 
     async def count_findings(
         self,
-        determination: Optional[Determination] = None,
-        since: Optional[datetime] = None,
+        determination: Determination | None = None,
+        since: datetime | None = None,
     ) -> int:
         """Count findings matching criteria.
 

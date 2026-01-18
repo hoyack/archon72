@@ -385,12 +385,22 @@ class TestDefaultPatternConstants:
 
     def test_history_edit_patterns_contains_expected_values(self) -> None:
         """HISTORY_EDIT_PATTERNS should contain key patterns."""
-        expected = {"history", "event_store.delete", "event_store.modify", "audit.delete"}
+        expected = {
+            "history",
+            "event_store.delete",
+            "event_store.modify",
+            "audit.delete",
+        }
         assert expected.issubset(HISTORY_EDIT_PATTERNS)
 
     def test_evidence_destruction_patterns_contains_expected_values(self) -> None:
         """EVIDENCE_DESTRUCTION_PATTERNS should contain key patterns."""
-        expected = {"evidence", "witness.remove", "signature.invalidate", "hash_chain.modify"}
+        expected = {
+            "evidence",
+            "witness.remove",
+            "signature.invalidate",
+            "hash_chain.modify",
+        }
         assert expected.issubset(EVIDENCE_DESTRUCTION_PATTERNS)
 
     def test_general_forbidden_scopes_contains_expected_values(self) -> None:

@@ -53,7 +53,9 @@ class TestForkDetectedPayload:
         assert payload.prev_hash == valid_payload_data["prev_hash"]
         assert len(payload.content_hashes) == 2
         assert payload.detection_timestamp == valid_payload_data["detection_timestamp"]
-        assert payload.detecting_service_id == valid_payload_data["detecting_service_id"]
+        assert (
+            payload.detecting_service_id == valid_payload_data["detecting_service_id"]
+        )
 
     def test_payload_is_frozen(self, valid_payload_data: dict) -> None:
         """Payload should be immutable (frozen dataclass)."""

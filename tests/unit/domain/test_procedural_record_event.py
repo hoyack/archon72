@@ -118,7 +118,9 @@ class TestProceduralRecordPayload:
 
     def test_invalid_record_hash_wrong_length(self) -> None:
         """Should raise ValueError if record_hash is not 64 characters."""
-        with pytest.raises(ValueError, match="record_hash must be 64 character hex string"):
+        with pytest.raises(
+            ValueError, match="record_hash must be 64 character hex string"
+        ):
             ProceduralRecordPayload(
                 record_id=uuid4(),
                 deliberation_id=uuid4(),

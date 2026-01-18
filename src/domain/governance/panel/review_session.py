@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
 
@@ -88,17 +87,17 @@ class ReviewSession:
     started_at: datetime
     """When the review session started."""
 
-    ended_at: Optional[datetime]
+    ended_at: datetime | None
     """When the review session ended (None if ongoing)."""
 
-    reviewed_artifacts: List[ReviewedArtifact]
+    reviewed_artifacts: list[ReviewedArtifact]
     """List of all artifacts reviewed.
 
     Includes the primary witness statement and any related events
     or evidence the panel accessed during review.
     """
 
-    notes: Optional[str]
+    notes: str | None
     """Panel notes during review (optional).
 
     May include observations, questions, or points for deliberation.

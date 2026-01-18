@@ -23,26 +23,26 @@ from src.application.dtos.health import (
     ReadyResponseDTO,
 )
 from src.application.dtos.observer import (
-    # Dataclass DTOs (internal use)
-    CheckpointAnchorDTO,
-    HashChainProofDTO,
-    HashChainProofEntryDTO,
-    MerkleProofDTO,
-    MerkleProofEntryDTO,
-    NotificationEventTypeDTO,
-    NotificationPayloadDTO,
-    WebhookSubscriptionDTO,
-    WebhookSubscriptionResponseDTO,
     # Pydantic models (shared with API)
     CheckpointAnchor,
+    # Dataclass DTOs (internal use)
+    CheckpointAnchorDTO,
     HashChainProof,
+    HashChainProofDTO,
     HashChainProofEntry,
+    HashChainProofEntryDTO,
     MerkleProof,
+    MerkleProofDTO,
     MerkleProofEntry,
+    MerkleProofEntryDTO,
     NotificationEventType,
+    NotificationEventTypeDTO,
     NotificationPayload,
+    NotificationPayloadDTO,
     WebhookSubscription,
+    WebhookSubscriptionDTO,
     WebhookSubscriptionResponse,
+    WebhookSubscriptionResponseDTO,
 )
 
 __all__ = [

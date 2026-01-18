@@ -66,6 +66,7 @@ class TaskResult:
         """
         if not self.cluster_id or not self.cluster_id.strip():
             from src.domain.errors.constitutional import ConstitutionalViolationError
+
             raise ConstitutionalViolationError(
                 "FR6: TaskResult requires non-empty cluster_id"
             )
@@ -78,7 +79,7 @@ class TaskResult:
         cluster_id: str,
         output: dict[str, Any],
         timestamp: datetime,
-    ) -> "TaskResult":
+    ) -> TaskResult:
         """Factory method to create a TaskResult.
 
         Args:
@@ -120,9 +121,7 @@ class TaskResult:
 
         for field_name in expected_fields:
             if field_name not in self.output:
-                raise ValueError(
-                    f"FR6: Missing required output field: {field_name}"
-                )
+                raise ValueError(f"FR6: Missing required output field: {field_name}")
 
         return True
 

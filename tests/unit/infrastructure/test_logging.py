@@ -4,9 +4,7 @@ Tests the structlog configuration and logging output format.
 """
 
 import json
-import logging
 import os
-from io import StringIO
 from unittest.mock import patch
 
 import pytest
@@ -42,7 +40,9 @@ class TestConfigureStructlog:
             or (hasattr(p, "__class__") and "JSONRenderer" in str(type(p)))
             for p in processors
         )
-        assert json_renderer_found, "JSONRenderer should be in processors for production"
+        assert json_renderer_found, (
+            "JSONRenderer should be in processors for production"
+        )
 
     @pytest.mark.asyncio
     async def test_configure_development_mode(self) -> None:
@@ -63,7 +63,9 @@ class TestConfigureStructlog:
             or (hasattr(p, "__class__") and "ConsoleRenderer" in str(type(p)))
             for p in processors
         )
-        assert console_renderer_found, "ConsoleRenderer should be in processors for development"
+        assert console_renderer_found, (
+            "ConsoleRenderer should be in processors for development"
+        )
 
     @pytest.mark.asyncio
     async def test_configure_defaults_to_production(self) -> None:
@@ -91,7 +93,9 @@ class TestLogOutput:
         configure_structlog(environment="production")
 
     @pytest.mark.asyncio
-    async def test_json_output_structure(self, capsys: pytest.CaptureFixture[str]) -> None:
+    async def test_json_output_structure(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """Test that log output is valid JSON with required fields (AC1)."""
         # Set correlation ID for the test
         set_correlation_id("test-json-output")
@@ -123,7 +127,9 @@ class TestLogOutput:
         set_correlation_id("")
 
     @pytest.mark.asyncio
-    async def test_timestamp_iso8601_format(self, capsys: pytest.CaptureFixture[str]) -> None:
+    async def test_timestamp_iso8601_format(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """Test that timestamp is ISO 8601 format (AC1)."""
         set_correlation_id("test-timestamp")
 
@@ -145,7 +151,9 @@ class TestLogOutput:
         set_correlation_id("")
 
     @pytest.mark.asyncio
-    async def test_additional_context_preserved(self, capsys: pytest.CaptureFixture[str]) -> None:
+    async def test_additional_context_preserved(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """Test that additional context fields are preserved (AC1)."""
         set_correlation_id("test-context")
 

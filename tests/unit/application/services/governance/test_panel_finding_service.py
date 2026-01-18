@@ -17,31 +17,30 @@ References:
     - FR39: Prince Panel can record dissent in finding
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional
+from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
-from src.domain.governance.panel import (
-    PanelFinding,
-    Determination,
-    RemedyType,
-    Dissent,
-    FindingRecord,
-)
+import pytest
+
 from src.application.services.governance.panel_finding_service import (
+    DISSENT_RECORDED_EVENT,
+    FINDING_ISSUED_EVENT,
     PanelFindingService,
     compute_finding_hash,
-    FINDING_ISSUED_EVENT,
-    DISSENT_RECORDED_EVENT,
 )
-from src.application.ports.governance.panel_finding_port import PanelFindingPort
+from src.domain.governance.panel import (
+    Determination,
+    Dissent,
+    FindingRecord,
+    PanelFinding,
+    RemedyType,
+)
 
 
 class FakeTimeAuthority:
     """Fake time authority for testing."""
 
-    def __init__(self, fixed_time: Optional[datetime] = None) -> None:
+    def __init__(self, fixed_time: datetime | None = None) -> None:
         self._time = fixed_time or datetime.now(timezone.utc)
 
     def now(self) -> datetime:
@@ -56,7 +55,7 @@ class FakeEventEmitter:
     """Fake event emitter that captures events for testing."""
 
     def __init__(self) -> None:
-        self.events: List[Dict] = []
+        self.events: list[dict] = []
 
     async def emit(
         self,
@@ -64,13 +63,15 @@ class FakeEventEmitter:
         actor: str,
         payload: dict,
     ) -> None:
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
-    def get_last(self, event_type: str) -> Optional[Dict]:
+    def get_last(self, event_type: str) -> dict | None:
         """Get last event of given type."""
         for event in reversed(self.events):
             if event["event_type"] == event_type:
@@ -88,11 +89,11 @@ class FakePanelFindingAdapter:
     Provides append-only semantics for testing purposes.
     """
 
-    def __init__(self, time_authority: Optional[FakeTimeAuthority] = None) -> None:
-        self._records: Dict[UUID, FindingRecord] = {}
-        self._by_finding_id: Dict[UUID, FindingRecord] = {}
-        self._by_statement: Dict[UUID, List[FindingRecord]] = {}
-        self._by_panel: Dict[UUID, List[FindingRecord]] = {}
+    def __init__(self, time_authority: FakeTimeAuthority | None = None) -> None:
+        self._records: dict[UUID, FindingRecord] = {}
+        self._by_finding_id: dict[UUID, FindingRecord] = {}
+        self._by_statement: dict[UUID, list[FindingRecord]] = {}
+        self._by_panel: dict[UUID, list[FindingRecord]] = {}
         self._sequence = 0
         self._time = time_authority
 
@@ -128,32 +129,32 @@ class FakePanelFindingAdapter:
     async def get_finding(
         self,
         finding_id: UUID,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         return self._by_finding_id.get(finding_id)
 
     async def get_finding_by_record_id(
         self,
         record_id: UUID,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         return self._records.get(record_id)
 
     async def get_findings_for_statement(
         self,
         statement_id: UUID,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         return self._by_statement.get(statement_id, [])
 
     async def get_findings_by_panel(
         self,
         panel_id: UUID,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         return self._by_panel.get(panel_id, [])
 
     async def get_findings_by_determination(
         self,
         determination: Determination,
-        since: Optional[datetime] = None,
-    ) -> List[FindingRecord]:
+        since: datetime | None = None,
+    ) -> list[FindingRecord]:
         results = []
         for record in self._records.values():
             if record.determination == determination:
@@ -165,7 +166,7 @@ class FakePanelFindingAdapter:
         self,
         start: datetime,
         end: datetime,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         results = []
         for record in self._records.values():
             if start <= record.recorded_at <= end:
@@ -175,21 +176,21 @@ class FakePanelFindingAdapter:
     async def get_finding_by_position(
         self,
         position: int,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         for record in self._records.values():
             if record.ledger_position == position:
                 return record
         return None
 
-    async def get_latest_finding(self) -> Optional[FindingRecord]:
+    async def get_latest_finding(self) -> FindingRecord | None:
         if not self._records:
             return None
         return max(self._records.values(), key=lambda r: r.ledger_position)
 
     async def count_findings(
         self,
-        determination: Optional[Determination] = None,
-        since: Optional[datetime] = None,
+        determination: Determination | None = None,
+        since: datetime | None = None,
     ) -> int:
         count = 0
         for record in self._records.values():
@@ -203,13 +204,14 @@ class FakePanelFindingAdapter:
 
 # Test fixtures
 
+
 def _create_finding(
-    finding_id: Optional[UUID] = None,
-    panel_id: Optional[UUID] = None,
-    statement_id: Optional[UUID] = None,
+    finding_id: UUID | None = None,
+    panel_id: UUID | None = None,
+    statement_id: UUID | None = None,
     determination: Determination = Determination.VIOLATION_FOUND,
-    remedy: Optional[RemedyType] = RemedyType.WARNING,
-    dissent: Optional[Dissent] = None,
+    remedy: RemedyType | None = RemedyType.WARNING,
+    dissent: Dissent | None = None,
 ) -> PanelFinding:
     """Create a test finding."""
     member1, member2, member3 = uuid4(), uuid4(), uuid4()
@@ -328,7 +330,10 @@ class TestDissentPreservation:
 
         assert record.finding.dissent is not None
         assert len(record.finding.dissent.dissenting_member_ids) == 2
-        assert record.finding.dissent.rationale == "Strong disagreement with majority reasoning."
+        assert (
+            record.finding.dissent.rationale
+            == "Strong disagreement with majority reasoning."
+        )
 
     @pytest.mark.asyncio
     async def test_has_dissent_property_true_when_dissent(
@@ -669,12 +674,20 @@ class TestHistoricalQuery:
         service: PanelFindingService,
     ) -> None:
         """Can count findings."""
-        await service.preserve_finding(_create_finding(determination=Determination.VIOLATION_FOUND))
-        await service.preserve_finding(_create_finding(determination=Determination.VIOLATION_FOUND))
-        await service.preserve_finding(_create_finding(determination=Determination.NO_VIOLATION))
+        await service.preserve_finding(
+            _create_finding(determination=Determination.VIOLATION_FOUND)
+        )
+        await service.preserve_finding(
+            _create_finding(determination=Determination.VIOLATION_FOUND)
+        )
+        await service.preserve_finding(
+            _create_finding(determination=Determination.NO_VIOLATION)
+        )
 
         total = await service.count_findings()
-        violations = await service.count_findings(determination=Determination.VIOLATION_FOUND)
+        violations = await service.count_findings(
+            determination=Determination.VIOLATION_FOUND
+        )
 
         assert total == 3
         assert violations == 2

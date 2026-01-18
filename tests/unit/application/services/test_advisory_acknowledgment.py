@@ -27,11 +27,9 @@ from src.application.ports.advisory_acknowledgment import (
     ContraryDecision,
     ContraryDecisionRequest,
     DeadlineViolation,
-    JudgmentEligibilityResult,
 )
 from src.application.ports.knight_witness import (
     KnightWitnessProtocol,
-    ObservationContext,
     WitnessStatement,
     WitnessStatementType,
 )
@@ -39,7 +37,6 @@ from src.application.ports.marquis_service import Advisory, ExpertiseDomain
 from src.application.services.advisory_acknowledgment_service import (
     AdvisoryAcknowledgmentService,
 )
-
 
 # =============================================================================
 # FIXTURES
@@ -884,7 +881,9 @@ class TestTopicOverlap:
     ) -> None:
         """Test word overlap is detected."""
         assert (
-            service._topics_overlap("quantum computing risks", "quantum computing security")
+            service._topics_overlap(
+                "quantum computing risks", "quantum computing security"
+            )
             is True
         )
 

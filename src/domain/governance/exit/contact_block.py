@@ -71,6 +71,5 @@ class ContactBlock:
         """
         if self.status != ContactBlockStatus.PERMANENTLY_BLOCKED:
             raise ValueError(
-                f"ContactBlock status must be PERMANENTLY_BLOCKED, "
-                f"got {self.status}"
+                f"ContactBlock status must be PERMANENTLY_BLOCKED, got {self.status}"
             )

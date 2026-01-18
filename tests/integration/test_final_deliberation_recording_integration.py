@@ -23,17 +23,16 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.ports.final_deliberation_recorder import RecordDeliberationResult
 from src.application.services.final_deliberation_service import (
     DeliberationRecordingCompleteFailure,
     FinalDeliberationService,
 )
 from src.domain.events.cessation_deliberation import (
+    CESSATION_DELIBERATION_EVENT_TYPE,
+    REQUIRED_ARCHON_COUNT,
     ArchonDeliberation,
     ArchonPosition,
     CessationDeliberationEventPayload,
-    CESSATION_DELIBERATION_EVENT_TYPE,
-    REQUIRED_ARCHON_COUNT,
 )
 from src.domain.events.collective_output import VoteCounts
 from src.domain.events.deliberation_recording_failed import (
@@ -295,7 +294,7 @@ class TestFinalDeliberationServiceIntegration:
         assert len(recorded_payload.archon_deliberations) == 72
 
         # Verify each archon has reasoning preserved
-        for i, delib in enumerate(recorded_payload.archon_deliberations):
+        for _i, delib in enumerate(recorded_payload.archon_deliberations):
             assert delib.archon_id is not None
             assert delib.position in ArchonPosition
             assert delib.statement_timestamp is not None
@@ -352,7 +351,9 @@ class TestDeliberationPayloadValidation:
                 vote_recorded_at=timestamp,
                 duration_seconds=100,
                 archon_deliberations=deliberations,
-                vote_counts=VoteCounts(yes_count=50, no_count=20, abstain_count=2),  # Wrong!
+                vote_counts=VoteCounts(
+                    yes_count=50, no_count=20, abstain_count=2
+                ),  # Wrong!
                 dissent_percentage=30.56,
             )
 
@@ -432,8 +433,10 @@ class TestObserverAPIDeliberationEndpoints:
             ArchonDeliberation(
                 archon_id=f"archon-{i + 1:03d}",
                 position=(
-                    ArchonPosition.SUPPORT_CESSATION if i < 50
-                    else ArchonPosition.OPPOSE_CESSATION if i < 70
+                    ArchonPosition.SUPPORT_CESSATION
+                    if i < 50
+                    else ArchonPosition.OPPOSE_CESSATION
+                    if i < 70
                     else ArchonPosition.ABSTAIN
                 ),
                 reasoning=f"Test reasoning for archon {i + 1}",

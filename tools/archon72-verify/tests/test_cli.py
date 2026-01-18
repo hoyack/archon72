@@ -8,12 +8,9 @@ import tempfile
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-import pytest
-from typer.testing import CliRunner
-
 from archon72_verify.cli import app
-from archon72_verify.verifier import GENESIS_HASH, VerificationResult
-
+from archon72_verify.verifier import GENESIS_HASH
+from typer.testing import CliRunner
 
 runner = CliRunner()
 
@@ -83,9 +80,7 @@ class TestCLICheckChain:
             )
             prev_hash = content_hash
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -133,9 +128,7 @@ class TestCLICheckChain:
             }
         )
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -179,9 +172,7 @@ class TestCLICheckChain:
             }
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -247,9 +238,7 @@ class TestCLICheckGaps:
             {"sequence": 3},
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -272,9 +261,7 @@ class TestCLICheckGaps:
             {"sequence": 5},  # Gap: 3-4
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -297,9 +284,7 @@ class TestCLICheckGaps:
             {"sequence": 3},  # Gap: 2
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -464,22 +449,24 @@ class TestCLICheckGapsLocalDb:
             with ObserverDatabase(db_path) as db:
                 db.init_schema()
                 for seq in [100, 101, 104, 105]:
-                    db.insert_event({
-                        "event_id": f"evt-{seq}",
-                        "sequence": seq,
-                        "event_type": "test",
-                        "payload": {},
-                        "content_hash": f"hash_{seq}",
-                        "prev_hash": f"hash_{seq-1}" if seq > 1 else "0" * 64,
-                        "signature": "sig",
-                        "agent_id": "agent",
-                        "witness_id": "witness",
-                        "witness_signature": "wsig",
-                        "local_timestamp": "2026-01-01T00:00:00Z",
-                        "authority_timestamp": None,
-                        "hash_algorithm_version": "1.0",
-                        "sig_alg_version": "ed25519-v1",
-                    })
+                    db.insert_event(
+                        {
+                            "event_id": f"evt-{seq}",
+                            "sequence": seq,
+                            "event_type": "test",
+                            "payload": {},
+                            "content_hash": f"hash_{seq}",
+                            "prev_hash": f"hash_{seq - 1}" if seq > 1 else "0" * 64,
+                            "signature": "sig",
+                            "agent_id": "agent",
+                            "witness_id": "witness",
+                            "witness_signature": "wsig",
+                            "local_timestamp": "2026-01-01T00:00:00Z",
+                            "authority_timestamp": None,
+                            "hash_algorithm_version": "1.0",
+                            "sig_alg_version": "ed25519-v1",
+                        }
+                    )
 
             result = runner.invoke(
                 app,
@@ -502,22 +489,24 @@ class TestCLICheckGapsLocalDb:
             with ObserverDatabase(db_path) as db:
                 db.init_schema()
                 for seq in [1, 2, 3, 4, 5]:
-                    db.insert_event({
-                        "event_id": f"evt-{seq}",
-                        "sequence": seq,
-                        "event_type": "test",
-                        "payload": {},
-                        "content_hash": f"hash_{seq}",
-                        "prev_hash": f"hash_{seq-1}" if seq > 1 else "0" * 64,
-                        "signature": "sig",
-                        "agent_id": "agent",
-                        "witness_id": "witness",
-                        "witness_signature": "wsig",
-                        "local_timestamp": "2026-01-01T00:00:00Z",
-                        "authority_timestamp": None,
-                        "hash_algorithm_version": "1.0",
-                        "sig_alg_version": "ed25519-v1",
-                    })
+                    db.insert_event(
+                        {
+                            "event_id": f"evt-{seq}",
+                            "sequence": seq,
+                            "event_type": "test",
+                            "payload": {},
+                            "content_hash": f"hash_{seq}",
+                            "prev_hash": f"hash_{seq - 1}" if seq > 1 else "0" * 64,
+                            "signature": "sig",
+                            "agent_id": "agent",
+                            "witness_id": "witness",
+                            "witness_signature": "wsig",
+                            "local_timestamp": "2026-01-01T00:00:00Z",
+                            "authority_timestamp": None,
+                            "hash_algorithm_version": "1.0",
+                            "sig_alg_version": "ed25519-v1",
+                        }
+                    )
 
             result = runner.invoke(
                 app,
@@ -538,22 +527,24 @@ class TestCLICheckGapsLocalDb:
             with ObserverDatabase(db_path) as db:
                 db.init_schema()
                 for seq in [1, 2, 3, 4, 5, 6, 10]:
-                    db.insert_event({
-                        "event_id": f"evt-{seq}",
-                        "sequence": seq,
-                        "event_type": "test",
-                        "payload": {},
-                        "content_hash": f"hash_{seq}",
-                        "prev_hash": f"hash_{seq-1}" if seq > 1 else "0" * 64,
-                        "signature": "sig",
-                        "agent_id": "agent",
-                        "witness_id": "witness",
-                        "witness_signature": "wsig",
-                        "local_timestamp": "2026-01-01T00:00:00Z",
-                        "authority_timestamp": None,
-                        "hash_algorithm_version": "1.0",
-                        "sig_alg_version": "ed25519-v1",
-                    })
+                    db.insert_event(
+                        {
+                            "event_id": f"evt-{seq}",
+                            "sequence": seq,
+                            "event_type": "test",
+                            "payload": {},
+                            "content_hash": f"hash_{seq}",
+                            "prev_hash": f"hash_{seq - 1}" if seq > 1 else "0" * 64,
+                            "signature": "sig",
+                            "agent_id": "agent",
+                            "witness_id": "witness",
+                            "witness_signature": "wsig",
+                            "local_timestamp": "2026-01-01T00:00:00Z",
+                            "authority_timestamp": None,
+                            "hash_algorithm_version": "1.0",
+                            "sig_alg_version": "ed25519-v1",
+                        }
+                    )
 
             result = runner.invoke(
                 app,
@@ -573,22 +564,24 @@ class TestCLICheckGapsLocalDb:
             with ObserverDatabase(db_path) as db:
                 db.init_schema()
                 for seq in [1, 3]:  # Gap at 2
-                    db.insert_event({
-                        "event_id": f"evt-{seq}",
-                        "sequence": seq,
-                        "event_type": "test",
-                        "payload": {},
-                        "content_hash": f"hash_{seq}",
-                        "prev_hash": f"hash_{seq-1}" if seq > 1 else "0" * 64,
-                        "signature": "sig",
-                        "agent_id": "agent",
-                        "witness_id": "witness",
-                        "witness_signature": "wsig",
-                        "local_timestamp": "2026-01-01T00:00:00Z",
-                        "authority_timestamp": None,
-                        "hash_algorithm_version": "1.0",
-                        "sig_alg_version": "ed25519-v1",
-                    })
+                    db.insert_event(
+                        {
+                            "event_id": f"evt-{seq}",
+                            "sequence": seq,
+                            "event_type": "test",
+                            "payload": {},
+                            "content_hash": f"hash_{seq}",
+                            "prev_hash": f"hash_{seq - 1}" if seq > 1 else "0" * 64,
+                            "signature": "sig",
+                            "agent_id": "agent",
+                            "witness_id": "witness",
+                            "witness_signature": "wsig",
+                            "local_timestamp": "2026-01-01T00:00:00Z",
+                            "authority_timestamp": None,
+                            "hash_algorithm_version": "1.0",
+                            "sig_alg_version": "ed25519-v1",
+                        }
+                    )
 
             result = runner.invoke(
                 app,

@@ -11,7 +11,6 @@ Constitutional Compliance:
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -66,8 +65,8 @@ class FakeLegitimacyPort:
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         return self.transitions
 
@@ -75,7 +74,7 @@ class FakeLegitimacyPort:
 class FakePermissionPort:
     """Fake implementation of PermissionMatrixPort for testing."""
 
-    def __init__(self, authorized_operators: Optional[set[UUID]] = None) -> None:
+    def __init__(self, authorized_operators: set[UUID] | None = None) -> None:
         self.authorized_operators = authorized_operators or set()
 
     async def has_permission(self, actor_id: UUID, action: str) -> bool:
@@ -99,16 +98,18 @@ class FakeEventEmitter:
         self.events: list[dict] = []
 
     async def emit(self, event_type: str, actor: str, payload: dict) -> None:
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_events_by_type(self, event_type: str) -> list[dict]:
         return [e for e in self.events if e["event_type"] == event_type]
 
-    def get_last_event(self, event_type: str) -> Optional[dict]:
+    def get_last_event(self, event_type: str) -> dict | None:
         events = self.get_events_by_type(event_type)
         return events[-1] if events else None
 
@@ -453,7 +454,10 @@ class TestFailedIsTerminal:
         )
 
         assert not result.success
-        assert "terminal" in result.error.lower() or "reconstitution" in result.error.lower()
+        assert (
+            "terminal" in result.error.lower()
+            or "reconstitution" in result.error.lower()
+        )
 
 
 class TestRestorationHistory:

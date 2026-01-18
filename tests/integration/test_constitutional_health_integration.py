@@ -15,19 +15,17 @@ Integration Focus:
 - Confirms separation from operational health
 """
 
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from httpx import ASGITransport, AsyncClient
 
 from src.api.routes.constitutional_health import router
 from src.domain.errors import SystemHaltedError
 from src.domain.models.constitutional_health import (
     ConstitutionalHealthSnapshot,
-    ConstitutionalHealthStatus,
 )
 
 

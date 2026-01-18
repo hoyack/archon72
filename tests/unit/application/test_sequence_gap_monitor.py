@@ -9,8 +9,7 @@ Constitutional Constraints:
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Optional
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -95,7 +94,9 @@ class TestSequenceGapMonitorStartStop:
         await monitor.stop()
 
         # Task should be cancelled
-        assert monitor._task is None or monitor._task.cancelled() or monitor._task.done()
+        assert (
+            monitor._task is None or monitor._task.cancelled() or monitor._task.done()
+        )
 
     @pytest.mark.asyncio
     async def test_start_is_idempotent(self) -> None:
@@ -143,7 +144,9 @@ class TestSequenceGapMonitorRunOnce:
             detection_service_id="test",
             previous_check_timestamp=datetime.now(timezone.utc),
         )
-        detection_service.check_sequence_continuity = AsyncMock(return_value=gap_payload)
+        detection_service.check_sequence_continuity = AsyncMock(
+            return_value=gap_payload
+        )
         detection_service.handle_gap_detected = AsyncMock()
 
         monitor = SequenceGapMonitor(detection_service=detection_service)

@@ -33,13 +33,12 @@ from __future__ import annotations
 from typing import Protocol
 from uuid import UUID, uuid4
 
-from src.domain.governance.exit.release_type import ReleaseType
 from src.domain.governance.exit.obligation_release import (
     ObligationRelease,
     ReleaseResult,
 )
+from src.domain.governance.exit.release_type import ReleaseType
 from src.domain.governance.task.task_state import TaskStatus
-
 
 # Event type constants
 OBLIGATIONS_RELEASED_EVENT = "custodial.obligations.released"

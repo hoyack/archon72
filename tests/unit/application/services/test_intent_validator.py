@@ -6,13 +6,12 @@ Per Government PRD FR-GOV-6.
 
 import pytest
 
+from src.application.ports.king_service import IntentViolationType
 from src.application.services.intent_validator import (
     IntentValidator,
     create_intent_validator,
     is_intent_only,
 )
-from src.application.ports.king_service import IntentViolationType
-
 
 # =============================================================================
 # FIXTURES
@@ -105,15 +104,21 @@ class TestTaskListViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TASK_LIST for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TASK_LIST for v in result.violations
+        )
 
     def test_sequential_ordering(self, validator: IntentValidator) -> None:
         """Test detection of sequential ordering."""
-        intent = "First, we should analyze the requirements. Second, we build the solution."
+        intent = (
+            "First, we should analyze the requirements. Second, we build the solution."
+        )
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TASK_LIST for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TASK_LIST for v in result.violations
+        )
 
     def test_bullet_point_tasks(self, validator: IntentValidator) -> None:
         """Test detection of bullet-point task lists."""
@@ -124,7 +129,9 @@ class TestTaskListViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TASK_LIST for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TASK_LIST for v in result.violations
+        )
 
     def test_explicit_task_enumeration(self, validator: IntentValidator) -> None:
         """Test detection of explicit task enumeration."""
@@ -132,7 +139,9 @@ class TestTaskListViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TASK_LIST for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TASK_LIST for v in result.violations
+        )
 
 
 # =============================================================================
@@ -149,7 +158,9 @@ class TestTimelineViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TIMELINE for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TIMELINE for v in result.violations
+        )
 
     def test_deadline_specification(self, validator: IntentValidator) -> None:
         """Test detection of deadline specification."""
@@ -157,7 +168,9 @@ class TestTimelineViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TIMELINE for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TIMELINE for v in result.violations
+        )
 
     def test_phased_timeline(self, validator: IntentValidator) -> None:
         """Test detection of phased timeline."""
@@ -165,7 +178,9 @@ class TestTimelineViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TIMELINE for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TIMELINE for v in result.violations
+        )
 
     def test_schedule_specification(self, validator: IntentValidator) -> None:
         """Test detection of schedule specification."""
@@ -173,7 +188,9 @@ class TestTimelineViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TIMELINE for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TIMELINE for v in result.violations
+        )
 
 
 # =============================================================================
@@ -190,7 +207,10 @@ class TestToolSpecificationViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TOOL_SPECIFICATION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TOOL_SPECIFICATION
+            for v in result.violations
+        )
 
     def test_framework_specification(self, validator: IntentValidator) -> None:
         """Test detection of framework specification."""
@@ -198,7 +218,10 @@ class TestToolSpecificationViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TOOL_SPECIFICATION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TOOL_SPECIFICATION
+            for v in result.violations
+        )
 
     def test_tool_usage(self, validator: IntentValidator) -> None:
         """Test detection of tool usage specification."""
@@ -206,7 +229,10 @@ class TestToolSpecificationViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TOOL_SPECIFICATION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TOOL_SPECIFICATION
+            for v in result.violations
+        )
 
     def test_deployment_target(self, validator: IntentValidator) -> None:
         """Test detection of deployment target specification."""
@@ -214,7 +240,10 @@ class TestToolSpecificationViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.TOOL_SPECIFICATION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.TOOL_SPECIFICATION
+            for v in result.violations
+        )
 
 
 # =============================================================================
@@ -231,7 +260,10 @@ class TestResourceAllocationViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.RESOURCE_ALLOCATION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.RESOURCE_ALLOCATION
+            for v in result.violations
+        )
 
     def test_budget_specification(self, validator: IntentValidator) -> None:
         """Test detection of budget specification."""
@@ -239,7 +271,10 @@ class TestResourceAllocationViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.RESOURCE_ALLOCATION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.RESOURCE_ALLOCATION
+            for v in result.violations
+        )
 
     def test_resource_requirements(self, validator: IntentValidator) -> None:
         """Test detection of resource requirements."""
@@ -264,7 +299,10 @@ class TestExecutionMethodViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.EXECUTION_METHOD for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.EXECUTION_METHOD
+            for v in result.violations
+        )
 
     def test_procedure_specification(self, validator: IntentValidator) -> None:
         """Test detection of procedure specification."""
@@ -272,7 +310,10 @@ class TestExecutionMethodViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.EXECUTION_METHOD for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.EXECUTION_METHOD
+            for v in result.violations
+        )
 
 
 # =============================================================================
@@ -289,7 +330,10 @@ class TestSupervisionDirectionViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.SUPERVISION_DIRECTION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.SUPERVISION_DIRECTION
+            for v in result.violations
+        )
 
     def test_reporting_structure(self, validator: IntentValidator) -> None:
         """Test detection of reporting structure."""
@@ -297,7 +341,10 @@ class TestSupervisionDirectionViolations:
         result = validator.validate(intent)
 
         assert result.is_valid is False
-        assert any(v.violation_type == IntentViolationType.SUPERVISION_DIRECTION for v in result.violations)
+        assert any(
+            v.violation_type == IntentViolationType.SUPERVISION_DIRECTION
+            for v in result.violations
+        )
 
 
 # =============================================================================
@@ -359,7 +406,10 @@ class TestEdgeCases:
 
     def test_very_long_valid_intent(self, validator: IntentValidator) -> None:
         """Test very long valid intent."""
-        intent = "Improve the overall user experience by making the system more intuitive. " * 50
+        intent = (
+            "Improve the overall user experience by making the system more intuitive. "
+            * 50
+        )
         result = validator.validate(intent)
         assert result.is_valid is True
 

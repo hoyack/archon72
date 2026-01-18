@@ -8,7 +8,6 @@ Per CT-11: Silent failure destroys legitimacy → HALT OVER DEGRADE
 Per CT-12: Witnessing creates accountability → All transitions witnessed
 """
 
-from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -30,7 +29,6 @@ from src.application.services.flow_orchestrator_service import (
     FlowOrchestratorService,
     create_flow_orchestrator_service,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -85,9 +83,7 @@ def service_with_witness(
 class TestFlowOrchestratorServiceInit:
     """Tests for service initialization."""
 
-    def test_creates_with_state_machine(
-        self, mock_state_machine: AsyncMock
-    ) -> None:
+    def test_creates_with_state_machine(self, mock_state_machine: AsyncMock) -> None:
         """Test service creates with state machine."""
         service = FlowOrchestratorService(state_machine=mock_state_machine)
         assert service._state_machine is mock_state_machine
@@ -112,9 +108,7 @@ class TestFlowOrchestratorServiceInit:
         assert len(service._motion_states) == 0
         assert len(service._escalations) == 0
 
-    def test_initializes_statistics(
-        self, mock_state_machine: AsyncMock
-    ) -> None:
+    def test_initializes_statistics(self, mock_state_machine: AsyncMock) -> None:
         """Test service initializes statistics."""
         service = FlowOrchestratorService(state_machine=mock_state_machine)
         assert service._total_processed == 0
@@ -209,7 +203,10 @@ class TestProcessMotion:
         await service.process_motion(request)
 
         assert motion_id in service._motion_states
-        assert service._motion_states[motion_id].current_state == GovernanceState.DELIBERATING
+        assert (
+            service._motion_states[motion_id].current_state
+            == GovernanceState.DELIBERATING
+        )
 
     @pytest.mark.asyncio
     async def test_process_motion_increments_total_processed(

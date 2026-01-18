@@ -146,7 +146,9 @@ class ExecutionTask:
             "dependencies": self.dependencies,
             "assigned_to": self.assigned_to,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
             "notes": self.notes,
         }
 

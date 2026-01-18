@@ -23,7 +23,6 @@ from src.application.services.publication_scanning_service import (
 )
 from src.domain.errors.publication import (
     PublicationBlockedError,
-    PublicationScanError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.publication_scan import (

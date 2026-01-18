@@ -5,8 +5,6 @@ Tests all witness selection error classes.
 
 from datetime import datetime, timezone
 
-import pytest
-
 from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.witness_selection import (
     AllWitnessesPairExhaustedError,

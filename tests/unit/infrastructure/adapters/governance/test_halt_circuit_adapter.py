@@ -18,8 +18,8 @@ import asyncio
 import json
 import time
 from datetime import datetime, timezone
-from typing import Any, Optional
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import Any
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -27,7 +27,6 @@ import pytest
 from src.application.ports.governance.halt_port import HaltChecker
 from src.domain.governance.halt import HaltedException, HaltReason, HaltStatus
 from src.infrastructure.adapters.governance.halt_circuit_adapter import (
-    EventEmitterProtocol,
     HaltCircuitAdapter,
 )
 from tests.helpers.fake_time_authority import FakeTimeAuthority
@@ -45,17 +44,19 @@ class FakeEventEmitter:
         event_type: str,
         actor: str,
         payload: dict[str, Any],
-        trace_id: Optional[str] = None,
+        trace_id: str | None = None,
     ) -> None:
         if self.should_fail:
             raise ConnectionError("Database unavailable")
 
-        self.emitted_events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-            "trace_id": trace_id,
-        })
+        self.emitted_events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+                "trace_id": trace_id,
+            }
+        )
 
 
 class FakeRedis:
@@ -175,9 +176,7 @@ class TestPrimaryChannel:
         assert status.halted_at == fake_time.now()
 
     @pytest.mark.asyncio
-    async def test_halt_is_idempotent(
-        self, halt_circuit: HaltCircuitAdapter
-    ) -> None:
+    async def test_halt_is_idempotent(self, halt_circuit: HaltCircuitAdapter) -> None:
         """Triggering halt multiple times is idempotent."""
         first_status = await halt_circuit.trigger_halt(
             reason=HaltReason.OPERATOR,
@@ -386,9 +385,7 @@ class TestPerformance:
     """Tests for performance constraints (AC4)."""
 
     @pytest.mark.asyncio
-    async def test_is_halted_under_1ms(
-        self, halt_circuit: HaltCircuitAdapter
-    ) -> None:
+    async def test_is_halted_under_1ms(self, halt_circuit: HaltCircuitAdapter) -> None:
         """AC4: is_halted() completes in <1ms."""
         # Warm up
         for _ in range(100):
@@ -417,7 +414,9 @@ class TestPerformance:
         )
 
         elapsed_ms = (time.perf_counter() - start) * 1000
-        assert elapsed_ms <= 100, f"trigger_halt() took {elapsed_ms:.2f}ms (limit: ≤100ms)"
+        assert elapsed_ms <= 100, (
+            f"trigger_halt() took {elapsed_ms:.2f}ms (limit: ≤100ms)"
+        )
 
 
 class TestRemoteHaltHandling:
@@ -427,14 +426,16 @@ class TestRemoteHaltHandling:
         self, halt_circuit: HaltCircuitAdapter
     ) -> None:
         """Remote halt signal sets local halt flag."""
-        message_data = json.dumps({
-            "is_halted": True,
-            "halted_at": "2026-01-15T10:30:00+00:00",
-            "reason": "operator",
-            "operator_id": None,
-            "message": "Remote halt",
-            "trace_id": "remote-trace",
-        })
+        message_data = json.dumps(
+            {
+                "is_halted": True,
+                "halted_at": "2026-01-15T10:30:00+00:00",
+                "reason": "operator",
+                "operator_id": None,
+                "message": "Remote halt",
+                "trace_id": "remote-trace",
+            }
+        )
 
         halt_circuit.handle_remote_halt(message_data)
 
@@ -456,14 +457,16 @@ class TestRemoteHaltHandling:
         )
 
         # Then receive remote halt
-        message_data = json.dumps({
-            "is_halted": True,
-            "halted_at": "2026-01-15T10:30:00+00:00",
-            "reason": "system_fault",
-            "message": "Remote halt second",
-            "operator_id": None,
-            "trace_id": None,
-        })
+        message_data = json.dumps(
+            {
+                "is_halted": True,
+                "halted_at": "2026-01-15T10:30:00+00:00",
+                "reason": "system_fault",
+                "message": "Remote halt second",
+                "operator_id": None,
+                "trace_id": None,
+            }
+        )
         halt_circuit.handle_remote_halt(message_data)
 
         # Should keep local halt status
@@ -485,9 +488,7 @@ class TestResetForTesting:
     """Tests for reset_for_testing() method."""
 
     @pytest.mark.asyncio
-    async def test_reset_clears_halt(
-        self, halt_circuit: HaltCircuitAdapter
-    ) -> None:
+    async def test_reset_clears_halt(self, halt_circuit: HaltCircuitAdapter) -> None:
         """reset_for_testing() clears halt state."""
         await halt_circuit.trigger_halt(
             reason=HaltReason.OPERATOR,

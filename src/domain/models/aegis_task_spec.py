@@ -145,7 +145,9 @@ class SuccessCriterion:
             "description": self.description,
             "measurement_type": self.measurement_type.value,
             "target_value": self.target_value,
-            "threshold_operator": self.threshold_operator.value if self.threshold_operator else None,
+            "threshold_operator": self.threshold_operator.value
+            if self.threshold_operator
+            else None,
             "weight": self.weight,
         }
 
@@ -270,7 +272,9 @@ class MeasurementPoint:
     point_id: UUID
     name: str
     trigger: MeasurementTrigger
-    criteria_refs: tuple[UUID, ...] = field(default_factory=tuple)  # Criteria to evaluate
+    criteria_refs: tuple[UUID, ...] = field(
+        default_factory=tuple
+    )  # Criteria to evaluate
 
     @classmethod
     def create(

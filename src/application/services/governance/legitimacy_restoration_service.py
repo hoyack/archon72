@@ -18,7 +18,7 @@ Constitutional Compliance:
 """
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID, uuid4
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
@@ -59,8 +59,8 @@ class LegitimacyStatePort(Protocol):
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         """Get transition history."""
         ...
@@ -299,8 +299,8 @@ class LegitimacyRestorationService:
 
     async def get_restoration_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[RestorationAcknowledgment]:
         """Get history of restoration acknowledgments.
 
@@ -316,10 +316,7 @@ class LegitimacyRestorationService:
 
         # Filter by time if specified
         if since:
-            acknowledgments = [
-                a for a in acknowledgments
-                if a.acknowledged_at > since
-            ]
+            acknowledgments = [a for a in acknowledgments if a.acknowledged_at > since]
 
         # Sort by time (oldest first)
         acknowledgments.sort(key=lambda a: a.acknowledged_at)
@@ -333,7 +330,7 @@ class LegitimacyRestorationService:
     async def get_acknowledgment(
         self,
         acknowledgment_id: UUID,
-    ) -> Optional[RestorationAcknowledgment]:
+    ) -> RestorationAcknowledgment | None:
         """Get a specific acknowledgment by ID.
 
         Args:

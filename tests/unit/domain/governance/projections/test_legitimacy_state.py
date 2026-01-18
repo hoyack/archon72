@@ -112,7 +112,7 @@ class TestLegitimacyStateRecordValidBands:
     def test_valid_bands_contains_expected_values(self) -> None:
         """VALID_BANDS contains all expected legitimacy bands."""
         expected = {"full", "provisional", "suspended"}
-        assert LegitimacyStateRecord.VALID_BANDS == frozenset(expected)
+        assert frozenset(expected) == LegitimacyStateRecord.VALID_BANDS
 
 
 class TestLegitimacyStateRecordTransitions:

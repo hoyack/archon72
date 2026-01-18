@@ -26,10 +26,8 @@ from src.domain.errors.key_generation_ceremony import (
     CeremonyConflictError,
     CeremonyNotFoundError,
     DuplicateWitnessError,
-    InsufficientWitnessesError,
     InvalidCeremonyStateError,
 )
-from src.domain.models.ceremony_witness import CeremonyWitness, WitnessType
 from src.domain.models.key_generation_ceremony import (
     CEREMONY_TIMEOUT_SECONDS,
     REQUIRED_WITNESSES,
@@ -38,10 +36,10 @@ from src.domain.models.key_generation_ceremony import (
     CeremonyType,
     KeyGenerationCeremony,
 )
+from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 from src.infrastructure.stubs.key_generation_ceremony_stub import (
     KeyGenerationCeremonyStub,
 )
-from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 
 
 @pytest.fixture
@@ -82,6 +80,7 @@ def halt_guard_mock() -> AsyncMock:
 def halted_guard_mock() -> AsyncMock:
     """Create mock halt guard (halted)."""
     from src.domain.errors.read_only import WriteBlockedDuringHaltError
+
     guard = AsyncMock()
     guard.check_write_allowed = AsyncMock(
         side_effect=WriteBlockedDuringHaltError("System is halted")
@@ -486,6 +485,7 @@ class TestExecuteCeremony:
         """Execute rotation ceremony sets 30-day transition period (ADR-4)."""
         # Pre-register old key
         from src.domain.models.keeper_key import KeeperKey
+
         old_key = KeeperKey(
             id=uuid4(),
             keeper_id="KEEPER:bob",
@@ -511,7 +511,9 @@ class TestExecuteCeremony:
         expected_transition_end = datetime.now(timezone.utc) + timedelta(
             days=TRANSITION_PERIOD_DAYS
         )
-        delta = abs((completed.transition_end_at - expected_transition_end).total_seconds())
+        delta = abs(
+            (completed.transition_end_at - expected_transition_end).total_seconds()
+        )
         assert delta < 5  # Within 5 seconds tolerance
 
     @pytest.mark.asyncio

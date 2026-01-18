@@ -30,15 +30,14 @@ Usage:
 
 from __future__ import annotations
 
-import structlog
 from datetime import datetime, timezone
-from typing import Optional
+
+import structlog
 
 from src.domain.models.cessation_trigger_condition import (
     CessationTriggerCondition,
     CessationTriggerConditionSet,
 )
-
 
 logger = structlog.get_logger(__name__)
 
@@ -77,8 +76,8 @@ class PublicTriggersService:
         Creates the service with an empty cache that will be populated
         on first access.
         """
-        self._cached_conditions: Optional[CessationTriggerConditionSet] = None
-        self._cache_timestamp: Optional[datetime] = None
+        self._cached_conditions: CessationTriggerConditionSet | None = None
+        self._cache_timestamp: datetime | None = None
         self._log = logger.bind(service="public_triggers_service")
 
     def get_trigger_conditions(
@@ -123,7 +122,7 @@ class PublicTriggersService:
 
     def get_trigger_condition(
         self, trigger_type: str
-    ) -> Optional[CessationTriggerCondition]:
+    ) -> CessationTriggerCondition | None:
         """Get a specific trigger condition by type (FR134).
 
         Looks up a single trigger condition by its trigger_type identifier.

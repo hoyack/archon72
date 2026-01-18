@@ -57,7 +57,10 @@ class TestDeliberationRecordingFailedEventPayload:
 
     def test_event_type_constant(self) -> None:
         """Event type constant should be correctly defined."""
-        assert DELIBERATION_RECORDING_FAILED_EVENT_TYPE == "cessation.deliberation_recording_failed"
+        assert (
+            DELIBERATION_RECORDING_FAILED_EVENT_TYPE
+            == "cessation.deliberation_recording_failed"
+        )
 
     def test_signable_content_is_deterministic(self) -> None:
         """signable_content() should return identical bytes for same data."""

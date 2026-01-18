@@ -10,8 +10,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING
+from datetime import datetime, timezone
 
 import pytest
 
@@ -24,8 +23,6 @@ from src.domain.errors.audit_event import (
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.models.audit_event import (
-    AUDIT_EVENT_TYPE_PREFIX,
-    AuditCompletionStatus,
     AuditEventType,
 )
 from src.infrastructure.stubs import (
@@ -250,26 +247,30 @@ class TestEndToEndAuditEventQueryWorkflow:
         """Test querying violation events (FR108)."""
         # Setup: Add violation flagged events manually
         now = datetime.now(timezone.utc).isoformat() + "Z"
-        event_query_stub.add_event({
-            "event_id": "viol-1",
-            "event_type": "audit.violation.flagged",
-            "timestamp": now,
-            "payload": {
-                "audit_id": "audit-2026-Q2",
-                "material_id": "mat-001",
-                "matched_terms": ["consciousness", "sentient"],
-            },
-        })
-        event_query_stub.add_event({
-            "event_id": "viol-2",
-            "event_type": "audit.violation.flagged",
-            "timestamp": now,
-            "payload": {
-                "audit_id": "audit-2026-Q2",
-                "material_id": "mat-002",
-                "matched_terms": ["genuine understanding"],
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "viol-1",
+                "event_type": "audit.violation.flagged",
+                "timestamp": now,
+                "payload": {
+                    "audit_id": "audit-2026-Q2",
+                    "material_id": "mat-001",
+                    "matched_terms": ["consciousness", "sentient"],
+                },
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "viol-2",
+                "event_type": "audit.violation.flagged",
+                "timestamp": now,
+                "payload": {
+                    "audit_id": "audit-2026-Q2",
+                    "material_id": "mat-002",
+                    "matched_terms": ["genuine understanding"],
+                },
+            }
+        )
 
         # Query violation events
         violations = await service.get_violation_events()
@@ -288,24 +289,28 @@ class TestEndToEndAuditEventQueryWorkflow:
     ) -> None:
         """Test filtering violation events by audit ID (FR108)."""
         now = datetime.now(timezone.utc).isoformat() + "Z"
-        event_query_stub.add_event({
-            "event_id": "viol-1",
-            "event_type": "audit.violation.flagged",
-            "timestamp": now,
-            "payload": {
-                "audit_id": "audit-Q2",
-                "material_id": "mat-001",
-            },
-        })
-        event_query_stub.add_event({
-            "event_id": "viol-2",
-            "event_type": "audit.violation.flagged",
-            "timestamp": now,
-            "payload": {
-                "audit_id": "audit-Q3",
-                "material_id": "mat-002",
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "viol-1",
+                "event_type": "audit.violation.flagged",
+                "timestamp": now,
+                "payload": {
+                    "audit_id": "audit-Q2",
+                    "material_id": "mat-001",
+                },
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "viol-2",
+                "event_type": "audit.violation.flagged",
+                "timestamp": now,
+                "payload": {
+                    "audit_id": "audit-Q3",
+                    "material_id": "mat-002",
+                },
+            }
+        )
 
         # Filter by specific audit
         q2_violations = await service.get_violation_events(audit_id="audit-Q2")
@@ -445,7 +450,7 @@ class TestTrendAnalysisEdgeCases:
         """Test trend analysis respects quarters parameter (FR108)."""
         # Setup 6 quarters of data
         for i in range(1, 7):
-            quarter = f"2025-Q{i}" if i <= 4 else f"2026-Q{i-4}"
+            quarter = f"2025-Q{i}" if i <= 4 else f"2026-Q{i - 4}"
             event_query_stub.configure_audit_events(
                 audit_id=f"audit-{quarter}",
                 quarter=quarter,
@@ -498,16 +503,26 @@ class TestTrendAnalysisEdgeCases:
         """Test violation rate is calculated correctly (FR108)."""
         # 2 clean, 2 with violations
         event_query_stub.configure_audit_events(
-            audit_id="audit-1", quarter="2026-Q1", status="clean",
+            audit_id="audit-1",
+            quarter="2026-Q1",
+            status="clean",
         )
         event_query_stub.configure_audit_events(
-            audit_id="audit-2", quarter="2026-Q2", status="violations_found", violations_found=1,
+            audit_id="audit-2",
+            quarter="2026-Q2",
+            status="violations_found",
+            violations_found=1,
         )
         event_query_stub.configure_audit_events(
-            audit_id="audit-3", quarter="2026-Q3", status="clean",
+            audit_id="audit-3",
+            quarter="2026-Q3",
+            status="clean",
         )
         event_query_stub.configure_audit_events(
-            audit_id="audit-4", quarter="2026-Q4", status="violations_found", violations_found=1,
+            audit_id="audit-4",
+            quarter="2026-Q4",
+            status="violations_found",
+            violations_found=1,
         )
 
         trend = await service.get_audit_trend()
@@ -563,15 +578,17 @@ class TestQueryByEventType:
     ) -> None:
         """Test filtering to only audit.violation.flagged events (FR108)."""
         now = datetime.now(timezone.utc).isoformat() + "Z"
-        event_query_stub.add_event({
-            "event_id": "viol-1",
-            "event_type": "audit.violation.flagged",
-            "timestamp": now,
-            "payload": {
-                "audit_id": "audit-1",
-                "material_id": "mat-001",
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "viol-1",
+                "event_type": "audit.violation.flagged",
+                "timestamp": now,
+                "payload": {
+                    "audit_id": "audit-1",
+                    "material_id": "mat-001",
+                },
+            }
+        )
 
         events = await service.get_audit_events_by_type(
             AuditEventType.VIOLATION_FLAGGED.value
@@ -603,31 +620,39 @@ class TestEventPrefixFiltering:
         now = datetime.now(timezone.utc).isoformat() + "Z"
 
         # Add all event types
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.started",
-            "timestamp": now,
-            "payload": {"audit_id": "audit-1"},
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": now,
-            "payload": {"audit_id": "audit-1", "status": "clean"},
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-3",
-            "event_type": "audit.violation.flagged",
-            "timestamp": now,
-            "payload": {"audit_id": "audit-1"},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.started",
+                "timestamp": now,
+                "payload": {"audit_id": "audit-1"},
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": now,
+                "payload": {"audit_id": "audit-1", "status": "clean"},
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-3",
+                "event_type": "audit.violation.flagged",
+                "timestamp": now,
+                "payload": {"audit_id": "audit-1"},
+            }
+        )
         # Add non-audit event that should be excluded
-        event_query_stub.add_event({
-            "event_id": "evt-4",
-            "event_type": "other.event",
-            "timestamp": now,
-            "payload": {},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-4",
+                "event_type": "other.event",
+                "timestamp": now,
+                "payload": {},
+            }
+        )
 
         events = await service.get_audit_events()
 

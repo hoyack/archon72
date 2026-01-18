@@ -13,7 +13,9 @@ from src.domain.errors.collusion import (
     InvestigationNotFoundError,
 )
 from src.domain.events.collusion import InvestigationResolution
-from src.infrastructure.stubs.collusion_investigator_stub import CollusionInvestigatorStub
+from src.infrastructure.stubs.collusion_investigator_stub import (
+    CollusionInvestigatorStub,
+)
 
 
 @pytest.fixture
@@ -54,7 +56,9 @@ class TestTriggerInvestigation:
         assert "witness_a:witness_b" in suspended
 
     @pytest.mark.asyncio
-    async def test_calculates_correlation(self, stub: CollusionInvestigatorStub) -> None:
+    async def test_calculates_correlation(
+        self, stub: CollusionInvestigatorStub
+    ) -> None:
         """Test that correlation is calculated based on breach count."""
         investigation_id = await stub.trigger_investigation(
             pair_key="witness_a:witness_b",
@@ -130,7 +134,9 @@ class TestResolveInvestigation:
             )
 
     @pytest.mark.asyncio
-    async def test_resolve_already_resolved(self, stub: CollusionInvestigatorStub) -> None:
+    async def test_resolve_already_resolved(
+        self, stub: CollusionInvestigatorStub
+    ) -> None:
         """Test resolving already-resolved investigation raises error."""
         investigation_id = await stub.trigger_investigation(
             pair_key="witness_a:witness_b",
@@ -211,7 +217,9 @@ class TestGetInvestigationsForPair:
     """Tests for get_investigations_for_pair method."""
 
     @pytest.mark.asyncio
-    async def test_returns_all_investigations(self, stub: CollusionInvestigatorStub) -> None:
+    async def test_returns_all_investigations(
+        self, stub: CollusionInvestigatorStub
+    ) -> None:
         """Test that all investigations for a pair are returned."""
         # Create and resolve first investigation
         id1 = await stub.trigger_investigation(

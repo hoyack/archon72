@@ -19,13 +19,11 @@ from structlog import get_logger
 
 from src.application.ports.failure_propagation import (
     FailurePropagationProtocol,
-    FailureSeverity,
     FailureSignal,
     PrinceNotificationContext,
     PrinceNotificationResult,
     PropagationResult,
     SuppressionCheckResult,
-    SuppressionDetectionMethod,
     SuppressionViolation,
 )
 from src.application.ports.knight_witness import (
@@ -421,9 +419,7 @@ class FailurePropagationAdapter(FailurePropagationProtocol):
         violations = list(self._suppression_violations.values())
 
         if archon_id is not None:
-            violations = [
-                v for v in violations if v.suppressing_archon_id == archon_id
-            ]
+            violations = [v for v in violations if v.suppressing_archon_id == archon_id]
 
         if since is not None:
             violations = [v for v in violations if v.detected_at >= since]
@@ -466,11 +462,13 @@ class FailurePropagationAdapter(FailurePropagationProtocol):
         if task_id not in self._timelines:
             self._timelines[task_id] = []
 
-        self._timelines[task_id].append({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "event_type": event_type,
-            "details": details,
-        })
+        self._timelines[task_id].append(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": event_type,
+                "details": details,
+            }
+        )
 
     # =========================================================================
     # Test Helpers

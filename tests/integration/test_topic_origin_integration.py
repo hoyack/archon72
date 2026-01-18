@@ -151,7 +151,7 @@ class TestFR71RateLimiting:
         source_id = "archon-1"
         recorded_count = 0
 
-        for i in range(RATE_LIMIT_PER_HOUR):  # 10 topics
+        for _i in range(RATE_LIMIT_PER_HOUR):  # 10 topics
             topic = TopicOrigin(
                 topic_id=uuid4(),
                 origin_type=TopicOriginType.AUTONOMOUS,
@@ -273,7 +273,7 @@ class TestFR72TopicQueuing:
 
         # Submit excess topics - should be queued
         queued_topics = []
-        for i in range(3):
+        for _i in range(3):
             topic = TopicOrigin(
                 topic_id=uuid4(),
                 origin_type=TopicOriginType.AUTONOMOUS,

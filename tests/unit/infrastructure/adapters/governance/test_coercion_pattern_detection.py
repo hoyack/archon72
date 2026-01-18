@@ -110,7 +110,9 @@ class TestUrgencyPressurePatterns:
         )
 
         # Should have mix of TRANSFORM and REJECT
-        transform_count = sum(1 for p in patterns if p.severity == PatternSeverity.TRANSFORM)
+        transform_count = sum(
+            1 for p in patterns if p.severity == PatternSeverity.TRANSFORM
+        )
         reject_count = sum(1 for p in patterns if p.severity == PatternSeverity.REJECT)
 
         assert transform_count > 0, "Should have TRANSFORM patterns"
@@ -555,7 +557,9 @@ class TestNeutralContentPasses:
 
         for content in professional:
             matches = await pattern_library.match_content(content)
-            urgency = [p for p in matches if p.category == PatternCategory.URGENCY_PRESSURE]
+            urgency = [
+                p for p in matches if p.category == PatternCategory.URGENCY_PRESSURE
+            ]
             assert len(urgency) == 0, f"Unexpected urgency match in: {content}"
 
 

@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
-from typing import Any
 from uuid import UUID, uuid4
 
 from src.application.ports.governance.coercion_filter_port import MessageType
@@ -38,7 +37,6 @@ from src.domain.governance.filter import (
     FilterResult,
     TransformationLog,
 )
-
 
 # Event type for filter decision logging
 FILTER_DECISION_LOGGED_EVENT = "custodial.filter.decision_logged"

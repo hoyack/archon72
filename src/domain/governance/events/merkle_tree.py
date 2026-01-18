@@ -406,7 +406,9 @@ def verify_merkle_proof(proof: MerkleProof) -> MerkleVerificationResult:
         return MerkleVerificationResult(
             is_valid=is_valid,
             reconstructed_root=current,
-            error_message="" if is_valid else "Reconstructed root does not match provided merkle_root",
+            error_message=""
+            if is_valid
+            else "Reconstructed root does not match provided merkle_root",
         )
 
     except Exception as e:

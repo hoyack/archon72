@@ -12,8 +12,9 @@ Constitutional Constraints Tested:
 - RT-4: 5 non-consecutive failures in 90-day rolling window
 """
 
+from datetime import datetime
+
 import pytest
-from datetime import datetime, timezone
 
 from src.domain.models.cessation_trigger_condition import (
     CESSATION_TRIGGER_JSON_LD_CONTEXT,

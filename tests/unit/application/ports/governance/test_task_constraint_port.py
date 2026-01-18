@@ -12,10 +12,8 @@ Tests cover:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Protocol, runtime_checkable
-from uuid import UUID, uuid4
+from typing import Protocol
+from uuid import uuid4
 
 import pytest
 
@@ -28,6 +26,7 @@ class TestTaskConstraintPort:
         from src.application.ports.governance.task_constraint_port import (
             TaskConstraintPort,
         )
+
         assert TaskConstraintPort is not None
 
     def test_constraint_violation_can_be_imported(self) -> None:
@@ -35,6 +34,7 @@ class TestTaskConstraintPort:
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
         )
+
         assert ConstraintViolation is not None
 
     def test_task_operation_enum_can_be_imported(self) -> None:
@@ -42,6 +42,7 @@ class TestTaskConstraintPort:
         from src.application.ports.governance.task_constraint_port import (
             TaskOperation,
         )
+
         assert TaskOperation is not None
 
 
@@ -206,6 +207,7 @@ class TestConstraintViolationError:
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolationError,
         )
+
         assert ConstraintViolationError is not None
 
     def test_constraint_violation_error_contains_violation(self) -> None:

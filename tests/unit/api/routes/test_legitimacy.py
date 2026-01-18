@@ -143,9 +143,7 @@ class TestRestoreEndpoint:
 
         assert response.status_code == 422
 
-    def test_restore_success(
-        self, client: TestClient, mock_service: MagicMock
-    ) -> None:
+    def test_restore_success(self, client: TestClient, mock_service: MagicMock) -> None:
         """Successful restoration returns acknowledgment details."""
         operator_id = uuid4()
         ack_id = uuid4()
@@ -351,17 +349,13 @@ class TestAcknowledgmentEndpoint:
         mock_service.get_acknowledgment.return_value = None
 
         ack_id = uuid4()
-        response = client.get(
-            f"/v1/governance/legitimacy/acknowledgment/{ack_id}"
-        )
+        response = client.get(f"/v1/governance/legitimacy/acknowledgment/{ack_id}")
 
         assert response.status_code == 404
 
     def test_acknowledgment_invalid_uuid(self, client: TestClient) -> None:
         """Returns 400 for invalid UUID."""
-        response = client.get(
-            "/v1/governance/legitimacy/acknowledgment/invalid-uuid"
-        )
+        response = client.get("/v1/governance/legitimacy/acknowledgment/invalid-uuid")
 
         assert response.status_code == 400
 
@@ -385,9 +379,7 @@ class TestAcknowledgmentEndpoint:
 
         mock_service.get_acknowledgment.return_value = ack
 
-        response = client.get(
-            f"/v1/governance/legitimacy/acknowledgment/{ack_id}"
-        )
+        response = client.get(f"/v1/governance/legitimacy/acknowledgment/{ack_id}")
 
         assert response.status_code == 200
         data = response.json()

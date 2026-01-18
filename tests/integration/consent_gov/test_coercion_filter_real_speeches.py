@@ -28,7 +28,7 @@ from src.application.ports.governance.coercion_filter_port import MessageType
 from src.domain.governance.filter import FilterDecision
 
 if TYPE_CHECKING:
-    from .conftest import DebateEntry
+    pass
 
 
 class TestCoercionFilterWithRealSpeeches:

@@ -44,7 +44,6 @@ from src.domain.governance.cessation import (
     CessationTrigger,
 )
 
-
 # Default grace period for in-flight operations (60 seconds)
 DEFAULT_GRACE_PERIOD_SECONDS = 60
 

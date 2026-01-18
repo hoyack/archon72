@@ -22,10 +22,15 @@ import pytest
 
 from src.application.ports.override_executor import OverrideResult
 from src.application.services.override_service import OverrideService
-from src.domain.errors.override import OverrideLoggingFailedError, WitnessSuppressionAttemptError
+from src.domain.errors.override import (
+    OverrideLoggingFailedError,
+    WitnessSuppressionAttemptError,
+)
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.override_event import ActionType, OverrideEventPayload
-from src.infrastructure.stubs.constitution_validator_stub import ConstitutionValidatorStub
+from src.infrastructure.stubs.constitution_validator_stub import (
+    ConstitutionValidatorStub,
+)
 
 
 @pytest.fixture
@@ -182,7 +187,9 @@ class TestOverrideEventLogging:
         assert call_kwargs["payload"]["scope"] == override_payload.scope
         assert call_kwargs["payload"]["duration"] == override_payload.duration
         assert call_kwargs["payload"]["reason"] == override_payload.reason
-        assert call_kwargs["payload"]["action_type"] == override_payload.action_type.value
+        assert (
+            call_kwargs["payload"]["action_type"] == override_payload.action_type.value
+        )
 
     @pytest.mark.asyncio
     async def test_event_id_passed_to_executor(
@@ -234,7 +241,9 @@ class TestOverrideLogFailure:
         override_payload: OverrideEventPayload,
     ) -> None:
         """Test that failed write returns error (AC3)."""
-        mock_event_writer.write_event.side_effect = Exception("Database connection failed")
+        mock_event_writer.write_event.side_effect = Exception(
+            "Database connection failed"
+        )
 
         with pytest.raises(OverrideLoggingFailedError) as exc_info:
             await override_service.initiate_override(override_payload)
@@ -302,7 +311,9 @@ class TestOverrideExecution:
         mock_event.sequence = 42
         mock_event_writer.write_event.return_value = mock_event
 
-        mock_override_executor.execute_override.side_effect = Exception("Unexpected error")
+        mock_override_executor.execute_override.side_effect = Exception(
+            "Unexpected error"
+        )
 
         result = await override_service.initiate_override(override_payload)
 

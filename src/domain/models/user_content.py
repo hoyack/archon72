@@ -22,7 +22,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Final
 
-
 # Constants
 USER_CONTENT_ID_PREFIX: Final[str] = "uc_"
 USER_CONTENT_SCANNER_SYSTEM_AGENT_ID: Final[str] = "system:user_content_scanner"
@@ -168,9 +167,7 @@ class UserContent:
 
         # Consistency checks
         if self.status == UserContentStatus.FLAGGED and not self.prohibition_flag:
-            raise ValueError(
-                "FR58: FLAGGED status requires prohibition_flag"
-            )
+            raise ValueError("FR58: FLAGGED status requires prohibition_flag")
 
         if (
             self.featured_status == FeaturedStatus.PROHIBITED
@@ -181,9 +178,7 @@ class UserContent:
             )
 
         if self.prohibition_flag and self.status != UserContentStatus.FLAGGED:
-            raise ValueError(
-                "FR58: prohibition_flag requires FLAGGED status"
-            )
+            raise ValueError("FR58: prohibition_flag requires FLAGGED status")
 
     @property
     def is_flagged(self) -> bool:
@@ -223,9 +218,7 @@ class UserContent:
             "created_at": self.created_at.isoformat(),
         }
 
-    def with_prohibition_flag(
-        self, flag: UserContentProhibitionFlag
-    ) -> UserContent:
+    def with_prohibition_flag(self, flag: UserContentProhibitionFlag) -> UserContent:
         """Create a new UserContent with prohibition flag applied.
 
         This method creates a flagged copy of the content.

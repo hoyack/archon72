@@ -114,9 +114,7 @@ class TestCollectiveOutputPayload:
             "linked_vote_event_ids": (uuid4(), uuid4()),
         }
 
-    def test_create_valid_collective_output(
-        self, valid_payload_kwargs: dict
-    ) -> None:
+    def test_create_valid_collective_output(self, valid_payload_kwargs: dict) -> None:
         """CollectiveOutputPayload should accept valid collective output."""
         from src.domain.events.collective_output import CollectiveOutputPayload
 

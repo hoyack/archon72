@@ -45,7 +45,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass(frozen=True, eq=True)
@@ -83,7 +83,7 @@ class CessationTriggerCondition:
 
     trigger_type: str
     threshold: int | float
-    window_days: Optional[int]
+    window_days: int | None
     description: str
     fr_reference: str
     constitutional_floor: int | float
@@ -163,9 +163,7 @@ class CessationTriggerConditionSet:
     effective_date: datetime = field(
         default_factory=lambda: datetime(2026, 1, 1, tzinfo=timezone.utc)
     )
-    last_updated: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @classmethod
     def from_registry(cls) -> CessationTriggerConditionSet:
@@ -283,12 +281,10 @@ class CessationTriggerConditionSet:
         result = self.to_dict()
         result["@context"] = CESSATION_TRIGGER_JSON_LD_CONTEXT["@context"]
         result["@type"] = "cessation:TriggerConditionSet"
-        result["trigger_conditions"] = [
-            c.to_json_ld() for c in self.conditions
-        ]
+        result["trigger_conditions"] = [c.to_json_ld() for c in self.conditions]
         return result
 
-    def get_condition(self, trigger_type: str) -> Optional[CessationTriggerCondition]:
+    def get_condition(self, trigger_type: str) -> CessationTriggerCondition | None:
         """Get a specific trigger condition by type.
 
         Args:

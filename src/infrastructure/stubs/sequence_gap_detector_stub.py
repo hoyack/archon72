@@ -13,7 +13,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from src.application.ports.sequence_gap_detector import (
     DETECTION_INTERVAL_SECONDS,
@@ -53,10 +53,10 @@ class SequenceGapDetectorStub(SequenceGapDetectorPort):
         """
         self._detection_interval = detection_interval
         self._simulated_gaps: list[tuple[int, int, tuple[int, ...]]] = []
-        self._last_check: Optional[datetime] = None
+        self._last_check: datetime | None = None
         self.recorded_gaps: list[SequenceGapDetectedPayload] = []
 
-    async def check_for_gaps(self) -> Optional[SequenceGapDetectedPayload]:
+    async def check_for_gaps(self) -> SequenceGapDetectedPayload | None:
         """Check for gaps and return next simulated gap if any.
 
         Returns:
@@ -82,7 +82,7 @@ class SequenceGapDetectorStub(SequenceGapDetectorPort):
             previous_check_timestamp=previous_check,
         )
 
-    async def get_last_check_timestamp(self) -> Optional[datetime]:
+    async def get_last_check_timestamp(self) -> datetime | None:
         """Get the timestamp of the last check.
 
         Returns:

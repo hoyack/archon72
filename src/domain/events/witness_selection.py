@@ -17,7 +17,6 @@ from typing import Any
 
 from src.domain.models.signable import SignableContent
 
-
 # Event type constants
 WITNESS_SELECTION_EVENT_TYPE = "witness.selection"
 WITNESS_PAIR_ROTATION_EVENT_TYPE = "witness.pair_rotation"
@@ -48,9 +47,7 @@ class WitnessSelectionEventPayload:
     selected_witness_id: str
     pool_size: int
     algorithm_version: str
-    selected_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    selected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize payload for event writing."""
@@ -136,9 +133,7 @@ class WitnessPairRotationEventPayload:
     witness_b_id: str
     last_pair_time: datetime | None
     excluded_from_selection: bool
-    event_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    event_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize payload for event writing."""

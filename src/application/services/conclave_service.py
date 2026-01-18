@@ -16,19 +16,18 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID, uuid4
 
 from src.application.ports.agent_orchestrator import (
     AgentOrchestratorProtocol,
     AgentOutput,
-    AgentRequest,
     ContextBundle,
 )
 from src.application.ports.knight_witness import (
@@ -39,11 +38,8 @@ from src.application.ports.knight_witness import (
 )
 from src.application.ports.permission_enforcer import (
     GovernanceAction,
-    GovernanceBranch,
     PermissionContext,
     PermissionEnforcerProtocol,
-    PermissionResult,
-    RankViolationError,
     ViolationDetail,
     ViolationSeverity,
 )
@@ -153,7 +149,9 @@ class ConclaveService:
         """Set callback for progress updates."""
         self._progress_callback = callback
 
-    def _emit_progress(self, event: str, message: str, data: dict[str, Any] | None = None) -> None:
+    def _emit_progress(
+        self, event: str, message: str, data: dict[str, Any] | None = None
+    ) -> None:
         """Emit a progress event."""
         if self._progress_callback:
             self._progress_callback(event, message, data or {})
@@ -201,7 +199,10 @@ class ConclaveService:
         self._emit_progress(
             "session_loaded",
             f"Session loaded from {checkpoint_file}",
-            {"session_id": str(self._session.session_id), "phase": self._session.current_phase.value},
+            {
+                "session_id": str(self._session.session_id),
+                "phase": self._session.current_phase.value,
+            },
         )
         return self._session
 
@@ -248,7 +249,9 @@ class ConclaveService:
             entry_type="procedural",
             content="The Archon 72 Conclave is hereby called to order.",
         )
-        self._emit_progress("phase_change", "Conclave called to order", {"phase": "call_to_order"})
+        self._emit_progress(
+            "phase_change", "Conclave called to order", {"phase": "call_to_order"}
+        )
 
     async def conduct_roll_call(self) -> dict[str, bool]:
         """Conduct roll call to establish quorum.
@@ -260,7 +263,9 @@ class ConclaveService:
             raise ValueError("No active session")
 
         self._session.advance_phase(ConclavePhase.ROLL_CALL)
-        self._emit_progress("phase_change", "Roll call in progress", {"phase": "roll_call"})
+        self._emit_progress(
+            "phase_change", "Roll call in progress", {"phase": "roll_call"}
+        )
 
         attendance: dict[str, bool] = {}
 
@@ -300,7 +305,9 @@ class ConclaveService:
             entry_type="procedural",
             content="The Chair moves to New Business.",
         )
-        self._emit_progress("phase_change", "Moved to New Business", {"phase": "new_business"})
+        self._emit_progress(
+            "phase_change", "Moved to New Business", {"phase": "new_business"}
+        )
 
     async def adjourn(self) -> None:
         """Adjourn the Conclave session."""
@@ -381,7 +388,7 @@ class ConclaveService:
                 target_id=None,
                 target_type="motion",
             )
-            result = self._permission_enforcer.enforce_permission(context)
+            self._permission_enforcer.enforce_permission(context)
             logger.info(
                 "motion_propose_permission_granted",
                 proposer_id=proposer_id,
@@ -490,7 +497,9 @@ class ConclaveService:
             )
 
             # Each Archon speaks in rank order
-            round_entries = await self._conduct_debate_round(motion, round_num, topic_prompt)
+            round_entries = await self._conduct_debate_round(
+                motion, round_num, topic_prompt
+            )
             all_entries.extend(round_entries)
 
             # Checkpoint after each round
@@ -547,10 +556,14 @@ class ConclaveService:
 
             try:
                 # Invoke the archon
-                output = await self._invoke_archon_for_debate(archon, debate_context, motion)
+                output = await self._invoke_archon_for_debate(
+                    archon, debate_context, motion
+                )
 
                 # Validate speech for rank violations (per Government PRD FR-GOV-6)
-                is_valid, violations = self._validate_speech_for_rank(archon, output.content, motion)
+                is_valid, violations = self._validate_speech_for_rank(
+                    archon, output.content, motion
+                )
 
                 # Parse their position (for/against/neutral)
                 position = self._parse_debate_position(output.content)
@@ -572,7 +585,11 @@ class ConclaveService:
                 metadata = {
                     "round": round_num,
                     "motion_id": str(motion.motion_id),
-                    "position": "for" if position is True else "against" if position is False else "neutral",
+                    "position": "for"
+                    if position is True
+                    else "against"
+                    if position is False
+                    else "neutral",
                     "has_violations": not is_valid,
                     "violation_count": len(violations),
                 }
@@ -650,7 +667,13 @@ class ConclaveService:
         if motion.debate_entries:
             previous_debate = "\n\nPrevious contributions:\n"
             for entry in motion.debate_entries[-10:]:  # Last 10 entries
-                position = "FOR" if entry.in_favor is True else "AGAINST" if entry.in_favor is False else "NEUTRAL"
+                position = (
+                    "FOR"
+                    if entry.in_favor is True
+                    else "AGAINST"
+                    if entry.in_favor is False
+                    else "NEUTRAL"
+                )
                 previous_debate += f"\n[{entry.speaker_name} ({position})]:\n{entry.content[:500]}...\n"
 
         context = f"""ARCHON 72 CONCLAVE - FORMAL DEBATE
@@ -666,7 +689,7 @@ MOTION TEXT:
 DEBATE ROUND: {round_num} of {motion.max_debate_rounds}
 {previous_debate}
 
-{topic_prompt or ''}
+{topic_prompt or ""}
 
 INSTRUCTIONS:
 You are participating in a formal deliberation of the Archon 72 Conclave.
@@ -688,8 +711,20 @@ Be concise but substantive. Your contribution will be recorded in the official t
         content_lower = content.lower()
 
         # Look for explicit position statements
-        for_indicators = ["i support", "i am for", "in favor", "vote aye", "support this motion"]
-        against_indicators = ["i oppose", "i am against", "vote nay", "against this motion", "cannot support"]
+        for_indicators = [
+            "i support",
+            "i am for",
+            "in favor",
+            "vote aye",
+            "support this motion",
+        ]
+        against_indicators = [
+            "i oppose",
+            "i am against",
+            "vote nay",
+            "against this motion",
+            "cannot support",
+        ]
 
         for indicator in for_indicators:
             if indicator in content_lower:
@@ -780,7 +815,10 @@ Be concise but substantive. Your contribution will be recorded in the official t
                     content=f"Vote: {vote.choice.value.upper()}",
                     speaker_id=archon_id,
                     speaker_name=archon.name,
-                    metadata={"motion_id": str(motion.motion_id), "choice": vote.choice.value},
+                    metadata={
+                        "motion_id": str(motion.motion_id),
+                        "choice": vote.choice.value,
+                    },
                 )
 
             except Exception as e:
@@ -947,9 +985,18 @@ You may briefly explain your reasoning.
 
         # Task list indicators
         task_patterns = [
-            "step 1", "step 2", "first, ", "second, ", "third, ",
-            "1. ", "2. ", "3. ", "- task:", "task list:",
-            "action items:", "deliverables:",
+            "step 1",
+            "step 2",
+            "first, ",
+            "second, ",
+            "third, ",
+            "1. ",
+            "2. ",
+            "3. ",
+            "- task:",
+            "task list:",
+            "action items:",
+            "deliverables:",
         ]
         for pattern in task_patterns:
             if pattern in content_lower:
@@ -958,9 +1005,17 @@ You may briefly explain your reasoning.
 
         # Timeline indicators
         timeline_patterns = [
-            "by tomorrow", "within ", " days", " weeks", " hours",
-            "deadline:", "schedule:", "timeline:", "due date:",
-            "sprint", "milestone",
+            "by tomorrow",
+            "within ",
+            " days",
+            " weeks",
+            " hours",
+            "deadline:",
+            "schedule:",
+            "timeline:",
+            "due date:",
+            "sprint",
+            "milestone",
         ]
         for pattern in timeline_patterns:
             if pattern in content_lower:
@@ -969,9 +1024,17 @@ You may briefly explain your reasoning.
 
         # Tool/technology specifications
         tool_patterns = [
-            "using python", "using javascript", "using ", "with api",
-            "implement with", "tool:", "technology:", "framework:",
-            "database:", "server:", "endpoint:",
+            "using python",
+            "using javascript",
+            "using ",
+            "with api",
+            "implement with",
+            "tool:",
+            "technology:",
+            "framework:",
+            "database:",
+            "server:",
+            "endpoint:",
         ]
         for pattern in tool_patterns:
             if pattern in content_lower:
@@ -980,8 +1043,13 @@ You may briefly explain your reasoning.
 
         # Resource allocation
         resource_patterns = [
-            "allocate ", "budget:", "resources:", "team:",
-            "assign ", "delegate to", "responsible:",
+            "allocate ",
+            "budget:",
+            "resources:",
+            "team:",
+            "assign ",
+            "delegate to",
+            "responsible:",
         ]
         for pattern in resource_patterns:
             if pattern in content_lower:
@@ -1170,7 +1238,9 @@ You may briefly explain your reasoning.
             "total_debate_rounds": session.total_debate_rounds,
             "total_votes_cast": session.total_votes_cast,
             "motions": [self._serialize_motion(m) for m in session.motions],
-            "transcript": [self._serialize_transcript_entry(t) for t in session.transcript],
+            "transcript": [
+                self._serialize_transcript_entry(t) for t in session.transcript
+            ],
             "agenda": [self._serialize_agenda_item(a) for a in session.agenda],
         }
 
@@ -1186,7 +1256,9 @@ You may briefly explain your reasoning.
             "proposed_at": motion.proposed_at.isoformat(),
             "seconder_id": motion.seconder_id,
             "seconder_name": motion.seconder_name,
-            "seconded_at": motion.seconded_at.isoformat() if motion.seconded_at else None,
+            "seconded_at": motion.seconded_at.isoformat()
+            if motion.seconded_at
+            else None,
             "status": motion.status.value,
             "current_debate_round": motion.current_debate_round,
             "max_debate_rounds": motion.max_debate_rounds,
@@ -1242,7 +1314,9 @@ You may briefly explain your reasoning.
             "presenter_id": item.presenter_id,
             "presenter_name": item.presenter_name,
             "completed": item.completed,
-            "completed_at": item.completed_at.isoformat() if item.completed_at else None,
+            "completed_at": item.completed_at.isoformat()
+            if item.completed_at
+            else None,
             "notes": item.notes,
         }
 
@@ -1257,7 +1331,9 @@ You may briefly explain your reasoning.
             expected_participants=data["expected_participants"],
             present_participants=data["present_participants"],
             current_motion_index=data["current_motion_index"],
-            ended_at=datetime.fromisoformat(data["ended_at"]) if data["ended_at"] else None,
+            ended_at=datetime.fromisoformat(data["ended_at"])
+            if data["ended_at"]
+            else None,
             total_debate_rounds=data["total_debate_rounds"],
             total_votes_cast=data["total_votes_cast"],
         )
@@ -1288,7 +1364,9 @@ You may briefly explain your reasoning.
             proposed_at=datetime.fromisoformat(data["proposed_at"]),
             seconder_id=data.get("seconder_id"),
             seconder_name=data.get("seconder_name"),
-            seconded_at=datetime.fromisoformat(data["seconded_at"]) if data.get("seconded_at") else None,
+            seconded_at=datetime.fromisoformat(data["seconded_at"])
+            if data.get("seconded_at")
+            else None,
             status=MotionStatus(data["status"]),
             current_debate_round=data["current_debate_round"],
             max_debate_rounds=data["max_debate_rounds"],
@@ -1350,7 +1428,9 @@ You may briefly explain your reasoning.
             presenter_id=data.get("presenter_id"),
             presenter_name=data.get("presenter_name"),
             completed=data["completed"],
-            completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
+            completed_at=datetime.fromisoformat(data["completed_at"])
+            if data.get("completed_at")
+            else None,
             notes=data.get("notes", ""),
         )
 
@@ -1377,7 +1457,7 @@ You may briefly explain your reasoning.
         output_path = self._config.output_dir / filename
 
         with open(output_path, "w") as f:
-            f.write(f"# Archon 72 Conclave Transcript\n\n")
+            f.write("# Archon 72 Conclave Transcript\n\n")
             f.write(f"**Session:** {self._session.session_name}\n")
             f.write(f"**Started:** {self._session.started_at.isoformat()}\n")
             if self._session.ended_at:

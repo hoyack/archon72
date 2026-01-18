@@ -20,7 +20,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.models.incident_report import (
@@ -63,7 +63,7 @@ class IncidentReportRepositoryPort(Protocol):
         """
         ...
 
-    async def get_by_id(self, incident_id: UUID) -> Optional[IncidentReport]:
+    async def get_by_id(self, incident_id: UUID) -> IncidentReport | None:
         """Retrieve a specific incident report by ID.
 
         Works during halt (CT-13 read access).
@@ -128,10 +128,10 @@ class IncidentReportRepositoryPort(Protocol):
 
     async def query(
         self,
-        incident_type: Optional[IncidentType] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        status: Optional[IncidentStatus] = None,
+        incident_type: IncidentType | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        status: IncidentStatus | None = None,
     ) -> list[IncidentReport]:
         """Query incident reports with optional filters (AC: 5).
 
@@ -153,9 +153,7 @@ class IncidentReportRepositoryPort(Protocol):
         """
         ...
 
-    async def get_by_related_event(
-        self, event_id: UUID
-    ) -> Optional[IncidentReport]:
+    async def get_by_related_event(self, event_id: UUID) -> IncidentReport | None:
         """Find incident report by related event ID.
 
         Prevents duplicate incidents for the same triggering event.

@@ -43,15 +43,17 @@ class TaskStateRecord:
     """
 
     # Valid task states in lifecycle order
-    VALID_STATES: ClassVar[frozenset[str]] = frozenset({
-        "pending",
-        "authorized",
-        "activated",
-        "accepted",
-        "completed",
-        "declined",
-        "expired",
-    })
+    VALID_STATES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "pending",
+            "authorized",
+            "activated",
+            "accepted",
+            "completed",
+            "declined",
+            "expired",
+        }
+    )
 
     # State transitions that are allowed
     ALLOWED_TRANSITIONS: ClassVar[dict[str, frozenset[str]]] = {

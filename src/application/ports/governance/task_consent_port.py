@@ -95,9 +95,7 @@ class InvalidTaskStateError(Exception):
         self.task_id = task_id
         self.current_state = current_state
         self.operation = operation
-        super().__init__(
-            f"Cannot {operation} task {task_id} in {current_state} state"
-        )
+        super().__init__(f"Cannot {operation} task {task_id} in {current_state} state")
 
 
 @runtime_checkable

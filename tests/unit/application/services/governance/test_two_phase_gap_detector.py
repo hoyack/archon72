@@ -12,7 +12,6 @@ Constitutional Reference:
 """
 
 from datetime import datetime, timedelta, timezone
-from types import MappingProxyType
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -59,7 +58,9 @@ def mock_ledger() -> AsyncMock:
 def mock_time_authority() -> MagicMock:
     """Create a mock time authority."""
     time_authority = MagicMock()
-    time_authority.now.return_value = datetime(2026, 1, 16, 12, 0, 0, tzinfo=timezone.utc)
+    time_authority.now.return_value = datetime(
+        2026, 1, 16, 12, 0, 0, tzinfo=timezone.utc
+    )
     return time_authority
 
 
@@ -84,7 +85,10 @@ class TestTwoPhaseViolationType:
 
     def test_outcome_without_intent_type(self) -> None:
         """Should have OUTCOME_WITHOUT_INTENT type."""
-        assert TwoPhaseViolationType.OUTCOME_WITHOUT_INTENT.value == "outcome_without_intent"
+        assert (
+            TwoPhaseViolationType.OUTCOME_WITHOUT_INTENT.value
+            == "outcome_without_intent"
+        )
 
 
 class TestTwoPhaseViolation:

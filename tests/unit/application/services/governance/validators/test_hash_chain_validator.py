@@ -5,10 +5,11 @@ AC2: Hash chain breaks rejected before append (with specific error)
 AC7: Hash chain verification completes in ≤50ms
 """
 
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
+
+import pytest
 
 from src.application.services.governance.validators.hash_chain_validator import (
     HashChainValidator,
@@ -254,7 +255,9 @@ class TestHashChainValidatorPerformance:
         await validator.validate(event)
         elapsed_ms = (time.perf_counter() - start) * 1000
 
-        assert elapsed_ms <= 50, f"Hash chain verification took {elapsed_ms}ms, limit is 50ms"
+        assert elapsed_ms <= 50, (
+            f"Hash chain verification took {elapsed_ms}ms, limit is 50ms"
+        )
 
     @pytest.mark.asyncio
     async def test_bulk_validation_performance(

@@ -6,7 +6,6 @@ Tests cover:
 - Port interface definition
 """
 
-
 import pytest
 
 from src.application.ports.context_bundle_validator import (

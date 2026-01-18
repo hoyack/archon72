@@ -9,10 +9,7 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timezone
-from types import MappingProxyType
 from uuid import uuid4
-
-import pytest
 
 
 class TestEventToObserverAdapter:
@@ -247,23 +244,18 @@ class TestEventToObserverAdapter:
         from src.api.adapters.observer import EventToObserverAdapter
 
         nested_payload = {
-            "level1": {
-                "level2": {
-                    "level3": {
-                        "level4": {"deep_value": "found"}
-                    }
-                }
-            },
-            "array_nested": [
-                {"id": 1, "data": [1, 2, [3, 4, {"x": "y"}]]}
-            ],
+            "level1": {"level2": {"level3": {"level4": {"deep_value": "found"}}}},
+            "array_nested": [{"id": 1, "data": [1, 2, [3, 4, {"x": "y"}]]}],
         }
         event = self._create_sample_event(payload=nested_payload)
 
         response = EventToObserverAdapter.to_response(event)
 
         # Deep nesting preserved
-        assert response.payload["level1"]["level2"]["level3"]["level4"]["deep_value"] == "found"
+        assert (
+            response.payload["level1"]["level2"]["level3"]["level4"]["deep_value"]
+            == "found"
+        )
         # Array nesting preserved
         assert response.payload["array_nested"][0]["data"][2][2]["x"] == "y"
 

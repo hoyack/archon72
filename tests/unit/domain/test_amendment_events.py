@@ -1,7 +1,8 @@
 """Unit tests for amendment visibility events (Story 6.7, FR126-FR128)."""
 
-from datetime import datetime, timedelta, timezone
 import json
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from src.domain.events.amendment import (
@@ -76,7 +77,8 @@ class TestAmendmentImpactAnalysis:
             reduces_visibility=True,
             raises_silence_probability=False,
             weakens_irreversibility=False,
-            analysis_text="This amendment affects visibility by changing logging requirements. " * 2,
+            analysis_text="This amendment affects visibility by changing logging requirements. "
+            * 2,
             analyzed_by="analyst-001",
             analyzed_at=now,
         )
@@ -91,7 +93,9 @@ class TestAmendmentImpactAnalysis:
     def test_analysis_text_minimum_length(self) -> None:
         """Test FR127: Analysis text must be at least 50 characters."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="analysis_text must be at least 50 characters"):
+        with pytest.raises(
+            ValueError, match="analysis_text must be at least 50 characters"
+        ):
             AmendmentImpactAnalysis(
                 reduces_visibility=False,
                 raises_silence_probability=False,

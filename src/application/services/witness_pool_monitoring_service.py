@@ -17,21 +17,20 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.halt_checker import HaltChecker
-from src.application.ports.witness_anomaly_detector import WitnessAnomalyDetectorProtocol
+from src.application.ports.witness_anomaly_detector import (
+    WitnessAnomalyDetectorProtocol,
+)
 from src.application.ports.witness_pool import WitnessPoolProtocol
 from src.application.ports.witness_pool_monitor import (
     MINIMUM_WITNESSES_HIGH_STAKES,
     MINIMUM_WITNESSES_STANDARD,
-    WitnessPoolMonitorProtocol,
     WitnessPoolStatus,
 )
 from src.domain.errors.witness_anomaly import WitnessPoolDegradedError
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.witness_anomaly import (
-    WITNESS_POOL_DEGRADED_EVENT_TYPE,
     WitnessPoolDegradedEventPayload,
 )
 
@@ -70,7 +69,7 @@ class WitnessPoolMonitoringService:
         self,
         halt_checker: HaltChecker,
         witness_pool: WitnessPoolProtocol,
-        anomaly_detector: Optional[WitnessAnomalyDetectorProtocol] = None,
+        anomaly_detector: WitnessAnomalyDetectorProtocol | None = None,
     ) -> None:
         """Initialize the witness pool monitoring service.
 
@@ -82,7 +81,7 @@ class WitnessPoolMonitoringService:
         self._halt_checker = halt_checker
         self._witness_pool = witness_pool
         self._anomaly_detector = anomaly_detector
-        self._degraded_since: Optional[datetime] = None
+        self._degraded_since: datetime | None = None
 
     async def check_pool_health(self) -> WitnessPoolStatus:
         """Check current witness pool health (FR117).
@@ -128,8 +127,12 @@ class WitnessPoolMonitoringService:
                     left_colon = pair_key.rfind(":", 0, mid_point + 1)
                     right_colon = pair_key.find(":", mid_point)
                     if left_colon != -1 and right_colon != -1:
-                        split_pos = left_colon if (mid_point - left_colon) <= (right_colon - mid_point) else right_colon
-                        parts = [pair_key[:split_pos], pair_key[split_pos + 1:]]
+                        split_pos = (
+                            left_colon
+                            if (mid_point - left_colon) <= (right_colon - mid_point)
+                            else right_colon
+                        )
+                        parts = [pair_key[:split_pos], pair_key[split_pos + 1 :]]
                     else:
                         parts = [pair_key]
                 excluded_set.update(parts)
@@ -188,7 +191,9 @@ class WitnessPoolMonitoringService:
         # Determine if blocking based on operation type
         is_high_stakes = operation_type == "high_stakes"
         minimum_required = (
-            MINIMUM_WITNESSES_HIGH_STAKES if is_high_stakes else MINIMUM_WITNESSES_STANDARD
+            MINIMUM_WITNESSES_HIGH_STAKES
+            if is_high_stakes
+            else MINIMUM_WITNESSES_STANDARD
         )
         is_blocking = is_high_stakes and status.effective_count < minimum_required
 
@@ -256,7 +261,7 @@ class WitnessPoolMonitoringService:
         status = await self.check_pool_health()
         return status.is_degraded
 
-    async def get_degraded_since(self) -> Optional[datetime]:
+    async def get_degraded_since(self) -> datetime | None:
         """Get when degraded mode started.
 
         Returns:

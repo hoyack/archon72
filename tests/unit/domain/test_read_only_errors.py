@@ -23,7 +23,9 @@ class TestWriteBlockedDuringHaltError:
 
     def test_error_message_preserved(self) -> None:
         """Verify custom error message is preserved."""
-        message = "FR20: System halted - write operations blocked. Reason: Fork detected"
+        message = (
+            "FR20: System halted - write operations blocked. Reason: Fork detected"
+        )
         error = WriteBlockedDuringHaltError(message)
         assert str(error) == message
 
@@ -93,9 +95,11 @@ class TestErrorModuleExports:
     def test_write_blocked_exported_from_errors_package(self) -> None:
         """Verify WriteBlockedDuringHaltError is exported from errors __init__."""
         from src.domain.errors import WriteBlockedDuringHaltError as ExportedError
+
         assert ExportedError is WriteBlockedDuringHaltError
 
     def test_provisional_blocked_exported_from_errors_package(self) -> None:
         """Verify ProvisionalBlockedDuringHaltError is exported from errors __init__."""
         from src.domain.errors import ProvisionalBlockedDuringHaltError as ExportedError
+
         assert ExportedError is ProvisionalBlockedDuringHaltError

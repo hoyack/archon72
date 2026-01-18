@@ -96,7 +96,7 @@ class DebateEntry:
         content: str,
         round_number: int,
         in_favor: bool | None = None,
-    ) -> "DebateEntry":
+    ) -> DebateEntry:
         return cls(
             entry_id=uuid4(),
             speaker_id=speaker_id,
@@ -173,7 +173,7 @@ class Motion:
         proposer_id: str,
         proposer_name: str,
         max_debate_rounds: int = 5,
-    ) -> "Motion":
+    ) -> Motion:
         return cls(
             motion_id=uuid4(),
             motion_type=motion_type,
@@ -247,7 +247,8 @@ class Motion:
         self.final_ayes = sum(1 for v in self.votes if v.choice == VoteChoice.AYE)
         self.final_nays = sum(1 for v in self.votes if v.choice == VoteChoice.NAY)
         self.final_abstentions = sum(
-            1 for v in self.votes
+            1
+            for v in self.votes
             if v.choice in (VoteChoice.ABSTAIN, VoteChoice.PRESENT)
         )
 
@@ -296,7 +297,7 @@ class AgendaItem:
         description: str,
         presenter_id: str | None = None,
         presenter_name: str | None = None,
-    ) -> "AgendaItem":
+    ) -> AgendaItem:
         return cls(
             item_id=uuid4(),
             phase=phase,
@@ -329,7 +330,7 @@ class TranscriptEntry:
         speaker_id: str | None = None,
         speaker_name: str | None = None,
         metadata: dict[str, Any] | None = None,
-    ) -> "TranscriptEntry":
+    ) -> TranscriptEntry:
         return cls(
             entry_id=uuid4(),
             timestamp=datetime.now(timezone.utc),
@@ -386,7 +387,7 @@ class ConclaveSession:
         cls,
         session_name: str,
         expected_participants: int = 72,
-    ) -> "ConclaveSession":
+    ) -> ConclaveSession:
         return cls(
             session_id=uuid4(),
             session_name=session_name,
@@ -482,7 +483,9 @@ class ConclaveSession:
             "total_debate_rounds": self.total_debate_rounds,
             "total_votes_cast": self.total_votes_cast,
             "checkpoint_file": self.checkpoint_file,
-            "last_checkpoint": self.last_checkpoint.isoformat() if self.last_checkpoint else None,
+            "last_checkpoint": self.last_checkpoint.isoformat()
+            if self.last_checkpoint
+            else None,
             # Note: agenda, motions, and transcript serialized separately for efficiency
         }
 
@@ -490,9 +493,9 @@ class ConclaveSession:
 # Rank ordering for speaking order (highest to lowest)
 RANK_ORDER = [
     "executive_director",  # Kings - speak first
-    "senior_director",     # Dukes
-    "director",            # Marquis
-    "managing_director",   # Presidents
+    "senior_director",  # Dukes
+    "director",  # Marquis
+    "managing_director",  # Presidents
     "strategic_director",  # Prince/Earl/Knight - speak last
 ]
 

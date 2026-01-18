@@ -12,7 +12,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID
 
 from src.domain.errors.constitutional import ConstitutionalViolationError
@@ -42,14 +41,17 @@ class BreachNotFoundError(EscalationError):
         breach_id: The UUID of the breach that was not found.
     """
 
-    def __init__(self, breach_id: UUID, message: Optional[str] = None) -> None:
+    def __init__(self, breach_id: UUID, message: str | None = None) -> None:
         """Initialize with the breach ID and optional custom message.
 
         Args:
             breach_id: The UUID of the breach that was not found.
             message: Optional custom error message. Defaults to FR31 message.
         """
-        msg = message or f"FR31: Breach not found - unable to locate breach with ID {breach_id}"
+        msg = (
+            message
+            or f"FR31: Breach not found - unable to locate breach with ID {breach_id}"
+        )
         super().__init__(msg)
         self.breach_id = breach_id
 
@@ -65,14 +67,17 @@ class BreachAlreadyAcknowledgedError(EscalationError):
         breach_id: The UUID of the breach that was already acknowledged.
     """
 
-    def __init__(self, breach_id: UUID, message: Optional[str] = None) -> None:
+    def __init__(self, breach_id: UUID, message: str | None = None) -> None:
         """Initialize with the breach ID and optional custom message.
 
         Args:
             breach_id: The UUID of the breach that was already acknowledged.
             message: Optional custom error message. Defaults to FR31 message.
         """
-        msg = message or f"FR31: Breach already acknowledged - breach {breach_id} has already been acknowledged"
+        msg = (
+            message
+            or f"FR31: Breach already acknowledged - breach {breach_id} has already been acknowledged"
+        )
         super().__init__(msg)
         self.breach_id = breach_id
 
@@ -88,14 +93,17 @@ class BreachAlreadyEscalatedError(EscalationError):
         breach_id: The UUID of the breach that was already escalated.
     """
 
-    def __init__(self, breach_id: UUID, message: Optional[str] = None) -> None:
+    def __init__(self, breach_id: UUID, message: str | None = None) -> None:
         """Initialize with the breach ID and optional custom message.
 
         Args:
             breach_id: The UUID of the breach that was already escalated.
             message: Optional custom error message. Defaults to FR31 message.
         """
-        msg = message or f"FR31: Breach already escalated - breach {breach_id} has already been escalated to agenda"
+        msg = (
+            message
+            or f"FR31: Breach already escalated - breach {breach_id} has already been escalated to agenda"
+        )
         super().__init__(msg)
         self.breach_id = breach_id
 
@@ -111,7 +119,7 @@ class InvalidAcknowledgmentError(EscalationError):
         reason: The reason the acknowledgment is invalid.
     """
 
-    def __init__(self, reason: str, message: Optional[str] = None) -> None:
+    def __init__(self, reason: str, message: str | None = None) -> None:
         """Initialize with the reason and optional custom message.
 
         Args:
@@ -134,7 +142,7 @@ class EscalationTimerNotStartedError(EscalationError):
         breach_id: The UUID of the breach with no escalation timer.
     """
 
-    def __init__(self, breach_id: UUID, message: Optional[str] = None) -> None:
+    def __init__(self, breach_id: UUID, message: str | None = None) -> None:
         """Initialize with the breach ID and optional custom message.
 
         Args:

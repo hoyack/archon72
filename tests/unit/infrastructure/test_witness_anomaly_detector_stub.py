@@ -145,7 +145,9 @@ class TestAnalyzeUnavailabilityPatterns:
         assert len(co_results) == 1
         assert co_results[0].anomaly_type == WitnessAnomalyType.CO_OCCURRENCE
         assert len(unavail_results) == 1
-        assert unavail_results[0].anomaly_type == WitnessAnomalyType.UNAVAILABILITY_PATTERN
+        assert (
+            unavail_results[0].anomaly_type == WitnessAnomalyType.UNAVAILABILITY_PATTERN
+        )
 
 
 class TestExcludePair:

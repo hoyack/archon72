@@ -335,7 +335,9 @@ class CoercionFilterService(CoercionFilterPort):
                 reason = pattern_info["reason"]
                 return {
                     "reason": reason,
-                    "guidance": reason.guidance if hasattr(reason, "guidance") else str(reason),
+                    "guidance": reason.guidance
+                    if hasattr(reason, "guidance")
+                    else str(reason),
                 }
         return None
 

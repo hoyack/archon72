@@ -49,7 +49,10 @@ class HistoryEditAttemptError(OverrideAbuseError):
             scope: The override scope that attempted history edit.
             message: Optional custom error message. Defaults to FR87 message.
         """
-        msg = message or f"FR87: History edit prohibited - event history is immutable (scope: {scope})"
+        msg = (
+            message
+            or f"FR87: History edit prohibited - event history is immutable (scope: {scope})"
+        )
         super().__init__(msg)
         self.scope = scope
 
@@ -76,7 +79,10 @@ class EvidenceDestructionAttemptError(OverrideAbuseError):
             scope: The override scope that attempted evidence destruction.
             message: Optional custom error message. Defaults to FR87 message.
         """
-        msg = message or f"FR87: Evidence destruction prohibited - accountability requires preservation (scope: {scope})"
+        msg = (
+            message
+            or f"FR87: Evidence destruction prohibited - accountability requires preservation (scope: {scope})"
+        )
         super().__init__(msg)
         self.scope = scope
 
@@ -110,7 +116,10 @@ class ConstitutionalConstraintViolationError(OverrideAbuseError):
             constraint: The specific constitutional constraint that was violated.
             message: Optional custom error message. Defaults to FR86 message.
         """
-        msg = message or f"FR86: Constitutional constraint violation - {constraint} (scope: {scope})"
+        msg = (
+            message
+            or f"FR86: Constitutional constraint violation - {constraint} (scope: {scope})"
+        )
         super().__init__(msg)
         self.scope = scope
         self.constraint = constraint

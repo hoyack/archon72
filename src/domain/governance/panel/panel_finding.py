@@ -10,12 +10,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional
 from uuid import UUID
 
 from src.domain.governance.panel.determination import Determination
-from src.domain.governance.panel.remedy_type import RemedyType
 from src.domain.governance.panel.dissent import Dissent
+from src.domain.governance.panel.remedy_type import RemedyType
 
 
 @dataclass(frozen=True, eq=True)
@@ -66,7 +65,7 @@ class PanelFinding:
     determination: Determination
     """Panel's determination."""
 
-    remedy: Optional[RemedyType]
+    remedy: RemedyType | None
     """Remedy type if violation found, None otherwise.
 
     Only set when determination is VIOLATION_FOUND.
@@ -75,7 +74,7 @@ class PanelFinding:
     majority_rationale: str
     """Explanation of the majority decision."""
 
-    dissent: Optional[Dissent]
+    dissent: Dissent | None
     """Minority dissent if any members disagreed.
 
     None if the decision was unanimous.
@@ -85,7 +84,7 @@ class PanelFinding:
     issued_at: datetime
     """When the finding was issued."""
 
-    voting_record: Dict[UUID, str]
+    voting_record: dict[UUID, str]
     """Record of how each member voted.
 
     Maps member_id → vote string (e.g., "violation", "no_violation").

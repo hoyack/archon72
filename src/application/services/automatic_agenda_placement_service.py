@@ -18,11 +18,11 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-import structlog
-from datetime import datetime, timezone
 from dataclasses import dataclass
-from typing import Optional
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
+
+import structlog
 
 from src.application.ports.anti_success_alert_repository import (
     AntiSuccessAlertRepositoryProtocol,
@@ -67,8 +67,8 @@ class AgendaPlacementResult:
     """
 
     triggered: bool
-    trigger_type: Optional[AgendaTriggerType]
-    placement_id: Optional[UUID]
+    trigger_type: AgendaTriggerType | None
+    placement_id: UUID | None
     was_idempotent: bool
 
 
@@ -177,7 +177,9 @@ class AutomaticAgendaPlacementService:
                     window_days=CONSECUTIVE_FAILURE_WINDOW_DAYS,
                 )
             )
-            failure_event_ids = tuple(f.event_id for f in failures[:CONSECUTIVE_FAILURE_THRESHOLD])
+            failure_event_ids = tuple(
+                f.event_id for f in failures[:CONSECUTIVE_FAILURE_THRESHOLD]
+            )
 
             placement = await self._create_agenda_placement(
                 trigger_type=AgendaTriggerType.CONSECUTIVE_FAILURES,
@@ -259,7 +261,9 @@ class AutomaticAgendaPlacementService:
             failures = await self._integrity_failure_repo.get_failures_in_window(
                 window_days=ROLLING_WINDOW_DAYS,
             )
-            failure_event_ids = tuple(f.event_id for f in failures[:ROLLING_WINDOW_THRESHOLD])
+            failure_event_ids = tuple(
+                f.event_id for f in failures[:ROLLING_WINDOW_THRESHOLD]
+            )
 
             placement = await self._create_agenda_placement(
                 trigger_type=AgendaTriggerType.ROLLING_WINDOW,
@@ -400,7 +404,9 @@ class AutomaticAgendaPlacementService:
         results.append(await self.check_rolling_window_failures())
         results.append(await self.check_anti_success_sustained())
 
-        triggered_count = sum(1 for r in results if r.triggered and not r.was_idempotent)
+        triggered_count = sum(
+            1 for r in results if r.triggered and not r.was_idempotent
+        )
         log.info(
             "agenda_trigger_evaluation_complete",
             triggers_fired=triggered_count,
@@ -417,8 +423,8 @@ class AutomaticAgendaPlacementService:
         consecutive: bool,
         failure_event_ids: tuple[UUID, ...],
         reason: str,
-        sustained_days: Optional[int] = None,
-        first_alert_date: Optional[datetime] = None,
+        sustained_days: int | None = None,
+        first_alert_date: datetime | None = None,
         alert_event_ids: tuple[UUID, ...] = (),
     ) -> CessationAgendaPlacementEventPayload:
         """Create and persist an agenda placement event.

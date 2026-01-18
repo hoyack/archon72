@@ -14,16 +14,15 @@ Constitutional Constraints:
 - CT-13: Integrity outranks availability (post-cessation access)
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 
 from src.application.services.integrity_case_service import IntegrityCaseService
 from src.domain.models.integrity_case import (
-    GuaranteeCategory,
-    IntegrityCaseArtifact,
-    IntegrityGuarantee,
     REQUIRED_CT_REFERENCES,
+    GuaranteeCategory,
+    IntegrityGuarantee,
 )
 from src.infrastructure.stubs.integrity_case_repository_stub import (
     IntegrityCaseRepositoryStub,
@@ -65,9 +64,7 @@ class TestIntegrityCaseArtifactAccess:
             assert ct in covered_cts, f"Missing CT: {ct}"
 
     @pytest.mark.asyncio
-    async def test_artifact_json_ld_format(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_artifact_json_ld_format(self, service: IntegrityCaseService) -> None:
         """FR144, FR50: Artifact should be available in JSON-LD format."""
         json_ld = await service.get_artifact_jsonld()
 
@@ -124,9 +121,7 @@ class TestIntegrityCaseArtifactCompleteness:
         """Constitutional guarantees must have is_constitutional=True."""
         artifact = await service.get_artifact()
 
-        constitutional = [
-            g for g in artifact.guarantees if g.ct_reference is not None
-        ]
+        constitutional = [g for g in artifact.guarantees if g.ct_reference is not None]
 
         for g in constitutional:
             assert g.is_constitutional is True, (
@@ -181,7 +176,8 @@ class TestIntegrityCaseArtifactVersioning:
 
     @pytest.mark.asyncio
     async def test_amendment_creates_new_version(
-        self, service: IntegrityCaseService,
+        self,
+        service: IntegrityCaseService,
         new_guarantee: IntegrityGuarantee,
     ) -> None:
         """FR144: Amendment should create new version."""
@@ -203,7 +199,8 @@ class TestIntegrityCaseArtifactVersioning:
 
     @pytest.mark.asyncio
     async def test_version_history_grows_with_amendments(
-        self, service: IntegrityCaseService,
+        self,
+        service: IntegrityCaseService,
         new_guarantee: IntegrityGuarantee,
     ) -> None:
         """FR144: Version history should grow with amendments."""
@@ -318,9 +315,7 @@ class TestIntegrityCaseGuaranteeContent:
         assert "hash" in mechanism_lower, "CT-1 should mention hash chain"
 
     @pytest.mark.asyncio
-    async def test_ct11_has_halt_mechanism(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_ct11_has_halt_mechanism(self, service: IntegrityCaseService) -> None:
         """CT-11 guarantee should document halt over degrade."""
         guarantee = await service.get_guarantee("ct-11-loud-failure")
 

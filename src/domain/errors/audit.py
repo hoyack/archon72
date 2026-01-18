@@ -112,7 +112,9 @@ class MaterialViolationError(AuditError):
         self.violations_count = violations_count
         self.violation_ids = violation_ids or ()
 
-        message = f"FR57: Quarterly audit {audit_id} found {violations_count} violations"
+        message = (
+            f"FR57: Quarterly audit {audit_id} found {violations_count} violations"
+        )
         if violation_ids:
             material_list = ", ".join(violation_ids[:5])
             if len(violation_ids) > 5:

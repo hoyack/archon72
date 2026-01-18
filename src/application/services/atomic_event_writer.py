@@ -58,7 +58,11 @@ def _compute_signable_hash(
         SHA-256 hash of the signable content (64 hex chars).
     """
     # Convert timestamp to ISO format
-    ts_str = local_timestamp.isoformat() if isinstance(local_timestamp, datetime) else str(local_timestamp)
+    ts_str = (
+        local_timestamp.isoformat()
+        if isinstance(local_timestamp, datetime)
+        else str(local_timestamp)
+    )
 
     hashable: dict[str, Any] = {
         "event_type": event_type,
@@ -70,7 +74,9 @@ def _compute_signable_hash(
         hashable["agent_id"] = agent_id
 
     # Canonical JSON: sorted keys, no whitespace
-    canonical = json.dumps(hashable, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    canonical = json.dumps(
+        hashable, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
@@ -188,7 +194,11 @@ class AtomicEventWriter:
 
             # Step 3: Agent signs (Story 1-3 pattern)
             # This MUST complete before witness attestation
-            signature, signing_key_id, sig_alg_version = await self._signing_service.sign_event(
+            (
+                signature,
+                signing_key_id,
+                sig_alg_version,
+            ) = await self._signing_service.sign_event(
                 content_hash=signable_hash,
                 prev_hash=prev_hash,
                 agent_id=agent_id,
@@ -220,7 +230,10 @@ class AtomicEventWriter:
 
             # Step 7: Check clock drift (FR6 - informational only, post-write)
             # This does NOT reject events - sequence is authoritative (AC4)
-            if self._time_authority is not None and persisted_event.authority_timestamp is not None:
+            if (
+                self._time_authority is not None
+                and persisted_event.authority_timestamp is not None
+            ):
                 self._time_authority.check_drift(
                     local_timestamp=persisted_event.local_timestamp,
                     authority_timestamp=persisted_event.authority_timestamp,

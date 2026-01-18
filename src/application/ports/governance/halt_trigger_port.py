@@ -26,7 +26,6 @@ Authorized Actors:
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.governance.halt import HaltReason, HaltStatus
@@ -52,7 +51,7 @@ class HaltExecutionResult:
     executed_at: datetime
     execution_ms: float
     channels_reached: list[str]
-    operator_id: Optional[UUID] = None
+    operator_id: UUID | None = None
 
     def to_dict(self) -> dict:
         """Serialize to dictionary for event payload."""
@@ -128,7 +127,7 @@ class HaltTriggerPort(ABC):
         operator_id: UUID,
         reason: HaltReason,
         message: str,
-        trace_id: Optional[str] = None,
+        trace_id: str | None = None,
     ) -> HaltExecutionResult:
         """Trigger system halt.
 
@@ -161,7 +160,7 @@ class HaltTriggerPort(ABC):
         self,
         reason: HaltReason,
         message: str,
-        trace_id: Optional[str] = None,
+        trace_id: str | None = None,
     ) -> HaltExecutionResult:
         """Trigger halt as system (no operator authorization required).
 

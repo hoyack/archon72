@@ -344,6 +344,5 @@ class TwoPhaseEventEmitter(TwoPhaseEventEmitterPort):
             List of (correlation_id, emitted_at) tuples.
         """
         return [
-            (p.correlation_id, p.emitted_at)
-            for p in self._pending_intents.values()
+            (p.correlation_id, p.emitted_at) for p in self._pending_intents.values()
         ]

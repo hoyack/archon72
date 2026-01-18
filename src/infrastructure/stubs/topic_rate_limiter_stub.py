@@ -11,7 +11,7 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from collections import deque
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 import structlog
@@ -62,7 +62,9 @@ class TopicRateLimiterStub:
         if source_id not in self._submissions:
             return
 
-        cutoff = datetime.now(timezone.utc) - timedelta(seconds=RATE_LIMIT_WINDOW_SECONDS)
+        cutoff = datetime.now(timezone.utc) - timedelta(
+            seconds=RATE_LIMIT_WINDOW_SECONDS
+        )
         self._submissions[source_id] = [
             ts for ts in self._submissions[source_id] if ts >= cutoff
         ]

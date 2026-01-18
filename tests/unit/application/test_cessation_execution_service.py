@@ -335,9 +335,7 @@ class TestCessationExecutionServiceErrorHandling:
     ) -> None:
         """Test that execution fails if event write fails."""
         failing_writer = AsyncMock()
-        failing_writer.write_event = AsyncMock(
-            side_effect=Exception("Write failed")
-        )
+        failing_writer.write_event = AsyncMock(side_effect=Exception("Write failed"))
 
         service = CessationExecutionService(
             event_writer=failing_writer,
@@ -387,9 +385,7 @@ class TestCessationExecutionServiceErrorHandling:
     ) -> None:
         """Test that flag is NOT set if event write fails first."""
         failing_writer = AsyncMock()
-        failing_writer.write_event = AsyncMock(
-            side_effect=Exception("Write failed")
-        )
+        failing_writer.write_event = AsyncMock(side_effect=Exception("Write failed"))
 
         service = CessationExecutionService(
             event_writer=failing_writer,
@@ -483,7 +479,9 @@ class TestCessationExecutionServiceWithDeliberation:
     @pytest.fixture
     def mock_deliberation_service(self) -> AsyncMock:
         """Create a mock FinalDeliberationService."""
-        from src.application.ports.final_deliberation_recorder import RecordDeliberationResult
+        from src.application.ports.final_deliberation_recorder import (
+            RecordDeliberationResult,
+        )
 
         service = AsyncMock()
         service.record_and_proceed = AsyncMock(
@@ -673,7 +671,9 @@ class TestCessationExecutionServiceWithDeliberation:
         mock_archon_deliberations: list,
     ) -> None:
         """FR135: Verify deliberation is recorded BEFORE cessation event."""
-        from src.application.ports.final_deliberation_recorder import RecordDeliberationResult
+        from src.application.ports.final_deliberation_recorder import (
+            RecordDeliberationResult,
+        )
 
         call_order = []
 

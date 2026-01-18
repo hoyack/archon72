@@ -30,12 +30,12 @@ References:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 from src.domain.governance.queue.priority import QueuePriority
-from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.queue.queued_statement import QueuedStatement
+from src.domain.governance.queue.status import QueueItemStatus
 
 
 @runtime_checkable
@@ -92,7 +92,7 @@ class PanelQueuePort(Protocol):
 
     async def get_pending_statements(
         self,
-        priority: Optional[QueuePriority] = None,
+        priority: QueuePriority | None = None,
     ) -> list[QueuedStatement]:
         """Get pending statements, optionally filtered by priority.
 
@@ -110,7 +110,7 @@ class PanelQueuePort(Protocol):
     async def get_statements_by_status(
         self,
         status: QueueItemStatus,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[QueuedStatement]:
         """Get statements by status, optionally filtered by date.
 
@@ -125,7 +125,7 @@ class PanelQueuePort(Protocol):
 
     async def get_all_items(
         self,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[QueuedStatement]:
         """Get all queue items for audit purposes.
 
@@ -143,7 +143,7 @@ class PanelQueuePort(Protocol):
     async def get_item_by_id(
         self,
         queue_item_id: UUID,
-    ) -> Optional[QueuedStatement]:
+    ) -> QueuedStatement | None:
         """Get a specific queue item by ID.
 
         Args:

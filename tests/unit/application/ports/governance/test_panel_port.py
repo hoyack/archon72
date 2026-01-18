@@ -12,45 +12,41 @@ References:
 """
 
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
 from uuid import UUID, uuid4
 
 import pytest
 
 from src.domain.governance.panel import (
-    PrincePanel,
-    PanelStatus,
-    PanelMember,
+    Determination,
     MemberStatus,
     PanelFinding,
-    Determination,
-    RemedyType,
+    PanelMember,
+    PanelStatus,
+    PrincePanel,
     RecusalRequest,
+    RemedyType,
     ReviewSession,
 )
-from src.application.ports.governance.panel_port import PanelPort
 
 
 class MockPanelAdapter:
     """In-memory mock implementation of PanelPort for testing."""
 
     def __init__(self) -> None:
-        self._panels: Dict[UUID, PrincePanel] = {}
-        self._findings: Dict[UUID, PanelFinding] = {}
-        self._recusals: Dict[UUID, List[RecusalRequest]] = {}
-        self._sessions: Dict[UUID, ReviewSession] = {}
+        self._panels: dict[UUID, PrincePanel] = {}
+        self._findings: dict[UUID, PanelFinding] = {}
+        self._recusals: dict[UUID, list[RecusalRequest]] = {}
+        self._sessions: dict[UUID, ReviewSession] = {}
 
     async def save_panel(self, panel: PrincePanel) -> None:
         """Save or update a panel."""
         self._panels[panel.panel_id] = panel
 
-    async def get_panel(self, panel_id: UUID) -> Optional[PrincePanel]:
+    async def get_panel(self, panel_id: UUID) -> PrincePanel | None:
         """Get a panel by ID."""
         return self._panels.get(panel_id)
 
-    async def get_panel_by_statement(
-        self, statement_id: UUID
-    ) -> Optional[PrincePanel]:
+    async def get_panel_by_statement(self, statement_id: UUID) -> PrincePanel | None:
         """Get the panel reviewing a specific statement."""
         for panel in self._panels.values():
             if panel.statement_under_review == statement_id:
@@ -59,25 +55,20 @@ class MockPanelAdapter:
 
     async def list_panels_by_status(
         self, status: str, limit: int = 100
-    ) -> List[PrincePanel]:
+    ) -> list[PrincePanel]:
         """List panels by status."""
-        result = [
-            p for p in self._panels.values()
-            if p.status.value == status
-        ]
+        result = [p for p in self._panels.values() if p.status.value == status]
         return result[:limit]
 
     async def save_finding(self, finding: PanelFinding) -> None:
         """Save a panel finding."""
         self._findings[finding.finding_id] = finding
 
-    async def get_finding(self, finding_id: UUID) -> Optional[PanelFinding]:
+    async def get_finding(self, finding_id: UUID) -> PanelFinding | None:
         """Get a finding by ID."""
         return self._findings.get(finding_id)
 
-    async def get_finding_by_panel(
-        self, panel_id: UUID
-    ) -> Optional[PanelFinding]:
+    async def get_finding_by_panel(self, panel_id: UUID) -> PanelFinding | None:
         """Get the finding issued by a specific panel."""
         for finding in self._findings.values():
             if finding.panel_id == panel_id:
@@ -91,9 +82,7 @@ class MockPanelAdapter:
             self._recusals[panel_id] = []
         self._recusals[panel_id].append(recusal)
 
-    async def list_recusals_by_panel(
-        self, panel_id: UUID
-    ) -> List[RecusalRequest]:
+    async def list_recusals_by_panel(self, panel_id: UUID) -> list[RecusalRequest]:
         """List all recusals for a panel."""
         return self._recusals.get(panel_id, [])
 
@@ -101,15 +90,13 @@ class MockPanelAdapter:
         """Save a review session."""
         self._sessions[session.session_id] = session
 
-    async def get_review_session(
-        self, session_id: UUID
-    ) -> Optional[ReviewSession]:
+    async def get_review_session(self, session_id: UUID) -> ReviewSession | None:
         """Get a review session by ID."""
         return self._sessions.get(session_id)
 
     async def get_active_session_for_panel(
         self, panel_id: UUID
-    ) -> Optional[ReviewSession]:
+    ) -> ReviewSession | None:
         """Get the active review session for a panel."""
         for session in self._sessions.values():
             if session.panel_id == panel_id and session.is_active:
@@ -128,7 +115,7 @@ def _create_active_member() -> PanelMember:
 
 
 def _create_panel(
-    panel_id: Optional[UUID] = None,
+    panel_id: UUID | None = None,
     status: PanelStatus = PanelStatus.CONVENED,
 ) -> PrincePanel:
     """Helper to create a panel."""
@@ -230,9 +217,7 @@ class TestPanelLifecycleOperations:
         assert len(reviewing) == 1
 
     @pytest.mark.asyncio
-    async def test_list_panels_respects_limit(
-        self, port: MockPanelAdapter
-    ) -> None:
+    async def test_list_panels_respects_limit(self, port: MockPanelAdapter) -> None:
         """List panels respects limit parameter."""
         for _ in range(5):
             await port.save_panel(_create_panel(status=PanelStatus.CONVENED))
@@ -365,9 +350,7 @@ class TestReviewSessionOperations:
         assert retrieved.session_id == session.session_id
 
     @pytest.mark.asyncio
-    async def test_get_active_session_for_panel(
-        self, port: MockPanelAdapter
-    ) -> None:
+    async def test_get_active_session_for_panel(self, port: MockPanelAdapter) -> None:
         """Can get active session for a panel."""
         panel_id = uuid4()
         session = ReviewSession(
@@ -387,9 +370,7 @@ class TestReviewSessionOperations:
         assert active.is_active is True
 
     @pytest.mark.asyncio
-    async def test_no_active_session_when_ended(
-        self, port: MockPanelAdapter
-    ) -> None:
+    async def test_no_active_session_when_ended(self, port: MockPanelAdapter) -> None:
         """No active session returned when session has ended."""
         panel_id = uuid4()
         now = datetime.now(timezone.utc)

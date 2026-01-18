@@ -8,7 +8,9 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from src.domain.models.witness_pair import WitnessPair
-from src.infrastructure.stubs.witness_pair_history_stub import InMemoryWitnessPairHistory
+from src.infrastructure.stubs.witness_pair_history_stub import (
+    InMemoryWitnessPairHistory,
+)
 
 
 class TestInMemoryWitnessPairHistory:

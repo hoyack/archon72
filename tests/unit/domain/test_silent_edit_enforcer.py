@@ -124,7 +124,6 @@ class TestSilentEditEnforcer:
     ) -> None:
         """verify_before_publish succeeds when hash matches (AC1)."""
         content_id = uuid4()
-        content = b"test content for publishing"
 
         # Register hash computed from content
         from src.domain.events.hash_utils import compute_content_hash

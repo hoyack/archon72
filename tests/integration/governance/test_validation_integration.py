@@ -7,21 +7,24 @@ This integration test verifies that when an event is rejected by
 write-time validation, the ledger state remains completely unchanged.
 """
 
-import pytest
 from datetime import datetime, timezone
-from typing import Any
 from uuid import UUID, uuid4
 
+import pytest
+
+from src.application.ports.governance.ledger_port import (
+    LedgerReadOptions,
+    PersistedGovernanceEvent,
+)
 from src.application.services.governance.ledger_validation_service import (
     LedgerValidationService,
-    ValidationResult,
-)
-from src.application.services.governance.validators.event_type_validator import (
-    EventTypeValidator,
 )
 from src.application.services.governance.validators.actor_validator import (
     ActorValidator,
     InMemoryActorRegistry,
+)
+from src.application.services.governance.validators.event_type_validator import (
+    EventTypeValidator,
 )
 from src.application.services.governance.validators.hash_chain_validator import (
     HashChainValidator,
@@ -31,16 +34,10 @@ from src.application.services.governance.validators.state_transition_validator i
     StateTransitionValidator,
     TaskState,
 )
-from src.application.ports.governance.ledger_port import (
-    GovernanceLedgerPort,
-    PersistedGovernanceEvent,
-    LedgerReadOptions,
-)
 from src.domain.governance.errors.validation_errors import (
     IllegalStateTransitionError,
     UnknownActorError,
     UnknownEventTypeError,
-    WriteTimeValidationError,
 )
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.infrastructure.adapters.governance.validated_ledger_adapter import (
@@ -79,7 +76,9 @@ class MockGovernanceLedgerPort:
         """Append an event to the ledger."""
         self._append_calls.append(event)
         self._latest_sequence += 1
-        persisted = PersistedGovernanceEvent(event=event, sequence=self._latest_sequence)
+        persisted = PersistedGovernanceEvent(
+            event=event, sequence=self._latest_sequence
+        )
         self._events.append(persisted)
         return persisted
 
@@ -93,7 +92,9 @@ class MockGovernanceLedgerPort:
         """Get max sequence number."""
         return self._latest_sequence
 
-    async def get_event_by_sequence(self, sequence: int) -> PersistedGovernanceEvent | None:
+    async def get_event_by_sequence(
+        self, sequence: int
+    ) -> PersistedGovernanceEvent | None:
         """Get event by sequence number."""
         for e in self._events:
             if e.sequence == sequence:

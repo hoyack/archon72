@@ -8,7 +8,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -32,8 +31,8 @@ class FailureModeResponse(BaseModel):
     description: str = Field(description="Description of the failure mode")
     severity: str = Field(description="Severity: critical, high, medium, low")
     mitigation: str = Field(description="Prevention measure in place")
-    adr_reference: Optional[str] = Field(default=None, description="ADR reference")
-    owner: Optional[str] = Field(default=None, description="Responsible team/role")
+    adr_reference: str | None = Field(default=None, description="ADR reference")
+    owner: str | None = Field(default=None, description="Responsible team/role")
     status: str = Field(description="Current status: healthy, warning, critical")
 
 

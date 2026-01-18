@@ -121,8 +121,16 @@ class TestTaskStateRecordValidStates:
 
     def test_valid_states_contains_expected_values(self) -> None:
         """VALID_STATES contains all expected task states."""
-        expected = {"pending", "authorized", "activated", "accepted", "completed", "declined", "expired"}
-        assert TaskStateRecord.VALID_STATES == frozenset(expected)
+        expected = {
+            "pending",
+            "authorized",
+            "activated",
+            "accepted",
+            "completed",
+            "declined",
+            "expired",
+        }
+        assert frozenset(expected) == TaskStateRecord.VALID_STATES
 
 
 class TestTaskStateRecordTransitions:

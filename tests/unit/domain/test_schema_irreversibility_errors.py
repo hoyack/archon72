@@ -38,7 +38,9 @@ class TestSchemaIrreversibilityError:
 
     def test_message_preserved(self) -> None:
         """Error message should be preserved."""
-        message = "NFR40: Cannot write events after cessation. System terminated at seq 42"
+        message = (
+            "NFR40: Cannot write events after cessation. System terminated at seq 42"
+        )
         error = SchemaIrreversibilityError(message)
         assert str(error) == message
 
@@ -187,8 +189,7 @@ class TestNFR40Reference:
         """Standard SchemaIrreversibilityError message format."""
         # Recommended format includes NFR40 reference
         message = (
-            "NFR40: Cannot write events after cessation. "
-            "System terminated at seq 42"
+            "NFR40: Cannot write events after cessation. System terminated at seq 42"
         )
         error = SchemaIrreversibilityError(message)
         assert "NFR40" in str(error)

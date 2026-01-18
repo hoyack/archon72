@@ -11,8 +11,7 @@ Constitutional Constraints:
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Optional
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -28,7 +27,6 @@ from src.domain.events.constitutional_crisis import (
     CrisisType,
 )
 from src.domain.events.sequence_gap_detected import (
-    SEQUENCE_GAP_DETECTED_EVENT_TYPE,
     SequenceGapDetectedPayload,
 )
 from src.infrastructure.stubs.sequence_gap_detector_stub import SequenceGapDetectorStub
@@ -104,7 +102,10 @@ class TestGapDetectionFlow:
         event_store = AsyncMock(spec=EventStorePort)
         event_store.get_max_sequence.return_value = 20
         # Multiple non-contiguous gaps
-        event_store.verify_sequence_continuity.return_value = (False, [5, 6, 10, 11, 12])
+        event_store.verify_sequence_continuity.return_value = (
+            False,
+            [5, 6, 10, 11, 12],
+        )
 
         service = SequenceGapDetectionService(event_store=event_store)
         result = await service.check_sequence_continuity()

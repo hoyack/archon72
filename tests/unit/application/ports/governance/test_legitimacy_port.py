@@ -4,10 +4,10 @@ Tests AC3: Current band tracked and queryable
 Tests AC4: Band state queryable by any participant
 """
 
-import pytest
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
+
+import pytest
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
 from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
@@ -15,17 +15,13 @@ from src.domain.governance.legitimacy.legitimacy_transition import (
     LegitimacyTransition,
 )
 from src.domain.governance.legitimacy.transition_type import TransitionType
-from src.application.ports.governance.legitimacy_port import (
-    LegitimacyPort,
-    LegitimacyQueryPort,
-)
 
 
 class InMemoryLegitimacyAdapter:
     """In-memory implementation for testing."""
 
     def __init__(self) -> None:
-        self._state: Optional[LegitimacyState] = None
+        self._state: LegitimacyState | None = None
         self._transitions: list[LegitimacyTransition] = []
 
     async def get_current_band(self) -> LegitimacyBand:
@@ -40,8 +36,8 @@ class InMemoryLegitimacyAdapter:
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         result = self._transitions
 
@@ -69,11 +65,10 @@ class InMemoryLegitimacyAdapter:
     async def get_state_at(
         self,
         timestamp: datetime,
-    ) -> Optional[LegitimacyState]:
+    ) -> LegitimacyState | None:
         # Find the latest transition before timestamp
         relevant_transitions = [
-            t for t in self._transitions
-            if t.timestamp <= timestamp
+            t for t in self._transitions if t.timestamp <= timestamp
         ]
 
         if not relevant_transitions:
@@ -311,11 +306,13 @@ class TestLegitimacyPortHistoryFiltering:
         await adapter.initialize_state(LegitimacyBand.STABLE, now)
 
         # Record multiple transitions
-        for i, (from_band, to_band) in enumerate([
-            (LegitimacyBand.STABLE, LegitimacyBand.STRAINED),
-            (LegitimacyBand.STRAINED, LegitimacyBand.ERODING),
-            (LegitimacyBand.ERODING, LegitimacyBand.COMPROMISED),
-        ]):
+        for i, (from_band, to_band) in enumerate(
+            [
+                (LegitimacyBand.STABLE, LegitimacyBand.STRAINED),
+                (LegitimacyBand.STRAINED, LegitimacyBand.ERODING),
+                (LegitimacyBand.ERODING, LegitimacyBand.COMPROMISED),
+            ]
+        ):
             transition = LegitimacyTransition(
                 transition_id=uuid4(),
                 from_band=from_band,

@@ -8,7 +8,6 @@ Constitutional Constraints:
 - CT-13: Reads allowed during halt (per Story 3.5)
 """
 
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -133,7 +132,9 @@ class TestPublicReadAccessIntegration:
 
         # Must not require authentication
         assert response.status_code != 401, "FR44 violated: Auth should not be required"
-        assert response.status_code != 403, "FR44 violated: Access should not be forbidden"
+        assert response.status_code != 403, (
+            "FR44 violated: Access should not be forbidden"
+        )
 
     def test_constitutional_compliance_fr48_equal_rate_limits(self, client) -> None:
         """Test FR48 compliance: Rate limits identical for all users.

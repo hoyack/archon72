@@ -259,7 +259,9 @@ class TestMaterialAudit:
     def test_invalid_audit_id_prefix_raises(self) -> None:
         """Test that invalid audit_id prefix raises ValueError."""
         quarter = AuditQuarter(year=2026, quarter=1)
-        with pytest.raises(ValueError, match=f"FR57: audit_id must start with '{AUDIT_ID_PREFIX}'"):
+        with pytest.raises(
+            ValueError, match=f"FR57: audit_id must start with '{AUDIT_ID_PREFIX}'"
+        ):
             MaterialAudit(
                 audit_id="invalid-2026-Q1",
                 quarter=quarter,
@@ -288,7 +290,9 @@ class TestMaterialAudit:
     def test_negative_materials_scanned_raises(self) -> None:
         """Test that negative materials_scanned raises ValueError."""
         quarter = AuditQuarter(year=2026, quarter=1)
-        with pytest.raises(ValueError, match="FR57: materials_scanned cannot be negative"):
+        with pytest.raises(
+            ValueError, match="FR57: materials_scanned cannot be negative"
+        ):
             MaterialAudit(
                 audit_id="audit-2026-Q1",
                 quarter=quarter,
@@ -325,7 +329,9 @@ class TestMaterialAudit:
             matched_terms=("sentient",),
             flagged_at=now,
         )
-        with pytest.raises(ValueError, match="audit with violations must have remediation_deadline"):
+        with pytest.raises(
+            ValueError, match="audit with violations must have remediation_deadline"
+        ):
             MaterialAudit(
                 audit_id="audit-2026-Q1",
                 quarter=quarter,

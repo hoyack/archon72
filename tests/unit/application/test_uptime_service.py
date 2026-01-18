@@ -10,8 +10,6 @@ Constitutional Constraints:
 import time
 from datetime import datetime, timedelta, timezone
 
-import pytest
-
 from src.application.services.uptime_service import (
     DowntimeIncident,
     UptimeService,

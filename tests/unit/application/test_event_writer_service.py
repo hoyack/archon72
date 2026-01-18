@@ -1128,7 +1128,10 @@ class TestEventWriterServiceFreezeCheck:
             )
 
         assert "FR41" in str(exc_info.value)
-        assert "ceased" in str(exc_info.value).lower() or "frozen" in str(exc_info.value).lower()
+        assert (
+            "ceased" in str(exc_info.value).lower()
+            or "frozen" in str(exc_info.value).lower()
+        )
 
     @pytest.mark.asyncio
     async def test_freeze_check_happens_after_terminal_check(

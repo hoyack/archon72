@@ -44,7 +44,6 @@ from src.infrastructure.stubs import (
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.writer_lock_stub import WriterLockStub
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================

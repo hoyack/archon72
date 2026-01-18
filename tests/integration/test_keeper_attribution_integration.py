@@ -57,7 +57,10 @@ class TestAC1EnumeratedOverrideReasons:
 
         # Reason is in signable content
         content = payload.signable_content()
-        assert OverrideReason.TECHNICAL_FAILURE.description.split()[0].lower() in content.decode().lower()
+        assert (
+            OverrideReason.TECHNICAL_FAILURE.description.split()[0].lower()
+            in content.decode().lower()
+        )
 
 
 class TestAC2AutomaticExpiration:
@@ -129,7 +132,7 @@ class TestAC3DurationValidation:
     def test_maximum_duration_is_7_days(self) -> None:
         """Test that maximum duration is 7 days."""
         expected_7_days = 7 * 24 * 60 * 60
-        assert MAX_DURATION_SECONDS == expected_7_days
+        assert expected_7_days == MAX_DURATION_SECONDS
 
     def test_duration_at_minimum_is_valid(self) -> None:
         """Test that exactly 60 seconds is valid."""

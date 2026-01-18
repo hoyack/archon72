@@ -446,7 +446,9 @@ class TestHashVerificationResult:
 
     def test_result_is_frozen(self) -> None:
         """HashVerificationResult is immutable."""
-        result = HashVerificationResult(is_valid=True, event_hash_valid=True, chain_link_valid=True)
+        result = HashVerificationResult(
+            is_valid=True, event_hash_valid=True, chain_link_valid=True
+        )
         with pytest.raises(Exception):
             result.is_valid = False  # type: ignore
 

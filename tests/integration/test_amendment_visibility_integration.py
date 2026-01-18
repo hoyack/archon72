@@ -13,6 +13,7 @@ Constitutional Truths Tested:
 """
 
 from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from src.application.ports.amendment_repository import AmendmentProposal
@@ -23,14 +24,13 @@ from src.application.services.amendment_visibility_service import (
 from src.domain.errors.amendment import (
     AmendmentHistoryProtectionError,
     AmendmentImpactAnalysisMissingError,
-    AmendmentNotFoundError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.amendment import (
+    VISIBILITY_PERIOD_DAYS,
     AmendmentImpactAnalysis,
     AmendmentStatus,
     AmendmentType,
-    VISIBILITY_PERIOD_DAYS,
 )
 from src.infrastructure.stubs.amendment_repository_stub import AmendmentRepositoryStub
 from src.infrastructure.stubs.amendment_visibility_validator_stub import (
@@ -96,7 +96,9 @@ class TestFR126VisibilityPeriod:
         proposal, event = await service.propose_amendment(request)
 
         # Verify 14-day visibility period
-        expected_votable = proposal.visible_from + timedelta(days=VISIBILITY_PERIOD_DAYS)
+        expected_votable = proposal.visible_from + timedelta(
+            days=VISIBILITY_PERIOD_DAYS
+        )
         assert abs((proposal.votable_from - expected_votable).total_seconds()) <= 1
 
         # Verify status is VISIBILITY_PERIOD
@@ -218,7 +220,7 @@ class TestFR127ImpactAnalysis:
             raises_silence_probability=False,
             weakens_irreversibility=False,
             analysis_text="This amendment affects visibility by changing audit log retention policy. "
-                         "The change reduces the retention period from 7 years to 5 years.",
+            "The change reduces the retention period from 7 years to 5 years.",
             analyzed_by="analyst-001",
             analyzed_at=now,
         )
@@ -287,9 +289,9 @@ class TestFR128HistoryProtection:
 
         for i, summary in enumerate(hiding_summaries):
             request = AmendmentProposalRequest(
-                amendment_id=f"AMD-00{i+1}",
+                amendment_id=f"AMD-00{i + 1}",
                 amendment_type=AmendmentType.TIER_2_CONSTITUTIONAL,
-                title=f"Test Amendment {i+1}",
+                title=f"Test Amendment {i + 1}",
                 summary=summary,
                 proposer_id="proposer-001",
                 is_core_guarantee=False,

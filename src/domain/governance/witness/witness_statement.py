@@ -29,8 +29,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.observation_content import ObservationContent
+from src.domain.governance.witness.observation_type import ObservationType
 
 
 @dataclass(frozen=True, eq=True)

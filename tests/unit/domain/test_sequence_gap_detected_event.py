@@ -49,7 +49,9 @@ class TestSequenceGapDetectedPayload:
             gap_size=5,
             missing_sequences=(5, 6, 7, 8, 9),
             detection_service_id="sequence_gap_detector",
-            previous_check_timestamp=datetime(2025, 12, 28, 10, 29, 30, tzinfo=timezone.utc),
+            previous_check_timestamp=datetime(
+                2025, 12, 28, 10, 29, 30, tzinfo=timezone.utc
+            ),
         )
 
     def test_payload_creation(self, sample_payload: SequenceGapDetectedPayload) -> None:
@@ -60,18 +62,24 @@ class TestSequenceGapDetectedPayload:
         assert sample_payload.missing_sequences == (5, 6, 7, 8, 9)
         assert sample_payload.detection_service_id == "sequence_gap_detector"
 
-    def test_payload_is_frozen(self, sample_payload: SequenceGapDetectedPayload) -> None:
+    def test_payload_is_frozen(
+        self, sample_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test payload is immutable (frozen dataclass)."""
         with pytest.raises(AttributeError):
             sample_payload.expected_sequence = 10  # type: ignore
 
-    def test_detection_timestamp_preserved(self, sample_payload: SequenceGapDetectedPayload) -> None:
+    def test_detection_timestamp_preserved(
+        self, sample_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test detection timestamp is preserved exactly."""
         expected = datetime(2025, 12, 28, 10, 30, 0, tzinfo=timezone.utc)
         assert sample_payload.detection_timestamp == expected
         assert sample_payload.detection_timestamp.tzinfo == timezone.utc
 
-    def test_previous_check_timestamp_preserved(self, sample_payload: SequenceGapDetectedPayload) -> None:
+    def test_previous_check_timestamp_preserved(
+        self, sample_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test previous check timestamp is preserved."""
         expected = datetime(2025, 12, 28, 10, 29, 30, tzinfo=timezone.utc)
         assert sample_payload.previous_check_timestamp == expected
@@ -119,52 +127,72 @@ class TestSequenceGapDetectedPayloadSignableContent:
             gap_size=5,
             missing_sequences=(5, 6, 7, 8, 9),
             detection_service_id="test_detector",
-            previous_check_timestamp=datetime(2025, 12, 28, 10, 29, 30, tzinfo=timezone.utc),
+            previous_check_timestamp=datetime(
+                2025, 12, 28, 10, 29, 30, tzinfo=timezone.utc
+            ),
         )
 
-    def test_signable_content_returns_bytes(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_returns_bytes(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content returns bytes."""
         content = fixed_payload.signable_content()
         assert isinstance(content, bytes)
 
-    def test_signable_content_is_deterministic(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_is_deterministic(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content returns same bytes for same input."""
         content1 = fixed_payload.signable_content()
         content2 = fixed_payload.signable_content()
         assert content1 == content2
 
-    def test_signable_content_includes_expected_sequence(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_expected_sequence(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes expected sequence."""
         content = fixed_payload.signable_content()
         assert b"expected:5" in content
 
-    def test_signable_content_includes_actual_sequence(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_actual_sequence(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes actual sequence."""
         content = fixed_payload.signable_content()
         assert b"actual:10" in content
 
-    def test_signable_content_includes_gap_size(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_gap_size(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes gap size."""
         content = fixed_payload.signable_content()
         assert b"gap_size:5" in content
 
-    def test_signable_content_includes_missing_sequences(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_missing_sequences(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes missing sequences."""
         content = fixed_payload.signable_content()
         assert b"missing:5,6,7,8,9" in content
 
-    def test_signable_content_includes_service_id(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_service_id(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes detection service ID."""
         content = fixed_payload.signable_content()
         assert b"service:test_detector" in content
 
-    def test_signable_content_includes_timestamp(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_timestamp(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes detection timestamp."""
         content = fixed_payload.signable_content()
         # ISO format timestamp should be present
         assert b"2025-12-28" in content
 
-    def test_signable_content_includes_previous_check_timestamp(self, fixed_payload: SequenceGapDetectedPayload) -> None:
+    def test_signable_content_includes_previous_check_timestamp(
+        self, fixed_payload: SequenceGapDetectedPayload
+    ) -> None:
         """Test signable_content includes previous check timestamp (M1 fix)."""
         content = fixed_payload.signable_content()
         # Previous check timestamp should be in the signable content

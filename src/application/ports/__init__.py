@@ -18,7 +18,6 @@ Helper functions:
 """
 
 # Time Authority Protocol (HARDENING-1, AC4)
-from src.application.ports.time_authority import TimeAuthorityProtocol
 from src.application.ports.agent_orchestrator import (
     AgentOrchestratorProtocol,
     AgentOutput,
@@ -27,9 +26,81 @@ from src.application.ports.agent_orchestrator import (
     AgentStatusInfo,
     ContextBundle,
 )
+from src.application.ports.amendment_repository import (
+    AmendmentProposal,
+    AmendmentRepositoryProtocol,
+)
+from src.application.ports.amendment_visibility_validator import (
+    AmendmentVisibilityValidatorProtocol,
+    HistoryProtectionResult,
+    ImpactValidationResult,
+    VisibilityValidationResult,
+)
+from src.application.ports.anomaly_detector import (
+    AnomalyDetectorProtocol,
+    AnomalyResult,
+    FrequencyData,
+)
+from src.application.ports.anti_success_alert_repository import (
+    AntiSuccessAlertRepositoryProtocol,
+    SustainedAlertInfo,
+)
+from src.application.ports.archon_profile_repository import (
+    ArchonProfileRepository,
+)
+from src.application.ports.archon_selector import (
+    DEFAULT_MAX_ARCHONS,
+    DEFAULT_MIN_ARCHONS,
+    DEFAULT_RELEVANCE_THRESHOLD,
+    ArchonSelection,
+    ArchonSelectionMetadata,
+    ArchonSelectorProtocol,
+    SelectionMode,
+    TopicContext,
+)
+from src.application.ports.audit_repository import (
+    AuditRepositoryProtocol,
+)
+from src.application.ports.breach_declaration import BreachDeclarationProtocol
+from src.application.ports.breach_repository import BreachRepositoryProtocol
+from src.application.ports.cessation import CessationConsiderationProtocol
+from src.application.ports.cessation_agenda_repository import (
+    CessationAgendaRepositoryProtocol,
+)
+from src.application.ports.cessation_flag_repository import (
+    CessationFlagRepositoryProtocol,
+)
+from src.application.ports.cessation_repository import CessationRepositoryProtocol
+from src.application.ports.checkpoint_repository import CheckpointRepository
 from src.application.ports.collective_output import (
     CollectiveOutputPort,
     StoredCollectiveOutput,
+)
+from src.application.ports.collusion_investigator import (
+    CollusionInvestigatorProtocol,
+    Investigation,
+    InvestigationStatus,
+)
+from src.application.ports.complexity_budget_repository import (
+    ComplexityBudgetRepositoryPort,
+)
+from src.application.ports.complexity_calculator import (
+    ComplexityCalculatorPort,
+)
+from src.application.ports.compliance_repository import (
+    ComplianceRepositoryProtocol,
+)
+from src.application.ports.configuration_floor_validator import (
+    ConfigurationChangeResult,
+    ConfigurationFloorValidatorProtocol,
+    ConfigurationHealthStatus,
+    ConfigurationValidationResult,
+    ThresholdStatus,
+    ThresholdViolation,
+)
+from src.application.ports.constitution_validator import ConstitutionValidatorProtocol
+from src.application.ports.constitutional_health import (
+    ConstitutionalHealthPort,
 )
 from src.application.ports.content_verification import (
     ContentVerificationPort,
@@ -54,267 +125,7 @@ from src.application.ports.dual_channel_halt import (
     DualChannelHaltTransport,
     HaltFlagState,
 )
-from src.application.ports.event_replicator import (
-    EventReplicatorPort,
-    ReplicationReceipt,
-    ReplicationStatus,
-    VerificationResult,
-)
-from src.application.ports.event_store import (
-    EventStorePort,
-    validate_sequence_continuity,
-)
-from src.application.ports.fork_monitor import ForkMonitor
-from src.application.ports.fork_signal_rate_limiter import ForkSignalRateLimiterPort
-from src.application.ports.halt_checker import HaltChecker
-from src.application.ports.halt_trigger import HaltTrigger
-from src.application.ports.heartbeat_emitter import (
-    HEARTBEAT_INTERVAL_SECONDS,
-    MISSED_HEARTBEAT_THRESHOLD,
-    UNRESPONSIVE_TIMEOUT_SECONDS,
-    HeartbeatEmitterPort,
-)
-from src.application.ports.heartbeat_monitor import HeartbeatMonitorPort
-from src.application.ports.hsm import HSMMode, HSMProtocol, SignatureResult
-from src.application.ports.key_registry import KeyRegistryProtocol
-from src.application.ports.procedural_record_generator import (
-    ProceduralRecordData,
-    ProceduralRecordGeneratorPort,
-)
-from src.application.ports.result_certifier import (
-    CertificationResult,
-    ResultCertifierPort,
-)
-from src.application.ports.topic_origin_tracker import (
-    DIVERSITY_THRESHOLD,
-    DIVERSITY_WINDOW_DAYS,
-    TopicOriginTrackerPort,
-)
-from src.application.ports.topic_rate_limiter import (
-    RATE_LIMIT_PER_HOUR,
-    RATE_LIMIT_WINDOW_SECONDS,
-    TopicRateLimiterPort,
-)
-from src.application.ports.unanimous_vote import (
-    StoredUnanimousVote,
-    UnanimousVotePort,
-)
-from src.application.ports.recovery_waiting_period import RecoveryWaitingPeriodPort
-from src.application.ports.sequence_gap_detector import (
-    DETECTION_INTERVAL_SECONDS,
-    SequenceGapDetectorPort,
-)
-from src.application.ports.unwitnessed_halt_repository import UnwitnessedHaltRepository
-from src.application.ports.witnessed_halt_writer import WitnessedHaltWriter
-from src.application.ports.witness_pool import WitnessPoolProtocol
-from src.application.ports.writer_lock import WriterLockProtocol
-from src.application.ports.checkpoint_repository import CheckpointRepository
-from src.application.ports.override_executor import (
-    OverrideExecutorPort,
-    OverrideResult,
-)
-from src.application.ports.override_registry import (
-    ExpiredOverrideInfo,
-    OverrideRegistryPort,
-)
-from src.application.ports.rollback_coordinator import RollbackCoordinator
-from src.application.ports.constitution_validator import ConstitutionValidatorProtocol
-from src.application.ports.override_trend_repository import (
-    OverrideTrendData,
-    OverrideTrendRepositoryProtocol,
-)
-from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
-from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
-from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
-from src.application.ports.override_abuse_validator import (
-    OverrideAbuseValidatorProtocol,
-    ValidationResult,
-)
-from src.application.ports.anomaly_detector import (
-    AnomalyDetectorProtocol,
-    AnomalyResult,
-    FrequencyData,
-)
-from src.application.ports.independence_attestation import (
-    IndependenceAttestationProtocol,
-)
-from src.application.ports.breach_declaration import BreachDeclarationProtocol
-from src.application.ports.breach_repository import BreachRepositoryProtocol
-from src.application.ports.escalation import EscalationProtocol
-from src.application.ports.escalation_repository import EscalationRepositoryProtocol
-from src.application.ports.cessation import CessationConsiderationProtocol
-from src.application.ports.cessation_repository import CessationRepositoryProtocol
-from src.application.ports.threshold_configuration import (
-    ThresholdConfigurationProtocol,
-    ThresholdRepositoryProtocol,
-)
-from src.application.ports.entropy_source import EntropySourceProtocol
-from src.application.ports.witness_pair_history import WitnessPairHistoryProtocol
-from src.application.ports.witness_anomaly_detector import (
-    PairExclusion,
-    WitnessAnomalyDetectorProtocol,
-    WitnessAnomalyResult,
-)
-from src.application.ports.witness_pool_monitor import (
-    MINIMUM_WITNESSES_HIGH_STAKES,
-    MINIMUM_WITNESSES_STANDARD,
-    WitnessPoolMonitorProtocol,
-    WitnessPoolStatus,
-)
-from src.application.ports.amendment_repository import (
-    AmendmentProposal,
-    AmendmentRepositoryProtocol,
-)
-from src.application.ports.amendment_visibility_validator import (
-    AmendmentVisibilityValidatorProtocol,
-    HistoryProtectionResult,
-    ImpactValidationResult,
-    VisibilityValidationResult,
-)
-from src.application.ports.collusion_investigator import (
-    CollusionInvestigatorProtocol,
-    Investigation,
-    InvestigationStatus,
-)
-from src.application.ports.hash_verifier import (
-    HashScanResult,
-    HashScanStatus,
-    HashVerifierProtocol,
-)
-from src.application.ports.topic_manipulation_detector import (
-    FlaggedTopic,
-    ManipulationAnalysisResult,
-    TimingPatternResult,
-    TopicManipulationDetectorProtocol,
-)
-from src.application.ports.seed_validator import (
-    PredictabilityCheck,
-    SeedSourceValidation,
-    SeedUsageRecord,
-    SeedValidatorProtocol,
-)
-from src.application.ports.topic_daily_limiter import (
-    DAILY_TOPIC_LIMIT,
-    TopicDailyLimiterProtocol,
-)
-from src.application.ports.topic_priority import (
-    TopicPriorityLevel,
-    TopicPriorityProtocol,
-)
-from src.application.ports.configuration_floor_validator import (
-    ConfigurationChangeResult,
-    ConfigurationFloorValidatorProtocol,
-    ConfigurationHealthStatus,
-    ConfigurationValidationResult,
-    ThresholdStatus,
-    ThresholdViolation,
-)
-from src.application.ports.integrity_failure_repository import (
-    IntegrityFailure,
-    IntegrityFailureRepositoryProtocol,
-)
-from src.application.ports.anti_success_alert_repository import (
-    AntiSuccessAlertRepositoryProtocol,
-    SustainedAlertInfo,
-)
-from src.application.ports.cessation_agenda_repository import (
-    CessationAgendaRepositoryProtocol,
-)
-from src.application.ports.petition_repository import (
-    PetitionRepositoryProtocol,
-)
-from src.application.ports.signature_verifier import (
-    SignatureVerifierProtocol,
-)
-from src.application.ports.terminal_event_detector import (
-    TerminalEventDetectorProtocol,
-)
-from src.application.ports.freeze_checker import (
-    FreezeCheckerProtocol,
-)
-from src.application.ports.cessation_flag_repository import (
-    CessationFlagRepositoryProtocol,
-)
-from src.application.ports.integrity_case_repository import (
-    IntegrityCaseRepositoryProtocol,
-)
-from src.application.ports.separation_validator import (
-    DataClassification,
-    SeparationValidatorPort,
-)
-from src.application.ports.external_health import (
-    ExternalHealthPort,
-    ExternalHealthStatus,
-)
-from src.application.ports.incident_report_repository import (
-    IncidentReportRepositoryPort,
-)
-from src.application.ports.complexity_calculator import (
-    ComplexityCalculatorPort,
-)
-from src.application.ports.complexity_budget_repository import (
-    ComplexityBudgetRepositoryPort,
-)
-from src.application.ports.failure_mode_registry import (
-    FailureModeRegistryPort,
-    HealthSummary,
-)
-from src.application.ports.constitutional_health import (
-    ConstitutionalHealthPort,
-)
-from src.application.ports.prohibited_language_scanner import (
-    ProhibitedLanguageScannerProtocol,
-    ScanResult,
-)
-from src.application.ports.publication_scanner import (
-    PublicationScannerProtocol,
-    PublicationScanResult,
-    PublicationScanResultStatus,
-)
-from src.application.ports.material_repository import (
-    Material,
-    MaterialRepositoryProtocol,
-    MATERIAL_TYPE_ANNOUNCEMENT,
-    MATERIAL_TYPE_DOCUMENT,
-    MATERIAL_TYPE_PUBLICATION,
-)
-from src.application.ports.audit_repository import (
-    AuditRepositoryProtocol,
-)
-from src.application.ports.user_content_repository import (
-    UserContentRepositoryProtocol,
-)
-from src.application.ports.event_query import (
-    EventQueryProtocol,
-)
-from src.application.ports.semantic_scanner import (
-    DEFAULT_ANALYSIS_METHOD,
-    SemanticScannerProtocol,
-    SemanticScanResult,
-)
-from src.application.ports.waiver_repository import (
-    WaiverRecord,
-    WaiverRepositoryProtocol,
-)
-from src.application.ports.compliance_repository import (
-    ComplianceRepositoryProtocol,
-)
-from src.application.ports.tool_registry import (
-    ToolRegistryProtocol,
-)
-from src.application.ports.archon_profile_repository import (
-    ArchonProfileRepository,
-)
-from src.application.ports.archon_selector import (
-    ArchonSelection,
-    ArchonSelectionMetadata,
-    ArchonSelectorProtocol,
-    DEFAULT_MAX_ARCHONS,
-    DEFAULT_MIN_ARCHONS,
-    DEFAULT_RELEVANCE_THRESHOLD,
-    SelectionMode,
-    TopicContext,
-)
+
 # Government PRD Phase 3 - Duke Service (Epic 4, FR-GOV-11, FR-GOV-13)
 from src.application.ports.duke_service import (
     DomainOwnershipRequest,
@@ -332,6 +143,7 @@ from src.application.ports.duke_service import (
     StatusReportResult,
     TaskProgressStatus,
 )
+
 # Government PRD Phase 3 - Earl Service (Epic 4, FR-GOV-12, FR-GOV-13)
 from src.application.ports.earl_service import (
     AgentAssignment,
@@ -349,46 +161,37 @@ from src.application.ports.earl_service import (
     TaskExecutionRequest,
     TaskExecutionResult,
 )
-# Government PRD Phase 3 - Marquis Service (Epic 6, FR-GOV-17, FR-GOV-18)
-from src.application.ports.marquis_service import (
-    Advisory,
-    AdvisoryRequest,
-    AdvisoryResult,
-    ExpertiseDomain,
-    MARQUIS_DOMAIN_MAPPING,
-    MarquisServiceProtocol,
-    RiskAnalysis,
-    RiskAnalysisRequest,
-    RiskAnalysisResult,
-    RiskFactor,
-    RiskLevel,
-    Testimony,
-    TestimonyRequest,
-    TestimonyResult,
-    get_expertise_domain,
-    get_marquis_for_domain,
+from src.application.ports.entropy_source import EntropySourceProtocol
+from src.application.ports.escalation import EscalationProtocol
+from src.application.ports.escalation_repository import EscalationRepositoryProtocol
+from src.application.ports.event_query import (
+    EventQueryProtocol,
 )
-# Government PRD Phase 3 - Governance State Machine (Epic 8, FR-GOV-23)
-from src.application.ports.governance_state_machine import (
-    GovernanceState,
-    GovernanceStateMachineProtocol,
-    InvalidTransitionError,
-    MotionStateRecord,
-    StateTransition,
-    TERMINAL_STATES,
-    TerminalStateError,
-    TransitionRejection,
-    TransitionRequest,
-    TransitionResult,
-    VALID_TRANSITIONS,
-    get_valid_next_states,
-    is_terminal_state,
-    is_valid_transition,
+from src.application.ports.event_replicator import (
+    EventReplicatorPort,
+    ReplicationReceipt,
+    ReplicationStatus,
+    VerificationResult,
 )
+from src.application.ports.event_store import (
+    EventStorePort,
+    validate_sequence_continuity,
+)
+from src.application.ports.external_health import (
+    ExternalHealthPort,
+    ExternalHealthStatus,
+)
+from src.application.ports.failure_mode_registry import (
+    FailureModeRegistryPort,
+    HealthSummary,
+)
+
 # Government PRD Phase 3 - Flow Orchestrator (Epic 8, Story 8.2, FR-GOV-23)
 from src.application.ports.flow_orchestrator import (
-    BranchResult,
     ERROR_TYPE_MAP,
+    STATE_BRANCH_MAP,
+    STATE_SERVICE_MAP,
+    BranchResult,
     ErrorEscalationStrategy,
     EscalationRecord,
     FlowOrchestratorProtocol,
@@ -403,14 +206,216 @@ from src.application.ports.flow_orchestrator import (
     RouteMotionRequest,
     RouteMotionResult,
     RoutingDecision,
-    STATE_BRANCH_MAP,
-    STATE_SERVICE_MAP,
     get_branch_for_state,
     get_escalation_strategy,
     get_service_for_state,
     is_blocking_error,
     is_retryable_error,
 )
+from src.application.ports.fork_monitor import ForkMonitor
+from src.application.ports.fork_signal_rate_limiter import ForkSignalRateLimiterPort
+from src.application.ports.freeze_checker import (
+    FreezeCheckerProtocol,
+)
+
+# Government PRD Phase 3 - Governance State Machine (Epic 8, FR-GOV-23)
+from src.application.ports.governance_state_machine import (
+    TERMINAL_STATES,
+    VALID_TRANSITIONS,
+    GovernanceState,
+    GovernanceStateMachineProtocol,
+    InvalidTransitionError,
+    MotionStateRecord,
+    StateTransition,
+    TerminalStateError,
+    TransitionRejection,
+    TransitionRequest,
+    TransitionResult,
+    get_valid_next_states,
+    is_terminal_state,
+    is_valid_transition,
+)
+from src.application.ports.halt_checker import HaltChecker
+from src.application.ports.halt_trigger import HaltTrigger
+from src.application.ports.hash_verifier import (
+    HashScanResult,
+    HashScanStatus,
+    HashVerifierProtocol,
+)
+from src.application.ports.heartbeat_emitter import (
+    HEARTBEAT_INTERVAL_SECONDS,
+    MISSED_HEARTBEAT_THRESHOLD,
+    UNRESPONSIVE_TIMEOUT_SECONDS,
+    HeartbeatEmitterPort,
+)
+from src.application.ports.heartbeat_monitor import HeartbeatMonitorPort
+from src.application.ports.hsm import HSMMode, HSMProtocol, SignatureResult
+from src.application.ports.incident_report_repository import (
+    IncidentReportRepositoryPort,
+)
+from src.application.ports.independence_attestation import (
+    IndependenceAttestationProtocol,
+)
+from src.application.ports.integrity_case_repository import (
+    IntegrityCaseRepositoryProtocol,
+)
+from src.application.ports.integrity_failure_repository import (
+    IntegrityFailure,
+    IntegrityFailureRepositoryProtocol,
+)
+from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
+from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
+from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
+from src.application.ports.key_registry import KeyRegistryProtocol
+
+# Government PRD Phase 3 - Marquis Service (Epic 6, FR-GOV-17, FR-GOV-18)
+from src.application.ports.marquis_service import (
+    MARQUIS_DOMAIN_MAPPING,
+    Advisory,
+    AdvisoryRequest,
+    AdvisoryResult,
+    ExpertiseDomain,
+    MarquisServiceProtocol,
+    RiskAnalysis,
+    RiskAnalysisRequest,
+    RiskAnalysisResult,
+    RiskFactor,
+    RiskLevel,
+    Testimony,
+    TestimonyRequest,
+    TestimonyResult,
+    get_expertise_domain,
+    get_marquis_for_domain,
+)
+from src.application.ports.material_repository import (
+    MATERIAL_TYPE_ANNOUNCEMENT,
+    MATERIAL_TYPE_DOCUMENT,
+    MATERIAL_TYPE_PUBLICATION,
+    Material,
+    MaterialRepositoryProtocol,
+)
+from src.application.ports.override_abuse_validator import (
+    OverrideAbuseValidatorProtocol,
+    ValidationResult,
+)
+from src.application.ports.override_executor import (
+    OverrideExecutorPort,
+    OverrideResult,
+)
+from src.application.ports.override_registry import (
+    ExpiredOverrideInfo,
+    OverrideRegistryPort,
+)
+from src.application.ports.override_trend_repository import (
+    OverrideTrendData,
+    OverrideTrendRepositoryProtocol,
+)
+from src.application.ports.petition_repository import (
+    PetitionRepositoryProtocol,
+)
+from src.application.ports.procedural_record_generator import (
+    ProceduralRecordData,
+    ProceduralRecordGeneratorPort,
+)
+from src.application.ports.prohibited_language_scanner import (
+    ProhibitedLanguageScannerProtocol,
+    ScanResult,
+)
+from src.application.ports.publication_scanner import (
+    PublicationScannerProtocol,
+    PublicationScanResult,
+    PublicationScanResultStatus,
+)
+from src.application.ports.recovery_waiting_period import RecoveryWaitingPeriodPort
+from src.application.ports.result_certifier import (
+    CertificationResult,
+    ResultCertifierPort,
+)
+from src.application.ports.rollback_coordinator import RollbackCoordinator
+from src.application.ports.seed_validator import (
+    PredictabilityCheck,
+    SeedSourceValidation,
+    SeedUsageRecord,
+    SeedValidatorProtocol,
+)
+from src.application.ports.semantic_scanner import (
+    DEFAULT_ANALYSIS_METHOD,
+    SemanticScannerProtocol,
+    SemanticScanResult,
+)
+from src.application.ports.separation_validator import (
+    DataClassification,
+    SeparationValidatorPort,
+)
+from src.application.ports.sequence_gap_detector import (
+    DETECTION_INTERVAL_SECONDS,
+    SequenceGapDetectorPort,
+)
+from src.application.ports.signature_verifier import (
+    SignatureVerifierProtocol,
+)
+from src.application.ports.terminal_event_detector import (
+    TerminalEventDetectorProtocol,
+)
+from src.application.ports.threshold_configuration import (
+    ThresholdConfigurationProtocol,
+    ThresholdRepositoryProtocol,
+)
+from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.application.ports.tool_registry import (
+    ToolRegistryProtocol,
+)
+from src.application.ports.topic_daily_limiter import (
+    DAILY_TOPIC_LIMIT,
+    TopicDailyLimiterProtocol,
+)
+from src.application.ports.topic_manipulation_detector import (
+    FlaggedTopic,
+    ManipulationAnalysisResult,
+    TimingPatternResult,
+    TopicManipulationDetectorProtocol,
+)
+from src.application.ports.topic_origin_tracker import (
+    DIVERSITY_THRESHOLD,
+    DIVERSITY_WINDOW_DAYS,
+    TopicOriginTrackerPort,
+)
+from src.application.ports.topic_priority import (
+    TopicPriorityLevel,
+    TopicPriorityProtocol,
+)
+from src.application.ports.topic_rate_limiter import (
+    RATE_LIMIT_PER_HOUR,
+    RATE_LIMIT_WINDOW_SECONDS,
+    TopicRateLimiterPort,
+)
+from src.application.ports.unanimous_vote import (
+    StoredUnanimousVote,
+    UnanimousVotePort,
+)
+from src.application.ports.unwitnessed_halt_repository import UnwitnessedHaltRepository
+from src.application.ports.user_content_repository import (
+    UserContentRepositoryProtocol,
+)
+from src.application.ports.waiver_repository import (
+    WaiverRecord,
+    WaiverRepositoryProtocol,
+)
+from src.application.ports.witness_anomaly_detector import (
+    PairExclusion,
+    WitnessAnomalyDetectorProtocol,
+    WitnessAnomalyResult,
+)
+from src.application.ports.witness_pair_history import WitnessPairHistoryProtocol
+from src.application.ports.witness_pool import WitnessPoolProtocol
+from src.application.ports.witness_pool_monitor import (
+    MINIMUM_WITNESSES_HIGH_STAKES,
+    MINIMUM_WITNESSES_STANDARD,
+    WitnessPoolMonitorProtocol,
+    WitnessPoolStatus,
+)
+from src.application.ports.witnessed_halt_writer import WitnessedHaltWriter
+from src.application.ports.writer_lock import WriterLockProtocol
 
 __all__: list[str] = [
     # Time Authority Protocol (HARDENING-1, AC4)

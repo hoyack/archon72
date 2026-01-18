@@ -258,11 +258,11 @@ class TestProblemReportValidation:
 
     def test_problem_report_requires_non_empty_description(self) -> None:
         """Verify ProblemReport requires non-empty description."""
+        from src.domain.errors.constitutional import ConstitutionalViolationError
         from src.domain.governance.task.problem_report import (
             ProblemCategory,
             ProblemReport,
         )
-        from src.domain.errors.constitutional import ConstitutionalViolationError
 
         with pytest.raises(ConstitutionalViolationError):
             ProblemReport(
@@ -275,11 +275,11 @@ class TestProblemReportValidation:
 
     def test_problem_report_requires_non_empty_cluster_id(self) -> None:
         """Verify ProblemReport requires non-empty cluster_id."""
+        from src.domain.errors.constitutional import ConstitutionalViolationError
         from src.domain.governance.task.problem_report import (
             ProblemCategory,
             ProblemReport,
         )
-        from src.domain.errors.constitutional import ConstitutionalViolationError
 
         with pytest.raises(ConstitutionalViolationError):
             ProblemReport(

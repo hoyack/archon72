@@ -59,16 +59,16 @@ async def run_consolidator(
     run_acronyms: bool,
 ) -> None:
     """Run the motion consolidator with full analysis."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("MOTION CONSOLIDATOR")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Input: {checkpoint_path}")
     print(f"Target Mega-Motions: {target_count}")
     print(f"Novelty Detection: {'Enabled' if run_novelty else 'Disabled'}")
     print(f"Conclave Summary: {'Enabled' if run_summary else 'Disabled'}")
     print(f"Acronym Registry: {'Enabled' if run_acronyms else 'Disabled'}")
     print(f"Verbose: {verbose}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Initialize consolidator
     consolidator = MotionConsolidatorService(
@@ -90,12 +90,12 @@ async def run_consolidator(
     session_dir = consolidator.save_full_results(result, output_dir)
 
     # Print summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("CONSOLIDATION COMPLETE")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Session: {result.session_name}")
     print(f"Session ID: {result.session_id}")
-    print(f"\n--- Consolidation ---")
+    print("\n--- Consolidation ---")
     print(f"Original Motions: {result.consolidation.original_motion_count}")
     print(f"Mega-Motions Created: {len(result.consolidation.mega_motions)}")
     print(f"Consolidation Ratio: {result.consolidation.consolidation_ratio:.1%}")
@@ -104,7 +104,7 @@ async def run_consolidator(
         print(f"Orphaned Motions: {len(result.consolidation.orphaned_motions)}")
 
     if result.novel_proposals:
-        print(f"\n--- Novelty Detection ---")
+        print("\n--- Novelty Detection ---")
         print(f"Novel Proposals Found: {len(result.novel_proposals)}")
         categories = {}
         for p in result.novel_proposals:
@@ -113,29 +113,35 @@ async def run_consolidator(
             print(f"  {cat}: {count}")
 
     if result.conclave_summary:
-        print(f"\n--- Conclave Summary ---")
+        print("\n--- Conclave Summary ---")
         print(f"Key Themes: {len(result.conclave_summary.key_themes)}")
         print(f"Areas of Consensus: {len(result.conclave_summary.areas_of_consensus)}")
-        print(f"Points of Contention: {len(result.conclave_summary.points_of_contention)}")
+        print(
+            f"Points of Contention: {len(result.conclave_summary.points_of_contention)}"
+        )
 
     if result.acronym_registry:
-        print(f"\n--- Acronym Registry ---")
+        print("\n--- Acronym Registry ---")
         print(f"Acronyms Catalogued: {len(result.acronym_registry)}")
         top_acronyms = result.acronym_registry[:5]
         for a in top_acronyms:
             print(f"  {a.acronym}: {a.full_form} ({a.usage_count}x)")
 
     print(f"\nOutput saved to: {session_dir}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Print mega-motion summary
     print("MEGA-MOTIONS SUMMARY:")
     print("-" * 60)
     for i, mm in enumerate(result.consolidation.mega_motions, 1):
-        tier_emoji = {"high": "🟢", "medium": "🟡", "low": "🔵"}.get(mm.consensus_tier, "⚪")
+        tier_emoji = {"high": "🟢", "medium": "🟡", "low": "🔵"}.get(
+            mm.consensus_tier, "⚪"
+        )
         print(f"{i:2}. {tier_emoji} {mm.title[:50]}...")
         print(f"    Theme: {mm.theme}")
-        print(f"    Archons: {mm.unique_archon_count} | Sources: {len(mm.source_motion_ids)} motions")
+        print(
+            f"    Archons: {mm.unique_archon_count} | Sources: {len(mm.source_motion_ids)} motions"
+        )
         print()
 
     # Print novel proposals if any
@@ -143,7 +149,9 @@ async def run_consolidator(
         print("\nNOVEL PROPOSALS (Top 5):")
         print("-" * 60)
         for i, p in enumerate(result.novel_proposals[:5], 1):
-            score_bar = "█" * int(p.novelty_score * 10) + "░" * (10 - int(p.novelty_score * 10))
+            score_bar = "█" * int(p.novelty_score * 10) + "░" * (
+                10 - int(p.novelty_score * 10)
+            )
             print(f"{i}. [{p.category.upper()}] {score_bar} ({p.novelty_score:.0%})")
             print(f"   Archon: {p.archon_name}")
             print(f"   {p.text[:100]}...")
@@ -225,14 +233,16 @@ def main():
         run_acronyms = not args.no_acronyms
 
     # Run consolidator
-    asyncio.run(run_consolidator(
-        args.checkpoint,
-        args.target,
-        args.verbose,
-        run_novelty,
-        run_summary,
-        run_acronyms,
-    ))
+    asyncio.run(
+        run_consolidator(
+            args.checkpoint,
+            args.target,
+            args.verbose,
+            run_novelty,
+            run_summary,
+            run_acronyms,
+        )
+    )
 
 
 if __name__ == "__main__":

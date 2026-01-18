@@ -10,8 +10,6 @@ These primitives are used by Epic 1 (Event Store) and subsequent epics
 to build constitutional features on a solid foundation.
 """
 
-from src.domain.primitives.ensure_atomicity import AtomicOperationContext
-from src.domain.primitives.prevent_delete import DeletePreventionMixin
 from src.domain.primitives.constitutional_thresholds import (
     ATTESTATION_PERIOD_THRESHOLD,
     CESSATION_BREACH_THRESHOLD,
@@ -31,6 +29,7 @@ from src.domain.primitives.constitutional_thresholds import (
     get_threshold,
     validate_all_thresholds,
 )
+from src.domain.primitives.ensure_atomicity import AtomicOperationContext
 from src.domain.primitives.integrity_guarantees import (
     ALL_GUARANTEES,
     GUARANTEE_IDS,
@@ -38,6 +37,7 @@ from src.domain.primitives.integrity_guarantees import (
     get_guarantee,
     validate_all_guarantees,
 )
+from src.domain.primitives.prevent_delete import DeletePreventionMixin
 
 __all__: list[str] = [
     "DeletePreventionMixin",

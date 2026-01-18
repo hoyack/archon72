@@ -18,9 +18,9 @@ import pytest
 
 from src.domain.governance.cessation.reconstitution_artifact import (
     ReconstitutionArtifact,
-    ValidationStatus,
     RejectionReason,
     ValidationResult,
+    ValidationStatus,
 )
 
 
@@ -177,11 +177,17 @@ class TestRejectionReason:
 
     def test_missing_cessation_reference_reason(self) -> None:
         """MISSING_CESSATION_REFERENCE reason for missing reference."""
-        assert RejectionReason.MISSING_CESSATION_REFERENCE.value == "missing_cessation_reference"
+        assert (
+            RejectionReason.MISSING_CESSATION_REFERENCE.value
+            == "missing_cessation_reference"
+        )
 
     def test_invalid_artifact_structure_reason(self) -> None:
         """INVALID_ARTIFACT_STRUCTURE reason for malformed artifacts."""
-        assert RejectionReason.INVALID_ARTIFACT_STRUCTURE.value == "invalid_artifact_structure"
+        assert (
+            RejectionReason.INVALID_ARTIFACT_STRUCTURE.value
+            == "invalid_artifact_structure"
+        )
 
 
 class TestValidationResult:

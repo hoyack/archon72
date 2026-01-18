@@ -195,22 +195,27 @@ class TestGetSeedAuditTrail:
         stub = SeedValidatorStub()
         # Add records directly with timestamps to control order
         from datetime import timedelta
+
         now = datetime.now(timezone.utc)
 
-        stub.add_usage_record(SeedUsageRecord(
-            seed_hash="hash1",
-            purpose="purpose",
-            source_id="source",
-            used_at=now - timedelta(hours=2),
-            validation_result=SeedValidationResult.VALID,
-        ))
-        stub.add_usage_record(SeedUsageRecord(
-            seed_hash="hash2",
-            purpose="purpose",
-            source_id="source",
-            used_at=now,
-            validation_result=SeedValidationResult.VALID,
-        ))
+        stub.add_usage_record(
+            SeedUsageRecord(
+                seed_hash="hash1",
+                purpose="purpose",
+                source_id="source",
+                used_at=now - timedelta(hours=2),
+                validation_result=SeedValidationResult.VALID,
+            )
+        )
+        stub.add_usage_record(
+            SeedUsageRecord(
+                seed_hash="hash2",
+                purpose="purpose",
+                source_id="source",
+                used_at=now,
+                validation_result=SeedValidationResult.VALID,
+            )
+        )
 
         records = await stub.get_seed_audit_trail("")
         assert records[0].seed_hash == "hash2"  # Most recent first
@@ -226,6 +231,7 @@ class TestTestHelpers:
 
         # This is synchronous access, need to use asyncio
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.validate_seed_source("new-source", "purpose")
         )
@@ -236,13 +242,15 @@ class TestTestHelpers:
         stub = SeedValidatorStub()
         stub.set_source_independent("source-1", True)
         stub.set_default_independence(False)
-        stub._usage_records.append(SeedUsageRecord(
-            seed_hash="hash",
-            purpose="purpose",
-            source_id="source",
-            used_at=datetime.now(timezone.utc),
-            validation_result=SeedValidationResult.VALID,
-        ))
+        stub._usage_records.append(
+            SeedUsageRecord(
+                seed_hash="hash",
+                purpose="purpose",
+                source_id="source",
+                used_at=datetime.now(timezone.utc),
+                validation_result=SeedValidationResult.VALID,
+            )
+        )
 
         stub.clear()
 

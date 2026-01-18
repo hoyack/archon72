@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from crewai import Agent, Crew, LLM, Task
+from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.secretary_agent import (
@@ -149,14 +149,14 @@ def _aggressive_json_clean(text: str) -> str:
 
     # Replace control chars except newlines outside of strings (structural)
     # First, try to identify and fix control chars in string values
-    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', replace_control, cleaned)
+    cleaned = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", replace_control, cleaned)
 
     # Fix common issues: trailing commas before ] or }
-    cleaned = re.sub(r',\s*([\]}])', r'\1', cleaned)
+    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
     # Fix missing quotes around keys (common LLM error)
-    cleaned = re.sub(r'{\s*(\w+):', r'{"\1":', cleaned)
-    cleaned = re.sub(r',\s*(\w+):', r',"\1":', cleaned)
+    cleaned = re.sub(r"{\s*(\w+):", r'{"\1":', cleaned)
+    cleaned = re.sub(r",\s*(\w+):", r',"\1":', cleaned)
 
     return cleaned
 
@@ -175,17 +175,13 @@ def _is_truncated_json(text: str) -> bool:
     # Check for trailing incomplete patterns
     truncation_patterns = [
         '": "',  # Truncated mid-string value
-        '":"',   # Same without spaces
+        '":"',  # Same without spaces
         '": [',  # Truncated mid-array
         '": {',  # Truncated mid-object
-        ",",     # Ends with comma (expecting more)
+        ",",  # Ends with comma (expecting more)
     ]
 
-    for pattern in truncation_patterns:
-        if cleaned.rstrip().endswith(pattern):
-            return True
-
-    return False
+    return any(cleaned.rstrip().endswith(pattern) for pattern in truncation_patterns)
 
 
 def _get_crewai_llm_string(llm_config: LLMConfig) -> str:
@@ -538,7 +534,11 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
         cleaned = text.strip()
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+            cleaned = (
+                "\n".join(lines[1:-1])
+                if lines[-1].startswith("```")
+                else "\n".join(lines[1:])
+            )
 
         # Find first [ and matching ]
         start = cleaned.find("[")
@@ -569,7 +569,11 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
         cleaned = text.strip()
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+            cleaned = (
+                "\n".join(lines[1:-1])
+                if lines[-1].startswith("```")
+                else "\n".join(lines[1:])
+            )
 
         # Find first { and matching }
         start = cleaned.find("{")
@@ -625,15 +629,22 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
     ) -> ExtractionResult:
         """Validate extractions using JSON model."""
         # Limit content to avoid context overflow
-        rec_sample = recommendations[:100] if len(recommendations) > 100 else recommendations
-        speech_sample = original_speeches[:20] if len(original_speeches) > 20 else original_speeches
+        rec_sample = (
+            recommendations[:100] if len(recommendations) > 100 else recommendations
+        )
+        speech_sample = (
+            original_speeches[:20] if len(original_speeches) > 20 else original_speeches
+        )
 
         combined_content = "\n\n---\n\n".join(
             f"[{s.archon_name}]\n{s.speech_content[:500]}..." for s in speech_sample
         )
 
         rec_json = json.dumps(
-            [{"text": r.summary[:200], "archon": r.source.archon_name} for r in rec_sample],
+            [
+                {"text": r.summary[:200], "archon": r.source.archon_name}
+                for r in rec_sample
+            ],
             indent=2,
         )
 
@@ -706,7 +717,9 @@ CRITICAL: Output ONLY valid JSON. Example:
         for i in range(0, len(recommendations), CLUSTERING_BATCH_SIZE):
             batch = recommendations[i : i + CLUSTERING_BATCH_SIZE]
             batch_num = i // CLUSTERING_BATCH_SIZE + 1
-            total_batches = (len(recommendations) + CLUSTERING_BATCH_SIZE - 1) // CLUSTERING_BATCH_SIZE
+            total_batches = (
+                len(recommendations) + CLUSTERING_BATCH_SIZE - 1
+            ) // CLUSTERING_BATCH_SIZE
 
             logger.info(
                 "clustering_batch",
@@ -815,7 +828,9 @@ CRITICAL: Output ONLY a valid JSON array. Example:
                 if members:
                     category = members[0].category
                     rec_type = members[0].recommendation_type
-                    archon_count = item.get("archon_count", len(set(m.source.archon_name for m in members)))
+                    archon_count = item.get(
+                        "archon_count", len(set(m.source.archon_name for m in members))
+                    )
 
                     cluster = RecommendationCluster(
                         cluster_id=uuid4(),
@@ -848,7 +863,9 @@ CRITICAL: Output ONLY a valid JSON array. Example:
     ) -> ConflictResult:
         """Detect conflicts using JSON model."""
         # Sample for large lists
-        sample = recommendations[:100] if len(recommendations) > 100 else recommendations
+        sample = (
+            recommendations[:100] if len(recommendations) > 100 else recommendations
+        )
 
         rec_json = json.dumps(
             [
@@ -889,7 +906,9 @@ CRITICAL: Output ONLY valid JSON.""",
             json_str = self._extract_json_object(str(result))
             if json_str:
                 data = json.loads(json_str)
-                conflict_count = data.get("conflict_count", len(data.get("conflicts", [])))
+                conflict_count = data.get(
+                    "conflict_count", len(data.get("conflicts", []))
+                )
             else:
                 conflict_count = 0
 
@@ -949,7 +968,9 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
                     # Fallback: aggressive cleaning
                     cleaned = _aggressive_json_clean(json_str)
                     data = json.loads(cleaned)
-                    logger.debug("aggressive_clean_succeeded_motion", theme=cluster.theme)
+                    logger.debug(
+                        "aggressive_clean_succeeded_motion", theme=cluster.theme
+                    )
             else:
                 # No JSON object found - try aggressive cleaning on raw result
                 if _is_truncated_json(result_str):
@@ -965,7 +986,10 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
                 status=QueuedMotionStatus.PENDING,
                 title=data.get("title", f"Motion: {cluster.theme}"),
                 text=data.get("motion_text", cluster.canonical_summary),
-                rationale=data.get("rationale", f"Derived from {cluster.archon_count} Archon recommendations"),
+                rationale=data.get(
+                    "rationale",
+                    f"Derived from {cluster.archon_count} Archon recommendations",
+                ),
                 source_cluster_id=cluster.cluster_id,
                 source_cluster_theme=cluster.theme,
                 original_archon_count=cluster.archon_count,
@@ -1055,7 +1079,9 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
         except ValidationError:
             confidence = 0.7
 
-        self._save_checkpoint(checkpoint_id, "02_validation", {"confidence": confidence})
+        self._save_checkpoint(
+            checkpoint_id, "02_validation", {"confidence": confidence}
+        )
         logger.info("step_2_validation_complete", confidence=confidence)
 
         # Step 3: Cluster semantically

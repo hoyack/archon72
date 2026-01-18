@@ -12,9 +12,8 @@ Tests for:
 
 from __future__ import annotations
 
-from pathlib import Path
 import tempfile
-from typing import Any
+from pathlib import Path
 
 import pytest
 
@@ -62,9 +61,7 @@ patterns:
     @pytest.fixture
     def temp_yaml_file(self, sample_yaml_content: str) -> Path:
         """Create a temporary YAML file."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(sample_yaml_content)
             return Path(f.name)
 
@@ -126,9 +123,7 @@ patterns:
             await adapter.load()
 
     @pytest.mark.asyncio
-    async def test_get_version(
-        self, loaded_adapter: YamlPatternLibraryAdapter
-    ) -> None:
+    async def test_get_version(self, loaded_adapter: YamlPatternLibraryAdapter) -> None:
         """Version is correctly parsed."""
         version = await loaded_adapter.get_current_version()
 
@@ -345,9 +340,7 @@ patterns:
     @pytest.fixture
     def temp_file(self, yaml_content: str) -> Path:
         """Create temporary file."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             return Path(f.name)
 

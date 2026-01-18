@@ -49,7 +49,7 @@ class UnwitnessedHaltRepository(Protocol):
         ...     pass
     """
 
-    async def save(self, record: "UnwitnessedHaltRecord") -> None:
+    async def save(self, record: UnwitnessedHaltRecord) -> None:
         """Save an unwitnessed halt record.
 
         Persists the record for later recovery and reconciliation.
@@ -66,7 +66,7 @@ class UnwitnessedHaltRepository(Protocol):
         """
         ...
 
-    async def get_all(self) -> list["UnwitnessedHaltRecord"]:
+    async def get_all(self) -> list[UnwitnessedHaltRecord]:
         """Get all unwitnessed halt records.
 
         Used during recovery to enumerate all halts that need
@@ -81,7 +81,7 @@ class UnwitnessedHaltRepository(Protocol):
         """
         ...
 
-    async def get_by_id(self, halt_id: UUID) -> "UnwitnessedHaltRecord | None":
+    async def get_by_id(self, halt_id: UUID) -> UnwitnessedHaltRecord | None:
         """Get a specific record by halt ID.
 
         Args:

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.events.amendment import (
     AmendmentImpactAnalysis,
@@ -57,7 +57,7 @@ class AmendmentProposal:
     is_core_guarantee: bool
     affected_guarantees: tuple[str, ...]
     status: AmendmentStatus
-    impact_analysis: Optional[AmendmentImpactAnalysis] = None
+    impact_analysis: AmendmentImpactAnalysis | None = None
 
 
 class AmendmentRepositoryProtocol(Protocol):
@@ -92,7 +92,7 @@ class AmendmentRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_amendment(self, amendment_id: str) -> Optional[AmendmentProposal]:
+    async def get_amendment(self, amendment_id: str) -> AmendmentProposal | None:
         """Retrieve a specific amendment by ID.
 
         Args:
@@ -149,9 +149,7 @@ class AmendmentRepositoryProtocol(Protocol):
         """
         ...
 
-    async def is_amendment_votable(
-        self, amendment_id: str
-    ) -> tuple[bool, int]:
+    async def is_amendment_votable(self, amendment_id: str) -> tuple[bool, int]:
         """Check if an amendment can proceed to vote (FR126).
 
         Args:

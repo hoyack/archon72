@@ -6,12 +6,16 @@ Tests:
 - AC4: State machine resolution completes in ≤10ms (NFR-PERF-05)
 """
 
-import pytest
+import contextlib
 import time
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from src.domain.governance.task.task_state import TaskState, TaskStatus, IllegalStateTransitionError
+from src.domain.governance.task.task_state import (
+    IllegalStateTransitionError,
+    TaskState,
+    TaskStatus,
+)
 from src.domain.governance.task.task_state_rules import TaskTransitionRules
 
 
@@ -34,7 +38,7 @@ class TestStateTransitionPerformance:
         )
         elapsed = time.perf_counter() - start
 
-        assert elapsed < 0.010, f"Transition took {elapsed*1000:.2f}ms (limit: 10ms)"
+        assert elapsed < 0.010, f"Transition took {elapsed * 1000:.2f}ms (limit: 10ms)"
         assert new_task.current_status == TaskStatus.ACTIVATED
 
     def test_1000_transitions_average_under_10ms(self):
@@ -50,17 +54,17 @@ class TestStateTransitionPerformance:
 
         start = time.perf_counter()
         for _ in range(1000):
-            try:
+            with contextlib.suppress(IllegalStateTransitionError):
                 task.transition(
                     TaskStatus.ACCEPTED,
                     datetime.now(timezone.utc),
                     "actor",
                 )
-            except IllegalStateTransitionError:
-                pass
         elapsed = (time.perf_counter() - start) / 1000
 
-        assert elapsed <= 0.010, f"Average transition took {elapsed*1000:.2f}ms (limit: 10ms)"
+        assert elapsed <= 0.010, (
+            f"Average transition took {elapsed * 1000:.2f}ms (limit: 10ms)"
+        )
 
     def test_transition_validation_o1(self):
         """Transition validation is O(1) - constant time lookup."""
@@ -78,8 +82,8 @@ class TestStateTransitionPerformance:
         max_time = max(times)
         min_time = min(times)
         assert max_time / min_time < 3.0, (
-            f"Transition validation not O(1): min={min_time*1000:.2f}ms, "
-            f"max={max_time*1000:.2f}ms"
+            f"Transition validation not O(1): min={min_time * 1000:.2f}ms, "
+            f"max={max_time * 1000:.2f}ms"
         )
 
 
@@ -96,7 +100,7 @@ class TestTransitionRulesPerformance:
         elapsed = time.perf_counter() - start
 
         # 100k lookups should complete in under 100ms
-        assert elapsed < 0.100, f"100k lookups took {elapsed*1000:.2f}ms"
+        assert elapsed < 0.100, f"100k lookups took {elapsed * 1000:.2f}ms"
 
     def test_get_allowed_transitions_lookup_performance(self):
         """get_allowed_transitions lookup is fast."""
@@ -106,7 +110,7 @@ class TestTransitionRulesPerformance:
         elapsed = time.perf_counter() - start
 
         # 100k lookups should complete in under 100ms
-        assert elapsed < 0.100, f"100k lookups took {elapsed*1000:.2f}ms"
+        assert elapsed < 0.100, f"100k lookups took {elapsed * 1000:.2f}ms"
 
     def test_get_halt_target_lookup_performance(self):
         """get_halt_target lookup is fast."""
@@ -116,7 +120,7 @@ class TestTransitionRulesPerformance:
         elapsed = time.perf_counter() - start
 
         # 100k lookups should complete in under 100ms
-        assert elapsed < 0.100, f"100k lookups took {elapsed*1000:.2f}ms"
+        assert elapsed < 0.100, f"100k lookups took {elapsed * 1000:.2f}ms"
 
 
 class TestTaskStateCreationPerformance:
@@ -136,7 +140,7 @@ class TestTaskStateCreationPerformance:
         elapsed = (time.perf_counter() - start) / 1000
 
         # Each creation should take under 1ms
-        assert elapsed < 0.001, f"TaskState.create took {elapsed*1000:.2f}ms avg"
+        assert elapsed < 0.001, f"TaskState.create took {elapsed * 1000:.2f}ms avg"
 
     def test_taskstate_with_cluster_fast(self):
         """with_cluster() method is fast."""
@@ -152,7 +156,7 @@ class TestTaskStateCreationPerformance:
         elapsed = (time.perf_counter() - start) / 10000
 
         # Each call should take under 0.1ms
-        assert elapsed < 0.0001, f"with_cluster took {elapsed*1000000:.2f}μs avg"
+        assert elapsed < 0.0001, f"with_cluster took {elapsed * 1000000:.2f}μs avg"
 
 
 class TestImmutabilityPerformance:
@@ -174,4 +178,4 @@ class TestImmutabilityPerformance:
         elapsed = time.perf_counter() - start
 
         # 100k attribute accesses should be very fast
-        assert elapsed < 0.050, f"100k attribute accesses took {elapsed*1000:.2f}ms"
+        assert elapsed < 0.050, f"100k attribute accesses took {elapsed * 1000:.2f}ms"

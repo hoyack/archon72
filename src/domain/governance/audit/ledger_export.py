@@ -77,7 +77,9 @@ class ExportMetadata:
     def __post_init__(self) -> None:
         """Validate metadata fields."""
         if self.total_events < 0:
-            raise ValueError(f"total_events must be non-negative, got {self.total_events}")
+            raise ValueError(
+                f"total_events must be non-negative, got {self.total_events}"
+            )
 
         start, end = self.sequence_range
         if self.total_events == 0:
@@ -126,7 +128,7 @@ class LedgerExport:
     """
 
     metadata: ExportMetadata
-    events: tuple["PersistedGovernanceEvent", ...]
+    events: tuple[PersistedGovernanceEvent, ...]
     verification: VerificationInfo
 
     def validate_completeness(self) -> bool:
@@ -182,11 +184,11 @@ class LedgerExport:
         return len(self.events)
 
     @property
-    def first_event(self) -> "PersistedGovernanceEvent | None":
+    def first_event(self) -> PersistedGovernanceEvent | None:
         """Get the first (genesis) event, or None if empty."""
         return self.events[0] if self.events else None
 
     @property
-    def last_event(self) -> "PersistedGovernanceEvent | None":
+    def last_event(self) -> PersistedGovernanceEvent | None:
         """Get the last (most recent) event, or None if empty."""
         return self.events[-1] if self.events else None

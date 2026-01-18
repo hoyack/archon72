@@ -20,7 +20,6 @@ Developer Golden Rule: DB IS CANONICAL
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.dual_channel_halt import HaltFlagState
@@ -51,9 +50,9 @@ class HaltFlagRepository(ABC):
     async def set_halt_flag(
         self,
         halted: bool,
-        reason: Optional[str],
-        crisis_event_id: Optional[UUID],
-        ceremony_id: Optional[UUID] = None,
+        reason: str | None,
+        crisis_event_id: UUID | None,
+        ceremony_id: UUID | None = None,
     ) -> None:
         """Set the halt flag state.
 
@@ -131,9 +130,9 @@ class InMemoryHaltFlagRepository(HaltFlagRepository):
     async def set_halt_flag(
         self,
         halted: bool,
-        reason: Optional[str],
-        crisis_event_id: Optional[UUID],
-        ceremony_id: Optional[UUID] = None,
+        reason: str | None,
+        crisis_event_id: UUID | None,
+        ceremony_id: UUID | None = None,
     ) -> None:
         """Set the halt flag state.
 
@@ -147,11 +146,8 @@ class InMemoryHaltFlagRepository(HaltFlagRepository):
             HaltClearDeniedError: If attempting to clear halt without ceremony_id.
         """
         # ADR-3: Halt is sticky - clearing requires ceremony
-        if self._state.is_halted and not halted:
-            if ceremony_id is None:
-                raise HaltClearDeniedError(
-                    "ADR-3: Halt flag protected - ceremony required"
-                )
+        if self._state.is_halted and not halted and ceremony_id is None:
+            raise HaltClearDeniedError("ADR-3: Halt flag protected - ceremony required")
 
         self._state = HaltFlagState(
             is_halted=halted,
@@ -174,9 +170,7 @@ class InMemoryHaltFlagRepository(HaltFlagRepository):
             HaltClearDeniedError: If ceremony_id is None.
         """
         if ceremony_id is None:
-            raise HaltClearDeniedError(
-                "ADR-3: Halt flag protected - ceremony required"
-            )
+            raise HaltClearDeniedError("ADR-3: Halt flag protected - ceremony required")
 
         self._state = HaltFlagState(
             is_halted=False,

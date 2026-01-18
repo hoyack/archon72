@@ -11,7 +11,7 @@ Tests for the transition logging service including:
 """
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
@@ -32,7 +32,7 @@ class FakeTransitionLogPort:
     def __init__(self) -> None:
         self.logs: list[TransitionLog] = []
         self.append_called = False
-        self.last_appended: Optional[TransitionLog] = None
+        self.last_appended: TransitionLog | None = None
 
     async def append(self, log: TransitionLog) -> None:
         """Append a transition log."""
@@ -44,14 +44,14 @@ class FakeTransitionLogPort:
         """Query transition logs."""
         return [log for log in self.logs if query.matches(log)]
 
-    async def get_by_id(self, log_id: UUID) -> Optional[TransitionLog]:
+    async def get_by_id(self, log_id: UUID) -> TransitionLog | None:
         """Get log by ID."""
         for log in self.logs:
             if log.log_id == log_id:
                 return log
         return None
 
-    async def count(self, query: Optional[TransitionQuery] = None) -> int:
+    async def count(self, query: TransitionQuery | None = None) -> int:
         """Count logs."""
         if query is None:
             return len(self.logs)
@@ -93,7 +93,7 @@ class FakeEventEmitter:
             }
         )
 
-    def get_last(self, event_type: str) -> Optional[dict[str, Any]]:
+    def get_last(self, event_type: str) -> dict[str, Any] | None:
         """Get last event of given type."""
         for event in reversed(self.events):
             if event["event_type"] == event_type:
@@ -469,7 +469,7 @@ class TestIntegrationWithTaskState:
         cluster_id = str(uuid4())
 
         # pending -> offered
-        log1 = await service.log_transition(
+        await service.log_transition(
             entity_type=EntityType.TASK,
             entity_id=task_id,
             from_state="pending",
@@ -479,7 +479,7 @@ class TestIntegrationWithTaskState:
         )
 
         # offered -> accepted
-        log2 = await service.log_transition(
+        await service.log_transition(
             entity_type=EntityType.TASK,
             entity_id=task_id,
             from_state="offered",
@@ -489,7 +489,7 @@ class TestIntegrationWithTaskState:
         )
 
         # accepted -> in_progress
-        log3 = await service.log_transition(
+        await service.log_transition(
             entity_type=EntityType.TASK,
             entity_id=task_id,
             from_state="accepted",
@@ -499,7 +499,7 @@ class TestIntegrationWithTaskState:
         )
 
         # in_progress -> completed
-        log4 = await service.log_transition(
+        await service.log_transition(
             entity_type=EntityType.TASK,
             entity_id=task_id,
             from_state="in_progress",

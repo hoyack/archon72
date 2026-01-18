@@ -50,10 +50,13 @@ class EventToOverrideAdapter:
         # Parse initiated_at if it's a string (ISO format)
         if isinstance(initiated_at, str):
             from datetime import datetime
+
             initiated_at = datetime.fromisoformat(initiated_at.replace("Z", "+00:00"))
 
         # Calculate expires_at from initiated_at + duration
-        expires_at = initiated_at + timedelta(seconds=duration) if initiated_at else None
+        expires_at = (
+            initiated_at + timedelta(seconds=duration) if initiated_at else None
+        )
 
         return OverrideEventResponse(
             override_id=event.event_id,

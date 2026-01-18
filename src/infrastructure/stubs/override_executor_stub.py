@@ -60,7 +60,9 @@ class OverrideExecutorStub(OverrideExecutorPort):
         """Get list of executed overrides."""
         return self._executed_overrides.copy()
 
-    def set_should_fail(self, should_fail: bool, message: str = "Stub configured to fail") -> None:
+    def set_should_fail(
+        self, should_fail: bool, message: str = "Stub configured to fail"
+    ) -> None:
         """Configure whether executions should fail.
 
         Args:

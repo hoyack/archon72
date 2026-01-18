@@ -24,7 +24,6 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 # Event type constants for override abuse detection
 OVERRIDE_ABUSE_REJECTED_EVENT_TYPE: str = "override.abuse_rejected"

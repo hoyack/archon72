@@ -349,7 +349,9 @@ class TestEventTypeConstants:
             KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE,
         )
 
-        assert KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE == "keeper.independence_suspended"
+        assert (
+            KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE == "keeper.independence_suspended"
+        )
 
     def test_declaration_change_detected_event_type(self) -> None:
         """Test DECLARATION_CHANGE_DETECTED_EVENT_TYPE constant."""
@@ -357,4 +359,7 @@ class TestEventTypeConstants:
             DECLARATION_CHANGE_DETECTED_EVENT_TYPE,
         )
 
-        assert DECLARATION_CHANGE_DETECTED_EVENT_TYPE == "keeper.declaration_change_detected"
+        assert (
+            DECLARATION_CHANGE_DETECTED_EVENT_TYPE
+            == "keeper.declaration_change_detected"
+        )

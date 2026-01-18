@@ -4,8 +4,6 @@ Story: consent-gov-8.1: System Cessation Trigger
 AC6: Cessation trigger is irreversible (no "undo")
 """
 
-import pytest
-
 from src.domain.governance.cessation import CessationStatus
 
 

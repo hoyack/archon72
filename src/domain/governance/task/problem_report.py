@@ -117,7 +117,7 @@ class ProblemReport:
         category: ProblemCategory,
         description: str,
         timestamp: datetime,
-    ) -> "ProblemReport":
+    ) -> ProblemReport:
         """Factory method to create a ProblemReport.
 
         Args:

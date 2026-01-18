@@ -99,7 +99,9 @@ class TestAgentUnresponsivePayloadValidation:
 
     def test_validation_rejects_negative_missed_count(self) -> None:
         """Test that negative missed_heartbeat_count is rejected."""
-        with pytest.raises(ValueError, match="missed_heartbeat_count must be non-negative"):
+        with pytest.raises(
+            ValueError, match="missed_heartbeat_count must be non-negative"
+        ):
             AgentUnresponsivePayload(
                 agent_id="archon-1",
                 session_id=uuid4(),

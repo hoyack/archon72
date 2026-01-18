@@ -169,9 +169,7 @@ class TestAgentPoolBatchOperations:
         from src.domain.models.agent_pool import AgentPool
 
         pool = AgentPool(max_concurrent=10)
-        success, reason = pool.try_acquire_batch(
-            ["archon-1", "archon-2", "archon-3"]
-        )
+        success, reason = pool.try_acquire_batch(["archon-1", "archon-2", "archon-3"])
 
         assert success is True
         assert reason is None
@@ -182,9 +180,7 @@ class TestAgentPoolBatchOperations:
         from src.domain.models.agent_pool import AgentPool
 
         pool = AgentPool(max_concurrent=2)
-        success, reason = pool.try_acquire_batch(
-            ["archon-1", "archon-2", "archon-3"]
-        )
+        success, reason = pool.try_acquire_batch(["archon-1", "archon-2", "archon-3"])
 
         assert success is False
         assert "FR10" in reason
@@ -197,9 +193,7 @@ class TestAgentPoolBatchOperations:
         pool = AgentPool()
         pool.acquire("archon-1")
 
-        success, reason = pool.try_acquire_batch(
-            ["archon-1", "archon-2", "archon-3"]
-        )
+        success, reason = pool.try_acquire_batch(["archon-1", "archon-2", "archon-3"])
 
         assert success is False
         assert "already active" in reason
@@ -209,9 +203,7 @@ class TestAgentPoolBatchOperations:
         from src.domain.models.agent_pool import AgentPool
 
         pool = AgentPool()
-        success, reason = pool.try_acquire_batch(
-            ["archon-1", "archon-1", "archon-2"]
-        )
+        success, reason = pool.try_acquire_batch(["archon-1", "archon-1", "archon-2"])
 
         assert success is True
         assert pool.active_count == 2  # Only 2 unique
@@ -342,12 +334,11 @@ class TestAgentPoolNoInfrastructureImports:
                         assert not alias.name.startswith(forbidden), (
                             f"Forbidden import: {alias.name}"
                         )
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    for forbidden in forbidden_modules:
-                        assert not node.module.startswith(forbidden), (
-                            f"Forbidden import: {node.module}"
-                        )
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                for forbidden in forbidden_modules:
+                    assert not node.module.startswith(forbidden), (
+                        f"Forbidden import: {node.module}"
+                    )
 
     def test_errors_no_infrastructure_imports(self) -> None:
         """agent.py errors has no infrastructure imports."""
@@ -372,9 +363,8 @@ class TestAgentPoolNoInfrastructureImports:
                         assert not alias.name.startswith(forbidden), (
                             f"Forbidden import: {alias.name}"
                         )
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    for forbidden in forbidden_modules:
-                        assert not node.module.startswith(forbidden), (
-                            f"Forbidden import: {node.module}"
-                        )
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                for forbidden in forbidden_modules:
+                    assert not node.module.startswith(forbidden), (
+                        f"Forbidden import: {node.module}"
+                    )

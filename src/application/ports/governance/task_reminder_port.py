@@ -70,9 +70,7 @@ class ReminderRecord:
 
     task_id: UUID
     cluster_id: str
-    milestones_sent: frozenset[ReminderMilestone] = field(
-        default_factory=frozenset
-    )
+    milestones_sent: frozenset[ReminderMilestone] = field(default_factory=frozenset)
     created_at: datetime | None = None
     last_sent_at: datetime | None = None
 

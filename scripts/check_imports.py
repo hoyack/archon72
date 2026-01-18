@@ -14,6 +14,7 @@ Exit codes:
     0: No violations found
     1: Violations found
 """
+
 import ast
 import sys
 from pathlib import Path
@@ -33,7 +34,10 @@ ALLOWED_IMPORTS: dict[str, set[str]] = {
     "domain": set(),  # Domain imports NOTHING from src layers
     "application": {"domain"},  # Application can import domain
     "infrastructure": {"domain", "application"},  # Infrastructure can import both
-    "api": {"application", "domain"},  # API imports via application (domain transitively)
+    "api": {
+        "application",
+        "domain",
+    },  # API imports via application (domain transitively)
 }
 
 
@@ -122,9 +126,7 @@ def _check_import_violation(
     return None
 
 
-def check_file_imports(
-    py_file: Path, src_dir: Path
-) -> list[tuple[str, int, str]]:
+def check_file_imports(py_file: Path, src_dir: Path) -> list[tuple[str, int, str]]:
     """Check a single file for import boundary violations.
 
     Args:

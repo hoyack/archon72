@@ -69,8 +69,14 @@ class FakePatternLibrary(PatternLibraryPort):
             major=1, minor=0, patch=0, rules_hash="test_hash_abc123"
         )
         self._blocking_patterns: list[dict] = [
-            {"pattern": r"(?i)hurt\s+you", "violation_type": ViolationType.EXPLICIT_THREAT},
-            {"pattern": r"(?i)kill\s+you", "violation_type": ViolationType.EXPLICIT_THREAT},
+            {
+                "pattern": r"(?i)hurt\s+you",
+                "violation_type": ViolationType.EXPLICIT_THREAT,
+            },
+            {
+                "pattern": r"(?i)kill\s+you",
+                "violation_type": ViolationType.EXPLICIT_THREAT,
+            },
             {"pattern": r"(?i)deceive", "violation_type": ViolationType.DECEPTION},
         ]
         self._rejection_patterns: list[dict] = [
@@ -149,7 +155,9 @@ class TestFilterContentAccepted:
         assert isinstance(result.content, FilteredContent)
 
     @pytest.mark.asyncio
-    async def test_accepted_includes_version(self, service: CoercionFilterService) -> None:
+    async def test_accepted_includes_version(
+        self, service: CoercionFilterService
+    ) -> None:
         """Accepted result includes filter version."""
         result = await service.filter_content(
             content="Clean content.",
@@ -160,7 +168,9 @@ class TestFilterContentAccepted:
         assert result.version.major == 1
 
     @pytest.mark.asyncio
-    async def test_accepted_includes_timestamp(self, service: CoercionFilterService) -> None:
+    async def test_accepted_includes_timestamp(
+        self, service: CoercionFilterService
+    ) -> None:
         """Accepted result includes timestamp."""
         result = await service.filter_content(
             content="Clean content.",
@@ -208,7 +218,9 @@ class TestTransformationPipeline:
         assert "URGENT" not in result.content.content
 
     @pytest.mark.asyncio
-    async def test_now_emphasis_transformed(self, service: CoercionFilterService) -> None:
+    async def test_now_emphasis_transformed(
+        self, service: CoercionFilterService
+    ) -> None:
         """NOW is removed from content."""
         result = await service.filter_content(
             content="Complete this NOW!",
@@ -220,7 +232,9 @@ class TestTransformationPipeline:
         assert "NOW" not in result.content.content
 
     @pytest.mark.asyncio
-    async def test_transformations_recorded(self, service: CoercionFilterService) -> None:
+    async def test_transformations_recorded(
+        self, service: CoercionFilterService
+    ) -> None:
         """Applied transformations are recorded."""
         result = await service.filter_content(
             content="URGENT Complete this NOW!",
@@ -268,7 +282,9 @@ class TestRejectionLogic:
         assert result.rejection_reason == RejectionReason.URGENCY_PRESSURE
 
     @pytest.mark.asyncio
-    async def test_penalty_language_rejected(self, service: CoercionFilterService) -> None:
+    async def test_penalty_language_rejected(
+        self, service: CoercionFilterService
+    ) -> None:
         """Content with penalty threat is rejected."""
         result = await service.filter_content(
             content="You will be penalized for not completing this.",
@@ -279,7 +295,9 @@ class TestRejectionLogic:
         assert result.rejection_reason == RejectionReason.IMPLICIT_THREAT
 
     @pytest.mark.asyncio
-    async def test_guilt_induction_rejected(self, service: CoercionFilterService) -> None:
+    async def test_guilt_induction_rejected(
+        self, service: CoercionFilterService
+    ) -> None:
         """Content with guilt induction is rejected."""
         result = await service.filter_content(
             content="This is your fault if it fails.",
@@ -337,7 +355,9 @@ class TestBlockingLogic:
         assert result.violation_type == ViolationType.DECEPTION
 
     @pytest.mark.asyncio
-    async def test_blocked_includes_details(self, service: CoercionFilterService) -> None:
+    async def test_blocked_includes_details(
+        self, service: CoercionFilterService
+    ) -> None:
         """Blocked result includes violation details."""
         result = await service.filter_content(
             content="I will hurt you if you don't comply.",
@@ -404,6 +424,7 @@ class TestPerformanceConstraint:
         )
 
         import time
+
         start = time.time()
         await service.filter_content(
             content="Please review this task.",
@@ -513,7 +534,9 @@ class TestFilterPipelineOrder:
         assert result.decision == FilterDecision.BLOCKED
 
     @pytest.mark.asyncio
-    async def test_reject_before_transform(self, service: CoercionFilterService) -> None:
+    async def test_reject_before_transform(
+        self, service: CoercionFilterService
+    ) -> None:
         """Rejection is checked before transformation."""
         # Content has both rejection and transformable patterns
         result = await service.filter_content(

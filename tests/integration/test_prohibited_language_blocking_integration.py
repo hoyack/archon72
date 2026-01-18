@@ -8,7 +8,6 @@ Tests end-to-end flow including:
 - Clean content passes through
 """
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
 import pytest

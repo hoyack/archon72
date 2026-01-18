@@ -5,15 +5,14 @@ as specified in consent-gov-5-2 story.
 """
 
 from typing import Protocol
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
 from src.application.ports.governance.legitimacy_decay_port import (
-    LegitimacyDecayPort,
     DecayResult,
+    LegitimacyDecayPort,
 )
-from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
 from src.domain.governance.legitimacy.violation_severity import ViolationSeverity
 
 

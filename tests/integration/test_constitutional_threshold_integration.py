@@ -10,7 +10,6 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability → Threshold changes must be witnessed
 """
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
 import pytest
@@ -288,14 +287,22 @@ class TestFullIntegrationFlow:
         await service.update_threshold("minimum_keeper_quorum", 5, "admin")
 
         # Verify all updates
-        assert (await service.get_threshold("cessation_breach_count")).current_value == 15
+        assert (
+            await service.get_threshold("cessation_breach_count")
+        ).current_value == 15
         assert (await service.get_threshold("escalation_days")).current_value == 14
         assert (await service.get_threshold("minimum_keeper_quorum")).current_value == 5
 
         # Verify floors unchanged
-        assert (await service.get_threshold("cessation_breach_count")).constitutional_floor == 10
-        assert (await service.get_threshold("escalation_days")).constitutional_floor == 7
-        assert (await service.get_threshold("minimum_keeper_quorum")).constitutional_floor == 3
+        assert (
+            await service.get_threshold("cessation_breach_count")
+        ).constitutional_floor == 10
+        assert (
+            await service.get_threshold("escalation_days")
+        ).constitutional_floor == 7
+        assert (
+            await service.get_threshold("minimum_keeper_quorum")
+        ).constitutional_floor == 3
 
     @pytest.mark.asyncio
     async def test_get_all_reflects_overrides(self) -> None:

@@ -5,15 +5,16 @@ AC1: Illegal state transitions rejected before append (with specific error)
 AC6: State machine resolution completes in ≤10ms (NFR-PERF-05)
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
 
+import pytest
+
 from src.application.services.governance.validators.state_transition_validator import (
     InMemoryStateProjection,
+    LegitimacyBand,
     StateTransitionValidator,
     TaskState,
-    LegitimacyBand,
 )
 from src.domain.governance.errors.validation_errors import IllegalStateTransitionError
 from src.domain.governance.events.event_envelope import GovernanceEvent
@@ -32,7 +33,9 @@ def validator(state_projection: InMemoryStateProjection) -> StateTransitionValid
 
 
 @pytest.fixture
-def bypass_validator(state_projection: InMemoryStateProjection) -> StateTransitionValidator:
+def bypass_validator(
+    state_projection: InMemoryStateProjection,
+) -> StateTransitionValidator:
     """Create a validator with validation bypassed."""
     return StateTransitionValidator(state_projection, skip_validation=True)
 
@@ -90,7 +93,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_pending_to_authorized_valid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Pending task can transition to authorized."""
         state_projection.set_state("task", "task-123", TaskState.PENDING.value)
@@ -99,7 +104,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_authorized_to_activated_valid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Authorized task can transition to activated."""
         state_projection.set_state("task", "task-123", TaskState.AUTHORIZED.value)
@@ -108,7 +115,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_authorized_to_completed_invalid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Authorized task cannot skip to completed."""
         state_projection.set_state("task", "task-123", TaskState.AUTHORIZED.value)
@@ -123,7 +132,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_activated_to_accepted_valid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Activated task can transition to accepted."""
         state_projection.set_state("task", "task-123", TaskState.ACTIVATED.value)
@@ -132,7 +143,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_accepted_to_completed_valid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Accepted task can transition to completed."""
         state_projection.set_state("task", "task-123", TaskState.ACCEPTED.value)
@@ -141,7 +154,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_completed_is_terminal(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Completed task cannot transition to any other state."""
         state_projection.set_state("task", "task-123", TaskState.COMPLETED.value)
@@ -154,7 +169,9 @@ class TestStateTransitionValidatorTask:
 
     @pytest.mark.asyncio
     async def test_error_includes_aggregate_info(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Error includes aggregate type and ID."""
         state_projection.set_state("task", "task-123", TaskState.COMPLETED.value)
@@ -176,7 +193,9 @@ class TestStateTransitionValidatorLegitimacy:
     ) -> None:
         """New legitimacy assessment must start at full band."""
         event = make_legitimacy_event(
-            "legitimacy.band.assessed", entity_id="archon-42", new_band=LegitimacyBand.FULL.value
+            "legitimacy.band.assessed",
+            entity_id="archon-42",
+            new_band=LegitimacyBand.FULL.value,
         )
         await validator.validate(event)  # Should not raise
 
@@ -186,7 +205,9 @@ class TestStateTransitionValidatorLegitimacy:
     ) -> None:
         """New entity cannot start at provisional band."""
         event = make_legitimacy_event(
-            "legitimacy.band.assessed", entity_id="archon-42", new_band=LegitimacyBand.PROVISIONAL.value
+            "legitimacy.band.assessed",
+            entity_id="archon-42",
+            new_band=LegitimacyBand.PROVISIONAL.value,
         )
 
         with pytest.raises(IllegalStateTransitionError) as exc_info:
@@ -197,23 +218,33 @@ class TestStateTransitionValidatorLegitimacy:
 
     @pytest.mark.asyncio
     async def test_full_to_provisional_valid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Full legitimacy can decay to provisional."""
         state_projection.set_state("legitimacy", "archon-42", LegitimacyBand.FULL.value)
         event = make_legitimacy_event(
-            "legitimacy.band.decayed", entity_id="archon-42", new_band=LegitimacyBand.PROVISIONAL.value
+            "legitimacy.band.decayed",
+            entity_id="archon-42",
+            new_band=LegitimacyBand.PROVISIONAL.value,
         )
         await validator.validate(event)  # Should not raise
 
     @pytest.mark.asyncio
     async def test_provisional_to_full_valid(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Provisional legitimacy can be restored to full."""
-        state_projection.set_state("legitimacy", "archon-42", LegitimacyBand.PROVISIONAL.value)
+        state_projection.set_state(
+            "legitimacy", "archon-42", LegitimacyBand.PROVISIONAL.value
+        )
         event = make_legitimacy_event(
-            "legitimacy.band.restored", entity_id="archon-42", new_band=LegitimacyBand.FULL.value
+            "legitimacy.band.restored",
+            entity_id="archon-42",
+            new_band=LegitimacyBand.FULL.value,
         )
         await validator.validate(event)  # Should not raise
 
@@ -242,7 +273,9 @@ class TestStateTransitionValidatorBypass:
 
     @pytest.mark.asyncio
     async def test_skip_validation_allows_any_transition(
-        self, bypass_validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        bypass_validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Skip validation mode allows any transition."""
         state_projection.set_state("task", "task-123", TaskState.COMPLETED.value)
@@ -251,7 +284,9 @@ class TestStateTransitionValidatorBypass:
 
     @pytest.mark.asyncio
     async def test_is_valid_transition_true_when_skipped(
-        self, bypass_validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        bypass_validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """is_valid_transition returns True when validation skipped."""
         state_projection.set_state("task", "task-123", TaskState.COMPLETED.value)
@@ -292,7 +327,9 @@ class TestStateTransitionValidatorPerformance:
 
     @pytest.mark.asyncio
     async def test_validation_performance(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """State machine resolution completes in ≤10ms (AC6)."""
         import time
@@ -305,11 +342,15 @@ class TestStateTransitionValidatorPerformance:
         await validator.validate(event)
         elapsed_ms = (time.perf_counter() - start) * 1000
 
-        assert elapsed_ms <= 10, f"State machine resolution took {elapsed_ms}ms, limit is 10ms"
+        assert elapsed_ms <= 10, (
+            f"State machine resolution took {elapsed_ms}ms, limit is 10ms"
+        )
 
     @pytest.mark.asyncio
     async def test_bulk_validation_performance(
-        self, validator: StateTransitionValidator, state_projection: InMemoryStateProjection
+        self,
+        validator: StateTransitionValidator,
+        state_projection: InMemoryStateProjection,
     ) -> None:
         """Multiple state machine resolutions are performant."""
         import time
@@ -319,8 +360,7 @@ class TestStateTransitionValidatorPerformance:
             state_projection.set_state("task", f"task-{i}", TaskState.ACTIVATED.value)
 
         events = [
-            make_task_event("executive.task.accepted", f"task-{i}")
-            for i in range(100)
+            make_task_event("executive.task.accepted", f"task-{i}") for i in range(100)
         ]
 
         start = time.perf_counter()

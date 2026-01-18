@@ -10,13 +10,12 @@ Constitutional Constraints:
 - CT-13: Integrity outranks availability (post-cessation access)
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 
 from src.application.services.integrity_case_service import IntegrityCaseService
 from src.domain.events.integrity_case import (
-    INTEGRITY_CASE_UPDATED_EVENT_TYPE,
     IntegrityCaseUpdatedEventPayload,
 )
 from src.domain.models.integrity_case import (
@@ -80,9 +79,7 @@ class TestIntegrityCaseServiceGetJsonLd:
         return IntegrityCaseService(repository=repository)
 
     @pytest.mark.asyncio
-    async def test_get_jsonld_returns_dict(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_get_jsonld_returns_dict(self, service: IntegrityCaseService) -> None:
         """get_artifact_jsonld should return dict with JSON-LD context."""
         json_ld = await service.get_artifact_jsonld()
 
@@ -91,9 +88,7 @@ class TestIntegrityCaseServiceGetJsonLd:
         assert "@type" in json_ld
 
     @pytest.mark.asyncio
-    async def test_get_jsonld_type_correct(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_get_jsonld_type_correct(self, service: IntegrityCaseService) -> None:
         """get_artifact_jsonld should have correct @type."""
         json_ld = await service.get_artifact_jsonld()
 
@@ -121,9 +116,7 @@ class TestIntegrityCaseServiceGetGuarantee:
         return IntegrityCaseService(repository=repository)
 
     @pytest.mark.asyncio
-    async def test_get_guarantee_found(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_get_guarantee_found(self, service: IntegrityCaseService) -> None:
         """get_guarantee should return guarantee if found."""
         guarantee = await service.get_guarantee("ct-1-audit-trail")
 
@@ -132,18 +125,14 @@ class TestIntegrityCaseServiceGetGuarantee:
         assert guarantee.ct_reference == "CT-1"
 
     @pytest.mark.asyncio
-    async def test_get_guarantee_not_found(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_get_guarantee_not_found(self, service: IntegrityCaseService) -> None:
         """get_guarantee should return None if not found."""
         guarantee = await service.get_guarantee("nonexistent")
 
         assert guarantee is None
 
     @pytest.mark.asyncio
-    async def test_get_guarantee_fr(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_get_guarantee_fr(self, service: IntegrityCaseService) -> None:
         """get_guarantee should return FR guarantee."""
         guarantee = await service.get_guarantee("fr-observer-access")
 
@@ -232,9 +221,7 @@ class TestIntegrityCaseServiceVersionHistory:
         return IntegrityCaseService(repository=repository)
 
     @pytest.mark.asyncio
-    async def test_get_version_history(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_get_version_history(self, service: IntegrityCaseService) -> None:
         """get_version_history should return version list."""
         history = await service.get_version_history()
 
@@ -310,9 +297,7 @@ class TestIntegrityCaseServiceUpdateForAmendment:
         assert len(content) > 0
 
     @pytest.mark.asyncio
-    async def test_update_requires_changes(
-        self, service: IntegrityCaseService
-    ) -> None:
+    async def test_update_requires_changes(self, service: IntegrityCaseService) -> None:
         """update_for_amendment should require at least one change."""
         with pytest.raises(ValueError, match="At least one change"):
             await service.update_for_amendment(
@@ -401,9 +386,7 @@ class TestIntegrityCaseServiceJsonLdContext:
         repository = IntegrityCaseRepositoryStub()
         return IntegrityCaseService(repository=repository)
 
-    def test_get_json_ld_context(
-        self, service: IntegrityCaseService
-    ) -> None:
+    def test_get_json_ld_context(self, service: IntegrityCaseService) -> None:
         """get_json_ld_context should return context dict."""
         context = service.get_json_ld_context()
 

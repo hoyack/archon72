@@ -4,12 +4,13 @@ Tests AC3: Unfiltered content cannot reach participants (type system enforced).
 Tests AC7: Type enforcement validates FilteredContent is used.
 """
 
-import pytest
-from typing import get_type_hints, Any
 from datetime import datetime
+from typing import Any, get_type_hints
 
-from src.domain.governance.filter.filtered_content import FilteredContent
+import pytest
+
 from src.domain.governance.filter.filter_version import FilterVersion
+from src.domain.governance.filter.filtered_content import FilteredContent
 
 
 def validate_filtered_content(content: Any) -> FilteredContent:
@@ -99,6 +100,7 @@ class TestTypeEnforcement:
 
     def test_filtered_content_type_hint_enforcement(self) -> None:
         """FilteredContent can be used as type hint for enforcement."""
+
         # This test verifies the type can be used in hints
         def send_to_participant(content: FilteredContent) -> str:
             """Example function that requires FilteredContent."""
@@ -117,9 +119,7 @@ class TestTypeEnforcement:
         """FilteredContent passes isinstance check."""
         assert isinstance(filtered_content, FilteredContent)
 
-    def test_no_direct_construction_bypass(
-        self, filter_version: FilterVersion
-    ) -> None:
+    def test_no_direct_construction_bypass(self, filter_version: FilterVersion) -> None:
         """Direct construction still requires all fields properly.
 
         While Python doesn't prevent direct construction, the design

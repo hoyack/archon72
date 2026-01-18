@@ -11,7 +11,6 @@ Test coverage:
 - AC6: Conflict audit trail
 """
 
-from datetime import datetime, timezone
 from unittest.mock import MagicMock, create_autospec
 from uuid import uuid4
 
@@ -37,7 +36,6 @@ from src.application.services.advisory_conflict_detection_service import (
     TopicOverlap,
     ViolationSeverity,
 )
-
 
 # =============================================================================
 # FIXTURES

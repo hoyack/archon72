@@ -26,7 +26,7 @@ import socket
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Annotated, Any, Literal, Optional
+from typing import Annotated, Any, Literal
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
@@ -223,25 +223,27 @@ class NotificationPayloadDTO:
 # =============================================================================
 
 # SSRF protection: blocked hosts and networks (per OWASP SSRF Prevention)
-_BLOCKED_HOSTS = frozenset({
-    'localhost',
-    '127.0.0.1',
-    '::1',
-    '0.0.0.0',
-    '169.254.169.254',  # AWS/GCP metadata
-    'metadata.google.internal',  # GCP metadata
-    'metadata.google.com',
-})
+_BLOCKED_HOSTS = frozenset(
+    {
+        "localhost",
+        "127.0.0.1",
+        "::1",
+        "0.0.0.0",
+        "169.254.169.254",  # AWS/GCP metadata
+        "metadata.google.internal",  # GCP metadata
+        "metadata.google.com",
+    }
+)
 
 _BLOCKED_NETWORKS = (
-    ipaddress.ip_network('10.0.0.0/8'),       # Private Class A
-    ipaddress.ip_network('172.16.0.0/12'),    # Private Class B
-    ipaddress.ip_network('192.168.0.0/16'),   # Private Class C
-    ipaddress.ip_network('169.254.0.0/16'),   # Link-local / metadata
-    ipaddress.ip_network('127.0.0.0/8'),      # Loopback
-    ipaddress.ip_network('::1/128'),          # IPv6 loopback
-    ipaddress.ip_network('fc00::/7'),         # IPv6 private
-    ipaddress.ip_network('fe80::/10'),        # IPv6 link-local
+    ipaddress.ip_network("10.0.0.0/8"),  # Private Class A
+    ipaddress.ip_network("172.16.0.0/12"),  # Private Class B
+    ipaddress.ip_network("192.168.0.0/16"),  # Private Class C
+    ipaddress.ip_network("169.254.0.0/16"),  # Link-local / metadata
+    ipaddress.ip_network("127.0.0.0/8"),  # Loopback
+    ipaddress.ip_network("::1/128"),  # IPv6 loopback
+    ipaddress.ip_network("fc00::/7"),  # IPv6 private
+    ipaddress.ip_network("fe80::/10"),  # IPv6 link-local
 )
 
 
@@ -414,7 +416,7 @@ class CheckpointAnchor(BaseModel):
         pattern=r"^(genesis|rfc3161|pending)$",
         description="Type of external anchor",
     )
-    anchor_reference: Optional[str] = Field(
+    anchor_reference: str | None = Field(
         default=None,
         description="External anchor reference (Bitcoin txid, TSA response)",
     )
@@ -435,18 +437,20 @@ class WebhookSubscription(BaseModel):
         secret: Optional secret for webhook signature verification (min 32 chars).
     """
 
-    webhook_url: Annotated[str, Field(description="HTTPS URL for webhook delivery (external only)")]
+    webhook_url: Annotated[
+        str, Field(description="HTTPS URL for webhook delivery (external only)")
+    ]
     event_types: list[NotificationEventType] = Field(
         default=[NotificationEventType.ALL],
         description="Event types to subscribe to",
     )
-    secret: Optional[str] = Field(
+    secret: str | None = Field(
         default=None,
         min_length=32,
         description="Secret for HMAC signature verification (optional, min 32 chars)",
     )
 
-    @field_validator('webhook_url')
+    @field_validator("webhook_url")
     @classmethod
     def validate_webhook_url_ssrf(cls, v: str) -> str:
         """Validate webhook URL to prevent SSRF attacks."""
@@ -457,7 +461,7 @@ class WebhookSubscription(BaseModel):
         except Exception:
             raise ValueError("Invalid URL format")
 
-        if parsed.scheme != 'https':
+        if parsed.scheme != "https":
             raise ValueError(
                 "webhook_url must use HTTPS scheme for security. "
                 "HTTP is not allowed to prevent credential interception."
@@ -475,14 +479,16 @@ class WebhookSubscription(BaseModel):
                 "Internal and metadata endpoints are not allowed."
             )
 
-        if 'metadata' in hostname_lower or hostname_lower.endswith('.internal'):
+        if "metadata" in hostname_lower or hostname_lower.endswith(".internal"):
             raise ValueError(
                 f"webhook_url hostname '{hostname}' appears to be a metadata endpoint. "
                 "Cloud metadata endpoints are blocked for security."
             )
 
         try:
-            addr_info = socket.getaddrinfo(hostname, parsed.port or 443, proto=socket.IPPROTO_TCP)
+            addr_info = socket.getaddrinfo(
+                hostname, parsed.port or 443, proto=socket.IPPROTO_TCP
+            )
             resolved_ips = {info[4][0] for info in addr_info}
         except socket.gaierror:
             raise ValueError(

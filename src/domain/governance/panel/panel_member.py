@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.governance.panel.member_status import MemberStatus
@@ -54,7 +53,7 @@ class PanelMember:
     status: MemberStatus
     """Current participation status."""
 
-    recusal_reason: Optional[str]
+    recusal_reason: str | None
     """Reason for recusal, if recused. None if active."""
 
     def __hash__(self) -> int:

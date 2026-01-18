@@ -12,8 +12,7 @@ with a real database are in tests/integration/governance/.
 """
 
 from datetime import datetime, timezone
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -23,7 +22,6 @@ from src.application.ports.governance.ledger_port import (
     PersistedGovernanceEvent,
 )
 from src.domain.governance.events.event_envelope import (
-    EventMetadata,
     GovernanceEvent,
 )
 from src.infrastructure.adapters.governance.postgres_ledger_adapter import (
@@ -44,7 +42,9 @@ class TestPostgresGovernanceLedgerAdapterTypeEnforcement:
         return session_factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock) -> PostgresGovernanceLedgerAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock
+    ) -> PostgresGovernanceLedgerAdapter:
         """Create adapter with mocked session factory."""
         return PostgresGovernanceLedgerAdapter(
             session_factory=mock_session_factory,
@@ -141,7 +141,9 @@ class TestPostgresGovernanceLedgerAdapterAppend:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock) -> PostgresGovernanceLedgerAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock
+    ) -> PostgresGovernanceLedgerAdapter:
         """Create adapter with mocked session factory."""
         return PostgresGovernanceLedgerAdapter(
             session_factory=mock_session_factory,
@@ -242,7 +244,9 @@ class TestPostgresGovernanceLedgerAdapterRead:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock) -> PostgresGovernanceLedgerAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock
+    ) -> PostgresGovernanceLedgerAdapter:
         """Create adapter with mocked session factory."""
         return PostgresGovernanceLedgerAdapter(
             session_factory=mock_session_factory,
@@ -373,7 +377,9 @@ class TestPostgresGovernanceLedgerAdapterFiltering:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock) -> PostgresGovernanceLedgerAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock
+    ) -> PostgresGovernanceLedgerAdapter:
         """Create adapter with mocked session factory."""
         return PostgresGovernanceLedgerAdapter(
             session_factory=mock_session_factory,

@@ -3,14 +3,12 @@
 Tests the domain error classes for separation violations.
 """
 
-import pytest
-
+from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.separation import (
     ConstitutionalToOperationalError,
     OperationalToEventStoreError,
     SeparationViolationError,
 )
-from src.domain.errors.constitutional import ConstitutionalViolationError
 
 
 class TestSeparationViolationError:

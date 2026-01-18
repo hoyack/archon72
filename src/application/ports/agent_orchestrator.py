@@ -20,10 +20,10 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Callable
 from uuid import UUID
 
 # Re-export AgentStatus from domain layer for backward compatibility

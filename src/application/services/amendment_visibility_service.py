@@ -22,7 +22,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from src.application.ports.amendment_repository import (
     AmendmentProposal,
@@ -30,22 +29,15 @@ from src.application.ports.amendment_repository import (
 )
 from src.application.ports.amendment_visibility_validator import (
     AmendmentVisibilityValidatorProtocol,
-    HistoryProtectionResult,
-    ImpactValidationResult,
-    VisibilityValidationResult,
 )
 from src.application.ports.halt_checker import HaltChecker
 from src.domain.errors.amendment import (
     AmendmentHistoryProtectionError,
     AmendmentImpactAnalysisMissingError,
     AmendmentNotFoundError,
-    AmendmentVisibilityIncompleteError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.amendment import (
-    AMENDMENT_PROPOSED_EVENT_TYPE,
-    AMENDMENT_REJECTED_EVENT_TYPE,
-    AMENDMENT_VOTE_BLOCKED_EVENT_TYPE,
     VISIBILITY_PERIOD_DAYS,
     AmendmentImpactAnalysis,
     AmendmentProposedEventPayload,
@@ -55,29 +47,32 @@ from src.domain.events.amendment import (
     AmendmentVoteBlockedEventPayload,
 )
 
-
 # System agent ID for amendment visibility service
 AMENDMENT_VISIBILITY_SYSTEM_AGENT_ID: str = "SYSTEM:amendment_visibility"
 
 # Keywords that suggest history-hiding intent (FR128)
-HISTORY_HIDING_KEYWORDS: frozenset[str] = frozenset({
-    "unreviewable",
-    "hide previous",
-    "restrict access to amendments",
-    "remove visibility",
-    "delete amendment history",
-    "obscure previous",
-    "make inaccessible",
-    "prevent review",
-})
+HISTORY_HIDING_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "unreviewable",
+        "hide previous",
+        "restrict access to amendments",
+        "remove visibility",
+        "delete amendment history",
+        "obscure previous",
+        "make inaccessible",
+        "prevent review",
+    }
+)
 
 # Targets that indicate amendments affecting visibility system itself
-VISIBILITY_TARGETS: frozenset[str] = frozenset({
-    "amendment_visibility",
-    "amendment_history",
-    "fr126",
-    "fr128",
-})
+VISIBILITY_TARGETS: frozenset[str] = frozenset(
+    {
+        "amendment_visibility",
+        "amendment_history",
+        "fr126",
+        "fr128",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -101,7 +96,7 @@ class AmendmentProposalRequest:
     summary: str
     proposer_id: str
     is_core_guarantee: bool
-    impact_analysis: Optional[AmendmentImpactAnalysis] = None
+    impact_analysis: AmendmentImpactAnalysis | None = None
     affected_guarantees: tuple[str, ...] = ()
 
 
@@ -254,9 +249,7 @@ class AmendmentVisibilityService:
         if self._contains_history_hiding_intent(
             proposal.summary, proposal.affected_guarantees
         ):
-            raise AmendmentHistoryProtectionError(
-                amendment_id=proposal.amendment_id
-            )
+            raise AmendmentHistoryProtectionError(amendment_id=proposal.amendment_id)
 
         # FR127: Require impact analysis for core guarantees
         if proposal.is_core_guarantee and proposal.impact_analysis is None:
@@ -308,7 +301,7 @@ class AmendmentVisibilityService:
     async def check_vote_eligibility(
         self,
         amendment_id: str,
-    ) -> tuple[VoteEligibilityResult, Optional[AmendmentVoteBlockedEventPayload]]:
+    ) -> tuple[VoteEligibilityResult, AmendmentVoteBlockedEventPayload | None]:
         """Check if amendment can proceed to vote (FR126).
 
         Constitutional Pattern:
@@ -402,10 +395,14 @@ class AmendmentVisibilityService:
         # FR127: Check impact analysis for core guarantees
         if proposal.is_core_guarantee:
             if proposal.impact_analysis is None:
-                errors.append("FR127: Core guarantee amendment requires impact analysis")
+                errors.append(
+                    "FR127: Core guarantee amendment requires impact analysis"
+                )
             else:
                 # Validate impact analysis completeness
-                analysis_errors = self._validate_impact_analysis(proposal.impact_analysis)
+                analysis_errors = self._validate_impact_analysis(
+                    proposal.impact_analysis
+                )
                 errors.extend(analysis_errors)
 
         return errors
@@ -492,7 +489,9 @@ class AmendmentVisibilityService:
         else:
             is_votable = False
             days_remaining = (amendment.votable_from - now).days + 1
-            visibility_status = f"In visibility period - {days_remaining} days remaining"
+            visibility_status = (
+                f"In visibility period - {days_remaining} days remaining"
+            )
 
         return AmendmentWithStatus(
             proposal=amendment,

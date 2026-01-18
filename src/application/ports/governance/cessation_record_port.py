@@ -10,7 +10,7 @@ Constitutional Context:
 - NFR-REL-05: Cessation Record creation is atomic
 """
 
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.governance.cessation.cessation_record import CessationRecord
 
@@ -43,7 +43,7 @@ class CessationRecordPort(Protocol):
         """
         ...
 
-    async def get_record(self) -> Optional[CessationRecord]:
+    async def get_record(self) -> CessationRecord | None:
         """Get cessation record if exists.
 
         Returns:

@@ -9,7 +9,7 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -84,7 +84,9 @@ class TestPublicOverrideVisibilityIntegration:
         # Should return 200, not 401/403
         assert response.status_code == 200
 
-    def test_override_endpoint_returns_empty_list_when_no_overrides(self, client) -> None:
+    def test_override_endpoint_returns_empty_list_when_no_overrides(
+        self, client
+    ) -> None:
         """Test that endpoint returns empty list when no overrides exist."""
         response = client.get("/v1/observer/overrides")
 
@@ -285,7 +287,7 @@ class TestNoAuthenticationRequired:
         """Test that no API key is required."""
         response = client.get(
             "/v1/observer/overrides",
-            headers={}  # Explicitly no headers
+            headers={},  # Explicitly no headers
         )
         assert response.status_code == 200
 

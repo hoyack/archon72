@@ -14,6 +14,12 @@ from uuid import UUID
 
 from structlog import get_logger
 
+from src.application.ports.knight_witness import (
+    KnightWitnessProtocol,
+    ObservationContext,
+    ViolationRecord,
+    WitnessStatementType,
+)
 from src.application.ports.marquis_service import (
     Advisory,
     AdvisoryRequest,
@@ -29,12 +35,6 @@ from src.application.ports.marquis_service import (
     TestimonyRequest,
     TestimonyResult,
     get_expertise_domain,
-)
-from src.application.ports.knight_witness import (
-    KnightWitnessProtocol,
-    ObservationContext,
-    ViolationRecord,
-    WitnessStatementType,
 )
 from src.application.ports.permission_enforcer import (
     GovernanceAction,
@@ -60,8 +60,7 @@ class RankViolationError(Exception):
         self.reason = reason
         self.prd_reference = prd_reference
         super().__init__(
-            f"Rank violation by {archon_id} on {action}: {reason} "
-            f"(per {prd_reference})"
+            f"Rank violation by {archon_id} on {action}: {reason} (per {prd_reference})"
         )
 
 
@@ -155,11 +154,11 @@ class MarquisServiceAdapter(MarquisServiceProtocol):
 
         # Determine which Marquis should provide testimony
         # In a real system, this would route to an appropriate Marquis
-        marquis_domain = get_expertise_domain(request.requested_by)
+        get_expertise_domain(request.requested_by)
 
         # Check if requester is a Marquis in the requested domain
         if self._permission_enforcer:
-            context = PermissionContext(
+            PermissionContext(
                 target_resource=f"testimony:{request.domain.value}",
                 action_details={"question": request.question},
             )

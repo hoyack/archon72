@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from src.domain.errors.writer import SystemHaltedError
@@ -52,9 +52,9 @@ class EmergenceViolationBreachServiceStub:
         """Initialize the stub with empty state."""
         self._breaches: list[BreachEventPayload] = []
         self._halt_state: bool = False
-        self._halt_reason: Optional[str] = None
+        self._halt_reason: str | None = None
 
-    def set_halt_state(self, halted: bool, reason: Optional[str] = None) -> None:
+    def set_halt_state(self, halted: bool, reason: str | None = None) -> None:
         """Set the simulated halt state for testing.
 
         Args:

@@ -8,7 +8,6 @@ Tests that the port interface:
 
 from abc import ABC
 from datetime import timedelta
-from typing import Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -34,31 +33,31 @@ class TestRecoveryWaitingPeriodPortInterface:
     def test_has_start_waiting_period_method(self) -> None:
         """Port defines start_waiting_period method."""
         assert hasattr(RecoveryWaitingPeriodPort, "start_waiting_period")
-        method = getattr(RecoveryWaitingPeriodPort, "start_waiting_period")
+        method = RecoveryWaitingPeriodPort.start_waiting_period
         assert callable(method)
 
     def test_has_get_active_waiting_period_method(self) -> None:
         """Port defines get_active_waiting_period method."""
         assert hasattr(RecoveryWaitingPeriodPort, "get_active_waiting_period")
-        method = getattr(RecoveryWaitingPeriodPort, "get_active_waiting_period")
+        method = RecoveryWaitingPeriodPort.get_active_waiting_period
         assert callable(method)
 
     def test_has_is_waiting_period_elapsed_method(self) -> None:
         """Port defines is_waiting_period_elapsed method."""
         assert hasattr(RecoveryWaitingPeriodPort, "is_waiting_period_elapsed")
-        method = getattr(RecoveryWaitingPeriodPort, "is_waiting_period_elapsed")
+        method = RecoveryWaitingPeriodPort.is_waiting_period_elapsed
         assert callable(method)
 
     def test_has_get_remaining_time_method(self) -> None:
         """Port defines get_remaining_time method."""
         assert hasattr(RecoveryWaitingPeriodPort, "get_remaining_time")
-        method = getattr(RecoveryWaitingPeriodPort, "get_remaining_time")
+        method = RecoveryWaitingPeriodPort.get_remaining_time
         assert callable(method)
 
     def test_has_complete_waiting_period_method(self) -> None:
         """Port defines complete_waiting_period method."""
         assert hasattr(RecoveryWaitingPeriodPort, "complete_waiting_period")
-        method = getattr(RecoveryWaitingPeriodPort, "complete_waiting_period")
+        method = RecoveryWaitingPeriodPort.complete_waiting_period
         assert callable(method)
 
 
@@ -83,13 +82,13 @@ class TestConcreteImplementationContract:
                     initiated_by=initiated_by,
                 )
 
-            async def get_active_waiting_period(self) -> Optional[RecoveryWaitingPeriod]:
+            async def get_active_waiting_period(self) -> RecoveryWaitingPeriod | None:
                 return None
 
             async def is_waiting_period_elapsed(self) -> bool:
                 return False
 
-            async def get_remaining_time(self) -> Optional[timedelta]:
+            async def get_remaining_time(self) -> timedelta | None:
                 return None
 
             async def complete_waiting_period(

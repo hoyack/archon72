@@ -16,7 +16,7 @@ Acceptance Criteria Tested:
 """
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
@@ -24,7 +24,6 @@ import pytest
 from src.application.ports.governance.halt_trigger_port import (
     HaltExecutionResult,
     HaltMessageRequiredError,
-    UnauthorizedHaltError,
 )
 from src.application.services.governance.halt_service import HaltService
 from src.domain.governance.halt import HaltReason, HaltStatus
@@ -80,16 +79,18 @@ class FakeHaltPort:
         self,
         reason: HaltReason,
         message: str,
-        operator_id: Optional[UUID] = None,
-        trace_id: Optional[str] = None,
+        operator_id: UUID | None = None,
+        trace_id: str | None = None,
     ) -> HaltStatus:
         """Trigger halt."""
-        self.trigger_halt_calls.append({
-            "reason": reason,
-            "message": message,
-            "operator_id": operator_id,
-            "trace_id": trace_id,
-        })
+        self.trigger_halt_calls.append(
+            {
+                "reason": reason,
+                "message": message,
+                "operator_id": operator_id,
+                "trace_id": trace_id,
+            }
+        )
 
         if self._should_fail:
             raise RuntimeError("Halt circuit failure")
@@ -285,9 +286,7 @@ class TestTriggerEventEmitted:
             message="Test halt",
         )
 
-        trigger_events = fake_ledger.get_events_by_type(
-            "constitutional.halt.triggered"
-        )
+        trigger_events = fake_ledger.get_events_by_type("constitutional.halt.triggered")
         assert len(trigger_events) == 1
 
         event = trigger_events[0]
@@ -346,9 +345,7 @@ class TestExecutionEventEmitted:
             message="Test halt",
         )
 
-        executed_events = fake_ledger.get_events_by_type(
-            "constitutional.halt.executed"
-        )
+        executed_events = fake_ledger.get_events_by_type("constitutional.halt.executed")
         assert len(executed_events) == 1
 
         event = executed_events[0]
@@ -472,11 +469,13 @@ class TestEventSequence:
 
         # Find indices of events
         trigger_idx = next(
-            i for i, e in enumerate(fake_ledger.events)
+            i
+            for i, e in enumerate(fake_ledger.events)
             if e.event_type == "constitutional.halt.triggered"
         )
         executed_idx = next(
-            i for i, e in enumerate(fake_ledger.events)
+            i
+            for i, e in enumerate(fake_ledger.events)
             if e.event_type == "constitutional.halt.executed"
         )
 
@@ -486,13 +485,16 @@ class TestEventSequence:
 class TestHaltReasons:
     """Tests for different halt reasons."""
 
-    @pytest.mark.parametrize("reason", [
-        HaltReason.OPERATOR,
-        HaltReason.SYSTEM_FAULT,
-        HaltReason.INTEGRITY_VIOLATION,
-        HaltReason.CONSENSUS_FAILURE,
-        HaltReason.CONSTITUTIONAL_BREACH,
-    ])
+    @pytest.mark.parametrize(
+        "reason",
+        [
+            HaltReason.OPERATOR,
+            HaltReason.SYSTEM_FAULT,
+            HaltReason.INTEGRITY_VIOLATION,
+            HaltReason.CONSENSUS_FAILURE,
+            HaltReason.CONSTITUTIONAL_BREACH,
+        ],
+    )
     @pytest.mark.asyncio
     async def test_all_halt_reasons_supported(
         self,

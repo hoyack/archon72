@@ -240,7 +240,9 @@ class TestTopicOriginTrackerStubSourceCounting:
                 )
             )
 
-        count = await stub.count_topics_from_source("archon-42", since=now - timedelta(hours=1))
+        count = await stub.count_topics_from_source(
+            "archon-42", since=now - timedelta(hours=1)
+        )
         assert count == 5
 
     @pytest.mark.asyncio
@@ -271,7 +273,9 @@ class TestTopicOriginTrackerStubSourceCounting:
         )
 
         # Only count last hour
-        count = await stub.count_topics_from_source("archon-1", since=now - timedelta(hours=1))
+        count = await stub.count_topics_from_source(
+            "archon-1", since=now - timedelta(hours=1)
+        )
         assert count == 1
 
 

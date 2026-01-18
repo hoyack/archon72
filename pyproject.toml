@@ -76,6 +76,8 @@ pre-commit = ">=3.5.0"
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+
+[tool.ruff.lint]
 select = [
     "E",      # pycodestyle errors
     "F",      # pyflakes
@@ -87,12 +89,38 @@ select = [
     "ASYNC",  # flake8-async
 ]
 ignore = [
-    "E501",   # line too long (handled by black)
+    "E501",   # line too long (handled by formatter)
     "UP017",  # datetime.UTC requires Python 3.11+, use timezone.utc for 3.10 compat
+    "B008",   # function call in default argument (standard pattern for Typer CLI)
+    "B017",   # pytest.raises without match (intentional for exception type testing)
+    "SIM102", # nested if statements (sometimes clearer than combined conditions)
+    "SIM117", # nested with statements (context manager readability preference)
+    "SIM105", # use contextlib.suppress (explicit try/except clearer in some contexts)
+    "SIM116", # use dict instead of if-elif (sometimes if-elif is clearer)
+    "SIM103", # return condition directly (sometimes explicit if/return is clearer)
+    "B904",   # raise without from in except (not always necessary for exception chaining)
+    "B007",   # unused loop variable (intentional in some iteration patterns)
+    "B018",   # useless expression (sometimes used for documentation/assertions)
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.flake8-type-checking]
+# Allow forward references and late imports for circular dependency avoidance
+quote-annotations = true
+
+[tool.ruff.lint.isort]
 known-first-party = ["src"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["E402", "ASYNC230"]  # Allow imports after load_dotenv() and blocking IO in scripts
+"tools/**/cli.py" = ["ASYNC230"]  # Allow blocking IO in CLI tools
+"src/application/services/*.py" = ["E402", "ASYNC230", "C901"]  # Allow imports after setup, blocking IO, and complex business logic in services
+"src/**/*.py" = ["F821"]  # Allow forward references with late imports for circular dependency avoidance
+"src/api/models/observer.py" = ["F811"]  # Re-export + local definitions during DTO migration
+"src/infrastructure/adapters/**/*.py" = ["ASYNC230", "C901"]  # Allow blocking IO and complex adapters
+"tests/**/*.py" = ["F811", "F821", "E402", "ASYNC230", "ASYNC251"]  # Allow test-specific patterns
 
 [tool.mypy]
 python_version = "3.11"

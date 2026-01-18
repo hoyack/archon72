@@ -209,15 +209,59 @@ STANCE_PATTERNS = [
 
 # Keywords for semantic clustering
 CLUSTER_KEYWORDS = {
-    "oversight": ["oversight", "council", "committee", "panel", "review", "audit", "monitor"],
+    "oversight": [
+        "oversight",
+        "council",
+        "committee",
+        "panel",
+        "review",
+        "audit",
+        "monitor",
+    ],
     "ethics": ["ethics", "ethical", "moral", "values", "principles", "integrity"],
-    "transparency": ["transparent", "transparency", "audit", "trail", "log", "record", "accountability"],
-    "human_control": ["human", "oversight", "control", "loop", "intervention", "judgment"],
-    "risk": ["risk", "assessment", "mitigation", "proactive", "prevention", "vulnerability"],
+    "transparency": [
+        "transparent",
+        "transparency",
+        "audit",
+        "trail",
+        "log",
+        "record",
+        "accountability",
+    ],
+    "human_control": [
+        "human",
+        "oversight",
+        "control",
+        "loop",
+        "intervention",
+        "judgment",
+    ],
+    "risk": [
+        "risk",
+        "assessment",
+        "mitigation",
+        "proactive",
+        "prevention",
+        "vulnerability",
+    ],
     "education": ["training", "education", "curriculum", "learn", "teach", "develop"],
-    "governance": ["governance", "framework", "policy", "procedure", "protocol", "standard"],
+    "governance": [
+        "governance",
+        "framework",
+        "policy",
+        "procedure",
+        "protocol",
+        "standard",
+    ],
     "security": ["security", "secure", "protect", "safeguard", "defense", "resilient"],
-    "ai_alignment": ["alignment", "align", "values", "constitutional", "ethical", "safeguard"],
+    "ai_alignment": [
+        "alignment",
+        "align",
+        "values",
+        "constitutional",
+        "ethical",
+        "safeguard",
+    ],
     "blockchain": ["blockchain", "immutable", "tamper", "ledger", "distributed"],
     "task_force": ["task force", "committee", "council", "panel", "body", "group"],
 }
@@ -243,7 +287,9 @@ def extract_keywords(text: str) -> list[str]:
     return found_keywords
 
 
-def compute_similarity(rec_a: ExtractedRecommendation, rec_b: ExtractedRecommendation) -> float:
+def compute_similarity(
+    rec_a: ExtractedRecommendation, rec_b: ExtractedRecommendation
+) -> float:
     """Compute similarity score between two recommendations.
 
     Uses keyword overlap and category matching.
@@ -256,9 +302,7 @@ def compute_similarity(rec_a: ExtractedRecommendation, rec_b: ExtractedRecommend
     set_a = set(rec_a.keywords)
     set_b = set(rec_b.keywords)
 
-    if not set_a and not set_b:
-        keyword_score = 0.0
-    elif not set_a or not set_b:
+    if not set_a and not set_b or not set_a or not set_b:
         keyword_score = 0.0
     else:
         intersection = len(set_a & set_b)
@@ -270,7 +314,26 @@ def compute_similarity(rec_a: ExtractedRecommendation, rec_b: ExtractedRecommend
     words_b = set(rec_b.summary.lower().split())
 
     # Remove common stop words
-    stop_words = {"the", "a", "an", "and", "or", "to", "for", "of", "in", "on", "with", "that", "this", "be", "is", "are", "was", "were"}
+    stop_words = {
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "to",
+        "for",
+        "of",
+        "in",
+        "on",
+        "with",
+        "that",
+        "this",
+        "be",
+        "is",
+        "are",
+        "was",
+        "were",
+    }
     words_a = words_a - stop_words
     words_b = words_b - stop_words
 
@@ -378,7 +441,10 @@ def _refine_cluster_theme(cluster: RecommendationCluster) -> str:
     patterns = [
         (r"(AI\s+Ethics\s+Council)", "AI Ethics Council"),
         (r"(Oversight\s+(?:Council|Committee|Body))", "Oversight Body"),
-        (r"(Risk\s+Assessment\s+(?:Framework|Protocol|System))", "Risk Assessment Framework"),
+        (
+            r"(Risk\s+Assessment\s+(?:Framework|Protocol|System))",
+            "Risk Assessment Framework",
+        ),
         (r"(Human[- ]in[- ](?:the[- ])?Loop)", "Human-in-the-Loop Protocol"),
         (r"(Audit\s+(?:Trail|System|Protocol))", "Audit System"),
         (r"(Training\s+(?:Program|Initiative|Curriculum))", "Training Program"),
@@ -445,7 +511,7 @@ class SecretaryService:
     def __init__(
         self,
         config: SecretaryConfig | None = None,
-        secretary_agent: "SecretaryAgentProtocol | None" = None,
+        secretary_agent: SecretaryAgentProtocol | None = None,
     ):
         """Initialize the Secretary service.
 
@@ -522,14 +588,18 @@ class SecretaryService:
         for cluster in report.clusters:
             if cluster.archon_count >= self._config.min_cluster_size_for_queue:
                 if cluster.recommendation_type == RecommendationType.POLICY:
-                    motion = QueuedMotion.from_cluster(cluster, session_id, session_name)
+                    motion = QueuedMotion.from_cluster(
+                        cluster, session_id, session_name
+                    )
                     report.motion_queue.append(motion)
                 else:
                     # Task-type recommendations go to task registry
                     task = TaskItem.from_cluster(cluster, session_id)
                     report.task_registry.append(task)
 
-        logger.info(f"Queued {len(report.motion_queue)} motions, {len(report.task_registry)} tasks")
+        logger.info(
+            f"Queued {len(report.motion_queue)} motions, {len(report.task_registry)} tasks"
+        )
 
         # Detect conflicts (opposing stances on similar topics)
         report.conflict_report = self._detect_conflicts(report.recommendations)
@@ -539,9 +609,7 @@ class SecretaryService:
         report.compute_statistics()
         report.processing_duration_seconds = time.time() - start_time
 
-        logger.info(
-            f"Processing complete in {report.processing_duration_seconds:.2f}s"
-        )
+        logger.info(f"Processing complete in {report.processing_duration_seconds:.2f}s")
 
         return report
 
@@ -571,9 +639,7 @@ class SecretaryService:
         current_timestamp: datetime | None = None
 
         # Pattern for speech headers: **[HH:MM:SS] Archon_Name:**
-        speech_header = re.compile(
-            r"\*\*\[(\d{2}:\d{2}:\d{2})\]\s+([^:*]+):\*\*"
-        )
+        speech_header = re.compile(r"\*\*\[(\d{2}:\d{2}:\d{2})\]\s+([^:*]+):\*\*")
 
         # Pattern for procedural entries (skip these)
         procedural = re.compile(r"\*\*\[\d{2}:\d{2}:\d{2}\]\s+\[PROCEDURAL\]")
@@ -604,7 +670,8 @@ class SecretaryService:
                                 archon_rank=self._infer_rank(speech_content),
                                 content=speech_content,
                                 line_number=current_line_start,
-                                timestamp=current_timestamp or datetime.now(timezone.utc),
+                                timestamp=current_timestamp
+                                or datetime.now(timezone.utc),
                                 stance=self._extract_stance(speech_content),
                             )
                         )
@@ -696,7 +763,9 @@ class SecretaryService:
                 if len(raw_text) < self._config.min_recommendation_length:
                     continue
                 if len(raw_text) > self._config.max_recommendation_length:
-                    raw_text = raw_text[: self._config.max_recommendation_length] + "..."
+                    raw_text = (
+                        raw_text[: self._config.max_recommendation_length] + "..."
+                    )
 
                 # Create source reference
                 source = SourceReference.create(
@@ -827,13 +896,17 @@ class SecretaryService:
             ]
 
             if level_clusters:
-                lines.append(f"## {level.upper()} Consensus ({len(level_clusters)} clusters)")
+                lines.append(
+                    f"## {level.upper()} Consensus ({len(level_clusters)} clusters)"
+                )
                 lines.append("")
 
                 for cluster in level_clusters:
                     lines.append(f"### {cluster.theme}")
                     lines.append("")
-                    lines.append(f"**Archons ({cluster.archon_count}):** {', '.join(cluster.archon_names)}")
+                    lines.append(
+                        f"**Archons ({cluster.archon_count}):** {', '.join(cluster.archon_names)}"
+                    )
                     lines.append("")
                     lines.append(f"**Summary:** {cluster.canonical_summary}")
                     lines.append("")
@@ -865,7 +938,9 @@ class SecretaryService:
             lines.append("")
             lines.append(f"**Status:** {motion.status.value}")
             lines.append(f"**Consensus Level:** {motion.consensus_level.value}")
-            lines.append(f"**Original Supporters ({motion.original_archon_count}):** {', '.join(motion.supporting_archons)}")
+            lines.append(
+                f"**Original Supporters ({motion.original_archon_count}):** {', '.join(motion.supporting_archons)}"
+            )
             lines.append("")
             lines.append("### Motion Text")
             lines.append("")
@@ -901,6 +976,7 @@ class SecretaryService:
         # Save summary JSON
         summary_path = session_dir / "secretary-report.json"
         import json
+
         summary_path.write_text(
             json.dumps(report.to_dict(), indent=2, default=str),
             encoding="utf-8",

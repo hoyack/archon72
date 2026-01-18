@@ -75,9 +75,7 @@ class TestCollectiveOutputWith72Agents:
     """Tests for collective output with full Conclave (72 agents)."""
 
     @pytest.mark.asyncio
-    async def test_72_agents_accepted(
-        self, collective_output_service
-    ) -> None:
+    async def test_72_agents_accepted(self, collective_output_service) -> None:
         """FR11: Collective output should accept 72 agents (full Conclave)."""
         from src.domain.events.collective_output import VoteCounts
 
@@ -97,9 +95,7 @@ class TestCollectiveOutputMinimumAgents:
     """Tests for minimum agent requirement (FR11)."""
 
     @pytest.mark.asyncio
-    async def test_2_agents_accepted(
-        self, collective_output_service
-    ) -> None:
+    async def test_2_agents_accepted(self, collective_output_service) -> None:
         """FR11: Collective output should accept minimum 2 agents."""
         from src.domain.events.collective_output import VoteCounts
 
@@ -117,9 +113,7 @@ class TestSingleAgentRejection:
     """Tests for single-agent rejection (FR11)."""
 
     @pytest.mark.asyncio
-    async def test_single_agent_rejected(
-        self, collective_output_service
-    ) -> None:
+    async def test_single_agent_rejected(self, collective_output_service) -> None:
         """FR11: Single-agent collective output should be rejected."""
         from src.domain.events.collective_output import VoteCounts
 
@@ -136,9 +130,7 @@ class TestZeroAgentRejection:
     """Tests for zero-agent rejection (FR11)."""
 
     @pytest.mark.asyncio
-    async def test_zero_agents_rejected(
-        self, collective_output_service
-    ) -> None:
+    async def test_zero_agents_rejected(self, collective_output_service) -> None:
         """FR11: Zero-agent collective output should be rejected."""
         from src.domain.events.collective_output import VoteCounts
 

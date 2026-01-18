@@ -19,7 +19,7 @@ This port enables:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.events.override_abuse import ViolationType
 
@@ -35,11 +35,11 @@ class ValidationResult:
     """
 
     is_valid: bool
-    violation_type: Optional[ViolationType] = None
-    violation_details: Optional[str] = None
+    violation_type: ViolationType | None = None
+    violation_details: str | None = None
 
     @classmethod
-    def success(cls) -> "ValidationResult":
+    def success(cls) -> ValidationResult:
         """Create a successful validation result."""
         return cls(is_valid=True)
 
@@ -48,7 +48,7 @@ class ValidationResult:
         cls,
         violation_type: ViolationType,
         violation_details: str,
-    ) -> "ValidationResult":
+    ) -> ValidationResult:
         """Create a failed validation result.
 
         Args:

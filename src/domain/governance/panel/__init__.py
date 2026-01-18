@@ -71,18 +71,18 @@ References:
     - FR39: Prince Panel can record dissent in finding
 """
 
-from src.domain.governance.panel.panel_status import PanelStatus
-from src.domain.governance.panel.member_status import MemberStatus
-from src.domain.governance.panel.panel_member import PanelMember
-from src.domain.governance.panel.remedy_type import RemedyType
 from src.domain.governance.panel.determination import Determination
 from src.domain.governance.panel.dissent import Dissent
-from src.domain.governance.panel.panel_finding import PanelFinding
-from src.domain.governance.panel.prince_panel import PrincePanel
 from src.domain.governance.panel.errors import InvalidPanelComposition
-from src.domain.governance.panel.recusal import RecusalRequest
-from src.domain.governance.panel.review_session import ReviewSession, ReviewedArtifact
 from src.domain.governance.panel.finding_record import FindingRecord
+from src.domain.governance.panel.member_status import MemberStatus
+from src.domain.governance.panel.panel_finding import PanelFinding
+from src.domain.governance.panel.panel_member import PanelMember
+from src.domain.governance.panel.panel_status import PanelStatus
+from src.domain.governance.panel.prince_panel import PrincePanel
+from src.domain.governance.panel.recusal import RecusalRequest
+from src.domain.governance.panel.remedy_type import RemedyType
+from src.domain.governance.panel.review_session import ReviewedArtifact, ReviewSession
 
 __all__ = [
     "PanelStatus",

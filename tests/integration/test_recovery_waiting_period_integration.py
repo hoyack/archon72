@@ -190,9 +190,7 @@ class TestAC3EarlyRejectionWithRemainingTime(TestRecoveryWaitingPeriodIntegratio
     """AC3: Early recovery attempts rejected with remaining time displayed."""
 
     @pytest.mark.asyncio
-    async def test_early_recovery_rejected(
-        self, halted_system, recovery_port
-    ) -> None:
+    async def test_early_recovery_rejected(self, halted_system, recovery_port) -> None:
         """Recovery rejected before 48 hours elapsed."""
         coordinator = RecoveryCoordinator(halted_system, recovery_port)
 

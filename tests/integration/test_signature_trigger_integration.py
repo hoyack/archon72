@@ -31,7 +31,8 @@ class TestSignatureValidationTrigger:
     async def schema_with_trigger(self, db_session: AsyncSession) -> AsyncSession:
         """Create events table, agent_keys table, and signature validation trigger."""
         # Create agent_keys table first (required for FK reference)
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS agent_keys (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 agent_id TEXT NOT NULL,
@@ -44,10 +45,12 @@ class TestSignatureValidationTrigger:
                     active_until IS NULL OR active_until > active_from
                 )
             )
-        """))
+        """)
+        )
 
         # Create events table with signing_key_id column
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -65,10 +68,12 @@ class TestSignatureValidationTrigger:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create signature validation trigger function
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION validate_signature_format()
             RETURNS TRIGGER AS $func$
             BEGIN
@@ -98,18 +103,21 @@ class TestSignatureValidationTrigger:
                 RETURN NEW;
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create trigger
-        await db_session.execute(text(
-            "DROP TRIGGER IF EXISTS validate_signature_format_on_insert ON events"
-        ))
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("DROP TRIGGER IF EXISTS validate_signature_format_on_insert ON events")
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER validate_signature_format_on_insert
             BEFORE INSERT ON events
             FOR EACH ROW
             EXECUTE FUNCTION validate_signature_format()
-        """))
+        """)
+        )
 
         return db_session
 
@@ -312,7 +320,8 @@ class TestKeyRegistryDeletePrevention:
     async def key_registry_schema(self, db_session: AsyncSession) -> AsyncSession:
         """Create agent_keys table with delete prevention trigger."""
         # Create agent_keys table
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS agent_keys (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 agent_id TEXT NOT NULL,
@@ -325,27 +334,32 @@ class TestKeyRegistryDeletePrevention:
                     active_until IS NULL OR active_until > active_from
                 )
             )
-        """))
+        """)
+        )
 
         # Create delete prevention trigger
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION prevent_key_deletion()
             RETURNS TRIGGER AS $func$
             BEGIN
                 RAISE EXCEPTION 'FR76: Key deletion prohibited - historical keys must be preserved';
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
-        await db_session.execute(text(
-            "DROP TRIGGER IF EXISTS prevent_agent_key_deletion ON agent_keys"
-        ))
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("DROP TRIGGER IF EXISTS prevent_agent_key_deletion ON agent_keys")
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER prevent_agent_key_deletion
             BEFORE DELETE ON agent_keys
             FOR EACH ROW
             EXECUTE FUNCTION prevent_key_deletion()
-        """))
+        """)
+        )
 
         return db_session
 

@@ -24,6 +24,7 @@ from uuid import uuid4
 
 from structlog import get_logger
 
+from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.application.ports.reviewer_agent import (
     ArchonReviewerContext,
     MotionReviewContext,
@@ -31,7 +32,6 @@ from src.application.ports.reviewer_agent import (
     ReviewDecision,
     ReviewerAgentProtocol,
 )
-from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.domain.models.review_pipeline import (
     AmendmentType,
     DeliberationPanel,
@@ -60,15 +60,78 @@ DEFAULT_ARCHON_BACKSTORIES = {
 
 # All 72 Archon names (matching docs/archons-base.csv)
 ALL_ARCHON_NAMES = [
-    "Bael", "Agares", "Vassago", "Samigina", "Marbas", "Valefor", "Amon", "Barbatos",
-    "Paimon", "Buer", "Gusion", "Sitri", "Beleth", "Leraje", "Eligos", "Zepar",
-    "Botis", "Bathim", "Sallos", "Purson", "Marax", "Ipos", "Aim", "Naberius",
-    "Glasya-Labolas", "Bune", "Ronove", "Berith", "Astaroth", "Forneus", "Foras", "Asmoday",
-    "Gaap", "Furfur", "Marchosias", "Stolas", "Phenex", "Halphas", "Malphas", "Raum",
-    "Focalor", "Vepar", "Sabnock", "Shax", "Vine", "Bifrons", "Vual", "Haagenti",
-    "Crocell", "Furcas", "Balam", "Alloces", "Caim", "Murmur", "Orobas", "Gremory",
-    "Ose", "Amy", "Orias", "Vapula", "Zagan", "Valac", "Andras", "Haures",
-    "Andrealphus", "Cimeies", "Amdusias", "Belial", "Decarabia", "Seere", "Dantalion", "Andromalius",
+    "Bael",
+    "Agares",
+    "Vassago",
+    "Samigina",
+    "Marbas",
+    "Valefor",
+    "Amon",
+    "Barbatos",
+    "Paimon",
+    "Buer",
+    "Gusion",
+    "Sitri",
+    "Beleth",
+    "Leraje",
+    "Eligos",
+    "Zepar",
+    "Botis",
+    "Bathim",
+    "Sallos",
+    "Purson",
+    "Marax",
+    "Ipos",
+    "Aim",
+    "Naberius",
+    "Glasya-Labolas",
+    "Bune",
+    "Ronove",
+    "Berith",
+    "Astaroth",
+    "Forneus",
+    "Foras",
+    "Asmoday",
+    "Gaap",
+    "Furfur",
+    "Marchosias",
+    "Stolas",
+    "Phenex",
+    "Halphas",
+    "Malphas",
+    "Raum",
+    "Focalor",
+    "Vepar",
+    "Sabnock",
+    "Shax",
+    "Vine",
+    "Bifrons",
+    "Vual",
+    "Haagenti",
+    "Crocell",
+    "Furcas",
+    "Balam",
+    "Alloces",
+    "Caim",
+    "Murmur",
+    "Orobas",
+    "Gremory",
+    "Ose",
+    "Amy",
+    "Orias",
+    "Vapula",
+    "Zagan",
+    "Valac",
+    "Andras",
+    "Haures",
+    "Andrealphus",
+    "Cimeies",
+    "Amdusias",
+    "Belial",
+    "Decarabia",
+    "Seere",
+    "Dantalion",
+    "Andromalius",
 ]
 
 # Risk tier thresholds
@@ -226,7 +289,11 @@ class MotionReviewService:
         Returns:
             TriageResult with risk tier assignments
         """
-        logger.info("triage_start", motion_count=len(mega_motions), novel_count=len(novel_proposals))
+        logger.info(
+            "triage_start",
+            motion_count=len(mega_motions),
+            novel_count=len(novel_proposals),
+        )
 
         implicit_supports = []
         total_conflicts = 0
@@ -258,12 +325,15 @@ class MotionReviewService:
 
         # Count risk tiers
         low_count = sum(1 for s in implicit_supports if s.risk_tier == RiskTier.LOW)
-        medium_count = sum(1 for s in implicit_supports if s.risk_tier == RiskTier.MEDIUM)
+        medium_count = sum(
+            1 for s in implicit_supports if s.risk_tier == RiskTier.MEDIUM
+        )
         high_count = sum(1 for s in implicit_supports if s.risk_tier == RiskTier.HIGH)
 
         # Calculate average support
         avg_support = (
-            sum(s.implicit_support_ratio for s in implicit_supports) / len(implicit_supports)
+            sum(s.implicit_support_ratio for s in implicit_supports)
+            / len(implicit_supports)
             if implicit_supports
             else 0.0
         )
@@ -319,7 +389,10 @@ class MotionReviewService:
             risk_tier = RiskTier.HIGH
         elif support_ratio >= LOW_RISK_THRESHOLD and len(conflicts) == 0:
             risk_tier = RiskTier.LOW
-        elif support_ratio >= MEDIUM_RISK_THRESHOLD and len(conflicts) <= MAX_CONFLICTS_FOR_MEDIUM:
+        elif (
+            support_ratio >= MEDIUM_RISK_THRESHOLD
+            and len(conflicts) <= MAX_CONFLICTS_FOR_MEDIUM
+        ):
             risk_tier = RiskTier.MEDIUM
         else:
             risk_tier = RiskTier.HIGH
@@ -382,8 +455,10 @@ class MotionReviewService:
                     assigned_motions.append(support.mega_motion_id)
                     assignment_reasons[support.mega_motion_id] = "conflict_review"
                     if support.mega_motion_id in support.conflict_details:
-                        conflict_flags[support.mega_motion_id] = support.conflict_details.get(
-                            archon_name, "Position conflict detected"
+                        conflict_flags[support.mega_motion_id] = (
+                            support.conflict_details.get(
+                                archon_name, "Position conflict detected"
+                            )
                         )
 
                 elif archon_name in support.contributing_archons:
@@ -455,9 +530,13 @@ class MotionReviewService:
                         "motion_id": motion_id,
                         "title": motion.title,
                         "risk_tier": support.risk_tier.value,
-                        "review_reason": assignment.assignment_reasons.get(motion_id, "unknown"),
+                        "review_reason": assignment.assignment_reasons.get(
+                            motion_id, "unknown"
+                        ),
                         "conflict_flag": assignment.conflict_flags.get(motion_id),
-                        "summary": motion.text[:200] + "..." if len(motion.text) > 200 else motion.text,
+                        "summary": motion.text[:200] + "..."
+                        if len(motion.text) > 200
+                        else motion.text,
                         "source_motions": len(motion.source_motion_ids),
                         "supporting_archons": support.support_count,
                         "themes": [motion.theme],
@@ -538,7 +617,9 @@ class MotionReviewService:
                     stance=stance,
                     amendment_type=amendment_type,
                     amendment_text=amendment_text,
-                    amendment_rationale="Simulated rationale" if amendment_text else None,
+                    amendment_rationale="Simulated rationale"
+                    if amendment_text
+                    else None,
                     opposition_reason=None,
                     reasoning=f"Simulated review by {assignment.archon_name}",
                     confidence=0.7,
@@ -563,7 +644,7 @@ class MotionReviewService:
         """
         backstory = DEFAULT_ARCHON_BACKSTORIES.get(
             archon_name,
-            f"{archon_name} is one of the 72 Archons, contributing unique expertise to the Conclave."
+            f"{archon_name} is one of the 72 Archons, contributing unique expertise to the Conclave.",
         )
 
         return ArchonReviewerContext(
@@ -753,7 +834,9 @@ class MotionReviewService:
                 )
 
                 # Convert decisions to responses
-                for motion_ctx, decision in zip(motion_contexts, decisions):
+                for motion_ctx, decision in zip(
+                    motion_contexts, decisions, strict=False
+                ):
                     response = self._convert_review_decision_to_response(
                         decision=decision,
                         archon_name=assignment.archon_name,
@@ -867,19 +950,31 @@ class MotionReviewService:
             )
 
             # Count votes
-            panel.pass_votes = sum(1 for v in result.votes.values() if v.lower() == "pass")
-            panel.fail_votes = sum(1 for v in result.votes.values() if v.lower() == "fail")
-            panel.amend_votes = sum(1 for v in result.votes.values() if v.lower() == "amend")
-            panel.defer_votes = sum(1 for v in result.votes.values() if v.lower() == "defer")
+            panel.pass_votes = sum(
+                1 for v in result.votes.values() if v.lower() == "pass"
+            )
+            panel.fail_votes = sum(
+                1 for v in result.votes.values() if v.lower() == "fail"
+            )
+            panel.amend_votes = sum(
+                1 for v in result.votes.values() if v.lower() == "amend"
+            )
+            panel.defer_votes = sum(
+                1 for v in result.votes.values() if v.lower() == "defer"
+            )
 
             # Record conclusion
             panel.concluded_at = datetime.now(timezone.utc)
-            panel.deliberation_duration_minutes = result.deliberation_duration_ms // 60000
+            panel.deliberation_duration_minutes = (
+                result.deliberation_duration_ms // 60000
+            )
 
             logger.info(
                 "panel_deliberation_complete",
                 panel_id=panel.panel_id,
-                recommendation=panel.recommendation.value if panel.recommendation else "none",
+                recommendation=panel.recommendation.value
+                if panel.recommendation
+                else "none",
             )
 
         except Exception as e:
@@ -925,9 +1020,15 @@ class MotionReviewService:
             explicit_endorsements = sum(
                 1 for r in motion_responses if r.stance == ReviewStance.ENDORSE
             )
-            oppositions = sum(1 for r in motion_responses if r.stance == ReviewStance.OPPOSE)
-            amendments = sum(1 for r in motion_responses if r.stance == ReviewStance.AMEND)
-            abstentions = sum(1 for r in motion_responses if r.stance == ReviewStance.ABSTAIN)
+            oppositions = sum(
+                1 for r in motion_responses if r.stance == ReviewStance.OPPOSE
+            )
+            amendments = sum(
+                1 for r in motion_responses if r.stance == ReviewStance.AMEND
+            )
+            abstentions = sum(
+                1 for r in motion_responses if r.stance == ReviewStance.ABSTAIN
+            )
 
             # Implicit endorsements
             implicit_endorsements = len(support.contributing_archons)
@@ -952,19 +1053,24 @@ class MotionReviewService:
 
             # Collect texts and archon names
             amendment_texts = [
-                r.amendment_text for r in motion_responses
+                r.amendment_text
+                for r in motion_responses
                 if r.stance == ReviewStance.AMEND and r.amendment_text
             ]
             opposition_reasons = [
-                r.opposition_reason for r in motion_responses
+                r.opposition_reason
+                for r in motion_responses
                 if r.stance == ReviewStance.OPPOSE and r.opposition_reason
             ]
-            endorsing_archons = (
-                support.contributing_archons +
-                [r.archon_name for r in motion_responses if r.stance == ReviewStance.ENDORSE]
-            )
+            endorsing_archons = support.contributing_archons + [
+                r.archon_name
+                for r in motion_responses
+                if r.stance == ReviewStance.ENDORSE
+            ]
             opposing_archons = [
-                r.archon_name for r in motion_responses if r.stance == ReviewStance.OPPOSE
+                r.archon_name
+                for r in motion_responses
+                if r.stance == ReviewStance.OPPOSE
             ]
 
             aggregation = ReviewAggregation(
@@ -1022,10 +1128,18 @@ class MotionReviewService:
 
         for agg in contested:
             # Select supporters (top 3 endorsers)
-            supporters = agg.endorsing_archons[:3] if len(agg.endorsing_archons) >= 3 else agg.endorsing_archons
+            supporters = (
+                agg.endorsing_archons[:3]
+                if len(agg.endorsing_archons) >= 3
+                else agg.endorsing_archons
+            )
 
             # Select critics (top 3 opposers)
-            critics = agg.opposing_archons[:3] if len(agg.opposing_archons) >= 3 else agg.opposing_archons
+            critics = (
+                agg.opposing_archons[:3]
+                if len(agg.opposing_archons) >= 3
+                else agg.opposing_archons
+            )
 
             # Select neutrals (from remaining Archons)
             used = set(supporters + critics)
@@ -1125,7 +1239,8 @@ class MotionReviewService:
             threshold_met = yeas >= threshold_required
 
             outcome = (
-                RatificationOutcome.RATIFIED if threshold_met
+                RatificationOutcome.RATIFIED
+                if threshold_met
                 else RatificationOutcome.REJECTED
             )
 
@@ -1141,7 +1256,9 @@ class MotionReviewService:
                 threshold_met=threshold_met,
                 votes_by_archon={},  # Would be populated with actual votes
                 outcome=outcome,
-                ratified_at=datetime.now(timezone.utc) if outcome == RatificationOutcome.RATIFIED else None,
+                ratified_at=datetime.now(timezone.utc)
+                if outcome == RatificationOutcome.RATIFIED
+                else None,
             )
             votes.append(vote)
 
@@ -1172,8 +1289,8 @@ class MotionReviewService:
         started_at = datetime.now(timezone.utc)
 
         # Load data
-        mega_motions, novel_proposals, session_id, session_name = self.load_mega_motions(
-            consolidator_output_path
+        mega_motions, novel_proposals, session_id, session_name = (
+            self.load_mega_motions(consolidator_output_path)
         )
 
         result = MotionReviewPipelineResult(
@@ -1184,20 +1301,26 @@ class MotionReviewService:
             novel_proposals_input=len(novel_proposals),
         )
 
-        result.add_audit_event("pipeline_started", {
-            "consolidator_path": str(consolidator_output_path),
-            "mega_motions": len(mega_motions),
-            "novel_proposals": len(novel_proposals),
-        })
+        result.add_audit_event(
+            "pipeline_started",
+            {
+                "consolidator_path": str(consolidator_output_path),
+                "mega_motions": len(mega_motions),
+                "novel_proposals": len(novel_proposals),
+            },
+        )
 
         # Phase 1: Triage
         triage_result = self.triage_motions(mega_motions, novel_proposals, session_id)
         result.triage_result = triage_result
-        result.add_audit_event("triage_completed", {
-            "low_risk": triage_result.low_risk_count,
-            "medium_risk": triage_result.medium_risk_count,
-            "high_risk": triage_result.high_risk_count,
-        })
+        result.add_audit_event(
+            "triage_completed",
+            {
+                "low_risk": triage_result.low_risk_count,
+                "medium_risk": triage_result.medium_risk_count,
+                "high_risk": triage_result.high_risk_count,
+            },
+        )
 
         # Phase 2: Generate packets
         all_motions = mega_motions + novel_proposals
@@ -1205,24 +1328,36 @@ class MotionReviewService:
         result.review_assignments = assignments
         result.total_assignments = sum(a.assignment_count for a in assignments)
         result.average_assignments_per_archon = result.total_assignments / 72
-        result.add_audit_event("packets_generated", {
-            "total_assignments": result.total_assignments,
-            "avg_per_archon": result.average_assignments_per_archon,
-        })
+        result.add_audit_event(
+            "packets_generated",
+            {
+                "total_assignments": result.total_assignments,
+                "avg_per_archon": result.average_assignments_per_archon,
+            },
+        )
 
         if simulate:
             # Phase 3-4: Simulate reviews and aggregate
             responses = self.simulate_archon_reviews(assignments, triage_result)
             result.review_responses = responses
-            result.response_rate = len(responses) / result.total_assignments if result.total_assignments > 0 else 0
+            result.response_rate = (
+                len(responses) / result.total_assignments
+                if result.total_assignments > 0
+                else 0
+            )
 
             aggregations = self.aggregate_reviews(triage_result, responses)
             result.aggregations = aggregations
-            result.add_audit_event("reviews_aggregated", {
-                "response_count": len(responses),
-                "consensus_count": sum(1 for a in aggregations if a.consensus_reached),
-                "contested_count": sum(1 for a in aggregations if a.contested),
-            })
+            result.add_audit_event(
+                "reviews_aggregated",
+                {
+                    "response_count": len(responses),
+                    "consensus_count": sum(
+                        1 for a in aggregations if a.consensus_reached
+                    ),
+                    "contested_count": sum(1 for a in aggregations if a.contested),
+                },
+            )
 
             # Phase 5: Panel deliberation
             panels = self.create_deliberation_panels(aggregations)
@@ -1230,26 +1365,41 @@ class MotionReviewService:
                 self.simulate_panel_deliberation(panel)
             result.panels_convened = len(panels)
             result.panel_results = panels
-            result.add_audit_event("panels_concluded", {
-                "panels_convened": len(panels),
-            })
+            result.add_audit_event(
+                "panels_concluded",
+                {
+                    "panels_convened": len(panels),
+                },
+            )
 
             # Phase 6: Ratification
             votes = self.simulate_ratification(aggregations, panels)
             result.ratification_votes = votes
-            result.motions_ratified = sum(1 for v in votes if v.outcome == RatificationOutcome.RATIFIED)
-            result.motions_rejected = sum(1 for v in votes if v.outcome == RatificationOutcome.REJECTED)
-            result.motions_deferred = sum(1 for v in votes if v.outcome == RatificationOutcome.DEFERRED)
-            result.add_audit_event("ratification_completed", {
-                "ratified": result.motions_ratified,
-                "rejected": result.motions_rejected,
-                "deferred": result.motions_deferred,
-            })
+            result.motions_ratified = sum(
+                1 for v in votes if v.outcome == RatificationOutcome.RATIFIED
+            )
+            result.motions_rejected = sum(
+                1 for v in votes if v.outcome == RatificationOutcome.REJECTED
+            )
+            result.motions_deferred = sum(
+                1 for v in votes if v.outcome == RatificationOutcome.DEFERRED
+            )
+            result.add_audit_event(
+                "ratification_completed",
+                {
+                    "ratified": result.motions_ratified,
+                    "rejected": result.motions_rejected,
+                    "deferred": result.motions_deferred,
+                },
+            )
 
         result.completed_at = datetime.now(timezone.utc)
-        result.add_audit_event("pipeline_completed", {
-            "duration_seconds": (result.completed_at - started_at).total_seconds(),
-        })
+        result.add_audit_event(
+            "pipeline_completed",
+            {
+                "duration_seconds": (result.completed_at - started_at).total_seconds(),
+            },
+        )
 
         return result
 
@@ -1283,8 +1433,8 @@ class MotionReviewService:
         started_at = datetime.now(timezone.utc)
 
         # Load data
-        mega_motions, novel_proposals, session_id, session_name = self.load_mega_motions(
-            consolidator_output_path
+        mega_motions, novel_proposals, session_id, session_name = (
+            self.load_mega_motions(consolidator_output_path)
         )
 
         result = MotionReviewPipelineResult(
@@ -1295,21 +1445,27 @@ class MotionReviewService:
             novel_proposals_input=len(novel_proposals),
         )
 
-        result.add_audit_event("pipeline_started", {
-            "consolidator_path": str(consolidator_output_path),
-            "mega_motions": len(mega_motions),
-            "novel_proposals": len(novel_proposals),
-            "using_real_agent": use_real_agent,
-        })
+        result.add_audit_event(
+            "pipeline_started",
+            {
+                "consolidator_path": str(consolidator_output_path),
+                "mega_motions": len(mega_motions),
+                "novel_proposals": len(novel_proposals),
+                "using_real_agent": use_real_agent,
+            },
+        )
 
         # Phase 1: Triage
         triage_result = self.triage_motions(mega_motions, novel_proposals, session_id)
         result.triage_result = triage_result
-        result.add_audit_event("triage_completed", {
-            "low_risk": triage_result.low_risk_count,
-            "medium_risk": triage_result.medium_risk_count,
-            "high_risk": triage_result.high_risk_count,
-        })
+        result.add_audit_event(
+            "triage_completed",
+            {
+                "low_risk": triage_result.low_risk_count,
+                "medium_risk": triage_result.medium_risk_count,
+                "high_risk": triage_result.high_risk_count,
+            },
+        )
 
         # Phase 2: Generate packets
         all_motions = mega_motions + novel_proposals
@@ -1317,10 +1473,13 @@ class MotionReviewService:
         result.review_assignments = assignments
         result.total_assignments = sum(a.assignment_count for a in assignments)
         result.average_assignments_per_archon = result.total_assignments / 72
-        result.add_audit_event("packets_generated", {
-            "total_assignments": result.total_assignments,
-            "avg_per_archon": result.average_assignments_per_archon,
-        })
+        result.add_audit_event(
+            "packets_generated",
+            {
+                "total_assignments": result.total_assignments,
+                "avg_per_archon": result.average_assignments_per_archon,
+            },
+        )
 
         # Phase 3-4: Collect real reviews using ReviewerAgent
         if use_real_agent:
@@ -1340,12 +1499,15 @@ class MotionReviewService:
 
         aggregations = self.aggregate_reviews(triage_result, responses)
         result.aggregations = aggregations
-        result.add_audit_event("reviews_aggregated", {
-            "response_count": len(responses),
-            "consensus_count": sum(1 for a in aggregations if a.consensus_reached),
-            "contested_count": sum(1 for a in aggregations if a.contested),
-            "real_reviews": use_real_agent,
-        })
+        result.add_audit_event(
+            "reviews_aggregated",
+            {
+                "response_count": len(responses),
+                "consensus_count": sum(1 for a in aggregations if a.consensus_reached),
+                "contested_count": sum(1 for a in aggregations if a.contested),
+                "real_reviews": use_real_agent,
+            },
+        )
 
         # Phase 5: Panel deliberation
         panels = self.create_deliberation_panels(aggregations)
@@ -1363,10 +1525,13 @@ class MotionReviewService:
 
         result.panels_convened = len(panels)
         result.panel_results = panels
-        result.add_audit_event("panels_concluded", {
-            "panels_convened": len(panels),
-            "real_deliberation": use_real_agent,
-        })
+        result.add_audit_event(
+            "panels_concluded",
+            {
+                "panels_convened": len(panels),
+                "real_deliberation": use_real_agent,
+            },
+        )
 
         # Phase 6: Ratification (still simulated - needs actual voting mechanism)
         votes = self.simulate_ratification(aggregations, panels)
@@ -1380,17 +1545,23 @@ class MotionReviewService:
         result.motions_deferred = sum(
             1 for v in votes if v.outcome == RatificationOutcome.DEFERRED
         )
-        result.add_audit_event("ratification_completed", {
-            "ratified": result.motions_ratified,
-            "rejected": result.motions_rejected,
-            "deferred": result.motions_deferred,
-        })
+        result.add_audit_event(
+            "ratification_completed",
+            {
+                "ratified": result.motions_ratified,
+                "rejected": result.motions_rejected,
+                "deferred": result.motions_deferred,
+            },
+        )
 
         result.completed_at = datetime.now(timezone.utc)
-        result.add_audit_event("pipeline_completed", {
-            "duration_seconds": (result.completed_at - started_at).total_seconds(),
-            "real_reviews": use_real_agent,
-        })
+        result.add_audit_event(
+            "pipeline_completed",
+            {
+                "duration_seconds": (result.completed_at - started_at).total_seconds(),
+                "real_reviews": use_real_agent,
+            },
+        )
 
         return result
 

@@ -14,10 +14,10 @@ from uuid import uuid4
 import pytest
 
 from src.domain.governance.queue.priority import QueuePriority
-from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.queue.queued_statement import QueuedStatement
-from src.domain.governance.witness.observation_type import ObservationType
+from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.witness.observation_content import ObservationContent
+from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
 
 

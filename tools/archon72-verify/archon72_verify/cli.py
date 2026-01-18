@@ -20,7 +20,6 @@ import json
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -91,13 +90,13 @@ def check_chain(
         "-t",
         help="Last sequence number to verify",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
         help="API base URL (default: https://api.archon72.io)",
     ),
-    file: Optional[Path] = typer.Option(
+    file: Path | None = typer.Option(
         None,
         "--file",
         "-F",
@@ -130,8 +129,8 @@ def check_chain(
 async def _check_chain_async(
     from_seq: int,
     to_seq: int,
-    api_url: Optional[str],
-    file: Optional[Path],
+    api_url: str | None,
+    file: Path | None,
     output_format: str = "text",
 ) -> VerificationResult:
     """Async implementation of chain verification."""
@@ -176,7 +175,7 @@ def verify_signature(
         ...,
         help="Event ID (UUID) to verify",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
@@ -216,13 +215,13 @@ def verify_signature(
 
 async def _verify_signature_async(
     event_id: str,
-    api_url: Optional[str],
+    api_url: str | None,
 ) -> dict:
     """Async implementation of signature verification."""
     client = ObserverClient(base_url=api_url)
 
     try:
-        event = await client.get_event_by_id(event_id)
+        await client.get_event_by_id(event_id)
         # Note: Full signature verification requires public key registry
         # For now, return placeholder indicating key registry needed
         return {
@@ -242,25 +241,25 @@ def check_gaps(
         "-f",
         help="First sequence number",
     ),
-    to_seq: Optional[int] = typer.Option(
+    to_seq: int | None = typer.Option(
         None,
         "--to",
         "-t",
         help="Last sequence number (default: max in local db or required for API)",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
         help="API base URL",
     ),
-    local_db: Optional[Path] = typer.Option(
+    local_db: Path | None = typer.Option(
         None,
         "--local-db",
         "-d",
         help="Local SQLite database file (FR122)",
     ),
-    file: Optional[Path] = typer.Option(
+    file: Path | None = typer.Option(
         None,
         "--file",
         "-F",
@@ -306,7 +305,7 @@ def check_gaps(
 def _check_gaps_local_db(
     db_path: Path,
     from_seq: int,
-    to_seq: Optional[int],
+    to_seq: int | None,
     quiet: bool = False,
 ) -> list[tuple[int, int]]:
     """Check gaps in local database.
@@ -340,7 +339,7 @@ def _check_gaps_local_db(
 def _output_gaps(
     gaps: list[tuple[int, int]],
     output_format: str,
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
 ) -> None:
     """Output gap detection results (FR123)."""
     # Calculate total missing events
@@ -408,8 +407,8 @@ def _output_gaps_legacy(
 async def _check_gaps_async(
     from_seq: int,
     to_seq: int,
-    api_url: Optional[str],
-    file: Optional[Path],
+    api_url: str | None,
+    file: Path | None,
 ) -> list[tuple[int, int]]:
     """Async implementation of gap detection."""
     verifier = ChainVerifier()
@@ -445,13 +444,13 @@ def verify_proof(
         "-a",
         help="Sequence number to query and verify proof for",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
         help="API base URL",
     ),
-    file: Optional[Path] = typer.Option(
+    file: Path | None = typer.Option(
         None,
         "--file",
         "-F",
@@ -487,8 +486,8 @@ def verify_proof(
 
 async def _verify_proof_async(
     as_of_sequence: int,
-    api_url: Optional[str],
-    file: Optional[Path],
+    api_url: str | None,
+    file: Path | None,
     output_format: str = "text",
 ) -> ProofVerificationResult:
     """Async implementation of proof verification."""
@@ -625,13 +624,13 @@ def verify_merkle(
         "-s",
         help="Event sequence number to verify Merkle proof for",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
         help="API base URL",
     ),
-    file: Optional[Path] = typer.Option(
+    file: Path | None = typer.Option(
         None,
         "--file",
         "-F",
@@ -666,8 +665,8 @@ def verify_merkle(
 
 async def _verify_merkle_async(
     sequence: int,
-    api_url: Optional[str],
-    file: Optional[Path],
+    api_url: str | None,
+    file: Path | None,
     output_format: str = "text",
 ) -> MerkleVerificationResult:
     """Async implementation of Merkle proof verification."""
@@ -681,7 +680,9 @@ async def _verify_merkle_async(
         try:
             with open(file) as f:
                 data = json.load(f)
-                proof = data.get("merkle_proof", data)  # Support raw proof or response format
+                proof = data.get(
+                    "merkle_proof", data
+                )  # Support raw proof or response format
         except FileNotFoundError:
             console.print(f"[red]Error:[/red] File not found: {file}", style="bold")
             raise typer.Exit(code=1)
@@ -786,37 +787,37 @@ def export(
         "-f",
         help="Export format: 'jsonl' for JSON Lines or 'csv' for CSV",
     ),
-    start_sequence: Optional[int] = typer.Option(
+    start_sequence: int | None = typer.Option(
         None,
         "--from-seq",
         "-s",
         help="First sequence to export",
     ),
-    end_sequence: Optional[int] = typer.Option(
+    end_sequence: int | None = typer.Option(
         None,
         "--to-seq",
         "-e",
         help="Last sequence to export",
     ),
-    start_date: Optional[str] = typer.Option(
+    start_date: str | None = typer.Option(
         None,
         "--from-date",
         "-d",
         help="Start date (ISO 8601)",
     ),
-    end_date: Optional[str] = typer.Option(
+    end_date: str | None = typer.Option(
         None,
         "--to-date",
         "-t",
         help="End date (ISO 8601)",
     ),
-    event_type: Optional[str] = typer.Option(
+    event_type: str | None = typer.Option(
         None,
         "--event-type",
         "-T",
         help="Filter by event type(s), comma-separated",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
@@ -869,12 +870,12 @@ def export(
 async def _export_async(
     output: Path,
     format: str,
-    start_sequence: Optional[int],
-    end_sequence: Optional[int],
-    start_date: Optional[str],
-    end_date: Optional[str],
-    event_type: Optional[str],
-    api_url: Optional[str],
+    start_sequence: int | None,
+    end_sequence: int | None,
+    start_date: str | None,
+    end_date: str | None,
+    event_type: str | None,
+    api_url: str | None,
     quiet: bool = False,
 ) -> dict:
     """Async implementation of export command."""
@@ -929,13 +930,13 @@ def attestation(
         "-e",
         help="Last sequence in export range",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
         help="API base URL",
     ),
-    output: Optional[Path] = typer.Option(
+    output: Path | None = typer.Option(
         None,
         "--output",
         "-o",
@@ -991,9 +992,13 @@ def attestation(
         console.print("[green]Attestation Metadata[/green]")
         console.print(f"  Export ID: {metadata.get('export_id')}")
         console.print(f"  Exported At: {metadata.get('exported_at')}")
-        console.print(f"  Sequence Range: {metadata.get('sequence_start')} - {metadata.get('sequence_end')}")
+        console.print(
+            f"  Sequence Range: {metadata.get('sequence_start')} - {metadata.get('sequence_end')}"
+        )
         console.print(f"  Event Count: {metadata.get('event_count')}")
-        console.print(f"  Chain Hash: {metadata.get('chain_hash_at_export', '')[:32]}...")
+        console.print(
+            f"  Chain Hash: {metadata.get('chain_hash_at_export', '')[:32]}..."
+        )
         if metadata.get("export_signature"):
             console.print(f"  Signature: {metadata.get('export_signature')[:32]}...")
         console.print(f"  Exporter: {metadata.get('exporter_id')}")
@@ -1002,7 +1007,7 @@ def attestation(
 async def _attestation_async(
     start_sequence: int,
     end_sequence: int,
-    api_url: Optional[str],
+    api_url: str | None,
 ) -> dict:
     """Async implementation of attestation command."""
     client = ObserverClient(base_url=api_url)
@@ -1056,7 +1061,7 @@ def fill_gaps(
         "-d",
         help="Local SQLite database file",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
@@ -1081,7 +1086,7 @@ def fill_gaps(
 
 async def _fill_gaps_async(
     db_path: Path,
-    api_url: Optional[str],
+    api_url: str | None,
     verify_after: bool,
 ) -> None:
     """Async implementation of gap filling."""
@@ -1130,7 +1135,9 @@ async def _fill_gaps_async(
             remaining_gaps = db.find_gaps()
 
         if remaining_gaps:
-            console.print(f"[yellow]Warning: {len(remaining_gaps)} gaps remain[/yellow]")
+            console.print(
+                f"[yellow]Warning: {len(remaining_gaps)} gaps remain[/yellow]"
+            )
             sys.exit(1)
         else:
             console.print("[green]Chain complete - no gaps[/green]")
@@ -1144,7 +1151,7 @@ def sync(
         "-d",
         help="Local SQLite database file",
     ),
-    api_url: Optional[str] = typer.Option(
+    api_url: str | None = typer.Option(
         None,
         "--api-url",
         "-u",
@@ -1169,7 +1176,7 @@ def sync(
 
 async def _sync_async(
     db_path: Path,
-    api_url: Optional[str],
+    api_url: str | None,
     batch_size: int,
 ) -> None:
     """Async implementation of database sync."""

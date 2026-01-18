@@ -3,8 +3,9 @@
 Tests the Prince Service judicial functions per Government PRD FR-GOV-14/FR-GOV-15/FR-GOV-16.
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from src.application.ports.prince_service import (
     ComplianceVerdict,
@@ -19,7 +20,6 @@ from src.infrastructure.adapters.government.prince_service_adapter import (
     PrinceServiceAdapter,
     create_prince_service,
 )
-
 
 # =============================================================================
 # FIXTURES

@@ -23,7 +23,6 @@ Usage:
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.models.failure_mode import (
@@ -86,7 +85,7 @@ class FailureModeRegistryPort(ABC):
     # Failure mode retrieval
 
     @abstractmethod
-    async def get_failure_mode(self, mode_id: FailureModeId) -> Optional[FailureMode]:
+    async def get_failure_mode(self, mode_id: FailureModeId) -> FailureMode | None:
         """Get a specific failure mode by ID.
 
         Args:
@@ -178,7 +177,7 @@ class FailureModeRegistryPort(ABC):
         self,
         mode_id: FailureModeId,
         metric_name: str,
-    ) -> Optional[FailureModeThreshold]:
+    ) -> FailureModeThreshold | None:
         """Get threshold configuration for a mode and metric.
 
         Args:

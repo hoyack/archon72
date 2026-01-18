@@ -25,18 +25,17 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.domain.governance.exit.release_type import ReleaseType
-from src.domain.governance.exit.obligation_release import ReleaseResult
-from src.domain.governance.task.task_state import TaskStatus
 from src.application.services.governance.obligation_release_service import (
-    ObligationReleaseService,
     OBLIGATIONS_RELEASED_EVENT,
-    TASK_NULLIFIED_ON_EXIT_EVENT,
-    TASK_RELEASED_ON_EXIT_EVENT,
     PENDING_REQUESTS_CANCELLED_EVENT,
     RELEASE_CATEGORIES,
+    TASK_NULLIFIED_ON_EXIT_EVENT,
+    TASK_RELEASED_ON_EXIT_EVENT,
+    ObligationReleaseService,
 )
-
+from src.domain.governance.exit.obligation_release import ReleaseResult
+from src.domain.governance.exit.release_type import ReleaseType
+from src.domain.governance.task.task_state import TaskStatus
 
 # =============================================================================
 # Test Fixtures and Fakes
@@ -76,11 +75,13 @@ class FakeEventEmitter:
         actor: str,
         payload: dict,
     ) -> None:
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_events_by_type(self, event_type: str) -> list[dict]:
         return [e for e in self.events if e["event_type"] == event_type]
@@ -105,11 +106,13 @@ class FakeTaskStatePort:
         to_status: TaskStatus,
         reason: str,
     ) -> None:
-        self.transitions.append({
-            "task_id": task_id,
-            "to_status": to_status,
-            "reason": reason,
-        })
+        self.transitions.append(
+            {
+                "task_id": task_id,
+                "to_status": to_status,
+                "reason": reason,
+            }
+        )
         if task_id in self.tasks:
             self.tasks[task_id] = FakeTask(
                 task_id=task_id,
@@ -229,7 +232,9 @@ class TestPreConsentNullification:
         assert result.nullified_count == 1
         assert result.released_count == 0
         # Task should be transitioned to NULLIFIED
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.NULLIFIED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.NULLIFIED
+        )
 
     @pytest.mark.asyncio
     async def test_activated_task_nullified(
@@ -245,7 +250,9 @@ class TestPreConsentNullification:
         result = await service.release_all(cluster_id)
 
         assert result.nullified_count == 1
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.NULLIFIED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.NULLIFIED
+        )
 
     @pytest.mark.asyncio
     async def test_routed_task_nullified(
@@ -261,7 +268,9 @@ class TestPreConsentNullification:
         result = await service.release_all(cluster_id)
 
         assert result.nullified_count == 1
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.NULLIFIED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.NULLIFIED
+        )
 
     @pytest.mark.asyncio
     async def test_nullified_event_emitted(
@@ -308,7 +317,9 @@ class TestPostConsentRelease:
         assert result.released_count == 1
         assert result.nullified_count == 0
         # Post-consent tasks go to QUARANTINED (work preserved)
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        )
 
     @pytest.mark.asyncio
     async def test_in_progress_task_released(
@@ -324,7 +335,9 @@ class TestPostConsentRelease:
         result = await service.release_all(cluster_id)
 
         assert result.released_count == 1
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        )
 
     @pytest.mark.asyncio
     async def test_reported_task_released(
@@ -340,7 +353,9 @@ class TestPostConsentRelease:
         result = await service.release_all(cluster_id)
 
         assert result.released_count == 1
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        )
 
     @pytest.mark.asyncio
     async def test_aggregated_task_released(
@@ -356,7 +371,9 @@ class TestPostConsentRelease:
         result = await service.release_all(cluster_id)
 
         assert result.released_count == 1
-        assert task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        assert (
+            task_state_port.tasks[task.task_id].current_status == TaskStatus.QUARANTINED
+        )
 
     @pytest.mark.asyncio
     async def test_released_event_emitted(
@@ -684,7 +701,8 @@ class TestNoPenaltyMethods:
     ) -> None:
         """Only expected public methods exist (whitelist)."""
         public_methods = [
-            name for name in dir(service)
+            name
+            for name in dir(service)
             if not name.startswith("_") and callable(getattr(service, name))
         ]
         assert public_methods == ["release_all"]

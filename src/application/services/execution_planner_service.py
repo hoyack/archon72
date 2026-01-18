@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -22,12 +21,9 @@ import yaml
 from structlog import get_logger
 
 from src.application.ports.execution_planner import (
-    BlockerDetection,
-    ClassificationResult,
     ExecutionPlannerProtocol,
     MotionForPlanning,
     PlanningResult,
-    TaskInstantiation,
 )
 from src.domain.models.execution_plan import (
     Blocker,
@@ -417,9 +413,7 @@ class ExecutionPlannerService:
     # Plan Generation
     # =========================================================================
 
-    def generate_execution_plan(
-        self, motion: MotionForPlanning
-    ) -> ExecutionPlan:
+    def generate_execution_plan(self, motion: MotionForPlanning) -> ExecutionPlan:
         """Generate complete execution plan for a motion (heuristic mode).
 
         Args:
@@ -526,9 +520,7 @@ class ExecutionPlannerService:
             for p in self._taxonomy.patterns.values()
         ]
 
-        result = await self._planner_agent.plan_motion_execution(
-            motion, patterns_list
-        )
+        result = await self._planner_agent.plan_motion_execution(motion, patterns_list)
 
         # Convert PlanningResult to ExecutionPlan
         return self._convert_planning_result(motion, result)

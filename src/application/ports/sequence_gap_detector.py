@@ -25,7 +25,7 @@ Note:
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.domain.events.sequence_gap_detected import SequenceGapDetectedPayload
@@ -72,7 +72,7 @@ class SequenceGapDetectorPort(ABC):
     """
 
     @abstractmethod
-    async def check_for_gaps(self) -> "Optional[SequenceGapDetectedPayload]":
+    async def check_for_gaps(self) -> "SequenceGapDetectedPayload | None":
         """Check for gaps in the event sequence.
 
         This method checks the event store for sequence continuity
@@ -88,7 +88,7 @@ class SequenceGapDetectorPort(ABC):
         ...
 
     @abstractmethod
-    async def get_last_check_timestamp(self) -> "Optional[datetime]":
+    async def get_last_check_timestamp(self) -> "datetime | None":
         """Get the timestamp of the last successful gap check.
 
         Used for operational monitoring and SLA verification.

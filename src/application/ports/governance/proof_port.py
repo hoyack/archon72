@@ -56,7 +56,7 @@ class ProofPort(Protocol):
     async def generate_completeness_proof(
         self,
         requester_id: UUID,
-    ) -> "CompletenessProof":
+    ) -> CompletenessProof:
         """Generate proof of ledger completeness.
 
         Creates a cryptographic proof that demonstrates:
@@ -82,7 +82,7 @@ class ProofPort(Protocol):
 
     async def generate_hash_chain_proof(
         self,
-    ) -> "HashChainProof":
+    ) -> HashChainProof:
         """Generate proof of hash chain integrity.
 
         Verifies and returns proof that the hash chain from genesis
@@ -99,7 +99,7 @@ class ProofPort(Protocol):
     async def generate_merkle_proof_for_event(
         self,
         event_id: UUID,
-    ) -> "MerkleProof":
+    ) -> MerkleProof:
         """Generate Merkle proof-of-inclusion for specific event.
 
         Creates a proof that the specified event is included in
@@ -122,7 +122,7 @@ class ProofPort(Protocol):
     async def generate_merkle_proof_for_sequence(
         self,
         sequence: int,
-    ) -> "MerkleProof":
+    ) -> MerkleProof:
         """Generate Merkle proof-of-inclusion by sequence number.
 
         Args:
@@ -138,7 +138,7 @@ class ProofPort(Protocol):
 
     def verify_completeness_proof(
         self,
-        proof: "CompletenessProof",
+        proof: CompletenessProof,
         events: list,
     ) -> bool:
         """Verify a completeness proof against event data.
@@ -163,7 +163,7 @@ class ProofPort(Protocol):
     def verify_hash_chain(
         self,
         events: list,
-    ) -> "HashChainProof":
+    ) -> HashChainProof:
         """Verify hash chain for a list of events.
 
         Checks that each event correctly links to the previous

@@ -9,7 +9,6 @@ import tempfile
 from pathlib import Path
 
 import pytest
-
 from archon72_verify.database import ObserverDatabase
 
 
@@ -28,7 +27,9 @@ def make_event(
         "event_type": event_type,
         "payload": payload,
         "content_hash": f"hash_{sequence:04d}_" + "a" * 48,
-        "prev_hash": f"hash_{sequence-1:04d}_" + "a" * 48 if sequence > 1 else "0" * 64,
+        "prev_hash": f"hash_{sequence - 1:04d}_" + "a" * 48
+        if sequence > 1
+        else "0" * 64,
         "signature": f"sig_{sequence:04d}",
         "agent_id": f"agent_{sequence % 3}",
         "witness_id": "witness_1",
@@ -58,10 +59,9 @@ class TestObserverDatabaseInit:
 
             # Verify tables were created
             import sqlite3
+
             conn = sqlite3.connect(str(db_path))
-            cursor = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
+            cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = {row[0] for row in cursor.fetchall()}
             conn.close()
 
@@ -76,10 +76,9 @@ class TestObserverDatabaseInit:
                 db.init_schema()
 
             import sqlite3
+
             conn = sqlite3.connect(str(db_path))
-            cursor = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='index'"
-            )
+            cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='index'")
             indexes = {row[0] for row in cursor.fetchall()}
             conn.close()
 
@@ -117,6 +116,7 @@ class TestObserverDatabaseInsert:
 
                 # Verify by reading back
                 import sqlite3
+
                 conn = sqlite3.connect(str(db_path))
                 conn.row_factory = sqlite3.Row
                 cursor = conn.execute("SELECT * FROM events WHERE sequence = 1")
@@ -145,6 +145,7 @@ class TestObserverDatabaseInsert:
                 db.insert_event(event)
 
                 import sqlite3
+
                 conn = sqlite3.connect(str(db_path))
                 cursor = conn.execute("SELECT payload FROM events WHERE sequence = 1")
                 stored_payload = cursor.fetchone()[0]

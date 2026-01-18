@@ -48,6 +48,7 @@ class MockHaltChecker:
     async def check_halted(self) -> None:
         if self._is_halted:
             from src.domain.errors.writer import SystemHaltedError
+
             raise SystemHaltedError(f"System is halted: {self._reason}")
 
 
@@ -117,7 +118,7 @@ class TestDissentCalculationIntegration:
         # 36 yes, 36 no = 50% dissent (maximum possible)
         vote_counts = VoteCounts(yes_count=36, no_count=36, abstain_count=0)
 
-        result = await collective_output_service.create_collective_output(
+        await collective_output_service.create_collective_output(
             contributing_agents=["archon-1", "archon-2"],
             vote_counts=vote_counts,
             content="Split vote output",
@@ -171,7 +172,9 @@ class TestUnanimousVoteEventCreation:
         )
 
         # Check unanimous vote event was created
-        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(result.output_id)
+        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(
+            result.output_id
+        )
         assert len(votes) == 1
         assert votes[0].outcome == VoteOutcome.YES_UNANIMOUS
         assert votes[0].voter_count == 72
@@ -192,7 +195,9 @@ class TestUnanimousVoteEventCreation:
             linked_vote_ids=[uuid4(), uuid4()],
         )
 
-        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(result.output_id)
+        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(
+            result.output_id
+        )
         assert len(votes) == 1
         assert votes[0].outcome == VoteOutcome.NO_UNANIMOUS
 
@@ -212,7 +217,9 @@ class TestUnanimousVoteEventCreation:
             linked_vote_ids=[uuid4(), uuid4()],
         )
 
-        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(result.output_id)
+        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(
+            result.output_id
+        )
         assert len(votes) == 1
         assert votes[0].outcome == VoteOutcome.ABSTAIN_UNANIMOUS
 
@@ -232,7 +239,9 @@ class TestUnanimousVoteEventCreation:
             linked_vote_ids=[uuid4(), uuid4()],
         )
 
-        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(result.output_id)
+        votes = await unanimous_vote_stub.get_unanimous_votes_for_output(
+            result.output_id
+        )
         assert len(votes) == 0
 
 

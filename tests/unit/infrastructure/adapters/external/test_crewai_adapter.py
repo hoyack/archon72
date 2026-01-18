@@ -12,10 +12,8 @@ Validates:
 
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timezone
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
@@ -25,20 +23,18 @@ from src.application.ports.agent_orchestrator import (
     AgentOutput,
     AgentRequest,
     AgentStatus,
-    AgentStatusInfo,
     ContextBundle,
 )
 from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.domain.errors.agent import AgentInvocationError, AgentNotFoundError
 from src.domain.models.archon_profile import ArchonProfile
-from src.domain.models.llm_config import LLMConfig, DEFAULT_LLM_CONFIG
+from src.domain.models.llm_config import DEFAULT_LLM_CONFIG, LLMConfig
 from src.infrastructure.adapters.external.crewai_adapter import (
     CrewAIAdapter,
-    create_crewai_adapter,
-    _get_crewai_llm_string,
     _ensure_api_key,
+    _get_crewai_llm_string,
+    create_crewai_adapter,
 )
-
 
 # ===========================================================================
 # Fixtures
@@ -262,7 +258,10 @@ class TestCrewAIAdapterInit:
         from src.application.ports.tool_registry import ToolRegistryProtocol
 
         mock_tool_registry = MagicMock(spec=ToolRegistryProtocol)
-        mock_tool_registry.list_tools.return_value = ["insight_tool", "communication_tool"]
+        mock_tool_registry.list_tools.return_value = [
+            "insight_tool",
+            "communication_tool",
+        ]
 
         adapter = CrewAIAdapter(
             profile_repository=mock_profile_repository,
@@ -334,7 +333,7 @@ class TestCrewAIAgentCreation:
         """AC2: Agent created with correct LLM config."""
         mock_agent_class.return_value = MagicMock()
 
-        agent = adapter._create_crewai_agent(sample_archon_profile)
+        adapter._create_crewai_agent(sample_archon_profile)
 
         mock_agent_class.assert_called_once()
         call_kwargs = mock_agent_class.call_args.kwargs
@@ -404,7 +403,9 @@ class TestCrewAIAgentCreation:
         adapter._create_crewai_agent(sample_archon_profile)
 
         # Verify get_tools was called with the profile's suggested_tools
-        mock_tool_registry.get_tools.assert_called_once_with(sample_archon_profile.suggested_tools)
+        mock_tool_registry.get_tools.assert_called_once_with(
+            sample_archon_profile.suggested_tools
+        )
 
         call_kwargs = mock_agent_class.call_args.kwargs
         assert mock_insight_tool in call_kwargs["tools"]
@@ -524,7 +525,9 @@ class TestInvoke:
                 timeout_ms=1000,  # 1 second timeout
             ),
         )
-        mock_profile_repository.get_by_name.side_effect = lambda n: profile if n.lower() == "slowagent" else None
+        mock_profile_repository.get_by_name.side_effect = (
+            lambda n: profile if n.lower() == "slowagent" else None
+        )
 
         # Make crew.kickoff block longer than timeout (synchronous sleep)
         def slow_kickoff():
@@ -716,7 +719,9 @@ class TestCreateCrewAIAdapter:
         assert adapter._profile_repo is mock_profile_repository
         assert adapter._verbose is True
 
-    @patch("src.infrastructure.adapters.config.archon_profile_adapter.create_archon_profile_repository")
+    @patch(
+        "src.infrastructure.adapters.config.archon_profile_adapter.create_archon_profile_repository"
+    )
     def test_creates_default_repository_if_not_provided(
         self,
         mock_create_repo: MagicMock,

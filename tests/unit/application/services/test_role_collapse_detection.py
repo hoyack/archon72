@@ -9,38 +9,31 @@ Tests per acceptance criteria:
 - AC6: Violation severity classification
 """
 
-import pytest
 from datetime import datetime, timezone
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
+
+import pytest
 
 from src.application.ports.branch_action_tracker import (
     ArchonBranchHistory,
     BranchAction,
-    BranchActionTrackerProtocol,
     GovernanceAction,
     GovernanceBranch,
     RecordActionRequest,
-    RecordActionResult,
-    get_branch_for_action,
 )
 from src.application.services.role_collapse_detection_service import (
     CollapseCheckResult,
-    CollapsedRoles,
-    RoleCollapseAuditEntry,
     RoleCollapseDetectionService,
     RoleCollapseError,
     RoleCollapseSeverity,
     RoleCollapseViolation,
 )
 from src.infrastructure.adapters.config.branch_conflict_rules_loader import (
-    BranchConflictRule,
-    BranchConflictRulesLoaderProtocol,
     YamlBranchConflictRulesLoader,
 )
 from src.infrastructure.adapters.government.branch_action_tracker_adapter import (
     BranchActionTrackerAdapter,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -253,12 +246,18 @@ class TestBranchActionTracking:
         )
 
         # Check
-        assert await tracker.has_acted_in_branch(
-            king_archon_id, motion_id, GovernanceBranch.LEGISLATIVE
-        ) is True
-        assert await tracker.has_acted_in_branch(
-            king_archon_id, motion_id, GovernanceBranch.EXECUTIVE
-        ) is False
+        assert (
+            await tracker.has_acted_in_branch(
+                king_archon_id, motion_id, GovernanceBranch.LEGISLATIVE
+            )
+            is True
+        )
+        assert (
+            await tracker.has_acted_in_branch(
+                king_archon_id, motion_id, GovernanceBranch.EXECUTIVE
+            )
+            is False
+        )
 
     @pytest.mark.asyncio
     async def test_branch_derived_from_action(
@@ -818,7 +817,9 @@ class TestBranchConflictMatrix:
         # Find a rule that applies to legislative and advisory
         for rule in rules:
             if rule.applies_to("legislative", "advisory"):
-                pytest.fail(f"Unexpected conflict rule between legislative and advisory: {rule.id}")
+                pytest.fail(
+                    f"Unexpected conflict rule between legislative and advisory: {rule.id}"
+                )
 
     def test_witness_branch_has_no_active_conflicts(
         self,

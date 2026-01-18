@@ -18,7 +18,6 @@ Constitutional Compliance:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
@@ -118,9 +117,9 @@ class RestorationResult:
     """
 
     success: bool
-    new_state: Optional[LegitimacyState]
-    acknowledgment: Optional[RestorationAcknowledgment]
-    error: Optional[str]
+    new_state: LegitimacyState | None
+    acknowledgment: RestorationAcknowledgment | None
+    error: str | None
 
     @classmethod
     def succeeded(

@@ -12,18 +12,6 @@ References:
     - NFR-CONST-06: Panel findings cannot be deleted or modified
 """
 
-import pytest
-from datetime import datetime, timezone
-from typing import Dict, List, Optional
-from uuid import UUID, uuid4
-
-from src.domain.governance.panel import (
-    PanelFinding,
-    Determination,
-    RemedyType,
-    Dissent,
-    FindingRecord,
-)
 from src.application.ports.governance.panel_finding_port import PanelFindingPort
 
 
@@ -68,7 +56,8 @@ class TestPanelFindingPortImmutabilityConstraints:
         """
         # The only write method should be record_finding
         write_methods = [
-            attr for attr in dir(PanelFindingPort)
+            attr
+            for attr in dir(PanelFindingPort)
             if not attr.startswith("_")
             and callable(getattr(PanelFindingPort, attr, None))
             and attr.startswith(("record", "save", "create", "add", "insert"))

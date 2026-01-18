@@ -49,19 +49,19 @@ References:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Callable, Awaitable
+from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.domain.governance.witness.observation_type import ObservationType
-from src.domain.governance.witness.witness_statement import WitnessStatement
 
 if TYPE_CHECKING:
     from src.application.ports.governance.ledger_port import (
         GovernanceLedgerPort,
-        LedgerReadOptions,
         PersistedGovernanceEvent,
     )
     from src.application.ports.governance.witness_port import WitnessPort
@@ -135,31 +135,35 @@ class KnightObserverService:
     """
 
     # Event type prefixes for different branches
-    BRANCH_PREFIXES = frozenset({
-        "executive",
-        "judicial",
-        "constitutional",
-        "witness",
-        "filter",
-        "consent",
-        "legitimacy",
-        "exit",
-        "safety",
-        "system",
-        "ledger",
-        "administrative",
-    })
+    BRANCH_PREFIXES = frozenset(
+        {
+            "executive",
+            "judicial",
+            "constitutional",
+            "witness",
+            "filter",
+            "consent",
+            "legitimacy",
+            "exit",
+            "safety",
+            "system",
+            "ledger",
+            "administrative",
+        }
+    )
 
     # Panel event types for FR41 (Knight observes Prince Panel conduct)
-    PANEL_EVENT_TYPES = frozenset({
-        "judicial.panel.convened",
-        "judicial.panel.deliberation_started",
-        "judicial.panel.member_recused",
-        "judicial.panel.finding_proposed",
-        "judicial.panel.vote_recorded",
-        "judicial.panel.finding_issued",
-        "judicial.panel.dissent_recorded",
-    })
+    PANEL_EVENT_TYPES = frozenset(
+        {
+            "judicial.panel.convened",
+            "judicial.panel.deliberation_started",
+            "judicial.panel.member_recused",
+            "judicial.panel.finding_proposed",
+            "judicial.panel.vote_recorded",
+            "judicial.panel.finding_issued",
+            "judicial.panel.dissent_recorded",
+        }
+    )
 
     # Default poll interval (configurable)
     DEFAULT_POLL_INTERVAL_SECONDS = 0.5  # 500ms for sub-second observation
@@ -234,10 +238,8 @@ class KnightObserverService:
 
         if self._poll_task:
             self._poll_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._poll_task
-            except asyncio.CancelledError:
-                pass
             self._poll_task = None
 
         logger.info(
@@ -323,9 +325,7 @@ class KnightObserverService:
             # Limit observed_event_ids set size (rolling window)
             if len(self._observed_event_ids) > 10000:
                 # Remove oldest (this is approximate but sufficient)
-                self._observed_event_ids = set(
-                    list(self._observed_event_ids)[-5000:]
-                )
+                self._observed_event_ids = set(list(self._observed_event_ids)[-5000:])
 
         # Calculate metrics
         cycle_duration = (self._time_authority.monotonic() - cycle_start) * 1000
@@ -381,6 +381,7 @@ class KnightObserverService:
         Args:
             gap: The detected gap information.
         """
+
         # Create a pseudo-event for the gap observation
         @dataclass
         class GapPseudoEvent:
@@ -390,6 +391,7 @@ class KnightObserverService:
             actor: str
 
         from uuid import uuid4
+
         pseudo_event = GapPseudoEvent(
             event_id=uuid4(),
             event_type="witness.gap.detected",
@@ -415,9 +417,7 @@ class KnightObserverService:
         if self._gap_callback:
             await self._gap_callback(gap)
 
-    async def _observe_event(
-        self, event: PersistedGovernanceEvent
-    ) -> float:
+    async def _observe_event(self, event: PersistedGovernanceEvent) -> float:
         """Observe a single event and create witness statement.
 
         Args:
@@ -479,9 +479,7 @@ class KnightObserverService:
 
         return latency_ms
 
-    def _classify_event(
-        self, event: PersistedGovernanceEvent
-    ) -> ObservationType:
+    def _classify_event(self, event: PersistedGovernanceEvent) -> ObservationType:
         """Classify event for observation type.
 
         Args:
@@ -546,8 +544,7 @@ class KnightObserverService:
         }
 
         base_desc = descriptions.get(
-            event.event_type,
-            f"Panel event: {event.event_type}"
+            event.event_type, f"Panel event: {event.event_type}"
         )
 
         return f"{base_desc} at sequence {event.sequence}"

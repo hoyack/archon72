@@ -28,9 +28,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.api.models.petition import (
+    CoSignerResponse,
     CosignPetitionRequest,
     CosignPetitionResponse,
-    CoSignerResponse,
     ListPetitionsResponse,
     PetitionDetailResponse,
     PetitionErrorResponse,
@@ -148,7 +148,10 @@ async def submit_petition(
     "/{petition_id}/cosign",
     response_model=CosignPetitionResponse,
     responses={
-        400: {"model": PetitionErrorResponse, "description": "Invalid signature or duplicate"},
+        400: {
+            "model": PetitionErrorResponse,
+            "description": "Invalid signature or duplicate",
+        },
         404: {"model": PetitionErrorResponse, "description": "Petition not found"},
         409: {"model": PetitionErrorResponse, "description": "Petition closed"},
         503: {"model": PetitionErrorResponse, "description": "System halted"},

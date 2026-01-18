@@ -5,8 +5,6 @@ Tests HashVerificationError and related exceptions.
 
 from __future__ import annotations
 
-import pytest
-
 from src.domain.errors.constitutional import ConstitutionalViolationError
 from src.domain.errors.hash_verification import (
     HashChainBrokenError,

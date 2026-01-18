@@ -6,8 +6,6 @@ These tests verify:
 - Version is defined
 """
 
-import pytest
-
 
 def test_package_imports_correctly():
     """Verify archon72_verify package can be imported."""

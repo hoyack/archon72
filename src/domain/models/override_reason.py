@@ -75,8 +75,7 @@ class OverrideReason(Enum):
                 "issues with ceremony execution or quorum"
             ),
             OverrideReason.EMERGENCY_HALT_CLEAR: (
-                "Emergency halt clearing - "
-                "critical system recovery from halted state"
+                "Emergency halt clearing - critical system recovery from halted state"
             ),
             OverrideReason.CONFIGURATION_ERROR: (
                 "Configuration error correction - "
@@ -98,13 +97,15 @@ class OverrideReason(Enum):
 # Forbidden Override Scopes (FR26, Story 5.4)
 # =============================================================================
 
-FORBIDDEN_OVERRIDE_SCOPES: frozenset[str] = frozenset([
-    "witness",
-    "witnessing",
-    "attestation",
-    "witness_service",
-    "witness_pool",
-])
+FORBIDDEN_OVERRIDE_SCOPES: frozenset[str] = frozenset(
+    [
+        "witness",
+        "witnessing",
+        "attestation",
+        "witness_service",
+        "witness_pool",
+    ]
+)
 """Exact scope names that are forbidden (FR26).
 
 These scopes directly target witnessing infrastructure and cannot be overridden.

@@ -154,10 +154,7 @@ class CessationFlagRepositoryStub:
             return True
 
         # Fall back to DB
-        if db_available and self._db_flag is not None:
-            return True
-
-        return False
+        return bool(db_available and self._db_flag is not None)
 
     async def get_cessation_details(self) -> CessationDetails | None:
         """Get cessation details from either channel.

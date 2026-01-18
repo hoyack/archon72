@@ -23,15 +23,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from src.domain.governance.events.event_envelope import (
-    EventMetadata,
     GovernanceEvent,
 )
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 from src.domain.governance.task.task_state import TaskState, TaskStatus
-
 
 # Event type registry for task domain
 # Maps TaskStatus → event type string following executive.task.{verb} pattern
@@ -154,7 +152,9 @@ def create_task_created_event(
         "status": TaskStatus.AUTHORIZED.value,
         "created_at": created_time.isoformat(),
         "ttl_seconds": int(task_state.ttl.total_seconds()),
-        "inactivity_timeout_seconds": int(task_state.inactivity_timeout.total_seconds()),
+        "inactivity_timeout_seconds": int(
+            task_state.inactivity_timeout.total_seconds()
+        ),
         "reporting_timeout_seconds": int(task_state.reporting_timeout.total_seconds()),
     }
 

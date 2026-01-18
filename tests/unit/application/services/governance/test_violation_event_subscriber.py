@@ -4,19 +4,15 @@ Tests the event subscription layer that triggers legitimacy decay
 when violation events are received (AC8).
 """
 
-from datetime import datetime, timezone
-from typing import Callable, Optional
+from collections.abc import Callable
 from uuid import uuid4
 
 import pytest
 
 from src.application.services.governance.violation_event_subscriber import (
-    ViolationEventSubscriber,
     VIOLATION_EVENT_PATTERN,
+    ViolationEventSubscriber,
 )
-from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
-from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
-from src.domain.governance.legitimacy.transition_type import TransitionType
 from src.domain.governance.legitimacy.violation_severity import ViolationSeverity
 
 
@@ -81,6 +77,7 @@ class FakeDecayService:
         self.violations_processed.append((violation_event_id, violation_type))
         # Return a dummy result
         from src.application.ports.governance.legitimacy_decay_port import DecayResult
+
         return DecayResult(
             transition_occurred=True,
             new_state=None,

@@ -54,8 +54,16 @@ logger = get_logger(__name__)
 
 # Patterns that suggest the intent has been modified
 INTENT_MODIFICATION_PATTERNS = [
-    (re.compile(r"\b(?:instead|rather|alternatively)\b", re.I), "modification_language"),
-    (re.compile(r"\b(?:change|modify|alter)\s+(?:the\s+)?(?:intent|goal|objective)\b", re.I), "explicit_modification"),
+    (
+        re.compile(r"\b(?:instead|rather|alternatively)\b", re.I),
+        "modification_language",
+    ),
+    (
+        re.compile(
+            r"\b(?:change|modify|alter)\s+(?:the\s+)?(?:intent|goal|objective)\b", re.I
+        ),
+        "explicit_modification",
+    ),
     (re.compile(r"\b(?:redefine|reinterpret|revise)\b", re.I), "redefinition_language"),
 ]
 
@@ -125,7 +133,7 @@ class PresidentServiceAdapter(PresidentServiceProtocol):
             return TranslationResult(
                 success=False,
                 error=f"Motion is not ratified (status: {request.motion.status.value}). "
-                      "Cannot translate non-ratified motions.",
+                "Cannot translate non-ratified motions.",
             )
 
         # Check permission if enforcer available
@@ -144,7 +152,7 @@ class PresidentServiceAdapter(PresidentServiceProtocol):
                 await self._witness_violation(
                     archon_id=request.president_id,
                     violation_type="rank_violation",
-                    description=f"Attempted to define execution without President rank",
+                    description="Attempted to define execution without President rank",
                 )
                 return TranslationResult(
                     success=False,
@@ -155,7 +163,9 @@ class PresidentServiceAdapter(PresidentServiceProtocol):
         intent = request.motion.amended_intent or request.motion.intent
 
         # Check for ambiguity that requires escalation
-        blocker = self._check_for_ambiguity(intent, request.motion.motion_id, request.president_id)
+        blocker = self._check_for_ambiguity(
+            intent, request.motion.motion_id, request.president_id
+        )
         if blocker:
             # Store escalation
             self._escalations[blocker.blocker_id] = blocker
@@ -398,26 +408,23 @@ class PresidentServiceAdapter(PresidentServiceProtocol):
 
         # Verify tasks relate to original intent keywords
         intent_words = set(
-            word.lower()
-            for word in re.findall(r"\b\w{4,}\b", original_intent)
+            word.lower() for word in re.findall(r"\b\w{4,}\b", original_intent)
         )
 
         task_words = set()
         for task in derived_tasks:
             task_words.update(
-                word.lower()
-                for word in re.findall(r"\b\w{4,}\b", task.description)
+                word.lower() for word in re.findall(r"\b\w{4,}\b", task.description)
             )
 
         # At least 30% of intent keywords should appear in tasks
         if intent_words:
             overlap = len(intent_words & task_words) / len(intent_words)
-            if overlap < 0.3:
-                if self._verbose:
-                    logger.warning(
-                        "low_intent_overlap",
-                        overlap_ratio=overlap,
-                    )
+            if overlap < 0.3 and self._verbose:
+                logger.warning(
+                    "low_intent_overlap",
+                    overlap_ratio=overlap,
+                )
                 # Don't fail on low overlap - just warn
                 # Production would be more sophisticated
 

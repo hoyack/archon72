@@ -147,9 +147,7 @@ class TaskActivationRequest:
                 f"request_id must be UUID, got {type(self.request_id).__name__}"
             )
         if not isinstance(self.task_id, UUID):
-            raise ValueError(
-                f"task_id must be UUID, got {type(self.task_id).__name__}"
-            )
+            raise ValueError(f"task_id must be UUID, got {type(self.task_id).__name__}")
         if not isinstance(self.earl_id, str) or not self.earl_id.strip():
             raise ValueError("earl_id must be non-empty string")
         if not isinstance(self.cluster_id, str) or not self.cluster_id.strip():
@@ -178,7 +176,10 @@ class TaskActivationRequest:
 
         Only accepted or transformed content can be routed.
         """
-        return self.filter_outcome in (FilterOutcome.ACCEPTED, FilterOutcome.TRANSFORMED)
+        return self.filter_outcome in (
+            FilterOutcome.ACCEPTED,
+            FilterOutcome.TRANSFORMED,
+        )
 
 
 @dataclass(frozen=True)
@@ -199,7 +200,7 @@ class TaskActivationResult:
     """
 
     success: bool
-    task_state: "TaskState"
+    task_state: TaskState
     filter_outcome: FilterOutcome
     filter_decision_id: UUID
     routing_status: RoutingStatus

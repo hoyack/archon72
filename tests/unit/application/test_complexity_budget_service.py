@@ -5,7 +5,7 @@ ceremony requirements.
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -22,8 +22,6 @@ from src.domain.events.complexity_budget import (
 )
 from src.domain.models.complexity_budget import (
     ADR_LIMIT,
-    CEREMONY_TYPE_LIMIT,
-    CROSS_COMPONENT_DEP_LIMIT,
     ComplexityBudgetStatus,
     ComplexityDimension,
     ComplexitySnapshot,
@@ -159,9 +157,7 @@ class TestGetBudgetStatus:
         assert ComplexityDimension.CROSS_COMPONENT_DEPS in status
 
     @pytest.mark.asyncio
-    async def test_within_budget_status(
-        self, service: ComplexityBudgetService
-    ) -> None:
+    async def test_within_budget_status(self, service: ComplexityBudgetService) -> None:
         """Test that default values show within_budget status."""
         status = await service.get_budget_status()
 

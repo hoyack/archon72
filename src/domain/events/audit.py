@@ -157,15 +157,11 @@ class AuditCompletedEventPayload:
 
         # Clean status must have zero violations
         if self.status == "clean" and self.violations_found > 0:
-            raise ValueError(
-                "FR57: status 'clean' cannot have violations_found > 0"
-            )
+            raise ValueError("FR57: status 'clean' cannot have violations_found > 0")
 
         # Violations require remediation deadline (AC3: clock starts for Conclave)
         if self.status == "violations_found" and self.remediation_deadline is None:
-            raise ValueError(
-                "FR57: violations require remediation_deadline (AC3)"
-            )
+            raise ValueError("FR57: violations require remediation_deadline (AC3)")
 
     @property
     def is_clean(self) -> bool:

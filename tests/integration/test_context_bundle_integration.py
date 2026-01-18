@@ -369,7 +369,10 @@ class TestContextBundleValidation:
 
         assert result.valid is False
         # First error should be signature-related
-        assert "HASH_MISMATCH" in result.error_code or "INVALID_SIGNATURE" in result.error_code
+        assert (
+            "HASH_MISMATCH" in result.error_code
+            or "INVALID_SIGNATURE" in result.error_code
+        )
 
     @pytest.mark.asyncio
     async def test_invalid_signature_rejected_with_adr2_message(
@@ -610,8 +613,7 @@ class TestPrecedentRefsMaximum:
         """Bundle should reject more than 10 precedent refs."""
         # Create 11 precedent refs
         precedent_refs = tuple(
-            f"{CONTENT_REF_PREFIX}{hex(i)[2:].zfill(64)}"
-            for i in range(11)
+            f"{CONTENT_REF_PREFIX}{hex(i)[2:].zfill(64)}" for i in range(11)
         )
 
         with pytest.raises(ValueError, match="Maximum 10 precedent references allowed"):
@@ -636,8 +638,7 @@ class TestPrecedentRefsMaximum:
         """Bundle should accept exactly 10 precedent refs."""
         # Create exactly 10 precedent refs
         precedent_refs = tuple(
-            f"{CONTENT_REF_PREFIX}{hex(i)[2:].zfill(64)}"
-            for i in range(10)
+            f"{CONTENT_REF_PREFIX}{hex(i)[2:].zfill(64)}" for i in range(10)
         )
 
         bundle = ContextBundlePayload(

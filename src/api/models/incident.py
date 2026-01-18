@@ -10,7 +10,7 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PlainSerializer
@@ -34,8 +34,8 @@ class TimelineEntryResponse(BaseModel):
 
     timestamp: DateTimeWithZ
     description: str
-    event_id: Optional[UUID] = None
-    actor: Optional[str] = None
+    event_id: UUID | None = None
+    actor: str | None = None
 
 
 class IncidentSummaryResponse(BaseModel):
@@ -55,7 +55,7 @@ class IncidentSummaryResponse(BaseModel):
     title: str
     status: str
     created_at: DateTimeWithZ
-    resolution_at: Optional[DateTimeWithZ] = None
+    resolution_at: DateTimeWithZ | None = None
 
 
 class IncidentDetailResponse(BaseModel):
@@ -94,8 +94,8 @@ class IncidentDetailResponse(BaseModel):
     prevention_recommendations: list[str]
     related_event_ids: list[UUID]
     created_at: DateTimeWithZ
-    resolution_at: Optional[DateTimeWithZ] = None
-    published_at: Optional[DateTimeWithZ] = None
+    resolution_at: DateTimeWithZ | None = None
+    published_at: DateTimeWithZ | None = None
     redacted_fields: list[str] = Field(default_factory=list)
     content_hash: str
 
@@ -142,10 +142,10 @@ class IncidentQueryParams(BaseModel):
         offset: Offset for pagination (default 0).
     """
 
-    incident_type: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    status: Optional[str] = None
+    incident_type: str | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    status: str | None = None
     limit: int = Field(default=50, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
 

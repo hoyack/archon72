@@ -30,7 +30,6 @@ from src.application.services.governance.task_reminder_service import (
     TaskReminderService,
 )
 from src.domain.governance.filter import (
-    FilterDecision,
     FilteredContent,
     FilterResult,
     FilterVersion,
@@ -64,7 +63,9 @@ def _make_accepted_result(content: str) -> FilterResult:
     )
 
 
-def _make_rejected_result(reason: RejectionReason, guidance: str | None = None) -> FilterResult:
+def _make_rejected_result(
+    reason: RejectionReason, guidance: str | None = None
+) -> FilterResult:
     """Create a REJECTED filter result."""
     return FilterResult.rejected(
         reason=reason,
@@ -74,7 +75,9 @@ def _make_rejected_result(reason: RejectionReason, guidance: str | None = None) 
     )
 
 
-def _make_blocked_result(violation: ViolationType, details: str | None = None) -> FilterResult:
+def _make_blocked_result(
+    violation: ViolationType, details: str | None = None
+) -> FilterResult:
     """Create a BLOCKED filter result."""
     return FilterResult.blocked(
         violation=violation,
@@ -199,7 +202,9 @@ class TestReminderAtMilestones:
         mock_task_state_port.get_tasks_by_status.return_value = [task]
         mock_task_state_port.get_task.return_value = task
 
-        pending = await reminder_service.get_pending_reminders(ReminderMilestone.HALFWAY)
+        pending = await reminder_service.get_pending_reminders(
+            ReminderMilestone.HALFWAY
+        )
 
         assert task.task_id in pending
 
@@ -239,7 +244,9 @@ class TestReminderAtMilestones:
         )
         mock_task_state_port.get_tasks_by_status.return_value = [task]
 
-        pending = await reminder_service.get_pending_reminders(ReminderMilestone.HALFWAY)
+        pending = await reminder_service.get_pending_reminders(
+            ReminderMilestone.HALFWAY
+        )
 
         assert task.task_id not in pending
 
@@ -422,7 +429,9 @@ class TestDuplicatePrevention:
         # Return empty list - no ROUTED tasks
         mock_task_state_port.get_tasks_by_status.return_value = []
 
-        pending = await reminder_service.get_pending_reminders(ReminderMilestone.HALFWAY)
+        pending = await reminder_service.get_pending_reminders(
+            ReminderMilestone.HALFWAY
+        )
 
         assert len(pending) == 0
 
@@ -438,12 +447,16 @@ class TestDuplicatePrevention:
 
         # First call - not sent yet
         mock_reminder_tracking.has_milestone_sent.return_value = False
-        pending1 = await reminder_service.get_pending_reminders(ReminderMilestone.HALFWAY)
+        pending1 = await reminder_service.get_pending_reminders(
+            ReminderMilestone.HALFWAY
+        )
         assert task.task_id in pending1
 
         # Second call - already sent
         mock_reminder_tracking.has_milestone_sent.return_value = True
-        pending2 = await reminder_service.get_pending_reminders(ReminderMilestone.HALFWAY)
+        pending2 = await reminder_service.get_pending_reminders(
+            ReminderMilestone.HALFWAY
+        )
         assert task.task_id not in pending2
 
     async def test_milestone_tracked_after_send(

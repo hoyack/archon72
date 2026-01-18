@@ -63,9 +63,7 @@ class AuditRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_audit_by_quarter(
-        self, quarter: AuditQuarter
-    ) -> MaterialAudit | None:
+    async def get_audit_by_quarter(self, quarter: AuditQuarter) -> MaterialAudit | None:
         """Get the audit for a specific quarter.
 
         Args:
@@ -76,9 +74,7 @@ class AuditRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_audit_history(
-        self, limit: int = 10
-    ) -> list[MaterialAudit]:
+    async def get_audit_history(self, limit: int = 10) -> list[MaterialAudit]:
         """Get recent audit history.
 
         Args:

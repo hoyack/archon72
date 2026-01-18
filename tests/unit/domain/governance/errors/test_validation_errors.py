@@ -4,8 +4,9 @@ Story: consent-gov-1.4: Write-Time Validation
 AC5: WriteTimeValidationError with specific failure reason (not generic failure)
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from src.domain.governance.errors.validation_errors import (
     HashChainBreakError,
@@ -56,7 +57,9 @@ class TestIllegalStateTransitionError:
             allowed_states=["activated", "expired", "cancelled"],
         )
 
-    def test_is_write_time_validation_error(self, error: IllegalStateTransitionError) -> None:
+    def test_is_write_time_validation_error(
+        self, error: IllegalStateTransitionError
+    ) -> None:
         """IllegalStateTransitionError is a WriteTimeValidationError."""
         assert isinstance(error, WriteTimeValidationError)
 
@@ -65,7 +68,9 @@ class TestIllegalStateTransitionError:
         with pytest.raises(AttributeError):
             error.current_state = "new_state"  # type: ignore
 
-    def test_str_includes_aggregate_info(self, error: IllegalStateTransitionError) -> None:
+    def test_str_includes_aggregate_info(
+        self, error: IllegalStateTransitionError
+    ) -> None:
         """Error message includes aggregate type and ID."""
         msg = str(error)
         assert "task:task-123" in msg
@@ -76,13 +81,17 @@ class TestIllegalStateTransitionError:
         assert "authorized" in msg
         assert "completed" in msg
 
-    def test_str_includes_allowed_states(self, error: IllegalStateTransitionError) -> None:
+    def test_str_includes_allowed_states(
+        self, error: IllegalStateTransitionError
+    ) -> None:
         """Error message includes allowed transitions."""
         msg = str(error)
         assert "activated" in msg
         assert "expired" in msg
 
-    def test_str_includes_ad_reference(self, error: IllegalStateTransitionError) -> None:
+    def test_str_includes_ad_reference(
+        self, error: IllegalStateTransitionError
+    ) -> None:
         """Error message includes architectural decision reference."""
         msg = str(error)
         assert "AD-12" in msg

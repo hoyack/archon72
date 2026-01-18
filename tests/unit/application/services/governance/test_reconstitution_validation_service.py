@@ -12,8 +12,6 @@ Constitutional Context:
 """
 
 from datetime import datetime, timezone
-from typing import Optional
-from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -36,13 +34,13 @@ from src.domain.governance.cessation import (
 class MockCessationRecordPort:
     """Mock port for cessation record operations."""
 
-    def __init__(self, record: Optional[CessationRecord] = None) -> None:
+    def __init__(self, record: CessationRecord | None = None) -> None:
         self._record = record
 
-    async def get_record(self) -> Optional[CessationRecord]:
+    async def get_record(self) -> CessationRecord | None:
         return self._record
 
-    def set_record(self, record: Optional[CessationRecord]) -> None:
+    def set_record(self, record: CessationRecord | None) -> None:
         self._record = record
 
 
@@ -55,7 +53,7 @@ class MockReconstitutionPort:
     async def store_validation_result(self, result: ValidationResult) -> None:
         self._results[result.artifact_id] = result
 
-    async def get_validation_result(self, artifact_id: UUID) -> Optional[ValidationResult]:
+    async def get_validation_result(self, artifact_id: UUID) -> ValidationResult | None:
         return self._results.get(artifact_id)
 
 
@@ -75,12 +73,14 @@ class MockEventEmitter:
         target_entity_id: str,
         intent_payload: dict,
     ) -> UUID:
-        self.emitted_intents.append({
-            "operation_type": operation_type,
-            "actor_id": actor_id,
-            "target_entity_id": target_entity_id,
-            "payload": intent_payload,
-        })
+        self.emitted_intents.append(
+            {
+                "operation_type": operation_type,
+                "actor_id": actor_id,
+                "target_entity_id": target_entity_id,
+                "payload": intent_payload,
+            }
+        )
         return self._next_correlation_id
 
     async def emit_commit(
@@ -88,10 +88,12 @@ class MockEventEmitter:
         correlation_id: UUID,
         outcome_payload: dict,
     ) -> None:
-        self.emitted_commits.append({
-            "correlation_id": correlation_id,
-            "payload": outcome_payload,
-        })
+        self.emitted_commits.append(
+            {
+                "correlation_id": correlation_id,
+                "payload": outcome_payload,
+            }
+        )
 
     async def emit_failure(
         self,
@@ -99,11 +101,13 @@ class MockEventEmitter:
         failure_reason: str,
         failure_details: dict,
     ) -> None:
-        self.emitted_failures.append({
-            "correlation_id": correlation_id,
-            "reason": failure_reason,
-            "details": failure_details,
-        })
+        self.emitted_failures.append(
+            {
+                "correlation_id": correlation_id,
+                "reason": failure_reason,
+                "details": failure_details,
+            }
+        )
 
 
 class MockTimeAuthority:
@@ -458,7 +462,7 @@ class TestEventEmission:
         await validation_service.validate_artifact(artifact=valid_artifact)
 
         assert len(event_emitter.emitted_commits) == 1
-        commit = event_emitter.emitted_commits[0]
+        event_emitter.emitted_commits[0]
         assert "validated" in event_emitter.emitted_intents[0]["operation_type"]
 
     @pytest.mark.asyncio
@@ -510,7 +514,9 @@ class TestResultPersistence:
         """Validation result is stored in port."""
         result = await validation_service.validate_artifact(artifact=valid_artifact)
 
-        stored = await reconstitution_port.get_validation_result(valid_artifact.artifact_id)
+        stored = await reconstitution_port.get_validation_result(
+            valid_artifact.artifact_id
+        )
         assert stored is not None
         assert stored.artifact_id == valid_artifact.artifact_id
         assert stored.status == result.status

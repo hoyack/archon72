@@ -27,16 +27,15 @@ from src.application.ports.final_deliberation_recorder import (
     RecordDeliberationResult,
 )
 from src.domain.events.cessation_deliberation import (
+    REQUIRED_ARCHON_COUNT,
     ArchonDeliberation,
     ArchonPosition,
     CessationDeliberationEventPayload,
-    REQUIRED_ARCHON_COUNT,
 )
 from src.domain.events.collective_output import VoteCounts
 from src.domain.events.deliberation_recording_failed import (
     DeliberationRecordingFailedEventPayload,
 )
-
 
 # Error code constants for deliberation recording failures
 ERROR_CODE_UNKNOWN = "UNKNOWN_ERROR"
@@ -226,16 +225,13 @@ class FinalDeliberationService:
             VoteCounts with yes/no/abstain breakdown.
         """
         yes_count = sum(
-            1 for d in deliberations
-            if d.position == ArchonPosition.SUPPORT_CESSATION
+            1 for d in deliberations if d.position == ArchonPosition.SUPPORT_CESSATION
         )
         no_count = sum(
-            1 for d in deliberations
-            if d.position == ArchonPosition.OPPOSE_CESSATION
+            1 for d in deliberations if d.position == ArchonPosition.OPPOSE_CESSATION
         )
         abstain_count = sum(
-            1 for d in deliberations
-            if d.position == ArchonPosition.ABSTAIN
+            1 for d in deliberations if d.position == ArchonPosition.ABSTAIN
         )
 
         return VoteCounts(

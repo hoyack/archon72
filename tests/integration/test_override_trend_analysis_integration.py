@@ -157,7 +157,9 @@ class TestAC2_50PercentIncreaseAlert:
 
         # Verify event written with correct type and payload
         assert len(mock_event_writer.written_events) == 1
-        event_type, payload, agent_id, local_timestamp = mock_event_writer.written_events[0]
+        event_type, payload, agent_id, local_timestamp = (
+            mock_event_writer.written_events[0]
+        )
         assert event_type == ANTI_SUCCESS_ALERT_EVENT_TYPE
         assert payload["alert_type"] == AlertType.PERCENTAGE_INCREASE.value
         assert payload["before_count"] == 3
@@ -199,7 +201,9 @@ class TestAC3_30DayThresholdAlert:
 
         # Verify event written
         assert len(mock_event_writer.written_events) == 1
-        event_type, payload, agent_id, local_timestamp = mock_event_writer.written_events[0]
+        event_type, payload, agent_id, local_timestamp = (
+            mock_event_writer.written_events[0]
+        )
         assert event_type == ANTI_SUCCESS_ALERT_EVENT_TYPE
         assert payload["alert_type"] == AlertType.THRESHOLD_30_DAY.value
 
@@ -238,7 +242,9 @@ class TestAC4_365DayGovernanceReview:
 
         # Verify governance review event written
         assert len(mock_event_writer.written_events) == 1
-        event_type, payload, agent_id, local_timestamp = mock_event_writer.written_events[0]
+        event_type, payload, agent_id, local_timestamp = (
+            mock_event_writer.written_events[0]
+        )
         assert event_type == GOVERNANCE_REVIEW_REQUIRED_EVENT_TYPE
         assert payload["override_count"] == 22
         assert payload["threshold"] == 20

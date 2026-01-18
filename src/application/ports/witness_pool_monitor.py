@@ -15,8 +15,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol, runtime_checkable
-
+from typing import Protocol, runtime_checkable
 
 # Constitutional thresholds (FR117)
 MINIMUM_WITNESSES_STANDARD: int = 6
@@ -44,7 +43,7 @@ class WitnessPoolStatus:
     available_count: int
     excluded_witnesses: tuple[str, ...] = ()
     is_degraded: bool = False
-    degraded_since: Optional[datetime] = None
+    degraded_since: datetime | None = None
     minimum_for_standard: int = MINIMUM_WITNESSES_STANDARD
     minimum_for_high_stakes: int = MINIMUM_WITNESSES_HIGH_STAKES
 
@@ -66,7 +65,9 @@ class WitnessPoolStatus:
         Returns:
             Tuple of (can_proceed, reason).
         """
-        required = self.minimum_for_high_stakes if high_stakes else self.minimum_for_standard
+        required = (
+            self.minimum_for_high_stakes if high_stakes else self.minimum_for_standard
+        )
         effective = self.effective_count
 
         if effective >= required:
@@ -75,13 +76,10 @@ class WitnessPoolStatus:
         if high_stakes:
             return (
                 False,
-                f"FR117: High-stakes blocked - {effective} < {required} witnesses available"
+                f"FR117: High-stakes blocked - {effective} < {required} witnesses available",
             )
 
-        return (
-            False,
-            f"Pool insufficient: {effective} < {required} witnesses"
-        )
+        return (False, f"Pool insufficient: {effective} < {required} witnesses")
 
 
 @runtime_checkable
@@ -144,7 +142,7 @@ class WitnessPoolMonitorProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def get_degraded_since(self) -> Optional[datetime]:
+    async def get_degraded_since(self) -> datetime | None:
         """Get when degraded mode started.
 
         Returns:

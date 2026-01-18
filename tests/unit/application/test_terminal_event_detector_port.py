@@ -9,7 +9,7 @@ Tests for:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Protocol, runtime_checkable
+from typing import Protocol
 from uuid import uuid4
 
 import pytest
@@ -23,9 +23,9 @@ class TestTerminalEventDetectorProtocol:
 
     def test_is_protocol(self) -> None:
         """Should be a Protocol class."""
-        assert hasattr(TerminalEventDetectorProtocol, "__protocol_attrs__") or issubclass(
-            TerminalEventDetectorProtocol, Protocol
-        )
+        assert hasattr(
+            TerminalEventDetectorProtocol, "__protocol_attrs__"
+        ) or issubclass(TerminalEventDetectorProtocol, Protocol)
 
     def test_has_is_system_terminated_method(self) -> None:
         """Should have is_system_terminated method."""
@@ -198,4 +198,7 @@ class TestProtocolDocumentation:
         """is_system_terminated docstring should mention permanent state."""
         method = getattr(TerminalEventDetectorProtocol, "is_system_terminated", None)
         if method and method.__doc__:
-            assert "permanent" in method.__doc__.lower() or "irreversible" in method.__doc__.lower()
+            assert (
+                "permanent" in method.__doc__.lower()
+                or "irreversible" in method.__doc__.lower()
+            )

@@ -51,7 +51,9 @@ def mock_witness_pool() -> AsyncMock:
 
 
 @pytest.fixture
-def witness_service(mock_hsm: AsyncMock, mock_witness_pool: AsyncMock) -> WitnessService:
+def witness_service(
+    mock_hsm: AsyncMock, mock_witness_pool: AsyncMock
+) -> WitnessService:
     """Create a WitnessService with mock dependencies."""
     return WitnessService(hsm=mock_hsm, witness_pool=mock_witness_pool)
 

@@ -57,7 +57,9 @@ class TaskTimeoutConfig:
     """
 
     activation_ttl: timedelta = field(default_factory=lambda: timedelta(hours=72))
-    acceptance_inactivity: timedelta = field(default_factory=lambda: timedelta(hours=48))
+    acceptance_inactivity: timedelta = field(
+        default_factory=lambda: timedelta(hours=48)
+    )
     reporting_timeout: timedelta = field(default_factory=lambda: timedelta(days=7))
     processor_interval: timedelta = field(default_factory=lambda: timedelta(minutes=5))
 

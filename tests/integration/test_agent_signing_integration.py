@@ -66,7 +66,7 @@ class TestSigningServiceIntegration:
         self, dev_hsm: DevHSM, key_registry: InMemoryKeyRegistry
     ) -> None:
         """RT-1: Signature should include dev mode watermark."""
-        service = SigningService(hsm=dev_hsm, key_registry=key_registry)
+        SigningService(hsm=dev_hsm, key_registry=key_registry)
 
         # Sign and then verify the mode is embedded
         mode = await dev_hsm.get_mode()
@@ -316,9 +316,7 @@ class TestInMemoryKeyRegistryIntegration:
         assert current.key_id == "dev-current"
 
     @pytest.mark.asyncio
-    async def test_deactivate_key(
-        self, key_registry: InMemoryKeyRegistry
-    ) -> None:
+    async def test_deactivate_key(self, key_registry: InMemoryKeyRegistry) -> None:
         """Deactivating a key should set active_until."""
         key = AgentKey(
             id=uuid4(),
@@ -353,9 +351,7 @@ class TestInMemoryKeyRegistryIntegration:
             )
 
     @pytest.mark.asyncio
-    async def test_key_exists(
-        self, key_registry: InMemoryKeyRegistry
-    ) -> None:
+    async def test_key_exists(self, key_registry: InMemoryKeyRegistry) -> None:
         """key_exists should return correct boolean."""
         key = AgentKey(
             id=uuid4(),

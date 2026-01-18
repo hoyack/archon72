@@ -21,10 +21,8 @@ from uuid import uuid4
 import pytest
 
 from src.application.services.independence_attestation_service import (
-    DeclarationDiff,
-    IndependenceAttestationService,
-    IndependenceHistoryResponse,
     SUSPENDED_CAPABILITIES,
+    IndependenceAttestationService,
 )
 from src.domain.errors.independence_attestation import (
     CapabilitySuspendedError,
@@ -35,7 +33,6 @@ from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.independence_attestation import (
     DECLARATION_CHANGE_DETECTED_EVENT_TYPE,
     INDEPENDENCE_ATTESTATION_EVENT_TYPE,
-    KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE,
 )
 from src.domain.events.override_abuse import AnomalyType
 from src.domain.models.independence_attestation import (
@@ -44,7 +41,6 @@ from src.domain.models.independence_attestation import (
     ConflictDeclaration,
     DeclarationType,
     IndependenceAttestation,
-    calculate_deadline,
     get_current_attestation_year,
 )
 from src.infrastructure.stubs.independence_attestation_stub import (
@@ -543,7 +539,8 @@ class TestGetKeeperIndependenceHistory:
             attestation = IndependenceAttestation(
                 id=uuid4(),
                 keeper_id=keeper_id,
-                attested_at=datetime.now(timezone.utc) - timedelta(days=365 * year_offset),
+                attested_at=datetime.now(timezone.utc)
+                - timedelta(days=365 * year_offset),
                 attestation_year=year,
                 conflict_declarations=[],
                 affiliated_organizations=[],

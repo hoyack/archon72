@@ -10,8 +10,8 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Annotated, Optional
+from datetime import datetime
+from typing import TYPE_CHECKING, Annotated
 
 if TYPE_CHECKING:
     from src.application.services.event_writer_service import EventWriterService
@@ -48,8 +48,8 @@ router = APIRouter(prefix="/v1/complexity", tags=["complexity"])
 
 # Placeholder for dependency injection
 # In production, these would be injected via FastAPI dependencies
-_complexity_service: Optional[ComplexityBudgetService] = None
-_escalation_service: Optional[ComplexityBudgetEscalationService] = None
+_complexity_service: ComplexityBudgetService | None = None
+_escalation_service: ComplexityBudgetEscalationService | None = None
 
 
 def get_complexity_service() -> ComplexityBudgetService:
@@ -222,7 +222,7 @@ async def get_metrics(
 )
 async def list_breaches(
     resolved: Annotated[
-        Optional[bool],
+        bool | None,
         Query(description="Filter by resolution status"),
     ] = None,
     service: ComplexityBudgetService = Depends(get_complexity_service),
@@ -303,12 +303,10 @@ async def get_trends(
 
     # Count breaches and escalations in the date range
     breaches_in_range = [
-        b for b in all_breaches
-        if start_date <= b.breached_at <= end_date
+        b for b in all_breaches if start_date <= b.breached_at <= end_date
     ]
     escalations_in_range = [
-        e for e in all_escalations
-        if start_date <= e.escalated_at <= end_date
+        e for e in all_escalations if start_date <= e.escalated_at <= end_date
     ]
 
     data_points = [

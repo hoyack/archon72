@@ -21,19 +21,18 @@ Constitutional Truths Tested:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
 import pytest
 
 from src.application.services.governance.contribution_preservation_service import (
-    ContributionPreservationService,
     CONTRIBUTIONS_PRESERVED_EVENT,
+    ContributionPreservationService,
 )
-from src.domain.governance.exit.contribution_type import ContributionType
 from src.domain.governance.exit.contribution_record import ContributionRecord
+from src.domain.governance.exit.contribution_type import ContributionType
 from src.domain.governance.exit.preservation_result import PreservationResult
-
 
 # =============================================================================
 # Test Doubles
@@ -70,11 +69,13 @@ class FakeEventEmitter:
         payload: dict,
     ) -> None:
         """Emit an event."""
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_last(self, event_type: str) -> dict | None:
         """Get most recent event of type."""
@@ -100,10 +101,7 @@ class FakeContributionPort:
         cluster_id: UUID,
     ) -> list[ContributionRecord]:
         """Get all contributions for a Cluster."""
-        return [
-            c for c in self._contributions.values()
-            if c.cluster_id == cluster_id
-        ]
+        return [c for c in self._contributions.values() if c.cluster_id == cluster_id]
 
     async def get_preserved(
         self,
@@ -111,7 +109,8 @@ class FakeContributionPort:
     ) -> list[ContributionRecord]:
         """Get preserved contributions for a Cluster."""
         return [
-            c for c in self._contributions.values()
+            c
+            for c in self._contributions.values()
             if c.cluster_id == cluster_id and c.preserved_at is not None
         ]
 
@@ -513,8 +512,8 @@ class TestHistoricalQueries:
         cluster_id = uuid4()
 
         # Add contributions
-        c1 = contribution_port.add_contribution(cluster_id)
-        c2 = contribution_port.add_contribution(cluster_id)
+        contribution_port.add_contribution(cluster_id)
+        contribution_port.add_contribution(cluster_id)
 
         # Query before
         before = await contribution_port.get_for_cluster(cluster_id)

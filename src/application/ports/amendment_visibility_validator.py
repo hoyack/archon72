@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.application.ports.amendment_repository import AmendmentProposal
 
@@ -67,7 +67,7 @@ class HistoryProtectionResult:
     """
 
     is_valid: bool
-    violation_reason: Optional[str]
+    violation_reason: str | None
 
 
 class AmendmentVisibilityValidatorProtocol(Protocol):
@@ -148,9 +148,7 @@ class AmendmentVisibilityValidatorProtocol(Protocol):
         """
         ...
 
-    async def can_proceed_to_vote(
-        self, amendment_id: str
-    ) -> tuple[bool, str]:
+    async def can_proceed_to_vote(self, amendment_id: str) -> tuple[bool, str]:
         """Comprehensive check combining all validations.
 
         Validates all constitutional constraints (FR126, FR127, FR128)

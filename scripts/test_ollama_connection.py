@@ -63,7 +63,7 @@ def test_ollama_connectivity() -> bool:
             data = response.json()
             models = [m["name"] for m in data.get("models", [])]
             print(f"   Server: {ollama_host}")
-            print(f"   Status: Connected ✅")
+            print("   Status: Connected ✅")
             print(f"   Models available: {len(models)}")
             for model in models[:5]:
                 print(f"     - {model}")
@@ -86,8 +86,11 @@ def test_crewai_llm_creation() -> bool:
 
     try:
         from crewai import LLM
+
         from src.domain.models.llm_config import LLMConfig
-        from src.infrastructure.adapters.external.crewai_adapter import _create_crewai_llm
+        from src.infrastructure.adapters.external.crewai_adapter import (
+            _create_crewai_llm,
+        )
 
         # Create a test LLM config for local model
         config = LLMConfig(
@@ -115,6 +118,7 @@ def test_crewai_llm_creation() -> bool:
     except Exception as e:
         print(f"   ❌ Failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -127,7 +131,7 @@ async def test_single_agent_invoke() -> bool:
     print("   This will call Ollama - may take 30-60 seconds...")
 
     try:
-        from crewai import Agent, Task, Crew, LLM
+        from crewai import LLM, Agent, Crew, Task
 
         ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 
@@ -175,12 +179,13 @@ async def test_single_agent_invoke() -> bool:
         print("   ✅ Agent invocation successful")
         return True
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         print("   ❌ Timeout after 120 seconds")
         return False
     except Exception as e:
         print(f"   ❌ Failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -212,11 +217,13 @@ async def test_sequential_deliberation() -> bool:
                 metadata=None,
                 created_at=datetime.now(timezone.utc),
             )
-            requests.append(AgentRequest(
-                request_id=uuid4(),
-                agent_id=f"archon-{i}",
-                context=context,
-            ))
+            requests.append(
+                AgentRequest(
+                    request_id=uuid4(),
+                    agent_id=f"archon-{i}",
+                    context=context,
+                )
+            )
 
         progress_log = []
 
@@ -236,6 +243,7 @@ async def test_sequential_deliberation() -> bool:
     except Exception as e:
         print(f"   ❌ Failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -280,7 +288,9 @@ async def main() -> None:
     skipped = sum(1 for v in results.values() if v is None)
 
     for name, result in results.items():
-        status = "✅ PASS" if result is True else "❌ FAIL" if result is False else "⏭️  SKIP"
+        status = (
+            "✅ PASS" if result is True else "❌ FAIL" if result is False else "⏭️  SKIP"
+        )
         print(f"   {name}: {status}")
 
     print(f"\n   Total: {passed} passed, {failed} failed, {skipped} skipped")

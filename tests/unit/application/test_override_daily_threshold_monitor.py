@@ -64,7 +64,9 @@ class TestOverrideDailyThresholdMonitor:
             created_at=datetime.now(timezone.utc),
             status=IncidentStatus.DRAFT,
         )
-        service.create_override_threshold_incident = AsyncMock(return_value=mock_incident)
+        service.create_override_threshold_incident = AsyncMock(
+            return_value=mock_incident
+        )
         return service
 
     @pytest.fixture
@@ -227,7 +229,9 @@ class TestOverrideDailyThresholdMonitor:
 
         # Verify the date range used for query
         call_args = override_repo.get_override_count_for_period.call_args
-        start_date = call_args.kwargs.get("start_date") or call_args[1].get("start_date")
+        start_date = call_args.kwargs.get("start_date") or call_args[1].get(
+            "start_date"
+        )
         assert start_date.date() == specific_date.date()
 
     @pytest.mark.asyncio

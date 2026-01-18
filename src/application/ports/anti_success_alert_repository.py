@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 
@@ -89,7 +89,7 @@ class AntiSuccessAlertRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_sustained_alert_duration(self) -> Optional[SustainedAlertInfo]:
+    async def get_sustained_alert_duration(self) -> SustainedAlertInfo | None:
         """Get current sustained alert duration information (FR38).
 
         Returns information about the current sustained alert period,

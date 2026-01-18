@@ -122,9 +122,7 @@ class KeeperAvailabilityProtocol(ABC):
         ...
 
     @abstractmethod
-    async def mark_keeper_for_replacement(
-        self, keeper_id: str, reason: str
-    ) -> None:
+    async def mark_keeper_for_replacement(self, keeper_id: str, reason: str) -> None:
         """Mark a Keeper for replacement (FR78).
 
         Called when a Keeper misses 2 consecutive attestations.
@@ -170,9 +168,7 @@ class KeeperAvailabilityProtocol(ABC):
         ...
 
     @abstractmethod
-    async def get_last_attestation(
-        self, keeper_id: str
-    ) -> KeeperAttestation | None:
+    async def get_last_attestation(self, keeper_id: str) -> KeeperAttestation | None:
         """Get the most recent attestation for a Keeper.
 
         Args:

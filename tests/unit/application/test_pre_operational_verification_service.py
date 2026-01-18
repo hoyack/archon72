@@ -7,7 +7,7 @@ Tests for:
 - Post-halt stringent verification
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -15,14 +15,11 @@ import pytest
 
 from src.application.services.pre_operational_verification_service import (
     PreOperationalVerificationService,
-    VERIFICATION_BYPASS_MAX_COUNT,
-    VERIFICATION_BYPASS_WINDOW_SECONDS,
-)
-from src.domain.models.verification_result import (
-    VerificationResult,
-    VerificationStatus,
 )
 from src.domain.errors.pre_operational import BypassNotAllowedError
+from src.domain.models.verification_result import (
+    VerificationStatus,
+)
 
 
 @pytest.fixture
@@ -493,7 +490,9 @@ class TestBypassLogic:
             # Need to re-import to pick up env var
             from src.application.services import pre_operational_verification_service
 
-            original_enabled = pre_operational_verification_service.VERIFICATION_BYPASS_ENABLED
+            original_enabled = (
+                pre_operational_verification_service.VERIFICATION_BYPASS_ENABLED
+            )
             pre_operational_verification_service.VERIFICATION_BYPASS_ENABLED = True
 
             try:
@@ -502,7 +501,9 @@ class TestBypassLogic:
                 assert result.bypass_reason is not None
                 assert result.bypass_count == 1
             finally:
-                pre_operational_verification_service.VERIFICATION_BYPASS_ENABLED = original_enabled
+                pre_operational_verification_service.VERIFICATION_BYPASS_ENABLED = (
+                    original_enabled
+                )
 
     @pytest.mark.asyncio
     async def test_bypass_not_allowed_post_halt(

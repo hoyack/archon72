@@ -24,7 +24,9 @@ class TestConfigurationFloorEnforcementError:
 
     def test_inherits_from_constitutional_violation_error(self) -> None:
         """Base class should inherit from ConstitutionalViolationError."""
-        assert issubclass(ConfigurationFloorEnforcementError, ConstitutionalViolationError)
+        assert issubclass(
+            ConfigurationFloorEnforcementError, ConstitutionalViolationError
+        )
 
 
 class TestStartupFloorViolationError:
@@ -32,7 +34,9 @@ class TestStartupFloorViolationError:
 
     def test_inherits_from_base_class(self) -> None:
         """Should inherit from ConfigurationFloorEnforcementError."""
-        assert issubclass(StartupFloorViolationError, ConfigurationFloorEnforcementError)
+        assert issubclass(
+            StartupFloorViolationError, ConfigurationFloorEnforcementError
+        )
 
     def test_message_includes_nfr39(self) -> None:
         """Error message should include NFR39 reference."""
@@ -121,7 +125,9 @@ class TestRuntimeFloorViolationError:
 
     def test_inherits_from_base_class(self) -> None:
         """Should inherit from ConfigurationFloorEnforcementError."""
-        assert issubclass(RuntimeFloorViolationError, ConfigurationFloorEnforcementError)
+        assert issubclass(
+            RuntimeFloorViolationError, ConfigurationFloorEnforcementError
+        )
 
     def test_message_includes_nfr39(self) -> None:
         """Error message should include NFR39 reference."""
@@ -192,7 +198,9 @@ class TestFloorModificationAttemptedError:
 
     def test_inherits_from_base_class(self) -> None:
         """Should inherit from ConfigurationFloorEnforcementError."""
-        assert issubclass(FloorModificationAttemptedError, ConfigurationFloorEnforcementError)
+        assert issubclass(
+            FloorModificationAttemptedError, ConfigurationFloorEnforcementError
+        )
 
     def test_message_includes_nfr39(self) -> None:
         """Error message should include NFR39 reference."""

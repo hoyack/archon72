@@ -85,7 +85,9 @@ async def get_compliance_service() -> ComplianceDocumentationService:
 )
 async def get_compliance_posture(
     request: Request,
-    compliance_service: ComplianceDocumentationService = Depends(get_compliance_service),
+    compliance_service: ComplianceDocumentationService = Depends(
+        get_compliance_service
+    ),
 ) -> CompliancePostureResponse:
     """Get compliance posture across all frameworks (NFR31-34, FR44, AC4).
 
@@ -143,7 +145,9 @@ async def get_compliance_posture(
 )
 async def list_framework_assessments(
     request: Request,
-    compliance_service: ComplianceDocumentationService = Depends(get_compliance_service),
+    compliance_service: ComplianceDocumentationService = Depends(
+        get_compliance_service
+    ),
 ) -> ComplianceFrameworksListResponse:
     """List all framework assessments (NFR31-34, FR44, AC4).
 
@@ -219,7 +223,9 @@ async def get_framework_assessment(
             examples=["EU_AI_ACT", "NIST_AI_RMF", "IEEE_7001", "GDPR", "MAESTRO"],
         ),
     ],
-    compliance_service: ComplianceDocumentationService = Depends(get_compliance_service),
+    compliance_service: ComplianceDocumentationService = Depends(
+        get_compliance_service
+    ),
 ) -> ComplianceAssessmentResponse:
     """Get the latest assessment for a specific framework (NFR31-34, FR44, AC4).
 
@@ -318,7 +324,9 @@ async def get_framework_assessment(
 )
 async def list_compliance_gaps(
     request: Request,
-    compliance_service: ComplianceDocumentationService = Depends(get_compliance_service),
+    compliance_service: ComplianceDocumentationService = Depends(
+        get_compliance_service
+    ),
 ) -> ComplianceGapsResponse:
     """List all compliance gaps (NFR31-34, FR44, AC4).
 

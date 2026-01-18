@@ -24,7 +24,7 @@ Usage:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ class CheckpointRepository(Protocol):
     - CT-11: Operations must be witnessed and auditable
     """
 
-    async def get_all_checkpoints(self) -> list["Checkpoint"]:
+    async def get_all_checkpoints(self) -> list[Checkpoint]:
         """Get all available checkpoints ordered by sequence.
 
         Returns all checkpoint anchors in ascending order by event_sequence.
@@ -64,7 +64,7 @@ class CheckpointRepository(Protocol):
     async def get_checkpoint_by_id(
         self,
         checkpoint_id: UUID,
-    ) -> Optional["Checkpoint"]:
+    ) -> Checkpoint | None:
         """Get a specific checkpoint by its ID.
 
         Args:
@@ -75,7 +75,7 @@ class CheckpointRepository(Protocol):
         """
         ...
 
-    async def get_latest_checkpoint(self) -> Optional["Checkpoint"]:
+    async def get_latest_checkpoint(self) -> Checkpoint | None:
         """Get the most recent checkpoint.
 
         Returns the checkpoint with the highest event_sequence.
@@ -89,7 +89,7 @@ class CheckpointRepository(Protocol):
     async def get_checkpoints_after_sequence(
         self,
         sequence: int,
-    ) -> list["Checkpoint"]:
+    ) -> list[Checkpoint]:
         """Get checkpoints with event_sequence greater than given sequence.
 
         Used to find valid rollback targets after a certain point.
@@ -109,7 +109,7 @@ class CheckpointRepository(Protocol):
         anchor_hash: str,
         anchor_type: str,
         creator_id: str,
-    ) -> "Checkpoint":
+    ) -> Checkpoint:
         """Create a new checkpoint anchor.
 
         Creates and persists a new checkpoint at the given event sequence.
@@ -136,7 +136,7 @@ class CheckpointRepository(Protocol):
     async def get_checkpoint_for_sequence(
         self,
         sequence: int,
-    ) -> Optional["Checkpoint"]:
+    ) -> Checkpoint | None:
         """Get the checkpoint containing a given event sequence (FR136).
 
         Finds the checkpoint whose event_sequence is >= the given sequence.
@@ -157,7 +157,7 @@ class CheckpointRepository(Protocol):
         self,
         limit: int = 10,
         offset: int = 0,
-    ) -> tuple[list["Checkpoint"], int]:
+    ) -> tuple[list[Checkpoint], int]:
         """List checkpoints with pagination (FR138).
 
         Returns checkpoints ordered by event_sequence descending (most recent first).

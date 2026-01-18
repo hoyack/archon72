@@ -9,9 +9,21 @@ This package contains adapters for the government branch services:
 - Governance State Machine (Flow Enforcement)
 """
 
+from src.infrastructure.adapters.government.duke_service_adapter import (
+    DukeServiceAdapter,
+)
+from src.infrastructure.adapters.government.earl_service_adapter import (
+    EarlServiceAdapter,
+)
+from src.infrastructure.adapters.government.governance_state_machine_adapter import (
+    GovernanceStateMachineAdapter,
+)
 from src.infrastructure.adapters.government.king_service_adapter import (
     KingServiceAdapter,
     create_king_service,
+)
+from src.infrastructure.adapters.government.marquis_service_adapter import (
+    MarquisServiceAdapter,
 )
 from src.infrastructure.adapters.government.president_service_adapter import (
     PresidentServiceAdapter,
@@ -20,18 +32,6 @@ from src.infrastructure.adapters.government.president_service_adapter import (
 from src.infrastructure.adapters.government.prince_service_adapter import (
     PrinceServiceAdapter,
     create_prince_service,
-)
-from src.infrastructure.adapters.government.duke_service_adapter import (
-    DukeServiceAdapter,
-)
-from src.infrastructure.adapters.government.earl_service_adapter import (
-    EarlServiceAdapter,
-)
-from src.infrastructure.adapters.government.marquis_service_adapter import (
-    MarquisServiceAdapter,
-)
-from src.infrastructure.adapters.government.governance_state_machine_adapter import (
-    GovernanceStateMachineAdapter,
 )
 
 __all__ = [

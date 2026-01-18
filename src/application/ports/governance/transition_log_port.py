@@ -17,7 +17,7 @@ Design Decisions:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -46,7 +46,7 @@ class TransitionLogPort(Protocol):
     └────────────────────────────────────────────────────────────────┘
     """
 
-    async def append(self, log: "TransitionLog") -> None:
+    async def append(self, log: TransitionLog) -> None:
         """Append a transition log entry.
 
         This is the ONLY write operation. Once appended, a log
@@ -62,8 +62,8 @@ class TransitionLogPort(Protocol):
 
     async def query(
         self,
-        query: "TransitionQuery",
-    ) -> list["TransitionLog"]:
+        query: TransitionQuery,
+    ) -> list[TransitionLog]:
         """Query transition logs.
 
         Read-only operation to find logs matching the query criteria.
@@ -76,7 +76,7 @@ class TransitionLogPort(Protocol):
         """
         ...
 
-    async def get_by_id(self, log_id: "UUID") -> Optional["TransitionLog"]:
+    async def get_by_id(self, log_id: UUID) -> TransitionLog | None:
         """Get a specific transition log by ID.
 
         Read-only operation.
@@ -89,7 +89,7 @@ class TransitionLogPort(Protocol):
         """
         ...
 
-    async def count(self, query: Optional["TransitionQuery"] = None) -> int:
+    async def count(self, query: TransitionQuery | None = None) -> int:
         """Count transition logs matching query.
 
         Args:
@@ -102,9 +102,9 @@ class TransitionLogPort(Protocol):
 
     async def get_entity_history(
         self,
-        entity_type: "EntityType",  # noqa: F821
-        entity_id: "UUID",
-    ) -> list["TransitionLog"]:
+        entity_type: EntityType,  # noqa: F821
+        entity_id: UUID,
+    ) -> list[TransitionLog]:
         """Get complete transition history for an entity.
 
         Convenience method for getting all transitions of a specific

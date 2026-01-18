@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from structlog import get_logger
 
@@ -42,9 +42,9 @@ from src.domain.events.anti_success_alert import (
 )
 from src.domain.events.governance_review_required import (
     GOVERNANCE_REVIEW_REQUIRED_EVENT_TYPE,
-    GovernanceReviewRequiredPayload,
     RT3_THRESHOLD,
     RT3_WINDOW_DAYS,
+    GovernanceReviewRequiredPayload,
 )
 
 if TYPE_CHECKING:
@@ -144,7 +144,7 @@ class OverrideTrendAnalysisService:
     def __init__(
         self,
         trend_repository: OverrideTrendRepositoryProtocol,
-        event_writer: Optional[EventWriterService],
+        event_writer: EventWriterService | None,
         halt_checker: HaltChecker,
     ) -> None:
         """Initialize the trend analysis service.
@@ -222,9 +222,7 @@ class OverrideTrendAnalysisService:
             )
         except Exception as e:
             log.error("period_count_retrieval_failed", error=str(e))
-            raise InsufficientDataError(
-                f"FR27: Failed to retrieve period counts: {e}"
-            )
+            raise InsufficientDataError(f"FR27: Failed to retrieve period counts: {e}")
 
         # Calculate percentage change (handle zero division)
         if before_count == 0:
@@ -298,7 +296,10 @@ class OverrideTrendAnalysisService:
                 alert_type=AlertType.THRESHOLD_30_DAY,
                 before_count=self.THRESHOLD_30_DAY,  # threshold as reference
                 after_count=count,
-                percentage_change=((count - self.THRESHOLD_30_DAY) / self.THRESHOLD_30_DAY) * 100.0,
+                percentage_change=(
+                    (count - self.THRESHOLD_30_DAY) / self.THRESHOLD_30_DAY
+                )
+                * 100.0,
                 window_days=30,
                 detected_at=now,
             )
@@ -402,16 +403,20 @@ class OverrideTrendAnalysisService:
 
         log.info(
             "full_analysis_complete",
-            alerts_triggered=sum([
-                anti_success_result.alert_triggered,
-                threshold_30_result.threshold_exceeded,
-                governance_result.threshold_exceeded,
-            ]),
-            events_written=sum([
-                anti_success_result.event_written,
-                threshold_30_result.event_written,
-                governance_result.event_written,
-            ]),
+            alerts_triggered=sum(
+                [
+                    anti_success_result.alert_triggered,
+                    threshold_30_result.threshold_exceeded,
+                    governance_result.threshold_exceeded,
+                ]
+            ),
+            events_written=sum(
+                [
+                    anti_success_result.event_written,
+                    threshold_30_result.event_written,
+                    governance_result.event_written,
+                ]
+            ),
         )
 
         return report

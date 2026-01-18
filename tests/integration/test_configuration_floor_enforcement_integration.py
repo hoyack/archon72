@@ -26,8 +26,8 @@ from src.domain.primitives.constitutional_thresholds import (
 from src.infrastructure.stubs.configuration_floor_validator_stub import (
     ConfigurationFloorValidatorStub,
 )
-from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
 from src.infrastructure.stubs.halt_state import HaltState
+from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
 
 
 class TestStartupValidationIntegration:
@@ -46,7 +46,9 @@ class TestStartupValidationIntegration:
         return HaltTriggerStub(halt_state=halt_state)
 
     @pytest.fixture
-    def service(self, halt_trigger: HaltTriggerStub) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, halt_trigger: HaltTriggerStub
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with halt trigger."""
         return ConfigurationFloorEnforcementService(halt_trigger=halt_trigger)
 
@@ -98,7 +100,9 @@ class TestRuntimeChangeValidationIntegration:
         return HaltTriggerStub(halt_state=halt_state)
 
     @pytest.fixture
-    def service(self, halt_trigger: HaltTriggerStub) -> ConfigurationFloorEnforcementService:
+    def service(
+        self, halt_trigger: HaltTriggerStub
+    ) -> ConfigurationFloorEnforcementService:
         """Create service with halt trigger."""
         return ConfigurationFloorEnforcementService(halt_trigger=halt_trigger)
 
@@ -108,7 +112,9 @@ class TestRuntimeChangeValidationIntegration:
     ) -> None:
         """AC2: Valid configuration changes should be accepted."""
         # cessation_breach_count has floor of 10, so 15 is valid
-        result = await service.validate_configuration_change("cessation_breach_count", 15)
+        result = await service.validate_configuration_change(
+            "cessation_breach_count", 15
+        )
 
         assert result.is_valid is True
         assert result.rejection_reason is None
@@ -121,7 +127,9 @@ class TestRuntimeChangeValidationIntegration:
     ) -> None:
         """AC2: Value exactly at floor should be accepted."""
         # cessation_breach_count has floor of 10
-        result = await service.validate_configuration_change("cessation_breach_count", 10)
+        result = await service.validate_configuration_change(
+            "cessation_breach_count", 10
+        )
 
         assert result.is_valid is True
         assert halt_state.is_halted is False
@@ -132,7 +140,9 @@ class TestRuntimeChangeValidationIntegration:
     ) -> None:
         """AC2, CT-11: Value below floor should trigger system halt."""
         # cessation_breach_count has floor of 10, so 5 is invalid
-        result = await service.validate_configuration_change("cessation_breach_count", 5)
+        result = await service.validate_configuration_change(
+            "cessation_breach_count", 5
+        )
 
         assert result.is_valid is False
         assert result.rejection_reason is not None
@@ -293,7 +303,9 @@ class TestConstitutionalFloorImmutability:
     def test_floor_values_are_immutable(self) -> None:
         """Constitutional floor values should be immutable."""
         # Get a threshold
-        threshold = CONSTITUTIONAL_THRESHOLD_REGISTRY.get_threshold("cessation_breach_count")
+        threshold = CONSTITUTIONAL_THRESHOLD_REGISTRY.get_threshold(
+            "cessation_breach_count"
+        )
 
         # Verify it's frozen (dataclass)
         with pytest.raises(AttributeError):
@@ -301,8 +313,12 @@ class TestConstitutionalFloorImmutability:
 
     def test_registry_returns_same_values(self) -> None:
         """Registry should return consistent floor values."""
-        threshold1 = CONSTITUTIONAL_THRESHOLD_REGISTRY.get_threshold("cessation_breach_count")
-        threshold2 = CONSTITUTIONAL_THRESHOLD_REGISTRY.get_threshold("cessation_breach_count")
+        threshold1 = CONSTITUTIONAL_THRESHOLD_REGISTRY.get_threshold(
+            "cessation_breach_count"
+        )
+        threshold2 = CONSTITUTIONAL_THRESHOLD_REGISTRY.get_threshold(
+            "cessation_breach_count"
+        )
 
         assert threshold1.constitutional_floor == threshold2.constitutional_floor
         assert threshold1.constitutional_floor == 10

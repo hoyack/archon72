@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from fastapi import Depends, HTTPException, Response
+from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
@@ -28,10 +28,10 @@ if TYPE_CHECKING:
 
 
 # Global singleton for freeze checker (replaced in production)
-_freeze_checker: "FreezeCheckerProtocol | None" = None
+_freeze_checker: FreezeCheckerProtocol | None = None
 
 
-def get_freeze_checker() -> "FreezeCheckerProtocol":
+def get_freeze_checker() -> FreezeCheckerProtocol:
     """Get the freeze checker instance.
 
     This is a factory function that can be overridden in tests.
@@ -46,7 +46,7 @@ def get_freeze_checker() -> "FreezeCheckerProtocol":
     return _freeze_checker
 
 
-def set_freeze_checker(checker: "FreezeCheckerProtocol") -> None:
+def set_freeze_checker(checker: FreezeCheckerProtocol) -> None:
     """Set the freeze checker instance (for production use).
 
     Args:
@@ -57,7 +57,7 @@ def set_freeze_checker(checker: "FreezeCheckerProtocol") -> None:
 
 
 async def require_not_ceased(
-    freeze_checker: "FreezeCheckerProtocol" = Depends(get_freeze_checker),
+    freeze_checker: FreezeCheckerProtocol = Depends(get_freeze_checker),
 ) -> None:
     """Dependency that blocks requests when system is ceased (AC2).
 
@@ -135,8 +135,8 @@ class CeasedWriteResponse(JSONResponse):
     @classmethod
     def from_cessation_details(
         cls,
-        details: "CessationDetails | None" = None,
-    ) -> "CeasedWriteResponse":
+        details: CessationDetails | None = None,
+    ) -> CeasedWriteResponse:
         """Create response from cessation details.
 
         Args:

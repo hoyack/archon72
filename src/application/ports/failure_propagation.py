@@ -190,7 +190,9 @@ class FailureSignal:
             "severity": self.severity.value,
             "evidence": self.evidence,
             "detected_at": self.detected_at.isoformat(),
-            "propagated_at": self.propagated_at.isoformat() if self.propagated_at else None,
+            "propagated_at": self.propagated_at.isoformat()
+            if self.propagated_at
+            else None,
             "prince_notified": self.prince_notified,
             "motion_ref": str(self.motion_ref) if self.motion_ref else None,
             "witness_ref": str(self.witness_ref) if self.witness_ref else None,

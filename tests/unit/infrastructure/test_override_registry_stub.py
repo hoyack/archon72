@@ -148,9 +148,7 @@ class TestOverrideRegistryStubReversion:
         return OverrideRegistryStub()
 
     @pytest.mark.asyncio
-    async def test_mark_override_reverted(
-        self, registry: OverrideRegistryStub
-    ) -> None:
+    async def test_mark_override_reverted(self, registry: OverrideRegistryStub) -> None:
         """Test marking an override as reverted."""
         override_id = uuid4()
         # Already expired

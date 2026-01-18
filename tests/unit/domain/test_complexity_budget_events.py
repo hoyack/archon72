@@ -269,7 +269,9 @@ class TestComplexityBudgetEscalatedPayload:
 
     def test_negative_days_raises_error(self) -> None:
         """Test negative days_without_resolution raises ValueError."""
-        with pytest.raises(ValueError, match="days_without_resolution cannot be negative"):
+        with pytest.raises(
+            ValueError, match="days_without_resolution cannot be negative"
+        ):
             ComplexityBudgetEscalatedPayload(
                 escalation_id=uuid4(),
                 breach_id=uuid4(),

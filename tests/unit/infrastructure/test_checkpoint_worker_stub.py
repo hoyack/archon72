@@ -5,7 +5,7 @@ Per FR138: Weekly checkpoint anchors SHALL be published at consistent intervals.
 """
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -46,7 +46,6 @@ class TestCheckpointWorkerStub:
     ):
         """Create worker with mocked dependencies."""
         from src.application.services.merkle_tree_service import MerkleTreeService
-        from src.domain.models.checkpoint import Checkpoint
 
         event_store = AsyncMock()
         event_store.get_max_sequence.return_value = max_sequence
@@ -105,8 +104,7 @@ class TestCheckpointWorkerStub:
     async def test_generate_checkpoint_computes_merkle_root(self) -> None:
         """Test checkpoint anchor_hash is valid Merkle root."""
         events = [
-            self._create_mock_event(i, content_hash=f"{i:064x}")
-            for i in range(1, 11)
+            self._create_mock_event(i, content_hash=f"{i:064x}") for i in range(1, 11)
         ]
         worker = self._create_worker(max_sequence=10, events=events)
 

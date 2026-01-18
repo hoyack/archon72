@@ -4,14 +4,14 @@ Tests for FastAPI middleware that records request metrics.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.api.middleware.metrics_middleware import MetricsMiddleware, _classify_error_type
+from src.api.middleware.metrics_middleware import (
+    MetricsMiddleware,
+    _classify_error_type,
+)
 from src.infrastructure.monitoring.metrics import (
-    MetricsCollector,
     reset_metrics_collector,
 )
 

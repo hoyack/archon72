@@ -15,8 +15,8 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import uuid4
 
 from src.application.services.base import LoggingMixin
 from src.domain.errors.failure_prevention import QueryPerformanceViolationError
@@ -50,7 +50,7 @@ class QueryPerformanceService(LoggingMixin):
 
     async def start_query(
         self,
-        query_id: Optional[str] = None,
+        query_id: str | None = None,
         event_count: int = 0,
     ) -> str:
         """Start tracking a query.
@@ -216,7 +216,7 @@ class QueryPerformanceService(LoggingMixin):
         self,
         query_id: str,
         processed_events: int,
-    ) -> Optional[BatchProgress]:
+    ) -> BatchProgress | None:
         """Update progress for a batched query.
 
         Args:
@@ -247,7 +247,7 @@ class QueryPerformanceService(LoggingMixin):
 
         return progress
 
-    async def get_batch_progress(self, query_id: str) -> Optional[BatchProgress]:
+    async def get_batch_progress(self, query_id: str) -> BatchProgress | None:
         """Get current batch progress for a query.
 
         Args:
@@ -275,7 +275,9 @@ class QueryPerformanceService(LoggingMixin):
         Returns:
             List of non-compliant query records.
         """
-        violations = [q for q in self._completed_queries if not q.get("compliant", True)]
+        violations = [
+            q for q in self._completed_queries if not q.get("compliant", True)
+        ]
         return violations[-limit:]
 
     async def get_compliance_stats(self) -> dict[str, Any]:

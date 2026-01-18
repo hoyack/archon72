@@ -24,12 +24,11 @@ from src.application.services.key_generation_ceremony_service import (
 )
 from src.domain.errors.key_generation_ceremony import (
     CeremonyConflictError,
-    CeremonyNotFoundError,
     DuplicateWitnessError,
-    InsufficientWitnessesError,
     InvalidCeremonyStateError,
 )
-from src.domain.models.ceremony_witness import CeremonyWitness, WitnessType
+from src.domain.models.ceremony_witness import WitnessType
+from src.domain.models.keeper_key import KeeperKey
 from src.domain.models.key_generation_ceremony import (
     CEREMONY_TIMEOUT_SECONDS,
     REQUIRED_WITNESSES,
@@ -38,11 +37,10 @@ from src.domain.models.key_generation_ceremony import (
     CeremonyType,
     KeyGenerationCeremony,
 )
-from src.domain.models.keeper_key import KeeperKey
+from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 from src.infrastructure.stubs.key_generation_ceremony_stub import (
     KeyGenerationCeremonyStub,
 )
-from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 
 
 class TestCeremonyWorkflow:
@@ -66,7 +64,9 @@ class TestCeremonyWorkflow:
     ) -> KeyGenerationCeremonyService:
         """Create service with stubs."""
         from unittest.mock import AsyncMock, MagicMock
+
         from src.application.ports.hsm import HSMMode
+
         hsm = MagicMock()
         hsm.get_primary_key_id = MagicMock(return_value="test-key")
         hsm.generate_key_pair = AsyncMock(return_value="hsm-generated-key-id")
@@ -171,7 +171,9 @@ class TestCeremonyWorkflow:
 
         # Verify transition period (ADR-4: 30 days)
         assert completed.transition_end_at is not None
-        expected_end = datetime.now(timezone.utc) + timedelta(days=TRANSITION_PERIOD_DAYS)
+        expected_end = datetime.now(timezone.utc) + timedelta(
+            days=TRANSITION_PERIOD_DAYS
+        )
         delta = abs((completed.transition_end_at - expected_end).total_seconds())
         assert delta < 5  # Within 5 seconds
 
@@ -200,7 +202,9 @@ class TestConstitutionalConstraints:
     ) -> KeyGenerationCeremonyService:
         """Create service with stubs."""
         from unittest.mock import AsyncMock, MagicMock
+
         from src.application.ports.hsm import HSMMode
+
         hsm = MagicMock()
         hsm.generate_key_pair = AsyncMock(return_value="hsm-generated-key-id")
         hsm.get_public_key_bytes = AsyncMock(return_value=b"\x00" * 32)
@@ -369,7 +373,9 @@ class TestWitnessTypes:
     ) -> KeyGenerationCeremonyService:
         """Create service with stubs."""
         from unittest.mock import AsyncMock, MagicMock
+
         from src.application.ports.hsm import HSMMode
+
         hsm = MagicMock()
         hsm.generate_key_pair = AsyncMock(return_value="hsm-generated-key-id")
         hsm.get_public_key_bytes = AsyncMock(return_value=b"\x00" * 32)
@@ -446,7 +452,9 @@ class TestKeyRegistryIntegration:
     ) -> KeyGenerationCeremonyService:
         """Create service with stubs."""
         from unittest.mock import AsyncMock, MagicMock
+
         from src.application.ports.hsm import HSMMode
+
         hsm = MagicMock()
         hsm.generate_key_pair = AsyncMock(return_value="hsm-generated-key-id")
         hsm.get_public_key_bytes = AsyncMock(return_value=b"\x00" * 32)
@@ -517,7 +525,7 @@ class TestKeyRegistryIntegration:
         key_registry.add_keeper_key(old_key)
 
         # Complete rotation
-        completed = await self._complete_ceremony(
+        await self._complete_ceremony(
             service,
             keeper_id="KEEPER:bob",
             ceremony_type=CeremonyType.KEY_ROTATION,

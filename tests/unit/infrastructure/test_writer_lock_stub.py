@@ -113,7 +113,7 @@ class TestWriterLockStubTTLExpiresMode:
         # First 3 operations should succeed
         for i in range(3):
             result = await stub.is_held()
-            assert result is True, f"Operation {i+1} should succeed"
+            assert result is True, f"Operation {i + 1} should succeed"
 
         # 4th operation should fail (expired)
         result = await stub.is_held()
@@ -125,7 +125,7 @@ class TestWriterLockStubTTLExpiresMode:
         stub = WriterLockStub.with_ttl_expiration(operations_until_expire=5)
         await stub.acquire()
 
-        for i in range(3):
+        for _i in range(3):
             await stub.is_held()
 
         assert stub.get_operation_count() == 3
@@ -157,7 +157,7 @@ class TestWriterLockStubHeartbeatFailsMode:
         # First 2 renewals succeed
         for i in range(2):
             result = await stub.renew()
-            assert result is True, f"Renewal {i+1} should succeed"
+            assert result is True, f"Renewal {i + 1} should succeed"
 
         # 3rd renewal fails
         result = await stub.renew()
@@ -202,7 +202,7 @@ class TestWriterLockStubContentionMode:
         # First 3 attempts fail
         for i in range(3):
             result = await stub.acquire()
-            assert result is False, f"Attempt {i+1} should fail"
+            assert result is False, f"Attempt {i + 1} should fail"
 
         # 4th attempt succeeds
         result = await stub.acquire()

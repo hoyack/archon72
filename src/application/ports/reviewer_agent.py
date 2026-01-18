@@ -60,7 +60,9 @@ class ReviewDecision:
     opposition_concerns: list[str] = field(default_factory=list)
 
     # For amendment
-    amendment_type: str | None = None  # "minor_wording" | "major_revision" | "add_clause" | "remove_clause"
+    amendment_type: str | None = (
+        None  # "minor_wording" | "major_revision" | "add_clause" | "remove_clause"
+    )
     amendment_text: str | None = None
     amendment_rationale: str | None = None
 

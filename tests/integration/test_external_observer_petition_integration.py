@@ -14,7 +14,6 @@ This module tests end-to-end external observer petition scenarios:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -136,9 +135,7 @@ class TestCoSignatureFlow:
     """End-to-end tests for petition co-signature (AC2)."""
 
     @pytest.mark.asyncio
-    async def test_end_to_end_cosignature(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_end_to_end_cosignature(self, integration_setup: dict) -> None:
         """AC2: Co-sign petition with valid signature adds co-signer."""
         service = integration_setup["service"]
         petition_repo = integration_setup["petition_repo"]
@@ -310,8 +307,7 @@ class TestThresholdDetectionFlow:
         # Verify cessation agenda placement
         placements = await cessation_agenda_repo.list_all_placements()
         petition_placements = [
-            p for p in placements
-            if "petition" in p.agenda_placement_reason.lower()
+            p for p in placements if "petition" in p.agenda_placement_reason.lower()
         ]
         assert len(petition_placements) >= 1
 
@@ -320,9 +316,7 @@ class TestHaltStateBehavior:
     """End-to-end tests for halt state handling (AC6)."""
 
     @pytest.mark.asyncio
-    async def test_reads_allowed_during_halt(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_reads_allowed_during_halt(self, integration_setup: dict) -> None:
         """AC6: Read operations succeed during system halt."""
         service = integration_setup["service"]
         halt_checker = integration_setup["halt_checker"]
@@ -346,9 +340,7 @@ class TestHaltStateBehavior:
         assert total >= 0  # List should work
 
     @pytest.mark.asyncio
-    async def test_writes_blocked_during_halt(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_writes_blocked_during_halt(self, integration_setup: dict) -> None:
         """AC6: Write operations blocked during system halt."""
         service = integration_setup["service"]
         halt_checker = integration_setup["halt_checker"]
@@ -457,9 +449,7 @@ class TestEventPayloadIntegrity:
         assert "submitter_signature" in payload
 
     @pytest.mark.asyncio
-    async def test_cosigned_event_complete(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_cosigned_event_complete(self, integration_setup: dict) -> None:
         """Petition co-signed event contains all required fields."""
         service = integration_setup["service"]
         event_writer = integration_setup["event_writer"]
@@ -490,9 +480,7 @@ class TestEventPayloadIntegrity:
         assert "cosigner_sequence" in payload
 
     @pytest.mark.asyncio
-    async def test_threshold_met_event_complete(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_threshold_met_event_complete(self, integration_setup: dict) -> None:
         """Threshold met event contains all required fields."""
         service = integration_setup["service"]
         event_writer = integration_setup["event_writer"]
@@ -522,7 +510,9 @@ class TestEventPayloadIntegrity:
                 assert "threshold" in payload
                 assert payload["threshold"] == PETITION_THRESHOLD_COSIGNERS
                 assert "cosigner_public_keys" in payload
-                assert len(payload["cosigner_public_keys"]) == PETITION_THRESHOLD_COSIGNERS
+                assert (
+                    len(payload["cosigner_public_keys"]) == PETITION_THRESHOLD_COSIGNERS
+                )
                 break
         else:
             pytest.fail("Threshold met event not found")
@@ -624,9 +614,7 @@ class TestClosedPetitionBehavior:
     """Tests for behavior with closed petitions."""
 
     @pytest.mark.asyncio
-    async def test_cannot_cosign_closed_petition(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_cannot_cosign_closed_petition(self, integration_setup: dict) -> None:
         """Cannot co-sign a petition that has been closed."""
         service = integration_setup["service"]
         petition_repo = integration_setup["petition_repo"]
@@ -652,9 +640,7 @@ class TestNonExistentPetition:
     """Tests for operations on non-existent petitions."""
 
     @pytest.mark.asyncio
-    async def test_get_nonexistent_petition(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_get_nonexistent_petition(self, integration_setup: dict) -> None:
         """Getting non-existent petition returns None."""
         service = integration_setup["service"]
 
@@ -662,9 +648,7 @@ class TestNonExistentPetition:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_cosign_nonexistent_petition(
-        self, integration_setup: dict
-    ) -> None:
+    async def test_cosign_nonexistent_petition(self, integration_setup: dict) -> None:
         """Co-signing non-existent petition raises error."""
         service = integration_setup["service"]
 

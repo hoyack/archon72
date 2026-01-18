@@ -12,23 +12,17 @@ Per CT-12: Witnessing creates accountability → All transitions witnessed
 """
 
 from datetime import datetime, timedelta, timezone
-from typing import Any
 from uuid import UUID
 
 from structlog import get_logger
 
 from src.application.ports.flow_orchestrator import (
-    ERROR_TYPE_MAP,
-    STATE_BRANCH_MAP,
-    STATE_SERVICE_MAP,
-    BranchResult,
     ErrorEscalationStrategy,
     EscalationRecord,
     FlowOrchestratorProtocol,
     GovernanceBranch,
     HandleCompletionRequest,
     HandleCompletionResult,
-    MotionBlockReason,
     MotionPipelineState,
     PipelineStatus,
     ProcessMotionRequest,
@@ -51,8 +45,6 @@ from src.application.ports.knight_witness import (
     KnightWitnessProtocol,
     ObservationContext,
     ViolationRecord,
-    WitnessStatement,
-    WitnessStatementType,
 )
 from src.application.services.base import LoggingMixin
 from src.application.services.role_collapse_detection_service import (
@@ -212,7 +204,9 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
         log.info(
             "motion_processed",
             current_state=current_state.value,
-            routed_to=route_result.decision.target_service if route_result.decision else None,
+            routed_to=route_result.decision.target_service
+            if route_result.decision
+            else None,
         )
 
         return ProcessMotionResult(
@@ -275,7 +269,9 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
                         rule=collapse_result.conflict_rule,
                     )
                     # Witness the violation
-                    await self._witness_role_collapse(collapse_result, request.triggered_by)
+                    await self._witness_role_collapse(
+                        collapse_result, request.triggered_by
+                    )
                     return RouteMotionResult(
                         success=False,
                         error=f"Role collapse violation: {collapse_result.conflict_rule}",
@@ -370,7 +366,9 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             )
 
             # Update pipeline state with blocking issue
-            current_state = await self._state_machine.get_current_state(request.motion_id)
+            current_state = await self._state_machine.get_current_state(
+                request.motion_id
+            )
             self._motion_states[request.motion_id] = MotionPipelineState.create(
                 motion_id=request.motion_id,
                 current_state=current_state or GovernanceState.INTRODUCED,
@@ -507,11 +505,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
         Returns:
             List of blocked motion states
         """
-        return [
-            state
-            for state in self._motion_states.values()
-            if state.is_blocked
-        ]
+        return [state for state in self._motion_states.values() if state.is_blocked]
 
     async def escalate_error(
         self,
@@ -872,7 +866,10 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             return None
 
         # Convert flow orchestrator branch to detection service branch
-        from src.application.ports.branch_action_tracker import GovernanceBranch as TrackerBranch
+        from src.application.ports.branch_action_tracker import (
+            GovernanceBranch as TrackerBranch,
+        )
+
         try:
             tracker_branch = TrackerBranch(proposed_branch.value)
         except ValueError:

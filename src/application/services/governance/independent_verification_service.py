@@ -41,8 +41,8 @@ from src.domain.governance.audit.verification_result import (
 from src.domain.governance.events.merkle_tree import compute_merkle_root
 
 if TYPE_CHECKING:
-    from src.domain.governance.audit.ledger_export import LedgerExport
     from src.application.ports.governance.ledger_port import PersistedGovernanceEvent
+    from src.domain.governance.audit.ledger_export import LedgerExport
 
 # Event type for audit logging
 VERIFICATION_COMPLETED_EVENT = "audit.verification.completed"
@@ -138,7 +138,7 @@ class IndependentVerificationService:
 
     async def verify_complete(
         self,
-        ledger_export: "LedgerExport",
+        ledger_export: LedgerExport,
         verifier_id: UUID | None = None,
         expected_merkle_root: str | None = None,
     ) -> VerificationResult:
@@ -253,7 +253,7 @@ class IndependentVerificationService:
 
     async def verify_hash_chain(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> tuple[bool, list[DetectedIssue]]:
         """Public method to verify hash chain independently.
 
@@ -270,7 +270,7 @@ class IndependentVerificationService:
 
     async def verify_sequence(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> tuple[bool, list[DetectedIssue]]:
         """Public method to verify sequence completeness.
 
@@ -287,7 +287,7 @@ class IndependentVerificationService:
 
     async def verify_merkle(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
         expected_root: str,
     ) -> tuple[bool, list[DetectedIssue]]:
         """Public method to verify Merkle root.
@@ -306,7 +306,7 @@ class IndependentVerificationService:
 
     async def _verify_hash_chain(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> tuple[bool, list[DetectedIssue]]:
         """Verify hash chain independently.
 
@@ -363,7 +363,7 @@ class IndependentVerificationService:
 
     async def _verify_sequence(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> tuple[bool, list[DetectedIssue]]:
         """Verify sequence is complete with no gaps.
 
@@ -403,7 +403,7 @@ class IndependentVerificationService:
 
     async def _verify_merkle(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
         expected_root: str,
     ) -> tuple[bool, list[DetectedIssue]]:
         """Verify Merkle root matches computed root.
@@ -422,7 +422,11 @@ class IndependentVerificationService:
 
         if not events:
             # Empty ledger - check expected root
-            if expected_root and expected_root not in ("", "sha256:empty", "blake3:empty"):
+            if expected_root and expected_root not in (
+                "",
+                "sha256:empty",
+                "blake3:empty",
+            ):
                 issues.append(
                     DetectedIssue(
                         issue_type=IssueType.MERKLE_MISMATCH,
@@ -458,7 +462,7 @@ class IndependentVerificationService:
 
     async def _verify_state_replay(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> tuple[bool, list[DetectedIssue]]:
         """Verify state can be derived through event replay.
 
@@ -591,7 +595,7 @@ class IndependentVerificationService:
             return prefix.lower()
         return "sha256"  # Default
 
-    def _parse_ledger_export(self, export_data: dict) -> "LedgerExport":
+    def _parse_ledger_export(self, export_data: dict) -> LedgerExport:
         """Parse a LedgerExport from dictionary data.
 
         Args:
@@ -601,6 +605,10 @@ class IndependentVerificationService:
             LedgerExport instance.
         """
         from datetime import datetime as dt
+
+        from src.application.ports.governance.ledger_port import (
+            PersistedGovernanceEvent,
+        )
         from src.domain.governance.audit.ledger_export import (
             ExportMetadata,
             LedgerExport,
@@ -610,7 +618,6 @@ class IndependentVerificationService:
             EventMetadata,
             GovernanceEvent,
         )
-        from src.application.ports.governance.ledger_port import PersistedGovernanceEvent
 
         # Parse metadata
         meta = export_data["metadata"]

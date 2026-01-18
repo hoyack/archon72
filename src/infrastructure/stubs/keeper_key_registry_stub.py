@@ -44,7 +44,9 @@ class KeeperKeyRegistryStub(KeeperKeyRegistryProtocol):
         """
         self._keys: dict[str, KeeperKey] = {}  # key_id -> KeeperKey
         self._transitions: dict[str, str] = {}  # old_key_id -> new_key_id
-        self._emergency_revocations: dict[str, dict] = {}  # H3: Track emergency revocations
+        self._emergency_revocations: dict[
+            str, dict
+        ] = {}  # H3: Track emergency revocations
 
         if with_dev_key:
             self._add_dev_mode_key()
@@ -56,7 +58,9 @@ class KeeperKeyRegistryStub(KeeperKeyRegistryProtocol):
         now = datetime.now(timezone.utc)
         # Ed25519 public keys are 32 bytes - use placeholder bytes for dev mode
         dev_public_key = b"[DEV MODE - NOT REAL KEY!]"  # Exactly 26 bytes
-        dev_public_key = dev_public_key + b"\x00" * (32 - len(dev_public_key))  # Pad to 32 bytes
+        dev_public_key = dev_public_key + b"\x00" * (
+            32 - len(dev_public_key)
+        )  # Pad to 32 bytes
 
         dev_key = KeeperKey(
             id=uuid4(),

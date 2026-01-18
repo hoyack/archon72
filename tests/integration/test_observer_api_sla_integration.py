@@ -11,7 +11,7 @@ Constitutional Constraints:
 """
 
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -27,7 +27,6 @@ from src.api.models.observer import (
 )
 from src.application.services.observer_service import ObserverService
 from src.application.services.uptime_service import (
-    DowntimeIncident,
     UptimeService,
     UptimeSLAStatus,
 )

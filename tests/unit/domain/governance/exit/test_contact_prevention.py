@@ -14,8 +14,8 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.governance.exit.contact_block_status import ContactBlockStatus
 from src.domain.governance.exit.contact_block import ContactBlock
+from src.domain.governance.exit.contact_block_status import ContactBlockStatus
 from src.domain.governance.exit.contact_violation import ContactViolation
 
 

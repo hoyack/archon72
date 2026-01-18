@@ -29,7 +29,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 
@@ -82,11 +81,11 @@ class DetectedIssue:
     """
 
     issue_type: IssueType
-    event_id: Optional[UUID]
-    sequence_number: Optional[int]
+    event_id: UUID | None
+    sequence_number: int | None
     description: str
-    expected: Optional[str]
-    actual: Optional[str]
+    expected: str | None
+    actual: str | None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization.
@@ -206,7 +205,7 @@ class VerificationFailedError(ValueError):
     def __init__(
         self,
         message: str,
-        result: Optional[VerificationResult] = None,
+        result: VerificationResult | None = None,
     ) -> None:
         super().__init__(message)
         self.result = result

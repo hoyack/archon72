@@ -13,7 +13,6 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.constitutional_health import ConstitutionalHealthPort
 from src.domain.models.constitutional_health import (
@@ -141,7 +140,7 @@ class ConstitutionalHealthStub(ConstitutionalHealthPort):
         status = await self.get_overall_status()
         return status == ConstitutionalHealthStatus.UNHEALTHY
 
-    async def check_ceremony_allowed(self) -> tuple[bool, Optional[str]]:
+    async def check_ceremony_allowed(self) -> tuple[bool, str | None]:
         """Check if a ceremony can proceed."""
         snapshot = await self.get_constitutional_health()
 

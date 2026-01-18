@@ -3,8 +3,6 @@
 Tests AC1: Filter outcomes defined: accept, reject, block.
 """
 
-import pytest
-
 
 class TestFilterDecision:
     """Unit tests for FilterDecision enum."""

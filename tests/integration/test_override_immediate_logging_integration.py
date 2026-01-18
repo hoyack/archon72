@@ -72,7 +72,9 @@ def mock_atomic_writer() -> AsyncMock:
         mock_event.sequence = sequence_counter[0]
         mock_event.content_hash = "c" * 64
         mock_event.event_type = kwargs.get("event_type", "test.event")
-        mock_event.local_timestamp = kwargs.get("local_timestamp", datetime.now(timezone.utc))
+        mock_event.local_timestamp = kwargs.get(
+            "local_timestamp", datetime.now(timezone.utc)
+        )
         mock_event.authority_timestamp = datetime.now(timezone.utc)
         return mock_event
 

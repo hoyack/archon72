@@ -29,7 +29,6 @@ from src.domain.errors.keeper_availability import (
     DuplicateAttestationError,
     InvalidAttestationSignatureError,
     KeeperQuorumViolationError,
-    KeeperReplacementRequiredError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.keeper_availability import (
@@ -305,9 +304,7 @@ class KeeperAvailabilityService:
                 # Check if replacement threshold reached
                 if missed_count >= self.MISSED_ATTESTATIONS_THRESHOLD:
                     # Mark for replacement
-                    reason = (
-                        f"FR78: Missed {missed_count} consecutive attestations"
-                    )
+                    reason = f"FR78: Missed {missed_count} consecutive attestations"
                     await self._availability.mark_keeper_for_replacement(
                         keeper_id, reason
                     )

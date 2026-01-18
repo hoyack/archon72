@@ -17,9 +17,8 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional, Type
+from typing import Any
 
 from src.application.services.base import LoggingMixin
 from src.domain.errors.failure_prevention import FailureModeViolationError
@@ -28,7 +27,6 @@ from src.domain.models.pattern_violation import (
     PatternViolation,
     PatternViolationType,
     ViolationScan,
-    ViolationSeverity,
 )
 
 
@@ -56,7 +54,7 @@ class PatternViolationService(LoggingMixin):
     def validate_event_type(
         self,
         event_type: Any,
-        location: Optional[str] = None,
+        location: str | None = None,
     ) -> bool:
         """Validate that an event type uses EventType enum (PV-001).
 
@@ -104,7 +102,7 @@ class PatternViolationService(LoggingMixin):
     def validate_content_ref(
         self,
         hash_value: Any,
-        location: Optional[str] = None,
+        location: str | None = None,
     ) -> bool:
         """Validate that a hash uses ContentRef type (PV-002).
 
@@ -128,15 +126,15 @@ class PatternViolationService(LoggingMixin):
         # ContentRef should start with "cref-" prefix or similar marker
         is_valid = False
 
-        if hasattr(hash_value, '__class__'):
+        if hasattr(hash_value, "__class__"):
             type_name = hash_value.__class__.__name__
 
             # Check for ContentRef type or properly prefixed string
-            if type_name == 'ContentRef':
+            if type_name == "ContentRef":
                 is_valid = True
             elif isinstance(hash_value, str):
                 # ContentRef strings should have the proper prefix
-                is_valid = hash_value.startswith('cref-')
+                is_valid = hash_value.startswith("cref-")
 
         if not is_valid:
             violation = PatternViolation.create(
@@ -162,7 +160,7 @@ class PatternViolationService(LoggingMixin):
     def validate_halt_guard_injection(
         self,
         service: Any,
-        location: Optional[str] = None,
+        location: str | None = None,
     ) -> bool:
         """Validate that a service has HaltGuard/HaltChecker injection (PV-003).
 
@@ -183,14 +181,16 @@ class PatternViolationService(LoggingMixin):
         )
 
         # Check for halt checker attributes
-        has_halt_guard = any([
-            hasattr(service, '_halt_checker'),
-            hasattr(service, '_halt_transport'),
-            hasattr(service, 'halt_checker'),
-            hasattr(service, 'halt_transport'),
-            hasattr(service, 'is_halted'),
-            hasattr(service, '_is_halted'),
-        ])
+        has_halt_guard = any(
+            [
+                hasattr(service, "_halt_checker"),
+                hasattr(service, "_halt_transport"),
+                hasattr(service, "halt_checker"),
+                hasattr(service, "halt_transport"),
+                hasattr(service, "is_halted"),
+                hasattr(service, "_is_halted"),
+            ]
+        )
 
         if not has_halt_guard:
             violation = PatternViolation.create(

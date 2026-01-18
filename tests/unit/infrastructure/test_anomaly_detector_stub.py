@@ -454,6 +454,12 @@ class TestMultipleAnomalyTypes:
         coord_anomalies = await stub.detect_coordinated_patterns(["k2", "k3"], 90)
         slow_anomalies = await stub.detect_slow_burn_erosion(365, 0.1)
 
-        assert all(a.anomaly_type == AnomalyType.FREQUENCY_SPIKE for a in freq_anomalies)
-        assert all(a.anomaly_type == AnomalyType.COORDINATED_OVERRIDES for a in coord_anomalies)
-        assert all(a.anomaly_type == AnomalyType.SLOW_BURN_EROSION for a in slow_anomalies)
+        assert all(
+            a.anomaly_type == AnomalyType.FREQUENCY_SPIKE for a in freq_anomalies
+        )
+        assert all(
+            a.anomaly_type == AnomalyType.COORDINATED_OVERRIDES for a in coord_anomalies
+        )
+        assert all(
+            a.anomaly_type == AnomalyType.SLOW_BURN_EROSION for a in slow_anomalies
+        )

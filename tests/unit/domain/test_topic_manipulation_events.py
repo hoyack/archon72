@@ -168,7 +168,9 @@ class TestTopicManipulationSuspectedEventPayload:
     def test_validation_rejects_invalid_confidence_score(self) -> None:
         """Test validation rejects confidence score outside 0-1 range."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="confidence_score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="confidence_score must be between 0.0 and 1.0"
+        ):
             TopicManipulationSuspectedEventPayload(
                 detection_id="det-123",
                 suspected_topics=("topic-1",),
@@ -204,7 +206,10 @@ class TestCoordinatedSubmissionSuspectedEventPayload:
 
     def test_event_type_constant(self) -> None:
         """Test event type constant is defined."""
-        assert COORDINATED_SUBMISSION_SUSPECTED_EVENT_TYPE == "topic.coordinated_submission_suspected"
+        assert (
+            COORDINATED_SUBMISSION_SUSPECTED_EVENT_TYPE
+            == "topic.coordinated_submission_suspected"
+        )
 
     def test_to_dict_returns_serializable_structure(self) -> None:
         """Test to_dict returns JSON-serializable dictionary."""

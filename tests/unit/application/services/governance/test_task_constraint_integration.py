@@ -15,14 +15,12 @@ Tests cover:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 
 from src.application.ports.governance.task_constraint_port import (
-    ConstraintViolation,
     ConstraintViolationError,
     TaskOperation,
 )
@@ -42,7 +40,9 @@ class TestEarlConstraintsIntegration:
         return emitter
 
     @pytest.fixture
-    def constraint_service(self, mock_event_emitter: AsyncMock) -> TaskConstraintService:
+    def constraint_service(
+        self, mock_event_emitter: AsyncMock
+    ) -> TaskConstraintService:
         """Create constraint service instance."""
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
@@ -154,7 +154,9 @@ class TestClusterConstraintsIntegration:
         return emitter
 
     @pytest.fixture
-    def constraint_service(self, mock_event_emitter: AsyncMock) -> TaskConstraintService:
+    def constraint_service(
+        self, mock_event_emitter: AsyncMock
+    ) -> TaskConstraintService:
         """Create constraint service instance."""
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
@@ -249,7 +251,9 @@ class TestSystemConstraintsIntegration:
         return emitter
 
     @pytest.fixture
-    def constraint_service(self, mock_event_emitter: AsyncMock) -> TaskConstraintService:
+    def constraint_service(
+        self, mock_event_emitter: AsyncMock
+    ) -> TaskConstraintService:
         """Create constraint service instance."""
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
@@ -317,7 +321,9 @@ class TestViolationEventIntegration:
         return emitter
 
     @pytest.fixture
-    def constraint_service(self, mock_event_emitter: AsyncMock) -> TaskConstraintService:
+    def constraint_service(
+        self, mock_event_emitter: AsyncMock
+    ) -> TaskConstraintService:
         """Create constraint service instance."""
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
@@ -403,7 +409,9 @@ class TestConstraintViolationErrorIntegration:
         return emitter
 
     @pytest.fixture
-    def constraint_service(self, mock_event_emitter: AsyncMock) -> TaskConstraintService:
+    def constraint_service(
+        self, mock_event_emitter: AsyncMock
+    ) -> TaskConstraintService:
         """Create constraint service instance."""
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
@@ -453,7 +461,9 @@ class TestSeparationOfPowersIntegration:
         return emitter
 
     @pytest.fixture
-    def constraint_service(self, mock_event_emitter: AsyncMock) -> TaskConstraintService:
+    def constraint_service(
+        self, mock_event_emitter: AsyncMock
+    ) -> TaskConstraintService:
         """Create constraint service instance."""
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
@@ -468,8 +478,10 @@ class TestSeparationOfPowersIntegration:
 
         # Verify no overlap except for read operations
         earl_write_ops = {
-            op for op in earl_allowed
-            if op not in {TaskOperation.VIEW_TASK_STATE, TaskOperation.VIEW_TASK_HISTORY}
+            op
+            for op in earl_allowed
+            if op
+            not in {TaskOperation.VIEW_TASK_STATE, TaskOperation.VIEW_TASK_HISTORY}
         }
         cluster_ops = set(cluster_allowed)
 

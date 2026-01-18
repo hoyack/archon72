@@ -40,27 +40,31 @@ class ActorRegistryRecord:
     """
 
     # Valid actor types per Government PRD
-    VALID_TYPES: ClassVar[frozenset[str]] = frozenset({
-        "archon",
-        "king",
-        "president",
-        "duke",
-        "earl",
-        "prince",
-        "marquis",
-        "knight",
-        "system",  # System actors for internal processes
-    })
+    VALID_TYPES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "archon",
+            "king",
+            "president",
+            "duke",
+            "earl",
+            "prince",
+            "marquis",
+            "knight",
+            "system",  # System actors for internal processes
+        }
+    )
 
     # Valid governance branches
-    VALID_BRANCHES: ClassVar[frozenset[str]] = frozenset({
-        "legislative",
-        "executive",
-        "judicial",
-        "advisory",
-        "witness",
-        "system",  # System branch for infrastructure
-    })
+    VALID_BRANCHES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "legislative",
+            "executive",
+            "judicial",
+            "advisory",
+            "witness",
+            "system",  # System branch for infrastructure
+        }
+    )
 
     # Actor type to branch mapping
     TYPE_TO_BRANCH: ClassVar[dict[str, str]] = {
@@ -104,13 +108,9 @@ class ActorRegistryRecord:
             )
         # Validate deactivated_at consistency
         if not self.active and self.deactivated_at is None:
-            raise ValueError(
-                "deactivated_at must be set when active is False"
-            )
+            raise ValueError("deactivated_at must be set when active is False")
         if self.active and self.deactivated_at is not None:
-            raise ValueError(
-                "deactivated_at must be None when active is True"
-            )
+            raise ValueError("deactivated_at must be None when active is True")
 
     def is_active(self) -> bool:
         """Check if actor is currently active.
@@ -138,7 +138,13 @@ class ActorRegistryRecord:
             True if actor is an officer (king, president, etc.).
         """
         return self.actor_type in {
-            "king", "president", "duke", "earl", "prince", "marquis", "knight"
+            "king",
+            "president",
+            "duke",
+            "earl",
+            "prince",
+            "marquis",
+            "knight",
         }
 
     def is_archon(self) -> bool:

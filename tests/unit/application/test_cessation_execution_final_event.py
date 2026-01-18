@@ -9,7 +9,7 @@ Tests for:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -114,9 +114,7 @@ class TestEventWrittenBeforeFreezeFlag:
         mock_cessation_flag_repo: AsyncMock,
     ) -> None:
         """If event write fails, freeze flag should NOT be set."""
-        mock_event_writer.write_event = AsyncMock(
-            side_effect=Exception("Write failed")
-        )
+        mock_event_writer.write_event = AsyncMock(side_effect=Exception("Write failed"))
 
         service = CessationExecutionService(
             event_writer=mock_event_writer,

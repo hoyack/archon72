@@ -9,7 +9,6 @@ Tests:
 
 import pytest
 
-from src.application.ports.prohibited_language_scanner import ScanResult
 from src.domain.models.prohibited_language import DEFAULT_PROHIBITED_TERMS
 from src.infrastructure.stubs.prohibited_language_scanner_stub import (
     ConfigurableScannerStub,
@@ -26,7 +25,9 @@ class TestProhibitedLanguageScannerStubBasics:
         return ProhibitedLanguageScannerStub()
 
     @pytest.mark.asyncio
-    async def test_default_terms_used(self, scanner: ProhibitedLanguageScannerStub) -> None:
+    async def test_default_terms_used(
+        self, scanner: ProhibitedLanguageScannerStub
+    ) -> None:
         """Test default terms are used when none provided."""
         terms = await scanner.get_prohibited_terms()
         assert "emergence" in terms
@@ -183,9 +184,7 @@ class TestProhibitedLanguageScannerStubExactMatch:
         self, scanner: ProhibitedLanguageScannerStub
     ) -> None:
         """Test multiple terms can be detected in one scan."""
-        result = await scanner.scan_content(
-            "emergence and consciousness and sentience"
-        )
+        result = await scanner.scan_content("emergence and consciousness and sentience")
         assert result.violations_found is True
         assert len(result.matched_terms) >= 3
 
@@ -255,9 +254,7 @@ class TestConfigurableScannerStub:
         assert result.violations_found is False
 
     @pytest.mark.asyncio
-    async def test_configure_violation(
-        self, scanner: ConfigurableScannerStub
-    ) -> None:
+    async def test_configure_violation(self, scanner: ConfigurableScannerStub) -> None:
         """Test configure_violation sets violation response."""
         scanner.configure_violation(
             matched_terms=("test_term",),
@@ -271,9 +268,7 @@ class TestConfigurableScannerStub:
         assert result.detection_method == "test_method"
 
     @pytest.mark.asyncio
-    async def test_configure_exception(
-        self, scanner: ConfigurableScannerStub
-    ) -> None:
+    async def test_configure_exception(self, scanner: ConfigurableScannerStub) -> None:
         """Test configure_exception raises configured exception."""
         scanner.configure_exception(RuntimeError("test error"))
 
@@ -281,9 +276,7 @@ class TestConfigurableScannerStub:
             await scanner.scan_content("content")
 
     @pytest.mark.asyncio
-    async def test_configure_terms(
-        self, scanner: ConfigurableScannerStub
-    ) -> None:
+    async def test_configure_terms(self, scanner: ConfigurableScannerStub) -> None:
         """Test configure_terms sets terms for get_prohibited_terms."""
         scanner.configure_terms(("custom1", "custom2"))
         terms = await scanner.get_prohibited_terms()

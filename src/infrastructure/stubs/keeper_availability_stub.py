@@ -137,9 +137,7 @@ class KeeperAvailabilityStub(KeeperAvailabilityProtocol):
         """
         return list(self._pending_replacement)
 
-    async def mark_keeper_for_replacement(
-        self, keeper_id: str, reason: str
-    ) -> None:
+    async def mark_keeper_for_replacement(self, keeper_id: str, reason: str) -> None:
         """Mark a Keeper for replacement (FR78).
 
         Args:
@@ -180,9 +178,7 @@ class KeeperAvailabilityStub(KeeperAvailabilityProtocol):
         self._pending_replacement.discard(keeper_id)
         self._replacement_reasons.pop(keeper_id, None)
 
-    async def get_last_attestation(
-        self, keeper_id: str
-    ) -> KeeperAttestation | None:
+    async def get_last_attestation(self, keeper_id: str) -> KeeperAttestation | None:
         """Get the most recent attestation for a Keeper.
 
         Args:

@@ -13,7 +13,7 @@ Constitutional Compliance:
 """
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID, uuid4
 
 from src.application.ports.governance.legitimacy_decay_port import DecayResult
@@ -24,7 +24,6 @@ from src.domain.governance.legitimacy.legitimacy_transition import (
 )
 from src.domain.governance.legitimacy.transition_type import TransitionType
 from src.domain.governance.legitimacy.violation_severity import (
-    ViolationSeverity,
     calculate_target_band,
     get_severity_for_violation,
 )
@@ -53,8 +52,8 @@ class LegitimacyStatePort(Protocol):
 
     async def get_transition_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         """Get transition history."""
         ...
@@ -213,8 +212,8 @@ class LegitimacyDecayService:
 
     async def get_decay_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         """Get history of automatic decay transitions.
 
@@ -234,8 +233,7 @@ class LegitimacyDecayService:
 
         # Filter to only automatic (decay) transitions
         decay_transitions = [
-            t for t in all_transitions
-            if t.transition_type == TransitionType.AUTOMATIC
+            t for t in all_transitions if t.transition_type == TransitionType.AUTOMATIC
         ]
 
         if limit:

@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
-from src.application.services.secretary_service import SecretaryService, SecretaryConfig
+from src.application.services.secretary_service import SecretaryConfig, SecretaryService
 
 
 def parse_session_info_from_path(transcript_path: Path) -> tuple[str, str]:
@@ -57,14 +57,18 @@ async def run_enhanced(
     verbose: bool = False,
 ) -> None:
     """Run Secretary with LLM enhancement."""
-    from src.infrastructure.adapters.external import create_secretary_agent
-    from src.domain.models.secretary_agent import load_secretary_config_from_yaml, _CONFIG_FILE
     from uuid import UUID
 
+    from src.domain.models.secretary_agent import (
+        _CONFIG_FILE,
+        load_secretary_config_from_yaml,
+    )
+    from src.infrastructure.adapters.external import create_secretary_agent
+
     # Verify YAML config loading
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("SECRETARY - Configuration Check")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Config file: {_CONFIG_FILE}")
     print(f"Config exists: {_CONFIG_FILE.exists()}")
 
@@ -76,15 +80,15 @@ async def run_enhanced(
     print(f"  Temperature: {json_config.temperature}")
     print(f"  Max tokens: {json_config.max_tokens}")
     print(f"\nCheckpoints: {'enabled' if checkpoints else 'disabled'}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("SECRETARY - LLM-Enhanced Processing")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Transcript: {transcript_path}")
     print(f"Session: {session_name}")
-    print(f"Mode: CrewAI-powered extraction")
-    print(f"{'='*60}\n")
+    print("Mode: CrewAI-powered extraction")
+    print(f"{'=' * 60}\n")
 
     # Create the agent
     agent = create_secretary_agent(verbose=verbose)
@@ -108,9 +112,9 @@ async def run_enhanced(
     # Save and display results
     output_dir = service.save_report(report)
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("SECRETARY REPORT COMPLETE")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Speeches Analyzed: {report.total_speeches_analyzed}")
     print(f"Recommendations Extracted: {report.total_recommendations_extracted}")
     print(f"Clusters Formed: {len(report.clusters)}")
@@ -119,7 +123,7 @@ async def run_enhanced(
     print(f"Conflicts Detected: {len(report.conflict_report)}")
     print(f"Processing Time: {report.processing_duration_seconds:.2f}s")
     print(f"\nOutput saved to: {output_dir}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Print motion queue summary
     if report.motion_queue:
@@ -127,8 +131,12 @@ async def run_enhanced(
         print("-" * 40)
         for i, motion in enumerate(report.motion_queue, 1):
             print(f"{i}. {motion.title}")
-            print(f"   Consensus: {motion.consensus_level.value} ({motion.original_archon_count} Archons)")
-            print(f"   Supporters: {', '.join(motion.supporting_archons[:3])}{'...' if len(motion.supporting_archons) > 3 else ''}")
+            print(
+                f"   Consensus: {motion.consensus_level.value} ({motion.original_archon_count} Archons)"
+            )
+            print(
+                f"   Supporters: {', '.join(motion.supporting_archons[:3])}{'...' if len(motion.supporting_archons) > 3 else ''}"
+            )
             print()
 
 
@@ -140,13 +148,13 @@ def run_regex(
     """Run Secretary with regex-based extraction."""
     from uuid import UUID
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("SECRETARY - Regex-Based Processing")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Transcript: {transcript_path}")
     print(f"Session: {session_name}")
-    print(f"Mode: Deterministic regex extraction")
-    print(f"{'='*60}\n")
+    print("Mode: Deterministic regex extraction")
+    print(f"{'=' * 60}\n")
 
     # Create service without agent
     config = SecretaryConfig()
@@ -167,9 +175,9 @@ def run_regex(
     # Save and display results
     output_dir = service.save_report(report)
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("SECRETARY REPORT COMPLETE")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Speeches Analyzed: {report.total_speeches_analyzed}")
     print(f"Recommendations Extracted: {report.total_recommendations_extracted}")
     print(f"Clusters Formed: {len(report.clusters)}")
@@ -178,7 +186,7 @@ def run_regex(
     print(f"Conflicts Detected: {len(report.conflict_report)}")
     print(f"Processing Time: {report.processing_duration_seconds:.2f}s")
     print(f"\nOutput saved to: {output_dir}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Print motion queue summary
     if report.motion_queue:
@@ -186,8 +194,12 @@ def run_regex(
         print("-" * 40)
         for i, motion in enumerate(report.motion_queue, 1):
             print(f"{i}. {motion.title}")
-            print(f"   Consensus: {motion.consensus_level.value} ({motion.original_archon_count} Archons)")
-            print(f"   Supporters: {', '.join(motion.supporting_archons[:3])}{'...' if len(motion.supporting_archons) > 3 else ''}")
+            print(
+                f"   Consensus: {motion.consensus_level.value} ({motion.original_archon_count} Archons)"
+            )
+            print(
+                f"   Supporters: {', '.join(motion.supporting_archons[:3])}{'...' if len(motion.supporting_archons) > 3 else ''}"
+            )
             print()
 
 
@@ -234,12 +246,14 @@ def main():
 
     # Run appropriate mode
     if args.enhanced:
-        asyncio.run(run_enhanced(
-            args.transcript,
-            session_id,
-            session_name,
-            args.verbose,
-        ))
+        asyncio.run(
+            run_enhanced(
+                args.transcript,
+                session_id,
+                session_name,
+                args.verbose,
+            )
+        )
     else:
         run_regex(args.transcript, session_id, session_name)
 

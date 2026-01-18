@@ -191,7 +191,7 @@ class TestGenesisHash:
 
     def test_genesis_prev_hash_is_blake3_zeros(self) -> None:
         """GENESIS_PREV_HASH is blake3 prefix with 64 zeros."""
-        assert GENESIS_PREV_HASH == f"blake3:{'0' * 64}"
+        assert f"blake3:{'0' * 64}" == GENESIS_PREV_HASH
 
     def test_is_genesis_hash_true_for_zeros(self) -> None:
         """is_genesis_hash returns True for all-zeros hash."""

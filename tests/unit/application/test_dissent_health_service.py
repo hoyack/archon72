@@ -43,6 +43,7 @@ class MockHaltChecker:
     async def check_halted(self) -> None:
         if self._is_halted:
             from src.domain.errors.writer import SystemHaltedError
+
             raise SystemHaltedError("System is halted")
 
 
@@ -179,6 +180,7 @@ class TestDissentHealthService:
         )
 
         from src.domain.errors.writer import SystemHaltedError
+
         with pytest.raises(SystemHaltedError):
             await service.record_dissent(uuid4(), 15.5)
 

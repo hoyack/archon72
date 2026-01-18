@@ -12,7 +12,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -24,7 +23,6 @@ from src.api.middleware.rate_limiter import ObserverRateLimiter
 from src.api.models.observer import PaginationMetadata
 from src.api.models.override import OverrideEventResponse, OverrideEventsListResponse
 from src.application.services.public_override_service import PublicOverrideService
-
 
 router = APIRouter(prefix="/v1/observer/overrides", tags=["overrides"])
 
@@ -38,15 +36,17 @@ async def get_overrides(
     request: Request,
     limit: int = Query(default=100, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
-    start_date: Optional[datetime] = Query(
+    start_date: datetime | None = Query(
         default=None,
         description="Filter overrides from this date (ISO 8601 format)",
     ),
-    end_date: Optional[datetime] = Query(
+    end_date: datetime | None = Query(
         default=None,
         description="Filter overrides until this date (ISO 8601 format)",
     ),
-    public_override_service: PublicOverrideService = Depends(get_public_override_service),
+    public_override_service: PublicOverrideService = Depends(
+        get_public_override_service
+    ),
     rate_limiter: ObserverRateLimiter = Depends(get_rate_limiter),
 ) -> OverrideEventsListResponse:
     """Get all override events for public transparency (FR25).
@@ -104,7 +104,9 @@ async def get_overrides(
 async def get_override_by_id(
     request: Request,
     override_id: UUID,
-    public_override_service: PublicOverrideService = Depends(get_public_override_service),
+    public_override_service: PublicOverrideService = Depends(
+        get_public_override_service
+    ),
     rate_limiter: ObserverRateLimiter = Depends(get_rate_limiter),
 ) -> OverrideEventResponse:
     """Get single override event by ID (FR25).

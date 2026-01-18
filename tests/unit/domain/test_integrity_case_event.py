@@ -10,8 +10,6 @@ Constitutional Constraints:
 
 from datetime import datetime, timezone
 
-import pytest
-
 from src.domain.events.integrity_case import (
     INTEGRITY_CASE_UPDATED_EVENT_TYPE,
     IntegrityCaseUpdatedEventPayload,

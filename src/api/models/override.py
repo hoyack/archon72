@@ -13,14 +13,13 @@ Constitutional Constraints:
 CRITICAL: Keeper identity is NOT anonymized per FR25.
 """
 
-from datetime import datetime, timedelta
-from typing import Annotated, Optional
+from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PlainSerializer
 
 from src.api.models.observer import PaginationMetadata
-
 
 # Custom datetime serializer for ISO 8601 with Z suffix (Pydantic v2)
 DateTimeWithZ = Annotated[
@@ -66,7 +65,7 @@ class OverrideEventResponse(BaseModel):
     expires_at: DateTimeWithZ = Field(description="When expires (calculated)")
     event_hash: str = Field(description="Content hash for verification")
     sequence: int = Field(description="Event sequence number", ge=1)
-    witness_id: Optional[str] = Field(
+    witness_id: str | None = Field(
         default=None, description="Witness attribution (CT-12)"
     )
 

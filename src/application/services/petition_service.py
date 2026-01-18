@@ -18,11 +18,11 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-import structlog
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 from src.application.ports.cessation_agenda_repository import (
     CessationAgendaRepositoryProtocol,
@@ -88,7 +88,7 @@ class CosignPetitionResult:
     cosigner_sequence: int
     cosigner_count: int
     threshold_met: bool
-    agenda_placement_id: Optional[UUID]
+    agenda_placement_id: UUID | None
 
 
 class PetitionService:
@@ -148,7 +148,9 @@ class PetitionService:
         """
         if await self._halt_checker.is_halted():
             reason = await self._halt_checker.get_halt_reason()
-            log.critical("petition_operation_rejected_system_halted", halt_reason=reason)
+            log.critical(
+                "petition_operation_rejected_system_halted", halt_reason=reason
+            )
             raise SystemHaltedError(f"CT-11: System is halted: {reason}")
 
     async def submit_petition(
@@ -354,12 +356,14 @@ class PetitionService:
 
         # Check threshold (AC3)
         threshold_met = False
-        agenda_placement_id: Optional[UUID] = None
+        agenda_placement_id: UUID | None = None
 
         if updated_petition.cosigner_count >= PETITION_THRESHOLD_COSIGNERS:
             # Check if threshold already triggered (AC5 idempotency)
             if updated_petition.threshold_met_at is None:
-                agenda_placement_id = await self._trigger_threshold_met(updated_petition)
+                agenda_placement_id = await self._trigger_threshold_met(
+                    updated_petition
+                )
                 threshold_met = True
             else:
                 log.info(
@@ -456,7 +460,7 @@ class PetitionService:
 
         return placement_id
 
-    async def get_petition(self, petition_id: UUID) -> Optional[Petition]:
+    async def get_petition(self, petition_id: UUID) -> Petition | None:
         """Get a petition by ID (AC8, CT-13).
 
         Constitutional Constraint (CT-13):

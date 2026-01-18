@@ -325,4 +325,5 @@ class TestHaltGuardModuleExports:
     def test_halt_guard_exported_from_services(self) -> None:
         """Verify HaltGuard is exported from services __init__."""
         from src.application.services import HaltGuard as ExportedClass
+
         assert ExportedClass is HaltGuard

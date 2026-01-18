@@ -20,7 +20,6 @@ Usage:
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.events.complexity_budget import (
@@ -72,7 +71,7 @@ class ComplexityBudgetRepositoryPort(ABC):
         ...
 
     @abstractmethod
-    async def get_latest_snapshot(self) -> Optional[ComplexitySnapshot]:
+    async def get_latest_snapshot(self) -> ComplexitySnapshot | None:
         """Get the most recent complexity snapshot.
 
         Returns:
@@ -124,7 +123,9 @@ class ComplexityBudgetRepositoryPort(ABC):
         ...
 
     @abstractmethod
-    async def get_breach(self, breach_id: UUID) -> Optional[ComplexityBudgetBreachedPayload]:
+    async def get_breach(
+        self, breach_id: UUID
+    ) -> ComplexityBudgetBreachedPayload | None:
         """Get a specific breach by ID.
 
         Args:
@@ -158,7 +159,7 @@ class ComplexityBudgetRepositoryPort(ABC):
     async def resolve_breach(
         self,
         breach_id: UUID,
-        governance_approval_id: Optional[UUID] = None,
+        governance_approval_id: UUID | None = None,
     ) -> bool:
         """Mark a breach as resolved.
 
@@ -181,7 +182,9 @@ class ComplexityBudgetRepositoryPort(ABC):
     # Escalation operations
 
     @abstractmethod
-    async def save_escalation(self, escalation: ComplexityBudgetEscalatedPayload) -> None:
+    async def save_escalation(
+        self, escalation: ComplexityBudgetEscalatedPayload
+    ) -> None:
         """Store an escalation event.
 
         Red Team Hardening (RT-6):

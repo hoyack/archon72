@@ -70,9 +70,7 @@ class RecoveryCompletedPayload:
     def __post_init__(self) -> None:
         """Convert lists to tuples for immutability."""
         if isinstance(self.approving_keepers, list):
-            object.__setattr__(
-                self, "approving_keepers", tuple(self.approving_keepers)
-            )
+            object.__setattr__(self, "approving_keepers", tuple(self.approving_keepers))
 
     def signable_content(self) -> bytes:
         """Return canonical content for witnessing.

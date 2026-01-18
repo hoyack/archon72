@@ -367,9 +367,7 @@ def get_marquis_for_domain(domain: ExpertiseDomain) -> list[str]:
     Returns:
         List of Archon names in that domain
     """
-    return [
-        name for name, d in MARQUIS_DOMAIN_MAPPING.items() if d == domain
-    ]
+    return [name for name, d in MARQUIS_DOMAIN_MAPPING.items() if d == domain]
 
 
 class MarquisServiceProtocol(ABC):

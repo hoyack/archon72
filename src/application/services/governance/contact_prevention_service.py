@@ -23,10 +23,10 @@ does not exist. This is architecture-level enforcement.
 from typing import Protocol
 from uuid import UUID, uuid4
 
+from src.application.ports.governance.contact_block_port import ContactBlockPort
 from src.domain.governance.exit.contact_block import ContactBlock
 from src.domain.governance.exit.contact_block_status import ContactBlockStatus
 from src.domain.governance.exit.contact_violation import ContactViolation
-from src.application.ports.governance.contact_block_port import ContactBlockPort
 
 
 class EventEmitter(Protocol):

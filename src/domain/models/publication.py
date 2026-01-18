@@ -23,7 +23,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Final
 
-
 # Publication ID prefix (FR56)
 PUBLICATION_ID_PREFIX: Final[str] = "pub-"
 

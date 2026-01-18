@@ -43,7 +43,9 @@ class TestTimeAuthorityService:
         local_ts = now
         authority_ts = now + timedelta(seconds=3)  # 3 seconds drift, under 5
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -64,7 +66,9 @@ class TestTimeAuthorityService:
         local_ts = now
         authority_ts = now + timedelta(seconds=10)  # 10 seconds drift, over 5
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -92,7 +96,9 @@ class TestTimeAuthorityService:
         local_ts = now
         authority_ts = now - timedelta(seconds=10)  # Authority 10 seconds behind
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -114,7 +120,9 @@ class TestTimeAuthorityService:
         local_ts = now
         authority_ts = now + timedelta(seconds=5)  # Exactly at threshold
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -134,7 +142,9 @@ class TestTimeAuthorityService:
         local_ts = now
         authority_ts = now + timedelta(seconds=5.001)  # Just over threshold
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -155,7 +165,9 @@ class TestTimeAuthorityService:
         local_ts = now
         authority_ts = now + timedelta(seconds=10)
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -175,7 +187,9 @@ class TestTimeAuthorityService:
         service = TimeAuthorityService(drift_threshold_seconds=5.0)
         now = datetime.now(timezone.utc)
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -231,7 +245,9 @@ class TestTimeAuthorityServiceEdgeCases:
         local_ts = now
         authority_ts = now + timedelta(days=1)  # 24 hours drift
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -251,7 +267,9 @@ class TestTimeAuthorityServiceEdgeCases:
         local_ts = now
         authority_ts = now + timedelta(milliseconds=5)  # 5ms drift
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 
@@ -274,7 +292,9 @@ class TestTimeAuthorityServiceEdgeCases:
         eastern = timezone(timedelta(hours=-5))
         eastern_time = utc_time.astimezone(eastern)
 
-        with patch("src.application.services.time_authority_service.logger") as mock_logger:
+        with patch(
+            "src.application.services.time_authority_service.logger"
+        ) as mock_logger:
             mock_bound = MagicMock()
             mock_logger.bind.return_value = mock_bound
 

@@ -8,7 +8,6 @@ Per Government PRD §2.2: Authority derives from rank, not personality or capabi
 """
 
 from collections import defaultdict
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -17,7 +16,6 @@ import yaml
 from structlog import get_logger
 
 from src.application.ports.permission_enforcer import (
-    BranchConflictError,
     GovernanceAction,
     GovernanceBranch,
     PermissionContext,
@@ -86,9 +84,7 @@ class PermissionEnforcerAdapter(PermissionEnforcerProtocol):
     def _load_config(self) -> None:
         """Load the rank permission matrix from YAML."""
         if not self._config_path.exists():
-            raise FileNotFoundError(
-                f"Permission matrix not found: {self._config_path}"
-            )
+            raise FileNotFoundError(f"Permission matrix not found: {self._config_path}")
 
         with open(self._config_path, encoding="utf-8") as f:
             self._config = yaml.safe_load(f)
@@ -154,9 +150,13 @@ class PermissionEnforcerAdapter(PermissionEnforcerProtocol):
                 ViolationDetail(
                     violated_constraint=f"Action '{context.action.value}' is prohibited for {context.original_rank} rank",
                     severity=ViolationSeverity.MAJOR,
-                    prd_reference=self._get_prd_reference(context.original_rank, context.action),
+                    prd_reference=self._get_prd_reference(
+                        context.original_rank, context.action
+                    ),
                     requires_witnessing=True,
-                    requires_conclave_review=self._action_requires_review(context.action),
+                    requires_conclave_review=self._action_requires_review(
+                        context.action
+                    ),
                 )
             ]
 
@@ -184,7 +184,9 @@ class PermissionEnforcerAdapter(PermissionEnforcerProtocol):
                 ViolationDetail(
                     violated_constraint=f"Action '{context.action.value}' is not allowed for {context.original_rank} rank",
                     severity=ViolationSeverity.MAJOR,
-                    prd_reference=self._get_prd_reference(context.original_rank, context.action),
+                    prd_reference=self._get_prd_reference(
+                        context.original_rank, context.action
+                    ),
                     requires_witnessing=True,
                     requires_conclave_review=False,
                 )
@@ -309,7 +311,9 @@ class PermissionEnforcerAdapter(PermissionEnforcerProtocol):
                 # Check if Archon has acted in other branches of this conflict set
                 for branch in existing_branches:
                     if branch.value in rule_branches and branch != proposed_branch:
-                        return True, conflict_rule.get("rule", "Branch conflict detected")
+                        return True, conflict_rule.get(
+                            "rule", "Branch conflict detected"
+                        )
 
         return False, None
 

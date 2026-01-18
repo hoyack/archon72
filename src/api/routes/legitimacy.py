@@ -12,10 +12,10 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 
 from src.api.models.legitimacy import (
     LegitimacyErrorResponse,
@@ -33,8 +33,9 @@ from src.domain.governance.legitimacy.restoration_acknowledgment import (
     RestorationRequest as DomainRestorationRequest,
 )
 
-
-router = APIRouter(prefix="/v1/governance/legitimacy", tags=["governance", "legitimacy"])
+router = APIRouter(
+    prefix="/v1/governance/legitimacy", tags=["governance", "legitimacy"]
+)
 
 
 # Dependency injection placeholders
@@ -171,17 +172,12 @@ async def restore_legitimacy(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=error_detail,
             )
-        elif "terminal" in error_detail.lower() or "FAILED" in error_detail:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=error_detail,
-            )
-        elif "one step" in error_detail.lower():
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=error_detail,
-            )
-        elif "upward" in error_detail.lower():
+        elif (
+            "terminal" in error_detail.lower()
+            or "FAILED" in error_detail
+            or "one step" in error_detail.lower()
+            or "upward" in error_detail.lower()
+        ):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=error_detail,
@@ -263,11 +259,11 @@ async def get_restoration_history(
         LegitimacyRestorationService, Depends(get_restoration_service)
     ],
     since: Annotated[
-        Optional[datetime],
+        datetime | None,
         Query(description="Only return restorations after this timestamp"),
     ] = None,
     limit: Annotated[
-        Optional[int],
+        int | None,
         Query(description="Maximum number of restorations to return", ge=1, le=100),
     ] = None,
 ) -> RestorationHistoryResponse:

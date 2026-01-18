@@ -36,7 +36,9 @@ class BlockerType(Enum):
     AMBIGUITY = "ambiguity"  # Intent is unclear
     CONTRADICTION = "contradiction"  # Intent contradicts existing policy
     INFEASIBILITY = "infeasibility"  # Cannot be accomplished as stated
-    RESOURCE_CONSTRAINT = "resource_constraint"  # Cannot be done with available resources
+    RESOURCE_CONSTRAINT = (
+        "resource_constraint"  # Cannot be done with available resources
+    )
     DEPENDENCY_MISSING = "dependency_missing"  # Required prior work not complete
 
 
@@ -117,7 +119,9 @@ class ExecutionTask:
     description: str
     success_criteria: tuple[str, ...]
     estimated_effort: str | None = None
-    dependencies: tuple[str, ...] = field(default_factory=tuple)  # Task IDs this depends on
+    dependencies: tuple[str, ...] = field(
+        default_factory=tuple
+    )  # Task IDs this depends on
     sequence_order: int = 0
 
     @classmethod

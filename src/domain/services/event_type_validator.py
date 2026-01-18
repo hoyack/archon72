@@ -112,10 +112,7 @@ def is_prohibited_event_type(event_type: str) -> bool:
         >>> is_prohibited_event_type("cessation.reversal")
         True
     """
-    for pattern in PROHIBITED_EVENT_TYPE_PATTERNS:
-        if pattern.search(event_type):
-            return True
-    return False
+    return any(pattern.search(event_type) for pattern in PROHIBITED_EVENT_TYPE_PATTERNS)
 
 
 def get_prohibited_patterns() -> list[str]:

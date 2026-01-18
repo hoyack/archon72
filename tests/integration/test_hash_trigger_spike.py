@@ -27,7 +27,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 logger = structlog.get_logger()
 
 # Path to spike migration
-SPIKE_MIGRATION_PATH = Path(__file__).parent.parent.parent / "migrations" / "spike_001_hash_trigger.sql"
+SPIKE_MIGRATION_PATH = (
+    Path(__file__).parent.parent.parent / "migrations" / "spike_001_hash_trigger.sql"
+)
 
 
 @pytest.fixture
@@ -45,7 +47,8 @@ async def spike_db_session(db_session: AsyncSession) -> AsyncSession:
     await db_session.execute(text("DROP TABLE IF EXISTS events_spike CASCADE"))
 
     # Create spike table
-    await db_session.execute(text("""
+    await db_session.execute(
+        text("""
     CREATE TABLE events_spike (
         event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         sequence BIGSERIAL UNIQUE NOT NULL,
@@ -64,7 +67,8 @@ async def spike_db_session(db_session: AsyncSession) -> AsyncSession:
         spike_computed_at TIMESTAMPTZ,
         spike_verified_at TIMESTAMPTZ
     )
-    """))
+    """)
+    )
 
     # Create canonical JSON function
     canonical_fn = """
@@ -219,29 +223,41 @@ async def spike_db_session(db_session: AsyncSession) -> AsyncSession:
     await db_session.execute(text(chain_fn))
 
     # Create triggers (split into separate statements for asyncpg)
-    await db_session.execute(text("DROP TRIGGER IF EXISTS spike_compute_hash_trigger ON events_spike"))
-    await db_session.execute(text("""
+    await db_session.execute(
+        text("DROP TRIGGER IF EXISTS spike_compute_hash_trigger ON events_spike")
+    )
+    await db_session.execute(
+        text("""
     CREATE TRIGGER spike_compute_hash_trigger
         BEFORE INSERT ON events_spike
         FOR EACH ROW
         EXECUTE FUNCTION spike_compute_content_hash()
-    """))
+    """)
+    )
 
-    await db_session.execute(text("DROP TRIGGER IF EXISTS spike_verify_hash_trigger ON events_spike"))
-    await db_session.execute(text("""
+    await db_session.execute(
+        text("DROP TRIGGER IF EXISTS spike_verify_hash_trigger ON events_spike")
+    )
+    await db_session.execute(
+        text("""
     CREATE TRIGGER spike_verify_hash_trigger
         BEFORE INSERT ON events_spike
         FOR EACH ROW
         EXECUTE FUNCTION spike_verify_content_hash()
-    """))
+    """)
+    )
 
-    await db_session.execute(text("DROP TRIGGER IF EXISTS spike_chain_verify_trigger ON events_spike"))
-    await db_session.execute(text("""
+    await db_session.execute(
+        text("DROP TRIGGER IF EXISTS spike_chain_verify_trigger ON events_spike")
+    )
+    await db_session.execute(
+        text("""
     CREATE TRIGGER spike_chain_verify_trigger
         BEFORE INSERT ON events_spike
         FOR EACH ROW
         EXECUTE FUNCTION spike_verify_hash_chain_on_insert()
-    """))
+    """)
+    )
 
     # Create benchmark functions
     benchmark_fn = """
@@ -466,6 +482,7 @@ async def spike_db_session(db_session: AsyncSession) -> AsyncSession:
 
     return db_session
 
+
 # Genesis hash constant (64 zeros)
 GENESIS_HASH = "0" * 64
 
@@ -480,7 +497,7 @@ def canonical_json(obj: Any) -> str:
         return "null"
     elif isinstance(obj, bool):
         return "true" if obj else "false"
-    elif isinstance(obj, (int, float)) or isinstance(obj, str):
+    elif isinstance(obj, (int, float, str)):
         return json.dumps(obj)
     elif isinstance(obj, list):
         elements = [canonical_json(elem) for elem in obj]
@@ -598,12 +615,16 @@ class TestHashTriggerSpike:
 
         # Verify content_hash was computed
         result = await spike_db_session.execute(
-            text("SELECT content_hash, spike_computed_at FROM events_spike WHERE sequence = 1")
+            text(
+                "SELECT content_hash, spike_computed_at FROM events_spike WHERE sequence = 1"
+            )
         )
         row = result.fetchone()
 
         assert row is not None
-        assert row.content_hash is not None, "content_hash should be computed by trigger"
+        assert row.content_hash is not None, (
+            "content_hash should be computed by trigger"
+        )
         assert len(row.content_hash) == 64, "content_hash should be 64 hex characters"
         assert row.spike_computed_at is not None, "spike_computed_at should be set"
 
@@ -683,7 +704,9 @@ class TestHashTriggerSpike:
         row = result.fetchone()
 
         assert row is not None
-        assert row.content_hash == expected_hash, "Hash should be computed with sorted keys"
+        assert row.content_hash == expected_hash, (
+            "Hash should be computed with sorted keys"
+        )
 
     # =========================================================================
     # Task 3: Hash Verification Tests
@@ -810,9 +833,7 @@ class TestHashTriggerSpike:
     # =========================================================================
 
     @pytest.mark.asyncio
-    async def test_benchmark_100_inserts(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_benchmark_100_inserts(self, spike_db_session: AsyncSession) -> None:
         """AC2: Benchmark 100 sequential inserts."""
         result = await spike_db_session.execute(
             text("SELECT * FROM spike_benchmark_percentiles(100, 100)")
@@ -835,13 +856,13 @@ class TestHashTriggerSpike:
         )
 
         # Target: <10ms per insert
-        assert row.avg_ms < 10, f"Average insert time {row.avg_ms}ms exceeds 10ms target"
+        assert row.avg_ms < 10, (
+            f"Average insert time {row.avg_ms}ms exceeds 10ms target"
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.slow
-    async def test_benchmark_1000_inserts(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_benchmark_1000_inserts(self, spike_db_session: AsyncSession) -> None:
         """AC2: Full benchmark with 1000 inserts."""
         result = await spike_db_session.execute(
             text("SELECT * FROM spike_benchmark_percentiles(1000, 100)")
@@ -860,7 +881,9 @@ class TestHashTriggerSpike:
         )
 
         # Target: <10ms per insert, p99 < 20ms
-        assert row.avg_ms < 10, f"Average insert time {row.avg_ms}ms exceeds 10ms target"
+        assert row.avg_ms < 10, (
+            f"Average insert time {row.avg_ms}ms exceeds 10ms target"
+        )
         assert row.p99_ms < 20, f"P99 insert time {row.p99_ms}ms exceeds 20ms target"
 
     # =========================================================================
@@ -868,9 +891,7 @@ class TestHashTriggerSpike:
     # =========================================================================
 
     @pytest.mark.asyncio
-    async def test_large_payload_100kb(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_large_payload_100kb(self, spike_db_session: AsyncSession) -> None:
         """AC3: Test with 100KB payload."""
         result = await spike_db_session.execute(
             text("SELECT * FROM spike_test_large_payload(100)")
@@ -889,9 +910,7 @@ class TestHashTriggerSpike:
         )
 
     @pytest.mark.asyncio
-    async def test_unicode_payloads(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_unicode_payloads(self, spike_db_session: AsyncSession) -> None:
         """AC3: Test Unicode handling in payloads."""
         result = await spike_db_session.execute(
             text("SELECT * FROM spike_test_unicode_payload()")
@@ -899,7 +918,9 @@ class TestHashTriggerSpike:
         rows = result.fetchall()
 
         for row in rows:
-            assert row.insert_success is True, f"Unicode test '{row.test_case}' failed: {row.notes}"
+            assert row.insert_success is True, (
+                f"Unicode test '{row.test_case}' failed: {row.notes}"
+            )
             assert row.hash_length == 64, f"Hash length wrong for {row.test_case}"
 
             logger.info(
@@ -910,9 +931,7 @@ class TestHashTriggerSpike:
             )
 
     @pytest.mark.asyncio
-    async def test_empty_payload(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_empty_payload(self, spike_db_session: AsyncSession) -> None:
         """AC3: Test empty payload handling."""
         await spike_db_session.execute(text("TRUNCATE events_spike RESTART IDENTITY"))
 
@@ -937,22 +956,12 @@ class TestHashTriggerSpike:
         assert len(row.content_hash) == 64
 
     @pytest.mark.asyncio
-    async def test_nested_json_payload(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_nested_json_payload(self, spike_db_session: AsyncSession) -> None:
         """AC3: Test deeply nested JSON payload."""
         await spike_db_session.execute(text("TRUNCATE events_spike RESTART IDENTITY"))
 
         nested_payload = {
-            "level1": {
-                "level2": {
-                    "level3": {
-                        "level4": {
-                            "level5": {"value": "deep"}
-                        }
-                    }
-                }
-            }
+            "level1": {"level2": {"level3": {"level4": {"level5": {"value": "deep"}}}}}
         }
 
         await spike_db_session.execute(
@@ -970,7 +979,9 @@ class TestHashTriggerSpike:
         # No commit - fixture handles transaction
 
         # Verify hash matches Python computation
-        expected_hash = compute_expected_hash("nested_test", nested_payload, GENESIS_HASH)
+        expected_hash = compute_expected_hash(
+            "nested_test", nested_payload, GENESIS_HASH
+        )
 
         result = await spike_db_session.execute(
             text("SELECT content_hash FROM events_spike WHERE sequence = 1")
@@ -981,9 +992,7 @@ class TestHashTriggerSpike:
         assert row.content_hash == expected_hash, "Nested JSON hash should match"
 
     @pytest.mark.asyncio
-    async def test_array_payload(
-        self, spike_db_session: AsyncSession
-    ) -> None:
+    async def test_array_payload(self, spike_db_session: AsyncSession) -> None:
         """AC3: Test JSON array payload."""
         await spike_db_session.execute(text("TRUNCATE events_spike RESTART IDENTITY"))
 

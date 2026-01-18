@@ -12,8 +12,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-import pytest
-
 from src.domain.models.constitutional_health import (
     BREACH_CRITICAL_THRESHOLD,
     BREACH_WARNING_THRESHOLD,

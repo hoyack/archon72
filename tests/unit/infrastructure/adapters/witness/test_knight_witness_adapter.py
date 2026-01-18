@@ -7,9 +7,10 @@ Tests the Furcas (Knight-Witness) service implementation per Government PRD:
 - FR-GOV-22: Statements are append-only, non-binding, must be acknowledged
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.application.ports.knight_witness import (
     AcknowledgmentRequest,
@@ -23,7 +24,6 @@ from src.infrastructure.adapters.witness.knight_witness_adapter import (
     KnightWitnessAdapter,
     create_knight_witness,
 )
-
 
 # =============================================================================
 # FIXTURES
@@ -352,7 +352,9 @@ class TestAcknowledgment:
             "witness_statement",
         )
         assert len(statements) == 1
-        assert statements[0].statement_type == WitnessStatementType.ACKNOWLEDGMENT_RECEIVED
+        assert (
+            statements[0].statement_type == WitnessStatementType.ACKNOWLEDGMENT_RECEIVED
+        )
 
     def test_acknowledge_invalid_id_returns_false(
         self,

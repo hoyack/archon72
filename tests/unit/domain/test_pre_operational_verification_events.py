@@ -34,7 +34,10 @@ class TestEventTypeConstants:
 
     def test_post_halt_verification_started_event_type(self) -> None:
         """Should have correct post-halt started event type."""
-        assert POST_HALT_VERIFICATION_STARTED_EVENT_TYPE == "system.verification.post_halt_started"
+        assert (
+            POST_HALT_VERIFICATION_STARTED_EVENT_TYPE
+            == "system.verification.post_halt_started"
+        )
 
     def test_verification_passed_event_type(self) -> None:
         """Should have correct passed event type."""

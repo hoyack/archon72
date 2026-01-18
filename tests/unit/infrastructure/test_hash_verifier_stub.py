@@ -122,7 +122,7 @@ class TestRunFullScan:
     async def test_respects_max_events(self, stub: HashVerifierStub) -> None:
         """Test that max_events limits scan."""
         for i in range(10):
-            prev = "genesis" if i == 0 else f"hash_{i-1}"
+            prev = "genesis" if i == 0 else f"hash_{i - 1}"
             stub.add_event(f"event-{i}", i, f"hash_{i}", prev)
 
         result = await stub.run_full_scan(max_events=5)

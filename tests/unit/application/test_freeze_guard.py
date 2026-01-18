@@ -5,8 +5,8 @@ Tests the FreezeGuard service that enforces freeze mechanics.
 
 from __future__ import annotations
 
+import contextlib
 from datetime import datetime, timezone
-from uuid import uuid4
 
 import pytest
 
@@ -143,9 +143,10 @@ class TestFreezeGuardLogging:
     @pytest.mark.asyncio
     async def test_logs_freeze_check_failure(self) -> None:
         """Freeze check failure should be logged per CT-11."""
+        from unittest.mock import patch
+
         from src.application.services.freeze_guard import FreezeGuard
         from src.infrastructure.stubs import FreezeCheckerStub
-        from unittest.mock import patch, AsyncMock
 
         freeze_checker = FreezeCheckerStub()
         freeze_checker.set_frozen(
@@ -157,10 +158,8 @@ class TestFreezeGuardLogging:
 
         with patch("src.application.services.freeze_guard.logger") as mock_logger:
             mock_logger.bind.return_value = mock_logger
-            try:
+            with contextlib.suppress(SystemCeasedError):
                 await guard.ensure_not_frozen()
-            except SystemCeasedError:
-                pass
 
             # Should have logged the rejection
             mock_logger.critical.assert_called()

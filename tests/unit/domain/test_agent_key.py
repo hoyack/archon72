@@ -279,7 +279,9 @@ class TestAgentKeyImmutability:
         with pytest.raises(ConstitutionalViolationError) as exc_info:
             key.delete()
 
-        assert "FR80" in str(exc_info.value) or "deletion" in str(exc_info.value).lower()
+        assert (
+            "FR80" in str(exc_info.value) or "deletion" in str(exc_info.value).lower()
+        )
 
 
 class TestAgentKeyHashable:

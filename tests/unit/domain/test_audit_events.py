@@ -203,7 +203,9 @@ class TestAuditCompletedEventPayload:
     def test_negative_materials_scanned_raises(self) -> None:
         """Test that negative materials_scanned raises ValueError."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="FR57: materials_scanned cannot be negative"):
+        with pytest.raises(
+            ValueError, match="FR57: materials_scanned cannot be negative"
+        ):
             AuditCompletedEventPayload(
                 audit_id="audit-2026-Q1",
                 quarter="2026-Q1",
@@ -217,7 +219,9 @@ class TestAuditCompletedEventPayload:
     def test_negative_violations_found_raises(self) -> None:
         """Test that negative violations_found raises ValueError."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="FR57: violations_found cannot be negative"):
+        with pytest.raises(
+            ValueError, match="FR57: violations_found cannot be negative"
+        ):
             AuditCompletedEventPayload(
                 audit_id="audit-2026-Q1",
                 quarter="2026-Q1",

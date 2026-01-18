@@ -85,6 +85,7 @@ def create_reviewer_agent(verbose: bool = False):
             from src.infrastructure.adapters.external.reviewer_crewai_adapter import (
                 create_reviewer_agent as create_agent,
             )
+
             return create_agent(verbose=verbose)
         except ImportError:
             return None
@@ -164,15 +165,17 @@ def main():
             print("Per-Archon LLM bindings loaded successfully.")
 
     # Print header
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("MOTION REVIEW PIPELINE")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Input: {args.consolidator_path}")
     print(f"Verbose: {args.verbose}")
     print(f"Triage Only: {args.triage_only}")
     print(f"Real Agent: {args.real_agent}")
-    print(f"Simulate Reviews: {not args.no_simulate and not args.triage_only and not args.real_agent}")
-    print(f"{'='*60}\n")
+    print(
+        f"Simulate Reviews: {not args.no_simulate and not args.triage_only and not args.real_agent}"
+    )
+    print(f"{'=' * 60}\n")
 
     # Initialize service
     service = MotionReviewService(verbose=args.verbose, reviewer_agent=reviewer_agent)
@@ -190,24 +193,34 @@ def main():
     if args.triage_only:
         # Run triage only
         print("\n--- Phase 1: Triage ---")
-        triage_result = service.triage_motions(mega_motions, novel_proposals, session_id)
+        triage_result = service.triage_motions(
+            mega_motions, novel_proposals, session_id
+        )
 
-        print(f"\nTriage Results:")
+        print("\nTriage Results:")
         print(f"  Total motions: {triage_result.total_motions}")
         print(f"  LOW risk (fast-track): {triage_result.low_risk_count}")
         print(f"  MEDIUM risk (targeted review): {triage_result.medium_risk_count}")
         print(f"  HIGH risk (panel deliberation): {triage_result.high_risk_count}")
-        print(f"  Average implicit support: {triage_result.average_implicit_support:.1%}")
+        print(
+            f"  Average implicit support: {triage_result.average_implicit_support:.1%}"
+        )
         print(f"  Conflicts detected: {triage_result.total_conflicts_detected}")
 
         print("\n--- Motion Risk Breakdown ---")
         for i, support in enumerate(triage_result.implicit_supports, 1):
-            tier_emoji = {"low": "🟢", "medium": "🟡", "high": "🔴"}[support.risk_tier.value]
-            print(f"{i:2}. {tier_emoji} [{support.risk_tier.value.upper():6}] {support.mega_motion_title[:45]}...")
-            print(f"    Implicit support: {support.implicit_support_ratio:.0%} ({support.support_count}/72)")
+            tier_emoji = {"low": "🟢", "medium": "🟡", "high": "🔴"}[
+                support.risk_tier.value
+            ]
+            print(
+                f"{i:2}. {tier_emoji} [{support.risk_tier.value.upper():6}] {support.mega_motion_title[:45]}..."
+            )
+            print(
+                f"    Implicit support: {support.implicit_support_ratio:.0%} ({support.support_count}/72)"
+            )
             print(f"    Gap Archons: {support.gap_count}")
             if support.is_novel_proposal:
-                print(f"    ⚠️  Novel proposal - requires full deliberation")
+                print("    ⚠️  Novel proposal - requires full deliberation")
             print()
 
     elif args.real_agent:
@@ -242,25 +255,29 @@ def main():
 
 def print_pipeline_summary(result, session_dir, real_agent: bool = False):
     """Print the pipeline summary."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("PIPELINE COMPLETE")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Session: {result.session_name}")
     print(f"Session ID: {result.session_id}")
     print(f"Mode: {'Real Agent Reviews' if real_agent else 'Simulated Reviews'}")
 
     if result.triage_result:
-        print(f"\n--- Phase 1: Triage ---")
+        print("\n--- Phase 1: Triage ---")
         print(f"  LOW risk (fast-track): {result.triage_result.low_risk_count}")
-        print(f"  MEDIUM risk (targeted review): {result.triage_result.medium_risk_count}")
-        print(f"  HIGH risk (panel deliberation): {result.triage_result.high_risk_count}")
+        print(
+            f"  MEDIUM risk (targeted review): {result.triage_result.medium_risk_count}"
+        )
+        print(
+            f"  HIGH risk (panel deliberation): {result.triage_result.high_risk_count}"
+        )
 
-    print(f"\n--- Phase 2: Packet Generation ---")
+    print("\n--- Phase 2: Packet Generation ---")
     print(f"  Total assignments: {result.total_assignments}")
     print(f"  Avg per Archon: {result.average_assignments_per_archon:.1f}")
 
     if result.review_responses:
-        print(f"\n--- Phase 3-4: Review & Aggregation ---")
+        print("\n--- Phase 3-4: Review & Aggregation ---")
         print(f"  Responses collected: {len(result.review_responses)}")
         print(f"  Response rate: {result.response_rate:.0%}")
         consensus_count = sum(1 for a in result.aggregations if a.consensus_reached)
@@ -268,16 +285,16 @@ def print_pipeline_summary(result, session_dir, real_agent: bool = False):
         print(f"  Consensus reached: {consensus_count}")
         print(f"  Contested: {contested_count}")
 
-        print(f"\n--- Phase 5: Panel Deliberation ---")
+        print("\n--- Phase 5: Panel Deliberation ---")
         print(f"  Panels convened: {result.panels_convened}")
 
-        print(f"\n--- Phase 6: Ratification ---")
+        print("\n--- Phase 6: Ratification ---")
         print(f"  Motions ratified: {result.motions_ratified}")
         print(f"  Motions rejected: {result.motions_rejected}")
         print(f"  Motions deferred: {result.motions_deferred}")
 
     print(f"\nOutput saved to: {session_dir}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Print motion status summary
     if result.ratification_votes:
@@ -290,8 +307,12 @@ def print_pipeline_summary(result, session_dir, real_agent: bool = False):
                 "deferred": "⏸️",
             }[vote.outcome.value]
             print(f"{i:2}. {outcome_emoji} {vote.mega_motion_title[:45]}...")
-            print(f"    Yeas: {vote.yeas} | Nays: {vote.nays} | Abstain: {vote.abstentions}")
-            print(f"    Threshold: {vote.threshold_type} ({vote.threshold_required}) - {'MET' if vote.threshold_met else 'NOT MET'}")
+            print(
+                f"    Yeas: {vote.yeas} | Nays: {vote.nays} | Abstain: {vote.abstentions}"
+            )
+            print(
+                f"    Threshold: {vote.threshold_type} ({vote.threshold_required}) - {'MET' if vote.threshold_met else 'NOT MET'}"
+            )
             print()
 
 

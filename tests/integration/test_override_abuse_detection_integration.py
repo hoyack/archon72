@@ -15,7 +15,7 @@ Constitutional Constraints:
 - FP-3: Patient attacker detection needs ADR-7
 """
 
-from datetime import datetime, timezone
+import contextlib
 from unittest.mock import AsyncMock
 
 import pytest
@@ -23,8 +23,6 @@ import pytest
 from src.application.ports.anomaly_detector import AnomalyResult, FrequencyData
 from src.application.services.override_abuse_detection_service import (
     ABUSE_DETECTION_SYSTEM_AGENT_ID,
-    ANOMALY_CONFIDENCE_THRESHOLD,
-    ANOMALY_DETECTION_WINDOW_DAYS,
     OverrideAbuseDetectionService,
 )
 from src.domain.errors.override_abuse import (
@@ -53,7 +51,9 @@ class TestAC1ConstitutionalConstraintValidation:
     """
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         OverrideAbuseDetectionService,
         OverrideAbuseValidatorStub,
         AnomalyDetectorStub,
@@ -165,7 +165,9 @@ class TestAC2HistoryEditAndEvidenceDestruction:
     """
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         OverrideAbuseDetectionService,
         OverrideAbuseValidatorStub,
         AsyncMock,
@@ -295,7 +297,9 @@ class TestAC3StatisticalPatternDetection:
     """
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         OverrideAbuseDetectionService,
         AnomalyDetectorStub,
         AsyncMock,
@@ -444,7 +448,9 @@ class TestAC4AggregateAnomalyDetectionCeremony:
     """
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         OverrideAbuseDetectionService,
         AnomalyDetectorStub,
         AsyncMock,
@@ -547,7 +553,9 @@ class TestEndToEndFlow:
     """End-to-end integration tests for complete flows."""
 
     @pytest.fixture
-    def full_service(self) -> tuple[
+    def full_service(
+        self,
+    ) -> tuple[
         OverrideAbuseDetectionService,
         OverrideAbuseValidatorStub,
         AnomalyDetectorStub,
@@ -641,32 +649,25 @@ class TestEndToEndFlow:
         service, _, _, mock_event_writer = full_service
 
         # Test history edit
-        try:
+        with contextlib.suppress(HistoryEditAttemptError):
             await service.validate_override_command(
                 scope="history",
                 action_type="delete",
                 keeper_id="KEEPER:1",
             )
-        except HistoryEditAttemptError:
-            pass
 
         # Test evidence destruction
-        try:
+        with contextlib.suppress(EvidenceDestructionAttemptError):
             await service.validate_override_command(
                 scope="evidence.delete",
                 action_type="execute",
                 keeper_id="KEEPER:2",
             )
-        except EvidenceDestructionAttemptError:
-            pass
 
         # Verify both events have correct violation types
         assert mock_event_writer.write_event.call_count == 2
         calls = mock_event_writer.write_event.call_args_list
 
-        violation_types = [
-            call.kwargs["payload"]["violation_type"]
-            for call in calls
-        ]
+        violation_types = [call.kwargs["payload"]["violation_type"] for call in calls]
         assert ViolationType.HISTORY_EDIT.value in violation_types
         assert ViolationType.EVIDENCE_DESTRUCTION.value in violation_types

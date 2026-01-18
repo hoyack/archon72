@@ -17,7 +17,8 @@ infrastructure layer directly.
 
 import time
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Optional
 
 from src.application.dtos.health import (
     DependencyCheckDTO,
@@ -49,7 +50,7 @@ class DatabaseChecker(DependencyChecker):
     """
 
     def __init__(
-        self, query_fn: Optional[Callable[[], bool]] = None, name: str = "database"
+        self, query_fn: Callable[[], bool] | None = None, name: str = "database"
     ) -> None:
         """Initialize database checker.
 
@@ -99,7 +100,7 @@ class RedisChecker(DependencyChecker):
     """
 
     def __init__(
-        self, ping_fn: Optional[Callable[[], bool]] = None, name: str = "redis"
+        self, ping_fn: Callable[[], bool] | None = None, name: str = "redis"
     ) -> None:
         """Initialize Redis checker.
 
@@ -149,7 +150,7 @@ class EventStoreChecker(DependencyChecker):
     """
 
     def __init__(
-        self, check_fn: Optional[Callable[[], bool]] = None, name: str = "event_store"
+        self, check_fn: Callable[[], bool] | None = None, name: str = "event_store"
     ) -> None:
         """Initialize event store checker.
 
@@ -205,9 +206,9 @@ class HealthService:
         self,
         service_name: str = "api",
         metrics_collector: Optional["MetricsCollectorProtocol"] = None,
-        database_checker: Optional[DependencyChecker] = None,
-        redis_checker: Optional[DependencyChecker] = None,
-        event_store_checker: Optional[DependencyChecker] = None,
+        database_checker: DependencyChecker | None = None,
+        redis_checker: DependencyChecker | None = None,
+        event_store_checker: DependencyChecker | None = None,
     ) -> None:
         """Initialize health service with optional dependency checkers.
 
@@ -283,7 +284,7 @@ class HealthService:
 
 
 # Default service instance
-_health_service: Optional[HealthService] = None
+_health_service: HealthService | None = None
 
 
 def get_health_service() -> HealthService:
@@ -300,9 +301,9 @@ def get_health_service() -> HealthService:
 
 def configure_health_service(
     metrics_collector: Optional["MetricsCollectorProtocol"] = None,
-    database_checker: Optional[DependencyChecker] = None,
-    redis_checker: Optional[DependencyChecker] = None,
-    event_store_checker: Optional[DependencyChecker] = None,
+    database_checker: DependencyChecker | None = None,
+    redis_checker: DependencyChecker | None = None,
+    event_store_checker: DependencyChecker | None = None,
 ) -> HealthService:
     """Configure the global health service with real dependency checkers.
 

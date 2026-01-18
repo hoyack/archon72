@@ -27,9 +27,9 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from structlog import get_logger
 
@@ -53,7 +53,6 @@ from src.domain.events.override_abuse import (
     ANOMALY_DETECTED_EVENT_TYPE,
     OVERRIDE_ABUSE_REJECTED_EVENT_TYPE,
     AnomalyDetectedPayload,
-    AnomalyType,
     OverrideAbuseRejectedPayload,
     ViolationType,
 )
@@ -86,7 +85,7 @@ class KeeperBehaviorReport:
     keeper_id: str
     frequency_data: FrequencyData
     is_outlier: bool
-    outlier_reason: Optional[str] = None
+    outlier_reason: str | None = None
 
 
 @dataclass(frozen=True)
@@ -112,7 +111,7 @@ class AnomalyReviewReport:
         cls,
         anomalies: list[AnomalyResult],
         timestamp: datetime,
-    ) -> "AnomalyReviewReport":
+    ) -> AnomalyReviewReport:
         """Create report from list of anomalies."""
         high_count = sum(1 for a in anomalies if a.confidence_score >= 0.9)
         medium_count = sum(1 for a in anomalies if 0.7 <= a.confidence_score < 0.9)
@@ -261,7 +260,9 @@ class OverrideAbuseDetectionService:
         if not result.is_valid:
             log.warning(
                 "override_abuse_detected_constitutional_constraint",
-                violation_type=result.violation_type.value if result.violation_type else "unknown",
+                violation_type=result.violation_type.value
+                if result.violation_type
+                else "unknown",
                 violation_details=result.violation_details,
             )
 
@@ -269,8 +270,10 @@ class OverrideAbuseDetectionService:
             await self._write_abuse_rejection_event(
                 keeper_id=keeper_id,
                 scope=scope,
-                violation_type=result.violation_type or ViolationType.CONSTITUTIONAL_CONSTRAINT,
-                violation_details=result.violation_details or f"FR86: Constitutional constraint violation for scope '{scope}'",
+                violation_type=result.violation_type
+                or ViolationType.CONSTITUTIONAL_CONSTRAINT,
+                violation_details=result.violation_details
+                or f"FR86: Constitutional constraint violation for scope '{scope}'",
             )
 
             raise ConstitutionalConstraintViolationError(
@@ -319,7 +322,10 @@ class OverrideAbuseDetectionService:
         # =====================================================================
         # Run frequency spike detection (FP-3)
         # =====================================================================
-        log.info("running_frequency_spike_detection", window_days=ANOMALY_DETECTION_WINDOW_DAYS)
+        log.info(
+            "running_frequency_spike_detection",
+            window_days=ANOMALY_DETECTION_WINDOW_DAYS,
+        )
         keeper_anomalies = await self._anomaly_detector.detect_keeper_anomalies(
             time_window_days=ANOMALY_DETECTION_WINDOW_DAYS
         )
@@ -339,7 +345,8 @@ class OverrideAbuseDetectionService:
         # Filter by confidence threshold
         # =====================================================================
         high_confidence_anomalies = [
-            a for a in all_anomalies
+            a
+            for a in all_anomalies
             if a.confidence_score >= ANOMALY_CONFIDENCE_THRESHOLD
         ]
 
@@ -477,7 +484,8 @@ class OverrideAbuseDetectionService:
 
         # Filter by confidence threshold
         high_confidence_anomalies = [
-            a for a in all_anomalies
+            a
+            for a in all_anomalies
             if a.confidence_score >= ANOMALY_CONFIDENCE_THRESHOLD
         ]
 

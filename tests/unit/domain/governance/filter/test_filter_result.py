@@ -8,17 +8,18 @@ Tests AC7: Violation types.
 Tests AC8: Immutable value objects.
 """
 
-import pytest
-from datetime import datetime
 from dataclasses import FrozenInstanceError
+from datetime import datetime
+
+import pytest
 
 from src.domain.governance.filter.filter_decision import FilterDecision
 from src.domain.governance.filter.filter_result import FilterResult
 from src.domain.governance.filter.filter_version import FilterVersion
 from src.domain.governance.filter.filtered_content import FilteredContent
 from src.domain.governance.filter.rejection_reason import RejectionReason
-from src.domain.governance.filter.violation_type import ViolationType
 from src.domain.governance.filter.transformation import Transformation
+from src.domain.governance.filter.violation_type import ViolationType
 
 
 class TestFilterResult:
@@ -57,9 +58,7 @@ class TestFilterResult:
         assert result.is_sendable()
         assert result.decision == FilterDecision.ACCEPTED
 
-    def test_rejected_result_not_sendable(
-        self, filter_version: FilterVersion
-    ) -> None:
+    def test_rejected_result_not_sendable(self, filter_version: FilterVersion) -> None:
         """REJECTED results are not sendable."""
         result = FilterResult.rejected(
             reason=RejectionReason.URGENCY_PRESSURE,
@@ -70,9 +69,7 @@ class TestFilterResult:
         assert not result.is_sendable()
         assert result.decision == FilterDecision.REJECTED
 
-    def test_blocked_result_not_sendable(
-        self, filter_version: FilterVersion
-    ) -> None:
+    def test_blocked_result_not_sendable(self, filter_version: FilterVersion) -> None:
         """BLOCKED results are not sendable."""
         result = FilterResult.blocked(
             violation=ViolationType.EXPLICIT_THREAT,
@@ -120,9 +117,7 @@ class TestFilterResult:
         assert result.transformation_count == 1
         assert result.transformations[0].rule_id == "remove_urgency_caps"
 
-    def test_rejected_result_has_reason(
-        self, filter_version: FilterVersion
-    ) -> None:
+    def test_rejected_result_has_reason(self, filter_version: FilterVersion) -> None:
         """REJECTED results include reason and guidance (AC6)."""
         result = FilterResult.rejected(
             reason=RejectionReason.URGENCY_PRESSURE,
@@ -134,9 +129,7 @@ class TestFilterResult:
         assert result.rejection_guidance is not None
         assert "time pressure" in result.rejection_guidance.lower()
 
-    def test_blocked_result_has_violation(
-        self, filter_version: FilterVersion
-    ) -> None:
+    def test_blocked_result_has_violation(self, filter_version: FilterVersion) -> None:
         """BLOCKED results include violation details (AC7)."""
         result = FilterResult.blocked(
             violation=ViolationType.EXPLICIT_THREAT,
@@ -177,7 +170,9 @@ class TestFilterResult:
         self, filter_version: FilterVersion
     ) -> None:
         """REJECTED result without reason raises ValueError."""
-        with pytest.raises(ValueError, match="REJECTED result must include rejection_reason"):
+        with pytest.raises(
+            ValueError, match="REJECTED result must include rejection_reason"
+        ):
             FilterResult(
                 decision=FilterDecision.REJECTED,
                 version=filter_version,
@@ -188,7 +183,9 @@ class TestFilterResult:
         self, filter_version: FilterVersion
     ) -> None:
         """BLOCKED result without violation raises ValueError."""
-        with pytest.raises(ValueError, match="BLOCKED result must include violation_type"):
+        with pytest.raises(
+            ValueError, match="BLOCKED result must include violation_type"
+        ):
             FilterResult(
                 decision=FilterDecision.BLOCKED,
                 version=filter_version,
@@ -199,7 +196,9 @@ class TestFilterResult:
         self, filtered_content: FilteredContent, filter_version: FilterVersion
     ) -> None:
         """ACCEPTED result with rejection_reason raises ValueError."""
-        with pytest.raises(ValueError, match="ACCEPTED result cannot have rejection_reason"):
+        with pytest.raises(
+            ValueError, match="ACCEPTED result cannot have rejection_reason"
+        ):
             FilterResult(
                 decision=FilterDecision.ACCEPTED,
                 version=filter_version,
@@ -212,7 +211,9 @@ class TestFilterResult:
         self, filtered_content: FilteredContent, filter_version: FilterVersion
     ) -> None:
         """ACCEPTED result with violation_type raises ValueError."""
-        with pytest.raises(ValueError, match="ACCEPTED result cannot have violation_type"):
+        with pytest.raises(
+            ValueError, match="ACCEPTED result cannot have violation_type"
+        ):
             FilterResult(
                 decision=FilterDecision.ACCEPTED,
                 version=filter_version,

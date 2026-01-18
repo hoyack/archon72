@@ -24,9 +24,7 @@ class TestDatabaseConnectivity:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_database_connection_works(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_database_connection_works(self, db_session: AsyncSession) -> None:
         """AC1, AC2: Verify database connection is established."""
         result = await db_session.execute(text("SELECT 1 as value"))
         row = result.fetchone()
@@ -47,9 +45,7 @@ class TestDatabaseConnectivity:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_async_operations_work(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_async_operations_work(self, db_session: AsyncSession) -> None:
         """AC2: Verify async database operations work correctly."""
         # Create a temporary table
         await db_session.execute(
@@ -121,9 +117,7 @@ class TestDatabaseCRUD:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_create_and_read(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_create_and_read(self, db_session: AsyncSession) -> None:
         """AC2: Test CREATE and READ operations."""
         # Create
         await db_session.execute(
@@ -141,13 +135,13 @@ class TestDatabaseCRUD:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_update_operation(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_update_operation(self, db_session: AsyncSession) -> None:
         """AC2: Test UPDATE operation."""
         # Setup
         await db_session.execute(
-            text("CREATE TEMPORARY TABLE update_test (id SERIAL PRIMARY KEY, data TEXT)")
+            text(
+                "CREATE TEMPORARY TABLE update_test (id SERIAL PRIMARY KEY, data TEXT)"
+            )
         )
         await db_session.execute(
             text("INSERT INTO update_test (data) VALUES ('original')")
@@ -166,22 +160,20 @@ class TestDatabaseCRUD:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_delete_operation(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_delete_operation(self, db_session: AsyncSession) -> None:
         """AC2: Test DELETE operation."""
         # Setup
         await db_session.execute(
-            text("CREATE TEMPORARY TABLE delete_test (id SERIAL PRIMARY KEY, data TEXT)")
+            text(
+                "CREATE TEMPORARY TABLE delete_test (id SERIAL PRIMARY KEY, data TEXT)"
+            )
         )
         await db_session.execute(
             text("INSERT INTO delete_test (data) VALUES ('to_delete')")
         )
 
         # Verify exists
-        result = await db_session.execute(
-            text("SELECT COUNT(*) FROM delete_test")
-        )
+        result = await db_session.execute(text("SELECT COUNT(*) FROM delete_test"))
         assert result.scalar() == 1
 
         # Delete
@@ -190,9 +182,7 @@ class TestDatabaseCRUD:
         )
 
         # Verify deleted
-        result = await db_session.execute(
-            text("SELECT COUNT(*) FROM delete_test")
-        )
+        result = await db_session.execute(text("SELECT COUNT(*) FROM delete_test"))
         assert result.scalar() == 0
 
 
@@ -220,7 +210,9 @@ class TestContainerStartup:
         elapsed = time.perf_counter() - start
 
         # Threshold of 10s is generous; typical startup is 3-5s with cached image
-        assert elapsed < 10.0, f"PostgreSQL container took {elapsed:.2f}s to start (expected <10s)"
+        assert elapsed < 10.0, (
+            f"PostgreSQL container took {elapsed:.2f}s to start (expected <10s)"
+        )
 
     @pytest.mark.integration
     def test_redis_container_startup_time(self) -> None:
@@ -240,4 +232,6 @@ class TestContainerStartup:
         elapsed = time.perf_counter() - start
 
         # Threshold of 10s is generous; typical startup is 2-3s with cached image
-        assert elapsed < 10.0, f"Redis container took {elapsed:.2f}s to start (expected <10s)"
+        assert elapsed < 10.0, (
+            f"Redis container took {elapsed:.2f}s to start (expected <10s)"
+        )

@@ -122,10 +122,7 @@ class LegitimacyBand(Enum):
             return True
 
         # Upward only one step at a time
-        if target.severity == self.severity - 1:
-            return True
-
-        return False
+        return target.severity == self.severity - 1
 
     @classmethod
     def from_severity(cls, severity: int) -> "LegitimacyBand":

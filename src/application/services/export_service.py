@@ -16,10 +16,10 @@ import io
 import json
 from collections.abc import AsyncIterator
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
-from src.application.dtos.export import AttestationMetadataDTO, ExportFormatDTO
+from src.application.dtos.export import AttestationMetadataDTO
 from src.application.ports.event_store import EventStorePort
 from src.application.ports.hsm import HSMProtocol
 from src.domain.events import Event
@@ -62,7 +62,7 @@ class ExportService:
     def __init__(
         self,
         event_store: EventStorePort,
-        hsm: Optional[HSMProtocol] = None,
+        hsm: HSMProtocol | None = None,
     ) -> None:
         """Initialize export service.
 
@@ -76,11 +76,11 @@ class ExportService:
 
     async def export_jsonl(
         self,
-        start_sequence: Optional[int] = None,
-        end_sequence: Optional[int] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        event_types: Optional[list[str]] = None,
+        start_sequence: int | None = None,
+        end_sequence: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        event_types: list[str] | None = None,
     ) -> AsyncIterator[str]:
         """Export events as JSON Lines format (FR139).
 
@@ -112,11 +112,11 @@ class ExportService:
 
     async def export_csv(
         self,
-        start_sequence: Optional[int] = None,
-        end_sequence: Optional[int] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        event_types: Optional[list[str]] = None,
+        start_sequence: int | None = None,
+        end_sequence: int | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        event_types: list[str] | None = None,
     ) -> AsyncIterator[str]:
         """Export events as CSV format (FR139).
 
@@ -155,7 +155,7 @@ class ExportService:
         sequence_start: int,
         sequence_end: int,
         event_count: int,
-        filter_criteria: Optional[dict[str, Any]] = None,
+        filter_criteria: dict[str, Any] | None = None,
     ) -> AttestationMetadataDTO:
         """Generate attestation metadata for export (FR140).
 
@@ -297,7 +297,7 @@ class ExportService:
         sequence_start: int,
         sequence_end: int,
         event_count: int,
-        filter_criteria: Optional[dict[str, Any]],
+        filter_criteria: dict[str, Any] | None,
         chain_hash: str,
     ) -> str:
         """Build canonical JSON for signing.

@@ -17,7 +17,6 @@ These tests use real implementations (stubs) instead of mocks.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
 import pytest
@@ -35,8 +34,8 @@ from src.domain.events.user_content_prohibition import (
     USER_CONTENT_PROHIBITED_EVENT_TYPE,
 )
 from src.domain.models.user_content import (
-    FeatureRequest,
     FeaturedStatus,
+    FeatureRequest,
     UserContentStatus,
 )
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
@@ -561,9 +560,7 @@ class TestClearProhibitionFlow:
         mock_event_writer.reset_mock()
 
         # Then clear
-        await service.clear_prohibition_flag(
-            "uc_clear_event_001", "Admin review"
-        )
+        await service.clear_prohibition_flag("uc_clear_event_001", "Admin review")
 
         mock_event_writer.write_event.assert_called_once()
         call_kwargs = mock_event_writer.write_event.call_args.kwargs

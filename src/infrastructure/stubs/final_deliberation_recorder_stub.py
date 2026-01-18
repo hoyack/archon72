@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
 
 from src.application.ports.final_deliberation_recorder import (
@@ -104,7 +103,7 @@ class FinalDeliberationRecorderStub(FinalDeliberationRecorder):
             Stub signature string.
         """
         # Stub: deterministic signature from content hash + witness ID
-        sig_input = f"{self._witness_id}:{content_hash}".encode("utf-8")
+        sig_input = f"{self._witness_id}:{content_hash}".encode()
         return f"stub-sig-{hashlib.sha256(sig_input).hexdigest()[:32]}"
 
     @property

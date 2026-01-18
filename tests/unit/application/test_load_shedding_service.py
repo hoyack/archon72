@@ -13,9 +13,6 @@ from src.domain.errors.failure_prevention import (
     ConstitutionalEventSheddingError,
     LoadSheddingDecisionError,
 )
-from src.domain.models.load_status import (
-    LoadLevel,
-)
 
 
 @pytest.fixture
@@ -42,7 +39,9 @@ class TestSetBaselineLoad:
         assert service._baseline_load == 0.0
 
     @pytest.mark.asyncio
-    async def test_rejects_negative_baseline(self, service: LoadSheddingService) -> None:
+    async def test_rejects_negative_baseline(
+        self, service: LoadSheddingService
+    ) -> None:
         """Test that negative baseline is rejected."""
         with pytest.raises(LoadSheddingDecisionError):
             await service.set_baseline_load(-10.0)
@@ -238,7 +237,9 @@ class TestGetSheddingStats:
         await service.update_load(95.0)
 
         # Constitutional events should be protected
-        await service.make_shedding_decision("constitutional_event", is_constitutional=True)
+        await service.make_shedding_decision(
+            "constitutional_event", is_constitutional=True
+        )
 
         stats = await service.get_shedding_stats()
 

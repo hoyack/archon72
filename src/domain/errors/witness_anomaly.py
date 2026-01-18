@@ -12,7 +12,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
@@ -188,7 +187,7 @@ class AnomalyScanError(WitnessAnomalyError):
     def __init__(
         self,
         reason: str,
-        scan_type: Optional[str] = None,
+        scan_type: str | None = None,
     ) -> None:
         """Initialize scan error.
 

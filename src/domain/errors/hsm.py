@@ -47,7 +47,10 @@ class HSMModeViolationError(HSMError):
     """
 
     def __init__(
-        self, message: str = "HSM mode violation detected", expected: str = "", actual: str = ""
+        self,
+        message: str = "HSM mode violation detected",
+        expected: str = "",
+        actual: str = "",
     ) -> None:
         """Initialize with mode mismatch details.
 

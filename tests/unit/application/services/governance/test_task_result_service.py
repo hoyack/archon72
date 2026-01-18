@@ -49,6 +49,7 @@ class MockTaskStatePort:
             from src.application.ports.governance.task_activation_port import (
                 TaskNotFoundError,
             )
+
             raise TaskNotFoundError(task_id)
         return self._tasks[task_id]
 
@@ -96,13 +97,15 @@ class MockTwoPhaseEmitter:
         """Emit an intent event."""
         correlation_id = self._next_correlation_id
         self._next_correlation_id = uuid4()
-        self.intents.append({
-            "correlation_id": correlation_id,
-            "operation_type": operation_type,
-            "actor_id": actor_id,
-            "target_entity_id": target_entity_id,
-            "intent_payload": intent_payload,
-        })
+        self.intents.append(
+            {
+                "correlation_id": correlation_id,
+                "operation_type": operation_type,
+                "actor_id": actor_id,
+                "target_entity_id": target_entity_id,
+                "intent_payload": intent_payload,
+            }
+        )
         return correlation_id
 
     async def emit_commit(
@@ -111,10 +114,12 @@ class MockTwoPhaseEmitter:
         result_payload: dict[str, Any],
     ) -> None:
         """Emit a commit event."""
-        self.commits.append({
-            "correlation_id": correlation_id,
-            "result_payload": result_payload,
-        })
+        self.commits.append(
+            {
+                "correlation_id": correlation_id,
+                "result_payload": result_payload,
+            }
+        )
 
     async def emit_failure(
         self,
@@ -123,11 +128,13 @@ class MockTwoPhaseEmitter:
         failure_details: dict[str, Any],
     ) -> None:
         """Emit a failure event."""
-        self.failures.append({
-            "correlation_id": correlation_id,
-            "failure_reason": failure_reason,
-            "failure_details": failure_details,
-        })
+        self.failures.append(
+            {
+                "correlation_id": correlation_id,
+                "failure_reason": failure_reason,
+                "failure_details": failure_details,
+            }
+        )
 
 
 class MockTimeAuthority:
@@ -187,7 +194,9 @@ def in_progress_task() -> TaskState:
     task = task.transition(TaskStatus.ACTIVATED, now - timedelta(minutes=50), "system")
     task = task.transition(TaskStatus.ROUTED, now - timedelta(minutes=40), "system")
     task = task.transition(TaskStatus.ACCEPTED, now - timedelta(minutes=30), cluster_id)
-    task = task.transition(TaskStatus.IN_PROGRESS, now - timedelta(minutes=20), cluster_id)
+    task = task.transition(
+        TaskStatus.IN_PROGRESS, now - timedelta(minutes=20), cluster_id
+    )
 
     return task
 
@@ -198,7 +207,7 @@ def result_service(
     ledger_port: MockLedgerPort,
     two_phase_emitter: MockTwoPhaseEmitter,
     time_authority: MockTimeAuthority,
-) -> "TaskResultService":
+) -> TaskResultService:
     """Create a TaskResultService for testing."""
     from src.application.services.governance.task_result_service import (
         TaskResultService,
@@ -225,7 +234,7 @@ class TestTaskResultServiceExists:
 
     def test_task_result_service_implements_port(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
     ) -> None:
         """Verify TaskResultService implements TaskResultPort."""
         from src.application.ports.governance.task_result_port import TaskResultPort
@@ -239,7 +248,7 @@ class TestSubmitResult:
     @pytest.mark.asyncio
     async def test_submit_result_transitions_to_reported(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -262,7 +271,7 @@ class TestSubmitResult:
     @pytest.mark.asyncio
     async def test_submit_result_emits_event(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         ledger_port: MockLedgerPort,
         in_progress_task: TaskState,
@@ -285,7 +294,7 @@ class TestSubmitResult:
     @pytest.mark.asyncio
     async def test_submit_result_includes_structured_output(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -309,7 +318,7 @@ class TestSubmitResult:
     @pytest.mark.asyncio
     async def test_submit_result_unauthorized_cluster_rejected(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -326,7 +335,7 @@ class TestSubmitResult:
     @pytest.mark.asyncio
     async def test_submit_result_wrong_state_rejected(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
     ) -> None:
         """Cannot submit result if task not IN_PROGRESS."""
@@ -338,9 +347,13 @@ class TestSubmitResult:
         )
         task = task.with_cluster("cluster-1")
         now = datetime.now(timezone.utc)
-        task = task.transition(TaskStatus.ACTIVATED, now - timedelta(minutes=50), "system")
+        task = task.transition(
+            TaskStatus.ACTIVATED, now - timedelta(minutes=50), "system"
+        )
         task = task.transition(TaskStatus.ROUTED, now - timedelta(minutes=40), "system")
-        task = task.transition(TaskStatus.ACCEPTED, now - timedelta(minutes=30), "cluster-1")
+        task = task.transition(
+            TaskStatus.ACCEPTED, now - timedelta(minutes=30), "cluster-1"
+        )
         # Not transitioned to IN_PROGRESS
 
         task_state_port.add_task(task)
@@ -355,7 +368,7 @@ class TestSubmitResult:
     @pytest.mark.asyncio
     async def test_submit_result_uses_two_phase_emission(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         two_phase_emitter: MockTwoPhaseEmitter,
         in_progress_task: TaskState,
@@ -381,7 +394,7 @@ class TestSubmitProblemReport:
     @pytest.mark.asyncio
     async def test_submit_problem_report_keeps_in_progress(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -405,7 +418,7 @@ class TestSubmitProblemReport:
     @pytest.mark.asyncio
     async def test_submit_problem_report_emits_event(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         ledger_port: MockLedgerPort,
         in_progress_task: TaskState,
@@ -430,7 +443,7 @@ class TestSubmitProblemReport:
     @pytest.mark.asyncio
     async def test_submit_problem_report_captures_category(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -446,13 +459,14 @@ class TestSubmitProblemReport:
 
         # Result should be a ProblemReportValue with correct category
         from src.application.ports.governance.task_result_port import ProblemReportValue
+
         assert isinstance(result.result, ProblemReportValue)
         assert result.result.category == ProblemCategory.RESOURCE_UNAVAILABLE
 
     @pytest.mark.asyncio
     async def test_submit_problem_report_captures_description(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -468,13 +482,14 @@ class TestSubmitProblemReport:
         )
 
         from src.application.ports.governance.task_result_port import ProblemReportValue
+
         assert isinstance(result.result, ProblemReportValue)
         assert result.result.description == description
 
     @pytest.mark.asyncio
     async def test_submit_problem_report_unauthorized_cluster_rejected(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         in_progress_task: TaskState,
     ) -> None:
@@ -492,7 +507,7 @@ class TestSubmitProblemReport:
     @pytest.mark.asyncio
     async def test_submit_problem_report_wrong_state_rejected(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
     ) -> None:
         """Cannot submit problem report if task not IN_PROGRESS."""
@@ -504,9 +519,13 @@ class TestSubmitProblemReport:
         )
         task = task.with_cluster("cluster-1")
         now = datetime.now(timezone.utc)
-        task = task.transition(TaskStatus.ACTIVATED, now - timedelta(minutes=50), "system")
+        task = task.transition(
+            TaskStatus.ACTIVATED, now - timedelta(minutes=50), "system"
+        )
         task = task.transition(TaskStatus.ROUTED, now - timedelta(minutes=40), "system")
-        task = task.transition(TaskStatus.ACCEPTED, now - timedelta(minutes=30), "cluster-1")
+        task = task.transition(
+            TaskStatus.ACCEPTED, now - timedelta(minutes=30), "cluster-1"
+        )
 
         task_state_port.add_task(task)
 
@@ -521,7 +540,7 @@ class TestSubmitProblemReport:
     @pytest.mark.asyncio
     async def test_submit_problem_report_uses_two_phase_emission(
         self,
-        result_service: "TaskResultService",
+        result_service: TaskResultService,
         task_state_port: MockTaskStatePort,
         two_phase_emitter: MockTwoPhaseEmitter,
         in_progress_task: TaskState,

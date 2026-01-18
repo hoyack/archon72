@@ -13,12 +13,12 @@ References:
     - AC3: Panel can review witness artifacts
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
 
-from src.domain.governance.panel.review_session import ReviewSession, ReviewedArtifact
+from src.domain.governance.panel.review_session import ReviewedArtifact, ReviewSession
 
 
 class TestReviewedArtifact:

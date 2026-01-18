@@ -136,10 +136,12 @@ class TestCessationFlagRepositoryStubDualChannel:
         )
 
         stub = CessationFlagRepositoryStub()
-        stub.set_failure_mode(FailureMode(
-            redis_read_fails=True,
-            db_read_fails=True,
-        ))
+        stub.set_failure_mode(
+            FailureMode(
+                redis_read_fails=True,
+                db_read_fails=True,
+            )
+        )
 
         with pytest.raises(RuntimeError, match="Both channels unavailable"):
             await stub.is_ceased()

@@ -226,7 +226,7 @@ class FilterDecisionLog:
         earl_id: UUID,
         timestamp: datetime,
         transformations: tuple[TransformationLog, ...] = (),
-    ) -> "FilterDecisionLog":
+    ) -> FilterDecisionLog:
         """Factory for ACCEPTED decision logs."""
         return cls(
             decision_id=decision_id,
@@ -251,7 +251,7 @@ class FilterDecisionLog:
         timestamp: datetime,
         rejection_reason: RejectionReason,
         rejection_guidance: str | None = None,
-    ) -> "FilterDecisionLog":
+    ) -> FilterDecisionLog:
         """Factory for REJECTED decision logs."""
         return cls(
             decision_id=decision_id,
@@ -277,7 +277,7 @@ class FilterDecisionLog:
         timestamp: datetime,
         violation_type: ViolationType,
         violation_details: str | None = None,
-    ) -> "FilterDecisionLog":
+    ) -> FilterDecisionLog:
         """Factory for BLOCKED decision logs."""
         return cls(
             decision_id=decision_id,

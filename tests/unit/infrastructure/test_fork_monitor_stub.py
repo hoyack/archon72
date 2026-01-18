@@ -27,9 +27,7 @@ class TestForkMonitorStubBasic:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_start_monitoring_does_not_raise(
-        self, stub: ForkMonitorStub
-    ) -> None:
+    async def test_start_monitoring_does_not_raise(self, stub: ForkMonitorStub) -> None:
         """start_monitoring should not raise."""
         await stub.start_monitoring()  # Should not raise
 

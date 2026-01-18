@@ -6,10 +6,10 @@ Tests for the service that creates immutable Cessation Records
 when the governance system ceases.
 """
 
-import pytest
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
+
+import pytest
 
 from src.application.services.governance.cessation_record_service import (
     CessationRecordService,
@@ -28,7 +28,7 @@ class FakeCessationRecordPort:
     """Fake implementation of CessationRecordPort for testing."""
 
     def __init__(self) -> None:
-        self.record: Optional[CessationRecord] = None
+        self.record: CessationRecord | None = None
         self.fail_on_create: bool = False
         self.create_called: bool = False
 
@@ -43,7 +43,7 @@ class FakeCessationRecordPort:
             )
         self.record = record
 
-    async def get_record(self) -> Optional[CessationRecord]:
+    async def get_record(self) -> CessationRecord | None:
         """Get cessation record if exists."""
         return self.record
 
@@ -134,13 +134,15 @@ class FakeEventEmitter:
         """Emit intent event and return correlation ID."""
         self._correlation_counter += 1
         correlation_id = f"corr-{self._correlation_counter}"
-        self.intents.append({
-            "correlation_id": correlation_id,
-            "operation_type": operation_type,
-            "actor_id": actor_id,
-            "target_entity_id": target_entity_id,
-            "payload": intent_payload,
-        })
+        self.intents.append(
+            {
+                "correlation_id": correlation_id,
+                "operation_type": operation_type,
+                "actor_id": actor_id,
+                "target_entity_id": target_entity_id,
+                "payload": intent_payload,
+            }
+        )
         return correlation_id
 
     async def emit_commit(
@@ -149,10 +151,12 @@ class FakeEventEmitter:
         outcome_payload: dict,
     ) -> None:
         """Emit commit event."""
-        self.commits.append({
-            "correlation_id": correlation_id,
-            "payload": outcome_payload,
-        })
+        self.commits.append(
+            {
+                "correlation_id": correlation_id,
+                "payload": outcome_payload,
+            }
+        )
 
     async def emit_failure(
         self,
@@ -161,17 +165,19 @@ class FakeEventEmitter:
         failure_details: dict,
     ) -> None:
         """Emit failure event."""
-        self.failures.append({
-            "correlation_id": correlation_id,
-            "reason": failure_reason,
-            "details": failure_details,
-        })
+        self.failures.append(
+            {
+                "correlation_id": correlation_id,
+                "reason": failure_reason,
+                "details": failure_details,
+            }
+        )
 
 
 class FakeTimeAuthority:
     """Fake implementation of TimeAuthority."""
 
-    def __init__(self, fixed_time: Optional[datetime] = None) -> None:
+    def __init__(self, fixed_time: datetime | None = None) -> None:
         self._fixed_time = fixed_time or datetime.now(timezone.utc)
 
     def utcnow(self) -> datetime:
@@ -193,7 +199,7 @@ class FakeLegitimacyPort:
 class FakeComponentStatusPort:
     """Fake implementation for component status queries."""
 
-    def __init__(self, statuses: Optional[dict[str, str]] = None) -> None:
+    def __init__(self, statuses: dict[str, str] | None = None) -> None:
         self.statuses = statuses or {"default": "healthy"}
 
     async def get_all_statuses(self) -> dict[str, str]:
@@ -499,7 +505,7 @@ class TestEventEmission:
         event_emitter: FakeEventEmitter,
     ) -> None:
         """Emitted event contains record details."""
-        record = await record_service.create_record(trigger=cessation_trigger)
+        await record_service.create_record(trigger=cessation_trigger)
 
         intent = event_emitter.intents[0]
         assert intent["payload"]["trigger_id"] == str(cessation_trigger.trigger_id)
@@ -566,7 +572,9 @@ class TestSystemSnapshot:
         record = await record_service.create_record(trigger=cessation_trigger)
 
         assert record.system_snapshot.component_statuses["king_service"] == "healthy"
-        assert record.system_snapshot.component_statuses["president_service"] == "degraded"
+        assert (
+            record.system_snapshot.component_statuses["president_service"] == "degraded"
+        )
 
 
 class TestRecordImmutability:

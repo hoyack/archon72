@@ -8,8 +8,7 @@ Constitutional Constraint:
 - No preferential treatment for registered users
 """
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 

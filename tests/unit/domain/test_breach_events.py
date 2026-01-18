@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from types import MappingProxyType
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -114,7 +114,9 @@ class TestBreachEventPayload:
             violated_requirement="FR82",
             severity=BreachSeverity.CRITICAL,
             detection_timestamp=datetime.now(timezone.utc),
-            details=MappingProxyType({"expected_hash": "abc123", "actual_hash": "def456"}),
+            details=MappingProxyType(
+                {"expected_hash": "abc123", "actual_hash": "def456"}
+            ),
             source_event_id=None,
         )
 

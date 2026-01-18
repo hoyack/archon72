@@ -86,9 +86,14 @@ class TestComplianceRequirement:
         """Test successful requirement creation with all fields."""
         assert valid_requirement.requirement_id == "NFR31"
         assert valid_requirement.framework == ComplianceFramework.GDPR
-        assert valid_requirement.description == "Personal data SHALL be stored separately"
+        assert (
+            valid_requirement.description == "Personal data SHALL be stored separately"
+        )
         assert valid_requirement.status == ComplianceStatus.COMPLIANT
-        assert valid_requirement.implementation_reference == "src/infrastructure/adapters/persistence/"
+        assert (
+            valid_requirement.implementation_reference
+            == "src/infrastructure/adapters/persistence/"
+        )
         assert len(valid_requirement.evidence) == 2
 
     def test_requirement_is_immutable(
@@ -144,7 +149,9 @@ class TestComplianceRequirement:
         )
         assert req.evidence == ()
 
-    def test_requirement_to_dict(self, valid_requirement: ComplianceRequirement) -> None:
+    def test_requirement_to_dict(
+        self, valid_requirement: ComplianceRequirement
+    ) -> None:
         """Test to_dict contains all fields."""
         result = valid_requirement.to_dict()
 
@@ -152,7 +159,10 @@ class TestComplianceRequirement:
         assert result["framework"] == "GDPR"
         assert result["description"] == "Personal data SHALL be stored separately"
         assert result["status"] == "COMPLIANT"
-        assert result["implementation_reference"] == "src/infrastructure/adapters/persistence/"
+        assert (
+            result["implementation_reference"]
+            == "src/infrastructure/adapters/persistence/"
+        )
         assert result["evidence"] == [
             "patronage_private schema isolation",
             "No PII in events",
@@ -192,7 +202,9 @@ class TestComplianceAssessment:
         assert valid_assessment.gaps == ()
         assert valid_assessment.remediation_plan is None
 
-    def test_assessment_is_immutable(self, valid_assessment: ComplianceAssessment) -> None:
+    def test_assessment_is_immutable(
+        self, valid_assessment: ComplianceAssessment
+    ) -> None:
         """Test assessment is immutable (frozen dataclass)."""
         with pytest.raises(AttributeError):
             valid_assessment.assessment_id = "DIFFERENT-ID"  # type: ignore
@@ -343,7 +355,10 @@ class TestFrameworkMapping:
         assert valid_mapping.mapping_id == "MAPPING-001"
         assert valid_mapping.capability == "Human Override Protocol"
         assert len(valid_mapping.framework_requirements) == 2
-        assert valid_mapping.implementation_reference == "src/application/services/override_service.py"
+        assert (
+            valid_mapping.implementation_reference
+            == "src/application/services/override_service.py"
+        )
 
     def test_mapping_is_immutable(self, valid_mapping: FrameworkMapping) -> None:
         """Test mapping is immutable (frozen dataclass)."""
@@ -388,7 +403,10 @@ class TestFrameworkMapping:
         assert result["capability"] == "Human Override Protocol"
         assert result["framework_requirements"]["EU_AI_ACT"] == ["EU-AI-ACT-01"]
         assert result["framework_requirements"]["NIST_AI_RMF"] == ["NIST-GOVERN"]
-        assert result["implementation_reference"] == "src/application/services/override_service.py"
+        assert (
+            result["implementation_reference"]
+            == "src/application/services/override_service.py"
+        )
 
 
 class TestGenerateAssessmentId:

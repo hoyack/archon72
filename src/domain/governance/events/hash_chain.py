@@ -28,7 +28,7 @@ References:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from src.domain.errors.constitutional import ConstitutionalViolationError
@@ -41,7 +41,6 @@ from src.domain.governance.events.hash_algorithms import (
     is_genesis_hash,
     make_genesis_hash,
     validate_hash_format,
-    verify_hash,
 )
 
 if TYPE_CHECKING:
@@ -72,7 +71,7 @@ class HashVerificationResult:
     actual_hash: str = ""
 
 
-def _metadata_to_dict_for_hash(metadata: "EventMetadata") -> dict[str, Any]:
+def _metadata_to_dict_for_hash(metadata: EventMetadata) -> dict[str, Any]:
     """Convert EventMetadata to dict for hashing, excluding hash field.
 
     Per AD-6: Hash is computed from metadata (excluding hash field) + payload.
@@ -97,7 +96,7 @@ def _metadata_to_dict_for_hash(metadata: "EventMetadata") -> dict[str, Any]:
 
 
 def compute_event_hash(
-    event: "GovernanceEvent",
+    event: GovernanceEvent,
     algorithm: str = DEFAULT_ALGORITHM,
 ) -> str:
     """Compute the hash of a governance event.
@@ -136,7 +135,7 @@ def compute_event_hash(
 
 
 def compute_event_hash_with_prev(
-    event: "GovernanceEvent",
+    event: GovernanceEvent,
     prev_hash: str,
     algorithm: str = DEFAULT_ALGORITHM,
 ) -> str:
@@ -179,7 +178,7 @@ def compute_event_hash_with_prev(
     return compute_hash(content, algorithm)
 
 
-def verify_event_hash(event: "GovernanceEvent") -> HashVerificationResult:
+def verify_event_hash(event: GovernanceEvent) -> HashVerificationResult:
     """Verify that an event's hash matches its content.
 
     The algorithm is extracted from the hash prefix, so this works
@@ -214,7 +213,9 @@ def verify_event_hash(event: "GovernanceEvent") -> HashVerificationResult:
         # Compute what the hash should be
         metadata_dict = _metadata_to_dict_for_hash(event.metadata)
         payload_dict = dict(event.payload)
-        content = canonical_json_bytes(metadata_dict) + canonical_json_bytes(payload_dict)
+        content = canonical_json_bytes(metadata_dict) + canonical_json_bytes(
+            payload_dict
+        )
         computed_hash = compute_hash(content, algorithm)
 
         # Compare
@@ -224,7 +225,9 @@ def verify_event_hash(event: "GovernanceEvent") -> HashVerificationResult:
             is_valid=is_valid,
             event_hash_valid=is_valid,
             chain_link_valid=True,  # Chain link verified separately
-            error_message="" if is_valid else "Hash mismatch - event may have been tampered",
+            error_message=""
+            if is_valid
+            else "Hash mismatch - event may have been tampered",
             expected_hash=event.hash,
             actual_hash=computed_hash,
         )
@@ -239,8 +242,8 @@ def verify_event_hash(event: "GovernanceEvent") -> HashVerificationResult:
 
 
 def verify_chain_link(
-    current_event: "GovernanceEvent",
-    previous_event: "GovernanceEvent | None",
+    current_event: GovernanceEvent,
+    previous_event: GovernanceEvent | None,
 ) -> HashVerificationResult:
     """Verify that current event's prev_hash matches previous event's hash.
 
@@ -302,8 +305,8 @@ def verify_chain_link(
 
 
 def verify_event_full(
-    event: "GovernanceEvent",
-    previous_event: "GovernanceEvent | None" = None,
+    event: GovernanceEvent,
+    previous_event: GovernanceEvent | None = None,
 ) -> HashVerificationResult:
     """Perform full verification of an event: hash and chain link.
 
@@ -340,10 +343,10 @@ def verify_event_full(
 
 
 def add_hash_to_event(
-    event: "GovernanceEvent",
+    event: GovernanceEvent,
     prev_hash: str | None = None,
     algorithm: str = DEFAULT_ALGORITHM,
-) -> "GovernanceEvent":
+) -> GovernanceEvent:
     """Create a new event with computed hash fields.
 
     Since GovernanceEvent is frozen, this returns a new instance
@@ -397,9 +400,9 @@ def add_hash_to_event(
 
 
 def chain_events(
-    events: list["GovernanceEvent"],
+    events: list[GovernanceEvent],
     algorithm: str = DEFAULT_ALGORITHM,
-) -> list["GovernanceEvent"]:
+) -> list[GovernanceEvent]:
     """Add hash chain to a list of events.
 
     Takes a list of unhashed events and returns a new list with

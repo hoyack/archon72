@@ -18,7 +18,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from structlog import get_logger
@@ -27,7 +27,6 @@ from src.application.ports.breach_repository import BreachRepositoryProtocol
 from src.application.ports.cessation_repository import CessationRepositoryProtocol
 from src.application.ports.halt_checker import HaltChecker
 from src.domain.errors.cessation import (
-    CessationAlreadyTriggeredError,
     CessationConsiderationNotFoundError,
     InvalidCessationDecisionError,
 )
@@ -79,7 +78,7 @@ class CessationConsiderationService:
         self,
         breach_repository: BreachRepositoryProtocol,
         cessation_repository: CessationRepositoryProtocol,
-        event_writer: "EventWriterService",
+        event_writer: EventWriterService,
         halt_checker: HaltChecker,
     ) -> None:
         """Initialize the Cessation Consideration Service.
@@ -97,7 +96,7 @@ class CessationConsiderationService:
 
     async def check_and_trigger_cessation(
         self,
-    ) -> Optional[CessationConsiderationEventPayload]:
+    ) -> CessationConsiderationEventPayload | None:
         """Check thresholds and trigger cessation consideration if exceeded (FR32).
 
         This method is designed to be called periodically (e.g., daily).
@@ -132,7 +131,9 @@ class CessationConsiderationService:
         # =====================================================================
         # Check for existing active consideration (FR32)
         # =====================================================================
-        active_consideration = await self._cessation_repository.get_active_consideration()
+        active_consideration = (
+            await self._cessation_repository.get_active_consideration()
+        )
         if active_consideration is not None:
             log.info(
                 "cessation_check_skipped_active_exists",
@@ -267,8 +268,10 @@ class CessationConsiderationService:
         # =====================================================================
         # Check no decision already recorded (FR32)
         # =====================================================================
-        existing_decision = await self._cessation_repository.get_decision_for_consideration(
-            consideration_id
+        existing_decision = (
+            await self._cessation_repository.get_decision_for_consideration(
+                consideration_id
+            )
         )
         if existing_decision is not None:
             log.warning(
@@ -378,7 +381,7 @@ class CessationConsiderationService:
 
         return status
 
-    async def get_breach_alert_status(self) -> Optional[str]:
+    async def get_breach_alert_status(self) -> str | None:
         """Get breach alert status if at warning or critical level (FR32).
 
         Constitutional Constraints:
@@ -458,7 +461,7 @@ class CessationConsiderationService:
 
     async def get_active_consideration(
         self,
-    ) -> Optional[CessationConsiderationEventPayload]:
+    ) -> CessationConsiderationEventPayload | None:
         """Get the currently active cessation consideration (FR32).
 
         Constitutional Constraints:

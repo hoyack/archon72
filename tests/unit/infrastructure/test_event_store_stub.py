@@ -224,9 +224,7 @@ class TestEventStoreStubFilteredQueries:
         assert await stub_with_events.count_events_filtered() == 5
 
         # By type
-        assert (
-            await stub_with_events.count_events_filtered(event_types=["vote"]) == 3
-        )
+        assert await stub_with_events.count_events_filtered(event_types=["vote"]) == 3
 
         # By date range
         start = datetime(2026, 1, 16, 0, 0, 0, tzinfo=timezone.utc)
@@ -279,9 +277,7 @@ class TestEventStoreStubOrphaning:
         assert 4 not in sequences
 
     @pytest.mark.asyncio
-    async def test_count_filtered_excludes_orphaned(
-        self, stub: EventStoreStub
-    ) -> None:
+    async def test_count_filtered_excludes_orphaned(self, stub: EventStoreStub) -> None:
         """Count should exclude orphaned events."""
         await stub.mark_events_orphaned(3, 5)
 

@@ -132,9 +132,7 @@ class InMemoryWitnessPool(WitnessPoolProtocol):
         """
         now = datetime.now(timezone.utc)
         active_ids = [
-            w.witness_id
-            for w in self._witnesses.values()
-            if w.is_active(at=now)
+            w.witness_id for w in self._witnesses.values() if w.is_active(at=now)
         ]
         return tuple(sorted(active_ids))
 

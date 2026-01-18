@@ -11,7 +11,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 from uuid import UUID
 
 from src.domain.events.escalation import (
@@ -128,7 +128,7 @@ class EscalationProtocol(Protocol):
         """
         ...
 
-    async def get_breach_status(self, breach_id: UUID) -> Optional[dict[str, Any]]:
+    async def get_breach_status(self, breach_id: UUID) -> dict[str, Any] | None:
         """Get the escalation/acknowledgment status of a breach (FR31).
 
         Args:

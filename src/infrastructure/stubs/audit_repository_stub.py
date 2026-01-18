@@ -81,8 +81,7 @@ class AuditRepositoryStub(AuditRepositoryProtocol):
             audits have been completed.
         """
         completed_audits = [
-            a for a in self._audits.values()
-            if a.status == AuditStatus.COMPLETED
+            a for a in self._audits.values() if a.status == AuditStatus.COMPLETED
         ]
         if not completed_audits:
             return None
@@ -94,9 +93,7 @@ class AuditRepositoryStub(AuditRepositoryProtocol):
         )
         return completed_audits[0]
 
-    async def get_audit_by_quarter(
-        self, quarter: AuditQuarter
-    ) -> MaterialAudit | None:
+    async def get_audit_by_quarter(self, quarter: AuditQuarter) -> MaterialAudit | None:
         """Get the audit for a specific quarter.
 
         Args:
@@ -110,9 +107,7 @@ class AuditRepositoryStub(AuditRepositoryProtocol):
                 return audit
         return None
 
-    async def get_audit_history(
-        self, limit: int = 10
-    ) -> list[MaterialAudit]:
+    async def get_audit_history(self, limit: int = 10) -> list[MaterialAudit]:
         """Get recent audit history.
 
         Args:
@@ -122,8 +117,7 @@ class AuditRepositoryStub(AuditRepositoryProtocol):
             List of audits ordered by most recent first.
         """
         completed_audits = [
-            a for a in self._audits.values()
-            if a.status == AuditStatus.COMPLETED
+            a for a in self._audits.values() if a.status == AuditStatus.COMPLETED
         ]
         # Sort by completed_at descending
         completed_audits.sort(

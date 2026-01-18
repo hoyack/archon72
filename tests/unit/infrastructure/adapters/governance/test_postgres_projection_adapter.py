@@ -9,7 +9,7 @@ Tests cover acceptance criteria for story consent-gov-1.5:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, PropertyMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -53,7 +53,7 @@ class TestPostgresProjectionAdapterCreation:
             "petition_index",
             "actor_registry",
         }
-        assert KNOWN_PROJECTIONS == frozenset(expected)
+        assert frozenset(expected) == KNOWN_PROJECTIONS
 
 
 class TestPostgresProjectionAdapterGetCheckpoint:
@@ -74,7 +74,9 @@ class TestPostgresProjectionAdapterGetCheckpoint:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock, mock_time_authority: MagicMock) -> PostgresProjectionAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock, mock_time_authority: MagicMock
+    ) -> PostgresProjectionAdapter:
         """Create adapter with mocked session factory."""
         return PostgresProjectionAdapter(
             session_factory=mock_session_factory,
@@ -148,7 +150,9 @@ class TestPostgresProjectionAdapterSaveCheckpoint:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock, mock_time_authority: MagicMock) -> PostgresProjectionAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock, mock_time_authority: MagicMock
+    ) -> PostgresProjectionAdapter:
         """Create adapter with mocked session factory."""
         return PostgresProjectionAdapter(
             session_factory=mock_session_factory,
@@ -214,7 +218,9 @@ class TestPostgresProjectionAdapterIsEventApplied:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock, mock_time_authority: MagicMock) -> PostgresProjectionAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock, mock_time_authority: MagicMock
+    ) -> PostgresProjectionAdapter:
         """Create adapter with mocked session factory."""
         return PostgresProjectionAdapter(
             session_factory=mock_session_factory,
@@ -270,7 +276,9 @@ class TestPostgresProjectionAdapterClearProjection:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock, mock_time_authority: MagicMock) -> PostgresProjectionAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock, mock_time_authority: MagicMock
+    ) -> PostgresProjectionAdapter:
         """Create adapter with mocked session factory."""
         return PostgresProjectionAdapter(
             session_factory=mock_session_factory,
@@ -331,7 +339,9 @@ class TestPostgresProjectionAdapterGetProjectionNames:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock, mock_time_authority: MagicMock) -> PostgresProjectionAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock, mock_time_authority: MagicMock
+    ) -> PostgresProjectionAdapter:
         """Create adapter with mocked session factory."""
         return PostgresProjectionAdapter(
             session_factory=mock_session_factory,
@@ -368,7 +378,9 @@ class TestPostgresProjectionAdapterQueryMethods:
         return factory
 
     @pytest.fixture
-    def adapter(self, mock_session_factory: MagicMock, mock_time_authority: MagicMock) -> PostgresProjectionAdapter:
+    def adapter(
+        self, mock_session_factory: MagicMock, mock_time_authority: MagicMock
+    ) -> PostgresProjectionAdapter:
         """Create adapter with mocked session factory."""
         return PostgresProjectionAdapter(
             session_factory=mock_session_factory,

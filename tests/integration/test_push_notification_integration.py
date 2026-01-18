@@ -15,7 +15,6 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability - attribution in notifications
 """
 
-import asyncio
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
@@ -26,14 +25,11 @@ from fastapi.testclient import TestClient
 
 from src.api.models.observer import (
     NotificationEventType,
-    NotificationPayload,
     WebhookSubscription,
-    WebhookSubscriptionResponse,
 )
 from src.api.routes.observer import router
 from src.application.services.notification_service import NotificationService
 from src.domain.events.event import Event
-
 
 # =============================================================================
 # Fixtures
@@ -109,7 +105,9 @@ class TestSSEEndpointIntegration:
     def test_sse_endpoint_exists_and_returns_streaming(self) -> None:
         """Test that SSE endpoint exists and returns EventSourceResponse (FR44)."""
         import inspect
+
         from sse_starlette.sse import EventSourceResponse
+
         from src.api.routes.observer import stream_events
 
         # Check return type annotation
@@ -119,6 +117,7 @@ class TestSSEEndpointIntegration:
     def test_sse_endpoint_has_correct_parameters(self) -> None:
         """Test that SSE endpoint accepts event_types parameter."""
         import inspect
+
         from src.api.routes.observer import stream_events
 
         sig = inspect.signature(stream_events)
@@ -131,6 +130,7 @@ class TestSSEEndpointIntegration:
     def test_sse_endpoint_no_auth_in_signature(self) -> None:
         """Test that SSE endpoint has no auth parameters (FR44)."""
         import inspect
+
         from src.api.routes.observer import stream_events
 
         sig = inspect.signature(stream_events)
@@ -260,7 +260,9 @@ class TestNotificationServiceIntegration:
         assert notification_service.get_subscription_count() == 1
 
         # Unsubscribe
-        removed = await notification_service.unsubscribe_webhook(response.subscription_id)
+        removed = await notification_service.unsubscribe_webhook(
+            response.subscription_id
+        )
         assert removed is True
         assert notification_service.get_subscription_count() == 0
 
@@ -557,6 +559,7 @@ class TestConstitutionalCompliance:
     def test_fr44_no_auth_on_sse_endpoint(self) -> None:
         """Test FR44: SSE endpoint requires no authentication."""
         import inspect
+
         from src.api.routes.observer import stream_events
 
         # Check signature has no auth parameters

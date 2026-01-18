@@ -3,7 +3,6 @@
 Tests for failure mode monitoring, early warning generation, and health dashboard.
 """
 
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -14,9 +13,7 @@ from src.application.services.failure_prevention_service import (
 from src.domain.models.failure_mode import (
     DEFAULT_FAILURE_MODES,
     EarlyWarning,
-    FailureMode,
     FailureModeId,
-    FailureModeSeverity,
     FailureModeStatus,
     FailureModeThreshold,
 )
@@ -53,9 +50,7 @@ class TestGetFailureMode:
     """Tests for get_failure_mode method."""
 
     @pytest.mark.asyncio
-    async def test_returns_mode_by_id(
-        self, service: FailurePreventionService
-    ) -> None:
+    async def test_returns_mode_by_id(self, service: FailurePreventionService) -> None:
         """Test that a failure mode is returned by its ID."""
         mode = await service.get_failure_mode(FailureModeId.VAL_1)
 
@@ -165,9 +160,7 @@ class TestRecordMetric:
         )
         registry.add_threshold(threshold)
 
-        await service.record_metric(
-            FailureModeId.VAL_1, "test_metric", 3.0
-        )
+        await service.record_metric(FailureModeId.VAL_1, "test_metric", 3.0)
 
         # Check the metric was updated
         updated = await registry.get_threshold(FailureModeId.VAL_1, "test_metric")
@@ -189,9 +182,7 @@ class TestRecordMetric:
         registry.add_threshold(threshold)
 
         # Update to warning level
-        status = await service.record_metric(
-            FailureModeId.VAL_1, "test_metric", 7.0
-        )
+        status = await service.record_metric(FailureModeId.VAL_1, "test_metric", 7.0)
 
         assert status == FailureModeStatus.WARNING
 
@@ -367,7 +358,10 @@ class TestRaiseIfModeCritical:
         with pytest.raises(Exception) as exc_info:
             await service.raise_if_mode_critical(FailureModeId.VAL_1)
 
-        assert "CRITICAL" in str(exc_info.value) or "critical" in str(exc_info.value).lower()
+        assert (
+            "CRITICAL" in str(exc_info.value)
+            or "critical" in str(exc_info.value).lower()
+        )
 
     @pytest.mark.asyncio
     async def test_does_not_raise_when_healthy(

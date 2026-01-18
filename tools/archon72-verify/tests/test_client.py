@@ -3,9 +3,9 @@
 Tests for ObserverClient that fetches events from Observer API.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from archon72_verify.client import ObserverClient
 
 
@@ -75,9 +75,7 @@ class TestObserverClientGetEvents:
         }
         response2.raise_for_status = MagicMock()
 
-        with patch.object(
-            client._client, "get", new_callable=AsyncMock
-        ) as mock_get:
+        with patch.object(client._client, "get", new_callable=AsyncMock) as mock_get:
             mock_get.side_effect = [response1, response2]
             events = await client.get_events(1, 3, page_size=2)
 
@@ -128,9 +126,7 @@ class TestObserverClientGetEventById:
 
         with patch.object(client._client, "get", new_callable=AsyncMock) as mock_get:
             mock_get.return_value = mock_response
-            event = await client.get_event_by_id(
-                "550e8400-e29b-41d4-a716-446655440000"
-            )
+            event = await client.get_event_by_id("550e8400-e29b-41d4-a716-446655440000")
 
         assert event["event_id"] == "550e8400-e29b-41d4-a716-446655440000"
         mock_get.assert_called_once_with(

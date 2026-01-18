@@ -12,7 +12,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.amendment_repository import (
     AmendmentProposal,
@@ -26,18 +25,19 @@ from src.application.ports.amendment_visibility_validator import (
 )
 from src.domain.errors.amendment import AmendmentNotFoundError
 
-
 # Keywords that suggest history-hiding intent (FR128)
-HISTORY_HIDING_KEYWORDS: frozenset[str] = frozenset({
-    "unreviewable",
-    "hide previous",
-    "restrict access to amendments",
-    "remove visibility",
-    "delete amendment history",
-    "obscure previous",
-    "make inaccessible",
-    "prevent review",
-})
+HISTORY_HIDING_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "unreviewable",
+        "hide previous",
+        "restrict access to amendments",
+        "remove visibility",
+        "delete amendment history",
+        "obscure previous",
+        "make inaccessible",
+        "prevent review",
+    }
+)
 
 
 class AmendmentVisibilityValidatorStub(AmendmentVisibilityValidatorProtocol):
@@ -164,7 +164,12 @@ class AmendmentVisibilityValidatorStub(AmendmentVisibilityValidatorProtocol):
                 )
 
         # Check if targeting amendment visibility system
-        visibility_targets = {"amendment_visibility", "amendment_history", "fr126", "fr128"}
+        visibility_targets = {
+            "amendment_visibility",
+            "amendment_history",
+            "fr126",
+            "fr128",
+        }
         for guarantee in amendment.affected_guarantees:
             if guarantee.lower() in visibility_targets:
                 return HistoryProtectionResult(
@@ -174,9 +179,7 @@ class AmendmentVisibilityValidatorStub(AmendmentVisibilityValidatorProtocol):
 
         return HistoryProtectionResult(is_valid=True, violation_reason=None)
 
-    async def can_proceed_to_vote(
-        self, amendment_id: str
-    ) -> tuple[bool, str]:
+    async def can_proceed_to_vote(self, amendment_id: str) -> tuple[bool, str]:
         """Comprehensive check combining all validations.
 
         Args:
@@ -195,7 +198,10 @@ class AmendmentVisibilityValidatorStub(AmendmentVisibilityValidatorProtocol):
         # Check FR126: Visibility period
         visibility_result = await self.validate_visibility_period(amendment_id)
         if not visibility_result.is_complete:
-            return False, f"FR126: Visibility period incomplete - {visibility_result.days_remaining} days remaining"
+            return (
+                False,
+                f"FR126: Visibility period incomplete - {visibility_result.days_remaining} days remaining",
+            )
 
         # Check FR127: Impact analysis for core guarantees
         impact_result = await self.validate_impact_analysis(amendment)

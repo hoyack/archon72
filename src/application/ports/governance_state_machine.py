@@ -95,7 +95,9 @@ def get_valid_next_states(state: GovernanceState) -> list[GovernanceState]:
     Returns:
         List of valid next states
     """
-    return [to_state for from_state, to_state in VALID_TRANSITIONS if from_state == state]
+    return [
+        to_state for from_state, to_state in VALID_TRANSITIONS if from_state == state
+    ]
 
 
 def is_terminal_state(state: GovernanceState) -> bool:

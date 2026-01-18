@@ -19,7 +19,6 @@ from uuid import UUID
 
 from src.domain.governance.exit.exit_status import ExitStatus
 
-
 # Maximum allowed round-trips per NFR-EXIT-01
 MAX_ROUND_TRIPS = 2
 
@@ -98,7 +97,9 @@ class ExitResult:
                 f"ExitResult validation failed - "
                 f"initiated_at must be datetime, got {type(self.initiated_at).__name__}"
             )
-        if self.completed_at is not None and not isinstance(self.completed_at, datetime):
+        if self.completed_at is not None and not isinstance(
+            self.completed_at, datetime
+        ):
             raise ValueError(
                 f"ExitResult validation failed - "
                 f"completed_at must be datetime or None, got {type(self.completed_at).__name__}"
@@ -117,7 +118,10 @@ class ExitResult:
                 "ExitResult validation failed - "
                 "tasks_affected must be non-negative integer"
             )
-        if not isinstance(self.obligations_released, int) or self.obligations_released < 0:
+        if (
+            not isinstance(self.obligations_released, int)
+            or self.obligations_released < 0
+        ):
             raise ValueError(
                 "ExitResult validation failed - "
                 "obligations_released must be non-negative integer"

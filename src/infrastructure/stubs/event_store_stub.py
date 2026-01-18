@@ -36,14 +36,18 @@ class EventStoreStub(EventStorePort):
 
     def __init__(self) -> None:
         """Initialize empty event store."""
-        self._events: dict[UUID, "Event"] = {}
+        self._events: dict[UUID, Event] = {}
         self._head_sequence: int = 0
         self._orphaned_sequences: set[int] = set()
 
     def _get_non_orphaned_events(self) -> list["Event"]:
         """Get all non-orphaned events sorted by sequence."""
         return sorted(
-            [e for e in self._events.values() if e.sequence not in self._orphaned_sequences],
+            [
+                e
+                for e in self._events.values()
+                if e.sequence not in self._orphaned_sequences
+            ],
             key=lambda e: e.sequence,
         )
 

@@ -26,7 +26,7 @@ Constitutional Context:
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 
@@ -101,7 +101,7 @@ class ReconstitutionArtifact:
     artifact_id: UUID
     """Unique identifier for this reconstitution artifact."""
 
-    cessation_record_id: Optional[UUID]
+    cessation_record_id: UUID | None
     """Reference to the cessation record of the previous instance.
 
     Must be provided and valid for artifact to pass validation.
@@ -136,7 +136,9 @@ class ReconstitutionArtifact:
         """
         return {
             "artifact_id": str(self.artifact_id),
-            "cessation_record_id": str(self.cessation_record_id) if self.cessation_record_id else None,
+            "cessation_record_id": str(self.cessation_record_id)
+            if self.cessation_record_id
+            else None,
             "proposed_legitimacy_band": self.proposed_legitimacy_band,
             "claims_continuity": self.claims_continuity,
             "proposed_at": self.proposed_at.isoformat(),

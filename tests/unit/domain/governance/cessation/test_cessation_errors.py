@@ -8,8 +8,6 @@ AC6: Cessation trigger is irreversible (no "undo")
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import pytest
-
 from src.domain.governance.cessation.errors import (
     CessationAlreadyTriggeredError,
     CessationError,
@@ -153,7 +151,9 @@ class TestExecutionBlockedByCessationError:
         error = ExecutionBlockedByCessationError(trigger_id=uuid4())
 
         assert "ceased" in str(error).lower()
-        assert "execution" in str(error).lower().replace("executionblocked", "execution")
+        assert "execution" in str(error).lower().replace(
+            "executionblocked", "execution"
+        )
 
     def test_is_cessation_error(self) -> None:
         """ExecutionBlockedByCessationError is a CessationError."""

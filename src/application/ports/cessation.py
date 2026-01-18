@@ -10,7 +10,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ class CessationConsiderationProtocol(Protocol):
 
     async def trigger_cessation_consideration(
         self,
-    ) -> Optional[CessationConsiderationEventPayload]:
+    ) -> CessationConsiderationEventPayload | None:
         """Check thresholds and trigger cessation consideration if exceeded.
 
         This method is idempotent and designed for periodic invocation:

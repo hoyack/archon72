@@ -20,7 +20,7 @@ Usage:
 """
 
 import time
-from typing import Callable
+from collections.abc import Callable
 
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -63,7 +63,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             HTTP response with correlation ID header added.
         """
         # Extract or generate correlation ID
-        correlation_id = request.headers.get(CORRELATION_HEADER) or generate_correlation_id()
+        correlation_id = (
+            request.headers.get(CORRELATION_HEADER) or generate_correlation_id()
+        )
 
         # Set in context for downstream use
         set_correlation_id(correlation_id)

@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Optional
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
@@ -35,7 +34,6 @@ from src.domain.events.breach import (
     BreachType,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -46,8 +44,8 @@ class MockBlockingService:
 
     def __init__(self) -> None:
         self.check_content_mock = AsyncMock()
-        self._scan_result: Optional[ScanResult] = None
-        self._error: Optional[Exception] = None
+        self._scan_result: ScanResult | None = None
+        self._error: Exception | None = None
 
     def set_clean_result(self) -> None:
         """Configure service to return clean scan result."""
@@ -96,8 +94,8 @@ class MockBreachService:
 
     def __init__(self) -> None:
         self.create_breach_mock = AsyncMock()
-        self._created_breach: Optional[BreachEventPayload] = None
-        self._create_error: Optional[Exception] = None
+        self._created_breach: BreachEventPayload | None = None
+        self._create_error: Exception | None = None
 
     def set_breach_result(self, breach: BreachEventPayload) -> None:
         """Configure the breach to return."""
@@ -180,8 +178,8 @@ def orchestrator(
 
 
 def create_breach_payload(
-    breach_id: Optional[UUID] = None,
-    source_event_id: Optional[UUID] = None,
+    breach_id: UUID | None = None,
+    source_event_id: UUID | None = None,
 ) -> BreachEventPayload:
     """Create a breach payload for testing."""
     return BreachEventPayload(

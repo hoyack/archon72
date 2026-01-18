@@ -15,10 +15,9 @@ Tests cover:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -31,6 +30,7 @@ class TestTaskConstraintServiceImport:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         assert TaskConstraintService is not None
 
 
@@ -95,6 +95,7 @@ class TestValidateOperation:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
     @pytest.mark.asyncio
@@ -164,7 +165,6 @@ class TestValidateOperation:
     async def test_violation_includes_task_id(self, service: Any) -> None:
         """Violation includes task_id when provided."""
         from src.application.ports.governance.task_constraint_port import (
-            ConstraintViolation,
             TaskOperation,
         )
 
@@ -196,6 +196,7 @@ class TestRequireValidOperation:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
     @pytest.mark.asyncio
@@ -245,6 +246,7 @@ class TestViolationEvents:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
     @pytest.mark.asyncio
@@ -281,7 +283,9 @@ class TestViolationEvents:
 
         call_args = mock_event_emitter.emit.call_args
         assert call_args is not None
-        assert call_args.kwargs.get("event_type") == "executive.task.constraint_violated"
+        assert (
+            call_args.kwargs.get("event_type") == "executive.task.constraint_violated"
+        )
 
     @pytest.mark.asyncio
     async def test_violation_event_payload(
@@ -342,6 +346,7 @@ class TestErrorMessages:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
     @pytest.mark.asyncio
@@ -387,6 +392,7 @@ class TestGetAllowedOperations:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
     @pytest.mark.asyncio
@@ -428,6 +434,7 @@ class TestGetProhibitedOperations:
         from src.application.services.governance.task_constraint_service import (
             TaskConstraintService,
         )
+
         return TaskConstraintService(event_emitter=mock_event_emitter)
 
     @pytest.mark.asyncio

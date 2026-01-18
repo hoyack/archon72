@@ -5,8 +5,8 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.models.archon_profile import ArchonProfile, AEGIS_RANKS
-from src.domain.models.llm_config import LLMConfig, DEFAULT_LLM_CONFIG
+from src.domain.models.archon_profile import AEGIS_RANKS, ArchonProfile
+from src.domain.models.llm_config import DEFAULT_LLM_CONFIG, LLMConfig
 
 
 def create_test_profile(**overrides) -> ArchonProfile:
@@ -86,9 +86,7 @@ class TestArchonProfileProperties:
 
     def test_personality_property(self) -> None:
         """Test personality extraction from attributes."""
-        profile = create_test_profile(
-            attributes={"personality": "Wise, Cunning"}
-        )
+        profile = create_test_profile(attributes={"personality": "Wise, Cunning"})
         assert profile.personality == "Wise, Cunning"
 
     def test_personality_missing(self) -> None:
@@ -98,30 +96,22 @@ class TestArchonProfileProperties:
 
     def test_brand_color_property(self) -> None:
         """Test brand_color extraction from attributes."""
-        profile = create_test_profile(
-            attributes={"brand_color": "Gold"}
-        )
+        profile = create_test_profile(attributes={"brand_color": "Gold"})
         assert profile.brand_color == "Gold"
 
     def test_energy_type_property(self) -> None:
         """Test energy_type extraction from attributes."""
-        profile = create_test_profile(
-            attributes={"energy_type": "Dynamic"}
-        )
+        profile = create_test_profile(attributes={"energy_type": "Dynamic"})
         assert profile.energy_type == "Dynamic"
 
     def test_domain_property(self) -> None:
         """Test domain extraction from attributes."""
-        profile = create_test_profile(
-            attributes={"domain": "Command Center"}
-        )
+        profile = create_test_profile(attributes={"domain": "Command Center"})
         assert profile.domain == "Command Center"
 
     def test_focus_areas_property(self) -> None:
         """Test focus_areas extraction from attributes."""
-        profile = create_test_profile(
-            attributes={"focus_areas": "Education, Research"}
-        )
+        profile = create_test_profile(attributes={"focus_areas": "Education, Research"})
         assert profile.focus_areas == "Education, Research"
 
     def test_capabilities_property(self) -> None:

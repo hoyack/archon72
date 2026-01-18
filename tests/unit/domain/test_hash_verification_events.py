@@ -206,7 +206,9 @@ class TestHashVerificationCompletedEventPayload:
         """Test that sequence_range must have exactly 2 elements."""
         now = datetime.now(timezone.utc)
 
-        with pytest.raises(ValueError, match="sequence_range must have exactly 2 elements"):
+        with pytest.raises(
+            ValueError, match="sequence_range must have exactly 2 elements"
+        ):
             HashVerificationCompletedEventPayload(
                 scan_id="scan-123",
                 events_scanned=100,

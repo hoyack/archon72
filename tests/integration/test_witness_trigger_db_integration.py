@@ -52,7 +52,8 @@ class TestWitnessValidationTrigger:
         inline to test the trigger behavior.
         """
         # Create events table (from migration 001)
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -69,10 +70,12 @@ class TestWitnessValidationTrigger:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create witness validation trigger function (from migration 004)
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION validate_witness_attribution()
             RETURNS TRIGGER AS $func$
             BEGIN
@@ -99,18 +102,23 @@ class TestWitnessValidationTrigger:
                 RETURN NEW;
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create trigger
-        await db_session.execute(text(
-            "DROP TRIGGER IF EXISTS validate_witness_attribution_on_insert ON events"
-        ))
-        await db_session.execute(text("""
+        await db_session.execute(
+            text(
+                "DROP TRIGGER IF EXISTS validate_witness_attribution_on_insert ON events"
+            )
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER validate_witness_attribution_on_insert
                 BEFORE INSERT ON events
                 FOR EACH ROW
                 EXECUTE FUNCTION validate_witness_attribution()
-        """))
+        """)
+        )
 
         return db_session
 
@@ -172,7 +180,9 @@ class TestWitnessValidationTrigger:
 
         # Verify event was inserted
         result = await db_session.execute(
-            text("SELECT witness_id, witness_signature FROM events WHERE event_id = :event_id"),
+            text(
+                "SELECT witness_id, witness_signature FROM events WHERE event_id = :event_id"
+            ),
             {"event_id": params["event_id"]},
         )
         row = result.fetchone()
@@ -554,7 +564,8 @@ class TestWitnessValidationTriggerExists:
     ) -> AsyncSession:
         """Create events table with witness validation trigger."""
         # Create events table
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -571,10 +582,12 @@ class TestWitnessValidationTriggerExists:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create witness validation trigger function
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE OR REPLACE FUNCTION validate_witness_attribution()
             RETURNS TRIGGER AS $func$
             BEGIN
@@ -593,18 +606,23 @@ class TestWitnessValidationTriggerExists:
                 RETURN NEW;
             END;
             $func$ LANGUAGE plpgsql
-        """))
+        """)
+        )
 
         # Create trigger
-        await db_session.execute(text(
-            "DROP TRIGGER IF EXISTS validate_witness_attribution_on_insert ON events"
-        ))
-        await db_session.execute(text("""
+        await db_session.execute(
+            text(
+                "DROP TRIGGER IF EXISTS validate_witness_attribution_on_insert ON events"
+            )
+        )
+        await db_session.execute(
+            text("""
             CREATE TRIGGER validate_witness_attribution_on_insert
                 BEFORE INSERT ON events
                 FOR EACH ROW
                 EXECUTE FUNCTION validate_witness_attribution()
-        """))
+        """)
+        )
 
         return db_session
 

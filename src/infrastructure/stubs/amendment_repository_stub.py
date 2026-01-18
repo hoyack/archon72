@@ -11,7 +11,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.amendment_repository import (
     AmendmentProposal,
@@ -47,7 +46,7 @@ class AmendmentRepositoryStub(AmendmentRepositoryProtocol):
         """
         self._amendments[amendment.amendment_id] = amendment
 
-    async def get_amendment(self, amendment_id: str) -> Optional[AmendmentProposal]:
+    async def get_amendment(self, amendment_id: str) -> AmendmentProposal | None:
         """Retrieve a specific amendment by ID.
 
         Args:
@@ -69,10 +68,7 @@ class AmendmentRepositoryStub(AmendmentRepositoryProtocol):
             AmendmentStatus.VISIBILITY_PERIOD,
             AmendmentStatus.VOTABLE,
         }
-        pending = [
-            a for a in self._amendments.values()
-            if a.status in pending_statuses
-        ]
+        pending = [a for a in self._amendments.values() if a.status in pending_statuses]
         return sorted(pending, key=lambda a: a.proposed_at)
 
     async def list_votable_amendments(self) -> list[AmendmentProposal]:
@@ -83,7 +79,8 @@ class AmendmentRepositoryStub(AmendmentRepositoryProtocol):
         """
         now = datetime.now(timezone.utc)
         votable = [
-            a for a in self._amendments.values()
+            a
+            for a in self._amendments.values()
             if now >= a.votable_from
             and a.status in {AmendmentStatus.VISIBILITY_PERIOD, AmendmentStatus.VOTABLE}
         ]
@@ -102,9 +99,7 @@ class AmendmentRepositoryStub(AmendmentRepositoryProtocol):
         amendments = list(self._amendments.values())
         return sorted(amendments, key=lambda a: a.proposed_at)
 
-    async def is_amendment_votable(
-        self, amendment_id: str
-    ) -> tuple[bool, int]:
+    async def is_amendment_votable(self, amendment_id: str) -> tuple[bool, int]:
         """Check if an amendment can proceed to vote (FR126).
 
         Args:
@@ -166,6 +161,8 @@ class AmendmentRepositoryStub(AmendmentRepositoryProtocol):
         """Get total number of stored amendments."""
         return len(self._amendments)
 
-    def get_amendments_by_status(self, status: AmendmentStatus) -> list[AmendmentProposal]:
+    def get_amendments_by_status(
+        self, status: AmendmentStatus
+    ) -> list[AmendmentProposal]:
         """Get amendments with a specific status (for testing)."""
         return [a for a in self._amendments.values() if a.status == status]

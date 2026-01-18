@@ -10,7 +10,6 @@ Constitutional Context:
 """
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -117,19 +116,19 @@ class HaltStatusResponse(BaseModel):
         ...,
         description="Whether system is currently halted",
     )
-    halted_at: Optional[datetime] = Field(
+    halted_at: datetime | None = Field(
         default=None,
         description="When halt was triggered (None if not halted)",
     )
-    reason: Optional[str] = Field(
+    reason: str | None = Field(
         default=None,
         description="Why system was halted (None if not halted)",
     )
-    message: Optional[str] = Field(
+    message: str | None = Field(
         default=None,
         description="Halt message (None if not halted)",
     )
-    operator_id: Optional[str] = Field(
+    operator_id: str | None = Field(
         default=None,
         description="ID of operator who triggered halt (None if system)",
     )
@@ -152,7 +151,7 @@ class HaltErrorResponse(BaseModel):
         ...,
         description="Human-readable error message",
     )
-    detail: Optional[str] = Field(
+    detail: str | None = Field(
         default=None,
         description="Additional error details",
     )

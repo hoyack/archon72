@@ -1,6 +1,7 @@
 """Unit tests for amendment repository stub (Story 6.7, FR126-FR128)."""
 
 from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from src.application.ports.amendment_repository import AmendmentProposal
@@ -113,9 +114,9 @@ class TestListPendingAmendments:
 
         for i in range(3):
             amendment = AmendmentProposal(
-                amendment_id=f"AMD-00{i+1}",
+                amendment_id=f"AMD-00{i + 1}",
                 amendment_type=AmendmentType.TIER_2_CONSTITUTIONAL,
-                title=f"Test {i+1}",
+                title=f"Test {i + 1}",
                 summary="Test",
                 proposed_at=now + timedelta(hours=i),
                 visible_from=now + timedelta(hours=i),
@@ -217,9 +218,9 @@ class TestGetAmendmentHistory:
 
         for i, status in enumerate(statuses):
             amendment = AmendmentProposal(
-                amendment_id=f"AMD-00{i+1}",
+                amendment_id=f"AMD-00{i + 1}",
                 amendment_type=AmendmentType.TIER_2_CONSTITUTIONAL,
-                title=f"Test {i+1}",
+                title=f"Test {i + 1}",
                 summary="Test",
                 proposed_at=now + timedelta(hours=i),
                 visible_from=now + timedelta(hours=i),
@@ -346,11 +347,13 @@ class TestHelperMethods:
         """Test get_amendments_by_status filters correctly."""
         now = datetime.now(timezone.utc)
 
-        for i, status in enumerate([AmendmentStatus.VISIBILITY_PERIOD, AmendmentStatus.APPROVED]):
+        for i, status in enumerate(
+            [AmendmentStatus.VISIBILITY_PERIOD, AmendmentStatus.APPROVED]
+        ):
             amendment = AmendmentProposal(
-                amendment_id=f"AMD-00{i+1}",
+                amendment_id=f"AMD-00{i + 1}",
                 amendment_type=AmendmentType.TIER_2_CONSTITUTIONAL,
-                title=f"Test {i+1}",
+                title=f"Test {i + 1}",
                 summary="Test",
                 proposed_at=now,
                 visible_from=now,

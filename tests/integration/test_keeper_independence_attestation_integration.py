@@ -23,7 +23,6 @@ import pytest
 
 from src.application.services.independence_attestation_service import (
     IndependenceAttestationService,
-    SUSPENDED_CAPABILITIES,
 )
 from src.domain.errors.independence_attestation import (
     CapabilitySuspendedError,
@@ -34,7 +33,6 @@ from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.independence_attestation import (
     DECLARATION_CHANGE_DETECTED_EVENT_TYPE,
     INDEPENDENCE_ATTESTATION_EVENT_TYPE,
-    KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE,
 )
 from src.domain.events.override_abuse import AnomalyType
 from src.domain.models.independence_attestation import (
@@ -66,7 +64,9 @@ class TestAC1IndependenceAttestationEvents:
     """AC1: IndependenceAttestationEvent logged with Keeper attribution (FR133)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         IndependenceAttestationService,
         IndependenceAttestationStub,
         AsyncMock,
@@ -113,7 +113,7 @@ class TestAC1IndependenceAttestationEvents:
 
         repository.add_keeper(keeper_id)
 
-        attestation = await service.submit_independence_attestation(
+        await service.submit_independence_attestation(
             keeper_id=keeper_id,
             conflicts=conflicts,
             organizations=organizations,
@@ -203,7 +203,9 @@ class TestAC2SuspensionOnMissedDeadline:
     """AC2: Suspension if attestation deadline missed (FR133)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         IndependenceAttestationService,
         IndependenceAttestationStub,
         AsyncMock,
@@ -287,7 +289,9 @@ class TestAC3DeclarationChangeTracking:
     """AC3: History queries with declaration change tracking (FP-3, CT-9)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         IndependenceAttestationService,
         IndependenceAttestationStub,
         AsyncMock,
@@ -480,7 +484,9 @@ class TestAC4SuspendedKeeperOverrideBlocking:
     """AC4: Suspended Keepers blocked from override operations (FR133)."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         IndependenceAttestationService,
         IndependenceAttestationStub,
     ]:
@@ -515,7 +521,9 @@ class TestAC4SuspendedKeeperOverrideBlocking:
 
         keeper_id = "KEEPER:alice"
         repository.add_keeper(keeper_id)
-        await repository.mark_keeper_suspended(keeper_id, "Independence attestation overdue")
+        await repository.mark_keeper_suspended(
+            keeper_id, "Independence attestation overdue"
+        )
 
         with pytest.raises(CapabilitySuspendedError) as exc_info:
             await service.validate_keeper_can_override(keeper_id)
@@ -545,7 +553,9 @@ class TestEndToEndScenarios:
     """End-to-end scenario tests."""
 
     @pytest.fixture
-    def service_with_mocks(self) -> tuple[
+    def service_with_mocks(
+        self,
+    ) -> tuple[
         IndependenceAttestationService,
         IndependenceAttestationStub,
         AsyncMock,

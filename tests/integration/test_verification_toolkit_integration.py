@@ -13,19 +13,19 @@ import json
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 # Add toolkit to path for testing
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "tools" / "archon72-verify"))
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / "tools" / "archon72-verify")
+)
 
-from archon72_verify.verifier import GENESIS_HASH, ChainVerifier, VerificationResult
 from archon72_verify.cli import app as cli_app
+from archon72_verify.verifier import GENESIS_HASH, ChainVerifier
 from typer.testing import CliRunner
-
 
 runner = CliRunner()
 
@@ -240,9 +240,7 @@ class TestToolkitOfflineVerification:
         """Test toolkit verifies chain from JSON file."""
         events = make_valid_chain(5)
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -261,9 +259,7 @@ class TestToolkitOfflineVerification:
         """Test toolkit filters events by sequence range."""
         events = make_valid_chain(10)
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -288,9 +284,7 @@ class TestCLICheckChainExitCodes:
         """Test CLI returns exit code 0 for valid chain."""
         events = make_valid_chain(3)
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -310,9 +304,7 @@ class TestCLICheckChainExitCodes:
         # Invalidate genesis
         events[0]["prev_hash"] = "x" * 64
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -335,9 +327,7 @@ class TestCLICheckChainExitCodes:
             {"sequence": 5},  # Gap: 3-4
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -360,9 +350,7 @@ class TestCLIJsonOutputFormat:
         """Test CLI check-chain outputs valid JSON."""
         events = make_valid_chain(3)
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -371,10 +359,14 @@ class TestCLIJsonOutputFormat:
                 cli_app,
                 [
                     "check-chain",
-                    "--from", "1",
-                    "--to", "3",
-                    "--file", temp_path,
-                    "--format", "json",
+                    "--from",
+                    "1",
+                    "--to",
+                    "3",
+                    "--file",
+                    temp_path,
+                    "--format",
+                    "json",
                 ],
             )
 
@@ -392,9 +384,7 @@ class TestCLIJsonOutputFormat:
         events = make_valid_chain(3)
         events[0]["prev_hash"] = "bad" * 21 + "b"
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -403,10 +393,14 @@ class TestCLIJsonOutputFormat:
                 cli_app,
                 [
                     "check-chain",
-                    "--from", "1",
-                    "--to", "3",
-                    "--file", temp_path,
-                    "--format", "json",
+                    "--from",
+                    "1",
+                    "--to",
+                    "3",
+                    "--file",
+                    temp_path,
+                    "--format",
+                    "json",
                 ],
             )
 
@@ -424,9 +418,7 @@ class TestCLIJsonOutputFormat:
             {"sequence": 3},  # Gap: 2
         ]
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(events, f)
             temp_path = f.name
 
@@ -435,10 +427,14 @@ class TestCLIJsonOutputFormat:
                 cli_app,
                 [
                     "check-gaps",
-                    "--from", "1",
-                    "--to", "3",
-                    "--file", temp_path,
-                    "--format", "json",
+                    "--from",
+                    "1",
+                    "--to",
+                    "3",
+                    "--file",
+                    temp_path,
+                    "--format",
+                    "json",
                 ],
             )
 
@@ -514,7 +510,7 @@ class TestSchemaEndpointMatchesToolkitExpectations:
         """Test toolkit hash computation matches documented spec."""
         # Get spec
         response = client.get("/v1/observer/verification-spec")
-        spec = response.json()
+        response.json()
 
         # Create event and compute hash with toolkit
         verifier = ChainVerifier()

@@ -27,7 +27,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-
 # Event type constants for witness anomaly detection
 WITNESS_ANOMALY_EVENT_TYPE: str = "witness.anomaly"
 WITNESS_POOL_DEGRADED_EVENT_TYPE: str = "witness.pool_degraded"

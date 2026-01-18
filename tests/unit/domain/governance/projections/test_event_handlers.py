@@ -6,17 +6,18 @@ Tests cover acceptance criteria for story consent-gov-1.5:
 - Deterministic state derivation (NFR-AUDIT-06)
 """
 
-from dataclasses import dataclass, field
+from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Mapping
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
 
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.projections.event_handlers import (
-    EVENT_PREFIX_TO_PROJECTION,
     ACTOR_EVENT_PREFIX,
+    EVENT_PREFIX_TO_PROJECTION,
     LEGITIMACY_EVENT_PREFIX,
     PANEL_EVENT_PREFIX,
     PETITION_EVENT_PREFIX,
@@ -100,9 +101,14 @@ class TestGetAffectedProjection:
 
     def test_legitimacy_event_returns_legitimacy_states_projection(self) -> None:
         """legitimacy.* events return legitimacy_states projection."""
-        assert get_affected_projection("legitimacy.entity.registered") == "legitimacy_states"
+        assert (
+            get_affected_projection("legitimacy.entity.registered")
+            == "legitimacy_states"
+        )
         assert get_affected_projection("legitimacy.band.decayed") == "legitimacy_states"
-        assert get_affected_projection("legitimacy.band.restored") == "legitimacy_states"
+        assert (
+            get_affected_projection("legitimacy.band.restored") == "legitimacy_states"
+        )
 
     def test_panel_event_returns_panel_registry_projection(self) -> None:
         """judicial.panel.* events return panel_registry projection."""
@@ -142,7 +148,9 @@ class TestEventPrefixToProjectionMapping:
     def test_mapping_values_are_projection_names(self) -> None:
         """Mapping values are correct projection names."""
         assert EVENT_PREFIX_TO_PROJECTION[TASK_EVENT_PREFIX] == "task_states"
-        assert EVENT_PREFIX_TO_PROJECTION[LEGITIMACY_EVENT_PREFIX] == "legitimacy_states"
+        assert (
+            EVENT_PREFIX_TO_PROJECTION[LEGITIMACY_EVENT_PREFIX] == "legitimacy_states"
+        )
         assert EVENT_PREFIX_TO_PROJECTION[PANEL_EVENT_PREFIX] == "panel_registry"
         assert EVENT_PREFIX_TO_PROJECTION[PETITION_EVENT_PREFIX] == "petition_index"
         assert EVENT_PREFIX_TO_PROJECTION[ACTOR_EVENT_PREFIX] == "actor_registry"

@@ -14,7 +14,6 @@ import asyncio
 import hashlib
 import hmac
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID, uuid4
 
 import httpx
@@ -64,7 +63,9 @@ class NotificationService(NotificationPublisherPort):
 
         # In-memory storage for subscriptions and connections
         # In production, these would be persisted to database
-        self._subscriptions: dict[UUID, tuple[WebhookSubscriptionResponse, Optional[str]]] = {}
+        self._subscriptions: dict[
+            UUID, tuple[WebhookSubscriptionResponse, str | None]
+        ] = {}
         self._sse_connections: dict[UUID, asyncio.Queue[NotificationPayload]] = {}
 
         # Map event types to notification types
@@ -136,7 +137,9 @@ class NotificationService(NotificationPublisherPort):
             return True
         return False
 
-    def get_subscription(self, subscription_id: UUID) -> Optional[WebhookSubscriptionResponse]:
+    def get_subscription(
+        self, subscription_id: UUID
+    ) -> WebhookSubscriptionResponse | None:
         """Get a subscription by ID.
 
         Args:
@@ -299,7 +302,9 @@ class NotificationService(NotificationPublisherPort):
                 or notification_type in subscription.event_types
             ):
                 tasks.append(
-                    self._deliver_webhook(sub_id, subscription.webhook_url, payload, secret)
+                    self._deliver_webhook(
+                        sub_id, subscription.webhook_url, payload, secret
+                    )
                 )
 
         if tasks:
@@ -312,7 +317,7 @@ class NotificationService(NotificationPublisherPort):
         subscription_id: UUID,
         webhook_url: str,
         payload: NotificationPayload,
-        secret: Optional[str] = None,
+        secret: str | None = None,
     ) -> bool:
         """Deliver notification to a webhook with retry.
 
@@ -377,7 +382,7 @@ class NotificationService(NotificationPublisherPort):
 
                 # Exponential backoff before retry
                 if attempt < self._max_retries - 1:
-                    await asyncio.sleep(2 ** attempt)
+                    await asyncio.sleep(2**attempt)
 
         # All retries exhausted (CT-11: log failure)
         log.error(
@@ -392,7 +397,7 @@ class NotificationService(NotificationPublisherPort):
         self,
         subscription_id: UUID,
         webhook_url: str,
-        secret: Optional[str] = None,
+        secret: str | None = None,
     ) -> bool:
         """Send test notification to verify webhook URL.
 

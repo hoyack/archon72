@@ -7,10 +7,7 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability
 """
 
-import pytest
-
 from src.application.ports.witnessed_halt_writer import WitnessedHaltWriter
-from src.domain.events.constitutional_crisis import ConstitutionalCrisisPayload
 
 
 class TestWitnessedHaltWriterPortDefinition:

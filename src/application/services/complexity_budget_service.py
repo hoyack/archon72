@@ -20,7 +20,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from structlog import get_logger
@@ -32,7 +32,6 @@ from src.application.ports.complexity_calculator import ComplexityCalculatorPort
 from src.application.ports.halt_checker import HaltChecker
 from src.domain.errors.complexity_budget import (
     ComplexityBudgetApprovalRequiredError,
-    ComplexityBudgetBreachedError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.complexity_budget import (
@@ -43,8 +42,6 @@ from src.domain.models.complexity_budget import (
     ADR_LIMIT,
     CEREMONY_TYPE_LIMIT,
     CROSS_COMPONENT_DEP_LIMIT,
-    WARNING_THRESHOLD_PERCENT,
-    ComplexityBudget,
     ComplexityBudgetStatus,
     ComplexityDimension,
     ComplexitySnapshot,
@@ -102,7 +99,7 @@ class ComplexityBudgetService:
 
     async def check_all_budgets(
         self,
-        triggered_by: Optional[str] = None,
+        triggered_by: str | None = None,
     ) -> ComplexitySnapshot:
         """Check all complexity budgets and record snapshot (AC1).
 
@@ -184,9 +181,15 @@ class ComplexityBudgetService:
         snapshot = await self._calculator.calculate_snapshot()
 
         return {
-            ComplexityDimension.ADR_COUNT: snapshot.get_budget(ComplexityDimension.ADR_COUNT).status,
-            ComplexityDimension.CEREMONY_TYPES: snapshot.get_budget(ComplexityDimension.CEREMONY_TYPES).status,
-            ComplexityDimension.CROSS_COMPONENT_DEPS: snapshot.get_budget(ComplexityDimension.CROSS_COMPONENT_DEPS).status,
+            ComplexityDimension.ADR_COUNT: snapshot.get_budget(
+                ComplexityDimension.ADR_COUNT
+            ).status,
+            ComplexityDimension.CEREMONY_TYPES: snapshot.get_budget(
+                ComplexityDimension.CEREMONY_TYPES
+            ).status,
+            ComplexityDimension.CROSS_COMPONENT_DEPS: snapshot.get_budget(
+                ComplexityDimension.CROSS_COMPONENT_DEPS
+            ).status,
         }
 
     async def is_budget_breached(
@@ -318,7 +321,7 @@ class ComplexityBudgetService:
 
     async def detect_and_record_breaches(
         self,
-        triggered_by: Optional[str] = None,
+        triggered_by: str | None = None,
     ) -> list[ComplexityBudgetBreachedPayload]:
         """Detect and record any current breaches (AC2).
 
@@ -440,7 +443,7 @@ class ComplexityBudgetService:
             message="No unresolved breaches for this dimension",
         )
 
-    async def get_latest_snapshot(self) -> Optional[ComplexitySnapshot]:
+    async def get_latest_snapshot(self) -> ComplexitySnapshot | None:
         """Get the most recent recorded snapshot (AC5).
 
         Returns:

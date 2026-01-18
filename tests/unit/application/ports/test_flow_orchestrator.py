@@ -30,7 +30,6 @@ from src.application.ports.flow_orchestrator import (
     ProcessMotionRequest,
     ProcessMotionResult,
     RouteMotionRequest,
-    RouteMotionResult,
     RoutingDecision,
     get_branch_for_state,
     get_escalation_strategy,
@@ -39,7 +38,6 @@ from src.application.ports.flow_orchestrator import (
     is_retryable_error,
 )
 from src.application.ports.governance_state_machine import GovernanceState
-
 
 # =============================================================================
 # GovernanceBranch Enum Tests
@@ -203,7 +201,10 @@ class TestStateBranchMap:
 
     def test_introduced_is_deliberative(self) -> None:
         """Verify INTRODUCED state belongs to deliberative branch."""
-        assert STATE_BRANCH_MAP[GovernanceState.INTRODUCED] == GovernanceBranch.DELIBERATIVE
+        assert (
+            STATE_BRANCH_MAP[GovernanceState.INTRODUCED]
+            == GovernanceBranch.DELIBERATIVE
+        )
 
     def test_ratified_is_executive(self) -> None:
         """Verify RATIFIED state belongs to executive branch."""
@@ -211,7 +212,10 @@ class TestStateBranchMap:
 
     def test_planning_is_administrative(self) -> None:
         """Verify PLANNING state belongs to administrative branch."""
-        assert STATE_BRANCH_MAP[GovernanceState.PLANNING] == GovernanceBranch.ADMINISTRATIVE
+        assert (
+            STATE_BRANCH_MAP[GovernanceState.PLANNING]
+            == GovernanceBranch.ADMINISTRATIVE
+        )
 
     def test_executing_is_judicial(self) -> None:
         """Verify EXECUTING state belongs to judicial branch."""
@@ -227,19 +231,30 @@ class TestErrorTypeMap:
 
     def test_validation_error_returns_to_previous(self) -> None:
         """Verify validation_error maps to RETURN_TO_PREVIOUS."""
-        assert ERROR_TYPE_MAP["validation_error"] == ErrorEscalationStrategy.RETURN_TO_PREVIOUS
+        assert (
+            ERROR_TYPE_MAP["validation_error"]
+            == ErrorEscalationStrategy.RETURN_TO_PREVIOUS
+        )
 
     def test_permission_error_goes_to_conclave(self) -> None:
         """Verify permission_error maps to CONCLAVE_REVIEW."""
-        assert ERROR_TYPE_MAP["permission_error"] == ErrorEscalationStrategy.CONCLAVE_REVIEW
+        assert (
+            ERROR_TYPE_MAP["permission_error"]
+            == ErrorEscalationStrategy.CONCLAVE_REVIEW
+        )
 
     def test_compliance_error_goes_to_conclave(self) -> None:
         """Verify compliance_error maps to CONCLAVE_REVIEW."""
-        assert ERROR_TYPE_MAP["compliance_error"] == ErrorEscalationStrategy.CONCLAVE_REVIEW
+        assert (
+            ERROR_TYPE_MAP["compliance_error"]
+            == ErrorEscalationStrategy.CONCLAVE_REVIEW
+        )
 
     def test_rank_violation_goes_to_conclave(self) -> None:
         """Verify rank_violation maps to CONCLAVE_REVIEW."""
-        assert ERROR_TYPE_MAP["rank_violation"] == ErrorEscalationStrategy.CONCLAVE_REVIEW
+        assert (
+            ERROR_TYPE_MAP["rank_violation"] == ErrorEscalationStrategy.CONCLAVE_REVIEW
+        )
 
     def test_system_error_halts(self) -> None:
         """Verify system_error maps to HALT_AND_ALERT."""
@@ -247,7 +262,10 @@ class TestErrorTypeMap:
 
     def test_timeout_error_retries(self) -> None:
         """Verify timeout_error maps to RETRY_WITH_BACKOFF."""
-        assert ERROR_TYPE_MAP["timeout_error"] == ErrorEscalationStrategy.RETRY_WITH_BACKOFF
+        assert (
+            ERROR_TYPE_MAP["timeout_error"]
+            == ErrorEscalationStrategy.RETRY_WITH_BACKOFF
+        )
 
 
 # =============================================================================

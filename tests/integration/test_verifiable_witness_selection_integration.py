@@ -14,20 +14,14 @@ from src.application.services.verifiable_witness_selection_service import (
     VerifiableWitnessSelectionService,
 )
 from src.domain.errors.witness_selection import (
-    AllWitnessesPairExhaustedError,
     EntropyUnavailableError,
     InsufficientWitnessPoolError,
 )
 from src.domain.errors.writer import SystemHaltedError
-from src.domain.events.witness_selection import (
-    WITNESS_SELECTION_EVENT_TYPE,
-    WitnessSelectionEventPayload,
-)
 from src.domain.models.witness import WITNESS_PREFIX, Witness
 from src.domain.models.witness_pair import WitnessPair
 from src.domain.models.witness_selection import (
     SELECTION_ALGORITHM_VERSION,
-    WitnessSelectionRecord,
     WitnessSelectionSeed,
     deterministic_select,
 )
@@ -35,7 +29,9 @@ from src.infrastructure.adapters.persistence.witness_pool import InMemoryWitness
 from src.infrastructure.stubs.entropy_source_stub import EntropySourceStub
 from src.infrastructure.stubs.event_store_stub import EventStoreStub
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.witness_pair_history_stub import InMemoryWitnessPairHistory
+from src.infrastructure.stubs.witness_pair_history_stub import (
+    InMemoryWitnessPairHistory,
+)
 
 
 @pytest.fixture
@@ -109,6 +105,7 @@ class TestFR59SelectionUsesHashChainSeed:
         """FR59: Selection seed includes hash chain state."""
         # Add an event to establish chain state
         from datetime import datetime, timezone
+
         from src.domain.events.event import Event
 
         event = Event.create_with_hash(
@@ -233,7 +230,7 @@ class TestFR60PairRotation:
         )
 
         # Next selection should avoid the same pair
-        record2 = await service2.select_witness()
+        await service2.select_witness()
 
         # If same entropy, selection might differ due to rotation retry
         # The key is that pair_history was checked
@@ -458,8 +455,12 @@ class TestSeedCombination:
         """Different external entropy produces different seed."""
         chain_hash = "a" * 64
 
-        seed1 = WitnessSelectionSeed.combine(b"entropy_one_32_bytes_exactly!!!", chain_hash)
-        seed2 = WitnessSelectionSeed.combine(b"entropy_two_32_bytes_exactly!!!", chain_hash)
+        seed1 = WitnessSelectionSeed.combine(
+            b"entropy_one_32_bytes_exactly!!!", chain_hash
+        )
+        seed2 = WitnessSelectionSeed.combine(
+            b"entropy_two_32_bytes_exactly!!!", chain_hash
+        )
 
         assert seed1.combined_seed != seed2.combined_seed
 

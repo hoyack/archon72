@@ -274,7 +274,7 @@ class TaskStateProjectionPort(Protocol):
     async def get_task_state(
         self,
         task_id: UUID,
-    ) -> "TaskStateRecord | None":
+    ) -> TaskStateRecord | None:
         """Get the current state of a task.
 
         Args:
@@ -290,7 +290,7 @@ class TaskStateProjectionPort(Protocol):
         self,
         state: str,
         limit: int = 100,
-    ) -> list["TaskStateRecord"]:
+    ) -> list[TaskStateRecord]:
         """Get all tasks in a given state.
 
         Args:
@@ -307,7 +307,7 @@ class TaskStateProjectionPort(Protocol):
         self,
         earl_id: str,
         limit: int = 100,
-    ) -> list["TaskStateRecord"]:
+    ) -> list[TaskStateRecord]:
         """Get all tasks assigned to an Earl.
 
         Args:
@@ -331,7 +331,7 @@ class LegitimacyStateProjectionPort(Protocol):
     async def get_legitimacy_state(
         self,
         entity_id: str,
-    ) -> "LegitimacyStateRecord | None":
+    ) -> LegitimacyStateRecord | None:
         """Get the current legitimacy state of an entity.
 
         Args:
@@ -347,7 +347,7 @@ class LegitimacyStateProjectionPort(Protocol):
         self,
         band: str,
         limit: int = 100,
-    ) -> list["LegitimacyStateRecord"]:
+    ) -> list[LegitimacyStateRecord]:
         """Get all entities in a given legitimacy band.
 
         Args:
@@ -372,7 +372,7 @@ class ActorRegistryProjectionPort(Protocol):
     async def get_actor(
         self,
         actor_id: str,
-    ) -> "ActorRegistryRecord | None":
+    ) -> ActorRegistryRecord | None:
         """Get an actor by ID.
 
         Args:
@@ -403,7 +403,7 @@ class ActorRegistryProjectionPort(Protocol):
         self,
         branch: str,
         limit: int = 100,
-    ) -> list["ActorRegistryRecord"]:
+    ) -> list[ActorRegistryRecord]:
         """Get all actors in a governance branch.
 
         Args:

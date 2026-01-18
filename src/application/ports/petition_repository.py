@@ -17,7 +17,7 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.events.petition import PetitionStatus
@@ -48,7 +48,7 @@ class PetitionRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_petition(self, petition_id: UUID) -> Optional[Petition]:
+    async def get_petition(self, petition_id: UUID) -> Petition | None:
         """Retrieve a petition by ID.
 
         Args:
@@ -119,7 +119,7 @@ class PetitionRepositoryProtocol(Protocol):
         self,
         petition_id: UUID,
         status: PetitionStatus,
-        threshold_met_at: Optional[str] = None,
+        threshold_met_at: str | None = None,
     ) -> None:
         """Update a petition's status.
 

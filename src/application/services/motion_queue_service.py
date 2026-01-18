@@ -100,18 +100,26 @@ class MotionQueueService:
             "title": motion.title,
             "text": motion.text,
             "rationale": motion.rationale,
-            "source_cluster_id": str(motion.source_cluster_id) if motion.source_cluster_id else None,
+            "source_cluster_id": str(motion.source_cluster_id)
+            if motion.source_cluster_id
+            else None,
             "source_cluster_theme": motion.source_cluster_theme,
             "original_archon_count": motion.original_archon_count,
             "consensus_level": motion.consensus_level.value,
             "supporting_archons": motion.supporting_archons,
-            "source_session_id": str(motion.source_session_id) if motion.source_session_id else None,
+            "source_session_id": str(motion.source_session_id)
+            if motion.source_session_id
+            else None,
             "source_session_name": motion.source_session_name,
             "endorsements": motion.endorsements,
             "endorsement_count": motion.endorsement_count,
             "created_at": motion.created_at.isoformat(),
-            "promoted_at": motion.promoted_at.isoformat() if motion.promoted_at else None,
-            "target_conclave_id": str(motion.target_conclave_id) if motion.target_conclave_id else None,
+            "promoted_at": motion.promoted_at.isoformat()
+            if motion.promoted_at
+            else None,
+            "target_conclave_id": str(motion.target_conclave_id)
+            if motion.target_conclave_id
+            else None,
         }
 
     def _deserialize_motion(self, data: dict) -> QueuedMotion:
@@ -124,18 +132,26 @@ class MotionQueueService:
             title=data["title"],
             text=data["text"],
             rationale=data["rationale"],
-            source_cluster_id=UUID(data["source_cluster_id"]) if data.get("source_cluster_id") else None,
+            source_cluster_id=UUID(data["source_cluster_id"])
+            if data.get("source_cluster_id")
+            else None,
             source_cluster_theme=data.get("source_cluster_theme", ""),
             original_archon_count=data["original_archon_count"],
             consensus_level=ConsensusLevel(data["consensus_level"]),
             supporting_archons=data.get("supporting_archons", []),
-            source_session_id=UUID(data["source_session_id"]) if data.get("source_session_id") else None,
+            source_session_id=UUID(data["source_session_id"])
+            if data.get("source_session_id")
+            else None,
             source_session_name=data.get("source_session_name", ""),
             endorsements=data.get("endorsements", []),
             endorsement_count=data.get("endorsement_count", 0),
             created_at=datetime.fromisoformat(data["created_at"]),
-            promoted_at=datetime.fromisoformat(data["promoted_at"]) if data.get("promoted_at") else None,
-            target_conclave_id=UUID(data["target_conclave_id"]) if data.get("target_conclave_id") else None,
+            promoted_at=datetime.fromisoformat(data["promoted_at"])
+            if data.get("promoted_at")
+            else None,
+            target_conclave_id=UUID(data["target_conclave_id"])
+            if data.get("target_conclave_id")
+            else None,
         )
 
     # =========================================================================
@@ -157,7 +173,9 @@ class MotionQueueService:
             # Check for duplicates (same source cluster)
             existing = self._find_by_cluster(motion.source_cluster_id)
             if existing:
-                logger.debug(f"Skipping duplicate motion from cluster {motion.source_cluster_id}")
+                logger.debug(
+                    f"Skipping duplicate motion from cluster {motion.source_cluster_id}"
+                )
                 continue
 
             self._queue.append(motion)
@@ -189,7 +207,8 @@ class MotionQueueService:
     def get_all_pending(self) -> list[QueuedMotion]:
         """Get all pending motions."""
         return [
-            m for m in self._queue
+            m
+            for m in self._queue
             if m.status in (QueuedMotionStatus.PENDING, QueuedMotionStatus.ENDORSED)
         ]
 
@@ -248,7 +267,9 @@ class MotionQueueService:
         motion.add_endorsement(archon_name)
         self._save_queue()
 
-        logger.info(f"{archon_name} endorsed motion '{motion.title}' (now {motion.endorsement_count} endorsements)")
+        logger.info(
+            f"{archon_name} endorsed motion '{motion.title}' (now {motion.endorsement_count} endorsements)"
+        )
         return True
 
     # =========================================================================
@@ -279,7 +300,7 @@ class MotionQueueService:
 - Derived from {motion.original_archon_count} Archon recommendations
 - Source Conclave: {motion.source_session_name}
 - Endorsements: {motion.endorsement_count}
-- Original Supporters: {', '.join(motion.supporting_archons)}
+- Original Supporters: {", ".join(motion.supporting_archons)}
 """
 
         if motion.endorsements:
@@ -340,7 +361,8 @@ class MotionQueueService:
 
         # Filter by status and consensus
         eligible = [
-            m for m in self._queue
+            m
+            for m in self._queue
             if m.status in (QueuedMotionStatus.PENDING, QueuedMotionStatus.ENDORSED)
             and level_order.index(m.consensus_level.value) <= min_index
         ]
@@ -388,7 +410,9 @@ class MotionQueueService:
 
         self._save_queue()
 
-        logger.info(f"Promoted motion '{motion.title}' to Conclave {target_conclave_id}")
+        logger.info(
+            f"Promoted motion '{motion.title}' to Conclave {target_conclave_id}"
+        )
 
         return self.format_for_conclave(motion)
 

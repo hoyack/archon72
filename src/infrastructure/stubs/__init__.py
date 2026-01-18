@@ -21,136 +21,121 @@ Production implementations are in src/infrastructure/adapters/.
 """
 
 from src.infrastructure.stubs.agent_orchestrator_stub import AgentOrchestratorStub
-from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
-from src.infrastructure.stubs.dual_channel_halt_stub import DualChannelHaltTransportStub
-from src.infrastructure.stubs.event_replicator_stub import EventReplicatorStub
-from src.infrastructure.stubs.event_store_stub import EventStoreStub
-from src.infrastructure.stubs.fork_monitor_stub import ForkMonitorStub
-from src.infrastructure.stubs.fork_signal_rate_limiter_stub import (
-    ForkSignalRateLimiterStub,
-)
-from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.halt_guard_stub import HaltGuardStub
-from src.infrastructure.stubs.halt_state import HaltState
-from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
-from src.infrastructure.stubs.recovery_waiting_period_stub import (
-    RecoveryWaitingPeriodStub,
-)
-from src.infrastructure.stubs.sequence_gap_detector_stub import SequenceGapDetectorStub
-from src.infrastructure.stubs.unwitnessed_halt_repository_stub import (
-    UnwitnessedHaltRepositoryStub,
-)
-from src.infrastructure.stubs.override_executor_stub import (
-    ExecutedOverride,
-    OverrideExecutorStub,
-)
-from src.infrastructure.stubs.override_registry_stub import OverrideRegistryStub
-from src.infrastructure.stubs.witnessed_halt_writer_stub import WitnessedHaltWriterStub
-from src.infrastructure.stubs.writer_lock_stub import (
-    WriterLockConfig,
-    WriterLockMode,
-    WriterLockStub,
-)
-from src.infrastructure.stubs.constitution_validator_stub import ConstitutionValidatorStub
-from src.infrastructure.stubs.override_trend_repository_stub import (
-    OverrideTrendRepositoryStub,
-)
-from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
-from src.infrastructure.stubs.key_generation_ceremony_stub import (
-    KeyGenerationCeremonyStub,
-)
-from src.infrastructure.stubs.keeper_availability_stub import KeeperAvailabilityStub
-from src.infrastructure.stubs.override_abuse_validator_stub import (
-    EVIDENCE_DESTRUCTION_PATTERNS,
-    GENERAL_FORBIDDEN_SCOPES,
-    HISTORY_EDIT_PATTERNS,
-    OverrideAbuseValidatorStub,
+from src.infrastructure.stubs.amendment_repository_stub import AmendmentRepositoryStub
+from src.infrastructure.stubs.amendment_visibility_validator_stub import (
+    AmendmentVisibilityValidatorStub,
 )
 from src.infrastructure.stubs.anomaly_detector_stub import (
     DEFAULT_BASELINE_DAILY_RATE,
     DEFAULT_OVERRIDE_COUNT,
     AnomalyDetectorStub,
 )
-from src.infrastructure.stubs.independence_attestation_stub import (
-    IndependenceAttestationStub,
-)
-from src.infrastructure.stubs.breach_repository_stub import BreachRepositoryStub
-from src.infrastructure.stubs.escalation_repository_stub import EscalationRepositoryStub
-from src.infrastructure.stubs.cessation_repository_stub import CessationRepositoryStub
-from src.infrastructure.stubs.threshold_repository_stub import ThresholdRepositoryStub
-from src.infrastructure.stubs.entropy_source_stub import (
-    DEV_MODE_WARNING,
-    EntropySourceStub,
-    SecureEntropySourceStub,
-)
-from src.infrastructure.stubs.witness_pair_history_stub import InMemoryWitnessPairHistory
-from src.infrastructure.stubs.witness_anomaly_detector_stub import (
-    WitnessAnomalyDetectorStub,
-)
-from src.infrastructure.stubs.witness_pool_monitor_stub import WitnessPoolMonitorStub
-from src.infrastructure.stubs.amendment_repository_stub import AmendmentRepositoryStub
-from src.infrastructure.stubs.amendment_visibility_validator_stub import (
-    AmendmentVisibilityValidatorStub,
-)
-from src.infrastructure.stubs.collusion_investigator_stub import CollusionInvestigatorStub
-from src.infrastructure.stubs.hash_verifier_stub import HashVerifierStub
-from src.infrastructure.stubs.topic_manipulation_detector_stub import (
-    TopicManipulationDetectorStub,
-)
-from src.infrastructure.stubs.seed_validator_stub import SeedValidatorStub
-from src.infrastructure.stubs.topic_daily_limiter_stub import (
-    DailySubmissionRecord,
-    TopicDailyLimiterStub,
-)
-from src.infrastructure.stubs.topic_priority_stub import (
-    QueuedTopic,
-    TopicPriorityStub,
-)
-from src.infrastructure.stubs.configuration_floor_validator_stub import (
-    ConfigurationFloorValidatorStub,
-)
-from src.infrastructure.stubs.integrity_failure_repository_stub import (
-    IntegrityFailureRepositoryStub,
-)
 from src.infrastructure.stubs.anti_success_alert_repository_stub import (
     AntiSuccessAlertRepositoryStub,
 )
+from src.infrastructure.stubs.audit_repository_stub import (
+    AuditRepositoryStub,
+    ConfigurableAuditRepositoryStub,
+)
+from src.infrastructure.stubs.breach_repository_stub import BreachRepositoryStub
 from src.infrastructure.stubs.cessation_agenda_repository_stub import (
     CessationAgendaRepositoryStub,
 )
-from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
-from src.infrastructure.stubs.signature_verifier_stub import SignatureVerifierStub
-from src.infrastructure.stubs.terminal_event_detector_stub import (
-    TerminalEventDetectorStub,
-)
-from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
 from src.infrastructure.stubs.cessation_flag_repository_stub import (
     CessationFlagRepositoryStub,
     FailureMode,
 )
-from src.infrastructure.stubs.integrity_case_repository_stub import (
-    IntegrityCaseRepositoryStub,
-)
-from src.infrastructure.stubs.separation_validator_stub import SeparationValidatorStub
-from src.infrastructure.stubs.external_health_stub import ExternalHealthStub
-from src.infrastructure.stubs.incident_report_repository_stub import (
-    IncidentReportRepositoryStub,
+from src.infrastructure.stubs.cessation_repository_stub import CessationRepositoryStub
+from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
+from src.infrastructure.stubs.collusion_investigator_stub import (
+    CollusionInvestigatorStub,
 )
 from src.infrastructure.stubs.complexity_budget_repository_stub import (
     ComplexityBudgetRepositoryStub,
 )
 from src.infrastructure.stubs.complexity_calculator_stub import (
-    ComplexityCalculatorStub,
     DEFAULT_ADR_COUNT,
     DEFAULT_CEREMONY_TYPES,
     DEFAULT_CROSS_COMPONENT_DEPS,
+    ComplexityCalculatorStub,
 )
-from src.infrastructure.stubs.failure_mode_registry_stub import (
-    FailureModeRegistryStub,
+from src.infrastructure.stubs.compliance_repository_stub import (
+    ComplianceRepositoryStub,
+)
+from src.infrastructure.stubs.configuration_floor_validator_stub import (
+    ConfigurationFloorValidatorStub,
+)
+from src.infrastructure.stubs.constitution_validator_stub import (
+    ConstitutionValidatorStub,
 )
 from src.infrastructure.stubs.constitutional_health_stub import (
     ConstitutionalHealthStub,
 )
+from src.infrastructure.stubs.dual_channel_halt_stub import DualChannelHaltTransportStub
+from src.infrastructure.stubs.emergence_violation_breach_service_stub import (
+    EmergenceViolationBreachServiceStub,
+)
+from src.infrastructure.stubs.entropy_source_stub import (
+    DEV_MODE_WARNING,
+    EntropySourceStub,
+    SecureEntropySourceStub,
+)
+from src.infrastructure.stubs.escalation_repository_stub import EscalationRepositoryStub
+from src.infrastructure.stubs.event_query_stub import (
+    EventQueryStub,
+)
+from src.infrastructure.stubs.event_replicator_stub import EventReplicatorStub
+from src.infrastructure.stubs.event_store_stub import EventStoreStub
+from src.infrastructure.stubs.external_health_stub import ExternalHealthStub
+from src.infrastructure.stubs.failure_mode_registry_stub import (
+    FailureModeRegistryStub,
+)
+from src.infrastructure.stubs.fork_monitor_stub import ForkMonitorStub
+from src.infrastructure.stubs.fork_signal_rate_limiter_stub import (
+    ForkSignalRateLimiterStub,
+)
+from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
+from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
+from src.infrastructure.stubs.halt_guard_stub import HaltGuardStub
+from src.infrastructure.stubs.halt_state import HaltState
+from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
+from src.infrastructure.stubs.hash_verifier_stub import HashVerifierStub
+from src.infrastructure.stubs.incident_report_repository_stub import (
+    IncidentReportRepositoryStub,
+)
+from src.infrastructure.stubs.independence_attestation_stub import (
+    IndependenceAttestationStub,
+)
+from src.infrastructure.stubs.integrity_case_repository_stub import (
+    IntegrityCaseRepositoryStub,
+)
+from src.infrastructure.stubs.integrity_failure_repository_stub import (
+    IntegrityFailureRepositoryStub,
+)
+from src.infrastructure.stubs.keeper_availability_stub import KeeperAvailabilityStub
+from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
+from src.infrastructure.stubs.key_generation_ceremony_stub import (
+    KeyGenerationCeremonyStub,
+)
+from src.infrastructure.stubs.material_repository_stub import (
+    ConfigurableMaterialRepositoryStub,
+    MaterialRepositoryStub,
+)
+from src.infrastructure.stubs.override_abuse_validator_stub import (
+    EVIDENCE_DESTRUCTION_PATTERNS,
+    GENERAL_FORBIDDEN_SCOPES,
+    HISTORY_EDIT_PATTERNS,
+    OverrideAbuseValidatorStub,
+)
+from src.infrastructure.stubs.override_executor_stub import (
+    ExecutedOverride,
+    OverrideExecutorStub,
+)
+from src.infrastructure.stubs.override_registry_stub import OverrideRegistryStub
+from src.infrastructure.stubs.override_trend_repository_stub import (
+    OverrideTrendRepositoryStub,
+)
+from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
 from src.infrastructure.stubs.prohibited_language_scanner_stub import (
     ConfigurableScannerStub,
     ProhibitedLanguageScannerStub,
@@ -159,23 +144,10 @@ from src.infrastructure.stubs.publication_scanner_stub import (
     ConfigurablePublicationScannerStub,
     PublicationScannerStub,
 )
-from src.infrastructure.stubs.audit_repository_stub import (
-    AuditRepositoryStub,
-    ConfigurableAuditRepositoryStub,
+from src.infrastructure.stubs.recovery_waiting_period_stub import (
+    RecoveryWaitingPeriodStub,
 )
-from src.infrastructure.stubs.material_repository_stub import (
-    ConfigurableMaterialRepositoryStub,
-    MaterialRepositoryStub,
-)
-from src.infrastructure.stubs.user_content_repository_stub import (
-    UserContentRepositoryStub,
-)
-from src.infrastructure.stubs.event_query_stub import (
-    EventQueryStub,
-)
-from src.infrastructure.stubs.emergence_violation_breach_service_stub import (
-    EmergenceViolationBreachServiceStub,
-)
+from src.infrastructure.stubs.seed_validator_stub import SeedValidatorStub
 from src.infrastructure.stubs.semantic_scanner_stub import (
     CONFIDENCE_PER_PATTERN,
     DEFAULT_CONFIDENCE_THRESHOLD,
@@ -183,11 +155,45 @@ from src.infrastructure.stubs.semantic_scanner_stub import (
     ConfigurableSemanticScannerStub,
     SemanticScannerStub,
 )
+from src.infrastructure.stubs.separation_validator_stub import SeparationValidatorStub
+from src.infrastructure.stubs.sequence_gap_detector_stub import SequenceGapDetectorStub
+from src.infrastructure.stubs.signature_verifier_stub import SignatureVerifierStub
+from src.infrastructure.stubs.terminal_event_detector_stub import (
+    TerminalEventDetectorStub,
+)
+from src.infrastructure.stubs.threshold_repository_stub import ThresholdRepositoryStub
+from src.infrastructure.stubs.topic_daily_limiter_stub import (
+    DailySubmissionRecord,
+    TopicDailyLimiterStub,
+)
+from src.infrastructure.stubs.topic_manipulation_detector_stub import (
+    TopicManipulationDetectorStub,
+)
+from src.infrastructure.stubs.topic_priority_stub import (
+    QueuedTopic,
+    TopicPriorityStub,
+)
+from src.infrastructure.stubs.unwitnessed_halt_repository_stub import (
+    UnwitnessedHaltRepositoryStub,
+)
+from src.infrastructure.stubs.user_content_repository_stub import (
+    UserContentRepositoryStub,
+)
 from src.infrastructure.stubs.waiver_repository_stub import (
     WaiverRepositoryStub,
 )
-from src.infrastructure.stubs.compliance_repository_stub import (
-    ComplianceRepositoryStub,
+from src.infrastructure.stubs.witness_anomaly_detector_stub import (
+    WitnessAnomalyDetectorStub,
+)
+from src.infrastructure.stubs.witness_pair_history_stub import (
+    InMemoryWitnessPairHistory,
+)
+from src.infrastructure.stubs.witness_pool_monitor_stub import WitnessPoolMonitorStub
+from src.infrastructure.stubs.witnessed_halt_writer_stub import WitnessedHaltWriterStub
+from src.infrastructure.stubs.writer_lock_stub import (
+    WriterLockConfig,
+    WriterLockMode,
+    WriterLockStub,
 )
 
 __all__: list[str] = [

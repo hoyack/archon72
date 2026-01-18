@@ -5,7 +5,6 @@ Tests the threshold constants and registry defined in constitutional_thresholds.
 
 import pytest
 
-from src.domain.errors.threshold import ThresholdNotFoundError
 from src.domain.primitives.constitutional_thresholds import (
     ATTESTATION_PERIOD_THRESHOLD,
     CESSATION_BREACH_THRESHOLD,
@@ -94,11 +93,15 @@ class TestConstitutionalThresholdDefinitions:
         """Test each threshold has an FR/NFR/ADR reference in description."""
         for threshold in CONSTITUTIONAL_THRESHOLD_REGISTRY.thresholds:
             # Should have a reference like FR32, NFR39, ADR-3, RT-3
-            assert threshold.fr_reference, f"{threshold.threshold_name} missing fr_reference"
+            assert threshold.fr_reference, (
+                f"{threshold.threshold_name} missing fr_reference"
+            )
             assert any(
                 prefix in threshold.fr_reference
                 for prefix in ["FR", "NFR", "ADR", "RT"]
-            ), f"{threshold.threshold_name} has invalid fr_reference: {threshold.fr_reference}"
+            ), (
+                f"{threshold.threshold_name} has invalid fr_reference: {threshold.fr_reference}"
+            )
 
     def test_all_thresholds_are_constitutional(self) -> None:
         """Test all thresholds have is_constitutional=True (AC1)."""

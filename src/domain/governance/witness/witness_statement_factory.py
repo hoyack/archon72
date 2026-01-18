@@ -24,10 +24,10 @@ from typing import Any
 from uuid import uuid4
 
 from src.application.ports.time_authority import TimeAuthorityProtocol
-from src.domain.governance.witness.observation_type import ObservationType
-from src.domain.governance.witness.observation_content import ObservationContent
-from src.domain.governance.witness.witness_statement import WitnessStatement
 from src.domain.governance.witness.errors import JudgmentLanguageError
+from src.domain.governance.witness.observation_content import ObservationContent
+from src.domain.governance.witness.observation_type import ObservationType
+from src.domain.governance.witness.witness_statement import WitnessStatement
 
 
 class WitnessStatementFactory:
@@ -64,26 +64,28 @@ class WitnessStatementFactory:
     """
 
     # Banned words indicating judgment (case-insensitive)
-    JUDGMENT_INDICATORS: frozenset[str] = frozenset({
-        # Recommendation words
-        "should",
-        "must",
-        "recommend",
-        "suggests",
-        # Determination words
-        "violated",
-        "guilty",
-        "innocent",
-        "fault",
-        # Severity words
-        "severe",
-        "minor",
-        "critical",
-        # Prescription words
-        "remedy",
-        "punishment",
-        "consequence",
-    })
+    JUDGMENT_INDICATORS: frozenset[str] = frozenset(
+        {
+            # Recommendation words
+            "should",
+            "must",
+            "recommend",
+            "suggests",
+            # Determination words
+            "violated",
+            "guilty",
+            "innocent",
+            "fault",
+            # Severity words
+            "severe",
+            "minor",
+            "critical",
+            # Prescription words
+            "remedy",
+            "punishment",
+            "consequence",
+        }
+    )
 
     def __init__(self, time_authority: TimeAuthorityProtocol) -> None:
         """Initialize factory with time authority.

@@ -12,14 +12,12 @@ Tests verify:
 
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
 from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.application.ports.archon_selector import (
-    ArchonSelection,
-    ArchonSelectionMetadata,
     ArchonSelectorProtocol,
     SelectionMode,
     TopicContext,
@@ -27,14 +25,13 @@ from src.application.ports.archon_selector import (
 from src.domain.models.archon_profile import ArchonProfile
 from src.domain.models.llm_config import DEFAULT_LLM_CONFIG
 from src.infrastructure.adapters.selection.archon_selector_adapter import (
-    ArchonSelectorAdapter,
-    create_archon_selector,
-    TOOL_MATCH_WEIGHT,
+    CAPABILITY_MATCH_WEIGHT,
     DOMAIN_MATCH_WEIGHT,
     FOCUS_AREA_MATCH_WEIGHT,
-    CAPABILITY_MATCH_WEIGHT,
+    TOOL_MATCH_WEIGHT,
+    ArchonSelectorAdapter,
+    create_archon_selector,
 )
-
 
 # ===========================================================================
 # Fixtures
@@ -134,7 +131,12 @@ def mock_profile_repository(
     """Create mock repository with test archons."""
     mock_repo = MagicMock(spec=ArchonProfileRepository)
 
-    all_archons = [insight_archon, communication_archon, executive_archon, generic_archon]
+    all_archons = [
+        insight_archon,
+        communication_archon,
+        executive_archon,
+        generic_archon,
+    ]
 
     mock_repo.get_all.return_value = all_archons
     mock_repo.count.return_value = len(all_archons)
@@ -205,7 +207,9 @@ class TestProtocolCompliance:
         assert hasattr(selector, "select")
         assert callable(selector.select)
 
-    def test_has_calculate_relevance_method(self, selector: ArchonSelectorAdapter) -> None:
+    def test_has_calculate_relevance_method(
+        self, selector: ArchonSelectorAdapter
+    ) -> None:
         """Verify calculate_relevance method exists."""
         assert hasattr(selector, "calculate_relevance")
         assert callable(selector.calculate_relevance)
@@ -648,9 +652,7 @@ class TestCreateArchonSelector:
         mock_profile_repository: MagicMock,
     ) -> None:
         """Verify factory uses provided repository."""
-        selector = create_archon_selector(
-            profile_repository=mock_profile_repository
-        )
+        selector = create_archon_selector(profile_repository=mock_profile_repository)
 
         assert selector._profile_repo is mock_profile_repository
 
@@ -659,8 +661,6 @@ class TestCreateArchonSelector:
         mock_profile_repository: MagicMock,
     ) -> None:
         """Verify factory returns protocol-compliant instance."""
-        selector = create_archon_selector(
-            profile_repository=mock_profile_repository
-        )
+        selector = create_archon_selector(profile_repository=mock_profile_repository)
 
         assert isinstance(selector, ArchonSelectorProtocol)

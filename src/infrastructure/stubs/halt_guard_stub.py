@@ -28,7 +28,6 @@ WARNING: This stub is NOT for production use.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 import structlog
 
@@ -62,8 +61,8 @@ class HaltGuardStub:
     def __init__(self) -> None:
         """Initialize stub with operational (not halted) state."""
         self._is_halted: bool = False
-        self._halt_reason: Optional[str] = None
-        self._halted_at: Optional[datetime] = None
+        self._halt_reason: str | None = None
+        self._halted_at: datetime | None = None
         self._check_count: int = 0
 
     async def check_write_allowed(self) -> None:
@@ -122,7 +121,7 @@ class HaltGuardStub:
         """Check if system is halted."""
         return self._is_halted
 
-    async def get_halt_reason(self) -> Optional[str]:
+    async def get_halt_reason(self) -> str | None:
         """Get halt reason if halted."""
         if not self._is_halted:
             return None
@@ -133,7 +132,7 @@ class HaltGuardStub:
     def trigger_halt(
         self,
         reason: str = "Test halt",
-        halted_at: Optional[datetime] = None,
+        halted_at: datetime | None = None,
     ) -> None:
         """Trigger halt state for testing.
 

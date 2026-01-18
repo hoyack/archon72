@@ -48,7 +48,9 @@ def print_header(text: str) -> None:
     print(f"{'=' * 70}{Colors.ENDC}\n")
 
 
-def print_progress(current: int, total: int, agent_name: str, status: str, elapsed: float) -> None:
+def print_progress(
+    current: int, total: int, agent_name: str, status: str, elapsed: float
+) -> None:
     """Print progress update."""
     pct = (current / total) * 100
     bar_width = 30
@@ -157,12 +159,14 @@ async def run_deliberation(topic: str) -> dict:
     print(f"  {Colors.BOLD}{topic}{Colors.ENDC}")
     print(f"\n{Colors.BLUE}Configuration:{Colors.ENDC}")
     print(f"  OLLAMA_HOST: {os.environ.get('OLLAMA_HOST', 'not set')}")
-    print(f"  Mode: Sequential (round-robin)")
+    print("  Mode: Sequential (round-robin)")
     print(f"  Agents: {len(requests)}")
 
     # Estimate time
     print(f"\n{Colors.YELLOW}Estimated duration: 30-60 minutes{Colors.ENDC}")
-    print(f"{Colors.DIM}(Each agent will speak in turn, like a constitutional council){Colors.ENDC}")
+    print(
+        f"{Colors.DIM}(Each agent will speak in turn, like a constitutional council){Colors.ENDC}"
+    )
 
     print_header("DELIBERATION IN PROGRESS")
 
@@ -191,12 +195,14 @@ async def run_deliberation(topic: str) -> dict:
 
         for output in outputs:
             agent_name = agent_name_map.get(output.agent_id, output.agent_id)
-            results["outputs"].append({
-                "agent_id": output.agent_id,
-                "agent_name": agent_name,
-                "content": output.content,
-                "generated_at": output.generated_at.isoformat(),
-            })
+            results["outputs"].append(
+                {
+                    "agent_id": output.agent_id,
+                    "agent_name": agent_name,
+                    "content": output.content,
+                    "generated_at": output.generated_at.isoformat(),
+                }
+            )
 
     except Exception as e:
         print(f"\n{Colors.RED}Error during deliberation: {e}{Colors.ENDC}")
@@ -235,7 +241,11 @@ async def run_deliberation(topic: str) -> dict:
         print(f"\n{Colors.BLUE}Sample Outputs:{Colors.ENDC}")
         for output in results["outputs"][:3]:
             print(f"\n  {Colors.BOLD}{output['agent_name']}:{Colors.ENDC}")
-            content = output["content"][:200] + "..." if len(output["content"]) > 200 else output["content"]
+            content = (
+                output["content"][:200] + "..."
+                if len(output["content"]) > 200
+                else output["content"]
+            )
             print(f"  {Colors.DIM}{content}{Colors.ENDC}")
 
     return results
@@ -243,9 +253,7 @@ async def run_deliberation(topic: str) -> dict:
 
 def main() -> None:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Run full 72-agent deliberation"
-    )
+    parser = argparse.ArgumentParser(description="Run full 72-agent deliberation")
     parser.add_argument(
         "--topic",
         type=str,

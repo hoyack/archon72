@@ -26,6 +26,7 @@ from src.application.ports.event_store import EventStorePort
 from src.application.ports.final_deliberation_recorder import FinalDeliberationRecorder
 from src.application.ports.halt_checker import HaltChecker
 from src.application.services.export_service import ExportService
+from src.application.services.integrity_case_service import IntegrityCaseService
 from src.application.services.merkle_tree_service import MerkleTreeService
 from src.application.services.notification_service import NotificationService
 from src.application.services.observer_service import ObserverService
@@ -38,7 +39,6 @@ from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.integrity_case_repository_stub import (
     IntegrityCaseRepositoryStub,
 )
-from src.application.services.integrity_case_service import IntegrityCaseService
 
 if TYPE_CHECKING:
     from src.domain.events import Event
@@ -61,7 +61,9 @@ class EventStoreStub(EventStorePort):
     async def get_event_by_id(self, event_id):
         return None
 
-    async def get_events_by_type(self, event_type: str, limit: int = 100, offset: int = 0):
+    async def get_events_by_type(
+        self, event_type: str, limit: int = 100, offset: int = 0
+    ):
         return []
 
     async def count_events(self) -> int:

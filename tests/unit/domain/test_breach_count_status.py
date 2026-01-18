@@ -85,7 +85,9 @@ class TestBreachCountStatus:
         assert sample_status.warning_threshold == 8
         assert sample_status.trajectory == BreachTrajectory.STABLE
 
-    def test_is_above_threshold_false_at_5(self, sample_status: BreachCountStatus) -> None:
+    def test_is_above_threshold_false_at_5(
+        self, sample_status: BreachCountStatus
+    ) -> None:
         """Test is_above_threshold is False when count is 5."""
         assert sample_status.is_above_threshold is False
 
@@ -171,7 +173,9 @@ class TestBreachCountStatus:
         )
         assert status.urgency_level == "CRITICAL"
 
-    def test_breaches_until_threshold_at_5(self, sample_status: BreachCountStatus) -> None:
+    def test_breaches_until_threshold_at_5(
+        self, sample_status: BreachCountStatus
+    ) -> None:
         """Test breaches_until_threshold when at 5."""
         # Need 6 more breaches to exceed 10 (i.e., reach 11)
         assert sample_status.breaches_until_threshold == 6
@@ -263,10 +267,7 @@ class TestBreachCountStatusFromBreaches:
         # 1 recent breach (in last 45 days)
         recent = [self._create_breach(now - timedelta(days=10))]
         # 5 older breaches (before midpoint)
-        older = [
-            self._create_breach(midpoint - timedelta(days=i))
-            for i in range(1, 6)
-        ]
+        older = [self._create_breach(midpoint - timedelta(days=i)) for i in range(1, 6)]
 
         breaches = recent + older
         status = BreachCountStatus.from_breaches(breaches, now=now)
@@ -281,10 +282,7 @@ class TestBreachCountStatusFromBreaches:
         # 3 recent breaches (in last 45 days)
         recent = [self._create_breach(now - timedelta(days=i)) for i in range(3)]
         # 3 older breaches (before midpoint)
-        older = [
-            self._create_breach(midpoint - timedelta(days=i))
-            for i in range(1, 4)
-        ]
+        older = [self._create_breach(midpoint - timedelta(days=i)) for i in range(1, 4)]
 
         breaches = recent + older
         status = BreachCountStatus.from_breaches(breaches, now=now)

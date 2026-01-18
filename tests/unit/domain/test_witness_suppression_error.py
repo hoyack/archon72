@@ -27,7 +27,9 @@ class TestWitnessSuppressionAttemptError:
         """FR26: Error message must mention constitution supremacy."""
         error = WitnessSuppressionAttemptError(scope="witness")
 
-        assert "Constitution supremacy" in str(error) or "witnessing cannot be suppressed" in str(error)
+        assert "Constitution supremacy" in str(
+            error
+        ) or "witnessing cannot be suppressed" in str(error)
 
     def test_error_message_contains_scope(self) -> None:
         """Error message should include the offending scope for debugging."""

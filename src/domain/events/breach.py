@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 # Event type constant for breach declaration
@@ -121,7 +121,7 @@ class BreachEventPayload:
     severity: BreachSeverity
     detection_timestamp: datetime
     details: MappingProxyType[str, Any]
-    source_event_id: Optional[UUID] = None
+    source_event_id: UUID | None = None
 
     def signable_content(self) -> bytes:
         """Return canonical content for witnessing (CT-12).

@@ -13,7 +13,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-
 # FR60: Rotation window in hours
 ROTATION_WINDOW_HOURS: int = 24
 
@@ -38,9 +37,7 @@ class WitnessPair:
 
     witness_a_id: str
     witness_b_id: str
-    paired_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    paired_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def canonical_key(self) -> str:
         """Get canonical key for pair comparison.
@@ -137,8 +134,7 @@ class WitnessPairHistory:
         cutoff = now - window
 
         old_keys = [
-            key for key, timestamp in self._recent_pairs.items()
-            if timestamp < cutoff
+            key for key, timestamp in self._recent_pairs.items() if timestamp < cutoff
         ]
 
         for key in old_keys:

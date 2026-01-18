@@ -13,7 +13,7 @@ Constitutional Health Separation (Story 8.10, AC3):
 - Both domains visible, neither masks the other
 """
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -54,10 +54,10 @@ class DependencyCheck(BaseModel):
 
     name: str = Field(description="Dependency name")
     healthy: bool = Field(description="Whether dependency is healthy")
-    latency_ms: Optional[float] = Field(
+    latency_ms: float | None = Field(
         default=None, description="Check latency in milliseconds"
     )
-    error: Optional[str] = Field(default=None, description="Error message if unhealthy")
+    error: str | None = Field(default=None, description="Error message if unhealthy")
 
 
 class ReadyResponse(BaseModel):

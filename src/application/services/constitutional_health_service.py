@@ -21,7 +21,6 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.breach_repository import BreachRepositoryProtocol
 from src.application.ports.constitutional_health import ConstitutionalHealthPort
@@ -32,13 +31,13 @@ from src.application.ports.override_trend_repository import (
 )
 from src.application.ports.witness_pool_monitor import WitnessPoolMonitorProtocol
 from src.domain.errors.writer import SystemHaltedError
+from src.domain.models.breach_count_status import (
+    CESSATION_WINDOW_DAYS,
+)
 from src.domain.models.constitutional_health import (
     ConstitutionalHealthMetric,
     ConstitutionalHealthSnapshot,
     ConstitutionalHealthStatus,
-)
-from src.domain.models.breach_count_status import (
-    CESSATION_WINDOW_DAYS,
 )
 
 
@@ -265,7 +264,7 @@ class ConstitutionalHealthService(ConstitutionalHealthPort):
         status = await self.get_overall_status()
         return status == ConstitutionalHealthStatus.UNHEALTHY
 
-    async def check_ceremony_allowed(self) -> tuple[bool, Optional[str]]:
+    async def check_ceremony_allowed(self) -> tuple[bool, str | None]:
         """Check if a ceremony can proceed (AC4).
 
         Provides detailed information about ceremony blocking status.

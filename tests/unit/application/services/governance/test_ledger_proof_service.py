@@ -33,7 +33,6 @@ from src.domain.governance.audit.completeness_proof import (
 )
 from src.domain.governance.events.merkle_tree import (
     MerkleProof,
-    MerkleVerificationResult,
     verify_merkle_proof,
 )
 
@@ -135,7 +134,11 @@ def create_fake_event(
 
     # For genesis event (sequence 1), use zeros as prev_hash
     if prev_hash is None:
-        prev_hash = f"{TEST_ALGORITHM}:{'0' * 64}" if sequence == 1 else f"{TEST_ALGORITHM}:{'a' * 64}"
+        prev_hash = (
+            f"{TEST_ALGORITHM}:{'0' * 64}"
+            if sequence == 1
+            else f"{TEST_ALGORITHM}:{'a' * 64}"
+        )
 
     # Generate unique hash based on sequence for deterministic testing
     if event_hash is None:
@@ -179,7 +182,9 @@ def create_linked_events(count: int) -> list[FakePersistedGovernanceEvent]:
 class FakeLedgerPort:
     """Fake ledger port for testing."""
 
-    def __init__(self, events: list[FakePersistedGovernanceEvent] | None = None) -> None:
+    def __init__(
+        self, events: list[FakePersistedGovernanceEvent] | None = None
+    ) -> None:
         self.events = events or []
 
     async def count_events(self, options=None) -> int:
@@ -253,7 +258,11 @@ def ledger_with_events() -> FakeLedgerPort:
 def ledger_with_broken_chain() -> FakeLedgerPort:
     """Provide a ledger with broken hash chain."""
     events = [
-        create_fake_event(1, prev_hash=f"{TEST_ALGORITHM}:{'0' * 64}", event_hash=f"{TEST_ALGORITHM}:{'1' * 64}"),
+        create_fake_event(
+            1,
+            prev_hash=f"{TEST_ALGORITHM}:{'0' * 64}",
+            event_hash=f"{TEST_ALGORITHM}:{'1' * 64}",
+        ),
         create_fake_event(
             2,
             prev_hash=f"{TEST_ALGORITHM}:{'wrong' * 16}",  # Wrong prev_hash
@@ -469,7 +478,9 @@ class TestHashChainVerification:
             time_authority=time_authority,
         )
 
-        with pytest.raises(ProofGenerationError, match="Hash chain verification failed"):
+        with pytest.raises(
+            ProofGenerationError, match="Hash chain verification failed"
+        ):
             await service.generate_completeness_proof(uuid4())
 
 
@@ -713,7 +724,6 @@ class TestIndependentVerification:
         events = ledger_with_events.events
 
         # verify_completeness_proof is sync, not async
-        import asyncio
 
         # Should not need event loop for verification
         is_valid = service.verify_completeness_proof(proof, events)

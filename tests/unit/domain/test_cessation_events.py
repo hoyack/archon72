@@ -202,7 +202,9 @@ class TestCessationDecisionEventPayload:
         assert sample_decision_payload.consideration_id == UUID(
             "12345678-1234-5678-1234-567812345678"
         )
-        assert sample_decision_payload.decision == CessationDecision.DISMISS_CONSIDERATION
+        assert (
+            sample_decision_payload.decision == CessationDecision.DISMISS_CONSIDERATION
+        )
         assert sample_decision_payload.decided_by == "Conclave Session 42"
         assert (
             sample_decision_payload.rationale

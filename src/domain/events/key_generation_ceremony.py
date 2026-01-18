@@ -243,9 +243,7 @@ class KeyGenerationCeremonyCompletedPayload:
             "new_key_id": self.new_key_id,
             "old_key_id": self.old_key_id,
             "transition_end_at": (
-                self.transition_end_at.isoformat()
-                if self.transition_end_at
-                else None
+                self.transition_end_at.isoformat() if self.transition_end_at else None
             ),
             "witness_ids": list(self.witness_ids),
             "completed_at": self.completed_at.isoformat(),

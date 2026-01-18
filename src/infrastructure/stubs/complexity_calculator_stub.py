@@ -25,18 +25,13 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
-
 from src.application.ports.complexity_calculator import ComplexityCalculatorPort
 from src.domain.models.complexity_budget import (
     ADR_LIMIT,
     CEREMONY_TYPE_LIMIT,
     CROSS_COMPONENT_DEP_LIMIT,
-    ComplexityDimension,
     ComplexitySnapshot,
 )
-
 
 # Default values (within budget, at 50% utilization)
 DEFAULT_ADR_COUNT: int = 7
@@ -71,7 +66,7 @@ class ComplexityCalculatorStub(ComplexityCalculatorPort):
         self._ceremony_types = ceremony_types
         self._cross_component_deps = cross_component_deps
         self._snapshot_count = 0
-        self._failure_mode: Optional[Exception] = None
+        self._failure_mode: Exception | None = None
 
     # Factory methods for common test scenarios
 
@@ -128,9 +123,9 @@ class ComplexityCalculatorStub(ComplexityCalculatorPort):
     @classmethod
     def with_custom_values(
         cls,
-        adr_count: Optional[int] = None,
-        ceremony_types: Optional[int] = None,
-        cross_component_deps: Optional[int] = None,
+        adr_count: int | None = None,
+        ceremony_types: int | None = None,
+        cross_component_deps: int | None = None,
     ) -> ComplexityCalculatorStub:
         """Create stub with custom values.
 
@@ -144,8 +139,12 @@ class ComplexityCalculatorStub(ComplexityCalculatorPort):
         """
         return cls(
             adr_count=adr_count if adr_count is not None else DEFAULT_ADR_COUNT,
-            ceremony_types=ceremony_types if ceremony_types is not None else DEFAULT_CEREMONY_TYPES,
-            cross_component_deps=cross_component_deps if cross_component_deps is not None else DEFAULT_CROSS_COMPONENT_DEPS,
+            ceremony_types=ceremony_types
+            if ceremony_types is not None
+            else DEFAULT_CEREMONY_TYPES,
+            cross_component_deps=cross_component_deps
+            if cross_component_deps is not None
+            else DEFAULT_CROSS_COMPONENT_DEPS,
         )
 
     # Protocol implementation
@@ -191,7 +190,7 @@ class ComplexityCalculatorStub(ComplexityCalculatorPort):
 
     async def calculate_snapshot(
         self,
-        triggered_by: Optional[str] = None,
+        triggered_by: str | None = None,
     ) -> ComplexitySnapshot:
         """Calculate current complexity snapshot.
 
@@ -232,7 +231,7 @@ class ComplexityCalculatorStub(ComplexityCalculatorPort):
         """Update cross-component dependency count (for testing dynamic changes)."""
         self._cross_component_deps = count
 
-    def set_failure_mode(self, error: Optional[Exception]) -> None:
+    def set_failure_mode(self, error: Exception | None) -> None:
         """Set an exception to raise on all operations (for testing failures).
 
         Args:

@@ -26,7 +26,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-
 # Event type constants for collusion investigation
 COLLUSION_INVESTIGATION_TRIGGERED_EVENT_TYPE: str = "collusion.investigation_triggered"
 WITNESS_PAIR_SUSPENDED_EVENT_TYPE: str = "witness.pair_suspended"
@@ -248,7 +247,9 @@ class InvestigationResolvedEventPayload:
         if not self.pair_key:
             raise ValueError("pair_key cannot be empty")
         if not self.resolved_by:
-            raise ValueError("resolved_by cannot be empty (CT-12: attribution required)")
+            raise ValueError(
+                "resolved_by cannot be empty (CT-12: attribution required)"
+            )
 
     def signable_content(self) -> bytes:
         """Return canonical content for witnessing (CT-12).

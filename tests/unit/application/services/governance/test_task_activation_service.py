@@ -52,7 +52,9 @@ def _make_filtered_content(content: str) -> FilteredContent:
     )
 
 
-def _make_accepted_result(content: str, transformations: tuple[Transformation, ...] = ()) -> FilterResult:
+def _make_accepted_result(
+    content: str, transformations: tuple[Transformation, ...] = ()
+) -> FilterResult:
     """Create an ACCEPTED filter result."""
     return FilterResult.accepted(
         content=_make_filtered_content(content),
@@ -62,7 +64,9 @@ def _make_accepted_result(content: str, transformations: tuple[Transformation, .
     )
 
 
-def _make_rejected_result(reason: RejectionReason, guidance: str | None = None) -> FilterResult:
+def _make_rejected_result(
+    reason: RejectionReason, guidance: str | None = None
+) -> FilterResult:
     """Create a REJECTED filter result."""
     return FilterResult.rejected(
         reason=reason,
@@ -72,7 +76,9 @@ def _make_rejected_result(reason: RejectionReason, guidance: str | None = None) 
     )
 
 
-def _make_blocked_result(violation: ViolationType, details: str | None = None) -> FilterResult:
+def _make_blocked_result(
+    violation: ViolationType, details: str | None = None
+) -> FilterResult:
     """Create a BLOCKED filter result."""
     return FilterResult.blocked(
         violation=violation,
@@ -147,7 +153,9 @@ class TestCreateActivation:
         """Accepted content is routed to Cluster."""
         # Setup task state
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -182,7 +190,9 @@ class TestCreateActivation:
         """Transformed content is also routed to Cluster."""
         # Setup
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -226,7 +236,9 @@ class TestCreateActivation:
         """Rejected content returns to Earl for rewrite."""
         # Setup
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -262,7 +274,9 @@ class TestCreateActivation:
         """Blocked content logs violation, does not route."""
         # Setup
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -295,7 +309,9 @@ class TestCreateActivation:
     ):
         """Custom TTL should be passed to task creation."""
         # Setup
-        task = TaskState.create(task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -329,7 +345,9 @@ class TestCreateActivation:
     ):
         """Default TTL should be 72 hours per NFR-CONSENT-01."""
         # Setup
-        task = TaskState.create(task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -361,7 +379,9 @@ class TestCreateActivation:
     ):
         """Two-phase emission should emit intent and commit."""
         # Setup
-        task = TaskState.create(task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -397,7 +417,9 @@ class TestGetTaskState:
     ):
         """Earl can get state of their own task."""
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.get_task.return_value = task
 
         view = await task_activation_service.get_task_state(
@@ -417,7 +439,9 @@ class TestGetTaskState:
     ):
         """Non-owner Earl cannot get task state."""
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.get_task.return_value = task
 
         with pytest.raises(UnauthorizedAccessError) as exc_info:
@@ -442,7 +466,9 @@ class TestGetTaskHistory:
     ):
         """Earl can get history of their own task."""
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.get_task.return_value = task
 
         # Mock ledger events
@@ -470,7 +496,9 @@ class TestGetTaskHistory:
     ):
         """Non-owner Earl cannot get task history."""
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.get_task.return_value = task
 
         with pytest.raises(UnauthorizedAccessError):
@@ -491,7 +519,9 @@ class TestRouteToCluster:
     ):
         """Can route a task in ACTIVATED state."""
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         # Transition to ACTIVATED
         activated_task = task.transition(
             new_status=TaskStatus.ACTIVATED,
@@ -516,7 +546,9 @@ class TestRouteToCluster:
     ):
         """Cannot route a task not in ACTIVATED state."""
         task_id = uuid4()
-        task = TaskState.create(task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=task_id, earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         # Task is in AUTHORIZED state (not ACTIVATED)
         mock_task_state_port.get_task.return_value = task
 
@@ -539,7 +571,9 @@ class TestFilterIntegration:
     ):
         """Filter receives combined description, requirements, and expected_outcomes."""
         # Setup
-        task = TaskState.create(task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 
@@ -572,7 +606,9 @@ class TestFilterIntegration:
     ):
         """FilteredContent (not raw) is sent to participant."""
         # Setup
-        task = TaskState.create(task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow())
+        task = TaskState.create(
+            task_id=uuid4(), earl_id="earl-agares", created_at=datetime.utcnow()
+        )
         mock_task_state_port.create_task.return_value = task
         mock_task_state_port.save_task.return_value = None
 

@@ -71,7 +71,7 @@ class PostgresGovernanceLedgerAdapter(GovernanceLedgerPort):
 
     def __init__(
         self,
-        session_factory: "async_sessionmaker[AsyncSession]",
+        session_factory: async_sessionmaker[AsyncSession],
         verbose: bool = False,
     ) -> None:
         """Initialize the PostgreSQL ledger adapter.

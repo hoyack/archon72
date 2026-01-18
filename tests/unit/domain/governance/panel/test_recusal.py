@@ -18,11 +18,11 @@ from uuid import uuid4
 import pytest
 
 from src.domain.governance.panel import (
-    PanelMember,
-    MemberStatus,
-    PrincePanel,
-    PanelStatus,
     InvalidPanelComposition,
+    MemberStatus,
+    PanelMember,
+    PanelStatus,
+    PrincePanel,
 )
 from src.domain.governance.panel.recusal import RecusalRequest
 

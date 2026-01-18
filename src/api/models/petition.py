@@ -11,7 +11,7 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PlainSerializer
@@ -111,7 +111,7 @@ class CosignPetitionResponse(BaseModel):
     cosigner_sequence: int
     cosigner_count: int
     threshold_met: bool
-    agenda_placement_id: Optional[UUID] = None
+    agenda_placement_id: UUID | None = None
 
 
 class CoSignerResponse(BaseModel):
@@ -154,7 +154,7 @@ class PetitionDetailResponse(BaseModel):
     status: str
     cosigner_count: int
     threshold: int = 100
-    threshold_met_at: Optional[DateTimeWithZ] = None
+    threshold_met_at: DateTimeWithZ | None = None
     cosigners: list[CoSignerResponse] = Field(default_factory=list)
 
 

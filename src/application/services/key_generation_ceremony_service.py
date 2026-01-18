@@ -56,7 +56,6 @@ from src.domain.models.key_generation_ceremony import (
     CEREMONY_TIMEOUT_SECONDS,
     REQUIRED_WITNESSES,
     TRANSITION_PERIOD_DAYS,
-    BootstrapModeDisabledError,
     CeremonyState,
     CeremonyType,
     KeyGenerationCeremony,
@@ -542,7 +541,9 @@ class KeyGenerationCeremonyService:
         log = logger.bind(operation="check_ceremony_timeout")
 
         # Calculate timeout threshold
-        threshold = datetime.now(timezone.utc) - timedelta(seconds=CEREMONY_TIMEOUT_SECONDS)
+        threshold = datetime.now(timezone.utc) - timedelta(
+            seconds=CEREMONY_TIMEOUT_SECONDS
+        )
 
         # Get timed out ceremonies
         timed_out = await self._ceremony_repo.get_timed_out_ceremonies(threshold)

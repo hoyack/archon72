@@ -15,8 +15,6 @@ Constitutional Constraints:
 import json
 from datetime import datetime, timezone
 
-import pytest
-
 from src.domain.events.keeper_availability import (
     KEEPER_ATTESTATION_EVENT_TYPE,
     KEEPER_MISSED_ATTESTATION_EVENT_TYPE,

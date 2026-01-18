@@ -20,7 +20,7 @@ Constitutional Context:
 """
 
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID, uuid4
 
 from src.application.ports.governance.cessation_record_port import CessationRecordPort
@@ -264,7 +264,7 @@ class CessationRecordService:
                 trigger_id=trigger.trigger_id,
             ) from e
 
-    async def get_record(self) -> Optional[CessationRecord]:
+    async def get_record(self) -> CessationRecord | None:
         """Get the cessation record if it exists.
 
         Returns:

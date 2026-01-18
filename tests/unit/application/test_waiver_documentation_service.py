@@ -9,13 +9,10 @@ Constitutional Constraints:
 - CT-12: Witnessing creates accountability -> All waiver events witnessed
 """
 
-from datetime import datetime, timezone
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
-from src.application.ports.waiver_repository import WaiverRecord
 from src.application.services.waiver_documentation_service import (
     WAIVER_DOCUMENTATION_SYSTEM_AGENT_ID,
     WaiverDocumentationService,
@@ -295,7 +292,9 @@ class TestWaiverDocumentationServiceIdempotency:
         )
 
         assert result1.waiver_id == result2.waiver_id
-        assert result2.constitutional_truth_statement == "Test"  # Original value preserved
+        assert (
+            result2.constitutional_truth_statement == "Test"
+        )  # Original value preserved
 
     @pytest.mark.asyncio
     async def test_document_waiver_only_creates_one_event(

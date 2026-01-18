@@ -95,11 +95,13 @@ class FakeTaskStatePort:
         to_status: str,
     ) -> None:
         """Atomically transition a single task."""
-        self.transition_calls.append({
-            "task_id": task_id,
-            "from_status": from_status,
-            "to_status": to_status,
-        })
+        self.transition_calls.append(
+            {
+                "task_id": task_id,
+                "from_status": from_status,
+                "to_status": to_status,
+            }
+        )
 
         if task_id in self._fail_on_transition:
             raise ConcurrentModificationError(
@@ -176,6 +178,7 @@ class TestHaltTaskTransitionServiceImport:
         from src.application.services.governance.halt_task_transition_service import (
             HaltTaskTransitionService,
         )
+
         assert HaltTaskTransitionService is not None
 
     def test_port_can_be_imported(self) -> None:
@@ -183,6 +186,7 @@ class TestHaltTaskTransitionServiceImport:
         from src.application.ports.governance.halt_task_transition_port import (
             HaltTaskTransitionPort,
         )
+
         assert HaltTaskTransitionPort is not None
 
 

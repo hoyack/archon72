@@ -23,7 +23,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 
@@ -80,7 +79,7 @@ class TransitionLog:
     timestamp: datetime
     actor: str
     reason: str
-    triggering_event_id: Optional[UUID] = None
+    triggering_event_id: UUID | None = None
 
     def __post_init__(self) -> None:
         """Validate transition log fields."""
@@ -121,13 +120,13 @@ class TransitionQuery:
         to_state: Filter by the target state.
     """
 
-    entity_type: Optional[EntityType] = None
-    entity_id: Optional[UUID] = None
-    actor: Optional[str] = None
-    from_timestamp: Optional[datetime] = None
-    to_timestamp: Optional[datetime] = None
-    from_state: Optional[str] = None
-    to_state: Optional[str] = None
+    entity_type: EntityType | None = None
+    entity_id: UUID | None = None
+    actor: str | None = None
+    from_timestamp: datetime | None = None
+    to_timestamp: datetime | None = None
+    from_state: str | None = None
+    to_state: str | None = None
 
     def matches(self, log: TransitionLog) -> bool:
         """Check if a transition log matches this query.
@@ -150,9 +149,7 @@ class TransitionQuery:
             return False
         if self.from_state is not None and log.from_state != self.from_state:
             return False
-        if self.to_state is not None and log.to_state != self.to_state:
-            return False
-        return True
+        return not (self.to_state is not None and log.to_state != self.to_state)
 
 
 class TransitionLogError(ValueError):

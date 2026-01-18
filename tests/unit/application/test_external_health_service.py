@@ -16,7 +16,7 @@ Key Test Scenarios:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -187,6 +187,7 @@ class TestExternalHealthService:
         call_order = []
 
         mock_halt_checker = AsyncMock()
+
         async def mock_is_halted():
             call_order.append("halt")
             return True  # Return halted
@@ -194,6 +195,7 @@ class TestExternalHealthService:
         mock_halt_checker.is_halted = mock_is_halted
 
         mock_freeze_checker = AsyncMock()
+
         async def mock_is_frozen():
             call_order.append("freeze")
             return True

@@ -102,7 +102,10 @@ class TestHeartbeatConfiguration:
     def test_unresponsive_timeout_is_90_seconds(self) -> None:
         """Test that unresponsive timeout is 90s (3 * 30s)."""
         assert UNRESPONSIVE_TIMEOUT_SECONDS == 90
-        assert UNRESPONSIVE_TIMEOUT_SECONDS == HEARTBEAT_INTERVAL_SECONDS * MISSED_HEARTBEAT_THRESHOLD
+        assert (
+            UNRESPONSIVE_TIMEOUT_SECONDS
+            == HEARTBEAT_INTERVAL_SECONDS * MISSED_HEARTBEAT_THRESHOLD
+        )
 
 
 class TestHeartbeatEmission:

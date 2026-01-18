@@ -22,10 +22,9 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.domain.governance.exit.contribution_type import ContributionType
 from src.domain.governance.exit.contribution_record import ContributionRecord
+from src.domain.governance.exit.contribution_type import ContributionType
 from src.domain.governance.exit.preservation_result import PreservationResult
-
 
 # =============================================================================
 # ContributionType Tests
@@ -45,13 +44,19 @@ class TestContributionType:
 
     def test_deliberation_participated_value(self) -> None:
         """DELIBERATION_PARTICIPATED has expected value."""
-        assert ContributionType.DELIBERATION_PARTICIPATED.value == "deliberation_participated"
+        assert (
+            ContributionType.DELIBERATION_PARTICIPATED.value
+            == "deliberation_participated"
+        )
 
     def test_str_representation(self) -> None:
         """String representation returns enum value."""
         assert str(ContributionType.TASK_COMPLETED) == "task_completed"
         assert str(ContributionType.TASK_REPORTED) == "task_reported"
-        assert str(ContributionType.DELIBERATION_PARTICIPATED) == "deliberation_participated"
+        assert (
+            str(ContributionType.DELIBERATION_PARTICIPATED)
+            == "deliberation_participated"
+        )
 
     def test_all_contribution_types(self) -> None:
         """All expected contribution types exist."""
@@ -157,7 +162,9 @@ class TestContributionRecord:
 
     def test_invalid_contribution_type(self) -> None:
         """Invalid contribution_type raises ValueError."""
-        with pytest.raises(ValueError, match="contribution_type must be ContributionType"):
+        with pytest.raises(
+            ValueError, match="contribution_type must be ContributionType"
+        ):
             ContributionRecord(
                 record_id=uuid4(),
                 cluster_id=uuid4(),
@@ -354,7 +361,9 @@ class TestPreservationResult:
 
     def test_negative_contributions_preserved(self) -> None:
         """Negative contributions_preserved raises ValueError."""
-        with pytest.raises(ValueError, match="contributions_preserved must be non-negative"):
+        with pytest.raises(
+            ValueError, match="contributions_preserved must be non-negative"
+        ):
             PreservationResult(
                 cluster_id=uuid4(),
                 contributions_preserved=-1,

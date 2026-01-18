@@ -6,6 +6,7 @@ as a standalone tool and can be used with pre-commit hooks.
 Note: These tests are self-contained and don't require testcontainers
 or database/redis fixtures from conftest.py.
 """
+
 import subprocess
 import tempfile
 from pathlib import Path

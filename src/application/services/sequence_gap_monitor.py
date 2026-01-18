@@ -19,8 +19,9 @@ Note:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -59,7 +60,7 @@ class SequenceGapMonitor:
 
     def __init__(
         self,
-        detection_service: "SequenceGapDetectionService",
+        detection_service: SequenceGapDetectionService,
         interval_seconds: int = DETECTION_INTERVAL_SECONDS,
     ) -> None:
         """Initialize the sequence gap monitor.
@@ -71,7 +72,7 @@ class SequenceGapMonitor:
         self._detection = detection_service
         self._interval = interval_seconds
         self._running: bool = False
-        self._task: Optional[asyncio.Task[None]] = None
+        self._task: asyncio.Task[None] | None = None
         self._log = structlog.get_logger().bind(service="sequence_gap_monitor")
 
     @property
@@ -111,10 +112,8 @@ class SequenceGapMonitor:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
             self._task = None
         self._log.info("sequence_gap_monitor_stopped")
 
@@ -149,7 +148,7 @@ class SequenceGapMonitor:
                 self._log.error("detection_cycle_failed", error=str(e))
                 await asyncio.sleep(self._interval)
 
-    async def run_once(self) -> "Optional[SequenceGapDetectedPayload]":
+    async def run_once(self) -> SequenceGapDetectedPayload | None:
         """Run a single detection cycle (for testing).
 
         Checks for gaps and handles any detected gaps.

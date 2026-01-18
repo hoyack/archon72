@@ -6,6 +6,7 @@ Tests verify that the hexagonal architecture import rules are enforced:
 - infrastructure/ imports from domain/ and application/
 - api/ imports from application/ (and transitively domain/)
 """
+
 import ast
 
 # Import from scripts directory
@@ -162,9 +163,7 @@ class TestCheckFileImports:
         violations = check_file_imports(domain_file, temp_src_dir)
         assert violations == []
 
-    def test_violation_domain_imports_infrastructure(
-        self, temp_src_dir: Path
-    ) -> None:
+    def test_violation_domain_imports_infrastructure(self, temp_src_dir: Path) -> None:
         """Domain importing infrastructure should be detected."""
         domain_file = temp_src_dir / "domain" / "bad_module.py"
         domain_file.write_text("from src.infrastructure.adapters import SomeAdapter")

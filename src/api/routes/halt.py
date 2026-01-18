@@ -13,7 +13,7 @@ Constitutional Constraints:
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Header, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 
 from src.api.models.halt import (
     HaltErrorResponse,
@@ -28,7 +28,6 @@ from src.application.ports.governance.halt_trigger_port import (
 )
 from src.application.services.governance.halt_service import HaltService
 from src.domain.governance.halt import HaltReason
-
 
 router = APIRouter(prefix="/v1/governance/halt", tags=["governance", "halt"])
 

@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional
 
 from src.application.ports.halt_checker import HaltChecker
 from src.application.ports.threshold_configuration import ThresholdRepositoryProtocol
@@ -32,7 +31,6 @@ from src.domain.models.constitutional_threshold import ConstitutionalThreshold
 from src.domain.primitives.constitutional_thresholds import (
     CONSTITUTIONAL_THRESHOLD_REGISTRY,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +60,8 @@ class ThresholdConfigurationService:
     def __init__(
         self,
         halt_checker: HaltChecker,
-        repository: Optional[ThresholdRepositoryProtocol] = None,
-        event_writer = None,  # Optional EventWriterService
+        repository: ThresholdRepositoryProtocol | None = None,
+        event_writer=None,  # Optional EventWriterService
     ) -> None:
         """Initialize the threshold configuration service.
 

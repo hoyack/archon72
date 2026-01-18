@@ -15,7 +15,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 # Event type constant (follows existing pattern in codebase)
 CONSTITUTIONAL_HEALTH_ALERT_EVENT_TYPE: str = "constitutional_health_alert"
@@ -104,8 +103,8 @@ class ConstitutionalHealthAlertPayload:
     message: str
     route_to: str  # Always "governance" for constitutional alerts
     raised_at: datetime
-    acknowledged_at: Optional[datetime] = None
-    acknowledged_by: Optional[str] = None
+    acknowledged_at: datetime | None = None
+    acknowledged_by: str | None = None
 
     @property
     def event_type(self) -> str:

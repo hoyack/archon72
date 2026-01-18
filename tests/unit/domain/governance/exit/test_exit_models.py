@@ -14,11 +14,14 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.governance.exit.exit_status import ExitStatus
+from src.domain.governance.exit.errors import (
+    AlreadyExitedError,
+    ExitBarrierError,
+    ExitNotFoundError,
+)
 from src.domain.governance.exit.exit_request import ExitRequest
-from src.domain.governance.exit.exit_result import ExitResult, MAX_ROUND_TRIPS
-from src.domain.governance.exit.errors import ExitBarrierError, AlreadyExitedError, ExitNotFoundError
-
+from src.domain.governance.exit.exit_result import MAX_ROUND_TRIPS, ExitResult
+from src.domain.governance.exit.exit_status import ExitStatus
 
 # =============================================================================
 # Test Fixtures

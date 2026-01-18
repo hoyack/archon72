@@ -16,11 +16,9 @@ from __future__ import annotations
 import hashlib
 import os
 import warnings
-from typing import Optional
 
 from src.application.ports.entropy_source import EntropySourceProtocol
 from src.domain.errors.witness_selection import EntropyUnavailableError
-
 
 # DEV MODE warning prefix
 DEV_MODE_WARNING = "[DEV MODE] EntropySourceStub in use - NOT FOR PRODUCTION"
@@ -59,7 +57,7 @@ class EntropySourceStub(EntropySourceProtocol):
 
     def __init__(
         self,
-        initial_entropy: Optional[bytes] = None,
+        initial_entropy: bytes | None = None,
         warn_on_init: bool = True,
     ) -> None:
         """Initialize entropy source stub.
@@ -73,7 +71,7 @@ class EntropySourceStub(EntropySourceProtocol):
 
         self._entropy = initial_entropy or self._default_entropy()
         self._should_fail = False
-        self._failure_reason: Optional[str] = None
+        self._failure_reason: str | None = None
         self._is_available = True
 
     @staticmethod
@@ -134,7 +132,7 @@ class EntropySourceStub(EntropySourceProtocol):
         """
         self._entropy = hashlib.sha256(seed.encode("utf-8")).digest()
 
-    def set_failure(self, should_fail: bool, reason: Optional[str] = None) -> None:
+    def set_failure(self, should_fail: bool, reason: str | None = None) -> None:
         """Configure failure simulation.
 
         Args:
@@ -193,7 +191,7 @@ class SecureEntropySourceStub(EntropySourceProtocol):
             )
 
         self._should_fail = False
-        self._failure_reason: Optional[str] = None
+        self._failure_reason: str | None = None
 
     async def get_entropy(self) -> bytes:
         """Get 32 bytes from os.urandom()."""
@@ -212,7 +210,7 @@ class SecureEntropySourceStub(EntropySourceProtocol):
         """Always available unless failure is simulated."""
         return not self._should_fail
 
-    def set_failure(self, should_fail: bool, reason: Optional[str] = None) -> None:
+    def set_failure(self, should_fail: bool, reason: str | None = None) -> None:
         """Configure failure simulation."""
         self._should_fail = should_fail
         self._failure_reason = reason

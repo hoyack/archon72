@@ -166,9 +166,7 @@ class MaterialViolation:
             "remediation_status": self.remediation_status.value,
         }
 
-    def with_remediation_status(
-        self, status: RemediationStatus
-    ) -> MaterialViolation:
+    def with_remediation_status(self, status: RemediationStatus) -> MaterialViolation:
         """Create copy with updated remediation status.
 
         Args:
@@ -227,9 +225,7 @@ class MaterialAudit:
             raise ValueError("FR57: audit_id is required")
 
         if not self.audit_id.startswith(AUDIT_ID_PREFIX):
-            raise ValueError(
-                f"FR57: audit_id must start with '{AUDIT_ID_PREFIX}'"
-            )
+            raise ValueError(f"FR57: audit_id must start with '{AUDIT_ID_PREFIX}'")
 
         # Violations count must match details
         if self.violations_found != len(self.violation_details):
@@ -244,9 +240,7 @@ class MaterialAudit:
 
         # Completed audits must have completed_at
         if self.status == AuditStatus.COMPLETED and self.completed_at is None:
-            raise ValueError(
-                "FR57: completed audit must have completed_at timestamp"
-            )
+            raise ValueError("FR57: completed audit must have completed_at timestamp")
 
         # Audits with violations must have remediation_deadline
         if (

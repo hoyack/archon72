@@ -29,7 +29,6 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from src.application.ports.governance.task_constraint_port import (
     ROLE_ALLOWED_OPERATIONS,
@@ -64,18 +63,22 @@ class ConstraintRule:
 EARL_CONSTRAINTS: dict = {
     "role": "Earl",
     "branch": "administrative",
-    "allowed_operations": frozenset({
-        TaskOperation.CREATE_ACTIVATION,
-        TaskOperation.VIEW_TASK_STATE,
-        TaskOperation.VIEW_TASK_HISTORY,
-    }),
-    "prohibited_operations": frozenset({
-        TaskOperation.ACCEPT,      # Cannot compel Cluster (AC1)
-        TaskOperation.DECLINE,     # Cannot decline for Cluster
-        TaskOperation.HALT,        # Cannot halt Cluster's work
-        TaskOperation.SUBMIT_RESULT,  # Cannot submit for Cluster
-        TaskOperation.SUBMIT_PROBLEM,  # Cannot submit for Cluster
-    }),
+    "allowed_operations": frozenset(
+        {
+            TaskOperation.CREATE_ACTIVATION,
+            TaskOperation.VIEW_TASK_STATE,
+            TaskOperation.VIEW_TASK_HISTORY,
+        }
+    ),
+    "prohibited_operations": frozenset(
+        {
+            TaskOperation.ACCEPT,  # Cannot compel Cluster (AC1)
+            TaskOperation.DECLINE,  # Cannot decline for Cluster
+            TaskOperation.HALT,  # Cannot halt Cluster's work
+            TaskOperation.SUBMIT_RESULT,  # Cannot submit for Cluster
+            TaskOperation.SUBMIT_PROBLEM,  # Cannot submit for Cluster
+        }
+    ),
     "rules": [
         ConstraintRule(
             rule_id="earl_no_compel",
@@ -102,16 +105,20 @@ EARL_CONSTRAINTS: dict = {
 CLUSTER_CONSTRAINTS: dict = {
     "role": "Cluster",
     "branch": "participant",
-    "allowed_operations": frozenset({
-        TaskOperation.ACCEPT,
-        TaskOperation.DECLINE,
-        TaskOperation.HALT,
-        TaskOperation.SUBMIT_RESULT,
-        TaskOperation.SUBMIT_PROBLEM,
-    }),
-    "prohibited_operations": frozenset({
-        TaskOperation.CREATE_ACTIVATION,  # Cannot self-assign (AC2)
-    }),
+    "allowed_operations": frozenset(
+        {
+            TaskOperation.ACCEPT,
+            TaskOperation.DECLINE,
+            TaskOperation.HALT,
+            TaskOperation.SUBMIT_RESULT,
+            TaskOperation.SUBMIT_PROBLEM,
+        }
+    ),
+    "prohibited_operations": frozenset(
+        {
+            TaskOperation.CREATE_ACTIVATION,  # Cannot self-assign (AC2)
+        }
+    ),
     "rules": [
         ConstraintRule(
             rule_id="cluster_no_self_assign",
@@ -132,12 +139,14 @@ CLUSTER_CONSTRAINTS: dict = {
 SYSTEM_CONSTRAINTS: dict = {
     "role": "system",
     "branch": "internal",
-    "allowed_operations": frozenset({
-        TaskOperation.AUTO_DECLINE,
-        TaskOperation.AUTO_START,
-        TaskOperation.AUTO_QUARANTINE,
-        TaskOperation.SEND_REMINDER,
-    }),
+    "allowed_operations": frozenset(
+        {
+            TaskOperation.AUTO_DECLINE,
+            TaskOperation.AUTO_START,
+            TaskOperation.AUTO_QUARANTINE,
+            TaskOperation.SEND_REMINDER,
+        }
+    ),
     "prohibited_operations": frozenset(),  # System has no prohibited operations
     "rules": [],
 }
@@ -194,7 +203,7 @@ def is_operation_prohibited(role: str, operation: TaskOperation) -> bool:
 def get_constraint_violation_reason(
     role: str,
     operation: TaskOperation,
-) -> Optional[str]:
+) -> str | None:
     """Get the reason why an operation is not allowed.
 
     Per AC9: Clear error messages indicate which constraint was violated.

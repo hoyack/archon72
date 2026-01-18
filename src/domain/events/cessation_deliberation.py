@@ -162,9 +162,7 @@ class CessationDeliberationEventPayload:
             if d.position == ArchonPosition.OPPOSE_CESSATION
         )
         actual_abstain = sum(
-            1
-            for d in self.archon_deliberations
-            if d.position == ArchonPosition.ABSTAIN
+            1 for d in self.archon_deliberations if d.position == ArchonPosition.ABSTAIN
         )
 
         if (
@@ -208,9 +206,7 @@ class CessationDeliberationEventPayload:
             UTF-8 encoded bytes of canonical JSON representation.
         """
         content: dict[str, Any] = {
-            "archon_deliberations": [
-                d.to_dict() for d in self.archon_deliberations
-            ],
+            "archon_deliberations": [d.to_dict() for d in self.archon_deliberations],
             "deliberation_ended_at": self.deliberation_ended_at.isoformat(),
             "deliberation_id": str(self.deliberation_id),
             "deliberation_started_at": self.deliberation_started_at.isoformat(),
@@ -234,9 +230,7 @@ class CessationDeliberationEventPayload:
             "deliberation_ended_at": self.deliberation_ended_at.isoformat(),
             "vote_recorded_at": self.vote_recorded_at.isoformat(),
             "duration_seconds": self.duration_seconds,
-            "archon_deliberations": [
-                d.to_dict() for d in self.archon_deliberations
-            ],
+            "archon_deliberations": [d.to_dict() for d in self.archon_deliberations],
             "vote_counts": self.vote_counts.to_dict(),
             "dissent_percentage": self.dissent_percentage,
         }

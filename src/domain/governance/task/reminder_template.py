@@ -36,39 +36,40 @@ from typing import ClassVar
 
 from src.application.ports.governance.task_reminder_port import ReminderMilestone
 
-
 # Banned phrases that indicate coercive language in reminders
 # These MUST NOT appear in any reminder template (matched as phrases)
 # Note: We allow "no penalty", "carries no penalty" etc. - these are neutral
-BANNED_PHRASES: frozenset[str] = frozenset({
-    "urgent",
-    "immediately",
-    "hurry",
-    "deadline",
-    "expires soon",
-    "expiring soon",
-    "running out",
-    "consequences",
-    "you must",
-    "is required",
-    "are required",
-    "required to",
-    "mandatory",
-    "last chance",
-    "final warning",
-    "time is running out",
-    "act now",
-    "don't delay",
-    "asap",
-    "critical",
-    "important notice",
-    "attention required",
-    "action required",
-    "respond immediately",
-    "failure to respond",
-    "will result in",
-    "will incur",
-})
+BANNED_PHRASES: frozenset[str] = frozenset(
+    {
+        "urgent",
+        "immediately",
+        "hurry",
+        "deadline",
+        "expires soon",
+        "expiring soon",
+        "running out",
+        "consequences",
+        "you must",
+        "is required",
+        "are required",
+        "required to",
+        "mandatory",
+        "last chance",
+        "final warning",
+        "time is running out",
+        "act now",
+        "don't delay",
+        "asap",
+        "critical",
+        "important notice",
+        "attention required",
+        "action required",
+        "respond immediately",
+        "failure to respond",
+        "will result in",
+        "will incur",
+    }
+)
 
 # Legacy alias for backwards compatibility
 BANNED_WORDS = BANNED_PHRASES

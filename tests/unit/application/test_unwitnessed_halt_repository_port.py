@@ -7,17 +7,7 @@ Constitutional Constraints:
 - RT-2: Recovery mechanism for halts that couldn't be witnessed
 """
 
-from datetime import datetime, timezone
-from typing import runtime_checkable
-from uuid import uuid4
-
-import pytest
-
 from src.application.ports.unwitnessed_halt_repository import UnwitnessedHaltRepository
-from src.domain.events.constitutional_crisis import (
-    ConstitutionalCrisisPayload,
-    CrisisType,
-)
 from src.domain.models.unwitnessed_halt import UnwitnessedHaltRecord
 
 
@@ -33,6 +23,7 @@ class TestUnwitnessedHaltRepositoryPortDefinition:
 
     def test_port_is_runtime_checkable(self) -> None:
         """Should be runtime checkable for isinstance checks."""
+
         # Create a mock class that implements the protocol
         class MockRepo:
             async def save(self, record: UnwitnessedHaltRecord) -> None:

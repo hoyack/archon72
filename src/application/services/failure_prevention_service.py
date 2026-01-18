@@ -18,8 +18,7 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from src.application.ports.failure_mode_registry import (
     FailureModeRegistryPort,
@@ -28,7 +27,6 @@ from src.application.ports.failure_mode_registry import (
 from src.application.ports.halt_checker import HaltChecker
 from src.application.services.base import LoggingMixin
 from src.domain.errors.failure_prevention import (
-    EarlyWarningError,
     FailureModeViolationError,
 )
 from src.domain.errors.writer import SystemHaltedError
@@ -131,7 +129,7 @@ class FailurePreventionService(LoggingMixin):
 
         return count
 
-    async def get_failure_mode(self, mode_id: FailureModeId) -> Optional[FailureMode]:
+    async def get_failure_mode(self, mode_id: FailureModeId) -> FailureMode | None:
         """Get a specific failure mode by ID (AC1).
 
         Args:
@@ -218,7 +216,10 @@ class FailurePreventionService(LoggingMixin):
 
         # Check if we need to generate an early warning
         threshold = await self._registry.get_threshold(mode_id, metric_name)
-        if threshold and status in (FailureModeStatus.WARNING, FailureModeStatus.CRITICAL):
+        if threshold and status in (
+            FailureModeStatus.WARNING,
+            FailureModeStatus.CRITICAL,
+        ):
             # Generate and record early warning
             warning = await self._generate_early_warning(
                 mode_id=mode_id,
@@ -269,7 +270,9 @@ class FailurePreventionService(LoggingMixin):
 
         # Get the failure mode for recommended action
         mode = await self._registry.get_failure_mode(mode_id)
-        recommended_action = mode.mitigation if mode else "Review failure mode mitigation strategy"
+        recommended_action = (
+            mode.mitigation if mode else "Review failure mode mitigation strategy"
+        )
 
         return EarlyWarning.create(
             mode_id=mode_id,
@@ -422,16 +425,18 @@ class FailurePreventionService(LoggingMixin):
             status = await self._registry.get_mode_status(mode.id)
             thresholds = await self._registry.get_all_thresholds(mode.id)
 
-            mode_data.append({
-                "id": mode.id.value,
-                "description": mode.description,
-                "severity": mode.severity.value,
-                "mitigation": mode.mitigation,
-                "adr_reference": mode.adr_reference,
-                "owner": mode.owner,
-                "status": status.value,
-                "threshold_count": len(thresholds),
-            })
+            mode_data.append(
+                {
+                    "id": mode.id.value,
+                    "description": mode.description,
+                    "severity": mode.severity.value,
+                    "mitigation": mode.mitigation,
+                    "adr_reference": mode.adr_reference,
+                    "owner": mode.owner,
+                    "status": status.value,
+                    "threshold_count": len(thresholds),
+                }
+            )
 
         warning_data = [
             {
@@ -488,7 +493,7 @@ class FailurePreventionService(LoggingMixin):
                 remediation=mitigation,
             )
 
-    async def warn_if_mode_warning(self, mode_id: FailureModeId) -> Optional[EarlyWarning]:
+    async def warn_if_mode_warning(self, mode_id: FailureModeId) -> EarlyWarning | None:
         """Return early warning if failure mode is in WARNING state.
 
         Use this method to check failure mode health and get warning

@@ -39,7 +39,9 @@ class SeedValidatorStub(SeedValidatorProtocol):
     _source_validations: dict[str, SeedSourceValidation] = field(default_factory=dict)
 
     # Configurable predictability results
-    _predictability_results: dict[str, PredictabilityCheck] = field(default_factory=dict)
+    _predictability_results: dict[str, PredictabilityCheck] = field(
+        default_factory=dict
+    )
 
     # Default independence status for new sources
     _default_is_independent: bool = True
@@ -68,7 +70,9 @@ class SeedValidatorStub(SeedValidatorProtocol):
         return SeedSourceValidation(
             source_id=source_id,
             is_independent=self._default_is_independent,
-            validation_reason="stub_validation" if self._default_is_independent else "stub_rejection",
+            validation_reason="stub_validation"
+            if self._default_is_independent
+            else "stub_rejection",
             last_verified_at=datetime.now(timezone.utc),
         )
 
@@ -204,7 +208,8 @@ class SeedValidatorStub(SeedValidatorProtocol):
         self._predictability_results[key] = PredictabilityCheck(
             is_predictable=is_predictable,
             predictability_indicators=indicators,
-            recommendation=recommendation or ("Predictable seed" if is_predictable else "Seed appears random"),
+            recommendation=recommendation
+            or ("Predictable seed" if is_predictable else "Seed appears random"),
         )
 
     def set_default_independence(self, is_independent: bool) -> None:

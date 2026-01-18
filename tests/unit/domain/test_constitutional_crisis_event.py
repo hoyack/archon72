@@ -66,7 +66,9 @@ class TestConstitutionalCrisisPayload:
         return (uuid4(), uuid4())
 
     @pytest.fixture
-    def sample_payload(self, sample_triggering_ids: tuple[UUID, ...]) -> ConstitutionalCrisisPayload:
+    def sample_payload(
+        self, sample_triggering_ids: tuple[UUID, ...]
+    ) -> ConstitutionalCrisisPayload:
         """Create a sample crisis payload."""
         return ConstitutionalCrisisPayload(
             crisis_type=CrisisType.FORK_DETECTED,
@@ -76,7 +78,9 @@ class TestConstitutionalCrisisPayload:
             detecting_service_id="fork-monitor-001",
         )
 
-    def test_payload_creation(self, sample_payload: ConstitutionalCrisisPayload) -> None:
+    def test_payload_creation(
+        self, sample_payload: ConstitutionalCrisisPayload
+    ) -> None:
         """Test payload can be created with all fields."""
         assert sample_payload.crisis_type == CrisisType.FORK_DETECTED
         assert isinstance(sample_payload.detection_timestamp, datetime)
@@ -84,7 +88,9 @@ class TestConstitutionalCrisisPayload:
         assert len(sample_payload.triggering_event_ids) == 2
         assert sample_payload.detecting_service_id == "fork-monitor-001"
 
-    def test_payload_is_frozen(self, sample_payload: ConstitutionalCrisisPayload) -> None:
+    def test_payload_is_frozen(
+        self, sample_payload: ConstitutionalCrisisPayload
+    ) -> None:
         """Test payload is immutable (frozen dataclass)."""
         with pytest.raises(AttributeError):
             sample_payload.crisis_type = CrisisType.FORK_DETECTED  # type: ignore
@@ -170,7 +176,9 @@ class TestConstitutionalCrisisPayload:
         )
         assert len(payload.detection_details) == 1000
 
-    def test_payload_is_hashable(self, sample_payload: ConstitutionalCrisisPayload) -> None:
+    def test_payload_is_hashable(
+        self, sample_payload: ConstitutionalCrisisPayload
+    ) -> None:
         """Test frozen payload is hashable (can be used in sets)."""
         payload_set = {sample_payload}
         assert sample_payload in payload_set

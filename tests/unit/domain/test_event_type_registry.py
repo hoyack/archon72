@@ -3,8 +3,6 @@
 Tests the centralized event type registry for constitutional/operational separation.
 """
 
-import pytest
-
 from src.domain.models.event_type_registry import EventTypeRegistry
 
 
@@ -78,8 +76,7 @@ class TestNoOverlap:
     def test_no_intersection(self) -> None:
         """Test constitutional and operational types have no overlap."""
         intersection = (
-            EventTypeRegistry.CONSTITUTIONAL_TYPES
-            & EventTypeRegistry.OPERATIONAL_TYPES
+            EventTypeRegistry.CONSTITUTIONAL_TYPES & EventTypeRegistry.OPERATIONAL_TYPES
         )
         assert len(intersection) == 0, f"Overlap found: {intersection}"
 

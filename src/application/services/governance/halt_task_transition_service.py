@@ -129,8 +129,8 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
     def __init__(
         self,
         task_state_port: TaskStateQueryPort,
-        ledger: "GovernanceLedgerPort",
-        time_authority: "TimeAuthorityProtocol",
+        ledger: GovernanceLedgerPort,
+        time_authority: TimeAuthorityProtocol,
     ) -> None:
         """Initialize HaltTaskTransitionService.
 
@@ -208,12 +208,14 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
                         status=current_status_str,
                         halt_correlation_id=str(halt_correlation_id),
                     )
-                    records.append(self._create_failed_record(
-                        task_id=task_id,
-                        previous_status=current_status_str,
-                        halt_correlation_id=halt_correlation_id,
-                        error_message=f"Unknown status: {current_status_str}",
-                    ))
+                    records.append(
+                        self._create_failed_record(
+                            task_id=task_id,
+                            previous_status=current_status_str,
+                            halt_correlation_id=halt_correlation_id,
+                            error_message=f"Unknown status: {current_status_str}",
+                        )
+                    )
                     failed_count += 1
                     continue
 
@@ -270,12 +272,14 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
                     error=str(e),
                     halt_correlation_id=str(halt_correlation_id),
                 )
-                records.append(self._create_failed_record(
-                    task_id=task_id,
-                    previous_status=current_status_str,
-                    halt_correlation_id=halt_correlation_id,
-                    error_message=str(e),
-                ))
+                records.append(
+                    self._create_failed_record(
+                        task_id=task_id,
+                        previous_status=current_status_str,
+                        halt_correlation_id=halt_correlation_id,
+                        error_message=str(e),
+                    )
+                )
                 failed_count += 1
 
         completed_at = self._time.now()
@@ -324,7 +328,7 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
         from_status: str,
         to_status: str,
         halt_correlation_id: UUID,
-        transitioned_at: "datetime",
+        transitioned_at: datetime,
     ) -> None:
         """Atomically transition a single task.
 
@@ -611,7 +615,7 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
         task_id: UUID,
         previous_status: str,
         halt_correlation_id: UUID,
-        transitioned_at: "datetime",
+        transitioned_at: datetime,
     ) -> None:
         """Emit executive.task.nullified_on_halt event.
 
@@ -647,7 +651,7 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
         task_id: UUID,
         previous_status: str,
         halt_correlation_id: UUID,
-        transitioned_at: "datetime",
+        transitioned_at: datetime,
     ) -> None:
         """Emit executive.task.quarantined_on_halt event.
 
@@ -684,7 +688,7 @@ class HaltTaskTransitionService(HaltTaskTransitionPort):
         task_id: UUID,
         status: str,
         halt_correlation_id: UUID,
-        recorded_at: "datetime",
+        recorded_at: datetime,
     ) -> None:
         """Emit executive.task.preserved_on_halt event.
 

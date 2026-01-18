@@ -5,7 +5,6 @@ Tests the OverrideAbuseDetectionService with mock dependencies.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -13,8 +12,6 @@ import pytest
 from src.application.ports.anomaly_detector import AnomalyResult, FrequencyData
 from src.application.ports.override_abuse_validator import ValidationResult
 from src.application.services.override_abuse_detection_service import (
-    ANOMALY_CONFIDENCE_THRESHOLD,
-    ANOMALY_DETECTION_WINDOW_DAYS,
     OverrideAbuseDetectionService,
 )
 from src.domain.errors.override_abuse import (
@@ -198,9 +195,11 @@ class TestOverrideAbuseDetectionServiceValidation:
         mock_halt_checker_operational: MagicMock,
     ) -> None:
         """Test validation rejects constitutional constraint violation (FR86)."""
-        mock_validator.validate_constitutional_constraints.return_value = ValidationResult.failure(
-            violation_type=ViolationType.FORBIDDEN_SCOPE,
-            violation_details="Scope is forbidden",
+        mock_validator.validate_constitutional_constraints.return_value = (
+            ValidationResult.failure(
+                violation_type=ViolationType.FORBIDDEN_SCOPE,
+                violation_details="Scope is forbidden",
+            )
         )
 
         service = OverrideAbuseDetectionService(
@@ -546,7 +545,9 @@ class TestWeeklyAnomalyReview:
 
         mock_detector = MagicMock()
         mock_detector.detect_keeper_anomalies = AsyncMock(return_value=[keeper_anomaly])
-        mock_detector.detect_slow_burn_erosion = AsyncMock(return_value=[slow_burn_anomaly])
+        mock_detector.detect_slow_burn_erosion = AsyncMock(
+            return_value=[slow_burn_anomaly]
+        )
 
         service = OverrideAbuseDetectionService(
             abuse_validator=mock_validator,
@@ -581,8 +582,12 @@ class TestWeeklyAnomalyReview:
         )
 
         mock_detector = MagicMock()
-        mock_detector.detect_keeper_anomalies = AsyncMock(return_value=[high_confidence])
-        mock_detector.detect_slow_burn_erosion = AsyncMock(return_value=[medium_confidence])
+        mock_detector.detect_keeper_anomalies = AsyncMock(
+            return_value=[high_confidence]
+        )
+        mock_detector.detect_slow_burn_erosion = AsyncMock(
+            return_value=[medium_confidence]
+        )
 
         service = OverrideAbuseDetectionService(
             abuse_validator=mock_validator,

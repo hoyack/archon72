@@ -8,26 +8,24 @@ Constitutional Constraints Tested:
 - SC-3: Complexity budget dashboard required
 """
 
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
+
+import pytest
 
 from src.api.models.complexity_budget import (
     ComplexityBreachListResponse,
-    ComplexityBreachResponse,
     ComplexityDashboardResponse,
-    ComplexityMetricResponse,
     ComplexityTrendResponse,
 )
 from src.api.routes.complexity_budget import (
-    configure_complexity_services,
     get_dashboard,
     get_metrics,
-    list_breaches,
     get_trends,
-    reset_complexity_services,
+    list_breaches,
 )
+from src.domain.events.complexity_budget import ComplexityBudgetBreachedPayload
 from src.domain.models.complexity_budget import (
     ADR_LIMIT,
     CEREMONY_TYPE_LIMIT,
@@ -36,7 +34,6 @@ from src.domain.models.complexity_budget import (
     ComplexityDimension,
     ComplexitySnapshot,
 )
-from src.domain.events.complexity_budget import ComplexityBudgetBreachedPayload
 
 
 @pytest.fixture
@@ -157,9 +154,7 @@ class TestGetMetricsEndpoint:
         assert deps_metric.status == ComplexityBudgetStatus.WITHIN_BUDGET.value
 
     @pytest.mark.asyncio
-    async def test_calculates_utilization_correctly(
-        self, mock_complexity_service
-    ):
+    async def test_calculates_utilization_correctly(self, mock_complexity_service):
         """Test utilization percentages are calculated correctly."""
         snapshot = ComplexitySnapshot.create(
             adr_count=12,  # 80% of 15 = warning level

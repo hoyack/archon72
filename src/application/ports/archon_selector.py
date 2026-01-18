@@ -113,7 +113,7 @@ class ArchonSelection:
         include_executive: Whether executive inclusion was guaranteed
     """
 
-    archons: list["ArchonProfile"]
+    archons: list[ArchonProfile]
     metadata: list[ArchonSelectionMetadata]
     mode: SelectionMode
     selected_at: datetime
@@ -172,7 +172,7 @@ class ArchonSelectorProtocol(ABC):
     @abstractmethod
     def calculate_relevance(
         self,
-        profile: "ArchonProfile",
+        profile: ArchonProfile,
         topic: TopicContext,
     ) -> ArchonSelectionMetadata:
         """Calculate relevance score for an archon against a topic.
@@ -193,7 +193,7 @@ class ArchonSelectorProtocol(ABC):
         ...
 
     @abstractmethod
-    def get_executives(self) -> list["ArchonProfile"]:
+    def get_executives(self) -> list[ArchonProfile]:
         """Get all executive director (King-rank) archons.
 
         Used for executive inclusion guarantee (AC5).

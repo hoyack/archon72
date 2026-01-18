@@ -19,7 +19,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -190,7 +190,7 @@ class HaltGuard:
         """
         return await self._halt_transport.is_halted()
 
-    async def get_halt_reason(self) -> Optional[str]:
+    async def get_halt_reason(self) -> str | None:
         """Get the current halt reason.
 
         Returns:

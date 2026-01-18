@@ -15,7 +15,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-
 THRESHOLD_UPDATED_EVENT_TYPE = "threshold.updated"
 """Event type constant for threshold updates."""
 

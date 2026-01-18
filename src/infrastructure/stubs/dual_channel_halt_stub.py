@@ -39,7 +39,6 @@ Usage:
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 import structlog
@@ -78,8 +77,8 @@ class DualChannelHaltTransportStub(DualChannelHaltTransport):
         """Initialize the stub with clean state."""
         self._db_halted: bool = False
         self._redis_halted: bool = False
-        self._halt_reason: Optional[str] = None
-        self._crisis_event_id: Optional[UUID] = None
+        self._halt_reason: str | None = None
+        self._crisis_event_id: UUID | None = None
         self._trigger_count: int = 0
         self._db_failure: bool = False
         self._redis_failure: bool = False
@@ -136,7 +135,7 @@ class DualChannelHaltTransportStub(DualChannelHaltTransport):
 
         return db_halted or redis_halted
 
-    async def get_halt_reason(self) -> Optional[str]:
+    async def get_halt_reason(self) -> str | None:
         """Get the reason for current halt state.
 
         Returns DB halt reason (canonical source).
@@ -215,9 +214,7 @@ class DualChannelHaltTransportStub(DualChannelHaltTransport):
             InvalidCeremonyError: If any signature is invalid.
         """
         if ceremony_evidence is None:
-            raise HaltClearDeniedError(
-                "ADR-3: Halt flag protected - ceremony required"
-            )
+            raise HaltClearDeniedError("ADR-3: Halt flag protected - ceremony required")
 
         # Validate ceremony evidence (raises on failure)
         ceremony_evidence.validate()
@@ -248,8 +245,8 @@ class DualChannelHaltTransportStub(DualChannelHaltTransport):
     def set_db_halted(
         self,
         halted: bool,
-        reason: Optional[str] = None,
-        crisis_event_id: Optional[UUID] = None,
+        reason: str | None = None,
+        crisis_event_id: UUID | None = None,
     ) -> None:
         """Set DB halt state directly for testing.
 
@@ -296,7 +293,7 @@ class DualChannelHaltTransportStub(DualChannelHaltTransport):
         """
         return self._trigger_count
 
-    def get_crisis_event_id(self) -> Optional[UUID]:
+    def get_crisis_event_id(self) -> UUID | None:
         """Get last crisis event ID (for testing).
 
         Returns:

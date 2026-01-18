@@ -173,15 +173,13 @@ class ComplianceEvaluatorAdapter(ComplianceEvaluatorProtocol):
 
         # Extract searchable text from all evidence
         evidence_text = " ".join(
-            f"{e.description.lower()} {str(e.data).lower()}"
-            for e in evidence
+            f"{e.description.lower()} {str(e.data).lower()}" for e in evidence
         )
 
         # Extract key words from criterion
         criterion_text = f"{criterion.description} {criterion.measurement_method}"
         criterion_words = set(
-            word.lower()
-            for word in re.findall(r"\b\w{4,}\b", criterion_text)
+            word.lower() for word in re.findall(r"\b\w{4,}\b", criterion_text)
         )
 
         # Calculate match ratio
@@ -350,8 +348,7 @@ class ComplianceEvaluatorAdapter(ComplianceEvaluatorProtocol):
     ) -> list[ComplianceEvaluation]:
         """Get all evaluations for a task specification."""
         return [
-            e for e in self._evaluations.values()
-            if e.task_spec_ref == task_spec_ref
+            e for e in self._evaluations.values() if e.task_spec_ref == task_spec_ref
         ]
 
     # =========================================================================
@@ -441,7 +438,11 @@ class ComplianceEvaluatorAdapter(ComplianceEvaluatorProtocol):
             if any(word in evidence_text for word in criterion_words):
                 supporting.append(e.evidence_id)
 
-        return tuple(supporting) if supporting else tuple(e.evidence_id for e in evidence[:3])
+        return (
+            tuple(supporting)
+            if supporting
+            else tuple(e.evidence_id for e in evidence[:3])
+        )
 
     def _measure_against_threshold(
         self,
@@ -478,15 +479,18 @@ class ComplianceEvaluatorAdapter(ComplianceEvaluatorProtocol):
                     op = threshold_match.group(1)
                     target = float(threshold_match.group(2))
 
-                    if op == ">" and value > target:
-                        return MeasurementVerdict.MET
-                    elif op == ">=" and value >= target:
-                        return MeasurementVerdict.MET
-                    elif op == "<" and value < target:
-                        return MeasurementVerdict.MET
-                    elif op == "<=" and value <= target:
-                        return MeasurementVerdict.MET
-                    elif op == "=" and abs(value - target) < 0.001:
+                    if (
+                        op == ">"
+                        and value > target
+                        or op == ">="
+                        and value >= target
+                        or op == "<"
+                        and value < target
+                        or op == "<="
+                        and value <= target
+                        or op == "="
+                        and abs(value - target) < 0.001
+                    ):
                         return MeasurementVerdict.MET
                     else:
                         return MeasurementVerdict.NOT_MET
@@ -503,8 +507,12 @@ class ComplianceEvaluatorAdapter(ComplianceEvaluatorProtocol):
     ) -> str:
         """Generate a summary of the evaluation."""
         met = sum(1 for m in measurements if m.verdict == MeasurementVerdict.MET)
-        partial = sum(1 for m in measurements if m.verdict == MeasurementVerdict.PARTIALLY_MET)
-        not_met = sum(1 for m in measurements if m.verdict == MeasurementVerdict.NOT_MET)
+        partial = sum(
+            1 for m in measurements if m.verdict == MeasurementVerdict.PARTIALLY_MET
+        )
+        not_met = sum(
+            1 for m in measurements if m.verdict == MeasurementVerdict.NOT_MET
+        )
         total = len(measurements)
 
         if overall == OverallCompliance.FULL:

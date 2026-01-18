@@ -72,7 +72,9 @@ class TestCanonicalJson:
         }
         result = canonical_json(data)
         # Keys should be sorted alphabetically
-        assert result.startswith('{"array":[1,2,3],"bool_false":false,"bool_true":true,')
+        assert result.startswith(
+            '{"array":[1,2,3],"bool_false":false,"bool_true":true,'
+        )
         assert '"null_val":null' in result
         assert '"string":"hello"' in result
 

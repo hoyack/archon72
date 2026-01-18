@@ -10,7 +10,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from src.application.ports.fork_signal_rate_limiter import ForkSignalRateLimiterPort
 

@@ -24,8 +24,9 @@ Developer Golden Rules:
 """
 
 import asyncio
+from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 import structlog
@@ -49,7 +50,7 @@ from src.infrastructure.adapters.persistence.halt_flag_repository import (
 )
 
 if TYPE_CHECKING:
-    from typing import Awaitable
+    from collections.abc import Awaitable
 
 # Type alias for ceremony event writer callback
 # This callback writes the HaltClearedEvent to the event store
@@ -85,7 +86,7 @@ class DualChannelHaltTransportImpl(DualChannelHaltTransport):
         halt_flag_repo: HaltFlagRepository,
         halt_publisher: HaltStreamPublisher,
         halt_consumer: HaltStreamConsumer,
-        ceremony_event_writer: Optional[CeremonyEventWriter] = None,
+        ceremony_event_writer: CeremonyEventWriter | None = None,
     ) -> None:
         """Initialize dual-channel halt transport.
 
@@ -215,7 +216,7 @@ class DualChannelHaltTransportImpl(DualChannelHaltTransport):
 
         return halted
 
-    async def get_halt_reason(self) -> Optional[str]:
+    async def get_halt_reason(self) -> str | None:
         """Get the reason for current halt state.
 
         Returns DB halt reason (canonical source).
@@ -317,9 +318,7 @@ class DualChannelHaltTransportImpl(DualChannelHaltTransport):
             InvalidCeremonyError: If any signature is invalid.
         """
         if ceremony_evidence is None:
-            raise HaltClearDeniedError(
-                "ADR-3: Halt flag protected - ceremony required"
-            )
+            raise HaltClearDeniedError("ADR-3: Halt flag protected - ceremony required")
 
         # Validate ceremony evidence (raises on failure)
         ceremony_evidence.validate()

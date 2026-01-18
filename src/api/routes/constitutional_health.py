@@ -22,10 +22,6 @@ from src.api.models.constitutional_health import (
     ConstitutionalMetricResponse,
 )
 from src.domain.errors import SystemHaltedError
-from src.domain.models.constitutional_health import (
-    ConstitutionalHealthStatus,
-    MetricName,
-)
 
 router = APIRouter(tags=["constitutional-health"])
 
@@ -44,6 +40,7 @@ def get_constitutional_health_service():
         from src.application.services.constitutional_health_service import (
             get_constitutional_health_service as get_service,
         )
+
         _service = get_service()
     return _service
 

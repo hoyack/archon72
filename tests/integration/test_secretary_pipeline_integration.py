@@ -20,7 +20,6 @@ from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     SecretaryCrewAIAdapter,
 )
 
-
 # Module path for patching CrewAI classes
 CREWAI_MODULE = "src.infrastructure.adapters.external.secretary_crewai_adapter"
 
@@ -66,84 +65,90 @@ def mock_extraction_responses() -> list[str]:
     """Mock CrewAI extraction responses for each speech."""
     return [
         # Paimon's recommendations
-        json.dumps([
-            {
-                "category": "establish",
-                "type": "policy",
-                "text": "Establish an AI Ethics Council to oversee alignment efforts",
-                "keywords": ["ethics", "council", "ai", "alignment"],
-                "stance": "FOR",
-                "source_archon": "Paimon",
-                "source_line_start": 10,
-                "source_line_end": 12,
-            },
-            {
-                "category": "implement",
-                "type": "task",
-                "text": "Implement quarterly reviews of governance decisions",
-                "keywords": ["review", "quarterly", "governance"],
-                "stance": None,
-                "source_archon": "Paimon",
-                "source_line_start": 13,
-                "source_line_end": 15,
-            },
-        ]),
+        json.dumps(
+            [
+                {
+                    "category": "establish",
+                    "type": "policy",
+                    "text": "Establish an AI Ethics Council to oversee alignment efforts",
+                    "keywords": ["ethics", "council", "ai", "alignment"],
+                    "stance": "FOR",
+                    "source_archon": "Paimon",
+                    "source_line_start": 10,
+                    "source_line_end": 12,
+                },
+                {
+                    "category": "implement",
+                    "type": "task",
+                    "text": "Implement quarterly reviews of governance decisions",
+                    "keywords": ["review", "quarterly", "governance"],
+                    "stance": None,
+                    "source_archon": "Paimon",
+                    "source_line_start": 13,
+                    "source_line_end": 15,
+                },
+            ]
+        ),
         # Belial's recommendations
-        json.dumps([
-            {
-                "category": "establish",
-                "type": "policy",
-                "text": "Support establishment of ethics council",
-                "keywords": ["ethics", "council", "support"],
-                "stance": "FOR",
-                "source_archon": "Belial",
-                "source_line_start": 20,
-                "source_line_end": 22,
-            },
-            {
-                "category": "mandate",
-                "type": "policy",
-                "text": "Mandate transparency reports for external communications",
-                "keywords": ["transparency", "reports", "communications"],
-                "stance": None,
-                "source_archon": "Belial",
-                "source_line_start": 23,
-                "source_line_end": 25,
-            },
-            {
-                "category": "pilot",
-                "type": "task",
-                "text": "Pilot a feedback mechanism for citizen concerns",
-                "keywords": ["pilot", "feedback", "citizen"],
-                "stance": None,
-                "source_archon": "Belial",
-                "source_line_start": 26,
-                "source_line_end": 28,
-            },
-        ]),
+        json.dumps(
+            [
+                {
+                    "category": "establish",
+                    "type": "policy",
+                    "text": "Support establishment of ethics council",
+                    "keywords": ["ethics", "council", "support"],
+                    "stance": "FOR",
+                    "source_archon": "Belial",
+                    "source_line_start": 20,
+                    "source_line_end": 22,
+                },
+                {
+                    "category": "mandate",
+                    "type": "policy",
+                    "text": "Mandate transparency reports for external communications",
+                    "keywords": ["transparency", "reports", "communications"],
+                    "stance": None,
+                    "source_archon": "Belial",
+                    "source_line_start": 23,
+                    "source_line_end": 25,
+                },
+                {
+                    "category": "pilot",
+                    "type": "task",
+                    "text": "Pilot a feedback mechanism for citizen concerns",
+                    "keywords": ["pilot", "feedback", "citizen"],
+                    "stance": None,
+                    "source_archon": "Belial",
+                    "source_line_start": 26,
+                    "source_line_end": 28,
+                },
+            ]
+        ),
         # Asmoday's recommendations
-        json.dumps([
-            {
-                "category": "investigate",
-                "type": "task",
-                "text": "Investigate current gaps in constitutional compliance",
-                "keywords": ["investigate", "gaps", "compliance", "constitutional"],
-                "stance": None,
-                "source_archon": "Asmoday",
-                "source_line_start": 35,
-                "source_line_end": 38,
-            },
-            {
-                "category": "review",
-                "type": "task",
-                "text": "Systematic review of all operational procedures",
-                "keywords": ["review", "systematic", "procedures", "operational"],
-                "stance": None,
-                "source_archon": "Asmoday",
-                "source_line_start": 39,
-                "source_line_end": 42,
-            },
-        ]),
+        json.dumps(
+            [
+                {
+                    "category": "investigate",
+                    "type": "task",
+                    "text": "Investigate current gaps in constitutional compliance",
+                    "keywords": ["investigate", "gaps", "compliance", "constitutional"],
+                    "stance": None,
+                    "source_archon": "Asmoday",
+                    "source_line_start": 35,
+                    "source_line_end": 38,
+                },
+                {
+                    "category": "review",
+                    "type": "task",
+                    "text": "Systematic review of all operational procedures",
+                    "keywords": ["review", "systematic", "procedures", "operational"],
+                    "stance": None,
+                    "source_archon": "Asmoday",
+                    "source_line_start": 39,
+                    "source_line_end": 42,
+                },
+            ]
+        ),
     ]
 
 
@@ -172,7 +177,7 @@ class TestSecretaryPipelineIntegration:
             # Validation
             '{"validated_count": 7, "confidence": 0.92, "missed_count": 0}',
             # Clustering - returns empty (clustering with mock IDs is complex)
-            '[]',
+            "[]",
             # Conflict detection
             '{"conflicts": [], "conflict_count": 0}',
         ]
@@ -225,20 +230,24 @@ class TestSecretaryPipelineIntegration:
         mock_crew = MagicMock()
         mock_crew.kickoff.side_effect = [
             # Extraction
-            json.dumps([{
-                "category": "establish",
-                "type": "policy",
-                "text": "Test recommendation",
-                "keywords": ["test"],
-                "stance": "FOR",
-                "source_archon": "TestArchon",
-                "source_line_start": 1,
-                "source_line_end": 5,
-            }]),
+            json.dumps(
+                [
+                    {
+                        "category": "establish",
+                        "type": "policy",
+                        "text": "Test recommendation",
+                        "keywords": ["test"],
+                        "stance": "FOR",
+                        "source_archon": "TestArchon",
+                        "source_line_start": 1,
+                        "source_line_end": 5,
+                    }
+                ]
+            ),
             # Validation
             '{"validated_count": 1, "confidence": 0.95, "missed_count": 0}',
             # Clustering
-            '[]',
+            "[]",
             # Conflicts
             '{"conflicts": [], "conflict_count": 0}',
         ]
@@ -301,30 +310,38 @@ class TestSecretaryServiceIntegration:
         mock_crew = MagicMock()
         mock_crew.kickoff.side_effect = [
             # Extraction for 2 speeches
-            json.dumps([{
-                "category": "establish",
-                "type": "policy",
-                "text": "Establish ethics council",
-                "keywords": ["ethics"],
-                "stance": "FOR",
-                "source_archon": "Paimon",
-                "source_line_start": 1,
-                "source_line_end": 5,
-            }]),
-            json.dumps([{
-                "category": "mandate",
-                "type": "policy",
-                "text": "Mandate transparency",
-                "keywords": ["transparency"],
-                "stance": None,
-                "source_archon": "Belial",
-                "source_line_start": 10,
-                "source_line_end": 15,
-            }]),
+            json.dumps(
+                [
+                    {
+                        "category": "establish",
+                        "type": "policy",
+                        "text": "Establish ethics council",
+                        "keywords": ["ethics"],
+                        "stance": "FOR",
+                        "source_archon": "Paimon",
+                        "source_line_start": 1,
+                        "source_line_end": 5,
+                    }
+                ]
+            ),
+            json.dumps(
+                [
+                    {
+                        "category": "mandate",
+                        "type": "policy",
+                        "text": "Mandate transparency",
+                        "keywords": ["transparency"],
+                        "stance": None,
+                        "source_archon": "Belial",
+                        "source_line_start": 10,
+                        "source_line_end": 15,
+                    }
+                ]
+            ),
             # Validation
             '{"validated_count": 2, "confidence": 0.9, "missed_count": 0}',
             # Clustering
-            '[]',
+            "[]",
             # Conflicts
             '{"conflicts": [], "conflict_count": 0}',
         ]
@@ -384,18 +401,22 @@ class TestSecretaryAdapterCheckpointing:
         """Test that checkpoints are saved after each pipeline step."""
         mock_crew = MagicMock()
         mock_crew.kickoff.side_effect = [
-            json.dumps([{
-                "category": "establish",
-                "type": "policy",
-                "text": "Test",
-                "keywords": ["test"],
-                "stance": None,
-                "source_archon": "Test",
-                "source_line_start": 1,
-                "source_line_end": 1,
-            }]),
+            json.dumps(
+                [
+                    {
+                        "category": "establish",
+                        "type": "policy",
+                        "text": "Test",
+                        "keywords": ["test"],
+                        "stance": None,
+                        "source_archon": "Test",
+                        "source_line_start": 1,
+                        "source_line_end": 1,
+                    }
+                ]
+            ),
             '{"validated_count": 1, "confidence": 0.9, "missed_count": 0}',
-            '[]',
+            "[]",
             '{"conflicts": [], "conflict_count": 0}',
         ]
         mock_crew_class.return_value = mock_crew
@@ -454,7 +475,7 @@ class TestSecretaryAdapterErrorHandling:
         mock_crew.kickoff.side_effect = [
             '[{"category": "establish", "type": "policy", "text": "Test", "keywords": ["test"], "stance": null, "source_archon": "Test", "source_line_start": 1, "source_line_end": 1}]',  # noqa: E501
             '{"validated_count": 1, "confidence": 0.8}',  # Missing missed_count
-            '[]',
+            "[]",
             '{"conflict_count": 0}',  # Missing conflicts array
         ]
         mock_crew_class.return_value = mock_crew
@@ -496,7 +517,7 @@ class TestSecretaryAdapterErrorHandling:
         mock_crew = MagicMock()
         mock_crew.kickoff.side_effect = [
             '{"validated_count": 0, "confidence": 0.0, "missed_count": 0}',
-            '[]',
+            "[]",
             '{"conflicts": [], "conflict_count": 0}',
         ]
         mock_crew_class.return_value = mock_crew

@@ -7,7 +7,6 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
 
 import pytest
 
@@ -150,9 +149,7 @@ class TestForkSignalRateLimiterStubGetSignalCount:
         assert count == 0
 
     @pytest.mark.asyncio
-    async def test_returns_correct_count(
-        self, stub: ForkSignalRateLimiterStub
-    ) -> None:
+    async def test_returns_correct_count(self, stub: ForkSignalRateLimiterStub) -> None:
         """Should return correct count."""
         await stub.record_signal("source-001")
         await stub.record_signal("source-001")
@@ -161,9 +158,7 @@ class TestForkSignalRateLimiterStubGetSignalCount:
         assert count == 2
 
     @pytest.mark.asyncio
-    async def test_respects_window_hours(
-        self, stub: ForkSignalRateLimiterStub
-    ) -> None:
+    async def test_respects_window_hours(self, stub: ForkSignalRateLimiterStub) -> None:
         """Should only count signals within window."""
         # This test uses mock time to simulate window expiry
         now = datetime.now(timezone.utc)

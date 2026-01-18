@@ -320,9 +320,7 @@ class CessationExecutionService:
                     "System may be in inconsistent state."
                 ),
             )
-            raise CessationExecutionError(
-                f"Cessation execution failed: {e}"
-            ) from e
+            raise CessationExecutionError(f"Cessation execution failed: {e}") from e
 
     async def execute_cessation_with_deliberation(
         self,
@@ -387,11 +385,13 @@ class CessationExecutionService:
         )
 
         try:
-            deliberation_result = await self._final_deliberation_service.record_and_proceed(
-                deliberation_id=deliberation_id,
-                started_at=deliberation_started_at,
-                ended_at=deliberation_ended_at,
-                archon_deliberations=archon_deliberations,
+            deliberation_result = (
+                await self._final_deliberation_service.record_and_proceed(
+                    deliberation_id=deliberation_id,
+                    started_at=deliberation_started_at,
+                    ended_at=deliberation_ended_at,
+                    archon_deliberations=archon_deliberations,
+                )
             )
 
             log.info(

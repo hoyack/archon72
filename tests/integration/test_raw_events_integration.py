@@ -9,7 +9,6 @@ Constitutional Constraints:
 - FR64: Verification bundles for offline verification
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -209,7 +208,10 @@ class TestFR63ImmutableSpecification:
 
         # Genesis is documented
         assert spec.genesis_hash == "0" * 64
-        assert "sequence" in spec.genesis_description.lower() or "first" in spec.genesis_description.lower()
+        assert (
+            "sequence" in spec.genesis_description.lower()
+            or "first" in spec.genesis_description.lower()
+        )
 
         # Field documentation is present
         assert len(spec.hash_includes) > 0

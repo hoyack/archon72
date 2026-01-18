@@ -8,20 +8,21 @@ Tests:
 - Halt and TTL expiry event generation
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
+import pytest
+
 from src.domain.governance.events.event_envelope import GovernanceEvent
-from src.domain.governance.task.task_state import TaskStatus, TaskState
 from src.domain.governance.task.task_events import (
     TASK_EVENT_TYPES,
-    get_event_type_for_status,
-    create_transition_event,
-    create_task_created_event,
     create_halt_transition_event,
+    create_task_created_event,
+    create_transition_event,
     create_ttl_expiry_event,
+    get_event_type_for_status,
 )
+from src.domain.governance.task.task_state import TaskState, TaskStatus
 
 
 class TestTaskEventTypes:
@@ -65,7 +66,9 @@ class TestGetEventTypeForStatus:
 
     def test_returns_correct_event_type(self):
         """Returns correct event type for status."""
-        assert get_event_type_for_status(TaskStatus.ACCEPTED) == "executive.task.accepted"
+        assert (
+            get_event_type_for_status(TaskStatus.ACCEPTED) == "executive.task.accepted"
+        )
 
     def test_raises_for_invalid_status(self):
         """Raises KeyError for non-TaskStatus values."""

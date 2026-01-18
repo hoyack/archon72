@@ -38,10 +38,9 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import datetime
+from typing import Any
 from uuid import UUID
-
 
 # Event type constant for trigger condition changes
 TRIGGER_CONDITION_CHANGED_EVENT_TYPE: str = "cessation.trigger_condition_changed"
@@ -98,8 +97,8 @@ class TriggerConditionChangedEventPayload:
     change_timestamp: datetime
 
     # Optional fields for additional context
-    fr_reference: Optional[str] = field(default=None)
-    constitutional_floor: Optional[int | float] = field(default=None)
+    fr_reference: str | None = field(default=None)
+    constitutional_floor: int | float | None = field(default=None)
 
     def __post_init__(self) -> None:
         """Validate the change event on creation.
@@ -188,7 +187,9 @@ class TriggerConditionChangedEventPayload:
             )
 
         return cls(
-            change_id=UUID(data["change_id"]) if isinstance(data["change_id"], str) else data["change_id"],
+            change_id=UUID(data["change_id"])
+            if isinstance(data["change_id"], str)
+            else data["change_id"],
             trigger_type=data["trigger_type"],
             old_value=data["old_value"],
             new_value=data["new_value"],

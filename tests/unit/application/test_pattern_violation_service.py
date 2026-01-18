@@ -13,7 +13,6 @@ from src.application.services.pattern_violation_service import (
 from src.domain.errors.failure_prevention import FailureModeViolationError
 from src.domain.models.pattern_violation import (
     PatternViolationType,
-    ViolationSeverity,
 )
 
 
@@ -25,6 +24,7 @@ def service() -> PatternViolationService:
 
 class TestEventType(Enum):
     """Test event type enum."""
+
     TEST_EVENT = "test_event"
     ANOTHER_EVENT = "another_event"
 
@@ -38,9 +38,7 @@ class TestValidateEventType:
 
         assert is_valid is True
 
-    def test_invalid_string_event_type(
-        self, service: PatternViolationService
-    ) -> None:
+    def test_invalid_string_event_type(self, service: PatternViolationService) -> None:
         """Test that raw string event types are invalid (PV-001)."""
         is_valid = service.validate_event_type("raw_string_event")
 
@@ -54,7 +52,9 @@ class TestValidateEventType:
         violations = service.detect_violations()
 
         assert len(violations) == 1
-        assert violations[0].violation_type == PatternViolationType.RAW_STRING_EVENT_TYPE
+        assert (
+            violations[0].violation_type == PatternViolationType.RAW_STRING_EVENT_TYPE
+        )
 
     def test_includes_location_in_violation(
         self, service: PatternViolationService
@@ -72,17 +72,13 @@ class TestValidateEventType:
 class TestValidateContentRef:
     """Tests for validate_content_ref method (PV-002)."""
 
-    def test_valid_content_ref_prefix(
-        self, service: PatternViolationService
-    ) -> None:
+    def test_valid_content_ref_prefix(self, service: PatternViolationService) -> None:
         """Test that properly prefixed content refs are valid."""
         is_valid = service.validate_content_ref("cref-abc123def456")
 
         assert is_valid is True
 
-    def test_invalid_plain_string_hash(
-        self, service: PatternViolationService
-    ) -> None:
+    def test_invalid_plain_string_hash(self, service: PatternViolationService) -> None:
         """Test that plain string hashes are invalid (PV-002)."""
         is_valid = service.validate_content_ref("abc123def456")
 
@@ -101,12 +97,14 @@ class TestValidateContentRef:
 
 class ServiceWithHaltChecker:
     """Test service with halt checker attribute."""
+
     def __init__(self) -> None:
         self._halt_checker = object()
 
 
 class ServiceWithoutHaltChecker:
     """Test service without halt checker attribute."""
+
     pass
 
 
@@ -169,9 +167,7 @@ class TestDetectViolations:
 class TestGetUnresolvedViolations:
     """Tests for get_unresolved_violations method."""
 
-    def test_returns_only_unresolved(
-        self, service: PatternViolationService
-    ) -> None:
+    def test_returns_only_unresolved(self, service: PatternViolationService) -> None:
         """Test that only unresolved violations are returned."""
         service.validate_event_type("raw_string")
         violations = service.detect_violations()
@@ -315,8 +311,13 @@ class TestGetViolationStats:
 
         stats = service.get_violation_stats()
 
-        assert stats["by_type"].get(PatternViolationType.RAW_STRING_EVENT_TYPE.value, 0) == 2
-        assert stats["by_type"].get(PatternViolationType.PLAIN_STRING_HASH.value, 0) == 1
+        assert (
+            stats["by_type"].get(PatternViolationType.RAW_STRING_EVENT_TYPE.value, 0)
+            == 2
+        )
+        assert (
+            stats["by_type"].get(PatternViolationType.PLAIN_STRING_HASH.value, 0) == 1
+        )
 
 
 class TestGetViolationSummary:

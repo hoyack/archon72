@@ -16,7 +16,6 @@ Tests:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
 from uuid import UUID, uuid4
 
 import pytest

@@ -116,4 +116,7 @@ class TestEventTypeConstant:
 
     def test_event_type_constant_value(self) -> None:
         """Test event type constant has correct value."""
-        assert GOVERNANCE_REVIEW_REQUIRED_EVENT_TYPE == "override.governance_review_required"
+        assert (
+            GOVERNANCE_REVIEW_REQUIRED_EVENT_TYPE
+            == "override.governance_review_required"
+        )

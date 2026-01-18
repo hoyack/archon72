@@ -21,12 +21,11 @@ class TestFR46DateRangeFiltering:
     """Integration tests for date range and event type filtering (FR46)."""
 
     @pytest.fixture
-    async def events_table_with_data(
-        self, db_session: AsyncSession
-    ) -> AsyncSession:
+    async def events_table_with_data(self, db_session: AsyncSession) -> AsyncSession:
         """Create events table with test data spanning multiple dates and types."""
         # Create events table
-        await db_session.execute(text("""
+        await db_session.execute(
+            text("""
             CREATE TABLE IF NOT EXISTS events (
                 event_id UUID PRIMARY KEY,
                 sequence BIGSERIAL UNIQUE NOT NULL,
@@ -43,16 +42,21 @@ class TestFR46DateRangeFiltering:
                 local_timestamp TIMESTAMPTZ NOT NULL,
                 authority_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
-        """))
+        """)
+        )
 
         # Create indexes for filtering
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_authority_timestamp "
-            "ON events (authority_timestamp)"
-        ))
-        await db_session.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type)"
-        ))
+        await db_session.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_events_authority_timestamp "
+                "ON events (authority_timestamp)"
+            )
+        )
+        await db_session.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events (event_type)"
+            )
+        )
 
         # Insert test events with varying dates and types
         base_time = datetime(2026, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
@@ -74,7 +78,8 @@ class TestFR46DateRangeFiltering:
 
         for seq, event_type, ts, note in test_events:
             event_id = uuid4()
-            await db_session.execute(text("""
+            await db_session.execute(
+                text("""
                 INSERT INTO events (
                     event_id, sequence, event_type, payload, prev_hash, content_hash,
                     signature, agent_id, witness_id, witness_signature,
@@ -84,20 +89,22 @@ class TestFR46DateRangeFiltering:
                     :content_hash, :signature, :agent_id, :witness_id, :witness_signature,
                     :local_timestamp, :authority_timestamp
                 )
-            """), {
-                "event_id": str(event_id),
-                "sequence": seq,
-                "event_type": event_type,
-                "payload": f'{{"note": "{note}"}}',
-                "prev_hash": "0" * 64,
-                "content_hash": "a" * 64,
-                "signature": "sig123",
-                "agent_id": "agent-001",
-                "witness_id": "witness-001",
-                "witness_signature": "wsig123",
-                "local_timestamp": ts,
-                "authority_timestamp": ts,
-            })
+            """),
+                {
+                    "event_id": str(event_id),
+                    "sequence": seq,
+                    "event_type": event_type,
+                    "payload": f'{{"note": "{note}"}}',
+                    "prev_hash": "0" * 64,
+                    "content_hash": "a" * 64,
+                    "signature": "sig123",
+                    "agent_id": "agent-001",
+                    "witness_id": "witness-001",
+                    "witness_signature": "wsig123",
+                    "local_timestamp": ts,
+                    "authority_timestamp": ts,
+                },
+            )
 
         await db_session.flush()
         return db_session
@@ -116,12 +123,15 @@ class TestFR46DateRangeFiltering:
         start = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc)
         end = datetime(2026, 1, 15, 23, 59, 59, tzinfo=timezone.utc)
 
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence, event_type, authority_timestamp
             FROM events
             WHERE authority_timestamp >= :start AND authority_timestamp <= :end
             ORDER BY sequence
-        """), {"start": start, "end": end})
+        """),
+            {"start": start, "end": end},
+        )
 
         rows = result.fetchall()
 
@@ -138,12 +148,15 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Query for votes only
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence, event_type
             FROM events
             WHERE event_type = :event_type
             ORDER BY sequence
-        """), {"event_type": "vote"})
+        """),
+            {"event_type": "vote"},
+        )
 
         rows = result.fetchall()
 
@@ -160,12 +173,14 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Query for votes and halts
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence, event_type
             FROM events
             WHERE event_type IN ('vote', 'halt')
             ORDER BY sequence
-        """))
+        """)
+        )
 
         rows = result.fetchall()
 
@@ -185,18 +200,21 @@ class TestFR46DateRangeFiltering:
         start = datetime(2026, 1, 15, 0, 0, 0, tzinfo=timezone.utc)
         end = datetime(2026, 1, 15, 23, 59, 59, tzinfo=timezone.utc)
 
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence, event_type, authority_timestamp
             FROM events
             WHERE authority_timestamp >= :start
               AND authority_timestamp <= :end
               AND event_type = :event_type
             ORDER BY sequence
-        """), {
-            "start": start,
-            "end": end,
-            "event_type": "vote",
-        })
+        """),
+            {
+                "start": start,
+                "end": end,
+                "event_type": "vote",
+            },
+        )
 
         rows = result.fetchall()
 
@@ -216,12 +234,15 @@ class TestFR46DateRangeFiltering:
         # Query from Jan 16 onwards
         start = datetime(2026, 1, 16, 0, 0, 0, tzinfo=timezone.utc)
 
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence
             FROM events
             WHERE authority_timestamp >= :start
             ORDER BY sequence
-        """), {"start": start})
+        """),
+            {"start": start},
+        )
 
         rows = result.fetchall()
 
@@ -240,12 +261,15 @@ class TestFR46DateRangeFiltering:
         # Query until Jan 15 end of day
         end = datetime(2026, 1, 15, 23, 59, 59, tzinfo=timezone.utc)
 
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence
             FROM events
             WHERE authority_timestamp <= :end
             ORDER BY sequence
-        """), {"end": end})
+        """),
+            {"end": end},
+        )
 
         rows = result.fetchall()
 
@@ -262,13 +286,15 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Get votes with limit and offset
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence, event_type
             FROM events
             WHERE event_type = 'vote'
             ORDER BY sequence
             LIMIT 3 OFFSET 2
-        """))
+        """)
+        )
 
         rows = result.fetchall()
 
@@ -286,11 +312,14 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Query for non-existent type
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence
             FROM events
             WHERE event_type = :event_type
-        """), {"event_type": "nonexistent.type"})
+        """),
+            {"event_type": "nonexistent.type"},
+        )
 
         rows = result.fetchall()
         assert len(rows) == 0
@@ -303,11 +332,13 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Check index exists
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT indexname FROM pg_indexes
             WHERE tablename = 'events'
             AND indexname = 'idx_events_authority_timestamp'
-        """))
+        """)
+        )
 
         rows = result.fetchall()
         assert len(rows) == 1
@@ -320,11 +351,13 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Check index exists
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT indexname FROM pg_indexes
             WHERE tablename = 'events'
             AND indexname = 'idx_events_event_type'
-        """))
+        """)
+        )
 
         rows = result.fetchall()
         assert len(rows) == 1
@@ -337,12 +370,14 @@ class TestFR46DateRangeFiltering:
         db = events_table_with_data
 
         # Get all events with filter
-        result = await db.execute(text("""
+        result = await db.execute(
+            text("""
             SELECT sequence
             FROM events
             WHERE event_type IN ('vote', 'halt', 'breach')
             ORDER BY sequence
-        """))
+        """)
+        )
 
         rows = result.fetchall()
         sequences = [row[0] for row in rows]

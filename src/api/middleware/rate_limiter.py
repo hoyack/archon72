@@ -80,9 +80,7 @@ class ObserverRateLimiter:
 
         window_start = now - timedelta(seconds=self.WINDOW_SECONDS)
         self._request_timestamps[client_key] = [
-            ts
-            for ts in self._request_timestamps[client_key]
-            if ts > window_start
+            ts for ts in self._request_timestamps[client_key] if ts > window_start
         ]
 
     async def check_rate_limit(self, request: Request) -> None:
@@ -145,8 +143,11 @@ class ObserverRateLimiter:
         remaining = max(0, self.REQUESTS_PER_MINUTE - request_count)
 
         # Calculate reset time
-        window_start = now - timedelta(seconds=self.WINDOW_SECONDS)
-        if client_key in self._request_timestamps and self._request_timestamps[client_key]:
+        now - timedelta(seconds=self.WINDOW_SECONDS)
+        if (
+            client_key in self._request_timestamps
+            and self._request_timestamps[client_key]
+        ):
             oldest_in_window = min(self._request_timestamps[client_key])
             reset_at = oldest_in_window + timedelta(seconds=self.WINDOW_SECONDS)
         else:

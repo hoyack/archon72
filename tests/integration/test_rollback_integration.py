@@ -20,12 +20,8 @@ from src.application.services.rollback_coordinator_service import (
     RollbackCoordinatorService,
 )
 from src.domain.errors.rollback import (
-    CheckpointNotFoundError,
-    InvalidRollbackTargetError,
     RollbackNotPermittedError,
 )
-from src.domain.events.rollback_completed import ROLLBACK_COMPLETED_EVENT_TYPE
-from src.domain.events.rollback_target_selected import ROLLBACK_TARGET_SELECTED_EVENT_TYPE
 from src.domain.models.ceremony_evidence import (
     ApproverSignature,
     CeremonyEvidence,
@@ -350,7 +346,7 @@ class TestFullRollbackFlow:
 
         # Step 3: Select target (AC2)
         target = checkpoints[1]  # Sequence 500
-        select_payload = await service.select_rollback_target(
+        await service.select_rollback_target(
             checkpoint_id=target.checkpoint_id,
             selecting_keepers=("keeper-001", "keeper-002"),
             reason="Fork detected - reverting to checkpoint",

@@ -217,7 +217,9 @@ class TestRestorationResult:
 
     def test_failed_factory(self) -> None:
         """RestorationResult.failed() creates failure result."""
-        result = RestorationResult.failed("FAILED is terminal - reconstitution required")
+        result = RestorationResult.failed(
+            "FAILED is terminal - reconstitution required"
+        )
 
         assert result.success is False
         assert result.new_state is None

@@ -73,13 +73,17 @@ def active_witness() -> Witness:
 
 
 @pytest.fixture
-def signing_service(mock_hsm: AsyncMock, mock_key_registry: AsyncMock) -> SigningService:
+def signing_service(
+    mock_hsm: AsyncMock, mock_key_registry: AsyncMock
+) -> SigningService:
     """Create a signing service with mocks."""
     return SigningService(hsm=mock_hsm, key_registry=mock_key_registry)
 
 
 @pytest.fixture
-def witness_service(mock_hsm: AsyncMock, witness_pool: InMemoryWitnessPool) -> WitnessService:
+def witness_service(
+    mock_hsm: AsyncMock, witness_pool: InMemoryWitnessPool
+) -> WitnessService:
     """Create a witness service with mock HSM and in-memory pool."""
     return WitnessService(hsm=mock_hsm, witness_pool=witness_pool)
 
@@ -234,7 +238,9 @@ class TestRollbackOnFailure:
         # Create event store that fails
         failing_store = AsyncMock()
         failing_store.get_latest_event = AsyncMock(return_value=None)
-        failing_store.append_event = AsyncMock(side_effect=Exception("DB connection lost"))
+        failing_store.append_event = AsyncMock(
+            side_effect=Exception("DB connection lost")
+        )
 
         writer = AtomicEventWriter(
             signing_service=signing_service,
@@ -369,7 +375,7 @@ class TestEndToEndFlow:
         )
 
         # Execute
-        event = await writer.write_event(
+        await writer.write_event(
             event_type="conclave.vote.cast",
             payload={"archon_id": "archon-001", "vote": "yes"},
             agent_id="SYSTEM:CONCLAVE",

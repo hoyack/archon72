@@ -8,10 +8,9 @@ ADR-3: Redis Streams for speed + DB halt flag for safety.
 - Uses XADD to publish halt signals
 """
 
-from datetime import datetime, timezone
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from datetime import datetime
+from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 

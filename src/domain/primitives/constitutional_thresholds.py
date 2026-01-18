@@ -26,7 +26,6 @@ from src.domain.models.constitutional_threshold import (
     ConstitutionalThresholdRegistry,
 )
 
-
 # =============================================================================
 # FR32: Cessation Thresholds
 # =============================================================================

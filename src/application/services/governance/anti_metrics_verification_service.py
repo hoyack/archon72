@@ -350,9 +350,7 @@ class AntiMetricsVerificationService:
         )
 
         for check in report.checks:
-            status_mark = (
-                "PASS" if check.status == VerificationStatus.PASS else "FAIL"
-            )
+            status_mark = "PASS" if check.status == VerificationStatus.PASS else "FAIL"
             lines.append(f"[{status_mark}] {check.check_type.value}")
             lines.append(f"      Items checked: {check.items_checked}")
             if check.violations_found:

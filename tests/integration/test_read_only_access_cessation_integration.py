@@ -73,7 +73,9 @@ def app(freeze_checker: FreezeCheckerStub) -> FastAPI:
     async def register_webhook() -> dict:
         return {"subscription_id": "test"}
 
-    @app.delete("/v1/observer/webhooks/{id}", dependencies=[Depends(require_not_ceased)])
+    @app.delete(
+        "/v1/observer/webhooks/{id}", dependencies=[Depends(require_not_ceased)]
+    )
     async def delete_webhook(id: str) -> dict:
         return {"deleted": True}
 

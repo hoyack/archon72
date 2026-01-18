@@ -5,9 +5,6 @@ Tests for querying and analyzing audit events from the constitutional record.
 
 from __future__ import annotations
 
-from datetime import datetime
-from unittest.mock import AsyncMock
-
 import pytest
 
 from src.application.services.audit_event_query_service import (
@@ -137,16 +134,18 @@ class TestGetAuditEvents:
         self, event_query_stub: EventQueryStub, not_halted_checker: HaltCheckerStub
     ) -> None:
         """Test returns audit events from store."""
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "clean",
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -164,16 +163,18 @@ class TestGetAuditEvents:
     ) -> None:
         """Test limit parameter restricts results."""
         for i in range(5):
-            event_query_stub.add_event({
-                "event_id": f"evt-{i}",
-                "event_type": "audit.completed",
-                "timestamp": f"2026-01-0{i+1}T00:00:00Z",
-                "payload": {
-                    "audit_id": f"audit-{i}",
-                    "quarter": "2026-Q1",
-                    "status": "clean",
-                },
-            })
+            event_query_stub.add_event(
+                {
+                    "event_id": f"evt-{i}",
+                    "event_type": "audit.completed",
+                    "timestamp": f"2026-01-0{i + 1}T00:00:00Z",
+                    "payload": {
+                        "audit_id": f"audit-{i}",
+                        "quarter": "2026-Q1",
+                        "status": "clean",
+                    },
+                }
+            )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -188,18 +189,20 @@ class TestGetAuditEvents:
         self, event_query_stub: EventQueryStub, not_halted_checker: HaltCheckerStub
     ) -> None:
         """Test events are transformed to AuditEvent domain models."""
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T10:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "violations_found",
-                "violations_found": 3,
-                "materials_scanned": 10,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T10:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "violations_found",
+                    "violations_found": 3,
+                    "materials_scanned": 10,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -219,18 +222,22 @@ class TestGetAuditEvents:
         self, event_query_stub: EventQueryStub, not_halted_checker: HaltCheckerStub
     ) -> None:
         """Test events are ordered chronologically."""
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-02T00:00:00Z",
-            "payload": {"audit_id": "audit-2", "quarter": "2026-Q1"},
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.started",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-02T00:00:00Z",
+                "payload": {"audit_id": "audit-2", "quarter": "2026-Q1"},
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.started",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -249,24 +256,34 @@ class TestGetAuditEventsByType:
     def event_query_stub(self) -> EventQueryStub:
         """Create event query stub with mixed events."""
         stub = EventQueryStub()
-        stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.started",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
-        })
-        stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T01:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q1", "status": "clean"},
-        })
-        stub.add_event({
-            "event_id": "evt-3",
-            "event_type": "audit.violation.flagged",
-            "timestamp": "2026-01-02T00:00:00Z",
-            "payload": {"audit_id": "audit-2", "quarter": "2026-Q1"},
-        })
+        stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.started",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
+            }
+        )
+        stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T01:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                },
+            }
+        )
+        stub.add_event(
+            {
+                "event_id": "evt-3",
+                "event_type": "audit.violation.flagged",
+                "timestamp": "2026-01-02T00:00:00Z",
+                "payload": {"audit_id": "audit-2", "quarter": "2026-Q1"},
+            }
+        )
         return stub
 
     @pytest.fixture
@@ -286,9 +303,7 @@ class TestGetAuditEventsByType:
             halt_checker=not_halted_checker,
         )
 
-        result = await service.get_audit_events_by_type(
-            AuditEventType.STARTED.value
-        )
+        result = await service.get_audit_events_by_type(AuditEventType.STARTED.value)
         assert len(result) == 1
         assert result[0].is_started is True
 
@@ -302,9 +317,7 @@ class TestGetAuditEventsByType:
             halt_checker=not_halted_checker,
         )
 
-        result = await service.get_audit_events_by_type(
-            AuditEventType.COMPLETED.value
-        )
+        result = await service.get_audit_events_by_type(AuditEventType.COMPLETED.value)
         assert len(result) == 1
         assert result[0].is_completed is True
 
@@ -345,29 +358,43 @@ class TestGetAuditEventsByQuarter:
     def event_query_stub(self) -> EventQueryStub:
         """Create event query stub with multiple quarters."""
         stub = EventQueryStub()
-        stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q1", "status": "clean"},
-        })
-        stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-04-01T00:00:00Z",
-            "payload": {"audit_id": "audit-2", "quarter": "2026-Q2", "status": "clean"},
-        })
-        stub.add_event({
-            "event_id": "evt-3",
-            "event_type": "audit.completed",
-            "timestamp": "2026-02-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-3",
-                "quarter": "2026-Q1",
-                "status": "violations_found",
-                "violations_found": 2,
-            },
-        })
+        stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                },
+            }
+        )
+        stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-04-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-2",
+                    "quarter": "2026-Q2",
+                    "status": "clean",
+                },
+            }
+        )
+        stub.add_event(
+            {
+                "event_id": "evt-3",
+                "event_type": "audit.completed",
+                "timestamp": "2026-02-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-3",
+                    "quarter": "2026-Q1",
+                    "status": "violations_found",
+                    "violations_found": 2,
+                },
+            }
+        )
         return stub
 
     @pytest.fixture
@@ -462,17 +489,19 @@ class TestGetAuditTrend:
     ) -> None:
         """Test calculates trend for single quarter."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "clean",
-                "violations_found": 0,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                    "violations_found": 0,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -490,28 +519,32 @@ class TestGetAuditTrend:
     ) -> None:
         """Test aggregates data from multiple quarters."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "clean",
-                "violations_found": 0,
-            },
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-04-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-2",
-                "quarter": "2026-Q2",
-                "status": "violations_found",
-                "violations_found": 3,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                    "violations_found": 0,
+                },
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-04-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-2",
+                    "quarter": "2026-Q2",
+                    "status": "violations_found",
+                    "violations_found": 3,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -530,28 +563,32 @@ class TestGetAuditTrend:
     ) -> None:
         """Test calculates average violations per audit."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "violations_found",
-                "violations_found": 4,
-            },
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-04-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-2",
-                "quarter": "2026-Q2",
-                "status": "violations_found",
-                "violations_found": 6,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "violations_found",
+                    "violations_found": 4,
+                },
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-04-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-2",
+                    "quarter": "2026-Q2",
+                    "status": "violations_found",
+                    "violations_found": 6,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -567,17 +604,19 @@ class TestGetAuditTrend:
     ) -> None:
         """Test counts failed audits correctly."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "failed",
-                "violations_found": 0,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "failed",
+                    "violations_found": 0,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -593,17 +632,19 @@ class TestGetAuditTrend:
     ) -> None:
         """Test builds quarter breakdown."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "clean",
-                "violations_found": 0,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                    "violations_found": 0,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -621,28 +662,32 @@ class TestGetAuditTrend:
     ) -> None:
         """Test quarters are sorted chronologically."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-04-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-2",
-                "quarter": "2026-Q2",
-                "status": "clean",
-                "violations_found": 0,
-            },
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {
-                "audit_id": "audit-1",
-                "quarter": "2026-Q1",
-                "status": "clean",
-                "violations_found": 0,
-            },
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-04-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-2",
+                    "quarter": "2026-Q2",
+                    "status": "clean",
+                    "violations_found": 0,
+                },
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {
+                    "audit_id": "audit-1",
+                    "quarter": "2026-Q1",
+                    "status": "clean",
+                    "violations_found": 0,
+                },
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -659,17 +704,19 @@ class TestGetAuditTrend:
         """Test limits results to requested number of quarters."""
         event_query_stub = EventQueryStub()
         for i, quarter in enumerate(["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"]):
-            event_query_stub.add_event({
-                "event_id": f"evt-{i}",
-                "event_type": "audit.completed",
-                "timestamp": f"2026-0{i+1}-01T00:00:00Z",
-                "payload": {
-                    "audit_id": f"audit-{i}",
-                    "quarter": quarter,
-                    "status": "clean",
-                    "violations_found": 0,
-                },
-            })
+            event_query_stub.add_event(
+                {
+                    "event_id": f"evt-{i}",
+                    "event_type": "audit.completed",
+                    "timestamp": f"2026-0{i + 1}-01T00:00:00Z",
+                    "payload": {
+                        "audit_id": f"audit-{i}",
+                        "quarter": quarter,
+                        "status": "clean",
+                        "violations_found": 0,
+                    },
+                }
+            )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -699,12 +746,14 @@ class TestEdgeCases:
     ) -> None:
         """Test handles events with empty payload."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {},
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -722,11 +771,13 @@ class TestEdgeCases:
     ) -> None:
         """Test handles events with missing timestamp."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "payload": {"audit_id": "audit-1"},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "payload": {"audit_id": "audit-1"},
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -743,18 +794,22 @@ class TestEdgeCases:
     ) -> None:
         """Test get_available_quarters returns sorted quarters."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-04-01T00:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q2"},
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {"audit_id": "audit-2", "quarter": "2026-Q1"},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-04-01T00:00:00Z",
+                "payload": {"audit_id": "audit-1", "quarter": "2026-Q2"},
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {"audit_id": "audit-2", "quarter": "2026-Q1"},
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -765,23 +820,25 @@ class TestEdgeCases:
         assert result == ["2026-Q1", "2026-Q2"]
 
     @pytest.mark.asyncio
-    async def test_get_audit_count(
-        self, not_halted_checker: HaltCheckerStub
-    ) -> None:
+    async def test_get_audit_count(self, not_halted_checker: HaltCheckerStub) -> None:
         """Test get_audit_count returns correct count."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-04-01T00:00:00Z",
-            "payload": {"audit_id": "audit-2", "quarter": "2026-Q2"},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-04-01T00:00:00Z",
+                "payload": {"audit_id": "audit-2", "quarter": "2026-Q2"},
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,
@@ -797,18 +854,22 @@ class TestEdgeCases:
     ) -> None:
         """Test get_violation_events returns violation events."""
         event_query_stub = EventQueryStub()
-        event_query_stub.add_event({
-            "event_id": "evt-1",
-            "event_type": "audit.violation.flagged",
-            "timestamp": "2026-01-01T00:00:00Z",
-            "payload": {"audit_id": "audit-1", "material_id": "mat-1"},
-        })
-        event_query_stub.add_event({
-            "event_id": "evt-2",
-            "event_type": "audit.completed",
-            "timestamp": "2026-01-01T01:00:00Z",
-            "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
-        })
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-1",
+                "event_type": "audit.violation.flagged",
+                "timestamp": "2026-01-01T00:00:00Z",
+                "payload": {"audit_id": "audit-1", "material_id": "mat-1"},
+            }
+        )
+        event_query_stub.add_event(
+            {
+                "event_id": "evt-2",
+                "event_type": "audit.completed",
+                "timestamp": "2026-01-01T01:00:00Z",
+                "payload": {"audit_id": "audit-1", "quarter": "2026-Q1"},
+            }
+        )
 
         service = AuditEventQueryService(
             event_query=event_query_stub,

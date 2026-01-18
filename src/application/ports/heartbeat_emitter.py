@@ -32,7 +32,9 @@ HEARTBEAT_INTERVAL_SECONDS: int = 30
 MISSED_HEARTBEAT_THRESHOLD: int = 3
 """Number of missed heartbeats before agent is considered unresponsive."""
 
-UNRESPONSIVE_TIMEOUT_SECONDS: int = HEARTBEAT_INTERVAL_SECONDS * MISSED_HEARTBEAT_THRESHOLD
+UNRESPONSIVE_TIMEOUT_SECONDS: int = (
+    HEARTBEAT_INTERVAL_SECONDS * MISSED_HEARTBEAT_THRESHOLD
+)
 """Total seconds before agent is flagged as unresponsive (90 seconds)."""
 
 

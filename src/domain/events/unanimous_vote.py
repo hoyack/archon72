@@ -101,9 +101,7 @@ class UnanimousVotePayload:
     def _validate_vote_id(self) -> None:
         """Validate vote_id is a UUID."""
         if not isinstance(self.vote_id, UUID):
-            raise TypeError(
-                f"vote_id must be UUID, got {type(self.vote_id).__name__}"
-            )
+            raise TypeError(f"vote_id must be UUID, got {type(self.vote_id).__name__}")
 
     def _validate_output_id(self) -> None:
         """Validate output_id is a UUID."""

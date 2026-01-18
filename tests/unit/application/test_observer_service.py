@@ -410,9 +410,7 @@ class TestObserverServiceFilteredQueries:
             filtered_events=events, filtered_count=100
         )
 
-        result_events, total = await service.get_events_filtered(
-            limit=10, offset=50
-        )
+        result_events, total = await service.get_events_filtered(limit=10, offset=50)
 
         assert total == 100
         assert len(result_events) == 10
@@ -552,7 +550,7 @@ class TestObserverServiceHistoricalQueries:
             self._create_mock_event(
                 i,
                 content_hash=f"{i:064x}",
-                prev_hash=f"{i-1:064x}" if i > 1 else "0" * 64,
+                prev_hash=f"{i - 1:064x}" if i > 1 else "0" * 64,
             )
             for i in range(5, 11)
         ]
@@ -580,6 +578,7 @@ class TestObserverServiceHistoricalQueries:
     @pytest.mark.asyncio
     async def test_get_events_as_of_proof_is_verifiable(self) -> None:
         """Test that the generated proof has valid chain continuity (FR89)."""
+
         # Create a chain where each event's prev_hash = previous event's content_hash
         def make_chained_event(seq: int, prev_content: str) -> MagicMock:
             """Create event with proper hash chain."""
@@ -664,12 +663,19 @@ class TestObserverServiceHistoricalQueries:
         )
         service._event_store.find_sequence_for_timestamp.return_value = 42
 
-        result_events, total, resolved_seq, proof = await service.get_events_as_of_timestamp(
+        (
+            result_events,
+            total,
+            resolved_seq,
+            proof,
+        ) = await service.get_events_as_of_timestamp(
             as_of_timestamp=timestamp,
         )
 
         assert resolved_seq == 42
-        service._event_store.find_sequence_for_timestamp.assert_called_once_with(timestamp)
+        service._event_store.find_sequence_for_timestamp.assert_called_once_with(
+            timestamp
+        )
 
 
 # =============================================================================
@@ -718,10 +724,8 @@ class TestObserverServiceMerkleProofs:
         count_up_to: int = 0,
     ):
         """Create ObserverService with mock supporting Merkle proofs."""
-        from src.application.ports.checkpoint_repository import CheckpointRepository
         from src.application.services.merkle_tree_service import MerkleTreeService
         from src.application.services.observer_service import ObserverService
-        from src.domain.models.checkpoint import Checkpoint
 
         event_store = AsyncMock()
         events_range = events_range or []
@@ -828,7 +832,12 @@ class TestObserverServiceMerkleProofs:
             latest_event=latest,
         )
 
-        result_events, total, merkle_proof, hash_proof = await service.get_events_with_merkle_proof(
+        (
+            result_events,
+            total,
+            merkle_proof,
+            hash_proof,
+        ) = await service.get_events_with_merkle_proof(
             as_of_sequence=50,
         )
 
@@ -844,7 +853,7 @@ class TestObserverServiceMerkleProofs:
             self._create_mock_event(
                 sequence=i,
                 content_hash=f"{i:064x}",
-                prev_hash=f"{i-1:064x}" if i > 1 else "0" * 64,
+                prev_hash=f"{i - 1:064x}" if i > 1 else "0" * 64,
             )
             for i in range(1, 51)
         ]
@@ -860,7 +869,12 @@ class TestObserverServiceMerkleProofs:
             latest_event=latest,
         )
 
-        result_events, total, merkle_proof, hash_proof = await service.get_events_with_merkle_proof(
+        (
+            result_events,
+            total,
+            merkle_proof,
+            hash_proof,
+        ) = await service.get_events_with_merkle_proof(
             as_of_sequence=50,
         )
 

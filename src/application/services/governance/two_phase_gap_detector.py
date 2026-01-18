@@ -23,7 +23,7 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
@@ -122,9 +122,7 @@ class TwoPhaseGapDetector:
         now = self._time_authority.now()
 
         # Get all intent events
-        intents = await self._ledger.read_events(
-            event_type_pattern="*.intent.emitted"
-        )
+        intents = await self._ledger.read_events(event_type_pattern="*.intent.emitted")
 
         if not intents:
             return []
@@ -167,9 +165,7 @@ class TwoPhaseGapDetector:
 
         return violations
 
-    async def emit_orphan_violation_event(
-        self, violation: TwoPhaseViolation
-    ) -> None:
+    async def emit_orphan_violation_event(self, violation: TwoPhaseViolation) -> None:
         """Emit a constitutional violation event for an orphaned intent.
 
         Creates a ledger.integrity.orphaned_intent_detected event
@@ -229,9 +225,7 @@ class TwoPhaseGapDetector:
             Dict with intent, outcome, and status. None if no intent found.
         """
         # Get intent event
-        intents = await self._ledger.read_events(
-            event_type_pattern="*.intent.emitted"
-        )
+        intents = await self._ledger.read_events(event_type_pattern="*.intent.emitted")
 
         intent = None
         for event in intents:

@@ -3,8 +3,9 @@
 Tests the King Service legislative functions per Government PRD FR-GOV-5/FR-GOV-6.
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from src.application.ports.king_service import (
     MotionIntroductionRequest,
@@ -14,7 +15,6 @@ from src.infrastructure.adapters.government.king_service_adapter import (
     KingServiceAdapter,
     create_king_service,
 )
-
 
 # =============================================================================
 # FIXTURES
@@ -172,7 +172,10 @@ class TestMotionIntroductionInvalid:
         result = await king_service.introduce_motion(request)
 
         assert result.success is False
-        assert any("task_list" in v.violation_type.value for v in result.validation_result.violations)
+        assert any(
+            "task_list" in v.violation_type.value
+            for v in result.validation_result.violations
+        )
 
     @pytest.mark.asyncio
     async def test_timeline_violation(
@@ -190,7 +193,10 @@ class TestMotionIntroductionInvalid:
         result = await king_service.introduce_motion(request)
 
         assert result.success is False
-        assert any("timeline" in v.violation_type.value for v in result.validation_result.violations)
+        assert any(
+            "timeline" in v.violation_type.value
+            for v in result.validation_result.violations
+        )
 
     @pytest.mark.asyncio
     async def test_tool_specification_violation(
@@ -208,7 +214,10 @@ class TestMotionIntroductionInvalid:
         result = await king_service.introduce_motion(request)
 
         assert result.success is False
-        assert any("tool_specification" in v.violation_type.value for v in result.validation_result.violations)
+        assert any(
+            "tool_specification" in v.violation_type.value
+            for v in result.validation_result.violations
+        )
 
 
 # =============================================================================

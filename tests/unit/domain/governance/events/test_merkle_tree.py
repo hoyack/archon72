@@ -66,14 +66,18 @@ class TestLeafHash:
 
     def test_leaf_hash_blake3(self) -> None:
         """Leaf hash with BLAKE3 has correct prefix."""
-        event_hash = "blake3:abc123def456789012345678901234567890123456789012345678901234"
+        event_hash = (
+            "blake3:abc123def456789012345678901234567890123456789012345678901234"
+        )
         result = _compute_leaf_hash(event_hash, "blake3")
         assert result.startswith("blake3:")
         assert len(result) == 7 + 64  # prefix + 64 hex chars
 
     def test_leaf_hash_sha256(self) -> None:
         """Leaf hash with SHA-256 has correct prefix."""
-        event_hash = "sha256:abc123def456789012345678901234567890123456789012345678901234"
+        event_hash = (
+            "sha256:abc123def456789012345678901234567890123456789012345678901234"
+        )
         result = _compute_leaf_hash(event_hash, "sha256")
         assert result.startswith("sha256:")
         assert len(result) == 7 + 64  # prefix + 64 hex chars
@@ -197,7 +201,7 @@ class TestMerkleTreeConstruction:
     def test_different_input_different_root(self) -> None:
         """Different input produces different root."""
         hashes1 = [f"blake3:hash{i:060d}" for i in range(4)]
-        hashes2 = [f"blake3:hash{i+10:060d}" for i in range(4)]
+        hashes2 = [f"blake3:hash{i + 10:060d}" for i in range(4)]
         tree1 = MerkleTree(hashes1)
         tree2 = MerkleTree(hashes2)
         assert tree1.root != tree2.root
@@ -287,7 +291,9 @@ class TestMerkleProofGeneration:
             assert proof.leaf_index == i
             assert proof.merkle_root == tree.root
             result = verify_merkle_proof(proof)
-            assert result.is_valid, f"Proof for index {i} failed: {result.error_message}"
+            assert result.is_valid, (
+                f"Proof for index {i} failed: {result.error_message}"
+            )
 
     def test_all_proofs_for_non_power_of_two(self) -> None:
         """Generate valid proofs for all leaves in non-power-of-two tree."""
@@ -298,7 +304,9 @@ class TestMerkleProofGeneration:
             proof = tree.generate_proof(i, uuid4(), epoch=0)
             assert proof.leaf_index == i
             result = verify_merkle_proof(proof)
-            assert result.is_valid, f"Proof for index {i} failed: {result.error_message}"
+            assert result.is_valid, (
+                f"Proof for index {i} failed: {result.error_message}"
+            )
 
 
 class TestMerkleProofVerification:

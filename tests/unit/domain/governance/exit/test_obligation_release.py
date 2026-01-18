@@ -20,11 +20,11 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.governance.exit.release_type import ReleaseType
 from src.domain.governance.exit.obligation_release import (
     ObligationRelease,
     ReleaseResult,
 )
+from src.domain.governance.exit.release_type import ReleaseType
 from src.domain.governance.task.task_state import TaskStatus
 
 

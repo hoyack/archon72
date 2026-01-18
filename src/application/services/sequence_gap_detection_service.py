@@ -21,7 +21,7 @@ Note:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -65,8 +65,8 @@ class SequenceGapDetectionService:
 
     def __init__(
         self,
-        event_store: "EventStorePort",
-        halt_trigger: "Optional[HaltTrigger]" = None,
+        event_store: EventStorePort,
+        halt_trigger: HaltTrigger | None = None,
         halt_on_gap: bool = False,
     ) -> None:
         """Initialize the sequence gap detection service.
@@ -80,7 +80,7 @@ class SequenceGapDetectionService:
         self._halt = halt_trigger
         self._halt_on_gap = halt_on_gap
         self._last_checked_sequence: int = 0
-        self._last_check_timestamp: Optional[datetime] = None
+        self._last_check_timestamp: datetime | None = None
         self._service_id = "sequence_gap_detector"
         self._log = structlog.get_logger().bind(service=self._service_id)
 
@@ -96,7 +96,7 @@ class SequenceGapDetectionService:
 
     async def check_sequence_continuity(
         self,
-    ) -> Optional[SequenceGapDetectedPayload]:
+    ) -> SequenceGapDetectedPayload | None:
         """Check for gaps in event sequence.
 
         Uses EventStorePort.verify_sequence_continuity() to detect gaps.
@@ -117,7 +117,9 @@ class SequenceGapDetectionService:
             return None
 
         # Check from last checked position to current max
-        start = self._last_checked_sequence + 1 if self._last_checked_sequence > 0 else 1
+        start = (
+            self._last_checked_sequence + 1 if self._last_checked_sequence > 0 else 1
+        )
         if start > current_max:
             # Already checked everything
             return None
@@ -184,7 +186,7 @@ class SequenceGapDetectionService:
             )
             await self._halt.trigger_halt(crisis)
 
-    async def run_detection_cycle(self) -> Optional[SequenceGapDetectedPayload]:
+    async def run_detection_cycle(self) -> SequenceGapDetectedPayload | None:
         """Run a single detection cycle.
 
         Checks for gaps and handles any detected gaps.

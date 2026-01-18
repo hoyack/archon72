@@ -13,7 +13,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import uuid4
 
 from src.application.ports.hash_verifier import (
@@ -66,9 +65,9 @@ class HashVerifierStub(HashVerifierProtocol):
         self._events: dict[str, MockEvent] = {}
         self._events_by_sequence: dict[int, MockEvent] = {}
         self._expected_hashes: dict[str, str] = {}  # Override hashes for testing
-        self._last_scan_id: Optional[str] = None
-        self._last_scan_at: Optional[datetime] = None
-        self._last_scan_passed: Optional[bool] = None
+        self._last_scan_id: str | None = None
+        self._last_scan_at: datetime | None = None
+        self._last_scan_passed: bool | None = None
         self._events_verified_total: int = 0
         self._verification_interval_seconds: int = 3600
         self._scan_in_progress: bool = False
@@ -139,7 +138,7 @@ class HashVerifierStub(HashVerifierProtocol):
 
     async def run_full_scan(
         self,
-        max_events: Optional[int] = None,
+        max_events: int | None = None,
     ) -> HashScanResult:
         """Run full hash chain verification.
 
@@ -151,7 +150,7 @@ class HashVerifierStub(HashVerifierProtocol):
         """
         scan_id = str(uuid4())
         start_time = time.monotonic()
-        now = datetime.now(timezone.utc)
+        datetime.now(timezone.utc)
 
         # Get events sorted by sequence
         events = sorted(
@@ -214,9 +213,9 @@ class HashVerifierStub(HashVerifierProtocol):
         events_scanned: int,
         passed: bool,
         start_time: float,
-        failed_event_id: Optional[str] = None,
-        expected_hash: Optional[str] = None,
-        actual_hash: Optional[str] = None,
+        failed_event_id: str | None = None,
+        expected_hash: str | None = None,
+        actual_hash: str | None = None,
     ) -> HashScanResult:
         """Complete a scan and update state.
 
@@ -261,9 +260,8 @@ class HashVerifierStub(HashVerifierProtocol):
         """
         next_scan_at = None
         if self._last_scan_at and self._verification_interval_seconds:
-            next_scan_at = (
-                self._last_scan_at
-                + timedelta(seconds=self._verification_interval_seconds)
+            next_scan_at = self._last_scan_at + timedelta(
+                seconds=self._verification_interval_seconds
             )
 
         return HashScanStatus(

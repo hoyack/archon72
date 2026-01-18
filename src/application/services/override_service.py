@@ -22,7 +22,7 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from structlog import get_logger
 
@@ -73,8 +73,8 @@ class OverrideService:
         event_writer: EventWriterService,
         halt_checker: HaltChecker,
         override_executor: OverrideExecutorPort,
-        override_registry: Optional[OverrideRegistryPort] = None,
-        constitution_validator: Optional[ConstitutionValidatorProtocol] = None,
+        override_registry: OverrideRegistryPort | None = None,
+        constitution_validator: ConstitutionValidatorProtocol | None = None,
     ) -> None:
         """Initialize the Override Service.
 

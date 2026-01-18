@@ -38,7 +38,9 @@ def enforcer(config_path: Path) -> PermissionEnforcerAdapter:
 class TestPermissionEnforcerInit:
     """Tests for PermissionEnforcerAdapter initialization."""
 
-    def test_loads_config_successfully(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_loads_config_successfully(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that the enforcer loads the YAML config.
 
         Per rank-matrix.yaml v2.0: Ranks are keyed on original_rank (constitutional role).
@@ -68,7 +70,9 @@ class TestKingPermissions:
     Per PRD FR-GOV-6: Kings may NOT define HOW.
     """
 
-    def test_king_can_introduce_motion(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_king_can_introduce_motion(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Kings can introduce motions."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -107,7 +111,9 @@ class TestKingPermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is True
 
-    def test_king_cannot_define_execution(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_king_cannot_define_execution(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Kings cannot define HOW (execution).
 
         Per FR-GOV-6: Kings may NOT define tasks, timelines, tools, execution methods.
@@ -160,7 +166,9 @@ class TestPresidentPermissions:
     Per PRD §4.3: Presidents translate WHAT into HOW.
     """
 
-    def test_president_can_define_execution(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_president_can_define_execution(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Presidents can define execution plans."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -173,7 +181,9 @@ class TestPresidentPermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is True
 
-    def test_president_can_deliberate(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_president_can_deliberate(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Presidents can deliberate."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -186,7 +196,9 @@ class TestPresidentPermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is True
 
-    def test_president_cannot_introduce_motion(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_president_cannot_introduce_motion(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Presidents cannot introduce motions."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -220,7 +232,9 @@ class TestPrincePermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is True
 
-    def test_prince_cannot_introduce_motion(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_prince_cannot_introduce_motion(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Princes cannot introduce motions.
 
         Per FR-GOV-16.
@@ -236,7 +250,9 @@ class TestPrincePermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is False
 
-    def test_prince_cannot_define_execution(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_prince_cannot_define_execution(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Princes cannot define execution.
 
         Per FR-GOV-16.
@@ -273,7 +289,9 @@ class TestKnightWitnessPermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is True
 
-    def test_knight_cannot_introduce_motion(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_knight_cannot_introduce_motion(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Knight cannot propose motions."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -286,7 +304,9 @@ class TestKnightWitnessPermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is False
 
-    def test_knight_cannot_deliberate(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_knight_cannot_deliberate(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Knight cannot debate."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -342,7 +362,9 @@ class TestDukeEarlPermissions:
         result = enforcer.check_permission(context)
         assert result.allowed is True
 
-    def test_duke_cannot_define_execution(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_duke_cannot_define_execution(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that Dukes cannot define execution (only execute)."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -405,7 +427,9 @@ class TestMarquisPermissions:
 class TestEnforcePermission:
     """Tests for enforce_permission which raises on violation."""
 
-    def test_enforce_raises_on_violation(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_enforce_raises_on_violation(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that enforce_permission raises RankViolationError."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -422,7 +446,9 @@ class TestEnforcePermission:
         assert "Paimon" in str(exc_info.value)
         assert "define_execution" in str(exc_info.value)
 
-    def test_enforce_returns_result_on_allowed(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_enforce_returns_result_on_allowed(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that enforce_permission returns result when allowed."""
         context = PermissionContext(
             archon_id=uuid4(),
@@ -443,7 +469,9 @@ class TestBranchConflictDetection:
     Per PRD §2.1: No entity may define intent, execute it, AND judge it.
     """
 
-    def test_no_conflict_on_first_action(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_no_conflict_on_first_action(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test no conflict when Archon hasn't acted on target yet."""
         archon_id = uuid4()
         target_id = "motion-001"
@@ -457,7 +485,9 @@ class TestBranchConflictDetection:
         assert has_conflict is False
         assert reason is None
 
-    def test_conflict_detected_across_branches(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_conflict_detected_across_branches(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test conflict when same Archon acts in conflicting branches."""
         archon_id = uuid4()
         target_id = "motion-002"
@@ -479,7 +509,9 @@ class TestBranchConflictDetection:
         assert has_conflict is True
         assert reason is not None
 
-    def test_witness_branch_has_no_conflicts(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_witness_branch_has_no_conflicts(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test that witness branch doesn't create conflicts."""
         archon_id = uuid4()
         target_id = "motion-003"
@@ -538,7 +570,9 @@ class TestHelperMethods:
         assert enforcer.get_branch_for_rank("Prince") == GovernanceBranch.JUDICIAL
         assert enforcer.get_branch_for_rank("Knight") == GovernanceBranch.WITNESS
 
-    def test_unknown_rank_returns_none(self, enforcer: PermissionEnforcerAdapter) -> None:
+    def test_unknown_rank_returns_none(
+        self, enforcer: PermissionEnforcerAdapter
+    ) -> None:
         """Test unknown rank returns None for branch."""
         assert enforcer.get_branch_for_rank("unknown_rank") is None
 

@@ -19,7 +19,6 @@ Constitutional Guarantees:
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
@@ -96,7 +95,7 @@ class VerificationEventEmitterPort(Protocol):
 
     async def emit_verified(
         self,
-        report: "VerificationReport",
+        report: VerificationReport,
     ) -> None:
         """Emit audit.anti_metrics.verified event.
 
@@ -125,7 +124,7 @@ class AntiMetricsVerificationPort(Protocol):
     async def verify_all(
         self,
         verifier_id: UUID | None = None,
-    ) -> "VerificationReport":
+    ) -> VerificationReport:
         """Run complete anti-metrics verification.
 
         Checks:
@@ -165,7 +164,7 @@ class AntiMetricsVerificationPort(Protocol):
         """
         ...
 
-    def generate_report_text(self, report: "VerificationReport") -> str:
+    def generate_report_text(self, report: VerificationReport) -> str:
         """Generate human-readable report text.
 
         Args:

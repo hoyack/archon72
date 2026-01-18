@@ -103,10 +103,7 @@ class InMemoryWitnessPairHistory(WitnessPairHistoryProtocol):
         window = timedelta(hours=ROTATION_WINDOW_HOURS)
         cutoff = now - window
 
-        old_keys = [
-            key for key, timestamp in self._pairs.items()
-            if timestamp < cutoff
-        ]
+        old_keys = [key for key, timestamp in self._pairs.items() if timestamp < cutoff]
 
         for key in old_keys:
             del self._pairs[key]

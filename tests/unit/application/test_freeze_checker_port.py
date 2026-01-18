@@ -161,8 +161,9 @@ class TestFreezeCheckerStubConvenience:
 
     def test_check_count_tracks_calls(self) -> None:
         """check_count should track is_frozen() calls."""
-        from src.infrastructure.stubs import FreezeCheckerStub
         import asyncio
+
+        from src.infrastructure.stubs import FreezeCheckerStub
 
         stub = FreezeCheckerStub()
 

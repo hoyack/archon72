@@ -30,9 +30,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
 
 from src.application.ports.governance.anti_metrics_verification_port import (
     RouteInfo,
@@ -57,6 +55,7 @@ class SystemTimeAuthority(TimeAuthorityProtocol):
 
     def monotonic(self) -> float:
         import time
+
         return time.monotonic()
 
 
@@ -196,9 +195,9 @@ class FastAPIRouteInspector(RouteInspectorPort):
 
 
 async def verify_anti_metrics_cli(
-    database_url: Optional[str] = None,
+    database_url: str | None = None,
     routes: list[RouteInfo] | None = None,
-    output_file: Optional[str] = None,
+    output_file: str | None = None,
     json_output: bool = False,
 ) -> int:
     """Run anti-metrics verification from CLI.
@@ -229,8 +228,10 @@ async def verify_anti_metrics_cli(
         class EmptySchemaInspector(SchemaInspectorPort):
             async def get_all_tables(self) -> list[str]:
                 return []
+
             async def get_all_columns(self) -> list[tuple[str, str]]:
                 return []
+
         schema_inspector = EmptySchemaInspector()
         if not json_output:
             print("Database: (not configured - skipping schema verification)")
@@ -261,22 +262,26 @@ async def verify_anti_metrics_cli(
         # Generate output
         if json_output:
             import json
-            output = json.dumps({
-                "report_id": str(report.report_id),
-                "verified_at": report.verified_at.isoformat(),
-                "overall_status": report.overall_status.value,
-                "total_violations": report.total_violations,
-                "verification_duration_ms": report.verification_duration_ms,
-                "checks": [
-                    {
-                        "check_type": c.check_type.value,
-                        "status": c.status.value,
-                        "items_checked": c.items_checked,
-                        "violations": list(c.violations_found),
-                    }
-                    for c in report.checks
-                ],
-            }, indent=2)
+
+            output = json.dumps(
+                {
+                    "report_id": str(report.report_id),
+                    "verified_at": report.verified_at.isoformat(),
+                    "overall_status": report.overall_status.value,
+                    "total_violations": report.total_violations,
+                    "verification_duration_ms": report.verification_duration_ms,
+                    "checks": [
+                        {
+                            "check_type": c.check_type.value,
+                            "status": c.status.value,
+                            "items_checked": c.items_checked,
+                            "violations": list(c.violations_found),
+                        }
+                        for c in report.checks
+                    ],
+                },
+                indent=2,
+            )
         else:
             output = service.generate_report_text(report)
 
@@ -311,7 +316,8 @@ def main() -> None:
         help="PostgreSQL connection URL (e.g., postgres://user:pass@host/db)",
     )
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         help="Write report to file",
     )
     parser.add_argument(
@@ -330,6 +336,7 @@ def main() -> None:
     routes = None
     if args.routes_file:
         import json
+
         with open(args.routes_file) as f:
             routes_data = json.load(f)
             routes = [

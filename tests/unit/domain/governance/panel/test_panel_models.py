@@ -30,15 +30,15 @@ from uuid import uuid4
 import pytest
 
 from src.domain.governance.panel import (
-    PanelStatus,
-    MemberStatus,
-    PanelMember,
-    RemedyType,
     Determination,
     Dissent,
-    PanelFinding,
-    PrincePanel,
     InvalidPanelComposition,
+    MemberStatus,
+    PanelFinding,
+    PanelMember,
+    PanelStatus,
+    PrincePanel,
+    RemedyType,
 )
 
 
@@ -253,7 +253,11 @@ class TestPanelFinding:
             majority_rationale="Evidence clearly shows violation occurred.",
             dissent=None,
             issued_at=datetime.now(timezone.utc),
-            voting_record={uuid4(): "violation", uuid4(): "violation", uuid4(): "no_violation"},
+            voting_record={
+                uuid4(): "violation",
+                uuid4(): "violation",
+                uuid4(): "no_violation",
+            },
         )
 
         assert finding.determination == Determination.VIOLATION_FOUND

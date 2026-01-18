@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from structlog import get_logger
@@ -88,7 +88,7 @@ class BreachDeclarationService:
         violated_requirement: str,
         severity: BreachSeverity,
         details: dict[str, Any],
-        source_event_id: Optional[UUID] = None,
+        source_event_id: UUID | None = None,
     ) -> BreachEventPayload:
         """Declare a constitutional breach (FR30).
 
@@ -192,11 +192,9 @@ class BreachDeclarationService:
                 "breach_declaration_failed",
                 error=str(e),
             )
-            raise BreachDeclarationError(
-                f"FR30: Failed to declare breach: {e}"
-            ) from e
+            raise BreachDeclarationError(f"FR30: Failed to declare breach: {e}") from e
 
-    async def get_breach_by_id(self, breach_id: UUID) -> Optional[BreachEventPayload]:
+    async def get_breach_by_id(self, breach_id: UUID) -> BreachEventPayload | None:
         """Retrieve a specific breach by ID.
 
         Constitutional Constraint (CT-11):
@@ -290,15 +288,13 @@ class BreachDeclarationService:
                 "breach_list_failed",
                 error=str(e),
             )
-            raise BreachQueryError(
-                f"FR30: Failed to list breaches: {e}"
-            ) from e
+            raise BreachQueryError(f"FR30: Failed to list breaches: {e}") from e
 
     async def filter_breaches(
         self,
-        breach_type: Optional[BreachType] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        breach_type: BreachType | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> list[BreachEventPayload]:
         """Filter breach events by type and/or date range (FR30).
 
@@ -338,7 +334,11 @@ class BreachDeclarationService:
 
         try:
             # Determine which repository method to use based on filters
-            if breach_type is not None and start_date is not None and end_date is not None:
+            if (
+                breach_type is not None
+                and start_date is not None
+                and end_date is not None
+            ):
                 # Both type and date range
                 results = await self._repository.filter_by_type_and_date(
                     breach_type=breach_type,
@@ -372,9 +372,7 @@ class BreachDeclarationService:
                 "breach_filter_failed",
                 error=str(e),
             )
-            raise BreachQueryError(
-                f"FR30: Failed to filter breaches: {e}"
-            ) from e
+            raise BreachQueryError(f"FR30: Failed to filter breaches: {e}") from e
 
     async def count_unacknowledged_breaches(self, window_days: int = 90) -> int:
         """Count unacknowledged breaches within a rolling window.

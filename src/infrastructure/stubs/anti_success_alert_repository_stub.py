@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.anti_success_alert_repository import (
@@ -41,7 +40,7 @@ class AntiSuccessAlertRepositoryStub(AntiSuccessAlertRepositoryProtocol):
     def __init__(self) -> None:
         """Initialize the stub with empty storage."""
         self._alerts: list[AlertRecord] = []
-        self._sustained_start: Optional[datetime] = None
+        self._sustained_start: datetime | None = None
         self._is_active: bool = False
 
     def clear(self) -> None:
@@ -89,7 +88,7 @@ class AntiSuccessAlertRepositoryStub(AntiSuccessAlertRepositoryProtocol):
         self._is_active = False
         # Don't clear sustained_start - keep it for historical reference
 
-    async def get_sustained_alert_duration(self) -> Optional[SustainedAlertInfo]:
+    async def get_sustained_alert_duration(self) -> SustainedAlertInfo | None:
         """Get current sustained alert duration information (FR38).
 
         Returns information about the current sustained alert period,
@@ -106,7 +105,8 @@ class AntiSuccessAlertRepositoryStub(AntiSuccessAlertRepositoryProtocol):
 
         # Get alert event IDs in the sustained period
         alert_event_ids = tuple(
-            a.event_id for a in self._alerts
+            a.event_id
+            for a in self._alerts
             if a.alert_timestamp >= self._sustained_start
         )
 
@@ -127,10 +127,7 @@ class AntiSuccessAlertRepositoryStub(AntiSuccessAlertRepositoryProtocol):
             List of alert event IDs, ordered by timestamp.
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
-        alerts = [
-            a for a in self._alerts
-            if a.alert_timestamp >= cutoff
-        ]
+        alerts = [a for a in self._alerts if a.alert_timestamp >= cutoff]
         alerts.sort(key=lambda a: a.alert_timestamp)
         return [a.event_id for a in alerts]
 

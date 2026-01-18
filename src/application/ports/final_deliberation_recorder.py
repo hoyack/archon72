@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class DeliberationWithEventMetadata:
         witness_signature: Signature of the witness.
     """
 
-    payload: "CessationDeliberationEventPayload"
+    payload: CessationDeliberationEventPayload
     event_id: UUID
     content_hash: str
     witness_id: str
@@ -67,10 +67,10 @@ class RecordDeliberationResult:
     """
 
     success: bool
-    event_id: Optional[UUID]
-    recorded_at: Optional[datetime]
-    error_code: Optional[str]
-    error_message: Optional[str]
+    event_id: UUID | None
+    recorded_at: datetime | None
+    error_code: str | None
+    error_message: str | None
 
 
 @runtime_checkable
@@ -95,7 +95,7 @@ class FinalDeliberationRecorder(Protocol):
 
     async def record_deliberation(
         self,
-        payload: "CessationDeliberationEventPayload",
+        payload: CessationDeliberationEventPayload,
     ) -> RecordDeliberationResult:
         """Record the final cessation deliberation (FR135).
 
@@ -120,7 +120,7 @@ class FinalDeliberationRecorder(Protocol):
 
     async def record_failure(
         self,
-        payload: "DeliberationRecordingFailedEventPayload",
+        payload: DeliberationRecordingFailedEventPayload,
     ) -> RecordDeliberationResult:
         """Record deliberation recording failure as final event (FR135).
 
@@ -147,7 +147,7 @@ class FinalDeliberationRecorder(Protocol):
     async def get_deliberation(
         self,
         deliberation_id: UUID,
-    ) -> Optional[DeliberationWithEventMetadata]:
+    ) -> DeliberationWithEventMetadata | None:
         """Get a recorded deliberation by ID (FR135, AC7).
 
         Per AC7: Observer query access - vote counts, dissent, and reasoning

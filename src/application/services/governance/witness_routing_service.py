@@ -36,7 +36,7 @@ References:
 
 from __future__ import annotations
 
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from src.application.ports.governance.panel_queue_port import PanelQueuePort
 from src.application.ports.governance.two_phase_emitter_port import (
@@ -44,11 +44,10 @@ from src.application.ports.governance.two_phase_emitter_port import (
 )
 from src.application.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.queue.priority import QueuePriority
-from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.queue.queued_statement import QueuedStatement
+from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
-
 
 # Routing rules: which observation types get routed to panel
 ROUTING_RULES: dict[ObservationType, bool] = {

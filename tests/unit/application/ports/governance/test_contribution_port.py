@@ -22,8 +22,8 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.ports.governance.contribution_port import ContributionPort
-from src.domain.governance.exit.contribution_type import ContributionType
 from src.domain.governance.exit.contribution_record import ContributionRecord
+from src.domain.governance.exit.contribution_type import ContributionType
 
 
 class FakeContributionPort:
@@ -38,10 +38,7 @@ class FakeContributionPort:
         cluster_id: UUID,
     ) -> list[ContributionRecord]:
         """Get all contributions for a Cluster."""
-        return [
-            c for c in self._contributions.values()
-            if c.cluster_id == cluster_id
-        ]
+        return [c for c in self._contributions.values() if c.cluster_id == cluster_id]
 
     async def get_preserved(
         self,
@@ -49,7 +46,8 @@ class FakeContributionPort:
     ) -> list[ContributionRecord]:
         """Get preserved contributions for a Cluster."""
         return [
-            c for c in self._contributions.values()
+            c
+            for c in self._contributions.values()
             if c.cluster_id == cluster_id and c.preserved_at is not None
         ]
 

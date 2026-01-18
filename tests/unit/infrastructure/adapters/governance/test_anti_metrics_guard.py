@@ -11,9 +11,9 @@ These tests verify that:
 6. No metric storage paths exist (AC: 8)
 """
 
+import contextlib
 from datetime import datetime, timezone
 from typing import Any
-from unittest.mock import AsyncMock
 
 import pytest
 
@@ -78,11 +78,13 @@ class FakeEventEmitter(EventEmitterPort):
         actor: str,
         payload: dict,
     ) -> None:
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_events(self, event_type: str) -> list[dict[str, Any]]:
         return [e for e in self.events if e["event_type"] == event_type]
@@ -163,7 +165,9 @@ class TestAntiMetricsGuardStartup:
         assert "task_performance" in str(exc_info.value)
 
         # Violation events should be emitted
-        violation_events = event_emitter.get_events("constitutional.violation.anti_metrics")
+        violation_events = event_emitter.get_events(
+            "constitutional.violation.anti_metrics"
+        )
         assert len(violation_events) == 2
 
     @pytest.mark.asyncio
@@ -347,7 +351,9 @@ class TestTableCreationBlocking:
         with pytest.raises(AntiMetricsViolationError):
             await anti_metrics_guard.check_table_creation("cluster_metrics")
 
-        violation_events = event_emitter.get_events("constitutional.violation.anti_metrics")
+        violation_events = event_emitter.get_events(
+            "constitutional.violation.anti_metrics"
+        )
         assert len(violation_events) == 1
 
         payload = violation_events[0]["payload"]
@@ -571,10 +577,8 @@ class TestEnforcementStatus:
 
         # Trigger some violations
         for table in ["cluster_metrics", "task_performance", "user_engagement"]:
-            try:
+            with contextlib.suppress(AntiMetricsViolationError):
                 await anti_metrics_guard.check_table_creation(table)
-            except AntiMetricsViolationError:
-                pass
 
         status = await anti_metrics_guard.get_enforcement_status()
         assert status["violations_detected"] == initial_count + 3

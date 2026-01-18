@@ -69,7 +69,9 @@ class TestPatternCategory:
 
     def test_engagement_optimization_description(self) -> None:
         """Engagement optimization has correct description."""
-        assert "engagement" in PatternCategory.ENGAGEMENT_OPTIMIZATION.description.lower()
+        assert (
+            "engagement" in PatternCategory.ENGAGEMENT_OPTIMIZATION.description.lower()
+        )
 
     def test_hard_violation_description(self) -> None:
         """Hard violation has correct description."""
@@ -77,11 +79,16 @@ class TestPatternCategory:
 
     def test_urgency_default_transform(self) -> None:
         """Urgency pressure defaults to TRANSFORM."""
-        assert PatternCategory.URGENCY_PRESSURE.default_severity == PatternSeverity.TRANSFORM
+        assert (
+            PatternCategory.URGENCY_PRESSURE.default_severity
+            == PatternSeverity.TRANSFORM
+        )
 
     def test_guilt_default_reject(self) -> None:
         """Guilt induction defaults to REJECT."""
-        assert PatternCategory.GUILT_INDUCTION.default_severity == PatternSeverity.REJECT
+        assert (
+            PatternCategory.GUILT_INDUCTION.default_severity == PatternSeverity.REJECT
+        )
 
     def test_scarcity_default_reject(self) -> None:
         """False scarcity defaults to REJECT."""
@@ -89,7 +96,10 @@ class TestPatternCategory:
 
     def test_engagement_default_transform(self) -> None:
         """Engagement optimization defaults to TRANSFORM."""
-        assert PatternCategory.ENGAGEMENT_OPTIMIZATION.default_severity == PatternSeverity.TRANSFORM
+        assert (
+            PatternCategory.ENGAGEMENT_OPTIMIZATION.default_severity
+            == PatternSeverity.TRANSFORM
+        )
 
     def test_violation_default_block(self) -> None:
         """Hard violation defaults to BLOCK."""
@@ -197,7 +207,9 @@ class TestCoercionPattern:
         assert transform_pattern.matches("urgent task") is True
         assert transform_pattern.matches("Urgent task") is True
 
-    def test_matches_returns_false_no_match(self, transform_pattern: CoercionPattern) -> None:
+    def test_matches_returns_false_no_match(
+        self, transform_pattern: CoercionPattern
+    ) -> None:
         """Pattern returns False when no match."""
         assert transform_pattern.matches("Please review this") is False
 
@@ -290,6 +302,7 @@ class TestPatternLibraryVersion:
     def test_time(self) -> datetime:
         """Fixed test time for deterministic tests."""
         from datetime import timezone
+
         return datetime(2026, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
     def test_valid_version(self, test_time: datetime) -> None:

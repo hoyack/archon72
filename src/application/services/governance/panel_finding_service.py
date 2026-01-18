@@ -28,18 +28,18 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, List, Optional, Protocol
-from uuid import UUID, uuid4
+from typing import TYPE_CHECKING, Protocol
+from uuid import UUID
 
+from src.application.ports.governance.panel_finding_port import PanelFindingPort
 from src.domain.governance.panel import (
-    PanelFinding,
     Determination,
     FindingRecord,
+    PanelFinding,
 )
-from src.application.ports.governance.panel_finding_port import PanelFindingPort
 
 if TYPE_CHECKING:
-    from src.domain.governance.events.event_envelope import GovernanceEvent
+    pass
 
 
 class TimeAuthorityProtocol(Protocol):
@@ -142,7 +142,7 @@ class PanelFindingService:
     async def get_finding(
         self,
         finding_id: UUID,
-    ) -> Optional[FindingRecord]:
+    ) -> FindingRecord | None:
         """Get a finding by ID.
 
         Args:
@@ -156,7 +156,7 @@ class PanelFindingService:
     async def get_findings_for_statement(
         self,
         statement_id: UUID,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         """Get all findings for a witness statement (AC6).
 
         Args:
@@ -170,7 +170,7 @@ class PanelFindingService:
     async def get_findings_by_panel(
         self,
         panel_id: UUID,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         """Get all findings from a panel.
 
         Args:
@@ -184,8 +184,8 @@ class PanelFindingService:
     async def get_findings_by_determination(
         self,
         determination: Determination,
-        since: Optional[datetime] = None,
-    ) -> List[FindingRecord]:
+        since: datetime | None = None,
+    ) -> list[FindingRecord]:
         """Get findings by determination type (AC7).
 
         Args:
@@ -195,15 +195,13 @@ class PanelFindingService:
         Returns:
             List of findings with this determination.
         """
-        return await self._findings.get_findings_by_determination(
-            determination, since
-        )
+        return await self._findings.get_findings_by_determination(determination, since)
 
     async def get_findings_in_range(
         self,
         start: datetime,
         end: datetime,
-    ) -> List[FindingRecord]:
+    ) -> list[FindingRecord]:
         """Get findings in a date range (AC7).
 
         Args:
@@ -217,8 +215,8 @@ class PanelFindingService:
 
     async def get_findings_with_dissent(
         self,
-        since: Optional[datetime] = None,
-    ) -> List[FindingRecord]:
+        since: datetime | None = None,
+    ) -> list[FindingRecord]:
         """Get all findings that have dissent recorded.
 
         Useful for analyzing close decisions and patterns.
@@ -242,8 +240,8 @@ class PanelFindingService:
 
     async def count_findings(
         self,
-        determination: Optional[Determination] = None,
-        since: Optional[datetime] = None,
+        determination: Determination | None = None,
+        since: datetime | None = None,
     ) -> int:
         """Count findings matching criteria.
 
@@ -256,7 +254,7 @@ class PanelFindingService:
         """
         return await self._findings.count_findings(determination, since)
 
-    async def get_latest_finding(self) -> Optional[FindingRecord]:
+    async def get_latest_finding(self) -> FindingRecord | None:
         """Get the most recently recorded finding.
 
         Returns:
@@ -288,8 +286,7 @@ class PanelFindingService:
                 "remedy": finding.remedy.value if finding.remedy else None,
                 "has_dissent": finding.dissent is not None,
                 "dissenting_count": (
-                    len(finding.dissent.dissenting_member_ids)
-                    if finding.dissent else 0
+                    len(finding.dissent.dissenting_member_ids) if finding.dissent else 0
                 ),
                 "voting_record_count": len(finding.voting_record),
                 "issued_at": finding.issued_at.isoformat(),
@@ -348,14 +345,11 @@ def compute_finding_hash(finding: PanelFinding) -> str:
                 "members": [str(m) for m in finding.dissent.dissenting_member_ids],
                 "rationale": finding.dissent.rationale,
             }
-            if finding.dissent else None
+            if finding.dissent
+            else None
         ),
-        "voting_record": {
-            str(k): v for k, v in finding.voting_record.items()
-        },
+        "voting_record": {str(k): v for k, v in finding.voting_record.items()},
         "issued_at": finding.issued_at.isoformat(),
     }
 
-    return hashlib.sha256(
-        json.dumps(finding_data, sort_keys=True).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(finding_data, sort_keys=True).encode()).hexdigest()

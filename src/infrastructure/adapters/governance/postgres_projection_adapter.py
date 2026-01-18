@@ -20,8 +20,7 @@ References:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import text
@@ -36,8 +35,6 @@ from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.projections import (
     ActorRegistryRecord,
     LegitimacyStateRecord,
-    PanelRegistryRecord,
-    PetitionIndexRecord,
     TaskStateRecord,
 )
 
@@ -46,13 +43,15 @@ if TYPE_CHECKING:
 
 
 # Known projection names
-KNOWN_PROJECTIONS = frozenset({
-    "task_states",
-    "legitimacy_states",
-    "panel_registry",
-    "petition_index",
-    "actor_registry",
-})
+KNOWN_PROJECTIONS = frozenset(
+    {
+        "task_states",
+        "legitimacy_states",
+        "panel_registry",
+        "petition_index",
+        "actor_registry",
+    }
+)
 
 
 class PostgresProjectionAdapter(ProjectionPort):
@@ -77,7 +76,7 @@ class PostgresProjectionAdapter(ProjectionPort):
     def __init__(
         self,
         session_factory: async_sessionmaker[AsyncSession],
-        time_authority: "TimeAuthority",
+        time_authority: TimeAuthority,
     ) -> None:
         """Initialize the adapter.
 
@@ -106,7 +105,9 @@ class PostgresProjectionAdapter(ProjectionPort):
 
         async with self._session_factory() as session:
             # Check idempotency - has this event already been applied?
-            if await self._is_event_applied_internal(session, projection_name, event.event_id):
+            if await self._is_event_applied_internal(
+                session, projection_name, event.event_id
+            ):
                 return False
 
             # Apply the event based on projection type
@@ -130,7 +131,9 @@ class PostgresProjectionAdapter(ProjectionPort):
     ) -> bool:
         """Check if an event was already applied to a projection."""
         async with self._session_factory() as session:
-            return await self._is_event_applied_internal(session, projection_name, event_id)
+            return await self._is_event_applied_internal(
+                session, projection_name, event_id
+            )
 
     async def _is_event_applied_internal(
         self,
@@ -419,7 +422,9 @@ class PostgresProjectionAdapter(ProjectionPort):
     # Legitimacy State Projection Methods
     # =========================================================================
 
-    async def get_legitimacy_state(self, entity_id: str) -> LegitimacyStateRecord | None:
+    async def get_legitimacy_state(
+        self, entity_id: str
+    ) -> LegitimacyStateRecord | None:
         """Get the current legitimacy state of an entity."""
         async with self._session_factory() as session:
             result = await session.execute(

@@ -12,4 +12,6 @@ from __future__ import annotations
 import pytest
 
 # Register chaos mark
-pytest.register_marker = "chaos: mark test as a chaos test (deselect with '-m \"not chaos\"')"
+pytest.register_marker = (
+    "chaos: mark test as a chaos test (deselect with '-m \"not chaos\"')"
+)

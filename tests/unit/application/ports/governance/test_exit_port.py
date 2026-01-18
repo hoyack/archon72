@@ -18,7 +18,6 @@ from src.domain.governance.exit.exit_request import ExitRequest
 from src.domain.governance.exit.exit_result import ExitResult
 from src.domain.governance.exit.exit_status import ExitStatus
 
-
 # =============================================================================
 # Protocol Interface Tests
 # =============================================================================
@@ -225,7 +224,9 @@ class TestFakeExitPort:
         assert await fake_exit_port.has_cluster_exited(cluster_id) is False
 
     @pytest.mark.asyncio
-    async def test_has_cluster_exited_true_after_completed_result(self, fake_exit_port, now):
+    async def test_has_cluster_exited_true_after_completed_result(
+        self, fake_exit_port, now
+    ):
         """has_cluster_exited returns True after completed exit."""
         cluster_id = uuid4()
         result = ExitResult(

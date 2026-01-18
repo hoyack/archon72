@@ -51,14 +51,60 @@ from src.domain.events.agent_unresponsive import (
     AGENT_UNRESPONSIVE_EVENT_TYPE,
     AgentUnresponsivePayload,
 )
+from src.domain.events.amendment import (
+    AMENDMENT_PROPOSED_EVENT_TYPE,
+    AMENDMENT_REJECTED_EVENT_TYPE,
+    AMENDMENT_VOTE_BLOCKED_EVENT_TYPE,
+    VISIBILITY_PERIOD_DAYS,
+    AmendmentImpactAnalysis,
+    AmendmentProposedEventPayload,
+    AmendmentRejectedEventPayload,
+    AmendmentStatus,
+    AmendmentType,
+    AmendmentVoteBlockedEventPayload,
+)
+from src.domain.events.anti_success_alert import (
+    ANTI_SUCCESS_ALERT_EVENT_TYPE,
+    AntiSuccessAlertPayload,
+)
+from src.domain.events.anti_success_alert import (
+    AlertType as AntiSuccessAlertType,
+)
+from src.domain.events.audit import (
+    AUDIT_COMPLETED_EVENT_TYPE,
+    AUDIT_STARTED_EVENT_TYPE,
+    AUDIT_SYSTEM_AGENT_ID,
+    MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE,
+    AuditCompletedEventPayload,
+    AuditResultStatus,
+    AuditStartedEventPayload,
+    ViolationFlaggedEventPayload,
+)
+from src.domain.events.breach import (
+    BREACH_DECLARED_EVENT_TYPE,
+    BreachEventPayload,
+    BreachSeverity,
+    BreachType,
+)
 from src.domain.events.certified_result import (
     CERTIFIED_RESULT_EVENT_TYPE,
     CertifiedResultPayload,
 )
-from src.domain.events.constitutional_crisis import (
-    CONSTITUTIONAL_CRISIS_EVENT_TYPE,
-    ConstitutionalCrisisPayload,
-    CrisisType,
+from src.domain.events.cessation import (
+    CESSATION_CONSIDERATION_EVENT_TYPE,
+    CESSATION_DECISION_EVENT_TYPE,
+    CessationConsiderationEventPayload,
+    CessationDecision,
+    CessationDecisionEventPayload,
+)
+from src.domain.events.cessation_agenda import (
+    CESSATION_AGENDA_PLACEMENT_EVENT_TYPE,
+    AgendaTriggerType,
+    CessationAgendaPlacementEventPayload,
+)
+from src.domain.events.cessation_executed import (
+    CESSATION_EXECUTED_EVENT_TYPE,
+    CessationExecutedEventPayload,
 )
 from src.domain.events.collective_output import (
     COLLECTIVE_OUTPUT_EVENT_TYPE,
@@ -66,9 +112,62 @@ from src.domain.events.collective_output import (
     CollectiveOutputPayload,
     VoteCounts,
 )
+from src.domain.events.collusion import (
+    COLLUSION_INVESTIGATION_TRIGGERED_EVENT_TYPE,
+    INVESTIGATION_RESOLVED_EVENT_TYPE,
+    WITNESS_PAIR_SUSPENDED_EVENT_TYPE,
+    CollusionInvestigationTriggeredEventPayload,
+    InvestigationResolution,
+    InvestigationResolvedEventPayload,
+    WitnessPairSuspendedEventPayload,
+)
+from src.domain.events.complexity_budget import (
+    COMPLEXITY_BUDGET_BREACHED_EVENT_TYPE,
+    COMPLEXITY_BUDGET_ESCALATED_EVENT_TYPE,
+    COMPLEXITY_SYSTEM_AGENT_ID,
+    ComplexityBudgetBreachedPayload,
+    ComplexityBudgetEscalatedPayload,
+)
+from src.domain.events.compliance import (
+    COMPLIANCE_DOCUMENTED_EVENT_TYPE,
+    COMPLIANCE_SYSTEM_AGENT_ID,
+    ComplianceDocumentedEventPayload,
+)
+from src.domain.events.compliance import (
+    ComplianceFramework as EventComplianceFramework,
+)
+from src.domain.events.compliance import (
+    ComplianceStatus as EventComplianceStatus,
+)
+from src.domain.events.configuration_floor import (
+    CONFIGURATION_FLOOR_VIOLATION_EVENT_TYPE,
+    ConfigurationFloorViolationEventPayload,
+    ConfigurationSource,
+)
+from src.domain.events.constitutional_crisis import (
+    CONSTITUTIONAL_CRISIS_EVENT_TYPE,
+    ConstitutionalCrisisPayload,
+    CrisisType,
+)
+from src.domain.events.constitutional_health import (
+    CONSTITUTIONAL_HEALTH_ALERT_EVENT_TYPE,
+    ConstitutionalAlertSeverity,
+    ConstitutionalAlertType,
+    ConstitutionalHealthAlertPayload,
+    create_breach_critical_alert,
+    create_breach_warning_alert,
+    create_ceremonies_blocked_alert,
+)
 from src.domain.events.context_bundle_created import (
     CONTEXT_BUNDLE_CREATED_EVENT_TYPE,
     ContextBundleCreatedPayload,
+)
+from src.domain.events.escalation import (
+    BREACH_ACKNOWLEDGED_EVENT_TYPE,
+    ESCALATION_EVENT_TYPE,
+    BreachAcknowledgedEventPayload,
+    EscalationEventPayload,
+    ResponseChoice,
 )
 from src.domain.events.event import Event
 from src.domain.events.fork_detected import (
@@ -78,6 +177,12 @@ from src.domain.events.fork_detected import (
 from src.domain.events.fork_signal_rate_limit import (
     FORK_SIGNAL_RATE_LIMIT_EVENT_TYPE,
     ForkSignalRateLimitPayload,
+)
+from src.domain.events.governance_review_required import (
+    GOVERNANCE_REVIEW_REQUIRED_EVENT_TYPE,
+    RT3_THRESHOLD,
+    RT3_WINDOW_DAYS,
+    GovernanceReviewRequiredPayload,
 )
 from src.domain.events.halt_cleared import (
     HALT_CLEARED_EVENT_TYPE,
@@ -91,78 +196,31 @@ from src.domain.events.hash_utils import (
     compute_content_hash,
     get_prev_hash,
 )
-from src.domain.events.procedural_record import (
-    PROCEDURAL_RECORD_EVENT_TYPE,
-    ProceduralRecordPayload,
+from src.domain.events.hash_verification import (
+    HASH_VERIFICATION_BREACH_EVENT_TYPE,
+    HASH_VERIFICATION_COMPLETED_EVENT_TYPE,
+    HashVerificationBreachEventPayload,
+    HashVerificationCompletedEventPayload,
+    HashVerificationResult,
 )
-from src.domain.events.signing import (
-    SIG_ALG_NAME,
-    SIG_ALG_VERSION,
-    compute_signable_content,
-    signature_from_base64,
-    signature_to_base64,
+from src.domain.events.incident_report import (
+    INCIDENT_REPORT_CREATED_EVENT_TYPE,
+    INCIDENT_REPORT_PUBLISHED_EVENT_TYPE,
+    INCIDENT_SYSTEM_AGENT_ID,
+    IncidentReportCreatedPayload,
+    IncidentReportPublishedPayload,
 )
-from src.domain.events.topic_diversity_alert import (
-    TOPIC_DIVERSITY_ALERT_EVENT_TYPE,
-    TopicDiversityAlertPayload,
+from src.domain.events.independence_attestation import (
+    DECLARATION_CHANGE_DETECTED_EVENT_TYPE,
+    INDEPENDENCE_ATTESTATION_EVENT_TYPE,
+    KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE,
+    DeclarationChangeDetectedPayload,
+    IndependenceAttestationPayload,
+    KeeperIndependenceSuspendedPayload,
 )
-from src.domain.events.topic_rate_limit import (
-    TOPIC_RATE_LIMIT_EVENT_TYPE,
-    TopicRateLimitPayload,
-)
-from src.domain.events.recovery_completed import (
-    RECOVERY_COMPLETED_EVENT_TYPE,
-    RecoveryCompletedPayload,
-)
-from src.domain.events.recovery_waiting_period_started import (
-    RECOVERY_WAITING_PERIOD_STARTED_EVENT_TYPE,
-    RecoveryWaitingPeriodStartedPayload,
-)
-from src.domain.events.sequence_gap_detected import (
-    SEQUENCE_GAP_DETECTED_EVENT_TYPE,
-    SequenceGapDetectedPayload,
-)
-from src.domain.events.rollback_completed import (
-    ROLLBACK_COMPLETED_EVENT_TYPE,
-    RollbackCompletedPayload,
-)
-from src.domain.events.rollback_target_selected import (
-    ROLLBACK_TARGET_SELECTED_EVENT_TYPE,
-    RollbackTargetSelectedPayload,
-)
-from src.domain.events.override_event import (
-    MAX_DURATION_SECONDS,
-    OVERRIDE_EVENT_TYPE,
-    OVERRIDE_EXPIRED_EVENT_TYPE,
-    ActionType,
-    OverrideEventPayload,
-    OverrideExpiredEventPayload,
-)
-from src.domain.events.unanimous_vote import (
-    UNANIMOUS_VOTE_EVENT_TYPE,
-    UnanimousVotePayload,
-    VoteOutcome,
-)
-from src.domain.events.anti_success_alert import (
-    ANTI_SUCCESS_ALERT_EVENT_TYPE,
-    AlertType as AntiSuccessAlertType,
-    AntiSuccessAlertPayload,
-)
-from src.domain.events.governance_review_required import (
-    GOVERNANCE_REVIEW_REQUIRED_EVENT_TYPE,
-    GovernanceReviewRequiredPayload,
-    RT3_THRESHOLD,
-    RT3_WINDOW_DAYS,
-)
-from src.domain.events.key_generation_ceremony import (
-    KEY_GENERATION_CEREMONY_COMPLETED_EVENT_TYPE,
-    KEY_GENERATION_CEREMONY_FAILED_EVENT_TYPE,
-    KEY_GENERATION_CEREMONY_STARTED_EVENT_TYPE,
-    KEY_GENERATION_CEREMONY_WITNESSED_EVENT_TYPE,
-    KeyGenerationCeremonyCompletedPayload,
-    KeyGenerationCeremonyFailedPayload,
-    KeyGenerationCeremonyStartedPayload,
-    KeyGenerationCeremonyWitnessedPayload,
+from src.domain.events.integrity_case import (
+    INTEGRITY_CASE_UPDATED_EVENT_TYPE,
+    IntegrityCaseUpdatedEventPayload,
 )
 from src.domain.events.keeper_availability import (
     KEEPER_ATTESTATION_EVENT_TYPE,
@@ -175,6 +233,16 @@ from src.domain.events.keeper_availability import (
     KeeperQuorumWarningPayload,
     KeeperReplacementInitiatedPayload,
 )
+from src.domain.events.key_generation_ceremony import (
+    KEY_GENERATION_CEREMONY_COMPLETED_EVENT_TYPE,
+    KEY_GENERATION_CEREMONY_FAILED_EVENT_TYPE,
+    KEY_GENERATION_CEREMONY_STARTED_EVENT_TYPE,
+    KEY_GENERATION_CEREMONY_WITNESSED_EVENT_TYPE,
+    KeyGenerationCeremonyCompletedPayload,
+    KeyGenerationCeremonyFailedPayload,
+    KeyGenerationCeremonyStartedPayload,
+    KeyGenerationCeremonyWitnessedPayload,
+)
 from src.domain.events.override_abuse import (
     ANOMALY_DETECTED_EVENT_TYPE,
     OVERRIDE_ABUSE_REJECTED_EVENT_TYPE,
@@ -183,105 +251,13 @@ from src.domain.events.override_abuse import (
     OverrideAbuseRejectedPayload,
     ViolationType,
 )
-from src.domain.events.independence_attestation import (
-    DECLARATION_CHANGE_DETECTED_EVENT_TYPE,
-    INDEPENDENCE_ATTESTATION_EVENT_TYPE,
-    KEEPER_INDEPENDENCE_SUSPENDED_EVENT_TYPE,
-    DeclarationChangeDetectedPayload,
-    IndependenceAttestationPayload,
-    KeeperIndependenceSuspendedPayload,
-)
-from src.domain.events.breach import (
-    BREACH_DECLARED_EVENT_TYPE,
-    BreachEventPayload,
-    BreachSeverity,
-    BreachType,
-)
-from src.domain.events.escalation import (
-    BREACH_ACKNOWLEDGED_EVENT_TYPE,
-    ESCALATION_EVENT_TYPE,
-    BreachAcknowledgedEventPayload,
-    EscalationEventPayload,
-    ResponseChoice,
-)
-from src.domain.events.cessation import (
-    CESSATION_CONSIDERATION_EVENT_TYPE,
-    CESSATION_DECISION_EVENT_TYPE,
-    CessationConsiderationEventPayload,
-    CessationDecision,
-    CessationDecisionEventPayload,
-)
-from src.domain.events.threshold import (
-    THRESHOLD_UPDATED_EVENT_TYPE,
-    ThresholdUpdatedEventPayload,
-)
-from src.domain.events.witness_selection import (
-    WITNESS_PAIR_ROTATION_EVENT_TYPE,
-    WITNESS_SELECTION_EVENT_TYPE,
-    WitnessPairRotationEventPayload,
-    WitnessSelectionEventPayload,
-)
-from src.domain.events.witness_anomaly import (
-    WITNESS_ANOMALY_EVENT_TYPE,
-    WITNESS_POOL_DEGRADED_EVENT_TYPE,
-    ReviewStatus,
-    WitnessAnomalyEventPayload,
-    WitnessAnomalyType,
-    WitnessPoolDegradedEventPayload,
-)
-from src.domain.events.amendment import (
-    AMENDMENT_PROPOSED_EVENT_TYPE,
-    AMENDMENT_REJECTED_EVENT_TYPE,
-    AMENDMENT_VOTE_BLOCKED_EVENT_TYPE,
-    VISIBILITY_PERIOD_DAYS,
-    AmendmentImpactAnalysis,
-    AmendmentProposedEventPayload,
-    AmendmentRejectedEventPayload,
-    AmendmentStatus,
-    AmendmentType,
-    AmendmentVoteBlockedEventPayload,
-)
-from src.domain.events.collusion import (
-    COLLUSION_INVESTIGATION_TRIGGERED_EVENT_TYPE,
-    INVESTIGATION_RESOLVED_EVENT_TYPE,
-    WITNESS_PAIR_SUSPENDED_EVENT_TYPE,
-    CollusionInvestigationTriggeredEventPayload,
-    InvestigationResolution,
-    InvestigationResolvedEventPayload,
-    WitnessPairSuspendedEventPayload,
-)
-from src.domain.events.hash_verification import (
-    HASH_VERIFICATION_BREACH_EVENT_TYPE,
-    HASH_VERIFICATION_COMPLETED_EVENT_TYPE,
-    HashVerificationBreachEventPayload,
-    HashVerificationCompletedEventPayload,
-    HashVerificationResult,
-)
-from src.domain.events.topic_manipulation import (
-    COORDINATED_SUBMISSION_SUSPECTED_EVENT_TYPE,
-    TOPIC_MANIPULATION_SUSPECTED_EVENT_TYPE,
-    TOPIC_RATE_LIMIT_DAILY_EVENT_TYPE,
-    CoordinatedSubmissionSuspectedEventPayload,
-    ManipulationPatternType,
-    TopicManipulationSuspectedEventPayload,
-    TopicRateLimitDailyEventPayload,
-)
-from src.domain.events.seed_validation import (
-    SEED_REJECTED_EVENT_TYPE,
-    SEED_VALIDATION_EVENT_TYPE,
-    SeedRejectedEventPayload,
-    SeedValidationEventPayload,
-    SeedValidationResult,
-)
-from src.domain.events.configuration_floor import (
-    CONFIGURATION_FLOOR_VIOLATION_EVENT_TYPE,
-    ConfigurationFloorViolationEventPayload,
-    ConfigurationSource,
-)
-from src.domain.events.cessation_agenda import (
-    CESSATION_AGENDA_PLACEMENT_EVENT_TYPE,
-    AgendaTriggerType,
-    CessationAgendaPlacementEventPayload,
+from src.domain.events.override_event import (
+    MAX_DURATION_SECONDS,
+    OVERRIDE_EVENT_TYPE,
+    OVERRIDE_EXPIRED_EVENT_TYPE,
+    ActionType,
+    OverrideEventPayload,
+    OverrideExpiredEventPayload,
 )
 from src.domain.events.petition import (
     PETITION_COSIGNED_EVENT_TYPE,
@@ -294,25 +270,6 @@ from src.domain.events.petition import (
     PetitionStatus,
     PetitionThresholdMetEventPayload,
 )
-from src.domain.events.cessation_executed import (
-    CESSATION_EXECUTED_EVENT_TYPE,
-    CessationExecutedEventPayload,
-)
-from src.domain.events.trigger_condition_changed import (
-    TRIGGER_CONDITION_CHANGED_EVENT_TYPE,
-    TriggerConditionChangedEventPayload,
-)
-from src.domain.events.integrity_case import (
-    INTEGRITY_CASE_UPDATED_EVENT_TYPE,
-    IntegrityCaseUpdatedEventPayload,
-)
-from src.domain.events.incident_report import (
-    INCIDENT_REPORT_CREATED_EVENT_TYPE,
-    INCIDENT_REPORT_PUBLISHED_EVENT_TYPE,
-    INCIDENT_SYSTEM_AGENT_ID,
-    IncidentReportCreatedPayload,
-    IncidentReportPublishedPayload,
-)
 from src.domain.events.pre_operational_verification import (
     POST_HALT_VERIFICATION_STARTED_EVENT_TYPE,
     VERIFICATION_BYPASSED_EVENT_TYPE,
@@ -323,21 +280,9 @@ from src.domain.events.pre_operational_verification import (
     VerificationBypassedPayload,
     VerificationCompletedPayload,
 )
-from src.domain.events.complexity_budget import (
-    COMPLEXITY_BUDGET_BREACHED_EVENT_TYPE,
-    COMPLEXITY_BUDGET_ESCALATED_EVENT_TYPE,
-    COMPLEXITY_SYSTEM_AGENT_ID,
-    ComplexityBudgetBreachedPayload,
-    ComplexityBudgetEscalatedPayload,
-)
-from src.domain.events.constitutional_health import (
-    CONSTITUTIONAL_HEALTH_ALERT_EVENT_TYPE,
-    ConstitutionalAlertSeverity,
-    ConstitutionalAlertType,
-    ConstitutionalHealthAlertPayload,
-    create_breach_critical_alert,
-    create_breach_warning_alert,
-    create_ceremonies_blocked_alert,
+from src.domain.events.procedural_record import (
+    PROCEDURAL_RECORD_EVENT_TYPE,
+    ProceduralRecordPayload,
 )
 from src.domain.events.prohibited_language_blocked import (
     MAX_CONTENT_PREVIEW_LENGTH,
@@ -352,15 +297,75 @@ from src.domain.events.publication_scan import (
     PublicationScannedEventPayload,
     ScanResultStatus,
 )
-from src.domain.events.audit import (
-    AUDIT_COMPLETED_EVENT_TYPE,
-    AUDIT_STARTED_EVENT_TYPE,
-    AUDIT_SYSTEM_AGENT_ID,
-    MATERIAL_VIOLATION_FLAGGED_EVENT_TYPE,
-    AuditCompletedEventPayload,
-    AuditResultStatus,
-    AuditStartedEventPayload,
-    ViolationFlaggedEventPayload,
+from src.domain.events.recovery_completed import (
+    RECOVERY_COMPLETED_EVENT_TYPE,
+    RecoveryCompletedPayload,
+)
+from src.domain.events.recovery_waiting_period_started import (
+    RECOVERY_WAITING_PERIOD_STARTED_EVENT_TYPE,
+    RecoveryWaitingPeriodStartedPayload,
+)
+from src.domain.events.rollback_completed import (
+    ROLLBACK_COMPLETED_EVENT_TYPE,
+    RollbackCompletedPayload,
+)
+from src.domain.events.rollback_target_selected import (
+    ROLLBACK_TARGET_SELECTED_EVENT_TYPE,
+    RollbackTargetSelectedPayload,
+)
+from src.domain.events.seed_validation import (
+    SEED_REJECTED_EVENT_TYPE,
+    SEED_VALIDATION_EVENT_TYPE,
+    SeedRejectedEventPayload,
+    SeedValidationEventPayload,
+    SeedValidationResult,
+)
+from src.domain.events.semantic_violation import (
+    DEFAULT_CONFIDENCE_THRESHOLD,
+    SEMANTIC_SCANNER_SYSTEM_AGENT_ID,
+    SEMANTIC_VIOLATION_SUSPECTED_EVENT_TYPE,
+    SemanticViolationSuspectedEventPayload,
+)
+from src.domain.events.sequence_gap_detected import (
+    SEQUENCE_GAP_DETECTED_EVENT_TYPE,
+    SequenceGapDetectedPayload,
+)
+from src.domain.events.signing import (
+    SIG_ALG_NAME,
+    SIG_ALG_VERSION,
+    compute_signable_content,
+    signature_from_base64,
+    signature_to_base64,
+)
+from src.domain.events.threshold import (
+    THRESHOLD_UPDATED_EVENT_TYPE,
+    ThresholdUpdatedEventPayload,
+)
+from src.domain.events.topic_diversity_alert import (
+    TOPIC_DIVERSITY_ALERT_EVENT_TYPE,
+    TopicDiversityAlertPayload,
+)
+from src.domain.events.topic_manipulation import (
+    COORDINATED_SUBMISSION_SUSPECTED_EVENT_TYPE,
+    TOPIC_MANIPULATION_SUSPECTED_EVENT_TYPE,
+    TOPIC_RATE_LIMIT_DAILY_EVENT_TYPE,
+    CoordinatedSubmissionSuspectedEventPayload,
+    ManipulationPatternType,
+    TopicManipulationSuspectedEventPayload,
+    TopicRateLimitDailyEventPayload,
+)
+from src.domain.events.topic_rate_limit import (
+    TOPIC_RATE_LIMIT_EVENT_TYPE,
+    TopicRateLimitPayload,
+)
+from src.domain.events.trigger_condition_changed import (
+    TRIGGER_CONDITION_CHANGED_EVENT_TYPE,
+    TriggerConditionChangedEventPayload,
+)
+from src.domain.events.unanimous_vote import (
+    UNANIMOUS_VOTE_EVENT_TYPE,
+    UnanimousVotePayload,
+    VoteOutcome,
 )
 from src.domain.events.user_content_prohibition import (
     USER_CONTENT_CLEARED_EVENT_TYPE,
@@ -369,24 +374,25 @@ from src.domain.events.user_content_prohibition import (
     UserContentClearedEventPayload,
     UserContentProhibitionEventPayload,
 )
-from src.domain.events.semantic_violation import (
-    DEFAULT_CONFIDENCE_THRESHOLD,
-    SEMANTIC_SCANNER_SYSTEM_AGENT_ID,
-    SEMANTIC_VIOLATION_SUSPECTED_EVENT_TYPE,
-    SemanticViolationSuspectedEventPayload,
-)
 from src.domain.events.waiver import (
     WAIVER_DOCUMENTED_EVENT_TYPE,
     WAIVER_SYSTEM_AGENT_ID,
     WaiverDocumentedEventPayload,
     WaiverStatus,
 )
-from src.domain.events.compliance import (
-    COMPLIANCE_DOCUMENTED_EVENT_TYPE,
-    COMPLIANCE_SYSTEM_AGENT_ID,
-    ComplianceDocumentedEventPayload,
-    ComplianceFramework as EventComplianceFramework,
-    ComplianceStatus as EventComplianceStatus,
+from src.domain.events.witness_anomaly import (
+    WITNESS_ANOMALY_EVENT_TYPE,
+    WITNESS_POOL_DEGRADED_EVENT_TYPE,
+    ReviewStatus,
+    WitnessAnomalyEventPayload,
+    WitnessAnomalyType,
+    WitnessPoolDegradedEventPayload,
+)
+from src.domain.events.witness_selection import (
+    WITNESS_PAIR_ROTATION_EVENT_TYPE,
+    WITNESS_SELECTION_EVENT_TYPE,
+    WitnessPairRotationEventPayload,
+    WitnessSelectionEventPayload,
 )
 
 __all__: list[str] = [

@@ -3,8 +3,6 @@
 Tests the main service implementation.
 """
 
-from datetime import datetime, timezone
-from typing import Optional
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -397,7 +395,9 @@ class TestDeterministicAlgorithm:
     ) -> None:
         """Same inputs produce same selection."""
         # Use deterministic entropy
-        mock_entropy_source.get_entropy.return_value = b"deterministic_entropy_here!!!!!"
+        mock_entropy_source.get_entropy.return_value = (
+            b"deterministic_entropy_here!!!!!"
+        )
 
         service1 = VerifiableWitnessSelectionService(
             halt_checker=mock_halt_checker,

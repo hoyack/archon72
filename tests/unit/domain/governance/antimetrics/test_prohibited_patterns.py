@@ -24,12 +24,17 @@ class TestProhibitedPatternEnum:
 
     def test_all_patterns_defined(self) -> None:
         """All required patterns are defined."""
-        assert ProhibitedPattern.PARTICIPANT_PERFORMANCE.value == "participant_performance"
+        assert (
+            ProhibitedPattern.PARTICIPANT_PERFORMANCE.value == "participant_performance"
+        )
         assert ProhibitedPattern.COMPLETION_RATE.value == "completion_rate"
         assert ProhibitedPattern.ENGAGEMENT_TRACKING.value == "engagement_tracking"
         assert ProhibitedPattern.RETENTION_METRICS.value == "retention_metrics"
         assert ProhibitedPattern.SESSION_TRACKING.value == "session_tracking"
-        assert ProhibitedPattern.RESPONSE_TIME_PER_PARTICIPANT.value == "response_time_per_participant"
+        assert (
+            ProhibitedPattern.RESPONSE_TIME_PER_PARTICIPANT.value
+            == "response_time_per_participant"
+        )
 
     def test_pattern_count(self) -> None:
         """Expected number of patterns defined."""
@@ -37,7 +42,9 @@ class TestProhibitedPatternEnum:
 
     def test_str_representation(self) -> None:
         """String representation is human-readable."""
-        assert str(ProhibitedPattern.PARTICIPANT_PERFORMANCE) == "Participant Performance"
+        assert (
+            str(ProhibitedPattern.PARTICIPANT_PERFORMANCE) == "Participant Performance"
+        )
         assert str(ProhibitedPattern.COMPLETION_RATE) == "Completion Rate"
 
 
@@ -229,13 +236,21 @@ class TestPatternCoverage:
         - Response time tracking
         """
         # Tables
-        assert self._matches_any_pattern("participant_performance", PROHIBITED_TABLE_PATTERNS)
+        assert self._matches_any_pattern(
+            "participant_performance", PROHIBITED_TABLE_PATTERNS
+        )
         assert self._matches_any_pattern("cluster_metrics", PROHIBITED_TABLE_PATTERNS)
-        assert self._matches_any_pattern("participant_scores", PROHIBITED_TABLE_PATTERNS)
+        assert self._matches_any_pattern(
+            "participant_scores", PROHIBITED_TABLE_PATTERNS
+        )
 
         # Columns
-        assert self._matches_any_pattern("performance_score", PROHIBITED_COLUMN_PATTERNS)
-        assert self._matches_any_pattern("response_time_avg", PROHIBITED_COLUMN_PATTERNS)
+        assert self._matches_any_pattern(
+            "performance_score", PROHIBITED_COLUMN_PATTERNS
+        )
+        assert self._matches_any_pattern(
+            "response_time_avg", PROHIBITED_COLUMN_PATTERNS
+        )
 
     def test_fr62_coverage(self) -> None:
         """FR62: No completion rates per participant.
@@ -263,7 +278,9 @@ class TestPatternCoverage:
         """
         # Tables
         assert self._matches_any_pattern("user_engagement", PROHIBITED_TABLE_PATTERNS)
-        assert self._matches_any_pattern("participant_retention", PROHIBITED_TABLE_PATTERNS)
+        assert self._matches_any_pattern(
+            "participant_retention", PROHIBITED_TABLE_PATTERNS
+        )
         assert self._matches_any_pattern("session_tracking", PROHIBITED_TABLE_PATTERNS)
 
         # Columns

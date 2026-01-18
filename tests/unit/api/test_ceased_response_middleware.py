@@ -10,15 +10,13 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from starlette.responses import JSONResponse, Response
+from starlette.responses import Response
 
 from src.api.middleware.ceased_response import CeasedResponseMiddleware
-from src.domain.models.ceased_status_header import CeasedStatusHeader, CessationDetails
 from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
 
 

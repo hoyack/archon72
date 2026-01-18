@@ -11,15 +11,13 @@ Constitutional Compliance:
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import pytest
-
+from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
+from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
 from src.domain.governance.legitimacy.restoration_acknowledgment import (
     RestorationAcknowledgment,
     RestorationRequest,
     RestorationResult,
 )
-from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
-from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
 from src.domain.governance.legitimacy.transition_type import TransitionType
 
 
@@ -90,8 +88,6 @@ class TestRestorationAcknowledgmentFromDomain:
         """Can import models from legitimacy domain module."""
         from src.domain.governance.legitimacy import (
             RestorationAcknowledgment,
-            RestorationRequest,
-            RestorationResult,
         )
 
         # Verify we can create instances

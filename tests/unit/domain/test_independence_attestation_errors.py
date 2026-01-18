@@ -14,8 +14,6 @@ Constitutional Constraints Tested:
 
 from __future__ import annotations
 
-import pytest
-
 
 class TestIndependenceAttestationError:
     """Tests for IndependenceAttestationError base class."""

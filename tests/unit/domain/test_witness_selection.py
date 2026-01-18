@@ -112,8 +112,8 @@ class TestDeterministicSelect:
         seed2 = b"11111111" * 4
         pool = ("WITNESS:a", "WITNESS:b", "WITNESS:c")
 
-        result1 = deterministic_select(seed1, pool)
-        result2 = deterministic_select(seed2, pool)
+        deterministic_select(seed1, pool)
+        deterministic_select(seed2, pool)
 
         # Different seeds should produce different results (with high probability)
         # Note: This is probabilistic but very likely with different seeds

@@ -9,9 +9,10 @@ Tests:
 - Structural prohibition (no win-back methods)
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
+
+import pytest
 
 from src.application.services.governance.contact_prevention_service import (
     ContactPreventionService,
@@ -59,11 +60,13 @@ class FakeEventEmitter:
         payload: dict,
     ) -> None:
         """Record emitted event."""
-        self.events.append({
-            "event_type": event_type,
-            "actor": actor,
-            "payload": payload,
-        })
+        self.events.append(
+            {
+                "event_type": event_type,
+                "actor": actor,
+                "payload": payload,
+            }
+        )
 
     def get_events(self, event_type: str | None = None) -> list[dict]:
         """Get recorded events, optionally filtered by type."""
@@ -445,7 +448,8 @@ class TestNoWinBackCapability:
 
         # Get all public methods (not starting with _)
         public_methods = {
-            name for name in dir(prevention_service)
+            name
+            for name in dir(prevention_service)
             if not name.startswith("_") and callable(getattr(prevention_service, name))
         }
 

@@ -46,7 +46,9 @@ class TestConfigurationHealthEndpoint:
         assert "threshold_statuses" in data
         assert isinstance(data["threshold_statuses"], list)
 
-    def test_threshold_status_includes_required_fields(self, client: TestClient) -> None:
+    def test_threshold_status_includes_required_fields(
+        self, client: TestClient
+    ) -> None:
         """Each threshold status should include required fields."""
         response = client.get("/v1/configuration/health")
         data = response.json()

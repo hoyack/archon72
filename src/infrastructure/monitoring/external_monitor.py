@@ -10,7 +10,6 @@ Constitutional Constraints:
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 
 import httpx
 import structlog
@@ -54,7 +53,7 @@ class MonitoringConfig:
 
     health_endpoint: str = "http://localhost:8000/v1/observer/health"
     check_interval_seconds: int = 30
-    alert_webhook_url: Optional[str] = None
+    alert_webhook_url: str | None = None
     sla_target: float = 99.9
     alert_after_failures: int = 3
 
@@ -79,7 +78,7 @@ class MonitoringAlert:
     message: str
     timestamp: datetime
     service: str = "observer-api"
-    incident_id: Optional[str] = None
+    incident_id: str | None = None
 
 
 class ExternalMonitorClient:
@@ -110,7 +109,7 @@ class ExternalMonitorClient:
         """
         self._config = config
         self._consecutive_failures = 0
-        self._current_incident_id: Optional[str] = None
+        self._current_incident_id: str | None = None
 
     async def send_alert(self, alert: MonitoringAlert) -> bool:
         """Send alert to external monitoring service.
@@ -244,7 +243,7 @@ class ExternalMonitorClient:
         """
         return self._current_incident_id is not None
 
-    def get_current_incident_id(self) -> Optional[str]:
+    def get_current_incident_id(self) -> str | None:
         """Get current incident ID.
 
         Returns:

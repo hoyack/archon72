@@ -14,7 +14,6 @@ The test is important because it documents the constitutional constraint
 and will fail if someone accidentally adds these endpoints.
 """
 
-import ast
 from pathlib import Path
 
 import pytest
@@ -119,9 +118,9 @@ class TestNoParticipantMetricEndpoints:
         content = metrics_file.read_text()
 
         # Verify it documents it's for operational metrics
-        assert "operational metrics" in content.lower() or "prometheus" in content.lower(), (
-            "metrics.py should document it's for operational/Prometheus metrics only"
-        )
+        assert (
+            "operational metrics" in content.lower() or "prometheus" in content.lower()
+        ), "metrics.py should document it's for operational/Prometheus metrics only"
 
         # Verify no participant metric patterns
         participant_patterns = [

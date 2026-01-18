@@ -28,7 +28,6 @@ References:
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any
 from uuid import UUID
 
 from src.application.ports.governance.ledger_port import GovernanceLedgerPort
@@ -133,7 +132,9 @@ class TaskConsentService(TaskConsentPort):
                 PendingTaskView(
                     task_id=task.task_id,
                     earl_id=task.earl_id,
-                    description_preview=await self._get_description_preview(task.task_id),
+                    description_preview=await self._get_description_preview(
+                        task.task_id
+                    ),
                     ttl_remaining=ttl_remaining,
                     routed_at=task.state_entered_at,
                 )

@@ -21,7 +21,7 @@ import os
 import re
 import time
 
-from crewai import Agent, Crew, LLM, Task
+from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.archon_profile_repository import ArchonProfileRepository
@@ -111,7 +111,7 @@ def _escape_control_chars_in_strings(text: str) -> str:
             i += 1
             continue
 
-        if char == '\\' and in_string:
+        if char == "\\" and in_string:
             escape_next = True
             result.append(char)
             i += 1
@@ -125,21 +125,21 @@ def _escape_control_chars_in_strings(text: str) -> str:
 
         # Inside a string, escape control characters
         if in_string and ord(char) < 32:
-            if char == '\n':
-                result.append('\\n')
-            elif char == '\r':
-                result.append('\\r')
-            elif char == '\t':
-                result.append('\\t')
+            if char == "\n":
+                result.append("\\n")
+            elif char == "\r":
+                result.append("\\r")
+            elif char == "\t":
+                result.append("\\t")
             else:
                 # Other control chars: use unicode escape
-                result.append(f'\\u{ord(char):04x}')
+                result.append(f"\\u{ord(char):04x}")
         else:
             result.append(char)
 
         i += 1
 
-    return ''.join(result)
+    return "".join(result)
 
 
 def _parse_json_response(text: str) -> dict:
@@ -155,7 +155,7 @@ def _parse_json_response(text: str) -> dict:
             cleaned = "\n".join(lines[1:])
 
     # Fix trailing commas
-    cleaned = re.sub(r',\s*([\]}])', r'\1', cleaned)
+    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
     # Try to find JSON object
     start = cleaned.find("{")
@@ -310,7 +310,7 @@ Review the following mega-motion and provide your stance.
 **MOTION TO REVIEW:**
 Title: {motion.mega_motion_title}
 Theme: {motion.theme}
-Supporters: {motion.supporting_archon_count} Archons ({', '.join(motion.supporting_archons[:5])}...)
+Supporters: {motion.supporting_archon_count} Archons ({", ".join(motion.supporting_archons[:5])}...)
 Source Motions: {motion.source_motion_count}
 
 **MOTION TEXT:**
@@ -430,7 +430,7 @@ Analyze this motion through the lens of your expertise and values. Consider:
 and a proposed motion.
 
 **ARCHON:** {archon.archon_name}
-**DOMAIN:** {archon.domain or 'General'}
+**DOMAIN:** {archon.domain or "General"}
 
 **PRIOR POSITIONS/STATEMENTS:**
 {prior_text}
@@ -518,7 +518,7 @@ Text: {motion.mega_motion_text[:2000]}
 
         # Phase 1: Supporter arguments
         supporter_args = []
-        for agent, archon in zip(supporter_agents, context.supporters):
+        for agent, archon in zip(supporter_agents, context.supporters, strict=False):
             task = Task(
                 description=f"""You are {archon.archon_name}, a SUPPORTER of this motion.
 
@@ -535,11 +535,13 @@ Respond with your argument text only (no JSON).
             )
             crew = Crew(agents=[agent], tasks=[task], verbose=self.verbose)
             result = await asyncio.to_thread(crew.kickoff)
-            supporter_args.append(str(result.raw) if hasattr(result, "raw") else str(result))
+            supporter_args.append(
+                str(result.raw) if hasattr(result, "raw") else str(result)
+            )
 
         # Phase 2: Critic arguments
         critic_args = []
-        for agent, archon in zip(critic_agents, context.critics):
+        for agent, archon in zip(critic_agents, context.critics, strict=False):
             task = Task(
                 description=f"""You are {archon.archon_name}, a CRITIC of this motion.
 
@@ -547,7 +549,7 @@ Respond with your argument text only (no JSON).
 {context.mega_motion_text[:2000]}
 
 **SUPPORTER ARGUMENTS:**
-{chr(10).join(f'- {a[:500]}...' for a in supporter_args)}
+{chr(10).join(f"- {a[:500]}..." for a in supporter_args)}
 
 Present your strongest argument AGAINST this motion or for significant amendments.
 Address the supporter arguments where relevant.
@@ -559,7 +561,9 @@ Respond with your argument text only (no JSON).
             )
             crew = Crew(agents=[agent], tasks=[task], verbose=self.verbose)
             result = await asyncio.to_thread(crew.kickoff)
-            critic_args.append(str(result.raw) if hasattr(result, "raw") else str(result))
+            critic_args.append(
+                str(result.raw) if hasattr(result, "raw") else str(result)
+            )
 
         # Phase 3: Neutral synthesis and recommendation
         facilitator = Agent(
@@ -571,9 +575,9 @@ Respond with your argument text only (no JSON).
         )
 
         all_panelists = (
-            [s.archon_name for s in context.supporters] +
-            [c.archon_name for c in context.critics] +
-            [n.archon_name for n in context.neutrals]
+            [s.archon_name for s in context.supporters]
+            + [c.archon_name for c in context.critics]
+            + [n.archon_name for n in context.neutrals]
         )
 
         synthesis_prompt = f"""You are facilitating a panel deliberation on a contested motion.
@@ -582,20 +586,20 @@ Respond with your argument text only (no JSON).
 {context.mega_motion_text[:1500]}
 
 **SUPPORTER ARGUMENTS:**
-{chr(10).join(f'{i+1}. {a[:400]}...' for i, a in enumerate(supporter_args))}
+{chr(10).join(f"{i + 1}. {a[:400]}..." for i, a in enumerate(supporter_args))}
 
 **CRITIC ARGUMENTS:**
-{chr(10).join(f'{i+1}. {a[:400]}...' for i, a in enumerate(critic_args))}
+{chr(10).join(f"{i + 1}. {a[:400]}..." for i, a in enumerate(critic_args))}
 
 **PROPOSED AMENDMENTS:**
-{chr(10).join(context.proposed_amendments) if context.proposed_amendments else 'None proposed'}
+{chr(10).join(context.proposed_amendments) if context.proposed_amendments else "None proposed"}
 
 **YOUR TASK:**
 1. Synthesize the key points of agreement and disagreement
 2. Determine if amendment could satisfy both sides
 3. Provide a panel recommendation
 
-**PANELISTS:** {', '.join(all_panelists)}
+**PANELISTS:** {", ".join(all_panelists)}
 
 **RESPOND IN JSON:**
 {{

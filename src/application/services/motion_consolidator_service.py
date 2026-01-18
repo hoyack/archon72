@@ -28,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from crewai import Agent, Crew, LLM, Task
+from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.domain.models.secretary_agent import load_secretary_config_from_yaml
@@ -98,16 +98,17 @@ def _aggressive_json_clean(text: str) -> str:
             cleaned = "\n".join(lines[1:])
 
     # Fix trailing commas before ] or }
-    cleaned = re.sub(r',\s*([\]}])', r'\1', cleaned)
+    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
 
     # Fix missing quotes around keys
-    cleaned = re.sub(r'{\s*(\w+):', r'{"\1":', cleaned)
-    cleaned = re.sub(r',\s*(\w+):', r',"\1":', cleaned)
+    cleaned = re.sub(r"{\s*(\w+):", r'{"\1":', cleaned)
+    cleaned = re.sub(r",\s*(\w+):", r',"\1":', cleaned)
 
     # Replace unescaped control characters
-    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', ' ', cleaned)
+    cleaned = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", cleaned)
 
     return cleaned
+
 
 # Target number of mega-motions
 TARGET_MEGA_MOTION_COUNT = 12
@@ -313,7 +314,9 @@ class MotionConsolidatorService:
         logger.info("recommendations_loaded_from_checkpoint", count=len(data))
         return data
 
-    def extract_session_info_from_checkpoint(self, checkpoint_path: Path) -> tuple[str, str]:
+    def extract_session_info_from_checkpoint(
+        self, checkpoint_path: Path
+    ) -> tuple[str, str]:
         """Extract session ID and name from checkpoint path.
 
         Args:
@@ -461,24 +464,32 @@ RULES:
         cleaned = result.strip()
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+            cleaned = (
+                "\n".join(lines[1:-1])
+                if lines[-1].startswith("```")
+                else "\n".join(lines[1:])
+            )
 
         start = cleaned.find("[")
         end = cleaned.rfind("]")
         if start == -1 or end == -1:
             logger.error("no_json_array_in_groupings", raw=result[:200])
             # Fallback: single group with all motions
-            return [{"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}]
+            return [
+                {"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}
+            ]
 
-        json_str = cleaned[start:end + 1]
+        json_str = cleaned[start : end + 1]
 
         # Try multiple parsing strategies
         data = None
-        for attempt, parser in enumerate([
-            lambda s: json.loads(s),
-            lambda s: json.loads(_sanitize_json_string(s)),
-            lambda s: json.loads(_aggressive_json_clean(s)),
-        ]):
+        for attempt, parser in enumerate(
+            [
+                lambda s: json.loads(s),
+                lambda s: json.loads(_sanitize_json_string(s)),
+                lambda s: json.loads(_aggressive_json_clean(s)),
+            ]
+        ):
             try:
                 data = parser(json_str)
                 if attempt > 0:
@@ -489,7 +500,9 @@ RULES:
 
         if data is None:
             logger.error("grouping_parse_failed_all_attempts", raw=json_str[:300])
-            return [{"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}]
+            return [
+                {"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}
+            ]
 
         # Validate all motions are accounted for
         all_ids = {m.motion_id for m in motions}
@@ -539,7 +552,7 @@ RULES:
             description=f"""Synthesize these {len(motions)} related motions into ONE comprehensive mega-motion.
 
 THEME: {theme}
-SUPPORTING ARCHONS: {', '.join(unique_archons)} ({archon_count} total)
+SUPPORTING ARCHONS: {", ".join(unique_archons)} ({archon_count} total)
 
 SOURCE MOTIONS:
 {motion_texts}
@@ -572,7 +585,9 @@ CRITICAL: Output ONLY valid JSON.""",
             title=data.get("title", f"Mega-Motion: {theme}"),
             theme=theme,
             consolidated_text=data.get("text", ""),
-            rationale=data.get("rationale", f"Consolidates {len(motions)} related motions"),
+            rationale=data.get(
+                "rationale", f"Consolidates {len(motions)} related motions"
+            ),
             source_motion_ids=[m.motion_id for m in motions],
             source_motion_titles=[m.title for m in motions],
             source_cluster_ids=[m.cluster_id for m in motions if m.cluster_id],
@@ -591,7 +606,11 @@ CRITICAL: Output ONLY valid JSON.""",
         cleaned = result.strip()
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+            cleaned = (
+                "\n".join(lines[1:-1])
+                if lines[-1].startswith("```")
+                else "\n".join(lines[1:])
+            )
 
         start = cleaned.find("{")
         end = cleaned.rfind("}")
@@ -605,24 +624,30 @@ CRITICAL: Output ONLY valid JSON.""",
                 "rationale": f"Combined from {len(motions)} related motions",
             }
 
-        json_str = cleaned[start:end + 1]
+        json_str = cleaned[start : end + 1]
 
         # Try multiple parsing strategies
-        for attempt, parser in enumerate([
-            lambda s: json.loads(s),
-            lambda s: json.loads(_sanitize_json_string(s)),
-            lambda s: json.loads(_aggressive_json_clean(s)),
-        ]):
+        for attempt, parser in enumerate(
+            [
+                lambda s: json.loads(s),
+                lambda s: json.loads(_sanitize_json_string(s)),
+                lambda s: json.loads(_aggressive_json_clean(s)),
+            ]
+        ):
             try:
                 data = parser(json_str)
                 if attempt > 0:
-                    logger.debug("synthesis_parse_succeeded", theme=theme, attempt=attempt + 1)
+                    logger.debug(
+                        "synthesis_parse_succeeded", theme=theme, attempt=attempt + 1
+                    )
                 return data
             except json.JSONDecodeError:
                 continue
 
         # All attempts failed - use fallback
-        logger.warning("synthesis_parse_failed_all_attempts", theme=theme, raw=json_str[:200])
+        logger.warning(
+            "synthesis_parse_failed_all_attempts", theme=theme, raw=json_str[:200]
+        )
         combined_text = "\n\n".join(m.text[:300] for m in motions)
         return {
             "title": f"Mega-Motion: {theme}",
@@ -647,20 +672,24 @@ CRITICAL: Output ONLY valid JSON.""",
         Returns:
             List of NovelProposal objects
         """
-        logger.info("novelty_detection_start", recommendation_count=len(recommendations))
+        logger.info(
+            "novelty_detection_start", recommendation_count=len(recommendations)
+        )
 
         # Prepare summaries for LLM - batch in chunks to avoid token limits
         batch_size = 100
         all_novel = []
 
         for batch_start in range(0, len(recommendations), batch_size):
-            batch = recommendations[batch_start:batch_start + batch_size]
+            batch = recommendations[batch_start : batch_start + batch_size]
             batch_summaries = json.dumps(
                 [
                     {
                         "id": r.get("recommendation_id", ""),
                         "archon": r.get("source", {}).get("archon_name", "Unknown"),
-                        "text": r.get("summary", r.get("source", {}).get("raw_text", ""))[:300],
+                        "text": r.get(
+                            "summary", r.get("source", {}).get("raw_text", "")
+                        )[:300],
                         "keywords": r.get("keywords", [])[:5],
                     }
                     for r in batch
@@ -730,7 +759,11 @@ RULES:
         cleaned = result.strip()
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+            cleaned = (
+                "\n".join(lines[1:-1])
+                if lines[-1].startswith("```")
+                else "\n".join(lines[1:])
+            )
 
         start = cleaned.find("[")
         end = cleaned.rfind("]")
@@ -738,7 +771,7 @@ RULES:
             logger.warning("no_json_array_in_novelty_result")
             return []
 
-        json_str = cleaned[start:end + 1]
+        json_str = cleaned[start : end + 1]
 
         # Try multiple parsing strategies
         data = None
@@ -768,16 +801,18 @@ RULES:
             if not rec:
                 continue
 
-            proposals.append(NovelProposal(
-                proposal_id=str(uuid4()),
-                recommendation_id=rec_id,
-                archon_name=rec.get("source", {}).get("archon_name", "Unknown"),
-                text=rec.get("summary", rec.get("source", {}).get("raw_text", "")),
-                novelty_reason=item.get("novelty_reason", ""),
-                novelty_score=float(item.get("novelty_score", 0.5)),
-                category=item.get("category", "creative"),
-                keywords=rec.get("keywords", []),
-            ))
+            proposals.append(
+                NovelProposal(
+                    proposal_id=str(uuid4()),
+                    recommendation_id=rec_id,
+                    archon_name=rec.get("source", {}).get("archon_name", "Unknown"),
+                    text=rec.get("summary", rec.get("source", {}).get("raw_text", "")),
+                    novelty_reason=item.get("novelty_reason", ""),
+                    novelty_score=float(item.get("novelty_score", 0.5)),
+                    category=item.get("category", "creative"),
+                    keywords=rec.get("keywords", []),
+                )
+            )
 
         return proposals
 
@@ -808,7 +843,9 @@ RULES:
             archon_counts[archon] = archon_counts.get(archon, 0) + 1
 
         motion_themes = [m.theme for m in motions]
-        total_speeches = len(set(rec.get("source", {}).get("archon_name", "") for rec in recommendations))
+        total_speeches = len(
+            set(rec.get("source", {}).get("archon_name", "") for rec in recommendations)
+        )
 
         # Sample recommendations for LLM summary
         sample_size = min(50, len(recommendations))
@@ -826,7 +863,7 @@ STATISTICS:
 - Total Recommendations: {len(recommendations)}
 - Total Motions Generated: {len(motions)}
 - Participating Archons: {len(archon_counts)}
-- Motion Themes: {', '.join(list(set(motion_themes))[:10])}
+- Motion Themes: {", ".join(list(set(motion_themes))[:10])}
 
 SAMPLE RECOMMENDATIONS:
 {sample_text}
@@ -882,7 +919,11 @@ CRITICAL: Output ONLY valid JSON.""",
         cleaned = result.strip()
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1]) if lines[-1].startswith("```") else "\n".join(lines[1:])
+            cleaned = (
+                "\n".join(lines[1:-1])
+                if lines[-1].startswith("```")
+                else "\n".join(lines[1:])
+            )
 
         start = cleaned.find("{")
         end = cleaned.rfind("}")
@@ -890,7 +931,7 @@ CRITICAL: Output ONLY valid JSON.""",
             logger.warning("no_json_object_in_summary")
             return {}
 
-        json_str = cleaned[start:end + 1]
+        json_str = cleaned[start : end + 1]
 
         for parser in [
             lambda s: json.loads(s),
@@ -925,13 +966,38 @@ CRITICAL: Output ONLY valid JSON.""",
         logger.info("acronym_extraction_start")
 
         # Pattern for acronyms: 2-6 uppercase letters, optionally with numbers
-        acronym_pattern = re.compile(r'\b([A-Z]{2,6})\b')
+        acronym_pattern = re.compile(r"\b([A-Z]{2,6})\b")
 
         # Common acronyms to exclude (not domain-specific)
         exclude = {
-            "AI", "ML", "LLM", "API", "EU", "US", "UK", "UN", "CEO", "CTO",
-            "GDP", "ROI", "KPI", "FAQ", "PDF", "JSON", "XML", "HTML", "CSS",
-            "HTTP", "SQL", "AWS", "GCP", "FOR", "AND", "THE", "BUT", "NOT",
+            "AI",
+            "ML",
+            "LLM",
+            "API",
+            "EU",
+            "US",
+            "UK",
+            "UN",
+            "CEO",
+            "CTO",
+            "GDP",
+            "ROI",
+            "KPI",
+            "FAQ",
+            "PDF",
+            "JSON",
+            "XML",
+            "HTML",
+            "CSS",
+            "HTTP",
+            "SQL",
+            "AWS",
+            "GCP",
+            "FOR",
+            "AND",
+            "THE",
+            "BUT",
+            "NOT",
         }
 
         # Collect acronyms with context
@@ -939,7 +1005,9 @@ CRITICAL: Output ONLY valid JSON.""",
 
         # Scan recommendations
         for rec in recommendations:
-            text = rec.get("summary", "") + " " + rec.get("source", {}).get("raw_text", "")
+            text = (
+                rec.get("summary", "") + " " + rec.get("source", {}).get("raw_text", "")
+            )
             archon = rec.get("source", {}).get("archon_name", "Unknown")
             rec_id = rec.get("recommendation_id", "")
 
@@ -984,14 +1052,16 @@ CRITICAL: Output ONLY valid JSON.""",
             contexts = data["contexts"]
             definition = self._infer_acronym_meaning(acronym, contexts)
 
-            entries.append(AcronymEntry(
-                acronym=acronym,
-                full_form=definition.get("full_form", f"[{acronym}]"),
-                definition=definition.get("definition", "Meaning not determined"),
-                introduced_by=sorted(list(data["archons"])),
-                first_seen_in=data["first_seen"],
-                usage_count=data["count"],
-            ))
+            entries.append(
+                AcronymEntry(
+                    acronym=acronym,
+                    full_form=definition.get("full_form", f"[{acronym}]"),
+                    definition=definition.get("definition", "Meaning not determined"),
+                    introduced_by=sorted(list(data["archons"])),
+                    first_seen_in=data["first_seen"],
+                    usage_count=data["count"],
+                )
+            )
 
         # Sort by usage count
         entries.sort(key=lambda x: x.usage_count, reverse=True)
@@ -1004,21 +1074,24 @@ CRITICAL: Output ONLY valid JSON.""",
         # Look for patterns like "ACRONYM (Full Form)" or "Full Form (ACRONYM)"
         for context in contexts:
             # Pattern: ACRONYM (Full Form)
-            pattern1 = re.compile(rf'{acronym}\s*\(([^)]+)\)', re.IGNORECASE)
+            pattern1 = re.compile(rf"{acronym}\s*\(([^)]+)\)", re.IGNORECASE)
             match = pattern1.search(context)
             if match:
                 full_form = match.group(1).strip()
                 return {"full_form": full_form, "definition": full_form}
 
             # Pattern: Full Form (ACRONYM)
-            pattern2 = re.compile(rf'([A-Z][^(]+)\s*\({acronym}\)', re.IGNORECASE)
+            pattern2 = re.compile(rf"([A-Z][^(]+)\s*\({acronym}\)", re.IGNORECASE)
             match = pattern2.search(context)
             if match:
                 full_form = match.group(1).strip()
                 return {"full_form": full_form, "definition": full_form}
 
         # If no expansion found, return placeholder
-        return {"full_form": f"[{acronym}]", "definition": "Expansion not found in context"}
+        return {
+            "full_form": f"[{acronym}]",
+            "definition": "Expansion not found in context",
+        }
 
     async def consolidate_full(
         self,
@@ -1041,20 +1114,26 @@ CRITICAL: Output ONLY valid JSON.""",
             FullConsolidationResult with all analysis
         """
         # Extract session info
-        session_id, session_name = self.extract_session_info_from_checkpoint(motions_checkpoint)
+        session_id, session_name = self.extract_session_info_from_checkpoint(
+            motions_checkpoint
+        )
         logger.info("full_consolidation_start", session_id=session_id)
 
         # Auto-detect recommendations checkpoint if not provided
         if recommendations_checkpoint is None:
             # Replace _05_motions with _01_extraction
-            checkpoint_name = motions_checkpoint.name.replace("_05_motions", "_01_extraction")
+            checkpoint_name = motions_checkpoint.name.replace(
+                "_05_motions", "_01_extraction"
+            )
             recommendations_checkpoint = motions_checkpoint.parent / checkpoint_name
 
         # Load data
         motions = self.load_motions_from_checkpoint(motions_checkpoint)
         recommendations = []
         if recommendations_checkpoint.exists():
-            recommendations = self.load_recommendations_from_checkpoint(recommendations_checkpoint)
+            recommendations = self.load_recommendations_from_checkpoint(
+                recommendations_checkpoint
+            )
 
         # Run consolidation
         consolidation_result = await self.consolidate(motions)
@@ -1150,7 +1229,9 @@ CRITICAL: Output ONLY valid JSON.""",
                 f.write(f"## {i}. {mm.title}\n\n")
                 f.write(f"**Theme:** {mm.theme}\n")
                 f.write(f"**Consensus Tier:** {mm.consensus_tier.upper()}\n")
-                f.write(f"**Supporting Archons ({mm.unique_archon_count}):** {', '.join(mm.all_supporting_archons)}\n\n")
+                f.write(
+                    f"**Supporting Archons ({mm.unique_archon_count}):** {', '.join(mm.all_supporting_archons)}\n\n"
+                )
                 f.write("### Consolidated Motion Text\n\n")
                 f.write(f"{mm.consolidated_text}\n\n")
                 f.write("### Rationale\n\n")
@@ -1167,7 +1248,9 @@ CRITICAL: Output ONLY valid JSON.""",
             f.write("| Mega-Motion | Source Motions | Archon Count | Tier |\n")
             f.write("|-------------|----------------|--------------|------|\n")
             for mm in result.mega_motions:
-                f.write(f"| {mm.title[:40]}... | {len(mm.source_motion_ids)} | {mm.unique_archon_count} | {mm.consensus_tier} |\n")
+                f.write(
+                    f"| {mm.title[:40]}... | {len(mm.source_motion_ids)} | {mm.unique_archon_count} | {mm.consensus_tier} |\n"
+                )
 
             if result.orphaned_motions:
                 f.write("\n## Orphaned Motions\n\n")
@@ -1258,11 +1341,15 @@ CRITICAL: Output ONLY valid JSON.""",
         with open(novel_md, "w") as f:
             f.write("# Novel & Unconventional Proposals\n\n")
             f.write("*Flagged for special attention - these proposals demonstrate*\n")
-            f.write("*creative thinking, cross-domain synthesis, or minority insights.*\n\n")
+            f.write(
+                "*creative thinking, cross-domain synthesis, or minority insights.*\n\n"
+            )
             f.write("---\n\n")
 
             for i, p in enumerate(proposals, 1):
-                score_bar = "█" * int(p.novelty_score * 10) + "░" * (10 - int(p.novelty_score * 10))
+                score_bar = "█" * int(p.novelty_score * 10) + "░" * (
+                    10 - int(p.novelty_score * 10)
+                )
                 f.write(f"## {i}. {p.category.upper()} Proposal\n\n")
                 f.write(f"**Archon:** {p.archon_name}\n")
                 f.write(f"**Novelty Score:** {score_bar} ({p.novelty_score:.0%})\n")
@@ -1311,8 +1398,8 @@ CRITICAL: Output ONLY valid JSON.""",
             f.write("---\n\n")
 
             f.write("## Statistics\n\n")
-            f.write(f"| Metric | Value |\n")
-            f.write(f"|--------|-------|\n")
+            f.write("| Metric | Value |\n")
+            f.write("|--------|-------|\n")
             f.write(f"| Participating Archons | {summary.total_speeches} |\n")
             f.write(f"| Total Recommendations | {summary.total_recommendations} |\n")
             f.write(f"| Motions Generated | {summary.total_motions} |\n\n")
@@ -1378,7 +1465,9 @@ CRITICAL: Output ONLY valid JSON.""",
                 archons = ", ".join(a.introduced_by[:3])
                 if len(a.introduced_by) > 3:
                     archons += f" (+{len(a.introduced_by) - 3})"
-                f.write(f"| **{a.acronym}** | {a.full_form} | {a.usage_count}x | {archons} |\n")
+                f.write(
+                    f"| **{a.acronym}** | {a.full_form} | {a.usage_count}x | {archons} |\n"
+                )
 
             f.write("\n---\n\n## Detailed Definitions\n\n")
             for a in acronyms:
@@ -1402,27 +1491,45 @@ CRITICAL: Output ONLY valid JSON.""",
             f.write("---\n\n")
 
             f.write("## Quick Stats\n\n")
-            f.write(f"| Metric | Value |\n")
-            f.write(f"|--------|-------|\n")
-            f.write(f"| Original Motions | {result.consolidation.original_motion_count} |\n")
+            f.write("| Metric | Value |\n")
+            f.write("|--------|-------|\n")
+            f.write(
+                f"| Original Motions | {result.consolidation.original_motion_count} |\n"
+            )
             f.write(f"| Mega-Motions | {len(result.consolidation.mega_motions)} |\n")
             f.write(f"| Novel Proposals | {len(result.novel_proposals)} |\n")
             f.write(f"| Acronyms Catalogued | {len(result.acronym_registry)} |\n")
-            f.write(f"| Consolidation Ratio | {result.consolidation.consolidation_ratio:.1%} |\n")
-            f.write(f"| Traceability Complete | {'✅' if result.consolidation.traceability_complete else '❌'} |\n\n")
+            f.write(
+                f"| Consolidation Ratio | {result.consolidation.consolidation_ratio:.1%} |\n"
+            )
+            f.write(
+                f"| Traceability Complete | {'✅' if result.consolidation.traceability_complete else '❌'} |\n\n"
+            )
 
             f.write("## Output Files\n\n")
             f.write("| File | Description |\n")
             f.write("|------|-------------|\n")
-            f.write("| [mega-motions.md](mega-motions.md) | Consolidated mega-motions (human-readable) |\n")
-            f.write("| [mega-motions.json](mega-motions.json) | Mega-motions (machine-readable) |\n")
-            f.write("| [traceability-matrix.md](traceability-matrix.md) | Source motion mapping |\n")
+            f.write(
+                "| [mega-motions.md](mega-motions.md) | Consolidated mega-motions (human-readable) |\n"
+            )
+            f.write(
+                "| [mega-motions.json](mega-motions.json) | Mega-motions (machine-readable) |\n"
+            )
+            f.write(
+                "| [traceability-matrix.md](traceability-matrix.md) | Source motion mapping |\n"
+            )
             if result.novel_proposals:
-                f.write("| [novel-proposals.md](novel-proposals.md) | Uniquely interesting proposals |\n")
+                f.write(
+                    "| [novel-proposals.md](novel-proposals.md) | Uniquely interesting proposals |\n"
+                )
             if result.conclave_summary:
-                f.write("| [conclave-summary.md](conclave-summary.md) | Executive summary of deliberation |\n")
+                f.write(
+                    "| [conclave-summary.md](conclave-summary.md) | Executive summary of deliberation |\n"
+                )
             if result.acronym_registry:
-                f.write("| [acronym-registry.md](acronym-registry.md) | Emerging terminology catalogue |\n")
+                f.write(
+                    "| [acronym-registry.md](acronym-registry.md) | Emerging terminology catalogue |\n"
+                )
             f.write("\n")
 
             f.write("## Mega-Motion Summary\n\n")
@@ -1431,4 +1538,6 @@ CRITICAL: Output ONLY valid JSON.""",
             tier_emoji = {"high": "🟢", "medium": "🟡", "low": "🔵"}
             for i, mm in enumerate(result.consolidation.mega_motions, 1):
                 emoji = tier_emoji.get(mm.consensus_tier, "⚪")
-                f.write(f"| {i} | {mm.theme[:30]} | {emoji} {mm.consensus_tier.upper()} | {mm.unique_archon_count} | {len(mm.source_motion_ids)} |\n")
+                f.write(
+                    f"| {i} | {mm.theme[:30]} | {emoji} {mm.consensus_tier.upper()} | {mm.unique_archon_count} | {len(mm.source_motion_ids)} |\n"
+                )

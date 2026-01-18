@@ -11,7 +11,7 @@ Constitutional Compliance:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
@@ -34,7 +34,7 @@ class DecayResult:
     """
 
     transition_occurred: bool
-    new_state: Optional[LegitimacyState]
+    new_state: LegitimacyState | None
     violation_event_id: UUID
     severity: ViolationSeverity
     bands_dropped: int
@@ -80,8 +80,8 @@ class LegitimacyDecayPort(Protocol):
 
     async def get_decay_history(
         self,
-        since: Optional[datetime] = None,
-        limit: Optional[int] = None,
+        since: datetime | None = None,
+        limit: int | None = None,
     ) -> list[LegitimacyTransition]:
         """Get history of automatic decay transitions.
 

@@ -10,19 +10,14 @@ Constitutional Constraints Tested:
 - CT-13: Reads allowed after cessation
 """
 
-import pytest
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.api.routes.observer import router
 from src.api.middleware.rate_limiter import ObserverRateLimiter
-from src.domain.models.cessation_trigger_condition import (
-    CessationTriggerCondition,
-    CessationTriggerConditionSet,
-)
+from src.api.routes.observer import router
 
 
 # Create test FastAPI app
@@ -46,6 +41,7 @@ def client() -> TestClient:
 
     # Import and override the dependency
     from src.api.dependencies.observer import get_rate_limiter
+
     app.dependency_overrides[get_rate_limiter] = mock_rate_limiter
 
     return TestClient(app)

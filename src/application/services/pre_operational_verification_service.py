@@ -36,7 +36,6 @@ Usage:
 import os
 import time
 from datetime import datetime, timezone
-from typing import Optional
 
 from structlog import get_logger
 
@@ -63,9 +62,13 @@ VERIFICATION_HASH_CHAIN_LIMIT = int(os.getenv("VERIFICATION_HASH_CHAIN_LIMIT", "
 VERIFICATION_CHECKPOINT_MAX_AGE_HOURS = int(
     os.getenv("VERIFICATION_CHECKPOINT_MAX_AGE_HOURS", "168")
 )  # 7 days
-VERIFICATION_BYPASS_ENABLED = os.getenv("VERIFICATION_BYPASS_ENABLED", "false").lower() == "true"
+VERIFICATION_BYPASS_ENABLED = (
+    os.getenv("VERIFICATION_BYPASS_ENABLED", "false").lower() == "true"
+)
 VERIFICATION_BYPASS_MAX_COUNT = int(os.getenv("VERIFICATION_BYPASS_MAX_COUNT", "3"))
-VERIFICATION_BYPASS_WINDOW_SECONDS = int(os.getenv("VERIFICATION_BYPASS_WINDOW_SECONDS", "300"))
+VERIFICATION_BYPASS_WINDOW_SECONDS = int(
+    os.getenv("VERIFICATION_BYPASS_WINDOW_SECONDS", "300")
+)
 
 
 class PreOperationalVerificationService:
@@ -196,7 +199,9 @@ class PreOperationalVerificationService:
             elif allow_bypass and self._can_bypass():
                 # Continuous restart: bypass may be allowed
                 status = VerificationStatus.BYPASSED
-                bypass_reason = f"Continuous restart bypass ({len(failed_checks)} check(s) failed)"
+                bypass_reason = (
+                    f"Continuous restart bypass ({len(failed_checks)} check(s) failed)"
+                )
                 bypass_count = self._record_bypass()
                 self._log.warning(
                     "pre_operational_verification_bypassed",
@@ -250,7 +255,9 @@ class PreOperationalVerificationService:
 
         try:
             is_halted = await self._halt_checker.is_halted()
-            halt_reason = await self._halt_checker.get_halt_reason() if is_halted else None
+            halt_reason = (
+                await self._halt_checker.get_halt_reason() if is_halted else None
+            )
 
             duration_ms = (time.monotonic() - start_time) * 1000
 
@@ -358,7 +365,9 @@ class PreOperationalVerificationService:
                 error_code="hash_chain_check_error",
             )
 
-    async def _verify_checkpoint_anchors(self, is_post_halt: bool = False) -> VerificationCheck:
+    async def _verify_checkpoint_anchors(
+        self, is_post_halt: bool = False
+    ) -> VerificationCheck:
         """Verify checkpoint anchors exist.
 
         Constitutional Constraint (FR146):
@@ -392,7 +401,9 @@ class PreOperationalVerificationService:
 
             # Check checkpoint freshness
             if latest:
-                age_hours = (datetime.now(timezone.utc) - latest.timestamp).total_seconds() / 3600
+                age_hours = (
+                    datetime.now(timezone.utc) - latest.timestamp
+                ).total_seconds() / 3600
                 if age_hours > VERIFICATION_CHECKPOINT_MAX_AGE_HOURS:
                     log.warning(
                         "checkpoint_stale",
@@ -463,7 +474,9 @@ class PreOperationalVerificationService:
             all_keys = []
 
             for keeper_id in keeper_ids:
-                keys = await self._keeper_key_registry.get_all_keys_for_keeper(keeper_id)
+                keys = await self._keeper_key_registry.get_all_keys_for_keeper(
+                    keeper_id
+                )
                 all_keys.extend(keys)
 
             duration_ms = (time.monotonic() - start_time) * 1000
@@ -473,7 +486,8 @@ class PreOperationalVerificationService:
             active_keys = [
                 k
                 for k in all_keys
-                if k.active_from <= now and (k.active_until is None or k.active_until > now)
+                if k.active_from <= now
+                and (k.active_until is None or k.active_until > now)
             ]
 
             if not active_keys:
@@ -667,12 +681,15 @@ class PreOperationalVerificationService:
         # Clean up old bypass timestamps outside the window
         cutoff = time.time() - VERIFICATION_BYPASS_WINDOW_SECONDS
         PreOperationalVerificationService._bypass_timestamps = [
-            ts for ts in PreOperationalVerificationService._bypass_timestamps if ts > cutoff
+            ts
+            for ts in PreOperationalVerificationService._bypass_timestamps
+            if ts > cutoff
         ]
 
         # Check if we're under the limit
         return (
-            len(PreOperationalVerificationService._bypass_timestamps) < VERIFICATION_BYPASS_MAX_COUNT
+            len(PreOperationalVerificationService._bypass_timestamps)
+            < VERIFICATION_BYPASS_MAX_COUNT
         )
 
     def _record_bypass(self) -> int:

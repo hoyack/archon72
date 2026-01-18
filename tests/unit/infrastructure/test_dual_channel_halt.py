@@ -11,10 +11,8 @@ Key behaviors tested:
 - AC5: 5-second Redis-to-DB confirmation (RT-2)
 """
 
-import asyncio
-from typing import Optional
 from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -28,7 +26,6 @@ from src.infrastructure.adapters.messaging.dual_channel_halt_impl import (
 )
 from src.infrastructure.adapters.persistence.halt_flag_repository import (
     HaltFlagRepository,
-    InMemoryHaltFlagRepository,
 )
 
 

@@ -79,7 +79,9 @@ class GovernanceEventType(str, Enum):
     LEDGER_INTEGRITY_HASH_BREAK_DETECTED = "ledger.integrity.hash_break_detected"
     LEDGER_INTEGRITY_GAP_DETECTED = "ledger.integrity.gap_detected"
     LEDGER_INTEGRITY_VERIFICATION_PASSED = "ledger.integrity.verification_passed"
-    LEDGER_INTEGRITY_ORPHANED_INTENT_DETECTED = "ledger.integrity.orphaned_intent_detected"
+    LEDGER_INTEGRITY_ORPHANED_INTENT_DETECTED = (
+        "ledger.integrity.orphaned_intent_detected"
+    )
 
     # Two-phase event types - Intent (story consent-gov-1-6)
     # Pattern: {branch}.intent.emitted - published BEFORE operation begins
@@ -141,9 +143,7 @@ def validate_event_type(event_type: str, *, strict: bool = False) -> None:
         )
 
     if not event_type:
-        raise ConstitutionalViolationError(
-            "AD-5: Event type must be non-empty string"
-        )
+        raise ConstitutionalViolationError("AD-5: Event type must be non-empty string")
 
     if not _EVENT_TYPE_PATTERN.match(event_type):
         raise ConstitutionalViolationError(

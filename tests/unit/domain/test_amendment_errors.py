@@ -1,7 +1,6 @@
 """Unit tests for amendment visibility errors (Story 6.7, FR126-FR128)."""
 
 from datetime import datetime, timedelta, timezone
-import pytest
 
 from src.domain.errors.amendment import (
     AmendmentError,

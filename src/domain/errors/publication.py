@@ -167,6 +167,8 @@ class PublicationValidationError(PublicationError):
         self.reason = reason
 
         if message is None:
-            message = f"FR56: Publication validation failed. Field: {field}. Reason: {reason}"
+            message = (
+                f"FR56: Publication validation failed. Field: {field}. Reason: {reason}"
+            )
 
         super().__init__(message)

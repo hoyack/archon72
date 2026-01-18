@@ -11,20 +11,16 @@ Constitutional Constraints:
 - CT-11: HALT CHECK FIRST pattern
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from src.application.services.constitutional_health_service import (
     ConstitutionalHealthService,
 )
 from src.domain.errors import SystemHaltedError
 from src.domain.models.constitutional_health import (
-    BREACH_CRITICAL_THRESHOLD,
-    BREACH_WARNING_THRESHOLD,
-    DISSENT_WARNING_THRESHOLD,
-    OVERRIDE_INCIDENT_THRESHOLD,
-    WITNESS_DEGRADED_THRESHOLD,
     ConstitutionalHealthStatus,
     MetricName,
 )
@@ -323,7 +319,9 @@ class TestOverallHealthCalculation:
     ) -> None:
         """System health = worst component health (conservative)."""
         # Multiple warnings but one critical
-        mock_breach_repository.count_unacknowledged_in_window.return_value = 9  # WARNING
+        mock_breach_repository.count_unacknowledged_in_window.return_value = (
+            9  # WARNING
+        )
 
         trend_data = MagicMock()
         trend_data.daily_count = 7  # CRITICAL (>6)
@@ -419,7 +417,9 @@ class TestCeremonyBlocking:
         mock_witness_pool_monitor: AsyncMock,
     ) -> None:
         """Blocking reasons list all critical metrics."""
-        mock_breach_repository.count_unacknowledged_in_window.return_value = 12  # CRITICAL
+        mock_breach_repository.count_unacknowledged_in_window.return_value = (
+            12  # CRITICAL
+        )
 
         trend_data = MagicMock()
         trend_data.daily_count = 7  # CRITICAL
@@ -542,7 +542,9 @@ class TestThresholdDetection:
         trend_data.daily_count = 1
         mock_override_trend_repository.get_trend_data.return_value = trend_data
 
-        mock_dissent_metrics.get_rolling_average.return_value = 8.0  # <= 10 triggers WARNING
+        mock_dissent_metrics.get_rolling_average.return_value = (
+            8.0  # <= 10 triggers WARNING
+        )
 
         pool_status = MagicMock()
         pool_status.effective_count = 72
@@ -579,7 +581,9 @@ class TestThresholdDetection:
         result = await service.get_constitutional_health()
 
         metrics = result.get_all_metrics()
-        witness_metric = next(m for m in metrics if m.name == MetricName.WITNESS_COVERAGE)
+        witness_metric = next(
+            m for m in metrics if m.name == MetricName.WITNESS_COVERAGE
+        )
         assert witness_metric.status == ConstitutionalHealthStatus.WARNING
 
 

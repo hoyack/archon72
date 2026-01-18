@@ -4,15 +4,13 @@ Tests the ViolationSeverity enum and VIOLATION_SEVERITY_MAP
 as specified in consent-gov-5-2 story.
 """
 
-import pytest
-
-from src.domain.governance.legitimacy.violation_severity import (
-    ViolationSeverity,
-    VIOLATION_SEVERITY_MAP,
-    get_severity_for_violation,
-    calculate_target_band,
-)
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
+from src.domain.governance.legitimacy.violation_severity import (
+    VIOLATION_SEVERITY_MAP,
+    ViolationSeverity,
+    calculate_target_band,
+    get_severity_for_violation,
+)
 
 
 class TestViolationSeverityEnum:
@@ -88,12 +86,10 @@ class TestViolationSeverityMap:
     def test_major_violations_mapped(self) -> None:
         """MAJOR violations are mapped correctly."""
         assert (
-            VIOLATION_SEVERITY_MAP["coercion.filter_blocked"]
-            == ViolationSeverity.MAJOR
+            VIOLATION_SEVERITY_MAP["coercion.filter_blocked"] == ViolationSeverity.MAJOR
         )
         assert (
-            VIOLATION_SEVERITY_MAP["consent.bypass_detected"]
-            == ViolationSeverity.MAJOR
+            VIOLATION_SEVERITY_MAP["consent.bypass_detected"] == ViolationSeverity.MAJOR
         )
         assert (
             VIOLATION_SEVERITY_MAP["role.constraint_violated"]
@@ -118,8 +114,7 @@ class TestViolationSeverityMap:
     def test_integrity_violations_mapped(self) -> None:
         """INTEGRITY violations are mapped correctly."""
         assert (
-            VIOLATION_SEVERITY_MAP["chain.discontinuity"]
-            == ViolationSeverity.INTEGRITY
+            VIOLATION_SEVERITY_MAP["chain.discontinuity"] == ViolationSeverity.INTEGRITY
         )
         assert (
             VIOLATION_SEVERITY_MAP["event.tampering_detected"]

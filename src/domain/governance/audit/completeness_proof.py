@@ -117,7 +117,9 @@ class HashChainProof:
     def __post_init__(self) -> None:
         """Validate hash chain proof fields."""
         if self.total_events < 0:
-            raise ValueError(f"total_events must be non-negative, got {self.total_events}")
+            raise ValueError(
+                f"total_events must be non-negative, got {self.total_events}"
+            )
 
         if self.total_events == 0:
             # Empty chain should have empty hashes and zero sequences

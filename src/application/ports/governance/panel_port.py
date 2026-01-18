@@ -22,13 +22,12 @@ References:
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import List, Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.governance.panel import (
-    PrincePanel,
     PanelFinding,
-    PanelMember,
+    PrincePanel,
     RecusalRequest,
     ReviewSession,
 )
@@ -87,7 +86,7 @@ class PanelPort(Protocol):
         ...
 
     @abstractmethod
-    async def get_panel(self, panel_id: UUID) -> Optional[PrincePanel]:
+    async def get_panel(self, panel_id: UUID) -> PrincePanel | None:
         """Get a panel by ID.
 
         Args:
@@ -99,9 +98,7 @@ class PanelPort(Protocol):
         ...
 
     @abstractmethod
-    async def get_panel_by_statement(
-        self, statement_id: UUID
-    ) -> Optional[PrincePanel]:
+    async def get_panel_by_statement(self, statement_id: UUID) -> PrincePanel | None:
         """Get the panel reviewing a specific statement.
 
         Args:
@@ -115,7 +112,7 @@ class PanelPort(Protocol):
     @abstractmethod
     async def list_panels_by_status(
         self, status: str, limit: int = 100
-    ) -> List[PrincePanel]:
+    ) -> list[PrincePanel]:
         """List panels by status.
 
         Args:
@@ -147,7 +144,7 @@ class PanelPort(Protocol):
         ...
 
     @abstractmethod
-    async def get_finding(self, finding_id: UUID) -> Optional[PanelFinding]:
+    async def get_finding(self, finding_id: UUID) -> PanelFinding | None:
         """Get a finding by ID.
 
         Args:
@@ -159,9 +156,7 @@ class PanelPort(Protocol):
         ...
 
     @abstractmethod
-    async def get_finding_by_panel(
-        self, panel_id: UUID
-    ) -> Optional[PanelFinding]:
+    async def get_finding_by_panel(self, panel_id: UUID) -> PanelFinding | None:
         """Get the finding issued by a specific panel.
 
         Args:
@@ -191,9 +186,7 @@ class PanelPort(Protocol):
         ...
 
     @abstractmethod
-    async def list_recusals_by_panel(
-        self, panel_id: UUID
-    ) -> List[RecusalRequest]:
+    async def list_recusals_by_panel(self, panel_id: UUID) -> list[RecusalRequest]:
         """List all recusals for a panel.
 
         Args:
@@ -223,9 +216,7 @@ class PanelPort(Protocol):
         ...
 
     @abstractmethod
-    async def get_review_session(
-        self, session_id: UUID
-    ) -> Optional[ReviewSession]:
+    async def get_review_session(self, session_id: UUID) -> ReviewSession | None:
         """Get a review session by ID.
 
         Args:
@@ -239,7 +230,7 @@ class PanelPort(Protocol):
     @abstractmethod
     async def get_active_session_for_panel(
         self, panel_id: UUID
-    ) -> Optional[ReviewSession]:
+    ) -> ReviewSession | None:
         """Get the active review session for a panel.
 
         Args:

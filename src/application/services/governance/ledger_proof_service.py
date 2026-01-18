@@ -27,7 +27,6 @@ from src.domain.governance.audit.completeness_proof import (
     DEFAULT_VERIFICATION_INSTRUCTIONS,
     CompletenessProof,
     HashChainProof,
-    IncompleteChainError,
     ProofGenerationError,
 )
 from src.domain.governance.events.hash_algorithms import DEFAULT_ALGORITHM
@@ -90,8 +89,8 @@ class LedgerProofService:
 
     def __init__(
         self,
-        ledger_port: "GovernanceLedgerPort",
-        merkle_port: "MerkleTreePort | None",
+        ledger_port: GovernanceLedgerPort,
+        merkle_port: MerkleTreePort | None,
         event_emitter: EventEmitterPort,
         time_authority: TimeAuthorityPort,
     ) -> None:
@@ -289,7 +288,7 @@ class LedgerProofService:
     def verify_completeness_proof(
         self,
         proof: CompletenessProof,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> bool:
         """Verify a completeness proof against event data.
 
@@ -324,10 +323,7 @@ class LedgerProofService:
 
         # Verify Merkle root
         computed_root = self._compute_merkle_root(events)
-        if computed_root != proof.merkle_root:
-            return False
-
-        return True
+        return computed_root == proof.merkle_root
 
     def verify_merkle_proof(
         self,
@@ -348,7 +344,7 @@ class LedgerProofService:
 
     def verify_hash_chain(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> HashChainProof:
         """Verify hash chain for a list of events.
 
@@ -364,7 +360,7 @@ class LedgerProofService:
 
     def _verify_hash_chain(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> HashChainProof:
         """Verify hash chain and return proof.
 
@@ -429,7 +425,7 @@ class LedgerProofService:
 
     def _compute_merkle_root(
         self,
-        events: list["PersistedGovernanceEvent"],
+        events: list[PersistedGovernanceEvent],
     ) -> str:
         """Compute Merkle root for events.
 
@@ -490,7 +486,7 @@ class LedgerProofService:
             return prefix.lower()
         return DEFAULT_ALGORITHM
 
-    async def _get_all_events(self) -> list["PersistedGovernanceEvent"]:
+    async def _get_all_events(self) -> list[PersistedGovernanceEvent]:
         """Get all events from the ledger.
 
         Returns:
@@ -503,7 +499,7 @@ class LedgerProofService:
         if total == 0:
             return []
 
-        all_events: list["PersistedGovernanceEvent"] = []
+        all_events: list[PersistedGovernanceEvent] = []
         batch_size = 10000
         offset = 0
 

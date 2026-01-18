@@ -191,7 +191,9 @@ class TestExternalMonitorClient:
         )
 
         # Mock httpx.AsyncClient
-        with patch("src.infrastructure.monitoring.external_monitor.httpx.AsyncClient") as mock_client:
+        with patch(
+            "src.infrastructure.monitoring.external_monitor.httpx.AsyncClient"
+        ) as mock_client:
             mock_response = AsyncMock()
             mock_response.status_code = 200
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
@@ -218,7 +220,9 @@ class TestExternalMonitorClient:
         )
 
         # Mock httpx.AsyncClient to raise exception
-        with patch("src.infrastructure.monitoring.external_monitor.httpx.AsyncClient") as mock_client:
+        with patch(
+            "src.infrastructure.monitoring.external_monitor.httpx.AsyncClient"
+        ) as mock_client:
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 side_effect=Exception("Connection refused")
             )

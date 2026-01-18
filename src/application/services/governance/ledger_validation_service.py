@@ -111,10 +111,10 @@ class LedgerValidationService:
 
     def __init__(
         self,
-        event_type_validator: "EventTypeValidator",
-        actor_validator: "ActorValidator",
-        hash_chain_validator: "HashChainValidator",
-        state_transition_validator: "StateTransitionValidator",
+        event_type_validator: EventTypeValidator,
+        actor_validator: ActorValidator,
+        hash_chain_validator: HashChainValidator,
+        state_transition_validator: StateTransitionValidator,
     ) -> None:
         """Initialize the validation service.
 

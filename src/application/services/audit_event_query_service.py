@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Final, Optional
+from typing import Final
 
 from src.application.ports.event_query import EventQueryProtocol
 
@@ -101,9 +101,7 @@ class AuditEventQueryService:
         # Parse timestamp
         timestamp_str = str(raw_event.get("timestamp", ""))
         try:
-            timestamp = datetime.fromisoformat(
-                timestamp_str.replace("Z", "+00:00")
-            )
+            timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
         except ValueError:
             logger.warning(
                 "FR108: Malformed timestamp in audit event, using current time: %s",
@@ -299,9 +297,7 @@ class AuditEventQueryService:
 
             # Track status counts
             if status == "clean":
-                quarter_data[quarter]["clean"] = (
-                    int(quarter_data[quarter]["clean"]) + 1
-                )
+                quarter_data[quarter]["clean"] = int(quarter_data[quarter]["clean"]) + 1
             elif status == "violations_found":
                 quarter_data[quarter]["violations_found"] = (
                     int(quarter_data[quarter]["violations_found"]) + 1
@@ -406,10 +402,7 @@ class AuditEventQueryService:
         )
 
         # Filter and sort
-        return sorted(
-            str(q) for q in quarters
-            if q is not None and isinstance(q, str)
-        )
+        return sorted(str(q) for q in quarters if q is not None and isinstance(q, str))
 
     async def get_audit_count(self) -> int:
         """Get total count of completed audits (FR108).
@@ -431,7 +424,7 @@ class AuditEventQueryService:
 
     async def get_violation_events(
         self,
-        audit_id: Optional[str] = None,
+        audit_id: str | None = None,
         limit: int = 100,
     ) -> list[AuditEvent]:
         """Get violation flagged events (FR108).

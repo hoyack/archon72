@@ -126,20 +126,24 @@ class PermissionResult:
     @property
     def is_critical_violation(self) -> bool:
         """Check if any violation is critical severity."""
-        if any(v.severity == ViolationSeverity.CRITICAL for v in self.violation_details):
+        if any(
+            v.severity == ViolationSeverity.CRITICAL for v in self.violation_details
+        ):
             return True
-        if self.role_collapse_detail and self.role_collapse_detail.severity == ViolationSeverity.CRITICAL:
-            return True
-        return False
+        return bool(
+            self.role_collapse_detail
+            and self.role_collapse_detail.severity == ViolationSeverity.CRITICAL
+        )
 
     @property
     def requires_conclave_review(self) -> bool:
         """Check if any violation requires Conclave review."""
         if any(v.requires_conclave_review for v in self.violation_details):
             return True
-        if self.role_collapse_detail and self.role_collapse_detail.requires_conclave_review:
-            return True
-        return False
+        return bool(
+            self.role_collapse_detail
+            and self.role_collapse_detail.requires_conclave_review
+        )
 
     @property
     def is_role_collapse(self) -> bool:

@@ -25,7 +25,6 @@ Usage:
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from src.domain.models.constitutional_threshold import ConstitutionalThreshold
 
@@ -97,7 +96,7 @@ class ConfigurationChangeResult:
     threshold_name: str
     requested_value: int | float
     floor_value: int | float
-    rejection_reason: Optional[str]
+    rejection_reason: str | None
 
 
 @dataclass(frozen=True)

@@ -15,7 +15,6 @@ from src.application.services.witness_anomaly_detection_service import (
     CHI_SQUARE_P05,
     CONFIDENCE_THRESHOLD,
     DEFAULT_EXCLUSION_HOURS,
-    DEFAULT_WINDOW_HOURS,
     WitnessAnomalyDetectionService,
     calculate_chi_square,
     calculate_expected_occurrence,
@@ -350,7 +349,9 @@ class TestRunAnomalyScan:
         await service.run_anomaly_scan(window_hours=24)
 
         mock_anomaly_detector.analyze_co_occurrence.assert_called_once_with(24)
-        mock_anomaly_detector.analyze_unavailability_patterns.assert_called_once_with(24)
+        mock_anomaly_detector.analyze_unavailability_patterns.assert_called_once_with(
+            24
+        )
 
     @pytest.mark.asyncio
     async def test_wraps_analysis_exception(
@@ -417,7 +418,9 @@ class TestCheckPairForAnomaly:
         result = await service.check_pair_for_anomaly("witness1:witness2")
 
         assert result is True
-        mock_anomaly_detector.is_pair_excluded.assert_called_once_with("witness1:witness2")
+        mock_anomaly_detector.is_pair_excluded.assert_called_once_with(
+            "witness1:witness2"
+        )
 
     @pytest.mark.asyncio
     async def test_returns_false_for_non_excluded_pair(

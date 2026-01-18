@@ -12,7 +12,7 @@ Constitutional Constraints:
 """
 
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import BaseModel, Field, PlainSerializer
 
@@ -54,7 +54,7 @@ class ComplianceRequirementResponse(BaseModel):
         description="Current compliance status",
         examples=["COMPLIANT", "PARTIAL", "GAP_IDENTIFIED", "NOT_APPLICABLE"],
     )
-    implementation_reference: Optional[str] = Field(
+    implementation_reference: str | None = Field(
         default=None,
         description="Where implemented in codebase",
     )
@@ -104,7 +104,7 @@ class ComplianceAssessmentResponse(BaseModel):
         default_factory=list,
         description="List of identified gaps",
     )
-    remediation_plan: Optional[str] = Field(
+    remediation_plan: str | None = Field(
         default=None,
         description="Plan for addressing gaps",
     )

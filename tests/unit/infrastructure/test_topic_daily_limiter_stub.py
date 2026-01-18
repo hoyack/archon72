@@ -16,7 +16,6 @@ from src.application.ports.topic_daily_limiter import (
     TopicDailyLimiterProtocol,
 )
 from src.infrastructure.stubs.topic_daily_limiter_stub import (
-    DailySubmissionRecord,
     TopicDailyLimiterStub,
 )
 

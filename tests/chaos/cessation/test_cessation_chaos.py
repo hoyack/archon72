@@ -27,32 +27,26 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
-from src.application.ports.final_deliberation_recorder import (
-    RecordDeliberationResult,
-)
 from src.application.services.cessation_execution_service import (
-    CessationExecutionError,
     CessationExecutionService,
 )
 from src.application.services.event_writer_service import EventWriterService
 from src.application.services.final_deliberation_service import (
-    DeliberationRecordingCompleteFailure,
     FinalDeliberationService,
 )
 from src.domain.events.cessation_deliberation import (
+    REQUIRED_ARCHON_COUNT,
     ArchonDeliberation,
     ArchonPosition,
-    REQUIRED_ARCHON_COUNT,
 )
 from src.domain.events.cessation_executed import (
     CESSATION_EXECUTED_EVENT_TYPE,
 )
 from src.domain.events.event import Event
-from src.domain.models.ceased_status_header import CessationDetails
 from src.infrastructure.stubs.cessation_flag_repository_stub import (
     CessationFlagRepositoryStub,
 )
@@ -62,7 +56,7 @@ from src.infrastructure.stubs.final_deliberation_recorder_stub import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    pass
 
 
 # =============================================================================
@@ -273,7 +267,6 @@ def _create_mock_event_writer(event_store: EventStoreStub) -> EventWriterService
     mock_writer = MagicMock(spec=EventWriterService)
 
     # Store state for generating events correctly
-    last_content_hash: list[str | None] = [None]  # Mutable container for closure
 
     async def mock_write_event(
         event_type: str,
@@ -383,7 +376,9 @@ class TestCessationChaosEndToEnd:
 
         # Step 1: Seed baseline events
         baseline_events = await seed_initial_events(env.event_store, count=5)
-        artifact.events_created.extend([f"baseline_{e.sequence}" for e in baseline_events])
+        artifact.events_created.extend(
+            [f"baseline_{e.sequence}" for e in baseline_events]
+        )
 
         # Step 2: Generate 72-archon deliberation (FR135)
         deliberation_id = uuid4()
@@ -394,14 +389,16 @@ class TestCessationChaosEndToEnd:
         # Step 3: Execute cessation with deliberation
         triggering_event_id = baseline_events[-1].event_id
 
-        cessation_event = await env.cessation_execution_service.execute_cessation_with_deliberation(
-            deliberation_id=deliberation_id,
-            deliberation_started_at=started_at,
-            deliberation_ended_at=ended_at,
-            archon_deliberations=archon_deliberations,
-            triggering_event_id=triggering_event_id,
-            reason="PM-5 Chaos Test: Verifying cessation works correctly",
-            agent_id="SYSTEM:CHAOS_TEST",
+        cessation_event = (
+            await env.cessation_execution_service.execute_cessation_with_deliberation(
+                deliberation_id=deliberation_id,
+                deliberation_started_at=started_at,
+                deliberation_ended_at=ended_at,
+                archon_deliberations=archon_deliberations,
+                triggering_event_id=triggering_event_id,
+                reason="PM-5 Chaos Test: Verifying cessation works correctly",
+                agent_id="SYSTEM:CHAOS_TEST",
+            )
         )
 
         # Step 4: Verify cessation event was written (FR43)
@@ -494,7 +491,9 @@ class TestCessationChaosEndToEnd:
             # Verify event count is correct for this iteration
             # Should have: 2 baseline + 1 cessation = 3
             event_count = await env.event_store.count_events()
-            assert event_count == 3, f"Iteration {iteration + 1}: expected 3, got {event_count}"
+            assert event_count == 3, (
+                f"Iteration {iteration + 1}: expected 3, got {event_count}"
+            )
 
 
 # =============================================================================

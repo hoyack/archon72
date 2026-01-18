@@ -251,11 +251,15 @@ class TestConfigurationFloorValidatorProtocol:
 
     def test_has_validate_startup_configuration_method(self) -> None:
         """Should have validate_startup_configuration method."""
-        assert hasattr(ConfigurationFloorValidatorProtocol, "validate_startup_configuration")
+        assert hasattr(
+            ConfigurationFloorValidatorProtocol, "validate_startup_configuration"
+        )
 
     def test_has_validate_configuration_change_method(self) -> None:
         """Should have validate_configuration_change method."""
-        assert hasattr(ConfigurationFloorValidatorProtocol, "validate_configuration_change")
+        assert hasattr(
+            ConfigurationFloorValidatorProtocol, "validate_configuration_change"
+        )
 
     def test_has_get_all_floors_method(self) -> None:
         """Should have get_all_floors method."""

@@ -16,12 +16,9 @@ from structlog import get_logger
 
 from src.domain.models.aegis_task_spec import (
     AegisTaskSpec,
-    Constraint,
     ConstraintType,
-    Dependency,
     MeasurementType,
     SuccessCriterion,
-    TaskStatus,
 )
 
 logger = get_logger(__name__)
@@ -262,7 +259,10 @@ class TaskSpecValidator:
             # Boolean criteria are always measurable (pass/fail)
             return True
 
-        if criterion.measurement_type in (MeasurementType.NUMERIC, MeasurementType.THRESHOLD):
+        if criterion.measurement_type in (
+            MeasurementType.NUMERIC,
+            MeasurementType.THRESHOLD,
+        ):
             # Numeric/threshold criteria need a target value
             return criterion.target_value is not None
 
@@ -404,7 +404,9 @@ class TaskSpecValidator:
 
         return issues
 
-    def _validate_measurement_points(self, spec: AegisTaskSpec) -> list[ValidationIssue]:
+    def _validate_measurement_points(
+        self, spec: AegisTaskSpec
+    ) -> list[ValidationIssue]:
         """Validate measurement points reference valid criteria."""
         issues = []
 

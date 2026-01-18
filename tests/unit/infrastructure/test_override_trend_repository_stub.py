@@ -9,7 +9,6 @@ import pytest
 
 from src.application.ports.override_trend_repository import (
     OverrideTrendData,
-    OverrideTrendRepositoryProtocol,
 )
 from src.infrastructure.stubs.override_trend_repository_stub import (
     OverrideTrendRepositoryStub,
@@ -195,7 +194,7 @@ class TestGetOverrideCountForPeriod:
         stub = OverrideTrendRepositoryStub()
         now = datetime.now(timezone.utc)
         history = [
-            now - timedelta(days=5),   # In range
+            now - timedelta(days=5),  # In range
             now - timedelta(days=15),  # In range
             now - timedelta(days=25),  # In range
             now - timedelta(days=35),  # Outside range

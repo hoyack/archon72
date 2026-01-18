@@ -1,26 +1,25 @@
 """Unit tests for amendment visibility service (Story 6.7, FR126-FR128)."""
 
 from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from src.application.services.amendment_visibility_service import (
     AMENDMENT_VISIBILITY_SYSTEM_AGENT_ID,
     AmendmentProposalRequest,
     AmendmentVisibilityService,
-    VoteEligibilityResult,
 )
 from src.domain.errors.amendment import (
     AmendmentHistoryProtectionError,
     AmendmentImpactAnalysisMissingError,
     AmendmentNotFoundError,
-    AmendmentVisibilityIncompleteError,
 )
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.amendment import (
+    VISIBILITY_PERIOD_DAYS,
     AmendmentImpactAnalysis,
     AmendmentStatus,
     AmendmentType,
-    VISIBILITY_PERIOD_DAYS,
 )
 from src.infrastructure.stubs.amendment_repository_stub import AmendmentRepositoryStub
 from src.infrastructure.stubs.amendment_visibility_validator_stub import (
@@ -94,7 +93,9 @@ class TestProposeAmendment:
         assert proposal.status == AmendmentStatus.VISIBILITY_PERIOD
 
         # Verify FR126: 14-day visibility period
-        expected_votable = proposal.visible_from + timedelta(days=VISIBILITY_PERIOD_DAYS)
+        expected_votable = proposal.visible_from + timedelta(
+            days=VISIBILITY_PERIOD_DAYS
+        )
         assert abs((proposal.votable_from - expected_votable).total_seconds()) <= 1
 
         # Verify saved to repository
@@ -463,8 +464,7 @@ class TestRejectAmendment:
         await repository.save_amendment(amendment)
 
         event = await service.reject_amendment(
-            "AMD-001",
-            "FR128: Amendment history cannot be made unreviewable"
+            "AMD-001", "FR128: Amendment history cannot be made unreviewable"
         )
 
         assert event.amendment_id == "AMD-001"

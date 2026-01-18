@@ -25,21 +25,18 @@ from pathlib import Path
 # Patterns to detect direct datetime calls
 # Matches: datetime.now(), datetime.utcnow()
 # Also catches: from datetime import datetime; ... datetime.now()
-DATETIME_NOW_PATTERN = re.compile(
-    r'datetime\s*\.\s*(now|utcnow)\s*\(',
-    re.MULTILINE
-)
+DATETIME_NOW_PATTERN = re.compile(r"datetime\s*\.\s*(now|utcnow)\s*\(", re.MULTILINE)
 
 # Files that are ALLOWED to use datetime.now() directly
 # These are the only exceptions to the rule
 ALLOWED_FILES = {
     # TimeAuthorityService is THE source of truth for time
-    'src/application/services/time_authority_service.py',
+    "src/application/services/time_authority_service.py",
 }
 
 # Test files are allowed to use datetime.now() for test setup
 # (though FakeTimeAuthority is preferred)
-TEST_PREFIXES = ('tests/', 'test_')
+TEST_PREFIXES = ("tests/", "test_")
 
 
 def check_file(file_path: Path) -> list[tuple[int, str]]:
@@ -54,14 +51,14 @@ def check_file(file_path: Path) -> list[tuple[int, str]]:
     violations: list[tuple[int, str]] = []
 
     try:
-        content = file_path.read_text(encoding='utf-8')
+        content = file_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return violations
 
     for line_num, line in enumerate(content.splitlines(), start=1):
         # Skip comments
         stripped = line.lstrip()
-        if stripped.startswith('#'):
+        if stripped.startswith("#"):
             continue
 
         # Check for violations
@@ -77,7 +74,7 @@ def main() -> int:
     Returns:
         Exit code: 0 for success, 1 for violations found.
     """
-    src_path = Path('src')
+    src_path = Path("src")
 
     if not src_path.exists():
         print("Warning: src/ directory not found, skipping check")
@@ -86,7 +83,7 @@ def main() -> int:
     all_violations: dict[str, list[tuple[int, str]]] = {}
 
     # Scan all Python files in src/
-    for py_file in src_path.rglob('*.py'):
+    for py_file in src_path.rglob("*.py"):
         relative_path = str(py_file)
 
         # Skip allowed files
@@ -109,7 +106,9 @@ def main() -> int:
     print("❌ HARDENING-1 VIOLATION: Direct datetime.now() calls detected!")
     print()
     print("Team Agreement (Gov Epic 8 Retrospective):")
-    print("  > No datetime.now() calls in production code - always inject time authority")
+    print(
+        "  > No datetime.now() calls in production code - always inject time authority"
+    )
     print()
     print("Violations found:")
     print()
@@ -138,5 +137,5 @@ def main() -> int:
     return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

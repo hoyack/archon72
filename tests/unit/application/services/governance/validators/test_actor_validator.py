@@ -4,9 +4,10 @@ Story: consent-gov-1.4: Write-Time Validation
 AC4: Unknown actors rejected before append (with specific error)
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.application.services.governance.validators.actor_validator import (
     ActorValidator,
@@ -20,14 +21,16 @@ from src.domain.governance.events.event_envelope import GovernanceEvent
 def actor_registry() -> InMemoryActorRegistry:
     """Create a test actor registry with some actors."""
     return InMemoryActorRegistry(
-        actors=frozenset({
-            "archon-01",
-            "archon-02",
-            "archon-42",
-            "officer-king-01",
-            "officer-president-01",
-            "system",
-        })
+        actors=frozenset(
+            {
+                "archon-01",
+                "archon-02",
+                "archon-42",
+                "officer-king-01",
+                "officer-president-01",
+                "system",
+            }
+        )
     )
 
 
@@ -85,7 +88,9 @@ class TestActorValidator:
         assert exc_info.value.event_id == event.event_id
 
     @pytest.mark.asyncio
-    async def test_error_message_includes_actor_id(self, validator: ActorValidator) -> None:
+    async def test_error_message_includes_actor_id(
+        self, validator: ActorValidator
+    ) -> None:
         """Error message includes the unknown actor ID."""
         event = make_event("unknown-archon-99")
 

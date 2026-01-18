@@ -11,7 +11,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.petition_repository import PetitionRepositoryProtocol
@@ -52,7 +51,7 @@ class PetitionRepositoryStub(PetitionRepositoryProtocol):
             raise PetitionAlreadyExistsError(str(petition.petition_id))
         self._petitions[petition.petition_id] = petition
 
-    async def get_petition(self, petition_id: UUID) -> Optional[Petition]:
+    async def get_petition(self, petition_id: UUID) -> Petition | None:
         """Retrieve a petition by ID.
 
         Args:
@@ -144,7 +143,7 @@ class PetitionRepositoryStub(PetitionRepositoryProtocol):
         self,
         petition_id: UUID,
         status: PetitionStatus,
-        threshold_met_at: Optional[str] = None,
+        threshold_met_at: str | None = None,
     ) -> None:
         """Update a petition's status.
 

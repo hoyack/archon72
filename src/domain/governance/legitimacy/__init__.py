@@ -44,33 +44,33 @@ Constitutional Compliance
 - NFR-AUDIT-04: State transitions are auditable
 """
 
-from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
-from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
-from src.domain.governance.legitimacy.transition_type import TransitionType
-from src.domain.governance.legitimacy.legitimacy_transition import (
-    LegitimacyTransition,
-)
-from src.domain.governance.legitimacy.transition_validation import (
-    TransitionValidation,
-)
 from src.domain.governance.legitimacy.band_transition_rules import (
     BandTransitionRules,
 )
 from src.domain.governance.legitimacy.errors import (
+    AcknowledgmentRequiredError,
     InvalidTransitionError,
     TerminalBandError,
-    AcknowledgmentRequiredError,
 )
-from src.domain.governance.legitimacy.violation_severity import (
-    ViolationSeverity,
-    VIOLATION_SEVERITY_MAP,
-    get_severity_for_violation,
-    calculate_target_band,
+from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
+from src.domain.governance.legitimacy.legitimacy_state import LegitimacyState
+from src.domain.governance.legitimacy.legitimacy_transition import (
+    LegitimacyTransition,
 )
 from src.domain.governance.legitimacy.restoration_acknowledgment import (
     RestorationAcknowledgment,
     RestorationRequest,
     RestorationResult,
+)
+from src.domain.governance.legitimacy.transition_type import TransitionType
+from src.domain.governance.legitimacy.transition_validation import (
+    TransitionValidation,
+)
+from src.domain.governance.legitimacy.violation_severity import (
+    VIOLATION_SEVERITY_MAP,
+    ViolationSeverity,
+    calculate_target_band,
+    get_severity_for_violation,
 )
 
 __all__ = [

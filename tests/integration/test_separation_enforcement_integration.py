@@ -76,7 +76,9 @@ class TestConstitutionalEventsWriteSuccessfully:
         return EventStoreStub()
 
     @pytest.mark.asyncio
-    async def test_accepts_deliberation_output(self, event_store: EventStoreStub) -> None:
+    async def test_accepts_deliberation_output(
+        self, event_store: EventStoreStub
+    ) -> None:
         """Test event store accepts deliberation_output constitutional type."""
         event = MockEvent(event_type="deliberation_output")
         result = await event_store.append_event(event)  # type: ignore
@@ -97,7 +99,9 @@ class TestConstitutionalEventsWriteSuccessfully:
         assert result.event_type == "halt_triggered"
 
     @pytest.mark.asyncio
-    async def test_accepts_cessation_executed(self, event_store: EventStoreStub) -> None:
+    async def test_accepts_cessation_executed(
+        self, event_store: EventStoreStub
+    ) -> None:
         """Test event store accepts cessation_executed constitutional type."""
         event = MockEvent(event_type="cessation_executed", sequence=4)
         result = await event_store.append_event(event)  # type: ignore
@@ -126,7 +130,9 @@ class TestSeparationEnforcementFlow:
     ) -> None:
         """Test validation + write flow for constitutional event."""
         # Step 1: Validate
-        result = service.validate_write_target("deliberation_output", WriteTarget.EVENT_STORE)
+        result = service.validate_write_target(
+            "deliberation_output", WriteTarget.EVENT_STORE
+        )
         assert result.valid is True
 
         # Step 2: Write
@@ -142,7 +148,9 @@ class TestSeparationEnforcementFlow:
     ) -> None:
         """Test validation + attempted write flow for operational data."""
         # Step 1: Validate should fail
-        result = service.validate_write_target("uptime_recorded", WriteTarget.EVENT_STORE)
+        result = service.validate_write_target(
+            "uptime_recorded", WriteTarget.EVENT_STORE
+        )
         assert result.valid is False
 
         # Step 2: Attempt write should also fail
@@ -250,7 +258,6 @@ class TestConstitutionalIntegrityIndependence:
     def test_no_cross_contamination(self) -> None:
         """Test there's no overlap between type sets."""
         intersection = (
-            EventTypeRegistry.CONSTITUTIONAL_TYPES
-            & EventTypeRegistry.OPERATIONAL_TYPES
+            EventTypeRegistry.CONSTITUTIONAL_TYPES & EventTypeRegistry.OPERATIONAL_TYPES
         )
         assert len(intersection) == 0, f"Cross-contamination found: {intersection}"

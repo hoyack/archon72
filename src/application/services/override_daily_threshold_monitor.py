@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from structlog import get_logger
 
@@ -30,7 +30,6 @@ from src.application.ports.override_trend_repository import (
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.models.incident_report import (
     DAILY_OVERRIDE_THRESHOLD,
-    IncidentReport,
     IncidentType,
     TimelineEntry,
 )
@@ -67,7 +66,7 @@ class DailyOverrideCheckResult:
     threshold: int
     threshold_exceeded: bool
     incident_created: bool
-    existing_incident_id: Optional[str]
+    existing_incident_id: str | None
 
 
 class OverrideDailyThresholdMonitor:
@@ -111,7 +110,7 @@ class OverrideDailyThresholdMonitor:
 
     async def check_daily_threshold(
         self,
-        date: Optional[datetime] = None,
+        date: datetime | None = None,
     ) -> DailyOverrideCheckResult:
         """Check if daily override threshold is exceeded (FR145).
 
@@ -140,7 +139,9 @@ class OverrideDailyThresholdMonitor:
 
         # Get override count for the date
         start_of_day = check_date.replace(hour=0, minute=0, second=0, microsecond=0)
-        end_of_day = check_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        end_of_day = check_date.replace(
+            hour=23, minute=59, second=59, microsecond=999999
+        )
 
         override_count = await self._override_repository.get_override_count_for_period(
             start_date=start_of_day,

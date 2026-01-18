@@ -7,8 +7,6 @@ Tests verify:
 - Tools are stateless (can be called multiple times)
 """
 
-import pytest
-
 from src.infrastructure.adapters.tools.archon_tools import (
     ALL_ARCHON_TOOLS,
     TOOL_NAME_TO_CLASS,
@@ -66,7 +64,10 @@ class TestInsightTool:
         """Verify tool can be instantiated."""
         tool = InsightTool()
         assert tool.name == "insight_tool"
-        assert "analyze" in tool.description.lower() or "insight" in tool.description.lower()
+        assert (
+            "analyze" in tool.description.lower()
+            or "insight" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -97,7 +98,10 @@ class TestCommunicationTool:
         """Verify tool can be instantiated."""
         tool = CommunicationTool()
         assert tool.name == "communication_tool"
-        assert "communicate" in tool.description.lower() or "message" in tool.description.lower()
+        assert (
+            "communicate" in tool.description.lower()
+            or "message" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -120,7 +124,10 @@ class TestDisruptionTool:
         """Verify tool can be instantiated."""
         tool = DisruptionTool()
         assert tool.name == "disruption_tool"
-        assert "challenge" in tool.description.lower() or "alternative" in tool.description.lower()
+        assert (
+            "challenge" in tool.description.lower()
+            or "alternative" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -142,7 +149,10 @@ class TestKnowledgeRetrievalTool:
         """Verify tool can be instantiated."""
         tool = KnowledgeRetrievalTool()
         assert tool.name == "knowledge_retrieval_tool"
-        assert "knowledge" in tool.description.lower() or "retrieve" in tool.description.lower()
+        assert (
+            "knowledge" in tool.description.lower()
+            or "retrieve" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -164,7 +174,10 @@ class TestCreationTool:
         """Verify tool can be instantiated."""
         tool = CreationTool()
         assert tool.name == "creation_tool"
-        assert "generate" in tool.description.lower() or "create" in tool.description.lower()
+        assert (
+            "generate" in tool.description.lower()
+            or "create" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -188,7 +201,10 @@ class TestTransactionTool:
         """Verify tool can be instantiated."""
         tool = TransactionTool()
         assert tool.name == "transaction_tool"
-        assert "transaction" in tool.description.lower() or "workflow" in tool.description.lower()
+        assert (
+            "transaction" in tool.description.lower()
+            or "workflow" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -210,7 +226,10 @@ class TestRelationshipTool:
         """Verify tool can be instantiated."""
         tool = RelationshipTool()
         assert tool.name == "relationship_tool"
-        assert "relationship" in tool.description.lower() or "network" in tool.description.lower()
+        assert (
+            "relationship" in tool.description.lower()
+            or "network" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -232,7 +251,10 @@ class TestLogisticsTool:
         """Verify tool can be instantiated."""
         tool = LogisticsTool()
         assert tool.name == "logistics_tool"
-        assert "resource" in tool.description.lower() or "allocate" in tool.description.lower()
+        assert (
+            "resource" in tool.description.lower()
+            or "allocate" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""
@@ -255,7 +277,10 @@ class TestWellnessTool:
         """Verify tool can be instantiated."""
         tool = WellnessTool()
         assert tool.name == "wellness_tool"
-        assert "health" in tool.description.lower() or "monitor" in tool.description.lower()
+        assert (
+            "health" in tool.description.lower()
+            or "monitor" in tool.description.lower()
+        )
 
     def test_run_returns_stub_response(self) -> None:
         """Verify _run returns stub response."""

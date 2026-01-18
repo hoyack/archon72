@@ -10,7 +10,6 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
 
 from src.application.ports.collusion_investigator import (
@@ -86,7 +85,7 @@ class CollusionInvestigatorStub(CollusionInvestigatorProtocol):
     async def get_investigation(
         self,
         investigation_id: str,
-    ) -> Optional[Investigation]:
+    ) -> Investigation | None:
         """Retrieve an investigation by ID.
 
         Args:
@@ -105,7 +104,8 @@ class CollusionInvestigatorStub(CollusionInvestigatorProtocol):
             sorted by triggered_at (oldest first).
         """
         active = [
-            inv for inv in self._investigations.values()
+            inv
+            for inv in self._investigations.values()
             if inv.status == InvestigationStatus.ACTIVE
         ]
         return sorted(active, key=lambda i: i.triggered_at)
@@ -166,9 +166,11 @@ class CollusionInvestigatorStub(CollusionInvestigatorProtocol):
         self._investigations[investigation_id] = updated
 
         # Update pair mapping
-        if investigation.pair_key in self._pair_to_active_investigation:
-            if self._pair_to_active_investigation[investigation.pair_key] == investigation_id:
-                del self._pair_to_active_investigation[investigation.pair_key]
+        if investigation.pair_key in self._pair_to_active_investigation and (
+            self._pair_to_active_investigation[investigation.pair_key]
+            == investigation_id
+        ):
+            del self._pair_to_active_investigation[investigation.pair_key]
 
         # If confirmed, add to permanently banned
         if resolution == InvestigationResolution.CONFIRMED_COLLUSION:
@@ -235,8 +237,7 @@ class CollusionInvestigatorStub(CollusionInvestigatorProtocol):
             sorted by triggered_at (newest first).
         """
         investigations = [
-            inv for inv in self._investigations.values()
-            if inv.pair_key == pair_key
+            inv for inv in self._investigations.values() if inv.pair_key == pair_key
         ]
         return sorted(investigations, key=lambda i: i.triggered_at, reverse=True)
 

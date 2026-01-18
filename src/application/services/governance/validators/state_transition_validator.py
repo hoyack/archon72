@@ -49,8 +49,12 @@ class LegitimacyBand(str, Enum):
 # Maps current_state -> allowed_next_states
 TASK_STATE_TRANSITIONS: dict[TaskState, frozenset[TaskState]] = {
     TaskState.PENDING: frozenset({TaskState.AUTHORIZED, TaskState.CANCELLED}),
-    TaskState.AUTHORIZED: frozenset({TaskState.ACTIVATED, TaskState.EXPIRED, TaskState.CANCELLED}),
-    TaskState.ACTIVATED: frozenset({TaskState.ACCEPTED, TaskState.DECLINED, TaskState.EXPIRED}),
+    TaskState.AUTHORIZED: frozenset(
+        {TaskState.ACTIVATED, TaskState.EXPIRED, TaskState.CANCELLED}
+    ),
+    TaskState.ACTIVATED: frozenset(
+        {TaskState.ACCEPTED, TaskState.DECLINED, TaskState.EXPIRED}
+    ),
     TaskState.ACCEPTED: frozenset({TaskState.COMPLETED, TaskState.EXPIRED}),
     TaskState.DECLINED: frozenset(),  # Terminal state
     TaskState.COMPLETED: frozenset(),  # Terminal state
@@ -62,9 +66,15 @@ LEGITIMACY_BAND_TRANSITIONS: dict[LegitimacyBand, frozenset[LegitimacyBand]] = {
     # Downward transitions are automatic (decay)
     # Upward transitions require explicit restoration
     LegitimacyBand.FULL: frozenset({LegitimacyBand.PROVISIONAL}),
-    LegitimacyBand.PROVISIONAL: frozenset({LegitimacyBand.FULL, LegitimacyBand.SUSPENDED}),
-    LegitimacyBand.SUSPENDED: frozenset({LegitimacyBand.PROVISIONAL, LegitimacyBand.REVOKED}),
-    LegitimacyBand.REVOKED: frozenset({LegitimacyBand.SUSPENDED}),  # Requires explicit restoration
+    LegitimacyBand.PROVISIONAL: frozenset(
+        {LegitimacyBand.FULL, LegitimacyBand.SUSPENDED}
+    ),
+    LegitimacyBand.SUSPENDED: frozenset(
+        {LegitimacyBand.PROVISIONAL, LegitimacyBand.REVOKED}
+    ),
+    LegitimacyBand.REVOKED: frozenset(
+        {LegitimacyBand.SUSPENDED}
+    ),  # Requires explicit restoration
 }
 
 
@@ -205,9 +215,15 @@ class StateTransitionValidator:
             Transition rules dict, or None if no rules for this type.
         """
         if aggregate_type == "task":
-            return {k.value: frozenset(v.value for v in vs) for k, vs in TASK_STATE_TRANSITIONS.items()}
+            return {
+                k.value: frozenset(v.value for v in vs)
+                for k, vs in TASK_STATE_TRANSITIONS.items()
+            }
         elif aggregate_type == "legitimacy":
-            return {k.value: frozenset(v.value for v in vs) for k, vs in LEGITIMACY_BAND_TRANSITIONS.items()}
+            return {
+                k.value: frozenset(v.value for v in vs)
+                for k, vs in LEGITIMACY_BAND_TRANSITIONS.items()
+            }
         return None
 
     def _extract_state_info(
@@ -287,7 +303,10 @@ class StateTransitionValidator:
                     attempted_state=new_state,
                     allowed_states=[TaskState.PENDING.value],
                 )
-            if aggregate_type == "legitimacy" and new_state != LegitimacyBand.FULL.value:
+            if (
+                aggregate_type == "legitimacy"
+                and new_state != LegitimacyBand.FULL.value
+            ):
                 raise IllegalStateTransitionError(
                     event_id=event.event_id,
                     aggregate_type=aggregate_type,

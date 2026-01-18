@@ -11,15 +11,14 @@ Per HARDENING-1: Uses TimeAuthorityProtocol for all timestamps.
 
 from collections import defaultdict
 from datetime import datetime, timezone
+from uuid import UUID
 
 from structlog import get_logger
-from uuid import UUID
 
 from src.application.ports.branch_action_tracker import (
     ArchonBranchHistory,
     BranchAction,
     BranchActionTrackerProtocol,
-    GovernanceAction,
     GovernanceBranch,
     RecordActionRequest,
     RecordActionResult,
@@ -59,9 +58,9 @@ class BranchActionTrackerAdapter(BranchActionTrackerProtocol):
         self._actions_by_motion: dict[UUID, list[BranchAction]] = defaultdict(list)
 
         # Index: (archon_id, motion_id) -> list of branches
-        self._branches_by_archon_motion: dict[tuple[str, UUID], list[GovernanceBranch]] = (
-            defaultdict(list)
-        )
+        self._branches_by_archon_motion: dict[
+            tuple[str, UUID], list[GovernanceBranch]
+        ] = defaultdict(list)
 
         # Per HARDENING-1: Use injected time authority or fallback
         self._time_authority = time_authority
@@ -265,8 +264,7 @@ class BranchActionTrackerAdapter(BranchActionTrackerProtocol):
 
         # Clear from index
         keys_to_remove = [
-            key for key in self._branches_by_archon_motion
-            if key[1] == motion_id
+            key for key in self._branches_by_archon_motion if key[1] == motion_id
         ]
         for key in keys_to_remove:
             del self._branches_by_archon_motion[key]
@@ -285,9 +283,11 @@ class BranchActionTrackerAdapter(BranchActionTrackerProtocol):
         Returns:
             Dictionary with tracking statistics
         """
-        total_actions = sum(len(actions) for actions in self._actions_by_motion.values())
+        total_actions = sum(
+            len(actions) for actions in self._actions_by_motion.values()
+        )
         total_motions = len(self._actions_by_motion)
-        unique_archons = len(set(key[0] for key in self._branches_by_archon_motion.keys()))
+        unique_archons = len(set(key[0] for key in self._branches_by_archon_motion))
 
         return {
             "total_actions": total_actions,

@@ -11,9 +11,6 @@ Constitutional Reference:
 """
 
 from datetime import datetime, timedelta, timezone
-from types import MappingProxyType
-from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
 
 import pytest
 
@@ -27,7 +24,7 @@ from src.application.services.governance.two_phase_execution import TwoPhaseExec
 from src.application.services.governance.two_phase_gap_detector import (
     TwoPhaseGapDetector,
 )
-from src.domain.governance.events.event_envelope import EventMetadata, GovernanceEvent
+from src.domain.governance.events.event_envelope import GovernanceEvent
 
 
 class FakeTimeAuthority:
@@ -107,7 +104,9 @@ def ledger() -> FakeLedger:
 
 
 @pytest.fixture
-def emitter(ledger: FakeLedger, time_authority: FakeTimeAuthority) -> TwoPhaseEventEmitter:
+def emitter(
+    ledger: FakeLedger, time_authority: FakeTimeAuthority
+) -> TwoPhaseEventEmitter:
     """Create a TwoPhaseEventEmitter with fake dependencies."""
     return TwoPhaseEventEmitter(ledger, time_authority)
 

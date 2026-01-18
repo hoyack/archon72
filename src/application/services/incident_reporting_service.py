@@ -22,13 +22,15 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from structlog import get_logger
 
 from src.application.ports.halt_checker import HaltChecker
-from src.application.ports.incident_report_repository import IncidentReportRepositoryPort
+from src.application.ports.incident_report_repository import (
+    IncidentReportRepositoryPort,
+)
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.incident_report import (
     INCIDENT_REPORT_CREATED_EVENT_TYPE,
@@ -120,7 +122,7 @@ class IncidentReportingService:
         halt_event_id: UUID,
         cause: str,
         impact: str,
-        timeline: Optional[list[TimelineEntry]] = None,
+        timeline: list[TimelineEntry] | None = None,
     ) -> IncidentReport:
         """Create an incident report for a halt event (FR145, AC1).
 
@@ -156,7 +158,7 @@ class IncidentReportingService:
         fork_event_id: UUID,
         detection_details: str,
         affected_events: list[UUID],
-        timeline: Optional[list[TimelineEntry]] = None,
+        timeline: list[TimelineEntry] | None = None,
     ) -> IncidentReport:
         """Create an incident report for a fork detection (FR145, AC2).
 
@@ -192,7 +194,7 @@ class IncidentReportingService:
         self,
         override_event_ids: list[UUID],
         keeper_ids: list[str],
-        timeline: Optional[list[TimelineEntry]] = None,
+        timeline: list[TimelineEntry] | None = None,
     ) -> IncidentReport:
         """Create an incident report for override threshold exceeded (FR145, AC3).
 
@@ -231,7 +233,7 @@ class IncidentReportingService:
         cause: str,
         impact: str,
         related_event_ids: list[UUID],
-        timeline: Optional[list[TimelineEntry]] = None,
+        timeline: list[TimelineEntry] | None = None,
     ) -> IncidentReport:
         """Create an incident report (internal method).
 
@@ -445,7 +447,7 @@ class IncidentReportingService:
     async def publish_incident(
         self,
         incident_id: UUID,
-        redacted_fields: Optional[list[str]] = None,
+        redacted_fields: list[str] | None = None,
     ) -> IncidentReport:
         """Publish an incident report (FR147, AC4).
 
@@ -562,7 +564,7 @@ class IncidentReportingService:
         """
         return await self._repository.get_pending_publication()
 
-    async def get_incident_by_id(self, incident_id: UUID) -> Optional[IncidentReport]:
+    async def get_incident_by_id(self, incident_id: UUID) -> IncidentReport | None:
         """Get an incident by ID.
 
         CT-13 compliant: Read operation works during halt.
@@ -577,10 +579,10 @@ class IncidentReportingService:
 
     async def query_incidents(
         self,
-        incident_type: Optional[IncidentType] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        status: Optional[IncidentStatus] = None,
+        incident_type: IncidentType | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        status: IncidentStatus | None = None,
     ) -> list[IncidentReport]:
         """Query incidents with filters (AC5).
 

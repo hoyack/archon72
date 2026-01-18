@@ -91,7 +91,13 @@ class TestMarquisDomainMapping:
         )
 
         knowledge_marquis = get_marquis_for_domain(ExpertiseDomain.KNOWLEDGE)
-        assert set(knowledge_marquis) == {"foras", "barbatos", "stolas", "orobas", "ipos"}
+        assert set(knowledge_marquis) == {
+            "foras",
+            "barbatos",
+            "stolas",
+            "orobas",
+            "ipos",
+        }
 
     def test_get_expertise_domain_case_insensitive(self) -> None:
         """get_expertise_domain works case-insensitively."""

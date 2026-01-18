@@ -4,8 +4,9 @@ Tests AC4: Filter version tracked for auditability.
 Tests AC8: Immutable value objects.
 """
 
-import pytest
 from dataclasses import FrozenInstanceError
+
+import pytest
 
 from src.domain.governance.filter.filter_version import FilterVersion
 

@@ -9,8 +9,6 @@ Constitutional Constraints:
 - CT-13: Integrity outranks availability - reject unsigned/invalid signals
 """
 
-from typing import Optional
-
 
 class UnsignedForkSignalError(Exception):
     """Error for fork signals that lack a signature.
@@ -24,7 +22,7 @@ class UnsignedForkSignalError(Exception):
     - CT-13: Integrity outranks availability
     """
 
-    def __init__(self, message: Optional[str] = None) -> None:
+    def __init__(self, message: str | None = None) -> None:
         """Initialize the error.
 
         Args:
@@ -55,7 +53,7 @@ class InvalidForkSignatureError(Exception):
     """
 
     def __init__(
-        self, message: Optional[str] = None, *, key_id: Optional[str] = None
+        self, message: str | None = None, *, key_id: str | None = None
     ) -> None:
         """Initialize the error.
 
@@ -99,10 +97,10 @@ class ForkSignalRateLimitExceededError(Exception):
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        source_id: Optional[str] = None,
-        signal_count: Optional[int] = None,
+        source_id: str | None = None,
+        signal_count: int | None = None,
     ) -> None:
         """Initialize the error.
 

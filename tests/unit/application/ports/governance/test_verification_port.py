@@ -11,14 +11,13 @@ Tests:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import pytest
 
 from src.application.ports.governance.verification_port import (
-    VerificationPort,
     StateReplayerPort,
+    VerificationPort,
 )
 from src.domain.governance.audit.ledger_export import LedgerExport
 from src.domain.governance.audit.verification_result import (

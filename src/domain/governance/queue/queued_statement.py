@@ -27,7 +27,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.governance.queue.priority import QueuePriority
@@ -111,19 +110,19 @@ class QueuedStatement:
     UTC timestamp. Used for queue ordering within priority level.
     """
 
-    acknowledged_at: Optional[datetime]
+    acknowledged_at: datetime | None
     """When operator acknowledged this item.
 
     None if not yet acknowledged. UTC timestamp.
     """
 
-    resolved_at: Optional[datetime]
+    resolved_at: datetime | None
     """When panel resolved this item.
 
     None if not yet resolved. UTC timestamp.
     """
 
-    finding_id: Optional[UUID]
+    finding_id: UUID | None
     """Link to the panel finding for this statement.
 
     None if not yet resolved. Links to the PanelFinding
@@ -137,10 +136,10 @@ class QueuedStatement:
     def with_status(
         self,
         new_status: QueueItemStatus,
-        acknowledged_at: Optional[datetime] = None,
-        resolved_at: Optional[datetime] = None,
-        finding_id: Optional[UUID] = None,
-    ) -> "QueuedStatement":
+        acknowledged_at: datetime | None = None,
+        resolved_at: datetime | None = None,
+        finding_id: UUID | None = None,
+    ) -> QueuedStatement:
         """Create new instance with updated status.
 
         Since QueuedStatement is frozen, status changes create new

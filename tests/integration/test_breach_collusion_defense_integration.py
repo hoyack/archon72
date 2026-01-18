@@ -11,8 +11,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 import pytest
 
 from src.application.ports.collusion_investigator import InvestigationStatus
@@ -26,7 +24,9 @@ from src.domain.errors.collusion import (
 from src.domain.errors.writer import SystemHaltedError
 from src.domain.events.collusion import InvestigationResolution
 from src.infrastructure.stubs.breach_repository_stub import BreachRepositoryStub
-from src.infrastructure.stubs.collusion_investigator_stub import CollusionInvestigatorStub
+from src.infrastructure.stubs.collusion_investigator_stub import (
+    CollusionInvestigatorStub,
+)
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.witness_anomaly_detector_stub import (
     WitnessAnomalyDetectorStub,

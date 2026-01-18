@@ -46,7 +46,9 @@ def calculate_dissent_percentage(vote_counts: VoteCounts) -> float:
     if total == 0:
         return 0.0
 
-    majority = max(vote_counts.yes_count, vote_counts.no_count, vote_counts.abstain_count)
+    majority = max(
+        vote_counts.yes_count, vote_counts.no_count, vote_counts.abstain_count
+    )
     minority = total - majority
 
     return (minority / total) * 100.0
@@ -74,7 +76,9 @@ def is_unanimous(vote_counts: VoteCounts) -> bool:
     if total == 0:
         return True  # Edge case: no votes = unanimous by default
 
-    majority = max(vote_counts.yes_count, vote_counts.no_count, vote_counts.abstain_count)
+    majority = max(
+        vote_counts.yes_count, vote_counts.no_count, vote_counts.abstain_count
+    )
     return majority == total
 
 

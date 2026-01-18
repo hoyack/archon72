@@ -17,7 +17,7 @@ Developer Golden Rules:
 """
 
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -32,7 +32,6 @@ from src.api.models.incident import (
     TimelineEntryResponse,
 )
 from src.application.services.incident_reporting_service import (
-    IncidentNotFoundError,
     IncidentReportingService,
 )
 from src.domain.models.incident_report import IncidentStatus, IncidentType
@@ -110,7 +109,7 @@ def _incident_to_detail(incident) -> IncidentDetailResponse:
     )
 
 
-def _parse_incident_type(type_str: Optional[str]) -> Optional[IncidentType]:
+def _parse_incident_type(type_str: str | None) -> IncidentType | None:
     """Parse incident type string to enum."""
     if type_str is None:
         return None
@@ -120,7 +119,7 @@ def _parse_incident_type(type_str: Optional[str]) -> Optional[IncidentType]:
         return None
 
 
-def _parse_incident_status(status_str: Optional[str]) -> Optional[IncidentStatus]:
+def _parse_incident_status(status_str: str | None) -> IncidentStatus | None:
     """Parse incident status string to enum."""
     if status_str is None:
         return None
@@ -253,21 +252,19 @@ async def query_incidents(
     request: Request,
     incident_service: IncidentReportingService = Depends(get_incident_service),
     incident_type: Annotated[
-        Optional[str],
-        Query(
-            description="Filter by incident type (halt, fork, override_threshold)"
-        ),
+        str | None,
+        Query(description="Filter by incident type (halt, fork, override_threshold)"),
     ] = None,
     start_date: Annotated[
-        Optional[datetime],
+        datetime | None,
         Query(description="Filter by created_at >= start_date (ISO 8601)"),
     ] = None,
     end_date: Annotated[
-        Optional[datetime],
+        datetime | None,
         Query(description="Filter by created_at <= end_date (ISO 8601)"),
     ] = None,
     status: Annotated[
-        Optional[str],
+        str | None,
         Query(
             description="Filter by status (draft, pending_publication, published, redacted)"
         ),

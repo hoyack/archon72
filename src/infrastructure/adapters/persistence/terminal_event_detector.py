@@ -27,7 +27,7 @@ Architecture:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from structlog import get_logger
 
@@ -75,9 +75,9 @@ class TerminalEventDetector(TerminalEventDetectorProtocol):
         """
         self._event_store = event_store
         # Cache state once terminal is detected (permanent)
-        self._cached_terminated: Optional[bool] = None
-        self._cached_terminal_event: Optional[Event] = None
-        self._cached_timestamp: Optional[datetime] = None
+        self._cached_terminated: bool | None = None
+        self._cached_terminal_event: Event | None = None
+        self._cached_timestamp: datetime | None = None
 
     async def is_system_terminated(self) -> bool:
         """Check if system has been terminated via cessation event.
@@ -135,7 +135,7 @@ class TerminalEventDetector(TerminalEventDetectorProtocol):
             # But also don't assume not terminated (fail safe)
             raise
 
-    async def get_terminal_event(self) -> Optional[Event]:
+    async def get_terminal_event(self) -> Event | None:
         """Get the terminal event (CESSATION_EXECUTED) if one exists.
 
         This method returns the actual cessation event that terminated
@@ -160,7 +160,7 @@ class TerminalEventDetector(TerminalEventDetectorProtocol):
 
         return terminal_event
 
-    async def get_termination_timestamp(self) -> Optional[datetime]:
+    async def get_termination_timestamp(self) -> datetime | None:
         """Get the timestamp when system was terminated.
 
         Returns the execution_timestamp from the CESSATION_EXECUTED
@@ -184,7 +184,7 @@ class TerminalEventDetector(TerminalEventDetectorProtocol):
 
         return self._cached_timestamp
 
-    async def _find_terminal_event(self) -> Optional[Event]:
+    async def _find_terminal_event(self) -> Event | None:
         """Find the terminal cessation event in the event store.
 
         Queries for events with payload->>'is_terminal' = 'true'.
@@ -212,10 +212,7 @@ class TerminalEventDetector(TerminalEventDetectorProtocol):
                     limit=1,
                 )
                 for event in events:
-                    if (
-                        event.payload
-                        and event.payload.get("is_terminal") is True
-                    ):
+                    if event.payload and event.payload.get("is_terminal") is True:
                         return event
                 return None
 
@@ -242,7 +239,7 @@ class TerminalEventDetector(TerminalEventDetectorProtocol):
             )
             raise
 
-    def _extract_timestamp(self, event: Event) -> Optional[datetime]:
+    def _extract_timestamp(self, event: Event) -> datetime | None:
         """Extract execution timestamp from event payload.
 
         Args:
@@ -280,9 +277,9 @@ class InMemoryTerminalEventDetector(TerminalEventDetectorProtocol):
     def __init__(self) -> None:
         """Initialize with empty event list."""
         self._events: list[Event] = []
-        self._cached_terminated: Optional[bool] = None
-        self._cached_terminal_event: Optional[Event] = None
-        self._cached_timestamp: Optional[datetime] = None
+        self._cached_terminated: bool | None = None
+        self._cached_terminal_event: Event | None = None
+        self._cached_timestamp: datetime | None = None
 
     def add_event(self, event: Event) -> None:
         """Add an event to the in-memory store.
@@ -309,17 +306,17 @@ class InMemoryTerminalEventDetector(TerminalEventDetectorProtocol):
 
         return False
 
-    async def get_terminal_event(self) -> Optional[Event]:
+    async def get_terminal_event(self) -> Event | None:
         """Get the terminal event if exists."""
         await self.is_system_terminated()  # Ensure cache is populated
         return self._cached_terminal_event
 
-    async def get_termination_timestamp(self) -> Optional[datetime]:
+    async def get_termination_timestamp(self) -> datetime | None:
         """Get termination timestamp if terminated."""
         await self.is_system_terminated()  # Ensure cache is populated
         return self._cached_timestamp
 
-    def _extract_timestamp(self, event: Event) -> Optional[datetime]:
+    def _extract_timestamp(self, event: Event) -> datetime | None:
         """Extract timestamp from event."""
         if event.payload and "execution_timestamp" in event.payload:
             ts_value = event.payload["execution_timestamp"]

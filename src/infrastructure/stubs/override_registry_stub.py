@@ -13,7 +13,6 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.override_registry import (
@@ -131,6 +130,6 @@ class OverrideRegistryStub(OverrideRegistryPort):
         """Test helper: Clear all tracked overrides."""
         self._overrides.clear()
 
-    def _get_entry(self, override_id: UUID) -> Optional[_OverrideEntry]:
+    def _get_entry(self, override_id: UUID) -> _OverrideEntry | None:
         """Test helper: Get internal entry for inspection."""
         return self._overrides.get(override_id)

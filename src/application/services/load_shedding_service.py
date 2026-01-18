@@ -15,8 +15,7 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from src.application.services.base import LoggingMixin
 from src.domain.errors.failure_prevention import (
@@ -24,9 +23,6 @@ from src.domain.errors.failure_prevention import (
     LoadSheddingDecisionError,
 )
 from src.domain.models.load_status import (
-    ELEVATED_THRESHOLD,
-    HIGH_THRESHOLD,
-    LoadLevel,
     LoadSheddingDecision,
     LoadStatus,
 )
@@ -66,7 +62,7 @@ class LoadSheddingService(LoggingMixin):
         self._init_logger(component="operational")
         self._capacity_threshold = capacity_threshold
         self._current_load: float = 0.0
-        self._baseline_load: Optional[float] = None
+        self._baseline_load: float | None = None
         self._decisions: list[LoadSheddingDecision] = []
         self._telemetry_shed_count: int = 0
 

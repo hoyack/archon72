@@ -159,7 +159,12 @@ class TaskActivationService(TaskActivationPort):
 
             # Filter content through Coercion Filter
             # Combine all content fields for filtering
-            content_to_filter = f"{description}\n" + "\n".join(requirements) + "\n" + "\n".join(expected_outcomes)
+            content_to_filter = (
+                f"{description}\n"
+                + "\n".join(requirements)
+                + "\n"
+                + "\n".join(expected_outcomes)
+            )
             filter_result = await self._filter.filter_content(
                 content=content_to_filter,
                 message_type=MessageType.TASK_ACTIVATION,
@@ -230,7 +235,9 @@ class TaskActivationService(TaskActivationPort):
             FilterDecision.REJECTED: FilterOutcome.REJECTED,
             FilterDecision.BLOCKED: FilterOutcome.BLOCKED,
         }
-        filter_outcome = decision_to_outcome.get(filter_result.decision, FilterOutcome.BLOCKED)
+        filter_outcome = decision_to_outcome.get(
+            filter_result.decision, FilterOutcome.BLOCKED
+        )
 
         # Generate decision ID from timestamp for audit trail
         decision_id = uuid4()
@@ -243,6 +250,7 @@ class TaskActivationService(TaskActivationPort):
                 from src.domain.governance.task.task_activation_request import (
                     FilteredContent as TaskFilteredContent,
                 )
+
                 task_filtered = TaskFilteredContent(
                     content=domain_filtered.content,
                     filter_decision_id=decision_id,
@@ -266,7 +274,10 @@ class TaskActivationService(TaskActivationPort):
         elif filter_result.decision == FilterDecision.REJECTED:
             rejection_reason_str = None
             if filter_result.rejection_reason:
-                rejection_reason_str = filter_result.rejection_guidance or filter_result.rejection_reason.description
+                rejection_reason_str = (
+                    filter_result.rejection_guidance
+                    or filter_result.rejection_reason.description
+                )
             execution.set_result({"routed": False, "reason": "rejected"})
             return TaskActivationResult(
                 success=False,
@@ -280,7 +291,10 @@ class TaskActivationService(TaskActivationPort):
         else:  # blocked
             violation_str = None
             if filter_result.violation_type:
-                violation_str = filter_result.violation_details or filter_result.violation_type.description
+                violation_str = (
+                    filter_result.violation_details
+                    or filter_result.violation_type.description
+                )
             execution.set_result({"routed": False, "reason": "blocked"})
             return TaskActivationResult(
                 success=False,

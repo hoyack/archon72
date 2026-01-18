@@ -3,9 +3,6 @@
 Tests for FailureMode, FailureModeThreshold, and EarlyWarning models.
 """
 
-from datetime import datetime, timezone
-from uuid import uuid4
-
 import pytest
 
 from src.domain.models.failure_mode import (
@@ -379,7 +376,9 @@ class TestDefaultFailureModes:
         """Test that PV-001 is raw string event type."""
         mode = DEFAULT_FAILURE_MODES[FailureModeId.PV_001]
 
-        assert "string" in mode.description.lower() or "event" in mode.description.lower()
+        assert (
+            "string" in mode.description.lower() or "event" in mode.description.lower()
+        )
         assert mode.severity == FailureModeSeverity.HIGH
 
     def test_pv003_is_missing_halt_guard(self) -> None:

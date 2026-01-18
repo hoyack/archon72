@@ -88,9 +88,9 @@ class VerificationPort(Protocol):
 
     async def verify_complete(
         self,
-        ledger_export: "LedgerExport",
+        ledger_export: LedgerExport,
         verifier_id: UUID | None = None,
-    ) -> "VerificationResult":
+    ) -> VerificationResult:
         """Perform complete independent verification.
 
         Runs all verification checks on the exported ledger:
@@ -116,7 +116,7 @@ class VerificationPort(Protocol):
     async def verify_hash_chain(
         self,
         events: list,
-    ) -> tuple[bool, list["DetectedIssue"]]:
+    ) -> tuple[bool, list[DetectedIssue]]:
         """Verify hash chain independently.
 
         Checks that each event's hash correctly links to the
@@ -139,7 +139,7 @@ class VerificationPort(Protocol):
     async def verify_sequence(
         self,
         events: list,
-    ) -> tuple[bool, list["DetectedIssue"]]:
+    ) -> tuple[bool, list[DetectedIssue]]:
         """Verify sequence is complete with no gaps.
 
         Checks that sequence numbers are continuous from 1 to N
@@ -160,7 +160,7 @@ class VerificationPort(Protocol):
         self,
         events: list,
         expected_root: str,
-    ) -> tuple[bool, list["DetectedIssue"]]:
+    ) -> tuple[bool, list[DetectedIssue]]:
         """Verify Merkle root matches computed root.
 
         Computes the Merkle root from event hashes and compares
@@ -181,7 +181,7 @@ class VerificationPort(Protocol):
     async def verify_state_replay(
         self,
         events: list,
-    ) -> tuple[bool, list["DetectedIssue"]]:
+    ) -> tuple[bool, list[DetectedIssue]]:
         """Verify state can be derived through event replay.
 
         Replays all events from genesis and verifies that state
@@ -201,7 +201,7 @@ class VerificationPort(Protocol):
     async def verify_offline(
         self,
         ledger_json: str,
-    ) -> "VerificationResult":
+    ) -> VerificationResult:
         """Verify ledger from JSON export (fully offline).
 
         Performs complete verification using only the JSON export.

@@ -29,7 +29,8 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncIterator, Protocol, runtime_checkable
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -61,7 +62,7 @@ class LedgerExportPort(Protocol):
     async def export_complete(
         self,
         requester_id: UUID,
-    ) -> "LedgerExport":
+    ) -> LedgerExport:
         """Export the complete ledger.
 
         This method ALWAYS exports ALL events from genesis to latest.
@@ -88,7 +89,7 @@ class LedgerExportPort(Protocol):
         self,
         requester_id: UUID,
         batch_size: int = 1000,
-    ) -> AsyncIterator["LedgerExport"]:
+    ) -> AsyncIterator[LedgerExport]:
         """Stream the complete ledger in batches for large exports.
 
         This method exports ALL events from genesis to latest,

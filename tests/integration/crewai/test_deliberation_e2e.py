@@ -40,7 +40,6 @@ from .conftest import (
     validate_response,
 )
 
-
 # ===========================================================================
 # Helpers
 # ===========================================================================
@@ -251,9 +250,7 @@ class TestSelectionWithDeliberation:
         )
 
         # Use selector to find relevant archons
-        selector = create_archon_selector(
-            profile_repository=archon_profile_repository
-        )
+        selector = create_archon_selector(profile_repository=archon_profile_repository)
 
         selection = selector.select(
             topic=topic,
@@ -297,7 +294,9 @@ class TestSelectionWithDeliberation:
                 output.content,
                 topic_keywords=topic.keywords,
             )
-            assert validation.is_valid, f"Response validation failed: {validation.errors}"
+            assert validation.is_valid, (
+                f"Response validation failed: {validation.errors}"
+            )
 
             # Track costs
             input_tokens = estimate_tokens_from_text(topic.content)

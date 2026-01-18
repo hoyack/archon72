@@ -9,13 +9,10 @@ ADR-3: DB halt flag is the canonical source of truth.
 - Halt is **sticky** - clearing requires witnessed ceremony (Story 3.4)
 """
 
-from datetime import datetime, timezone
-from typing import Optional
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
-from src.application.ports.dual_channel_halt import HaltFlagState
 from src.domain.errors.halt_clear import HaltClearDeniedError
 from src.infrastructure.adapters.persistence.halt_flag_repository import (
     HaltFlagRepository,
@@ -43,9 +40,7 @@ class TestInMemoryHaltFlagRepository:
         assert state.crisis_event_id is None
 
     @pytest.mark.asyncio
-    async def test_set_halt_flag_halted(
-        self, repo: InMemoryHaltFlagRepository
-    ) -> None:
+    async def test_set_halt_flag_halted(self, repo: InMemoryHaltFlagRepository) -> None:
         """Should be able to set halt flag to halted."""
         crisis_id = uuid4()
 

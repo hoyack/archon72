@@ -29,6 +29,7 @@ References:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from datetime import datetime, timedelta
 from uuid import UUID, uuid4
@@ -278,9 +279,15 @@ class TaskReminderService(TaskReminderPort):
         blocked_reason = None
         if not filter_accepted:
             if filter_result.rejection_reason:
-                blocked_reason = filter_result.rejection_guidance or filter_result.rejection_reason.description
+                blocked_reason = (
+                    filter_result.rejection_guidance
+                    or filter_result.rejection_reason.description
+                )
             elif filter_result.violation_type:
-                blocked_reason = filter_result.violation_details or filter_result.violation_type.description
+                blocked_reason = (
+                    filter_result.violation_details
+                    or filter_result.violation_type.description
+                )
 
         return ReminderSendResult(
             task_id=task_id,
@@ -560,10 +567,8 @@ class TaskReminderScheduler:
 
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
             self._task = None
 
         logger.info("TaskReminderScheduler stopped")

@@ -42,20 +42,24 @@ class PanelRegistryRecord:
     """
 
     # Valid panel statuses in lifecycle order
-    VALID_STATUSES: ClassVar[frozenset[str]] = frozenset({
-        "pending",
-        "convened",
-        "deliberating",
-        "finding_issued",
-        "dissolved",
-    })
+    VALID_STATUSES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "pending",
+            "convened",
+            "deliberating",
+            "finding_issued",
+            "dissolved",
+        }
+    )
 
     # Valid finding outcomes
-    VALID_OUTCOMES: ClassVar[frozenset[str]] = frozenset({
-        "upheld",
-        "overturned",
-        "remanded",
-    })
+    VALID_OUTCOMES: ClassVar[frozenset[str]] = frozenset(
+        {
+            "upheld",
+            "overturned",
+            "remanded",
+        }
+    )
 
     # Status transitions that are allowed
     ALLOWED_TRANSITIONS: ClassVar[dict[str, frozenset[str]]] = {
@@ -84,7 +88,10 @@ class PanelRegistryRecord:
                 f"Invalid panel status '{self.panel_status}'. "
                 f"Valid statuses: {sorted(self.VALID_STATUSES)}"
             )
-        if self.finding_outcome is not None and self.finding_outcome not in self.VALID_OUTCOMES:
+        if (
+            self.finding_outcome is not None
+            and self.finding_outcome not in self.VALID_OUTCOMES
+        ):
             raise ValueError(
                 f"Invalid finding outcome '{self.finding_outcome}'. "
                 f"Valid outcomes: {sorted(self.VALID_OUTCOMES)}"

@@ -26,7 +26,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 # Event type constant for cessation agenda placement
@@ -97,8 +97,8 @@ class CessationAgendaPlacementEventPayload:
     agenda_placement_reason: str
 
     # Optional fields for anti-success sustained trigger (FR38)
-    sustained_days: Optional[int] = field(default=None)
-    first_alert_date: Optional[datetime] = field(default=None)
+    sustained_days: int | None = field(default=None)
+    first_alert_date: datetime | None = field(default=None)
     alert_event_ids: tuple[UUID, ...] = field(default_factory=tuple)
 
     def signable_content(self) -> bytes:

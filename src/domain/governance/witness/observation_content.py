@@ -104,10 +104,7 @@ class ObservationContent:
         Returns a concise description of when, what type, and where.
         Does NOT include interpretation or judgment.
         """
-        return (
-            f"At {self.when.isoformat()}, "
-            f"{self.event_type} observed in {self.where}"
-        )
+        return f"At {self.when.isoformat()}, {self.event_type} observed in {self.where}"
 
     def __hash__(self) -> int:
         """Hash based on event_id and observation timestamp."""

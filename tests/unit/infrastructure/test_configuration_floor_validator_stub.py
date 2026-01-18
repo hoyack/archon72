@@ -6,7 +6,6 @@ Constitutional Constraints:
 - NFR39: No configuration SHALL allow thresholds below constitutional floors
 """
 
-from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
 import pytest
@@ -14,11 +13,11 @@ import pytest
 from src.application.ports.configuration_floor_validator import (
     ConfigurationFloorValidatorProtocol,
 )
-from src.infrastructure.stubs.configuration_floor_validator_stub import (
-    ConfigurationFloorValidatorStub,
-)
 from src.domain.primitives.constitutional_thresholds import (
     CONSTITUTIONAL_THRESHOLD_REGISTRY,
+)
+from src.infrastructure.stubs.configuration_floor_validator_stub import (
+    ConfigurationFloorValidatorStub,
 )
 
 
@@ -54,7 +53,9 @@ class TestValidateStartupConfiguration:
         return ConfigurationFloorValidatorStub(halt_trigger=mock_halt_trigger)
 
     @pytest.mark.asyncio
-    async def test_passes_with_default_values(self, stub: ConfigurationFloorValidatorStub) -> None:
+    async def test_passes_with_default_values(
+        self, stub: ConfigurationFloorValidatorStub
+    ) -> None:
         """Stub should pass validation with default values."""
         result = await stub.validate_startup_configuration()
 
@@ -76,7 +77,9 @@ class TestValidateConfigurationChange:
         return ConfigurationFloorValidatorStub(halt_trigger=mock_halt_trigger)
 
     @pytest.mark.asyncio
-    async def test_valid_change_passes(self, stub: ConfigurationFloorValidatorStub) -> None:
+    async def test_valid_change_passes(
+        self, stub: ConfigurationFloorValidatorStub
+    ) -> None:
         """Valid configuration change should pass."""
         result = await stub.validate_configuration_change("cessation_breach_count", 15)
 
@@ -108,7 +111,9 @@ class TestGetAllFloors:
         """Create stub with mock dependencies."""
         return ConfigurationFloorValidatorStub(halt_trigger=mock_halt_trigger)
 
-    def test_returns_all_thresholds(self, stub: ConfigurationFloorValidatorStub) -> None:
+    def test_returns_all_thresholds(
+        self, stub: ConfigurationFloorValidatorStub
+    ) -> None:
         """Should return all thresholds."""
         floors = stub.get_all_floors()
 
@@ -128,7 +133,9 @@ class TestGetFloor:
         """Create stub with mock dependencies."""
         return ConfigurationFloorValidatorStub(halt_trigger=mock_halt_trigger)
 
-    def test_returns_specific_threshold(self, stub: ConfigurationFloorValidatorStub) -> None:
+    def test_returns_specific_threshold(
+        self, stub: ConfigurationFloorValidatorStub
+    ) -> None:
         """Should return specific threshold by name."""
         threshold = stub.get_floor("cessation_breach_count")
 
@@ -150,7 +157,9 @@ class TestGetConfigurationHealth:
         return ConfigurationFloorValidatorStub(halt_trigger=mock_halt_trigger)
 
     @pytest.mark.asyncio
-    async def test_returns_healthy_status(self, stub: ConfigurationFloorValidatorStub) -> None:
+    async def test_returns_healthy_status(
+        self, stub: ConfigurationFloorValidatorStub
+    ) -> None:
         """Should return healthy status with default values."""
         health = await stub.get_configuration_health()
 
@@ -177,7 +186,9 @@ class TestTestHelpers:
         assert initial_count == 0
 
     @pytest.mark.asyncio
-    async def test_validation_count_increments(self, stub: ConfigurationFloorValidatorStub) -> None:
+    async def test_validation_count_increments(
+        self, stub: ConfigurationFloorValidatorStub
+    ) -> None:
         """Validation count should increment on validation."""
         await stub.validate_startup_configuration()
         assert stub.get_validation_count() == 1

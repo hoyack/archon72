@@ -25,15 +25,14 @@ References:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 from uuid import UUID
 
 from src.application.ports.governance.task_constraint_port import (
-    ConstraintViolation,
-    ConstraintViolationError,
     ROLE_ALLOWED_OPERATIONS,
     ROLE_PROHIBITED_OPERATIONS,
+    ConstraintViolation,
+    ConstraintViolationError,
     TaskConstraintPort,
     TaskOperation,
 )
@@ -115,8 +114,8 @@ class TaskConstraintService(TaskConstraintPort):
         actor_id: UUID,
         actor_role: str,
         operation: TaskOperation,
-        task_id: Optional[UUID] = None,
-    ) -> Optional[ConstraintViolation]:
+        task_id: UUID | None = None,
+    ) -> ConstraintViolation | None:
         """Validate an operation against role constraints.
 
         Per AC3: Role constraints validated at operation time.
@@ -170,7 +169,7 @@ class TaskConstraintService(TaskConstraintPort):
         actor_id: UUID,
         actor_role: str,
         operation: TaskOperation,
-        task_id: Optional[UUID] = None,
+        task_id: UUID | None = None,
     ) -> None:
         """Validate an operation and raise if invalid.
 

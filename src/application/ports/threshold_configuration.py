@@ -11,7 +11,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 
 from src.domain.models.constitutional_threshold import ConstitutionalThreshold
 
@@ -115,9 +115,7 @@ class ThresholdRepositoryProtocol(Protocol):
     can operate without persistence by using registry defaults.
     """
 
-    async def save_threshold_override(
-        self, name: str, value: int | float
-    ) -> None:
+    async def save_threshold_override(self, name: str, value: int | float) -> None:
         """Save a threshold override.
 
         Args:
@@ -126,9 +124,7 @@ class ThresholdRepositoryProtocol(Protocol):
         """
         ...
 
-    async def get_threshold_override(
-        self, name: str
-    ) -> Optional[int | float]:
+    async def get_threshold_override(self, name: str) -> int | float | None:
         """Get a threshold override if one exists.
 
         Args:

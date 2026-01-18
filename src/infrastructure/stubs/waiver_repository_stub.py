@@ -10,8 +10,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from src.application.ports.waiver_repository import (
     WaiverRecord,
     WaiverRepositoryProtocol,
@@ -36,7 +34,7 @@ class WaiverRepositoryStub(WaiverRepositoryProtocol):
         """Initialize the stub with empty storage."""
         self._waivers: dict[str, WaiverRecord] = {}
 
-    async def get_waiver(self, waiver_id: str) -> Optional[WaiverRecord]:
+    async def get_waiver(self, waiver_id: str) -> WaiverRecord | None:
         """Retrieve a waiver by its ID.
 
         Args:

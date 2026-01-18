@@ -62,8 +62,7 @@ class RankViolationError(Exception):
         self.reason = reason
         self.prd_reference = prd_reference
         super().__init__(
-            f"Rank violation by {archon_id} on {action}: {reason} "
-            f"(per {prd_reference})"
+            f"Rank violation by {archon_id} on {action}: {reason} (per {prd_reference})"
         )
 
 
@@ -539,7 +538,9 @@ class DukeServiceAdapter(DukeServiceProtocol):
             name=domain.name,
             description=domain.description,
             boundaries=domain.boundaries,
-            status=DomainStatus.EXECUTING if domain.status == DomainStatus.OWNED else domain.status,
+            status=DomainStatus.EXECUTING
+            if domain.status == DomainStatus.OWNED
+            else domain.status,
             assigned_tasks=domain.assigned_tasks + (task_id,),
             owner_archon_id=domain.owner_archon_id,
             created_at=domain.created_at,

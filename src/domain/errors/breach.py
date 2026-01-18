@@ -13,8 +13,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
 
@@ -45,13 +43,16 @@ class BreachDeclarationError(BreachError):
         message: Error message describing the declaration failure.
     """
 
-    def __init__(self, message: Optional[str] = None) -> None:
+    def __init__(self, message: str | None = None) -> None:
         """Initialize with optional custom message.
 
         Args:
             message: Optional custom error message. Defaults to FR30 message.
         """
-        msg = message or "FR30: Breach declaration failed - unable to create constitutional event"
+        msg = (
+            message
+            or "FR30: Breach declaration failed - unable to create constitutional event"
+        )
         super().__init__(msg)
 
 
@@ -66,14 +67,17 @@ class InvalidBreachTypeError(BreachError):
         invalid_type: The invalid breach type value that was provided.
     """
 
-    def __init__(self, invalid_type: str, message: Optional[str] = None) -> None:
+    def __init__(self, invalid_type: str, message: str | None = None) -> None:
         """Initialize with the invalid type and optional custom message.
 
         Args:
             invalid_type: The invalid breach type value.
             message: Optional custom error message. Defaults to FR30 message.
         """
-        msg = message or f"FR30: Invalid breach type '{invalid_type}' - must be a valid BreachType enum value"
+        msg = (
+            message
+            or f"FR30: Invalid breach type '{invalid_type}' - must be a valid BreachType enum value"
+        )
         super().__init__(msg)
         self.invalid_type = invalid_type
 
@@ -89,7 +93,7 @@ class BreachQueryError(BreachError):
         message: Error message describing the query failure.
     """
 
-    def __init__(self, message: Optional[str] = None) -> None:
+    def __init__(self, message: str | None = None) -> None:
         """Initialize with optional custom message.
 
         Args:

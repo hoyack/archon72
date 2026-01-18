@@ -38,7 +38,9 @@ class TestAgendaTriggerType:
 
     def test_anti_success_sustained_value(self) -> None:
         """AgendaTriggerType.ANTI_SUCCESS_SUSTAINED has correct value."""
-        assert AgendaTriggerType.ANTI_SUCCESS_SUSTAINED.value == "anti_success_sustained"
+        assert (
+            AgendaTriggerType.ANTI_SUCCESS_SUSTAINED.value == "anti_success_sustained"
+        )
 
     def test_all_trigger_types_exist(self) -> None:
         """All three trigger types are defined."""

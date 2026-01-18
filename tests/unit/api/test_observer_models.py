@@ -362,7 +362,10 @@ class TestHashVerificationSpec:
         assert len(spec.genesis_hash) == 64
 
         # Description must explain genesis
-        assert "sequence" in spec.genesis_description.lower() or "first" in spec.genesis_description.lower()
+        assert (
+            "sequence" in spec.genesis_description.lower()
+            or "first" in spec.genesis_description.lower()
+        )
 
     def test_verification_spec_documents_excluded_fields(self) -> None:
         """Test that excluded fields are documented with reasons (AC5).
@@ -679,7 +682,9 @@ class TestEventFilterParams:
             has_desc = "description" in field_schema or any(
                 "description" in str(v) for v in field_schema.values()
             )
-            assert has_desc or field_schema, f"Field {field_name} should have description"
+            assert has_desc or field_schema, (
+                f"Field {field_name} should have description"
+            )
 
     def test_filter_params_partial_date_range_start_only(self) -> None:
         """Test EventFilterParams with only start_date (no end_date)."""
@@ -800,9 +805,15 @@ class TestHashChainProof:
         from src.api.models.observer import HashChainProof, HashChainProofEntry
 
         chain = [
-            HashChainProofEntry(sequence=100, content_hash="c" * 64, prev_hash="b" * 64),
-            HashChainProofEntry(sequence=101, content_hash="d" * 64, prev_hash="c" * 64),
-            HashChainProofEntry(sequence=102, content_hash="e" * 64, prev_hash="d" * 64),
+            HashChainProofEntry(
+                sequence=100, content_hash="c" * 64, prev_hash="b" * 64
+            ),
+            HashChainProofEntry(
+                sequence=101, content_hash="d" * 64, prev_hash="c" * 64
+            ),
+            HashChainProofEntry(
+                sequence=102, content_hash="e" * 64, prev_hash="d" * 64
+            ),
         ]
 
         proof = HashChainProof(
@@ -823,7 +834,9 @@ class TestHashChainProof:
 
         # 5 events in chain
         chain = [
-            HashChainProofEntry(sequence=i, content_hash=f"{i:064x}", prev_hash=f"{i-1:064x}")
+            HashChainProofEntry(
+                sequence=i, content_hash=f"{i:064x}", prev_hash=f"{i - 1:064x}"
+            )
             for i in range(1, 6)
         ]
 
@@ -873,7 +886,11 @@ class TestHashChainProof:
         proof = HashChainProof(
             from_sequence=1,
             to_sequence=1,
-            chain=[HashChainProofEntry(sequence=1, content_hash="a" * 64, prev_hash="0" * 64)],
+            chain=[
+                HashChainProofEntry(
+                    sequence=1, content_hash="a" * 64, prev_hash="0" * 64
+                )
+            ],
             current_head_hash="a" * 64,
         )
 
@@ -886,13 +903,18 @@ class TestHashChainProof:
         proof = HashChainProof(
             from_sequence=1,
             to_sequence=1,
-            chain=[HashChainProofEntry(sequence=1, content_hash="a" * 64, prev_hash="0" * 64)],
+            chain=[
+                HashChainProofEntry(
+                    sequence=1, content_hash="a" * 64, prev_hash="0" * 64
+                )
+            ],
             current_head_hash="a" * 64,
         )
 
         assert proof.generated_at is not None
         # Should be a recent datetime (within last minute)
         from datetime import timedelta
+
         assert datetime.now(timezone.utc) - proof.generated_at < timedelta(minutes=1)
 
 
@@ -1331,7 +1353,9 @@ class TestObserverEventsListResponseHistorical:
 
         response = ObserverEventsListResponse(
             events=[],
-            pagination=PaginationMetadata(total_count=0, offset=0, limit=100, has_more=False),
+            pagination=PaginationMetadata(
+                total_count=0, offset=0, limit=100, has_more=False
+            ),
             proof=proof,
         )
 
@@ -1354,7 +1378,9 @@ class TestObserverEventsListResponseHistorical:
 
         response = ObserverEventsListResponse(
             events=[],
-            pagination=PaginationMetadata(total_count=0, offset=0, limit=100, has_more=False),
+            pagination=PaginationMetadata(
+                total_count=0, offset=0, limit=100, has_more=False
+            ),
             historical_query=metadata,
         )
 
@@ -1370,7 +1396,9 @@ class TestObserverEventsListResponseHistorical:
 
         response = ObserverEventsListResponse(
             events=[],
-            pagination=PaginationMetadata(total_count=0, offset=0, limit=100, has_more=False),
+            pagination=PaginationMetadata(
+                total_count=0, offset=0, limit=100, has_more=False
+            ),
         )
 
         assert response.proof is None
@@ -1444,6 +1472,7 @@ class TestAttestationMetadata:
         assert metadata.export_id is not None
         # UUID should be a valid UUID4
         from uuid import UUID
+
         assert isinstance(metadata.export_id, UUID)
 
     def test_attestation_metadata_auto_exported_at(self) -> None:
@@ -1695,7 +1724,9 @@ class TestNotificationEventType:
         assert NotificationEventType.BREACH.value == "breach"
         assert NotificationEventType.HALT.value == "halt"
         assert NotificationEventType.FORK.value == "fork"
-        assert NotificationEventType.CONSTITUTIONAL_CRISIS.value == "constitutional_crisis"
+        assert (
+            NotificationEventType.CONSTITUTIONAL_CRISIS.value == "constitutional_crisis"
+        )
         assert NotificationEventType.ALL.value == "all"
 
     def test_notification_event_type_is_string_enum(self) -> None:
@@ -2116,14 +2147,19 @@ class TestWebhookSubscriptionSSRFProtection:
         with pytest.raises(ValueError) as exc_info:
             WebhookSubscription(webhook_url="https://169.254.169.254/latest/meta-data/")
 
-        assert "blocked" in str(exc_info.value).lower() or "metadata" in str(exc_info.value).lower()
+        assert (
+            "blocked" in str(exc_info.value).lower()
+            or "metadata" in str(exc_info.value).lower()
+        )
 
     def test_webhook_blocks_gcp_metadata(self) -> None:
         """Test that GCP metadata endpoints are blocked."""
         from src.api.models.observer import WebhookSubscription
 
         with pytest.raises(ValueError) as exc_info:
-            WebhookSubscription(webhook_url="https://metadata.google.internal/computeMetadata/v1/")
+            WebhookSubscription(
+                webhook_url="https://metadata.google.internal/computeMetadata/v1/"
+            )
 
         assert "metadata" in str(exc_info.value).lower()
 
@@ -2143,7 +2179,9 @@ class TestWebhookSubscriptionSSRFProtection:
         # Note: This test requires a real resolvable domain
         # In production tests, use a mock or skip DNS resolution
         try:
-            subscription = WebhookSubscription(webhook_url="https://example.com/webhook")
+            subscription = WebhookSubscription(
+                webhook_url="https://example.com/webhook"
+            )
             assert "example.com" in subscription.webhook_url
         except ValueError as e:
             # If DNS resolution fails (no network), that's expected

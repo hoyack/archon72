@@ -20,8 +20,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
-from uuid import uuid4
 
 from src.application.ports.breach_repository import BreachRepositoryProtocol
 from src.application.ports.collusion_investigator import (
@@ -34,7 +32,6 @@ from src.application.ports.witness_anomaly_detector import (
     WitnessAnomalyDetectorProtocol,
 )
 from src.domain.errors.collusion import (
-    CollusionInvestigationRequiredError,
     InvestigationAlreadyResolvedError,
     InvestigationNotFoundError,
 )
@@ -45,7 +42,6 @@ from src.domain.events.collusion import (
     InvestigationResolvedEventPayload,
     WitnessPairSuspendedEventPayload,
 )
-
 
 # System agent ID for collusion defense operations
 COLLUSION_DEFENSE_SYSTEM_AGENT_ID: str = "system:collusion_defense"
@@ -68,7 +64,7 @@ class CollusionCheckResult:
     requires_investigation: bool
     correlation_score: float
     breach_count: int
-    investigation_id: Optional[str] = None
+    investigation_id: str | None = None
 
 
 class BreachCollusionDefenseService:
@@ -116,7 +112,7 @@ class BreachCollusionDefenseService:
         anomaly_detector: WitnessAnomalyDetectorProtocol,
         breach_repository: BreachRepositoryProtocol,
         correlation_threshold: float = DEFAULT_CORRELATION_THRESHOLD,
-        event_writer: Optional[object] = None,  # Optional EventWriterService
+        event_writer: object | None = None,  # Optional EventWriterService
     ) -> None:
         """Initialize the breach collusion defense service.
 
@@ -162,8 +158,8 @@ class BreachCollusionDefenseService:
 
         # Check if already under investigation
         if await self._investigator.is_pair_under_investigation(pair_key):
-            active_investigations = await self._investigator.get_investigations_for_pair(
-                pair_key
+            active_investigations = (
+                await self._investigator.get_investigations_for_pair(pair_key)
             )
             active = next(
                 (i for i in active_investigations if i.is_active),
@@ -377,7 +373,7 @@ class BreachCollusionDefenseService:
     async def get_investigation(
         self,
         investigation_id: str,
-    ) -> Optional[Investigation]:
+    ) -> Investigation | None:
         """Get an investigation by ID.
 
         HALT CHECK FIRST (CT-11).

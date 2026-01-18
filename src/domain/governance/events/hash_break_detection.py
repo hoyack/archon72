@@ -27,11 +27,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from src.domain.governance.events.event_types import GovernanceEventType
 from src.domain.governance.events.hash_chain import (
-    HashVerificationResult,
     verify_chain_link,
     verify_event_hash,
 )
@@ -122,8 +121,8 @@ class HashBreakDetector:
 
     def check_event(
         self,
-        event: "GovernanceEvent",
-        previous_event: "GovernanceEvent | None",
+        event: GovernanceEvent,
+        previous_event: GovernanceEvent | None,
         detected_at: datetime,
     ) -> HashBreakDetectionResult:
         """Check a single event for hash integrity.
@@ -179,7 +178,7 @@ class HashBreakDetector:
 
     def check_sequence(
         self,
-        events: list["GovernanceEvent"],
+        events: list[GovernanceEvent],
         detected_at: datetime,
     ) -> HashBreakDetectionResult:
         """Check a sequence of events for hash chain integrity.

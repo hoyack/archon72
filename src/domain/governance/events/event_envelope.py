@@ -336,10 +336,10 @@ class GovernanceEvent:
         actor_id: str,
         trace_id: str,
         payload: dict[str, Any],
-        prev_event: "GovernanceEvent | None" = None,
+        prev_event: GovernanceEvent | None = None,
         algorithm: str = "blake3",
         schema_version: str = CURRENT_SCHEMA_VERSION,
-    ) -> "GovernanceEvent":
+    ) -> GovernanceEvent:
         """Factory method to create a GovernanceEvent with computed hash.
 
         This method creates a GovernanceEvent and computes the hash chain

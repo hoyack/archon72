@@ -1,7 +1,8 @@
 """Unit tests for witness anomaly events (Story 6.6, FR116-FR117)."""
 
-from datetime import datetime, timezone
 import json
+from datetime import datetime, timezone
+
 import pytest
 
 from src.domain.events.witness_anomaly import (
@@ -23,7 +24,9 @@ class TestWitnessAnomalyType:
 
     def test_unavailability_pattern_value(self) -> None:
         """Test UNAVAILABILITY_PATTERN enum value."""
-        assert WitnessAnomalyType.UNAVAILABILITY_PATTERN.value == "unavailability_pattern"
+        assert (
+            WitnessAnomalyType.UNAVAILABILITY_PATTERN.value == "unavailability_pattern"
+        )
 
     def test_excessive_pairing_value(self) -> None:
         """Test EXCESSIVE_PAIRING enum value."""
@@ -97,7 +100,9 @@ class TestWitnessAnomalyEventPayload:
     def test_confidence_score_validation_above_one(self) -> None:
         """Test that confidence_score > 1.0 raises ValueError."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="confidence_score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="confidence_score must be between 0.0 and 1.0"
+        ):
             WitnessAnomalyEventPayload(
                 anomaly_type=WitnessAnomalyType.CO_OCCURRENCE,
                 affected_witnesses=("witness1", "witness2"),
@@ -111,7 +116,9 @@ class TestWitnessAnomalyEventPayload:
     def test_confidence_score_validation_below_zero(self) -> None:
         """Test that confidence_score < 0.0 raises ValueError."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="confidence_score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="confidence_score must be between 0.0 and 1.0"
+        ):
             WitnessAnomalyEventPayload(
                 anomaly_type=WitnessAnomalyType.CO_OCCURRENCE,
                 affected_witnesses=("witness1", "witness2"),
@@ -333,7 +340,9 @@ class TestWitnessPoolDegradedEventPayload:
     def test_available_witnesses_validation(self) -> None:
         """Test that available_witnesses < 0 raises ValueError."""
         now = datetime.now(timezone.utc)
-        with pytest.raises(ValueError, match="available_witnesses must be non-negative"):
+        with pytest.raises(
+            ValueError, match="available_witnesses must be non-negative"
+        ):
             WitnessPoolDegradedEventPayload(
                 available_witnesses=-1,
                 minimum_required=12,

@@ -9,9 +9,6 @@ Constitutional Constraints Tested:
 - CT-13: Integrity outranks availability -> Cache must not serve stale data
 """
 
-import pytest
-from datetime import datetime, timezone
-
 from src.application.services.public_triggers_service import PublicTriggersService
 from src.domain.models.cessation_trigger_condition import CessationTriggerConditionSet
 

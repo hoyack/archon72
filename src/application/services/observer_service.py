@@ -50,8 +50,8 @@ class ChainVerificationResultDTO:
     start_sequence: int
     end_sequence: int
     is_valid: bool
-    first_invalid_sequence: Optional[int] = None
-    error_message: Optional[str] = None
+    first_invalid_sequence: int | None = None
+    error_message: str | None = None
     verified_count: int = 0
 
 
@@ -148,9 +148,9 @@ class ObserverService:
         self,
         limit: int = 100,
         offset: int = 0,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        event_types: Optional[list[str]] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        event_types: list[str] | None = None,
     ) -> tuple[list[Event], int]:
         """Get events with optional filters (FR46).
 
@@ -200,7 +200,7 @@ class ObserverService:
 
         return events, total
 
-    async def get_event_by_id(self, event_id: UUID) -> Optional[Event]:
+    async def get_event_by_id(self, event_id: UUID) -> Event | None:
         """Get single event by ID.
 
         Per FR44: This is a public read operation, no auth required.
@@ -215,7 +215,7 @@ class ObserverService:
         # No halt check for reads
         return await self._event_store.get_event_by_id(event_id)
 
-    async def get_event_by_sequence(self, sequence: int) -> Optional[Event]:
+    async def get_event_by_sequence(self, sequence: int) -> Event | None:
         """Get single event by sequence number.
 
         Per FR44: This is a public read operation, no auth required.
@@ -379,7 +379,7 @@ class ObserverService:
         limit: int = 100,
         offset: int = 0,
         include_proof: bool = False,
-    ) -> tuple[list[Event], int, Optional[HashChainProof]]:
+    ) -> tuple[list[Event], int, HashChainProof | None]:
         """Get events as of a specific sequence number (FR88).
 
         Returns events with sequence <= as_of_sequence, excluding
@@ -484,7 +484,7 @@ class ObserverService:
         limit: int = 100,
         offset: int = 0,
         include_proof: bool = False,
-    ) -> tuple[list[Event], int, int, Optional[HashChainProof]]:
+    ) -> tuple[list[Event], int, int, HashChainProof | None]:
         """Get events as of a specific timestamp (FR88).
 
         Finds the last event before the given timestamp and returns
@@ -531,7 +531,7 @@ class ObserverService:
     async def _generate_merkle_proof(
         self,
         sequence: int,
-    ) -> Optional[MerkleProof]:
+    ) -> MerkleProof | None:
         """Generate Merkle proof for a specific event sequence (FR136).
 
         Generates a Merkle proof that allows O(log n) verification of
@@ -606,7 +606,7 @@ class ObserverService:
         as_of_sequence: int,
         limit: int = 100,
         offset: int = 0,
-    ) -> tuple[list[Event], int, Optional[MerkleProof], Optional[HashChainProof]]:
+    ) -> tuple[list[Event], int, MerkleProof | None, HashChainProof | None]:
         """Get events with Merkle proof when available (FR136, FR137).
 
         Returns events up to as_of_sequence with a Merkle proof if the
@@ -714,7 +714,7 @@ class ObserverService:
         """
         await self._event_store.count_events()
 
-    async def get_last_checkpoint_sequence(self) -> Optional[int]:
+    async def get_last_checkpoint_sequence(self) -> int | None:
         """Get sequence number of last checkpoint anchor (RT-5).
 
         Per RT-5: Provides checkpoint info for health/fallback.
@@ -759,7 +759,7 @@ class ObserverService:
         _, total = await self._checkpoint_repo.list_checkpoints(limit=1, offset=0)
         return total
 
-    async def get_checkpoint_timestamp(self, sequence: int) -> Optional[datetime]:
+    async def get_checkpoint_timestamp(self, sequence: int) -> datetime | None:
         """Get timestamp of checkpoint at given sequence (RT-5).
 
         Per RT-5: Used for calculating checkpoint age in metrics.
@@ -779,7 +779,7 @@ class ObserverService:
 
         return checkpoint.timestamp
 
-    async def get_latest_checkpoint(self) -> Optional[CheckpointAnchor]:
+    async def get_latest_checkpoint(self) -> CheckpointAnchor | None:
         """Get latest checkpoint anchor (RT-5, ADR-8).
 
         Per RT-5: Fallback to checkpoint anchor when API unavailable.
@@ -802,7 +802,9 @@ class ObserverService:
             sequence_end=cp.event_sequence,
             merkle_root=cp.anchor_hash,
             created_at=cp.timestamp,
-            anchor_type=cp.anchor_type if cp.anchor_type in ("genesis", "rfc3161", "pending") else "pending",
+            anchor_type=cp.anchor_type
+            if cp.anchor_type in ("genesis", "rfc3161", "pending")
+            else "pending",
             anchor_reference=None,
             event_count=cp.event_sequence,
         )
@@ -844,7 +846,7 @@ class ObserverService:
             return None
         return await self._freeze_checker.get_freeze_details()
 
-    async def get_cessation_status_for_response(self) -> Optional[dict]:
+    async def get_cessation_status_for_response(self) -> dict | None:
         """Get cessation status formatted for API responses (AC5).
 
         Returns a dictionary suitable for including in API responses

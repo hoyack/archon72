@@ -20,7 +20,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from src.domain.events.petition import PetitionStatus
@@ -81,7 +80,7 @@ class Petition:
     created_timestamp: datetime
     status: PetitionStatus = field(default=PetitionStatus.OPEN)
     cosigners: tuple[CoSigner, ...] = field(default_factory=tuple)
-    threshold_met_at: Optional[datetime] = field(default=None)
+    threshold_met_at: datetime | None = field(default=None)
 
     @property
     def cosigner_count(self) -> int:
@@ -99,7 +98,9 @@ class Petition:
         Returns:
             Tuple of all public keys associated with this petition.
         """
-        return (self.submitter_public_key,) + tuple(c.public_key for c in self.cosigners)
+        return (self.submitter_public_key,) + tuple(
+            c.public_key for c in self.cosigners
+        )
 
     def has_cosigned(self, public_key: str) -> bool:
         """Check if a public key has already co-signed this petition.
@@ -117,7 +118,7 @@ class Petition:
         # Check co-signers
         return any(c.public_key == public_key for c in self.cosigners)
 
-    def add_cosigner(self, cosigner: CoSigner) -> "Petition":
+    def add_cosigner(self, cosigner: CoSigner) -> Petition:
         """Create a new petition with an additional co-signer.
 
         Since Petition is frozen, this returns a new Petition instance
@@ -140,7 +141,7 @@ class Petition:
             threshold_met_at=self.threshold_met_at,
         )
 
-    def with_status(self, status: PetitionStatus) -> "Petition":
+    def with_status(self, status: PetitionStatus) -> Petition:
         """Create a new petition with updated status.
 
         Since Petition is frozen, this returns a new Petition instance
@@ -163,7 +164,7 @@ class Petition:
             threshold_met_at=self.threshold_met_at,
         )
 
-    def with_threshold_met(self, met_at: datetime) -> "Petition":
+    def with_threshold_met(self, met_at: datetime) -> Petition:
         """Create a new petition marked as threshold met.
 
         Since Petition is frozen, this returns a new Petition instance

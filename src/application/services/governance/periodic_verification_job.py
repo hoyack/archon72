@@ -27,10 +27,10 @@ Constitutional Guarantees:
 from __future__ import annotations
 
 import asyncio
-import logging
+import contextlib
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
-from typing import Callable, Optional
+from datetime import datetime
 from uuid import UUID, uuid4
 
 import structlog
@@ -84,9 +84,9 @@ class JobRunResult:
 
     run_id: UUID
     started_at: datetime
-    completed_at: Optional[datetime] = None
-    report: Optional[VerificationReport] = None
-    error: Optional[str] = None
+    completed_at: datetime | None = None
+    report: VerificationReport | None = None
+    error: str | None = None
 
     @property
     def success(self) -> bool:
@@ -155,11 +155,11 @@ class PeriodicVerificationJob:
         self._config = config or VerificationJobConfig()
 
         self._running = False
-        self._task: Optional[asyncio.Task] = None
+        self._task: asyncio.Task | None = None
         self._run_count = 0
-        self._last_run: Optional[JobRunResult] = None
+        self._last_run: JobRunResult | None = None
         self._history: list[JobRunResult] = []
-        self._alert_callback: Optional[AlertCallback] = None
+        self._alert_callback: AlertCallback | None = None
 
     @property
     def is_running(self) -> bool:
@@ -172,7 +172,7 @@ class PeriodicVerificationJob:
         return self._run_count
 
     @property
-    def last_run(self) -> Optional[JobRunResult]:
+    def last_run(self) -> JobRunResult | None:
         """Result of the most recent run."""
         return self._last_run
 
@@ -227,10 +227,8 @@ class PeriodicVerificationJob:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
             self._task = None
 
         log.info("periodic_verification_job_stopped", run_count=self._run_count)

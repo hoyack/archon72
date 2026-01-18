@@ -13,8 +13,8 @@ import pytest
 from src.domain.models.user_content import (
     USER_CONTENT_ID_PREFIX,
     USER_CONTENT_SCANNER_SYSTEM_AGENT_ID,
-    FeatureRequest,
     FeaturedStatus,
+    FeatureRequest,
     UserContent,
     UserContentProhibitionFlag,
     UserContentStatus,

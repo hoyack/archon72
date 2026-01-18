@@ -114,7 +114,9 @@ class TopicManipulationDetectorStub(TopicManipulationDetectorProtocol):
         # Check both orderings
         key1 = (topic_id_a, topic_id_b)
         key2 = (topic_id_b, topic_id_a)
-        return self._content_similarity.get(key1, self._content_similarity.get(key2, 0.0))
+        return self._content_similarity.get(
+            key1, self._content_similarity.get(key2, 0.0)
+        )
 
     async def get_timing_pattern(
         self,

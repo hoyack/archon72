@@ -22,7 +22,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 # Event type constant for compliance documentation
 COMPLIANCE_DOCUMENTED_EVENT_TYPE: str = "compliance.documented"
@@ -103,8 +103,8 @@ class ComplianceDocumentedEventPayload:
     assessment_date: datetime
     status: ComplianceStatus
     findings: tuple[str, ...] = field(default_factory=tuple)
-    remediation_plan: Optional[str] = None
-    next_review_date: Optional[datetime] = None
+    remediation_plan: str | None = None
+    next_review_date: datetime | None = None
     documented_by: str = COMPLIANCE_SYSTEM_AGENT_ID
 
     def __post_init__(self) -> None:

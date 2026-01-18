@@ -21,7 +21,9 @@ from src.application.services.constitution_supremacy_service import (
 from src.application.services.override_service import OverrideService
 from src.domain.errors.override import WitnessSuppressionAttemptError
 from src.domain.events.override_event import ActionType, OverrideEventPayload
-from src.infrastructure.stubs.constitution_validator_stub import ConstitutionValidatorStub
+from src.infrastructure.stubs.constitution_validator_stub import (
+    ConstitutionValidatorStub,
+)
 
 
 class TestConstitutionSupremacyIntegration:

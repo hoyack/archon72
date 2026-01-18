@@ -16,7 +16,6 @@ from src.application.ports.topic_priority import (
     TopicPriorityProtocol,
 )
 from src.infrastructure.stubs.topic_priority_stub import (
-    QueuedTopic,
     TopicPriorityStub,
 )
 
@@ -110,7 +109,9 @@ class TestGetNextTopicForDeliberation:
         """Test CONSTITUTIONAL_EXAMINATION is highest priority."""
         stub = TopicPriorityStub()
         stub.add_to_queue("autonomous-topic", TopicPriorityLevel.AUTONOMOUS)
-        stub.add_to_queue("constitutional-topic", TopicPriorityLevel.CONSTITUTIONAL_EXAMINATION)
+        stub.add_to_queue(
+            "constitutional-topic", TopicPriorityLevel.CONSTITUTIONAL_EXAMINATION
+        )
 
         topic = await stub.get_next_topic_for_deliberation()
         assert topic == "constitutional-topic"
@@ -121,8 +122,12 @@ class TestGetNextTopicForDeliberation:
         stub = TopicPriorityStub()
         now = datetime.now(timezone.utc)
 
-        stub.add_to_queue("first", TopicPriorityLevel.AUTONOMOUS, queued_at=now - timedelta(hours=2))
-        stub.add_to_queue("second", TopicPriorityLevel.AUTONOMOUS, queued_at=now - timedelta(hours=1))
+        stub.add_to_queue(
+            "first", TopicPriorityLevel.AUTONOMOUS, queued_at=now - timedelta(hours=2)
+        )
+        stub.add_to_queue(
+            "second", TopicPriorityLevel.AUTONOMOUS, queued_at=now - timedelta(hours=1)
+        )
         stub.add_to_queue("third", TopicPriorityLevel.AUTONOMOUS, queued_at=now)
 
         topic = await stub.get_next_topic_for_deliberation()

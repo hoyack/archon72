@@ -13,7 +13,6 @@ Key Design:
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 from src.domain.governance.cessation.cessation_status import CessationStatus
 from src.domain.governance.cessation.cessation_trigger import CessationTrigger
@@ -45,7 +44,7 @@ class CessationState:
     status: CessationStatus
     """Current cessation status."""
 
-    trigger: Optional[CessationTrigger]
+    trigger: CessationTrigger | None
     """CessationTrigger if triggered, None if still active."""
 
     motions_blocked: bool

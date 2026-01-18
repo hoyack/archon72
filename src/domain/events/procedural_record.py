@@ -106,7 +106,9 @@ class ProceduralRecordPayload:
     def _validate_record_hash(self) -> None:
         """Validate record_hash is 64 character hex string (SHA-256)."""
         if not isinstance(self.record_hash, str) or len(self.record_hash) != 64:
-            length = len(self.record_hash) if isinstance(self.record_hash, str) else "N/A"
+            length = (
+                len(self.record_hash) if isinstance(self.record_hash, str) else "N/A"
+            )
             raise ValueError(
                 f"record_hash must be 64 character hex string (SHA-256), got length {length}"
             )

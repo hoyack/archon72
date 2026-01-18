@@ -4,8 +4,6 @@ FR44: No authentication required for read endpoints.
 FR48: Rate limits identical for all users.
 """
 
-from typing import Optional
-
 import httpx
 
 
@@ -25,7 +23,7 @@ class ObserverClient:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         timeout: float = 30.0,
     ) -> None:
         """Initialize client.
@@ -113,9 +111,7 @@ class ObserverClient:
         Returns:
             Event dictionary.
         """
-        response = await self._client.get(
-            f"/v1/observer/events/sequence/{sequence}"
-        )
+        response = await self._client.get(f"/v1/observer/events/sequence/{sequence}")
         response.raise_for_status()
         return response.json()
 
@@ -171,7 +167,7 @@ class ObserverClient:
         response.raise_for_status()
         return response.json()
 
-    async def get_merkle_proof(self, sequence: int) -> Optional[dict]:
+    async def get_merkle_proof(self, sequence: int) -> dict | None:
         """Fetch Merkle proof for a specific event sequence (FR136, FR137).
 
         Args:
@@ -217,11 +213,11 @@ class ObserverClient:
     async def export_events(
         self,
         format: str = "jsonl",
-        start_sequence: Optional[int] = None,
-        end_sequence: Optional[int] = None,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
-        event_types: Optional[list[str]] = None,
+        start_sequence: int | None = None,
+        end_sequence: int | None = None,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        event_types: list[str] | None = None,
     ):
         """Stream export events for regulatory reporting (FR139).
 

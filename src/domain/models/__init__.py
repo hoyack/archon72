@@ -7,88 +7,16 @@ contain no infrastructure dependencies.
 
 from src.domain.models.agent_pool import MAX_CONCURRENT_AGENTS, AgentPool
 from src.domain.models.agent_status import AgentStatus
-from src.domain.models.ceremony_evidence import (
-    HALT_CLEAR_CEREMONY_TYPE,
-    MIN_APPROVERS_TIER_1,
-    ApproverSignature,
-    CeremonyEvidence,
-)
-from src.domain.models.halt_status_header import (
-    SYSTEM_STATUS_HALTED,
-    SYSTEM_STATUS_OPERATIONAL,
-    HaltStatusHeader,
-)
-from src.domain.models.context_bundle import (
-    BUNDLE_ID_PREFIX,
-    CONTENT_REF_LENGTH,
-    CONTENT_REF_PATTERN,
-    CONTENT_REF_PREFIX,
-    CONTEXT_BUNDLE_SCHEMA_VERSION,
-    MAX_PRECEDENT_REFS,
-    ContentRef,
-    ContextBundlePayload,
-    UnsignedContextBundle,
-    create_content_ref,
-    validate_content_ref,
-)
-from src.domain.models.heartbeat import Heartbeat
-from src.domain.models.signable import ParsedSignedContent, SignableContent
-from src.domain.models.topic_diversity import TopicDiversityStats
-from src.domain.models.topic_origin import (
-    TopicOrigin,
-    TopicOriginMetadata,
-    TopicOriginType,
-)
-from src.domain.models.recovery_waiting_period import (
-    WAITING_PERIOD_HOURS,
-    RecoveryWaitingPeriod,
-)
-from src.domain.models.signed_fork_signal import SignedForkSignal
-from src.domain.models.unwitnessed_halt import UnwitnessedHaltRecord
-from src.domain.models.witness import WITNESS_PREFIX, Witness
-from src.domain.models.checkpoint import Checkpoint
-from src.domain.models.override_reason import (
-    FORBIDDEN_OVERRIDE_SCOPE_PATTERNS,
-    FORBIDDEN_OVERRIDE_SCOPES,
-    OverrideReason,
-    is_witness_suppression_scope,
-)
-from src.domain.models.keeper_key import (
-    KEEPER_ID_PREFIX,
-    KeeperKey,
-)
-from src.domain.models.key_generation_ceremony import (
-    CEREMONY_TIMEOUT_SECONDS,
-    REQUIRED_WITNESSES,
-    TRANSITION_PERIOD_DAYS,
-    VALID_TRANSITIONS,
-    CeremonyState,
-    CeremonyType,
-    KeyGenerationCeremony,
-)
-from src.domain.models.ceremony_witness import (
-    CeremonyWitness,
-    WitnessType,
-)
-from src.domain.models.keeper_attestation import (
-    ATTESTATION_PERIOD_DAYS,
-    MINIMUM_KEEPER_QUORUM,
-    MISSED_ATTESTATIONS_THRESHOLD,
-    KeeperAttestation,
-    get_current_period,
-)
-from src.domain.models.independence_attestation import (
-    ATTESTATION_DEADLINE_DAYS,
-    DEADLINE_GRACE_PERIOD_DAYS,
-    ConflictDeclaration,
-    DeclarationType,
-    IndependenceAttestation,
-    calculate_deadline,
-    get_current_attestation_year,
-)
-from src.domain.models.pending_escalation import (
-    ESCALATION_THRESHOLD_DAYS,
-    PendingEscalation,
+from src.domain.models.audit_event import (
+    AUDIT_COMPLETED_EVENT_TYPE,
+    AUDIT_EVENT_TYPE_PREFIX,
+    AUDIT_STARTED_EVENT_TYPE,
+    AUDIT_VIOLATION_FLAGGED_EVENT_TYPE,
+    AuditCompletionStatus,
+    AuditEvent,
+    AuditEventType,
+    AuditTrend,
+    QuarterStats,
 )
 from src.domain.models.breach_count_status import (
     CESSATION_THRESHOLD,
@@ -97,56 +25,27 @@ from src.domain.models.breach_count_status import (
     BreachCountStatus,
     BreachTrajectory,
 )
-from src.domain.models.constitutional_threshold import (
-    ConstitutionalThreshold,
-    ConstitutionalThresholdRegistry,
-)
-from src.domain.models.witness_selection import (
-    SELECTION_ALGORITHM_VERSION,
-    WitnessSelectionRecord,
-    WitnessSelectionSeed,
-    deterministic_select,
-)
-from src.domain.models.witness_pair import (
-    ROTATION_WINDOW_HOURS,
-    WitnessPair,
-    WitnessPairHistory,
-)
-from src.domain.models.petition import (
-    CoSigner,
-    Petition,
-)
 from src.domain.models.ceased_status_header import (
     SYSTEM_STATUS_CEASED,
     CeasedStatusHeader,
     CessationDetails,
+)
+from src.domain.models.ceremony_evidence import (
+    HALT_CLEAR_CEREMONY_TYPE,
+    MIN_APPROVERS_TIER_1,
+    ApproverSignature,
+    CeremonyEvidence,
+)
+from src.domain.models.ceremony_witness import (
+    CeremonyWitness,
+    WitnessType,
 )
 from src.domain.models.cessation_trigger_condition import (
     CESSATION_TRIGGER_JSON_LD_CONTEXT,
     CessationTriggerCondition,
     CessationTriggerConditionSet,
 )
-from src.domain.models.integrity_case import (
-    INTEGRITY_CASE_JSON_LD_CONTEXT,
-    REQUIRED_CT_REFERENCES,
-    GuaranteeCategory,
-    IntegrityCaseArtifact,
-    IntegrityGuarantee,
-)
-from src.domain.models.event_type_registry import EventTypeRegistry
-from src.domain.models.incident_report import (
-    DAILY_OVERRIDE_THRESHOLD,
-    PUBLICATION_DELAY_DAYS,
-    IncidentReport,
-    IncidentStatus,
-    IncidentType,
-    TimelineEntry,
-)
-from src.domain.models.verification_result import (
-    VerificationCheck,
-    VerificationResult,
-    VerificationStatus,
-)
+from src.domain.models.checkpoint import Checkpoint
 from src.domain.models.complexity_budget import (
     ADR_LIMIT,
     CEREMONY_TYPE_LIMIT,
@@ -157,14 +56,27 @@ from src.domain.models.complexity_budget import (
     ComplexityDimension,
     ComplexitySnapshot,
 )
-from src.domain.models.failure_mode import (
-    DEFAULT_FAILURE_MODES,
-    EarlyWarning,
-    FailureMode,
-    FailureModeId,
-    FailureModeSeverity,
-    FailureModeStatus,
-    FailureModeThreshold,
+from src.domain.models.compliance import (
+    ComplianceAssessment,
+    ComplianceFramework,
+    ComplianceRequirement,
+    ComplianceStatus,
+    FrameworkMapping,
+    generate_assessment_id,
+)
+from src.domain.models.conclave import (
+    RANK_ORDER,
+    AgendaItem,
+    ConclavePhase,
+    ConclaveSession,
+    DebateEntry,
+    Motion,
+    MotionStatus,
+    MotionType,
+    TranscriptEntry,
+    Vote,
+    VoteChoice,
+    get_rank_priority,
 )
 from src.domain.models.constitutional_health import (
     BREACH_CRITICAL_THRESHOLD,
@@ -180,16 +92,82 @@ from src.domain.models.constitutional_health import (
     ConstitutionalHealthStatus,
     MetricName,
 )
-from src.domain.models.prohibited_language import (
-    DEFAULT_PROHIBITED_TERMS,
-    ProhibitedTermsList,
-    normalize_for_scanning,
+from src.domain.models.constitutional_threshold import (
+    ConstitutionalThreshold,
+    ConstitutionalThresholdRegistry,
 )
-from src.domain.models.publication import (
-    PUBLICATION_ID_PREFIX,
-    Publication,
-    PublicationScanRequest,
-    PublicationStatus,
+from src.domain.models.context_bundle import (
+    BUNDLE_ID_PREFIX,
+    CONTENT_REF_LENGTH,
+    CONTENT_REF_PATTERN,
+    CONTENT_REF_PREFIX,
+    CONTEXT_BUNDLE_SCHEMA_VERSION,
+    MAX_PRECEDENT_REFS,
+    ContentRef,
+    ContextBundlePayload,
+    UnsignedContextBundle,
+    create_content_ref,
+    validate_content_ref,
+)
+from src.domain.models.event_type_registry import EventTypeRegistry
+from src.domain.models.failure_mode import (
+    DEFAULT_FAILURE_MODES,
+    EarlyWarning,
+    FailureMode,
+    FailureModeId,
+    FailureModeSeverity,
+    FailureModeStatus,
+    FailureModeThreshold,
+)
+from src.domain.models.halt_status_header import (
+    SYSTEM_STATUS_HALTED,
+    SYSTEM_STATUS_OPERATIONAL,
+    HaltStatusHeader,
+)
+from src.domain.models.heartbeat import Heartbeat
+from src.domain.models.incident_report import (
+    DAILY_OVERRIDE_THRESHOLD,
+    PUBLICATION_DELAY_DAYS,
+    IncidentReport,
+    IncidentStatus,
+    IncidentType,
+    TimelineEntry,
+)
+from src.domain.models.independence_attestation import (
+    ATTESTATION_DEADLINE_DAYS,
+    DEADLINE_GRACE_PERIOD_DAYS,
+    ConflictDeclaration,
+    DeclarationType,
+    IndependenceAttestation,
+    calculate_deadline,
+    get_current_attestation_year,
+)
+from src.domain.models.integrity_case import (
+    INTEGRITY_CASE_JSON_LD_CONTEXT,
+    REQUIRED_CT_REFERENCES,
+    GuaranteeCategory,
+    IntegrityCaseArtifact,
+    IntegrityGuarantee,
+)
+from src.domain.models.keeper_attestation import (
+    ATTESTATION_PERIOD_DAYS,
+    MINIMUM_KEEPER_QUORUM,
+    MISSED_ATTESTATIONS_THRESHOLD,
+    KeeperAttestation,
+    get_current_period,
+)
+from src.domain.models.keeper_key import (
+    KEEPER_ID_PREFIX,
+    KeeperKey,
+)
+from src.domain.models.key_generation_ceremony import (
+    CEREMONY_TIMEOUT_SECONDS,
+    REQUIRED_WITNESSES,
+    TRANSITION_PERIOD_DAYS,
+    VALID_TRANSITIONS,
+    CeremonyState,
+    CeremonyType,
+    KeyGenerationCeremony,
 )
 from src.domain.models.material_audit import (
     AUDIT_ID_PREFIX,
@@ -201,47 +179,69 @@ from src.domain.models.material_audit import (
     RemediationStatus,
     generate_audit_id,
 )
+from src.domain.models.override_reason import (
+    FORBIDDEN_OVERRIDE_SCOPE_PATTERNS,
+    FORBIDDEN_OVERRIDE_SCOPES,
+    OverrideReason,
+    is_witness_suppression_scope,
+)
+from src.domain.models.pending_escalation import (
+    ESCALATION_THRESHOLD_DAYS,
+    PendingEscalation,
+)
+from src.domain.models.petition import (
+    CoSigner,
+    Petition,
+)
+from src.domain.models.prohibited_language import (
+    DEFAULT_PROHIBITED_TERMS,
+    ProhibitedTermsList,
+    normalize_for_scanning,
+)
+from src.domain.models.publication import (
+    PUBLICATION_ID_PREFIX,
+    Publication,
+    PublicationScanRequest,
+    PublicationStatus,
+)
+from src.domain.models.recovery_waiting_period import (
+    WAITING_PERIOD_HOURS,
+    RecoveryWaitingPeriod,
+)
+from src.domain.models.signable import ParsedSignedContent, SignableContent
+from src.domain.models.signed_fork_signal import SignedForkSignal
+from src.domain.models.topic_diversity import TopicDiversityStats
+from src.domain.models.topic_origin import (
+    TopicOrigin,
+    TopicOriginMetadata,
+    TopicOriginType,
+)
+from src.domain.models.unwitnessed_halt import UnwitnessedHaltRecord
 from src.domain.models.user_content import (
     USER_CONTENT_ID_PREFIX,
     USER_CONTENT_SCANNER_SYSTEM_AGENT_ID,
-    FeatureRequest,
     FeaturedStatus,
+    FeatureRequest,
     UserContent,
     UserContentProhibitionFlag,
     UserContentStatus,
 )
-from src.domain.models.audit_event import (
-    AUDIT_COMPLETED_EVENT_TYPE,
-    AUDIT_EVENT_TYPE_PREFIX,
-    AUDIT_STARTED_EVENT_TYPE,
-    AUDIT_VIOLATION_FLAGGED_EVENT_TYPE,
-    AuditCompletionStatus,
-    AuditEvent,
-    AuditEventType,
-    AuditTrend,
-    QuarterStats,
+from src.domain.models.verification_result import (
+    VerificationCheck,
+    VerificationResult,
+    VerificationStatus,
 )
-from src.domain.models.compliance import (
-    ComplianceAssessment,
-    ComplianceFramework,
-    ComplianceRequirement,
-    ComplianceStatus,
-    FrameworkMapping,
-    generate_assessment_id,
+from src.domain.models.witness import WITNESS_PREFIX, Witness
+from src.domain.models.witness_pair import (
+    ROTATION_WINDOW_HOURS,
+    WitnessPair,
+    WitnessPairHistory,
 )
-from src.domain.models.conclave import (
-    AgendaItem,
-    ConclavePhase,
-    ConclaveSession,
-    DebateEntry,
-    Motion,
-    MotionStatus,
-    MotionType,
-    RANK_ORDER,
-    TranscriptEntry,
-    Vote,
-    VoteChoice,
-    get_rank_priority,
+from src.domain.models.witness_selection import (
+    SELECTION_ALGORITHM_VERSION,
+    WitnessSelectionRecord,
+    WitnessSelectionSeed,
+    deterministic_select,
 )
 
 __all__: list[str] = [

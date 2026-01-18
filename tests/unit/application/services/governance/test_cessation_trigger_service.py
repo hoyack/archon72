@@ -18,8 +18,8 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.services.governance.cessation_trigger_service import (
-    CessationTriggerService,
     DEFAULT_GRACE_PERIOD_SECONDS,
+    CessationTriggerService,
 )
 from src.domain.governance.cessation import (
     CessationAlreadyTriggeredError,
@@ -27,7 +27,6 @@ from src.domain.governance.cessation import (
     CessationStatus,
     CessationTrigger,
 )
-
 
 # =============================================================================
 # Fake Implementations for Testing
@@ -47,8 +46,12 @@ class FakeCessationPort:
     async def record_trigger(self, trigger: CessationTrigger) -> None:
         if self._state.status != CessationStatus.ACTIVE:
             raise CessationAlreadyTriggeredError(
-                original_trigger_id=self._trigger.trigger_id if self._trigger else uuid4(),
-                original_triggered_at=self._trigger.triggered_at if self._trigger else datetime.now(timezone.utc),
+                original_trigger_id=self._trigger.trigger_id
+                if self._trigger
+                else uuid4(),
+                original_triggered_at=self._trigger.triggered_at
+                if self._trigger
+                else datetime.now(timezone.utc),
             )
         self._trigger = trigger
         self._state = CessationState.triggered(trigger)
@@ -98,10 +101,12 @@ class FakeExecutionHalter:
         grace_period_seconds: int,
     ) -> None:
         self._halt_begun = True
-        self.halt_calls.append({
-            "trigger_id": trigger_id,
-            "grace_period_seconds": grace_period_seconds,
-        })
+        self.halt_calls.append(
+            {
+                "trigger_id": trigger_id,
+                "grace_period_seconds": grace_period_seconds,
+            }
+        )
 
     async def get_in_flight_count(self) -> int:
         return self._in_flight_count
@@ -140,13 +145,15 @@ class FakeTwoPhaseEventEmitter:
     ) -> UUID:
         self._correlation_counter += 1
         correlation_id = uuid4()
-        self.intents.append({
-            "correlation_id": correlation_id,
-            "operation_type": operation_type,
-            "actor_id": actor_id,
-            "target_entity_id": target_entity_id,
-            "intent_payload": intent_payload,
-        })
+        self.intents.append(
+            {
+                "correlation_id": correlation_id,
+                "operation_type": operation_type,
+                "actor_id": actor_id,
+                "target_entity_id": target_entity_id,
+                "intent_payload": intent_payload,
+            }
+        )
         return correlation_id
 
     async def emit_commit(
@@ -154,10 +161,12 @@ class FakeTwoPhaseEventEmitter:
         correlation_id: UUID,
         outcome_payload: dict[str, Any],
     ) -> None:
-        self.commits.append({
-            "correlation_id": correlation_id,
-            "outcome_payload": outcome_payload,
-        })
+        self.commits.append(
+            {
+                "correlation_id": correlation_id,
+                "outcome_payload": outcome_payload,
+            }
+        )
 
     async def emit_failure(
         self,
@@ -165,11 +174,13 @@ class FakeTwoPhaseEventEmitter:
         failure_reason: str,
         failure_details: dict[str, Any],
     ) -> None:
-        self.failures.append({
-            "correlation_id": correlation_id,
-            "failure_reason": failure_reason,
-            "failure_details": failure_details,
-        })
+        self.failures.append(
+            {
+                "correlation_id": correlation_id,
+                "failure_reason": failure_reason,
+                "failure_details": failure_details,
+            }
+        )
 
 
 class FakeTimeAuthority:
@@ -190,6 +201,7 @@ class FakeTimeAuthority:
     def advance(self, seconds: float) -> None:
         """Advance time for testing."""
         from datetime import timedelta
+
         self._time = self._time + timedelta(seconds=seconds)
 
 
@@ -413,7 +425,9 @@ class TestCessationEventEmitted:
             reason="Planned retirement",
         )
 
-        assert event_emitter.intents[0]["intent_payload"]["reason"] == "Planned retirement"
+        assert (
+            event_emitter.intents[0]["intent_payload"]["reason"] == "Planned retirement"
+        )
 
     @pytest.mark.asyncio
     async def test_commit_event_on_success(

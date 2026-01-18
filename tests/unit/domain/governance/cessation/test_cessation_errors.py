@@ -1,7 +1,7 @@
 """Unit tests for cessation error types.
 
 Story: consent-gov-8.1: System Cessation Trigger
-AC2: Cessation blocks new motions (FR49)
+AC2: Cessation blocks new Motion Seeds (FR49)
 AC6: Cessation trigger is irreversible (no "undo")
 """
 

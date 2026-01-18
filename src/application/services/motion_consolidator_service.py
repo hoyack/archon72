@@ -1,11 +1,11 @@
 """Motion Consolidator Service for sustainable governance.
 
-Consolidates many motions into fewer mega-motions while preserving
+Consolidates many Motion Seeds into fewer mega-motions while preserving
 full traceability to original recommendations and clusters.
 
 This is the HYBRID approach:
-- All original data preserved (909 recommendations, 69 motions)
-- Consolidated mega-motions for efficient deliberation
+- All original data preserved (909 recommendations, 69 Motion Seeds)
+- Consolidated mega-motions (from Motion Seeds) for efficient deliberation
 - Full audit trail maintained
 
 Additional Analysis:
@@ -116,7 +116,7 @@ TARGET_MEGA_MOTION_COUNT = 12
 
 @dataclass
 class SourceMotion:
-    """A motion from the Secretary output."""
+    """A Motion Seed from the Secretary output."""
 
     motion_id: str
     title: str
@@ -129,7 +129,7 @@ class SourceMotion:
 
 @dataclass
 class MegaMotion:
-    """A consolidated mega-motion combining related motions."""
+    """A consolidated mega-motion combining related Motion Seeds."""
 
     mega_motion_id: UUID
     title: str
@@ -147,7 +147,7 @@ class MegaMotion:
 
 @dataclass
 class ConsolidationResult:
-    """Result of motion consolidation."""
+    """Result of Motion Seed consolidation."""
 
     mega_motions: list[MegaMotion]
     original_motion_count: int
@@ -212,7 +212,7 @@ class FullConsolidationResult:
 
 
 class MotionConsolidatorService:
-    """Service to consolidate motions into mega-motions.
+    """Service to consolidate Motion Seeds into mega-motions.
 
     Uses LLM to identify thematic groupings and synthesize
     consolidated motion text while preserving traceability.
@@ -861,9 +861,9 @@ RULES:
 SESSION: {session_name} ({session_id})
 STATISTICS:
 - Total Recommendations: {len(recommendations)}
-- Total Motions Generated: {len(motions)}
+- Total Motion Seeds Generated: {len(motions)}
 - Participating Archons: {len(archon_counts)}
-- Motion Themes: {", ".join(list(set(motion_themes))[:10])}
+- Motion Seed Themes: {", ".join(list(set(motion_themes))[:10])}
 
 SAMPLE RECOMMENDATIONS:
 {sample_text}
@@ -1219,7 +1219,7 @@ CRITICAL: Output ONLY valid JSON.""",
         mega_motions_md = output_dir / "mega-motions.md"
         with open(mega_motions_md, "w") as f:
             f.write("# Consolidated Mega-Motions\n\n")
-            f.write(f"**Original Motions:** {result.original_motion_count}\n")
+            f.write(f"**Original Motion Seeds:** {result.original_motion_count}\n")
             f.write(f"**Mega-Motions:** {len(result.mega_motions)}\n")
             f.write(f"**Consolidation Ratio:** {result.consolidation_ratio:.1%}\n")
             f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
@@ -1232,11 +1232,11 @@ CRITICAL: Output ONLY valid JSON.""",
                 f.write(
                     f"**Supporting Archons ({mm.unique_archon_count}):** {', '.join(mm.all_supporting_archons)}\n\n"
                 )
-                f.write("### Consolidated Motion Text\n\n")
+                f.write("### Consolidated Motion Seed Text\n\n")
                 f.write(f"{mm.consolidated_text}\n\n")
                 f.write("### Rationale\n\n")
                 f.write(f"{mm.rationale}\n\n")
-                f.write("### Source Motions\n\n")
+                f.write("### Source Motion Seeds\n\n")
                 for title in mm.source_motion_titles:
                     f.write(f"- {title}\n")
                 f.write("\n---\n\n")
@@ -1245,7 +1245,7 @@ CRITICAL: Output ONLY valid JSON.""",
         traceability_md = output_dir / "traceability-matrix.md"
         with open(traceability_md, "w") as f:
             f.write("# Traceability Matrix\n\n")
-            f.write("| Mega-Motion | Source Motions | Archon Count | Tier |\n")
+            f.write("| Mega-Motion | Source Motion Seeds | Archon Count | Tier |\n")
             f.write("|-------------|----------------|--------------|------|\n")
             for mm in result.mega_motions:
                 f.write(
@@ -1253,7 +1253,7 @@ CRITICAL: Output ONLY valid JSON.""",
                 )
 
             if result.orphaned_motions:
-                f.write("\n## Orphaned Motions\n\n")
+                f.write("\n## Orphaned Motion Seeds\n\n")
                 for orphan_id in result.orphaned_motions:
                     f.write(f"- {orphan_id}\n")
 
@@ -1402,7 +1402,7 @@ CRITICAL: Output ONLY valid JSON.""",
             f.write("|--------|-------|\n")
             f.write(f"| Participating Archons | {summary.total_speeches} |\n")
             f.write(f"| Total Recommendations | {summary.total_recommendations} |\n")
-            f.write(f"| Motions Generated | {summary.total_motions} |\n\n")
+            f.write(f"| Motion Seeds Generated | {summary.total_motions} |\n\n")
 
             f.write("## Executive Summary\n\n")
             f.write(f"{summary.executive_summary}\n\n")
@@ -1494,7 +1494,7 @@ CRITICAL: Output ONLY valid JSON.""",
             f.write("| Metric | Value |\n")
             f.write("|--------|-------|\n")
             f.write(
-                f"| Original Motions | {result.consolidation.original_motion_count} |\n"
+                f"| Original Motion Seeds | {result.consolidation.original_motion_count} |\n"
             )
             f.write(f"| Mega-Motions | {len(result.consolidation.mega_motions)} |\n")
             f.write(f"| Novel Proposals | {len(result.novel_proposals)} |\n")
@@ -1516,7 +1516,7 @@ CRITICAL: Output ONLY valid JSON.""",
                 "| [mega-motions.json](mega-motions.json) | Mega-motions (machine-readable) |\n"
             )
             f.write(
-                "| [traceability-matrix.md](traceability-matrix.md) | Source motion mapping |\n"
+                "| [traceability-matrix.md](traceability-matrix.md) | Source Motion Seed mapping |\n"
             )
             if result.novel_proposals:
                 f.write(

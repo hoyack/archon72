@@ -37,7 +37,9 @@ The Agenda Generator must satisfy these non-negotiable requirements:
 ## Agenda Inputs (6 Canonical Queues)
 
 The Agenda Generator consumes from exactly 6 input queues. No other source can place items on the agenda.
+Queues 1-2 handle Motion Seeds (pre-admission submissions), not ratified Motions.
 
+### Queue 1: New Motion Seeds
 See also: [Legislative Branch](legislative-branch.md).
 
 ### Queue 1: Motion Seeds (Non-binding Proposals)
@@ -49,10 +51,11 @@ See also: [Legislative Branch](legislative-branch.md).
 | Subject to quota | YES - max 1 per realm per Conclave |
 | Can be deferred | YES |
 
+New Motion Seeds (pre-admission submissions) requesting authorization, resources, or policy changes.
 New motions requesting authorization, resources, or policy changes. These enter the queue as **Motion Seeds** and require appropriate King sponsorship before they are admitted as Motions. See [The Legislative Branch](./legislative-branch.md) for sponsorship rules.
 Non-binding motion seeds submitted by eligible participants; they are not Motions.
 
-### Queue 2: Deferred Motions
+### Queue 2: Deferred Motion Seeds
 
 | Property | Value |
 |----------|-------|
@@ -61,7 +64,7 @@ Non-binding motion seeds submitted by eligible participants; they are not Motion
 | Subject to quota | NO - must be heard |
 | Can be deferred | YES (but deferral count tracked) |
 
-Motions that were submitted but not heard in previous Conclaves. Deferral count is visible.
+Motion Seeds that were submitted but not heard in previous Conclaves. Deferral count is visible.
 
 ### Queue 3: Blockers
 
@@ -144,15 +147,16 @@ Issues that are preventing in-progress work from completing. These get priority 
 **Medium priority. Heard after Band 1.**
 
 Sources:
-- Deferred Motions (Queue 2)
+- Deferred Motion Seeds (Queue 2)
 
-Motions that were previously submitted but not resolved. Deferral count is visible to prevent indefinite delay.
+Motion Seeds that were previously submitted but not resolved. Deferral count is visible to prevent indefinite delay.
 
 ### Band 3: New Business
 
 **Standard priority. Subject to realm quotas.**
 
 Sources:
+- New Motion Seeds (Queue 1)
 - Motion Seeds (Queue 1)
 
 Seeds submitted for consideration. Limited to 1 per realm per Conclave to prevent flooding.
@@ -173,11 +177,11 @@ These items may be heard if agenda capacity remains. No guarantee of inclusion.
 
 ### The Problem
 
-Without quotas, a single realm (or coordinated realms) could flood the agenda with friendly motions, crowding out items from other realms.
+Without quotas, a single realm (or coordinated realms) could flood the agenda with friendly Motion Seeds, crowding out items from other realms.
 
 ### The Rule
 
-**Maximum 1 new motion per realm per Conclave.**
+**Maximum 1 new Motion Seed per realm per Conclave.**
 
 This ensures:
 - All realms have fair access to agenda time
@@ -195,9 +199,9 @@ realm_quota = {
 }
 ```
 
-If a realm submits multiple motions:
-1. First-submitted motion is scheduled
-2. Remaining motions are deferred to next Conclave
+If a realm submits multiple Motion Seeds:
+1. First-submitted Motion Seed is scheduled
+2. Remaining Motion Seeds are deferred to next Conclave
 3. Deferral is recorded with reason "realm_quota_exceeded"
 
 ### Exemptions
@@ -207,12 +211,13 @@ Quotas do NOT apply to:
 - Band 1 items (Critical Blockers)
 - Band 2 items (Unfinished Business)
 
-Only new motions are quota-constrained.
+Only new Motion Seeds are quota-constrained.
 
 ---
 
 ## Motion Admission Gate
 
+Before entering any queue, Motion Seeds pass through the Motion Admission Gate, which validates:
 The admission gate evaluates Motions, not Seeds.
 
 Before entering any queue, motions pass through an admission gate that validates:
@@ -231,7 +236,7 @@ Before entering any queue, motions pass through an admission gate that validates
 
 ### Rejection Criteria
 
-Motions are rejected (not deferred) if:
+Motion Seeds are rejected (not deferred) if:
 
 | Criterion | Reason |
 |-----------|--------|

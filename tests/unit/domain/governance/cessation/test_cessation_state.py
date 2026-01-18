@@ -1,7 +1,7 @@
 """Unit tests for CessationState domain model.
 
 Story: consent-gov-8.1: System Cessation Trigger
-AC2: Cessation blocks new motions (FR49)
+AC2: Cessation blocks new Motion Seeds (FR49)
 AC3: Cessation halts execution (FR50)
 AC7: All in-flight operations complete or interrupted
 """
@@ -102,12 +102,12 @@ class TestMotionBlocking:
         assert state.motions_blocked is False
 
     def test_triggered_state_blocks_motions(self) -> None:
-        """Triggered state blocks new motions."""
+        """Triggered state blocks new Motion Seeds."""
         state = CessationState.triggered(make_trigger())
         assert state.motions_blocked is True
 
     def test_ceased_state_blocks_motions(self) -> None:
-        """Ceased state blocks new motions."""
+        """Ceased state blocks new Motion Seeds."""
         state = CessationState.ceased(make_trigger())
         assert state.motions_blocked is True
 

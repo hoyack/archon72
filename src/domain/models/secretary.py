@@ -3,7 +3,7 @@
 The Automated Secretary processes Conclave transcripts to extract:
 - Recommendations from Archon speeches
 - Semantic clusters of similar ideas
-- Motion queue for next Conclave
+- Motion Seed queue for next Conclave
 - Task registry for operational work items
 - Conflict reports for contradictory positions
 
@@ -69,7 +69,7 @@ class ConsensusLevel(Enum):
 
 
 class QueuedMotionStatus(Enum):
-    """Status of a motion in the queue."""
+    """Status of a Motion Seed in the queue."""
 
     PENDING = "pending"  # Awaiting next Conclave
     ENDORSED = "endorsed"  # Received additional endorsements
@@ -228,9 +228,9 @@ class RecommendationCluster:
 
 @dataclass
 class QueuedMotion:
-    """A motion queued for future Conclave consideration.
+    """A Motion Seed queued for future Conclave consideration.
 
-    Generated from high-consensus recommendation clusters.
+    Generated from high-consensus recommendation clusters before Motion admission.
     """
 
     queued_motion_id: UUID
@@ -270,7 +270,7 @@ class QueuedMotion:
         session_id: UUID,
         session_name: str,
     ) -> QueuedMotion:
-        """Create a queued motion from a recommendation cluster."""
+        """Create a queued Motion Seed from a recommendation cluster."""
         return cls(
             queued_motion_id=uuid4(),
             status=QueuedMotionStatus.PENDING,

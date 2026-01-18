@@ -28,7 +28,7 @@ Why Irreversible?
 Constitutional Context:
 - FR47: Human Operator can trigger cessation
 - FR48: System can create immutable Cessation Record on cessation
-- FR49: System can block new motions on cessation
+- FR49: System can block new Motion Seeds on cessation
 - FR50: System can halt execution on cessation
 - FR51: System can preserve all records on cessation
 - FR52: System can label in-progress work as `interrupted_by_cessation`

@@ -1,7 +1,7 @@
 """Secretary DTOs for application layer.
 
 Application-layer DTOs for Secretary operations including transcript processing,
-recommendation extraction, clustering, and motion queue management.
+recommendation extraction, clustering, and Motion Seed queue management.
 
 Constitutional Constraints:
 - CT-11: Silent failure destroys legitimacy -> comprehensive error DTOs
@@ -30,7 +30,7 @@ class ProcessTranscriptRequestDTO:
         transcript_path: Path to the markdown transcript file.
         session_id: UUID of the source Conclave session.
         session_name: Human-readable session name.
-        min_consensus_for_queue: Minimum Archon count for motion queue promotion.
+        min_consensus_for_queue: Minimum Archon count for Motion Seed queue promotion.
         enable_conflict_detection: Whether to detect contradictory positions.
     """
 
@@ -43,10 +43,10 @@ class ProcessTranscriptRequestDTO:
 
 @dataclass
 class EndorseMotionRequestDTO:
-    """Request to endorse a queued motion.
+    """Request to endorse a queued Motion Seed.
 
     Attributes:
-        queued_motion_id: UUID of the queued motion to endorse.
+        queued_motion_id: UUID of the queued Motion Seed to endorse.
         archon_id: ID of the endorsing Archon.
         archon_name: Name of the endorsing Archon.
     """
@@ -58,10 +58,10 @@ class EndorseMotionRequestDTO:
 
 @dataclass
 class PromoteMotionRequestDTO:
-    """Request to promote a queued motion to Conclave agenda.
+    """Request to promote a queued Motion Seed to Conclave agenda.
 
     Attributes:
-        queued_motion_id: UUID of the motion to promote.
+        queued_motion_id: UUID of the Motion Seed to promote.
         target_conclave_id: UUID of the target Conclave session.
     """
 
@@ -136,14 +136,14 @@ class RecommendationClusterDTO:
 
 @dataclass
 class QueuedMotionDTO:
-    """DTO for a motion in the queue.
+    """DTO for a Motion Seed in the queue.
 
     Attributes:
         queued_motion_id: Unique identifier.
         status: PENDING/ENDORSED/MERGED/DEFERRED/PROMOTED/WITHDRAWN.
-        title: Motion title.
-        text: Full motion text.
-        rationale: Why this motion was generated.
+        title: Motion Seed title.
+        text: Full Motion Seed text.
+        rationale: Why this Motion Seed was generated.
         original_archon_count: Initial supporter count.
         consensus_level: Consensus level.
         supporting_archons: Original supporting Archon names.
@@ -287,7 +287,7 @@ class ProcessTranscriptRequest(BaseModel):
         transcript_path: Path to the markdown transcript file.
         session_id: UUID of the source Conclave session.
         session_name: Human-readable session name.
-        min_consensus_for_queue: Minimum Archon count for motion queue.
+        min_consensus_for_queue: Minimum Archon count for Motion Seed queue.
         enable_conflict_detection: Whether to detect conflicts.
     """
 
@@ -298,7 +298,7 @@ class ProcessTranscriptRequest(BaseModel):
         default=3,
         ge=1,
         le=72,
-        description="Minimum Archons for motion queue promotion",
+        description="Minimum Archons for Motion Seed queue promotion",
     )
     enable_conflict_detection: bool = Field(
         default=True,
@@ -401,7 +401,7 @@ class SecretaryReportResponse(BaseModel):
 
 
 class MotionQueueResponse(BaseModel):
-    """API response for the full motion queue.
+    """API response for the full Motion Seed queue.
 
     Attributes:
         total_count: Total motions in queue.

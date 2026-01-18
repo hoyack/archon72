@@ -155,9 +155,9 @@ When an appeal fails (outcome `upheld`):
 | Retry prohibited | Same matter cannot be re-appealed |
 | Record permanent | Appeal failure is part of permanent record |
 
-**Further action requires a new motion, not persistence.**
+**Further action requires a new Motion Seed (pre-admission submission), not persistence.**
 
-A new motion must:
+A new Motion Seed must:
 - Represent genuinely new work
 - Not be a relabeled retry
 - Pass Motion Admission Gate scrutiny
@@ -253,7 +253,7 @@ Upon cessation, the following occurs **in order**:
 
 | Action | Description |
 |--------|-------------|
-| New motions blocked | Motion Admission Gate closed |
+| New Motion Seeds blocked | Motion Admission Gate closed |
 | Execution halted | In-progress tasks paused (not terminated) |
 | Clusters notified | Stewards informed of cessation |
 | Interfaces disabled | External APIs return cessation status |
@@ -468,4 +468,3 @@ See [schemas/appeal-cessation.json](./schemas/appeal-cessation.json) for the com
 - [Legitimacy System](./legitimacy-system.md) - Band states that trigger cessation
 - [Enforcement Flow](./enforcement-flow.md) - How violations lead to findings
 - [Conclave Agenda Control](./conclave-agenda.md) - Where cessation votes occur
-

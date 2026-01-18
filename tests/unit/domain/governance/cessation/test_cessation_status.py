@@ -77,15 +77,15 @@ class TestMotionBlocking:
     """Tests for allows_new_motions property."""
 
     def test_active_allows_new_motions(self) -> None:
-        """ACTIVE status allows new motions."""
+        """ACTIVE status allows new Motion Seeds."""
         assert CessationStatus.ACTIVE.allows_new_motions is True
 
     def test_triggered_blocks_new_motions(self) -> None:
-        """CESSATION_TRIGGERED status blocks new motions."""
+        """CESSATION_TRIGGERED status blocks new Motion Seeds."""
         assert CessationStatus.CESSATION_TRIGGERED.allows_new_motions is False
 
     def test_ceased_blocks_new_motions(self) -> None:
-        """CEASED status blocks new motions."""
+        """CEASED status blocks new Motion Seeds."""
         assert CessationStatus.CEASED.allows_new_motions is False
 
 

@@ -1,13 +1,13 @@
 """Motion Queue Service - Bridges Secretary output to Conclave input.
 
-Manages the queue of motions generated from Secretary analysis,
-handles endorsements, and formats motions for next Conclave agenda.
+Manages the queue of Motion Seeds generated from Secretary analysis,
+handles endorsements, and formats Motion Seeds for next Conclave agenda.
 
 Key responsibilities:
-1. Store and retrieve queued motions
+1. Store and retrieve queued Motion Seeds
 2. Process endorsements from Archons
-3. Format motions for Conclave agenda
-4. Track motion lifecycle (pending → promoted → voted)
+3. Format Motion Seeds for Conclave agenda
+4. Track Motion Seed lifecycle (pending → promoted → voted)
 
 Constitutional Constraints:
 - CT-11: Silent failure destroys legitimacy -> log all operations
@@ -38,10 +38,10 @@ logger = logging.getLogger(__name__)
 
 
 class MotionQueueService:
-    """Manages the motion queue between Conclaves.
+    """Manages the Motion Seed queue between Conclaves.
 
     The queue persists across sessions and tracks:
-    - Motions generated from Secretary analysis
+    - Motion Seeds generated from Secretary analysis (pre-admission)
     - Endorsements received between Conclaves
     - Promotion to Conclave agenda
     """
@@ -90,7 +90,7 @@ class MotionQueueService:
         with open(self._queue_file, "w") as f:
             json.dump(data, f, indent=2, default=str)
 
-        logger.debug(f"Saved queue with {len(self._queue)} motions")
+        logger.debug(f"Saved queue with {len(self._queue)} Motion Seeds")
 
     def _serialize_motion(self, motion: QueuedMotion) -> dict:
         """Serialize a QueuedMotion to dict."""
@@ -159,13 +159,13 @@ class MotionQueueService:
     # =========================================================================
 
     def import_from_report(self, report: SecretaryReport) -> int:
-        """Import motions from a Secretary report into the queue.
+        """Import Motion Seeds from a Secretary report into the queue.
 
         Args:
             report: SecretaryReport containing motion_queue
 
         Returns:
-            Number of motions imported
+            Number of Motion Seeds imported
         """
         imported = 0
 
@@ -174,7 +174,7 @@ class MotionQueueService:
             existing = self._find_by_cluster(motion.source_cluster_id)
             if existing:
                 logger.debug(
-                    f"Skipping duplicate motion from cluster {motion.source_cluster_id}"
+                    f"Skipping duplicate Motion Seed from cluster {motion.source_cluster_id}"
                 )
                 continue
 
@@ -183,7 +183,9 @@ class MotionQueueService:
 
         if imported > 0:
             self._save_queue()
-            logger.info(f"Imported {imported} motions from report {report.report_id}")
+            logger.info(
+                f"Imported {imported} Motion Seeds from report {report.report_id}"
+            )
 
         return imported
 

@@ -270,7 +270,10 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
 
         return Agent(
             role=archon.archon_role,
-            goal=f"Review motions and provide considered judgment as {archon.archon_name}",
+            goal=(
+                "Review Motion Seeds (mega-motions) and provide considered judgment "
+                f"as {archon.archon_name}"
+            ),
             backstory=archon.archon_backstory,
             llm=llm,
             verbose=self.verbose,
@@ -311,7 +314,7 @@ Review the following mega-motion and provide your stance.
 Title: {motion.mega_motion_title}
 Theme: {motion.theme}
 Supporters: {motion.supporting_archon_count} Archons ({", ".join(motion.supporting_archons[:5])}...)
-Source Motions: {motion.source_motion_count}
+Source Motion Seeds (pre-admission inputs): {motion.source_motion_count}
 
 **MOTION TEXT:**
 {motion.mega_motion_text[:3000]}

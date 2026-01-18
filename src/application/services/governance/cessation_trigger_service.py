@@ -13,7 +13,7 @@ IMPORTANT: Cessation is IRREVERSIBLE. This service intentionally has NO:
 
 Constitutional Context:
 - FR47: Human Operator can trigger cessation
-- FR49: System can block new motions on cessation
+- FR49: System can block new Motion Seeds on cessation
 - FR50: System can halt execution on cessation
 - AC4: Cessation requires Human Operator authentication
 - AC5: Event `constitutional.cessation.triggered` emitted
@@ -57,7 +57,7 @@ class CessationTriggerService:
     1. Validates system is not already ceased
     2. Creates the CessationTrigger record
     3. Emits constitutional.cessation.triggered event
-    4. Blocks new motions
+    4. Blocks new Motion Seeds
     5. Begins graceful execution halt
     6. Records trigger to cessation port
 
@@ -68,7 +68,7 @@ class CessationTriggerService:
             reason="Planned system retirement",
         )
         # System is now in CESSATION_TRIGGERED state
-        # New motions blocked, existing operations completing
+        # New Motion Seeds blocked, existing operations completing
 
     Note: There are intentionally NO methods for:
     - Cancelling cessation
@@ -90,7 +90,7 @@ class CessationTriggerService:
 
         Args:
             cessation_port: Port for cessation state operations.
-            motion_blocker: Port for blocking new motions.
+            motion_blocker: Port for blocking new Motion Seeds.
             execution_halter: Port for halting execution.
             event_emitter: Port for emitting two-phase events.
             time_authority: TimeAuthority for timestamps.
@@ -113,7 +113,7 @@ class CessationTriggerService:
         This is IRREVERSIBLE. There is no cancel/undo method.
 
         When triggered:
-        - New motions are blocked immediately
+        - New Motion Seeds are blocked immediately
         - Existing in-progress operations continue (grace period)
         - Event `constitutional.cessation.triggered` is emitted
         - System transitions to CESSATION_TRIGGERED state
@@ -172,7 +172,7 @@ class CessationTriggerService:
         )
 
         try:
-            # Block new motions
+            # Block new Motion Seeds
             await self._motion_blocker.block_new_motions(
                 reason="cessation_triggered",
             )

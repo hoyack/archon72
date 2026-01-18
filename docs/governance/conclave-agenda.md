@@ -37,8 +37,9 @@ The Agenda Generator must satisfy these non-negotiable requirements:
 ## Agenda Inputs (6 Canonical Queues)
 
 The Agenda Generator consumes from exactly 6 input queues. No other source can place items on the agenda.
+Queues 1-2 handle Motion Seeds (pre-admission submissions), not ratified Motions.
 
-### Queue 1: New Motions
+### Queue 1: New Motion Seeds
 
 | Property | Value |
 |----------|-------|
@@ -47,9 +48,9 @@ The Agenda Generator consumes from exactly 6 input queues. No other source can p
 | Subject to quota | YES - max 1 per realm per Conclave |
 | Can be deferred | YES |
 
-New motions requesting authorization, resources, or policy changes.
+New Motion Seeds (pre-admission submissions) requesting authorization, resources, or policy changes.
 
-### Queue 2: Deferred Motions
+### Queue 2: Deferred Motion Seeds
 
 | Property | Value |
 |----------|-------|
@@ -58,7 +59,7 @@ New motions requesting authorization, resources, or policy changes.
 | Subject to quota | NO - must be heard |
 | Can be deferred | YES (but deferral count tracked) |
 
-Motions that were submitted but not heard in previous Conclaves. Deferral count is visible.
+Motion Seeds that were submitted but not heard in previous Conclaves. Deferral count is visible.
 
 ### Queue 3: Blockers
 
@@ -135,16 +136,16 @@ Issues that are preventing in-progress work from completing. These get priority 
 **Medium priority. Heard after Band 1.**
 
 Sources:
-- Deferred Motions (Queue 2)
+- Deferred Motion Seeds (Queue 2)
 
-Motions that were previously submitted but not resolved. Deferral count is visible to prevent indefinite delay.
+Motion Seeds that were previously submitted but not resolved. Deferral count is visible to prevent indefinite delay.
 
 ### Band 3: New Business
 
 **Standard priority. Subject to realm quotas.**
 
 Sources:
-- New Motions (Queue 1)
+- New Motion Seeds (Queue 1)
 
 New items requesting authorization. Limited to 1 per realm per Conclave to prevent flooding.
 
@@ -164,11 +165,11 @@ These items may be heard if agenda capacity remains. No guarantee of inclusion.
 
 ### The Problem
 
-Without quotas, a single realm (or coordinated realms) could flood the agenda with friendly motions, crowding out items from other realms.
+Without quotas, a single realm (or coordinated realms) could flood the agenda with friendly Motion Seeds, crowding out items from other realms.
 
 ### The Rule
 
-**Maximum 1 new motion per realm per Conclave.**
+**Maximum 1 new Motion Seed per realm per Conclave.**
 
 This ensures:
 - All realms have fair access to agenda time
@@ -186,9 +187,9 @@ realm_quota = {
 }
 ```
 
-If a realm submits multiple motions:
-1. First-submitted motion is scheduled
-2. Remaining motions are deferred to next Conclave
+If a realm submits multiple Motion Seeds:
+1. First-submitted Motion Seed is scheduled
+2. Remaining Motion Seeds are deferred to next Conclave
 3. Deferral is recorded with reason "realm_quota_exceeded"
 
 ### Exemptions
@@ -198,13 +199,13 @@ Quotas do NOT apply to:
 - Band 1 items (Critical Blockers)
 - Band 2 items (Unfinished Business)
 
-Only new motions are quota-constrained.
+Only new Motion Seeds are quota-constrained.
 
 ---
 
 ## Motion Admission Gate
 
-Before entering any queue, motions pass through an admission gate that validates:
+Before entering any queue, Motion Seeds pass through the Motion Admission Gate, which validates:
 
 ### Required Fields
 
@@ -220,7 +221,7 @@ Before entering any queue, motions pass through an admission gate that validates
 
 ### Rejection Criteria
 
-Motions are rejected (not deferred) if:
+Motion Seeds are rejected (not deferred) if:
 
 | Criterion | Reason |
 |-----------|--------|
@@ -437,4 +438,3 @@ See [schemas/conclave-agenda.json](./schemas/conclave-agenda.json) for the compl
 - [Task Lifecycle](./task-lifecycle.md) - What happens after motions are approved
 - [Enforcement Flow](./enforcement-flow.md) - How Witness Statements become Band 0 items
 - [The Judicial Branch](./judicial-branch.md) - Source of Judicial Referrals (Queue 5)
-

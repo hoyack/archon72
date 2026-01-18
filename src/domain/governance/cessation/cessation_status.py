@@ -35,7 +35,7 @@ class CessationStatus(str, Enum):
     ACTIVE = "active"
     """Normal system operation.
 
-    System is fully operational. New motions accepted.
+    System is fully operational. New Motion Seeds accepted.
     Execution continues normally.
     """
 
@@ -43,7 +43,7 @@ class CessationStatus(str, Enum):
     """Cessation in progress - shutdown initiated.
 
     When triggered:
-    - New motions are blocked
+    - New Motion Seeds are blocked
     - Existing motions continue to completion
     - In-progress work labeled
     - Graceful shutdown proceeds
@@ -84,9 +84,9 @@ class CessationStatus(str, Enum):
 
     @property
     def allows_new_motions(self) -> bool:
-        """Check if new motions are allowed.
+        """Check if new Motion Seeds are allowed.
 
-        Only ACTIVE allows new motions.
+        Only ACTIVE allows new Motion Seeds.
         """
         return self == CessationStatus.ACTIVE
 

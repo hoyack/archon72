@@ -177,7 +177,7 @@ class SecretaryAgentProtocol(ABC):
             session_context: Context about the originating session
 
         Returns:
-            QueuedMotion ready for the motion queue
+            QueuedMotion ready for the Motion Seed queue (pre-admission)
 
         Raises:
             SecretaryAgentError: If motion generation fails
@@ -198,7 +198,7 @@ class SecretaryAgentProtocol(ABC):
         2. Validate extractions
         3. Cluster semantically
         4. Detect conflicts
-        5. Generate motions for high-consensus clusters
+        5. Generate Motion Seeds for high-consensus clusters
 
         Args:
             speeches: All speeches from the transcript

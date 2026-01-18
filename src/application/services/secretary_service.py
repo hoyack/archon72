@@ -7,7 +7,7 @@ outputs - same transcript produces same analysis.
 Key responsibilities:
 1. Extract recommendations from Archon speeches
 2. Cluster similar recommendations semantically
-3. Generate motion queue for next Conclave
+3. Generate Motion Seed queue for next Conclave
 4. Create task registry for operational items
 5. Detect conflicting positions for resolution
 
@@ -488,7 +488,7 @@ class SecretaryConfig:
 
     # Clustering settings
     similarity_threshold: float = 0.3  # Minimum similarity to cluster
-    min_cluster_size_for_queue: int = 3  # Minimum Archons for motion queue
+    min_cluster_size_for_queue: int = 3  # Minimum Archons for Motion Seed queue
 
     # Output settings
     output_dir: Path = Path("_bmad-output/secretary")
@@ -584,7 +584,7 @@ class SecretaryService:
         )
         logger.info(f"Formed {len(report.clusters)} clusters")
 
-        # Generate motion queue from high-consensus clusters
+        # Generate Motion Seed queue from high-consensus clusters
         for cluster in report.clusters:
             if cluster.archon_count >= self._config.min_cluster_size_for_queue:
                 if cluster.recommendation_type == RecommendationType.POLICY:
@@ -966,7 +966,7 @@ class SecretaryService:
             encoding="utf-8",
         )
 
-        # Save motion queue
+        # Save Motion Seed queue
         queue_path = session_dir / "motion-queue.md"
         queue_path.write_text(
             self.generate_motion_queue_markdown(report),
@@ -1068,7 +1068,7 @@ class SecretaryService:
         report.clusters = result.clusters
         report.conflict_report = result.conflicts
 
-        # Generate motion queue from high-consensus clusters
+        # Generate Motion Seed queue from high-consensus clusters
         for motion in result.motions:
             report.motion_queue.append(motion)
 

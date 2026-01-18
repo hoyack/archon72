@@ -6,7 +6,7 @@ Story: consent-gov-8.2: Cessation Record Creation
 This module defines errors related to cessation operations:
 - CessationError: Base class for cessation-related errors
 - CessationAlreadyTriggeredError: Cessation cannot be triggered twice
-- MotionBlockedByCessationError: New motions rejected during cessation
+- MotionBlockedByCessationError: New Motion Seeds rejected during cessation
 - CessationRecordCreationError: Cessation record creation failed
 - CessationRecordAlreadyExistsError: Cessation record already exists
 
@@ -73,11 +73,11 @@ class CessationAlreadyTriggeredError(CessationError):
 
 
 class MotionBlockedByCessationError(CessationError):
-    """Raised when a motion is submitted during cessation.
+    """Raised when a Motion Seed is submitted during cessation.
 
-    When cessation is triggered, new motions are blocked.
-    Existing in-progress motions continue to completion,
-    but no new motions are accepted.
+    When cessation is triggered, new Motion Seeds (pre-admission submissions)
+    are blocked. Existing in-progress motions continue to completion,
+    but no new Motion Seeds are accepted.
 
     Attributes:
         trigger_id: ID of the cessation trigger.

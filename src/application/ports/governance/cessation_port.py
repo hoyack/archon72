@@ -15,7 +15,7 @@ Cessation is IRREVERSIBLE by design.
 
 Constitutional Context:
 - FR47: Human Operator can trigger cessation
-- FR49: System can block new motions on cessation
+- FR49: System can block new Motion Seeds on cessation
 - FR50: System can halt execution on cessation
 - AC6: Cessation trigger is irreversible (no "undo")
 """
@@ -94,14 +94,14 @@ class CessationPort(ABC):
 
 
 class MotionBlockerPort(Protocol):
-    """Port for blocking new motions during cessation.
+    """Port for blocking new Motion Seeds during cessation.
 
-    When cessation is triggered, new motions must be blocked.
-    Existing in-progress motions continue to completion.
+    When cessation is triggered, new Motion Seeds (pre-admission submissions)
+    must be blocked. Existing in-progress motions continue to completion.
     """
 
     async def block_new_motions(self, reason: str) -> None:
-        """Block new motion submissions.
+        """Block new Motion Seed submissions.
 
         Args:
             reason: Reason for blocking (e.g., "cessation_triggered").
@@ -109,7 +109,7 @@ class MotionBlockerPort(Protocol):
         ...
 
     async def is_blocked(self) -> bool:
-        """Check if new motions are blocked.
+        """Check if new Motion Seeds are blocked.
 
         Returns:
             True if blocked, False otherwise.

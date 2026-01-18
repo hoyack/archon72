@@ -31,7 +31,7 @@ class CessationState:
     Attributes:
         status: Current cessation status.
         trigger: CessationTrigger if cessation has been triggered, None otherwise.
-        motions_blocked: Whether new motions are blocked.
+        motions_blocked: Whether new Motion Seeds are blocked.
         execution_halted: Whether execution has been halted.
         in_flight_count: Number of in-flight operations being gracefully completed.
 
@@ -48,7 +48,7 @@ class CessationState:
     """CessationTrigger if triggered, None if still active."""
 
     motions_blocked: bool
-    """Whether new motions are blocked.
+    """Whether new Motion Seeds are blocked.
 
     True when cessation is triggered or complete.
     False only when system is active.

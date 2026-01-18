@@ -144,9 +144,9 @@ If a Motion materially affects more than one Realm:
 
 | Truth | Implication |
 |-------|-------------|
-| Kings may submit motions | They have legislative initiative |
-| Kings may not decide when motions are heard | Agenda is procedurally controlled |
-| Kings may not decide whether motions are heard | Admission Gate validates |
+| Kings may submit Motion Seeds (pre-admission submissions) | They have legislative initiative |
+| Kings may not decide when Motion Seeds are heard | Agenda is procedurally controlled |
+| Kings may not decide whether Motion Seeds are heard | Admission Gate validates |
 
 Agenda control is **procedural and automated**.
 
@@ -158,8 +158,8 @@ Per Conclave session:
 
 | Rule | Effect |
 |------|--------|
-| Maximum 1 new motion per Realm | Prevents agenda flooding |
-| Additional motions roll forward | Automatically deferred |
+| Maximum 1 new Motion Seed per Realm | Prevents agenda flooding |
+| Additional Motion Seeds roll forward | Automatically deferred |
 | Roll-forward is recorded | Transparency maintained |
 
 This prevents **agenda flooding and soft dominance**.
@@ -168,9 +168,9 @@ This prevents **agenda flooding and soft dominance**.
 
 | Condition | Effect |
 |-----------|--------|
-| Motion deferred once | Moves to Unfinished Business (Band 2) |
-| Motion deferred 3+ times | Escalates to Critical Blockers (Band 1) |
-| Motion repeatedly deferred | Legitimacy signal (pattern visible) |
+| Motion Seed deferred once | Moves to Unfinished Business (Band 2) |
+| Motion Seed deferred 3+ times | Escalates to Critical Blockers (Band 1) |
+| Motion Seed repeatedly deferred | Legitimacy signal (pattern visible) |
 
 ---
 
@@ -452,4 +452,3 @@ See [schemas/motion.json](./schemas/motion.json) for the complete JSON Schema.
 - [Legitimacy System](./legitimacy-system.md) - How legislative behavior affects legitimacy
 - [Appeal & Cessation](./appeal-cessation.md) - King appeal rights and limits
 - [Enforcement Flow](./enforcement-flow.md) - Witness oversight of Legislative Branch
-

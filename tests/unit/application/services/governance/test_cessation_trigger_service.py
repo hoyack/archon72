@@ -2,7 +2,7 @@
 
 Story: consent-gov-8.1: System Cessation Trigger
 AC1: Human Operator can trigger cessation (FR47)
-AC2: Cessation blocks new motions (FR49)
+AC2: Cessation blocks new Motion Seeds (FR49)
 AC3: Cessation halts execution (FR50)
 AC4: Cessation requires Human Operator authentication
 AC5: Event `constitutional.cessation.triggered` emitted
@@ -309,12 +309,12 @@ class TestOperatorCanTriggerCessation:
 
 
 # =============================================================================
-# Tests for AC2: Cessation blocks new motions (FR49)
+# Tests for AC2: Cessation blocks new Motion Seeds (FR49)
 # =============================================================================
 
 
 class TestCessationBlocksNewMotions:
-    """Tests for AC2: Cessation blocks new motions."""
+    """Tests for AC2: Cessation blocks new Motion Seeds."""
 
     @pytest.mark.asyncio
     async def test_cessation_blocks_new_motions(

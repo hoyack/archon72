@@ -140,7 +140,7 @@
         "max_per_realm": {
           "type": "integer",
           "const": 1,
-          "description": "Maximum new motions per realm per Conclave."
+          "description": "Maximum new Motion Seeds (pre-admission submissions) per realm per Conclave."
         },
         "realm_status": {
           "type": "array",

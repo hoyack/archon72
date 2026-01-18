@@ -47,7 +47,7 @@ The Agenda Generator consumes from exactly 6 input queues. No other source can p
 | Subject to quota | YES - max 1 per realm per Conclave |
 | Can be deferred | YES |
 
-New motions requesting authorization, resources, or policy changes.
+New motions requesting authorization, resources, or policy changes. These enter the queue as **Motion Seeds** and require appropriate King sponsorship before they are admitted as Motions. See [The Legislative Branch](./legislative-branch.md) for sponsorship rules.
 
 ### Queue 2: Deferred Motions
 
@@ -437,4 +437,3 @@ See [schemas/conclave-agenda.json](./schemas/conclave-agenda.json) for the compl
 - [Task Lifecycle](./task-lifecycle.md) - What happens after motions are approved
 - [Enforcement Flow](./enforcement-flow.md) - How Witness Statements become Band 0 items
 - [The Judicial Branch](./judicial-branch.md) - Source of Judicial Referrals (Queue 5)
-

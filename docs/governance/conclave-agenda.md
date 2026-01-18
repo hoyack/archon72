@@ -49,9 +49,8 @@ See also: [Legislative Branch](legislative-branch.md).
 | Subject to quota | YES - max 1 per realm per Conclave |
 | Can be deferred | YES |
 
-New Motion Seeds (pre-admission submissions) requesting authorization, resources, or policy changes.
-New motions requesting authorization, resources, or policy changes. These enter the queue as **Motion Seeds** and require appropriate King sponsorship before they are admitted as Motions. See [The Legislative Branch](./legislative-branch.md) for sponsorship rules.
-Non-binding motion seeds submitted by eligible participants; they are not Motions.
+Motion Seeds are pre-admission submissions requesting authorization, resources, or policy changes.
+They are not Motions and require appropriate King sponsorship before admission. See [The Legislative Branch](./legislative-branch.md) for sponsorship rules.
 
 ### Queue 2: Deferred Motion Seeds
 
@@ -214,7 +213,8 @@ Only new Motion Seeds are quota-constrained.
 
 ## Motion Admission Gate
 
-Before entering any queue, Motions pass through the Motion Admission Gate, which validates:
+Before a Motion can be scheduled for Conclave deliberation, it passes through the Motion Admission Gate, which validates:
+Motion Seeds may be recorded without passing this gate, but they are not agenda-eligible until a King introduces them as Motions.
 
 ### Required Fields
 

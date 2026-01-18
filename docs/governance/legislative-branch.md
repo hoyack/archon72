@@ -163,8 +163,8 @@ If a Motion materially affects more than one Realm:
 | Truth | Implication |
 |-------|-------------|
 | Kings may submit Motion Seeds (pre-admission submissions) | They have legislative initiative |
-| Kings may not decide when Motion Seeds are heard | Agenda is procedurally controlled |
-| Kings may not decide whether Motion Seeds are heard | Admission Gate validates |
+| Kings may not decide when Motion Seeds are heard | Agenda controls when Seeds are heard |
+| Kings may not decide whether Motion Seeds are heard | Admission Gate validates Motions only |
 
 Agenda control is **procedural and automated**.
 

@@ -1,0 +1,130 @@
+{
+  "plan_id": "4273bbd9-a8a2-442b-a394-4bb90e4e234a",
+  "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+  "motion_title": "Novel: Define clear criteria for high-stakes decisions (e...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+    "motion_title": "Novel: Define clear criteria for high-stakes decisions (e...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "95f8d341-06c4-418e-a0f7-22458f51a59c",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "f6bbf6f8-e6e4-4c79-955d-4e1ecdf0da04",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Define clear criteria for high-stakes decis...",
+          "pattern_id": "POLICY",
+          "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "1bf82585-16ad-416d-9d88-174d0a5aecaa",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Define clear criteria for high-stakes decis...",
+          "pattern_id": "POLICY",
+          "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "f6bbf6f8-e6e4-4c79-955d-4e1ecdf0da04"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "e63ed5af-5ae9-437b-9f32-a033e5695435",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Define clear criteria for high-stakes decis...",
+          "pattern_id": "POLICY",
+          "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "1bf82585-16ad-416d-9d88-174d0a5aecaa"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "c27b3cf5-7879-4fe9-b259-b3dddba493c8",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Define clear criteria for high-stakes decis...",
+          "pattern_id": "POLICY",
+          "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "e63ed5af-5ae9-437b-9f32-a033e5695435"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "1c39f158-04b3-4b20-b05b-5f4ddf4ff1d2",
+      "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.999925+00:00"
+    },
+    {
+      "blocker_id": "d371ae01-d632-4ccb-a8a1-8ec5978d1101",
+      "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.999929+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.999935+00:00",
+  "status": "draft"
+}

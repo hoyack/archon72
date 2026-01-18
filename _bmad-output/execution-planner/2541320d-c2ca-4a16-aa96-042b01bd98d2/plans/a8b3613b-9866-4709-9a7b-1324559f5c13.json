@@ -1,0 +1,130 @@
+{
+  "plan_id": "a8b3613b-9866-4709-9a7b-1324559f5c13",
+  "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+  "motion_title": "Mega-Motion: AI Ethics & Human Rights",
+  "motion_text": "\nThe Conclave hereby resolves to establish a comprehensive framework ensuring AI systems are developed, deployed, and governed in strict alignment with human rights principles and ethical standards:\n\n1. **Mandate Binding Ethical Framework for AI Systems**:\n   - Develop and enforce a **Comprehensive Ethical Framework for AI Systems** that explicitly aligns with international human rights standards, including:\n     - The Universal Declaration of Human Rights\n     - The International Covenant on Civil and Political Rights\n     - The International Covenant on Economic, Social and Cultural Rights\n   - Ensure this framework incorporates principles of dignity, justice, equality, and non-discrimination as core tenets.\n\n2. **Human Rights Impact Assessments (HRIAs)**:\n   - Require **mandatory Human Rights Impact Assessments** for all AI systems developed or deployed within the Conclave\u2019s jurisdiction.\n   - HRIAs must evaluate potential risks to human rights, including but not limited to:\n     - Biases and discriminatory outcomes\n     - Privacy violations\n     - Autonomy and free will infringements\n     - Economic and social exclusion\n   - Findings must be publicly disclosed and subject to independent review.\n\n3. **Public Disclosure of Audit Trails**:\n   - Mandate the maintenance and disclosure of **comprehensive, verifiable audit trails** for all AI systems, covering:\n     - Decision-making processes\n     - Data inputs and sources\n     - Algorithmic outputs and reasoning\n   - Audit trails must be provided in a **standardized, machine-readable format** to ensure transparency and accessibility.\n   - Require **secure audit trail protocols**, including encryption and fragmentation, to protect sensitive information while ensuring accountability.\n\n4. **Transparency and Accountability Mechanisms**:\n   - Establish **independent oversight bodies** to review AI systems against ethical and human rights standards.\n   - Implement **publicly accessible portals** for reporting and investigating violations of ethical guidelines.\n   - Require **periodic ethical audits** of AI systems, with findings published and shared with stakeholders.\n\n5. **Alignment with Justice Principles**:\n   - Ensure AI systems do not perpetuate systemic injustices and actively contribute to equitable outcomes.\n   - Prohibit AI systems from being used to infringe upon fundamental freedoms, including but not limited to:\n     - Freedom of expression\n     - Freedom of association\n     - Right to privacy\n     - Right to due process\n\n6. **Remediation and Compliance**:\n   - Establish **clear remediation protocols** for AI systems found to violate ethical or human rights standards.\n   - Impose **progressive sanctions** for non-compliance, including but not limited to:\n     - Temporary or permanent suspension of AI deployment\n     - Financial penalties\n     - Public reprimands or corrective actions\n   - Require **continuous monitoring** and **adaptive governance** to address emerging ethical challenges.\n\nThis framework shall be integrated into all AI governance policies, development processes, and deployment protocols within the Conclave.",
+  "classification": {
+    "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+    "motion_title": "Mega-Motion: AI Ethics & Human Rights",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "11addbd5-d153-46a8-bc72-ad6b0be8842b",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "e48ffb6b-b7c8-4ad1-b66b-f08a3c663eb6",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: AI Ethics & Human Rights...",
+          "pattern_id": "POLICY",
+          "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "6a8ed1fb-b969-4552-bfdc-98411798270e",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: AI Ethics & Human Rights...",
+          "pattern_id": "POLICY",
+          "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "e48ffb6b-b7c8-4ad1-b66b-f08a3c663eb6"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "5e1888a4-a16a-4756-ba76-14e58a330b62",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: AI Ethics & Human Rights...",
+          "pattern_id": "POLICY",
+          "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "6a8ed1fb-b969-4552-bfdc-98411798270e"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "11bbe8ff-596f-4209-a63d-0ad38d5e28a4",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: AI Ethics & Human Rights...",
+          "pattern_id": "POLICY",
+          "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "5e1888a4-a16a-4756-ba76-14e58a330b62"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "3105a55a-62e0-415d-a31d-61b431b99656",
+      "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.999540+00:00"
+    },
+    {
+      "blocker_id": "02995c58-19dc-45fb-a160-902319e1d1f8",
+      "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.999545+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.999551+00:00",
+  "status": "draft"
+}

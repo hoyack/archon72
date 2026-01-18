@@ -1,0 +1,50 @@
+{
+  "archon_id": "astaroth",
+  "archon_name": "Astaroth",
+  "assigned_motions": [
+    "6fe6e6cf-2878-46d7-b806-87e93b9519ee",
+    "194ae85a-0330-482c-a4a6-b0fde6002160",
+    "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+    "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+    "c4d48ca3-144b-4071-a667-5061cd1e8876",
+    "d1379a75-bb8c-437d-95de-94defb446a81",
+    "6c0f8da8-caf5-4609-93f3-c55692f76323",
+    "ed7c8783-fa82-438c-afcc-50c3026daa28",
+    "9965ada6-43ee-479a-9731-ace4c036399a",
+    "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+    "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+    "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+    "0420bae2-2506-45d7-8872-fe089899df05",
+    "841b2b92-891c-46be-94de-ac74d952d7a9",
+    "106bd0f8-a22b-4c3d-8307-47416273550b",
+    "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+    "a6f2f113-05be-4170-bde3-74914c65cfd9"
+  ],
+  "conflict_flags": {},
+  "already_endorsed": [],
+  "assignment_reasons": {
+    "6fe6e6cf-2878-46d7-b806-87e93b9519ee": "gap_archon",
+    "194ae85a-0330-482c-a4a6-b0fde6002160": "gap_archon",
+    "2a1bc938-c4fd-435b-8679-c60c460c5e3b": "gap_archon",
+    "6bb66288-1be0-49e9-b77e-f99c32f625c6": "gap_archon",
+    "c4d48ca3-144b-4071-a667-5061cd1e8876": "gap_archon",
+    "d1379a75-bb8c-437d-95de-94defb446a81": "gap_archon",
+    "6c0f8da8-caf5-4609-93f3-c55692f76323": "gap_archon",
+    "ed7c8783-fa82-438c-afcc-50c3026daa28": "gap_archon",
+    "9965ada6-43ee-479a-9731-ace4c036399a": "gap_archon",
+    "193dc65a-1b45-4384-9ed5-93a6471b4dd8": "gap_archon",
+    "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe": "gap_archon",
+    "1e9f690b-fb7d-46d5-87fb-681d194559b1": "gap_archon",
+    "0420bae2-2506-45d7-8872-fe089899df05": "gap_archon",
+    "841b2b92-891c-46be-94de-ac74d952d7a9": "gap_archon",
+    "106bd0f8-a22b-4c3d-8307-47416273550b": "gap_archon",
+    "9838e4eb-f78d-4972-9ca5-7aac6a7dab70": "gap_archon",
+    "a6f2f113-05be-4170-bde3-74914c65cfd9": "gap_archon"
+  },
+  "generated_at": "2026-01-18T00:42:45.177228+00:00",
+  "statistics": {
+    "assignment_count": 17,
+    "implicit_endorsements": 0,
+    "conflicts_flagged": 0
+  }
+}

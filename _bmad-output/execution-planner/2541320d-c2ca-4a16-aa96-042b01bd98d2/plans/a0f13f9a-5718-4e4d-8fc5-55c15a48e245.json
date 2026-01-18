@@ -1,0 +1,130 @@
+{
+  "plan_id": "a0f13f9a-5718-4e4d-8fc5-55c15a48e245",
+  "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+  "motion_title": "Mega-Motion: Dynamic Governance & Adaptability",
+  "motion_text": "\nTHE CONCLAVE HEREBY DIRECTS THE GOVERNANCE COUNCIL TO ESTABLISH A REAL-TIME, RISK-BASED DYNAMIC GOVERNANCE FRAMEWORK FOR AI SYSTEMS WITHIN ITS JURISDICTION, AS FOLLOWS:\n\n1. **Dynamic Oversight Framework**:\n   - Replace fixed review schedules with a **real-time governance mechanism** that adjusts oversight intensity based on:\n     a) **Capability Level**: Assessing autonomy, decision scope, and potential impact of AI systems.\n     b) **Emerging Risks**: Continuous threat modeling and capability assessments to identify evolving risks.\n   - Implement **quarterly adaptive risk assessments** to evaluate and adjust governance parameters in response to technological advancements and societal changes.\n\n2. **Iterative Policy Refinement Process**:\n   - Adopt a structured **iterative governance refinement process** to ensure policies remain effective and relevant:\n     a) **Noise-Driven Collaboration**: Conduct periodic open debates and stakeholder consultations to gather diverse perspectives and identify governance gaps.\n     b) **Evidence-Based Updates**: Utilize real-time data, incident reports, and technological advancements to inform policy refinements.\n     c) **Automated Governance Feedback Loops**: Integrate AI-driven analytics to continuously monitor compliance and suggest policy adjustments.\n     d) **Transparency in Refinement**: Publish governance updates, rationale, and impact assessments to ensure accountability and public trust.\n\n3. **Implementation Mandates**:\n   - All AI systems must comply with the dynamic governance framework, with oversight intensity directly proportional to their risk profile.\n   - The Governance Council shall establish clear criteria for escalating oversight for high-risk AI deployments, including mandatory human-in-the-loop validation where necessary.\n   - Annual audits shall verify the effectiveness of the dynamic framework, with findings publicly disclosed to foster transparency.\n\n4. **Transition Provisions**:\n   - Existing AI systems shall undergo a **risk-based compliance assessment** within 12 months of framework implementation.\n   - The Governance Council shall develop a **phased rollout plan** for integrating the dynamic framework across all jurisdictions, prioritizing high-risk sectors.\n\n5. **Accountability Measures**:\n   - Non-compliance with dynamic governance requirements shall trigger automated escalation protocols, including temporary operational restrictions until remediation is achieved.\n   - The Conclave reserves the right to impose additional safeguards on AI systems demonstrating persistent governance gaps.\n\n",
+  "classification": {
+    "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+    "motion_title": "Mega-Motion: Dynamic Governance & Adaptability",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "38e08739-2a6d-4153-864b-31d6b3284166",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "c17815dd-6067-43ef-b8c1-6462aedc4efd",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Dynamic Governance & Adaptability...",
+          "pattern_id": "POLICY",
+          "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "525d6453-5670-4cdb-9436-47277147f5c8",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Dynamic Governance & Adaptability...",
+          "pattern_id": "POLICY",
+          "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "c17815dd-6067-43ef-b8c1-6462aedc4efd"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "445341d0-ed1d-4b19-8bd7-bd6d0d940a20",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Dynamic Governance & Adaptability...",
+          "pattern_id": "POLICY",
+          "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "525d6453-5670-4cdb-9436-47277147f5c8"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "6d33edfd-db86-4d97-9920-38f18e1d72d5",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Dynamic Governance & Adaptability...",
+          "pattern_id": "POLICY",
+          "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "445341d0-ed1d-4b19-8bd7-bd6d0d940a20"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "3c27a18c-221d-4c81-83e4-3fbb215e6f27",
+      "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.998154+00:00"
+    },
+    {
+      "blocker_id": "d391da21-78b5-4bcb-bd2c-1dff248f4d87",
+      "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.998159+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.998165+00:00",
+  "status": "draft"
+}

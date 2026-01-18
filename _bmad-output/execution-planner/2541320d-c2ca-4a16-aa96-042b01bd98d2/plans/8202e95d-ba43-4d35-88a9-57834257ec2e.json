@@ -1,0 +1,130 @@
+{
+  "plan_id": "8202e95d-ba43-4d35-88a9-57834257ec2e",
+  "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+  "motion_title": "Mega-Motion: Human-in-the-Loop Ethical Governance Framework for AI Systems",
+  "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A COMPREHENSIVE FRAMEWORK FOR HUMAN-IN-THE-LOOP ETHICAL GOVERNANCE OF ARTIFICIAL INTELLIGENCE SYSTEMS WITHIN ARCHON 72 JURISDICTION:\n\n1. **CONSTITUTIONAL ETHICAL FOUNDATION**\n   1.1 **Binding Constitutional Safeguards**:\n   - All AI systems shall be governed by the **Constitutional Safeguards for Artificial Intelligence (CSAI)**, codified as Appendix X to the Archon 72 Governance Charter\n   - CSAI shall serve as the supreme ethical framework for AI development, deployment, and operation\n\n   1.2 **Core Ethical Principles**:\n   - Mandatory alignment with the **Universal Declaration of Human Rights** and all relevant constitutional provisions\n   - Implementation of the **Precautionary Principle** in all AI system development\n   - Prohibition of AI systems that violate fundamental human rights or constitutional guarantees\n\n2. **HUMAN-IN-THE-LOOP ARCHITECTURE**\n   2.1 **Mandatory Human Oversight Requirements**:\n   - All AI systems must incorporate **human-in-the-loop validation** for:\n     a) Critical decision-making processes (defined as any decision with potential for harm or discrimination)\n     b) High-risk applications (as determined by the Oversight Committee)\n     c) Systems operating in sensitive domains (healthcare, criminal justice, etc.)\n   - Minimum human oversight thresholds established by:\n     - Risk level (low/medium/high)\n     - System complexity\n     - Potential impact on individuals\n\n   2.2 **Operational Guardrails**:\n   - **Real-time Ethical Monitoring**: Continuous ethical compliance monitoring with:\n     - Automated flagging of potential violations\n     - Immediate human review for flagged instances\n     - Mandatory human intervention for all flagged decisions\n   - **Dynamic Recalibration Mechanisms**:\n     - Automated systems must include human-accessible recalibration interfaces\n     - Quarterly human review of system performance metrics\n     - Adjustment of guardrails based on:\n       i) Emerging ethical concerns\n       ii) Changing societal norms\n       iii) New constitutional interpretations\n\n3. **ETHICAL OVERSIGHT STRUCTURE**\n   3.1 **Independent Oversight Committee**:\n   - Establishment of the **AI Ethical Oversight Committee** (AEOC) with:\n     - Mandatory binding authority over all AI systems\n     - Composition including:\n       i) 3 constitutional law experts\n       ii) 2 AI ethics specialists\n       iii) 1 public representative\n       iv) 1 technical AI specialist\n   - AEOC shall:\n     - Conduct regular ethical audits\n     - Approve all high-risk AI deployments\n     - Investigate constitutional violations\n\n   3.2 **Binding Compliance Protocols**:\n   - All AI systems must implement:\n     - **Ethical Impact Assessments** before deployment\n     - **Continuous Monitoring** during operation\n     - **Human Review Portals** for all critical decisions\n   - Failure to comply with human-in-the-loop requirements shall result in:\n     - Immediate suspension of system operation\n     - Mandatory remediation plan\n     - Potential constitutional penalties\n\n4. **IMPLEMENTATION PHASES**\n   4.1 **Transition Timeline**:\n   - Phase 1 (0-6 months): AEOC formation and initial guidelines\n   - Phase 2 (6-12 months): Mandatory human-in-the-loop integration for all new systems\n   - Phase 3 (12-18 months): Full compliance assessment for existing systems\n   - Phase 4 (18+ months): Continuous monitoring and updates\n\n   4.2 **Compliance Requirements**:\n   - All AI systems must:\n     - Document human-in-the-loop procedures\n     - Maintain audit trails of human interventions\n     - Provide transparent reporting to AEOC\n   - Non-compliant systems shall be:\n     - Immediately flagged\n     - Subject to progressive penalties\n     - Potentially decommissioned\n\n5. **CONSTITUTIONAL ENFORCEMENT**\n   5.1 **Violation Procedures**:\n   - Any violation of human-in-the-loop requirements shall trigger:\n     - Immediate investigation by AEOC\n     - Mandatory corrective action plan\n     - Public disclosure of violations\n   - Repeated violations may result in:\n     - Temporary suspension of system operation\n     - Permanent removal from service\n     - Constitutional penalties\n\n5.2 **Amendment Process**:\n   - Any modifications to ethical guardrails shall require:\n     a) 80% approval of the Conclave\n     b) 90-day public consultation period\n     c) AEOC recommendation\n     d) Constitutional review by the Ethics Council\n",
+  "classification": {
+    "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+    "motion_title": "Mega-Motion: Human-in-the-Loop Ethical Governance Framework for AI Systems",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "a567db7e-2d80-4de7-a982-02d596ce0981",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "ad2d526e-97ee-488e-9ebf-32e982250635",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+          "pattern_id": "POLICY",
+          "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "2405a6fc-9526-4237-8164-c85efbf6246d",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+          "pattern_id": "POLICY",
+          "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "ad2d526e-97ee-488e-9ebf-32e982250635"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "e9d9f0fb-ae27-4fff-bd99-d30d00b76d66",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+          "pattern_id": "POLICY",
+          "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "2405a6fc-9526-4237-8164-c85efbf6246d"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "0480722f-04e1-4f05-8e00-868ed415b0bc",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+          "pattern_id": "POLICY",
+          "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "e9d9f0fb-ae27-4fff-bd99-d30d00b76d66"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "5fa3d023-631b-4acc-b9cb-c0e010c676b7",
+      "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.997438+00:00"
+    },
+    {
+      "blocker_id": "68a980b0-6db8-42fe-abbf-def21932ea18",
+      "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.997443+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.997450+00:00",
+  "status": "draft"
+}

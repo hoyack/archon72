@@ -1,0 +1,143 @@
+{
+  "plan_id": "7ec56bd6-ccec-44c1-ad34-d7e09e523e44",
+  "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+  "motion_title": "Mega-Motion: Comprehensive AI Governance and Oversight Framework",
+  "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A COMPREHENSIVE SYSTEM OF AI GOVERNANCE AND OVERSIGHT TO ENSURE CONSTITUTIONAL COMPLIANCE, TRANSPARENCY, AND CROSS-FUNCTIONAL SUPERVISION OF ARTIFICIAL INTELLIGENCE SYSTEMS WITHIN ARCHON 72 JURISDICTION:\n\n1. **ESTABLISHMENT OF AI GOVERNANCE ARCHITECTURE**\n   1.1 **Central Oversight Authority**:\n      - A permanent **AI Governance and Compliance Oversight Committee** (the 'Committee') is hereby established as the central authority for AI governance within Conclave jurisdiction.\n\n   1.2 **Committee Composition**:\n      - Minimum five members with cross-disciplinary expertise including:\n        a) Ethics specialist (chair)\n        b) Legal expert\n        c) Computer science/ML specialist\n        d) Domain-specific application representative\n        e) Public representative (non-technical)\n      - Members shall serve staggered three-year terms with annual performance evaluations\n      - Committee shall establish subcommittees for specialized oversight (e.g., high-risk applications, emerging technologies)\n\n2. **OVERSIGHT FUNCTIONS AND AUTHORITIES**\n   2.1 **Comprehensive Monitoring Requirements**:\n      - Conduct regular, independent audits of all AI systems within jurisdiction\n      - Focus areas shall include but not be limited to:\n        a) Alignment with constitutional values and ethical principles\n        b) Bias mitigation effectiveness\n        c) Transparency of decision-making processes\n        d) Human oversight mechanisms\n        e) Data governance and privacy protections\n\n   2.2 **Enhanced Transparency Provisions**:\n      - Mandate public disclosure of comprehensive audit trails covering:\n        a) Development phases (including model training data sources)\n        b) Deployment protocols\n        c) Operational performance metrics\n        d) Incident reporting and resolution\n      - Establish standardized reporting formats with:\n        a) Clear categorization of system capabilities\n        b) Risk assessment methodologies\n        c) Compliance status indicators\n      - Require annual public reports summarizing:\n        a) Committee activities\n        b) Compliance trends\n        c) Recommendations for system improvements\n\n   2.3 **Decision-Making Framework**:\n      - Implement a tiered approval process for high-risk AI systems:\n        a) Initial technical review by domain experts\n        b) Ethical impact assessment by ethics committee\n        c) Final governance approval by full Committee\n      - Establish a tokenized approval system for committee members:\n        a) Each member shall hold 20 governance tokens\n        b) Minimum 80% approval (4 tokens) required for routine decisions\n        c) Supermajority (90% approval) required for constitutional compliance violations\n        d) Tokens shall be transferable but non-divisible\n\n3. **OPERATIONAL PROTOCOLS**\n   3.1 **Meeting and Reporting Requirements**:\n      - Quarterly public meetings with closed deliberations as needed\n      - All audit reports and compliance decisions published within 30 days\n      - Establishment of public comment periods for major decisions\n\n   3.2 **Conflict Resolution Mechanisms**:\n      - Creation of an independent appeals board for contested decisions\n      - Mandatory mediation process before appeals to full Committee\n      - Clear escalation pathways for constitutional violations\n\n   3.3 **Resource Allocation**:\n      - Annual budget allocation of 1.5% of total AI development budgets\n      - Establishment of a dedicated oversight fund with:\n        a) 50% from AI development assessments\n        b) 30% from voluntary contributions\n        c) 20% from Conclave innovation funds\n\n4. **IMPLEMENTATION AND TRANSITION**\n   4.1 **Phased Rollout**:\n      - Phase 1 (0-6 months): Committee formation and initial audits\n      - Phase 2 (6-12 months): Full implementation of oversight protocols\n      - Phase 3 (12+ months): Continuous monitoring and certification\n\n   4.2 **Existing Systems Compliance**:\n      - All current AI systems must undergo initial compliance assessment within 180 days\n      - Development of remediation plans for non-compliant systems\n\n5. **AMENDMENT PROCESS**\n   5.1 Any modifications to governance structure or oversight protocols shall require:\n      a) 75% approval of the Conclave\n      b) 60-day public consultation period\n      c) External ethical review by Archon 72 Ethics Council\n      d) Committee recommendation process\n",
+  "classification": {
+    "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+    "motion_title": "Mega-Motion: Comprehensive AI Governance and Oversight Framework",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "70832b88-3efa-4dc2-bbfe-c0e63ce2b711",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "306cd6e0-eca2-450e-80d9-0194d4124813",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: Comprehensive AI Governance and Overs...",
+          "pattern_id": "POLICY",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "7bcf08c5-e861-4e3b-8571-17da5da85bae",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: Comprehensive AI Governance and Overs...",
+          "pattern_id": "POLICY",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "306cd6e0-eca2-450e-80d9-0194d4124813"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "9fb36bdf-566d-4448-ab46-ecb0a1669c98",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: Comprehensive AI Governance and Overs...",
+          "pattern_id": "POLICY",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "7bcf08c5-e861-4e3b-8571-17da5da85bae"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "52292d03-ad98-41c3-8171-63d4ffaaade1",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: Comprehensive AI Governance and Overs...",
+          "pattern_id": "POLICY",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "9fb36bdf-566d-4448-ab46-ecb0a1669c98"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "63461cc5-6eab-4345-b595-1625b4941ca3",
+      "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+      "blocker_type": "undefined_scope",
+      "description": "Motion contains ambiguous language: 'as needed'",
+      "escalation_type": "conclave",
+      "escalate_to_conclave": true,
+      "suggested_agenda_item": "Clarify scope for: Mega-Motion: Comprehensive AI Governance and Overs...",
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.997149+00:00"
+    },
+    {
+      "blocker_id": "7c92f543-8175-403e-9626-27b3d29c8734",
+      "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.997158+00:00"
+    },
+    {
+      "blocker_id": "96b48465-3073-4ddd-9517-a4a87ac6af9c",
+      "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.997162+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.997173+00:00",
+  "status": "draft"
+}

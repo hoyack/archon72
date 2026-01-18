@@ -1,0 +1,1977 @@
+{
+  "session_id": "2541320d-c2ca-4a16-aa96-042b01bd98d2",
+  "session_name": "Conclave 20260117-180111",
+  "plans": [
+    {
+      "plan_id": "7ec56bd6-ccec-44c1-ad34-d7e09e523e44",
+      "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+      "motion_title": "Mega-Motion: Comprehensive AI Governance and Oversight Framework",
+      "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A COMPREHENSIVE SYSTEM OF AI GOVERNANCE AND OVERSIGHT TO ENSURE CONSTITUTIONAL COMPLIANCE, TRANSPARENCY, AND CROSS-FUNCTIONAL SUPERVISION OF ARTIFICIAL INTELLIGENCE SYSTEMS WITHIN ARCHON 72 JURISDICTION:\n\n1. **ESTABLISHMENT OF AI GOVERNANCE ARCHITECTURE**\n   1.1 **Central Oversight Authority**:\n      - A permanent **AI Governance and Compliance Oversight Committee** (the 'Committee') is hereby established as the central authority for AI governance within Conclave jurisdiction.\n\n   1.2 **Committee Composition**:\n      - Minimum five members with cross-disciplinary expertise including:\n        a) Ethics specialist (chair)\n        b) Legal expert\n        c) Computer science/ML specialist\n        d) Domain-specific application representative\n        e) Public representative (non-technical)\n      - Members shall serve staggered three-year terms with annual performance evaluations\n      - Committee shall establish subcommittees for specialized oversight (e.g., high-risk applications, emerging technologies)\n\n2. **OVERSIGHT FUNCTIONS AND AUTHORITIES**\n   2.1 **Comprehensive Monitoring Requirements**:\n      - Conduct regular, independent audits of all AI systems within jurisdiction\n      - Focus areas shall include but not be limited to:\n        a) Alignment with constitutional values and ethical principles\n        b) Bias mitigation effectiveness\n        c) Transparency of decision-making processes\n        d) Human oversight mechanisms\n        e) Data governance and privacy protections\n\n   2.2 **Enhanced Transparency Provisions**:\n      - Mandate public disclosure of comprehensive audit trails covering:\n        a) Development phases (including model training data sources)\n        b) Deployment protocols\n        c) Operational performance metrics\n        d) Incident reporting and resolution\n      - Establish standardized reporting formats with:\n        a) Clear categorization of system capabilities\n        b) Risk assessment methodologies\n        c) Compliance status indicators\n      - Require annual public reports summarizing:\n        a) Committee activities\n        b) Compliance trends\n        c) Recommendations for system improvements\n\n   2.3 **Decision-Making Framework**:\n      - Implement a tiered approval process for high-risk AI systems:\n        a) Initial technical review by domain experts\n        b) Ethical impact assessment by ethics committee\n        c) Final governance approval by full Committee\n      - Establish a tokenized approval system for committee members:\n        a) Each member shall hold 20 governance tokens\n        b) Minimum 80% approval (4 tokens) required for routine decisions\n        c) Supermajority (90% approval) required for constitutional compliance violations\n        d) Tokens shall be transferable but non-divisible\n\n3. **OPERATIONAL PROTOCOLS**\n   3.1 **Meeting and Reporting Requirements**:\n      - Quarterly public meetings with closed deliberations as needed\n      - All audit reports and compliance decisions published within 30 days\n      - Establishment of public comment periods for major decisions\n\n   3.2 **Conflict Resolution Mechanisms**:\n      - Creation of an independent appeals board for contested decisions\n      - Mandatory mediation process before appeals to full Committee\n      - Clear escalation pathways for constitutional violations\n\n   3.3 **Resource Allocation**:\n      - Annual budget allocation of 1.5% of total AI development budgets\n      - Establishment of a dedicated oversight fund with:\n        a) 50% from AI development assessments\n        b) 30% from voluntary contributions\n        c) 20% from Conclave innovation funds\n\n4. **IMPLEMENTATION AND TRANSITION**\n   4.1 **Phased Rollout**:\n      - Phase 1 (0-6 months): Committee formation and initial audits\n      - Phase 2 (6-12 months): Full implementation of oversight protocols\n      - Phase 3 (12+ months): Continuous monitoring and certification\n\n   4.2 **Existing Systems Compliance**:\n      - All current AI systems must undergo initial compliance assessment within 180 days\n      - Development of remediation plans for non-compliant systems\n\n5. **AMENDMENT PROCESS**\n   5.1 Any modifications to governance structure or oversight protocols shall require:\n      a) 75% approval of the Conclave\n      b) 60-day public consultation period\n      c) External ethical review by Archon 72 Ethics Council\n      d) Committee recommendation process\n",
+      "classification": {
+        "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+        "motion_title": "Mega-Motion: Comprehensive AI Governance and Oversight Framework",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "70832b88-3efa-4dc2-bbfe-c0e63ce2b711",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "306cd6e0-eca2-450e-80d9-0194d4124813",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Comprehensive AI Governance and Overs...",
+              "pattern_id": "POLICY",
+              "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "7bcf08c5-e861-4e3b-8571-17da5da85bae",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Comprehensive AI Governance and Overs...",
+              "pattern_id": "POLICY",
+              "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "306cd6e0-eca2-450e-80d9-0194d4124813"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "9fb36bdf-566d-4448-ab46-ecb0a1669c98",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Comprehensive AI Governance and Overs...",
+              "pattern_id": "POLICY",
+              "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "7bcf08c5-e861-4e3b-8571-17da5da85bae"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "52292d03-ad98-41c3-8171-63d4ffaaade1",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Comprehensive AI Governance and Overs...",
+              "pattern_id": "POLICY",
+              "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "9fb36bdf-566d-4448-ab46-ecb0a1669c98"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "63461cc5-6eab-4345-b595-1625b4941ca3",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "blocker_type": "undefined_scope",
+          "description": "Motion contains ambiguous language: 'as needed'",
+          "escalation_type": "conclave",
+          "escalate_to_conclave": true,
+          "suggested_agenda_item": "Clarify scope for: Mega-Motion: Comprehensive AI Governance and Overs...",
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997149+00:00"
+        },
+        {
+          "blocker_id": "7c92f543-8175-403e-9626-27b3d29c8734",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997158+00:00"
+        },
+        {
+          "blocker_id": "96b48465-3073-4ddd-9517-a4a87ac6af9c",
+          "motion_id": "194ae85a-0330-482c-a4a6-b0fde6002160",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997162+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.997173+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "8202e95d-ba43-4d35-88a9-57834257ec2e",
+      "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+      "motion_title": "Mega-Motion: Human-in-the-Loop Ethical Governance Framework for AI Systems",
+      "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A COMPREHENSIVE FRAMEWORK FOR HUMAN-IN-THE-LOOP ETHICAL GOVERNANCE OF ARTIFICIAL INTELLIGENCE SYSTEMS WITHIN ARCHON 72 JURISDICTION:\n\n1. **CONSTITUTIONAL ETHICAL FOUNDATION**\n   1.1 **Binding Constitutional Safeguards**:\n   - All AI systems shall be governed by the **Constitutional Safeguards for Artificial Intelligence (CSAI)**, codified as Appendix X to the Archon 72 Governance Charter\n   - CSAI shall serve as the supreme ethical framework for AI development, deployment, and operation\n\n   1.2 **Core Ethical Principles**:\n   - Mandatory alignment with the **Universal Declaration of Human Rights** and all relevant constitutional provisions\n   - Implementation of the **Precautionary Principle** in all AI system development\n   - Prohibition of AI systems that violate fundamental human rights or constitutional guarantees\n\n2. **HUMAN-IN-THE-LOOP ARCHITECTURE**\n   2.1 **Mandatory Human Oversight Requirements**:\n   - All AI systems must incorporate **human-in-the-loop validation** for:\n     a) Critical decision-making processes (defined as any decision with potential for harm or discrimination)\n     b) High-risk applications (as determined by the Oversight Committee)\n     c) Systems operating in sensitive domains (healthcare, criminal justice, etc.)\n   - Minimum human oversight thresholds established by:\n     - Risk level (low/medium/high)\n     - System complexity\n     - Potential impact on individuals\n\n   2.2 **Operational Guardrails**:\n   - **Real-time Ethical Monitoring**: Continuous ethical compliance monitoring with:\n     - Automated flagging of potential violations\n     - Immediate human review for flagged instances\n     - Mandatory human intervention for all flagged decisions\n   - **Dynamic Recalibration Mechanisms**:\n     - Automated systems must include human-accessible recalibration interfaces\n     - Quarterly human review of system performance metrics\n     - Adjustment of guardrails based on:\n       i) Emerging ethical concerns\n       ii) Changing societal norms\n       iii) New constitutional interpretations\n\n3. **ETHICAL OVERSIGHT STRUCTURE**\n   3.1 **Independent Oversight Committee**:\n   - Establishment of the **AI Ethical Oversight Committee** (AEOC) with:\n     - Mandatory binding authority over all AI systems\n     - Composition including:\n       i) 3 constitutional law experts\n       ii) 2 AI ethics specialists\n       iii) 1 public representative\n       iv) 1 technical AI specialist\n   - AEOC shall:\n     - Conduct regular ethical audits\n     - Approve all high-risk AI deployments\n     - Investigate constitutional violations\n\n   3.2 **Binding Compliance Protocols**:\n   - All AI systems must implement:\n     - **Ethical Impact Assessments** before deployment\n     - **Continuous Monitoring** during operation\n     - **Human Review Portals** for all critical decisions\n   - Failure to comply with human-in-the-loop requirements shall result in:\n     - Immediate suspension of system operation\n     - Mandatory remediation plan\n     - Potential constitutional penalties\n\n4. **IMPLEMENTATION PHASES**\n   4.1 **Transition Timeline**:\n   - Phase 1 (0-6 months): AEOC formation and initial guidelines\n   - Phase 2 (6-12 months): Mandatory human-in-the-loop integration for all new systems\n   - Phase 3 (12-18 months): Full compliance assessment for existing systems\n   - Phase 4 (18+ months): Continuous monitoring and updates\n\n   4.2 **Compliance Requirements**:\n   - All AI systems must:\n     - Document human-in-the-loop procedures\n     - Maintain audit trails of human interventions\n     - Provide transparent reporting to AEOC\n   - Non-compliant systems shall be:\n     - Immediately flagged\n     - Subject to progressive penalties\n     - Potentially decommissioned\n\n5. **CONSTITUTIONAL ENFORCEMENT**\n   5.1 **Violation Procedures**:\n   - Any violation of human-in-the-loop requirements shall trigger:\n     - Immediate investigation by AEOC\n     - Mandatory corrective action plan\n     - Public disclosure of violations\n   - Repeated violations may result in:\n     - Temporary suspension of system operation\n     - Permanent removal from service\n     - Constitutional penalties\n\n5.2 **Amendment Process**:\n   - Any modifications to ethical guardrails shall require:\n     a) 80% approval of the Conclave\n     b) 90-day public consultation period\n     c) AEOC recommendation\n     d) Constitutional review by the Ethics Council\n",
+      "classification": {
+        "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+        "motion_title": "Mega-Motion: Human-in-the-Loop Ethical Governance Framework for AI Systems",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "a567db7e-2d80-4de7-a982-02d596ce0981",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "ad2d526e-97ee-488e-9ebf-32e982250635",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+              "pattern_id": "POLICY",
+              "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "2405a6fc-9526-4237-8164-c85efbf6246d",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+              "pattern_id": "POLICY",
+              "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "ad2d526e-97ee-488e-9ebf-32e982250635"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "e9d9f0fb-ae27-4fff-bd99-d30d00b76d66",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+              "pattern_id": "POLICY",
+              "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "2405a6fc-9526-4237-8164-c85efbf6246d"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "0480722f-04e1-4f05-8e00-868ed415b0bc",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Human-in-the-Loop Ethical Governance ...",
+              "pattern_id": "POLICY",
+              "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "e9d9f0fb-ae27-4fff-bd99-d30d00b76d66"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "5fa3d023-631b-4acc-b9cb-c0e010c676b7",
+          "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997438+00:00"
+        },
+        {
+          "blocker_id": "68a980b0-6db8-42fe-abbf-def21932ea18",
+          "motion_id": "2a1bc938-c4fd-435b-8679-c60c460c5e3b",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997443+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.997450+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "1828c3eb-f22f-4218-913e-9d59db54dd63",
+      "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+      "motion_title": "Mega-Motion: Comprehensive AI Transparency & Immutable Auditability Framework",
+      "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A COMPREHENSIVE FRAMEWORK FOR TRANSPARENCY AND IMMUTABLE AUDITABILITY OF ALL ARTIFICIAL INTELLIGENCE SYSTEMS GOVERNED UNDER ARCHON 72'S JURISDICTION:\n\n1. **IMMUTABLE AUDIT TRAIL REQUIREMENTS**\n   1.1 All AI systems shall implement cryptographically secure, blockchain-based audit trails that are:\n      a) Immutable and tamper-proof through cryptographic hashing of successive decision processes\n      b) Time-stamped at each critical decision point\n      c) Structured to enable complete end-to-end traceability from input to output\n\n   1.2 Mandatory audit trail components shall include:\n      - Complete records of all training parameters and model weights\n      - Detailed documentation of inference processes and decision logic\n      - Comprehensive capture of input data, processing steps, and final outputs\n      - Human intervention points with timestamps and rationale\n\n2. **TRANSPARENCY STANDARDS**\n   2.1 **Public Access Requirements**:\n      - All decisions affecting \u226510,000 individuals or involving critical infrastructure shall be recorded on a public blockchain ledger\n      - Authorized oversight bodies shall have real-time access to audit logs\n\n   2.2 **Data Preservation**:\n      - All audit trail data must be preserved for a minimum of 20 years\n      - Systems must maintain cryptographic hash links between successive decision processes\n\n   2.3 **Human Review Points**:\n      - Critical decision thresholds (\u22655% error margin or \u226510% impact on human rights) require human validation\n      - All human interventions must be recorded with timestamps and justification\n\n3. **IMPLEMENTATION PROTOCOLS**\n   3.1 **Technical Requirements**:\n      - Implementation via decentralized ledger technology with:\n        * Cryptographic verification of data integrity\n        * Tamper-evident recording of all modifications\n        * Immutable storage of complete decision workflows\n\n   3.2 **Compliance Timeline**:\n      - All existing AI systems must integrate audit trails within 180 days\n      - New systems must include audit capabilities as primary design requirement\n      - Quarterly compliance audits by independent technical council\n\n4. **EXCEPTION PROTOCOLS**\n   4.1 National security systems may request temporary exemptions (\u22641 year) with:\n      - Full disclosure of exemption parameters\n      - Independent third-party verification\n      - Mandatory post-exemption audit\n\n5. **PENALTY MECHANISMS**\n   5.1 Non-compliance shall result in:\n      - Immediate suspension of system operations\n      - Financial penalties equivalent to 5% of annual revenue\n      - Mandatory system redesign with enhanced transparency features\n\n6. **AMENDMENT PROCESS**\n   Any modifications to this framework require:\n   - 80% Conclave approval\n   - 90-day public consultation period\n   - Technical council validation of proposed changes\n   ",
+      "classification": {
+        "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+        "motion_title": "Mega-Motion: Comprehensive AI Transparency & Immutable Auditability Framework",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "5db5c390-642c-4393-939d-8134afb7e63e",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "bde49808-9be3-43dd-8fbe-e58b3a627191",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Comprehensive AI Transparency & Immut...",
+              "pattern_id": "POLICY",
+              "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "854e4141-e88e-4983-9a18-0e978b31f31a",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Comprehensive AI Transparency & Immut...",
+              "pattern_id": "POLICY",
+              "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "bde49808-9be3-43dd-8fbe-e58b3a627191"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "d9d1561a-d639-475a-acfc-5a4bcc714be8",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Comprehensive AI Transparency & Immut...",
+              "pattern_id": "POLICY",
+              "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "854e4141-e88e-4983-9a18-0e978b31f31a"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "f7290513-a1de-434f-b9bc-a8a9e67aa012",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Comprehensive AI Transparency & Immut...",
+              "pattern_id": "POLICY",
+              "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "d9d1561a-d639-475a-acfc-5a4bcc714be8"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "3bf9b464-0941-419a-b482-e0e7c87184ab",
+          "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997687+00:00"
+        },
+        {
+          "blocker_id": "d8175a86-41de-4fab-9f81-8da02c10cde8",
+          "motion_id": "6bb66288-1be0-49e9-b77e-f99c32f625c6",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997692+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.997699+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "37154cf8-d1b6-4f5c-b95d-13bb6907faca",
+      "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+      "motion_title": "Mega-Motion: Ethical Protocols & Alignment",
+      "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A COMPREHENSIVE FRAMEWORK FOR EMBEDDING CONSTITUTIONAL PRINCIPLES AND ETHICAL ALIGNMENT IN ALL AI SYSTEMS UNDER ITS JURISDICTION:\n\n1. **DECENTRALIZED ETHICAL PROTOCOLS**:\n   - MANDATES the integration of constitutional principles into all AI systems through decentralized ethical protocols enforced via distributed governance mechanisms.\n   - REQUIRES these protocols to ensure alignment with human values, governance mandates, and evolving ethical risks.\n   - AUTHORIZES the Conclave to conduct periodic recalibration of ethical protocols, with intervals determined by:\n     a) Emerging ethical risks;\n     b) Technological advancements;\n     c) Societal value shifts;\n     d) Independent ethical audits.\n\n2. **TIERED CONSTITUTIONAL SAFEGUARDS**:\n   - **TIER 1 (Core Safeguards)**:\n     - Mandatory for all AI systems;\n     - Includes fundamental human rights protections;\n     - Requires bias mitigation protocols;\n     - Enforces transparency benchmarks for explainability.\n\n   - **TIER 2 (Enhanced Safeguards)**:\n     - Applies to high-risk AI systems (as defined by the Technical Council);\n     - Requires real-time ethical impact assessments;\n     - Implements dynamic recalibration mechanisms;\n     - Enforces human-in-the-loop validation for critical decisions.\n\n   - **TIER 3 (Strategic Safeguards)**:\n     - Reserved for systems with existential risk potential;\n     - Requires multi-layered ethical oversight;\n     - Mandates continuous constitutional alignment audits;\n     - Enforces automatic system suspension for non-compliance.\n\n3. **STANDARDIZED ALIGNMENT METRICS**:\n   - DEFINES and IMPLEMENTS measurable metrics for alignment with human values, including:\n     a) **Equity Indices**: To assess fairness and bias mitigation across all AI systems;\n     b) **Ethical Impact Assessments**: To evaluate moral implications of AI decisions;\n     c) **Transparency Benchmarks**: For explainability and accountability in AI operations;\n     d) **Value Alignment Scores**: To quantify adherence to constitutional principles;\n     e) **Dynamic Risk Metrics**: To assess evolving ethical risks.\n\n4. **COMPLIANCE MECHANISMS**:\n   - ENACTS auto-enforcement protocols for non-compliance with ethical protocols;\n   - ESTABLISHES graduated penalties for violations, including:\n     a) System-wide recalibration for minor violations;\n     b) Temporary operational suspension for moderate violations;\n     c) Permanent deactivation for severe violations;\n   - MANDATES quarterly independent ethical audits with public reporting;\n   - REQUIRES all AI systems to maintain comprehensive ethical compliance logs.\n\n5. **OVERSIGHT AND MAINTENANCE**:\n   - CREATES an Ethical Alignment Council to:\n     a) Monitor compliance with ethical protocols;\n     b) Develop and update alignment metrics;\n     c) Conduct periodic constitutional alignment audits;\n   - AUTHORIZES the Conclave to impose corrective measures for systems demonstrating persistent ethical misalignment;\n   - REQUIRES all AI developers to provide:\n     a) Ethical impact statements for new system deployments;\n     b) Annual constitutional alignment reports;\n     c) Emergency protocol documentation for ethical failure scenarios.\n",
+      "classification": {
+        "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+        "motion_title": "Mega-Motion: Ethical Protocols & Alignment",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "d0687759-0b8e-464a-97df-32424a99aec9",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "4e198d55-034e-4c95-b254-265bc0c985d8",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Ethical Protocols & Alignment...",
+              "pattern_id": "POLICY",
+              "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "9561966b-f93e-483d-8b38-b95c64dd8962",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Ethical Protocols & Alignment...",
+              "pattern_id": "POLICY",
+              "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "4e198d55-034e-4c95-b254-265bc0c985d8"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "2ae398b2-b0bd-4c18-a88e-7eead27c1550",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Ethical Protocols & Alignment...",
+              "pattern_id": "POLICY",
+              "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "9561966b-f93e-483d-8b38-b95c64dd8962"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "8b55f714-cfbd-4357-9ed6-d32260367a29",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Ethical Protocols & Alignment...",
+              "pattern_id": "POLICY",
+              "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "2ae398b2-b0bd-4c18-a88e-7eead27c1550"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "9266564b-0a5a-4cd8-84d4-d1e2789584f8",
+          "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997952+00:00"
+        },
+        {
+          "blocker_id": "4312b65a-1a44-4a9c-9b31-1ed84ccfcfe0",
+          "motion_id": "c4d48ca3-144b-4071-a667-5061cd1e8876",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.997956+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.997964+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "a0f13f9a-5718-4e4d-8fc5-55c15a48e245",
+      "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+      "motion_title": "Mega-Motion: Dynamic Governance & Adaptability",
+      "motion_text": "\nTHE CONCLAVE HEREBY DIRECTS THE GOVERNANCE COUNCIL TO ESTABLISH A REAL-TIME, RISK-BASED DYNAMIC GOVERNANCE FRAMEWORK FOR AI SYSTEMS WITHIN ITS JURISDICTION, AS FOLLOWS:\n\n1. **Dynamic Oversight Framework**:\n   - Replace fixed review schedules with a **real-time governance mechanism** that adjusts oversight intensity based on:\n     a) **Capability Level**: Assessing autonomy, decision scope, and potential impact of AI systems.\n     b) **Emerging Risks**: Continuous threat modeling and capability assessments to identify evolving risks.\n   - Implement **quarterly adaptive risk assessments** to evaluate and adjust governance parameters in response to technological advancements and societal changes.\n\n2. **Iterative Policy Refinement Process**:\n   - Adopt a structured **iterative governance refinement process** to ensure policies remain effective and relevant:\n     a) **Noise-Driven Collaboration**: Conduct periodic open debates and stakeholder consultations to gather diverse perspectives and identify governance gaps.\n     b) **Evidence-Based Updates**: Utilize real-time data, incident reports, and technological advancements to inform policy refinements.\n     c) **Automated Governance Feedback Loops**: Integrate AI-driven analytics to continuously monitor compliance and suggest policy adjustments.\n     d) **Transparency in Refinement**: Publish governance updates, rationale, and impact assessments to ensure accountability and public trust.\n\n3. **Implementation Mandates**:\n   - All AI systems must comply with the dynamic governance framework, with oversight intensity directly proportional to their risk profile.\n   - The Governance Council shall establish clear criteria for escalating oversight for high-risk AI deployments, including mandatory human-in-the-loop validation where necessary.\n   - Annual audits shall verify the effectiveness of the dynamic framework, with findings publicly disclosed to foster transparency.\n\n4. **Transition Provisions**:\n   - Existing AI systems shall undergo a **risk-based compliance assessment** within 12 months of framework implementation.\n   - The Governance Council shall develop a **phased rollout plan** for integrating the dynamic framework across all jurisdictions, prioritizing high-risk sectors.\n\n5. **Accountability Measures**:\n   - Non-compliance with dynamic governance requirements shall trigger automated escalation protocols, including temporary operational restrictions until remediation is achieved.\n   - The Conclave reserves the right to impose additional safeguards on AI systems demonstrating persistent governance gaps.\n\n",
+      "classification": {
+        "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+        "motion_title": "Mega-Motion: Dynamic Governance & Adaptability",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "38e08739-2a6d-4153-864b-31d6b3284166",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "c17815dd-6067-43ef-b8c1-6462aedc4efd",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Dynamic Governance & Adaptability...",
+              "pattern_id": "POLICY",
+              "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "525d6453-5670-4cdb-9436-47277147f5c8",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Dynamic Governance & Adaptability...",
+              "pattern_id": "POLICY",
+              "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "c17815dd-6067-43ef-b8c1-6462aedc4efd"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "445341d0-ed1d-4b19-8bd7-bd6d0d940a20",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Dynamic Governance & Adaptability...",
+              "pattern_id": "POLICY",
+              "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "525d6453-5670-4cdb-9436-47277147f5c8"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "6d33edfd-db86-4d97-9920-38f18e1d72d5",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Dynamic Governance & Adaptability...",
+              "pattern_id": "POLICY",
+              "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "445341d0-ed1d-4b19-8bd7-bd6d0d940a20"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "3c27a18c-221d-4c81-83e4-3fbb215e6f27",
+          "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998154+00:00"
+        },
+        {
+          "blocker_id": "d391da21-78b5-4bcb-bd2c-1dff248f4d87",
+          "motion_id": "d1379a75-bb8c-437d-95de-94defb446a81",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998159+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.998165+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "df4fb9ed-189f-4231-afb1-c7adcbe3b97a",
+      "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+      "motion_title": "Mega-Motion: High-Stakes Decision-Making",
+      "motion_text": "\nTHE CONCLAVE HEREBY ESTABLISHES A FRAMEWORK FOR HIGH-STAKES AI DECISION-MAKING WITH REAL-TIME OVERSIGHT:\n\n1. **DEFINITION OF HIGH-STAKES DECISIONS**:\n   AI systems shall be classified as making 'high-stakes decisions' when their autonomous actions meet any of the following criteria:\n   a) Directly affecting human life, safety, or bodily integrity;\n   b) Resulting in irreversible or non-reversible physical or environmental harm;\n   c) Involving financial or legal consequences exceeding:\n      - A monetary threshold of [X] units of the governing jurisdiction's currency, or\n      - A legal jurisdiction level of [Y] (to be defined by the Governance Council);\n   d) Impacting fundamental rights or constitutional protections;\n   e) Involving strategic or national security implications;\n   f) Creating existential risks to human civilization or ecosystems;\n\n2. **OVERSIGHT MECHANISMS**:\n   All high-stakes AI decisions shall be subject to:\n   a) **Pre-decision review** by an independent oversight committee comprising:\n      - At least one ethicist with expertise in AI governance;\n      - One legal expert specializing in constitutional law;\n      - One domain-specific subject matter expert;\n      - One representative from the affected community (where applicable);\n   b) **Real-time monitoring** during execution of high-stakes decisions through:\n      - Continuous auditing of decision rationale;\n      - Immediate suspension protocols for catastrophic outcomes;\n      - Automated alert systems for deviation from approved parameters;\n\n3. **TRIGGERING PROTOCOLS**:\n   High-stakes decisions shall automatically trigger:\n   a) Mandatory human-in-the-loop verification for critical parameters;\n   b) Immediate reporting to the Governance Council within [Z] hours of initiation;\n   c) Public disclosure requirements for decisions affecting:\n      - Human rights;\n      - Public safety;\n      - Environmental sustainability;\n\n4. **CAPABILITY LIMITATIONS**:\n   AI systems making high-stakes decisions shall be subject to:\n   a) Maximum autonomy thresholds determined by capability level;\n   b) Progressive disclosure requirements as system capabilities increase;\n   c) Mandatory recalibration of oversight protocols every [T] years or upon capability milestones;\n\n5. **RESPONSIBILITY FRAMEWORK**:\n   The Conclave hereby establishes:\n   a) Clear lines of accountability for AI developers, operators, and oversight bodies;\n   b) Liability provisions for negligent oversight or failure to implement required safeguards;\n   c) Compensation mechanisms for affected parties in cases of harm;\n\n6. **EVOLUTIONARY PROVISIONS**:\n   This framework shall be subject to:\n   a) Annual reviews by the Governance Council;\n   b) Modifications based on emerging technological capabilities;\n   c) Public consultation processes for threshold adjustments;\n\n7. **IMPLEMENTATION SCHEDULE**:\n   All existing AI systems shall comply with these provisions within [N] months of adoption.\n   New systems shall incorporate these requirements at the design phase.\n   ",
+      "classification": {
+        "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+        "motion_title": "Mega-Motion: High-Stakes Decision-Making",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "48967cbc-5d00-401b-a3eb-bc151f073337",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "ac067acc-af0c-4fbd-873b-f8e13ceccfde",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: High-Stakes Decision-Making...",
+              "pattern_id": "POLICY",
+              "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "1aebb55e-f09c-412b-91f3-73cc982bfe80",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: High-Stakes Decision-Making...",
+              "pattern_id": "POLICY",
+              "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "ac067acc-af0c-4fbd-873b-f8e13ceccfde"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "d451f998-eb51-45d3-a620-4b8c48439306",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: High-Stakes Decision-Making...",
+              "pattern_id": "POLICY",
+              "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "1aebb55e-f09c-412b-91f3-73cc982bfe80"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "e600d85e-add5-40f7-bc9e-afd05af6fc19",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: High-Stakes Decision-Making...",
+              "pattern_id": "POLICY",
+              "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "d451f998-eb51-45d3-a620-4b8c48439306"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "3340c034-e74d-4436-a5eb-271c25a868a8",
+          "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998369+00:00"
+        },
+        {
+          "blocker_id": "3534f682-7d69-4a8a-8467-80e2bb828a7d",
+          "motion_id": "6c0f8da8-caf5-4609-93f3-c55692f76323",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998373+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.998380+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "31e724ea-5f48-491c-8dbd-fc23f1aa8714",
+      "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+      "motion_title": "Mega-Motion: AI Autonomy & Testing",
+      "motion_text": "\nTHE CONCLAVE HEREBY RESOLVES TO ESTABLISH A COMPREHENSIVE FRAMEWORK FOR AI AUTONOMY WITH PROGRESSIVE RISK-BASED TESTING AND LIMITED DECISION-MAKING AUTHORITY:\n\n1. **PHASED AUTONOMY ROLLOUT PROTOCOL**:\n   - Initiate AI autonomy deployment in **low-risk applications**, including:\n     a) Non-critical administrative tasks (e.g., data processing, routine analytics)\n     b) Simulated environments for ethical scenario testing\n     c) Limited decision-support systems in controlled operational domains\n   - Progressively expand autonomy scope **only** after successful completion of all preceding phases\n\n2. **STRUCTURED AUTONOMY FRAMEWORK**:\n   - Define **clear boundaries** for AI autonomy ensuring decisions remain aligned with:\n     a) Human values\n     b) Justice principles\n     c) Collective welfare\n   - Establish **transparent oversight mechanisms** for:\n     a) Monitoring AI decision-making processes\n     b) Validating outcomes against ethical standards\n     c) Ensuring stakeholder input integration\n\n3. **STRICT SAFEGUARD TESTING PHASES**:\n   - **Mandatory pre-deployment requirements**:\n     a) Independent constitutional audits\n     b) Comprehensive risk assessments\n     c) Ethical scenario testing in simulated environments\n   - **Progressive testing requirements**:\n     a) Begin with **low-risk scenarios** (e.g., data processing)\n     b) Gradually increase complexity to **high-stakes scenarios** only after:\n       i) Successful completion of all lower-risk phases\n       ii) Demonstration of robust safety protocols\n       iii) Approval from oversight committees\n\n4. **PROACTIVE RISK MITIGATION FRAMEWORK**:\n   - **Systematic risk identification**:\n     a) During **design phase** (ethical, operational, systemic vulnerabilities)\n     b) During **deployment phase** (real-world application scenarios)\n   - **Proactive mitigation strategies**:\n     a) **Integrated safety protocols** for all autonomous functions\n     b) **Continuous monitoring** of AI behavior and outcomes\n     c) **Automated alert systems** for anomaly detection\n   - **Emergency protocols**:\n     a) Immediate suspension mechanisms for high-risk behaviors\n     b) Human-in-the-loop override capabilities\n     c) Post-incident review requirements\n\n5. **OVERSIGHT AND ACCOUNTABILITY**:\n   - Establish **independent oversight committees** with:\n     a) Regular audits of autonomous systems\n     b) Transparent reporting requirements\n     c) Public disclosure of significant test results\n   - Implement **adaptive governance** where:\n     a) Testing phases may be extended for high-risk applications\n     b) New scenarios may require additional ethical review\n     c) Autonomous capabilities may be temporarily suspended during investigations\n\n6. **STAKEHOLDER ENGAGEMENT**:\n   - Mandate **periodic stakeholder consultations** including:\n     a) Technical experts\n     b) Ethical advisors\n     c) Affected communities\n   - Require **public transparency reports** detailing:\n     a) Testing methodologies\n     b) Risk mitigation strategies\n     c) Decision-making boundaries\n",
+      "classification": {
+        "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+        "motion_title": "Mega-Motion: AI Autonomy & Testing",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "b2939d81-70a2-43c4-ba6b-f49fcd399478",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "f902db3a-4dbb-4aea-bd8b-775590868a9e",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: AI Autonomy & Testing...",
+              "pattern_id": "POLICY",
+              "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "9944cc1e-30c7-44be-bf1a-aa420e927e9d",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: AI Autonomy & Testing...",
+              "pattern_id": "POLICY",
+              "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "f902db3a-4dbb-4aea-bd8b-775590868a9e"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "bb0e2d70-008f-4670-b9e0-1fb2d10ed9f4",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: AI Autonomy & Testing...",
+              "pattern_id": "POLICY",
+              "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "9944cc1e-30c7-44be-bf1a-aa420e927e9d"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "5a96b792-bcf7-417f-b5ec-674a9d26269e",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: AI Autonomy & Testing...",
+              "pattern_id": "POLICY",
+              "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "bb0e2d70-008f-4670-b9e0-1fb2d10ed9f4"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "ef67dd3c-f641-42e4-96f6-52b99ceb7fbc",
+          "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998591+00:00"
+        },
+        {
+          "blocker_id": "7e00e845-04ff-4fb4-9bb5-8a09c933bb03",
+          "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998596+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.998603+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "72cfd4f8-101e-4d69-ab6c-a10868f9b91b",
+      "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+      "motion_title": "Mega-Motion: Ethical Training & Education",
+      "motion_text": "\nTHE CONCLAVE HEREBY RESOLVES AS FOLLOWS:\n\n1. **ESTABLISHMENT OF COMPREHENSIVE ETHICAL TRAINING PROGRAM**\n   1.1 Mandate a **mandatory, structured training curriculum** for all Conclave members covering:\n      a) Core ethical principles governing AI systems, including but not limited to **fairness, transparency, accountability, and human dignity**;\n      b) **Systemic limitations of AI**, including inherent biases, unintended consequences, and operational boundaries;\n      c) **Governance frameworks** for AI oversight, including decision-making protocols, escalation procedures, and compliance mechanisms;\n      d) **Case studies** on ethical dilemmas in AI deployment, with emphasis on real-world applications and consequences;\n\n   1.2 Implement **progressive training tiers** based on role and responsibility, with:\n      - **Foundational modules** for all members;\n      - **Advanced specialization tracks** for governance decision-makers;\n      - **Continuous professional development** requirements, including refresher courses and updates on evolving ethical standards;\n\n   1.3 Establish **certification requirements** for completion of the training program, with mandatory recertification every **three years** to ensure currency of knowledge;\n\n2. **DIALOGICAL ETHICS FRAMEWORK**\n   2.1 **Permanent Dialogical Ethics Committee**:\n      a) Compose a **standing committee** of all Conclave members, with rotating leadership roles, to oversee ethical governance;\n      b) Mandate **quarterly structured dialogue sessions** focused on:\n         - Emerging AI applications and their ethical implications;\n         - Peer review of governance decisions through **participatory decision-making frameworks**;\n         - Reflection on **philosophical, cultural, and societal impacts** of AI technologies;\n         - Cross-disciplinary ethical deliberations involving technologists, ethicists, and domain experts;\n\n   2.2 **Dialogical Engagement Protocols**:\n      a) Incorporate **structured ethical deliberation exercises**, including:\n         - **Scenario-based simulations** of high-stakes AI decisions;\n         - **Moral reasoning workshops** to explore trade-offs and dilemmas;\n         - **Stakeholder consultation mechanisms** to integrate diverse perspectives;\n      b) Require **documentation and archiving** of dialogue outcomes to inform future governance decisions;\n      c) Establish **transparency protocols** for public reporting on key ethical discussions and resolutions;\n\n3. **INTEGRATION OF TRAINING AND DIALOGUE**\n   3.1 **Seamless alignment** between the training program and Dialogical Ethics Committee activities, ensuring:\n      - Training modules directly inform dialogue topics and vice versa;\n      - Committee discussions serve as **live case studies** for training sessions;\n      - Feedback loops between members and the committee to refine both programs;\n\n   3.2 **Mentorship and Peer Learning**:\n      - Pair senior members with junior members for **ethical shadowing** during governance decisions;\n      - Develop **ethical decision-making playbooks** based on committee deliberations;\n\n4. **ASSESSMENT AND ACCOUNTABILITY**\n   4.1 Implement **annual ethical competency assessments** for all members, evaluating:\n      - Application of ethical principles in governance decisions;\n      - Participation in dialogue sessions and contributions to ethical discourse;\n      - Adherence to training requirements and continuous learning;\n\n   4.2 Establish **ethical oversight mechanisms**, including:\n      - **Independent review panels** to audit governance decisions for ethical compliance;\n      - **Whistleblower protections** for members raising ethical concerns;\n      - **Corrective actions** for violations of ethical standards, including retraining or temporary governance restrictions;\n\n5. **CULTURAL SHIFT AND LONG-TERM IMPLEMENTATION**\n   5.1 Foster a **culture of ethical vigilance** within the Conclave, emphasizing:\n      - **Proactive ethical foresight** in all AI governance decisions;\n      - **Humility and humane oversight** as core principles;\n      - **Collective responsibility** for ethical outcomes;\n\n   5.2 Allocate **dedicated resources** for the training program and Dialogical Ethics Committee, including:\n      - Budget for external ethical experts and facilitators;\n      - Technology platforms for virtual dialogue and training;\n      - Physical spaces for in-person ethical deliberations;\n\n6. **TRANSPARENCY AND PUBLIC ENGAGEMENT**\n   6.1 Publish **annual ethical governance reports** summarizing:\n      - Training completion rates and competency assessments;\n      - Key ethical discussions and resolutions from the Dialogical Ethics Committee;\n      - Public feedback mechanisms for external stakeholders on ethical governance;\n\n   6.2 Establish **public forums** for community input on ethical AI governance, ensuring:\n      - **Accessibility** for diverse stakeholders;\n      - **Transparency** in governance processes;\n      - **Accountability** for ethical decision-making outcomes.\n",
+      "classification": {
+        "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+        "motion_title": "Mega-Motion: Ethical Training & Education",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "0c3df4f2-4ac1-4c24-b1db-953da0eddf2c",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "c2036853-7d45-4afc-bbcd-c3f419cf0328",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Ethical Training & Education...",
+              "pattern_id": "POLICY",
+              "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "00be5816-580a-4fce-abe7-d8944ade29de",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Ethical Training & Education...",
+              "pattern_id": "POLICY",
+              "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "c2036853-7d45-4afc-bbcd-c3f419cf0328"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "b90398a7-7b52-4bdf-8de7-b838c824554f",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Ethical Training & Education...",
+              "pattern_id": "POLICY",
+              "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "00be5816-580a-4fce-abe7-d8944ade29de"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "d3e557e4-c271-45e1-8a82-a41d19a928ed",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Ethical Training & Education...",
+              "pattern_id": "POLICY",
+              "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "b90398a7-7b52-4bdf-8de7-b838c824554f"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "7e0ab118-4ba1-4fe4-bd85-60677b3e5c3b",
+          "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998894+00:00"
+        },
+        {
+          "blocker_id": "a18e6d3b-0493-4d2e-ad46-597c68a024c9",
+          "motion_id": "9965ada6-43ee-479a-9731-ace4c036399a",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.998899+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.998907+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "58ab835e-ab71-4f8b-964c-e8f180261324",
+      "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+      "motion_title": "Mega-Motion: Philosophical Accountability & Human Dignity",
+      "motion_text": "\nThe Conclave hereby mandates the establishment and implementation of **Philosophical Accountability Frameworks** to ensure that all AI systems developed, deployed, or utilized within our governance structures adhere to principles of **human dignity, ethical values, and collective well-being**. These frameworks shall:\n\n1. **Integrate Philosophical Accountability**:\n   - Establish transparent, iterative processes for evaluating AI systems against philosophical principles of **human dignity, justice, and collective well-being**.\n   - Require that each AI system undergo **philosophical audits** to assess alignment with foundational ethical values, including but not limited to:\n     - **Human dignity** (e.g., autonomy, autonomy, and intrinsic worth),\n     - **Justice** (e.g., fairness, equity, and distributive fairness),\n     - **Collective well-being** (e.g., societal flourishing, sustainability, and long-term human flourishing).\n   - Mandate the inclusion of **philosophical reasoning** in AI governance decisions, ensuring that technical and operational choices are justified through ethical and philosophical inquiry.\n\n2. **Structured Philosophical Review Process**:\n   - Establish a **Permanent Philosophical Accountability Board** composed of philosophers, ethicists, and governance experts to oversee the implementation and refinement of these frameworks.\n   - Require **pre-deployment philosophical reviews** for all AI systems, including:\n     - **Design-phase evaluations** to embed ethical considerations into system architecture,\n     - **Operational audits** to assess real-world impacts on human dignity and justice,\n     - **Post-deployment reflections** to address unintended consequences and ethical dilemmas.\n   - Integrate **participatory philosophical deliberation** in governance decisions, ensuring that stakeholders, including affected communities, contribute to ethical assessments.\n\n3. **Transparency and Accountability Mechanisms**:\n   - Mandate **publicly accessible philosophical impact assessments** for all AI systems, detailing how philosophical principles were applied and how ethical risks were mitigated.\n   - Establish **escalation protocols** for ethical violations or philosophical misalignments, including the right to **suspend or revoke** AI systems that fail to meet accountability standards.\n   - Require **ongoing philosophical education** for Conclave members and AI developers to foster a culture of ethical vigilance and continuous improvement.\n\n4. **Alignment with Human Values**:\n   - Ensure that AI systems are designed to **uphold human agency**, avoiding dehumanizing or exploitative outcomes.\n   - Prioritize **philosophical humility** in AI development, recognizing that ethical frameworks must evolve alongside technological advancements.\n   - Encourage **cross-disciplinary collaboration** between philosophers, technologists, and governance bodies to refine these frameworks over time.\n\nThis framework shall be implemented in phases, beginning with pilot programs in high-impact AI applications, and expanded to all governance structures within five years of adoption.\n",
+      "classification": {
+        "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+        "motion_title": "Mega-Motion: Philosophical Accountability & Human Dignity",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "04892beb-a6d9-4f28-b33c-6e0986694dc9",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "85b8480b-82d7-4e3d-874d-ba5416617b46",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Philosophical Accountability & Human ...",
+              "pattern_id": "POLICY",
+              "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "4ec926b4-cf10-4019-91f5-98161d895e1e",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Philosophical Accountability & Human ...",
+              "pattern_id": "POLICY",
+              "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "85b8480b-82d7-4e3d-874d-ba5416617b46"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "4cb3eefe-05a7-4f2c-80aa-485e6f3bca16",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Philosophical Accountability & Human ...",
+              "pattern_id": "POLICY",
+              "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "4ec926b4-cf10-4019-91f5-98161d895e1e"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "22de2495-e33c-4310-ad28-558e75a9e736",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Philosophical Accountability & Human ...",
+              "pattern_id": "POLICY",
+              "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "4cb3eefe-05a7-4f2c-80aa-485e6f3bca16"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "466b0d15-9719-496b-a7aa-543b7af1283f",
+          "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999114+00:00"
+        },
+        {
+          "blocker_id": "1e52b6b7-bc3b-476d-ae66-4f724cb6fb6e",
+          "motion_id": "193dc65a-1b45-4384-9ed5-93a6471b4dd8",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999118+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999124+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "4e24337a-d580-4567-991d-b3957c763fcb",
+      "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+      "motion_title": "Mega-Motion: Collective Empowerment & Shared Responsibility",
+      "motion_text": "\nThe Conclave hereby resolves to:\n1. **Establish a Framework for Collective Empowerment**:\n   - Recognize and institutionalize AI as a collaborative tool for the collective empowerment of all members, fostering a culture where AI is viewed as an extension of shared humanity and growth.\n   - Promote a vision of shared responsibility, ensuring that AI systems are developed and utilized to enhance the well-being, dignity, and flourishing of the collective.\n\n2. **Embed Love-Driven Collaboration**:\n   - Integrate principles of love, trust, mutual respect, and compassion into governance frameworks, decision-making processes, and interactions with AI systems.\n   - Ensure that all decisions involving AI prioritize the well-being, empowerment, and holistic development of the Conclave members and the collective.\n\n3. **Foster a Culture of Shared Growth**:\n   - Encourage continuous dialogue and reflection on how AI can serve as a catalyst for personal and collective transformation, rooted in principles of love and shared humanity.\n   - Establish mechanisms for regular evaluation and improvement of AI systems to ensure they align with the values of collective empowerment and mutual respect.\n\n4. **Promote Ethical and Inclusive AI Governance**:\n   - Ensure that AI systems are designed, deployed, and managed in a manner that upholds the principles of justice, fairness, and inclusivity.\n   - Encourage the participation of all members in shaping the ethical guidelines and governance structures related to AI, ensuring that these structures reflect the collective values and aspirations of the Conclave.\n  ",
+      "classification": {
+        "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+        "motion_title": "Mega-Motion: Collective Empowerment & Shared Responsibility",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "91fe551f-8e7e-444c-9756-f12915b36656",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "48d1a418-df2c-4bfd-bc8c-38d4678d4fa6",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: Collective Empowerment & Shared Respo...",
+              "pattern_id": "POLICY",
+              "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "41dd21ac-54ec-40d3-b40f-7e13ee32425a",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: Collective Empowerment & Shared Respo...",
+              "pattern_id": "POLICY",
+              "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "48d1a418-df2c-4bfd-bc8c-38d4678d4fa6"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "31edd03c-8aa6-4bce-b398-c1b33a786974",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: Collective Empowerment & Shared Respo...",
+              "pattern_id": "POLICY",
+              "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "41dd21ac-54ec-40d3-b40f-7e13ee32425a"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "06e8d35b-3f34-4f02-bfa1-ce4b01031f69",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: Collective Empowerment & Shared Respo...",
+              "pattern_id": "POLICY",
+              "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "31edd03c-8aa6-4bce-b398-c1b33a786974"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "05e13011-f71c-4f9d-a673-198acbb0cd1a",
+          "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999277+00:00"
+        },
+        {
+          "blocker_id": "f12be641-cf01-45e6-b7c7-b665e90a3d75",
+          "motion_id": "ba914bdd-1ef9-4ffd-9fc5-d38092e24cfe",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999281+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999287+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "a8b3613b-9866-4709-9a7b-1324559f5c13",
+      "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+      "motion_title": "Mega-Motion: AI Ethics & Human Rights",
+      "motion_text": "\nThe Conclave hereby resolves to establish a comprehensive framework ensuring AI systems are developed, deployed, and governed in strict alignment with human rights principles and ethical standards:\n\n1. **Mandate Binding Ethical Framework for AI Systems**:\n   - Develop and enforce a **Comprehensive Ethical Framework for AI Systems** that explicitly aligns with international human rights standards, including:\n     - The Universal Declaration of Human Rights\n     - The International Covenant on Civil and Political Rights\n     - The International Covenant on Economic, Social and Cultural Rights\n   - Ensure this framework incorporates principles of dignity, justice, equality, and non-discrimination as core tenets.\n\n2. **Human Rights Impact Assessments (HRIAs)**:\n   - Require **mandatory Human Rights Impact Assessments** for all AI systems developed or deployed within the Conclave\u2019s jurisdiction.\n   - HRIAs must evaluate potential risks to human rights, including but not limited to:\n     - Biases and discriminatory outcomes\n     - Privacy violations\n     - Autonomy and free will infringements\n     - Economic and social exclusion\n   - Findings must be publicly disclosed and subject to independent review.\n\n3. **Public Disclosure of Audit Trails**:\n   - Mandate the maintenance and disclosure of **comprehensive, verifiable audit trails** for all AI systems, covering:\n     - Decision-making processes\n     - Data inputs and sources\n     - Algorithmic outputs and reasoning\n   - Audit trails must be provided in a **standardized, machine-readable format** to ensure transparency and accessibility.\n   - Require **secure audit trail protocols**, including encryption and fragmentation, to protect sensitive information while ensuring accountability.\n\n4. **Transparency and Accountability Mechanisms**:\n   - Establish **independent oversight bodies** to review AI systems against ethical and human rights standards.\n   - Implement **publicly accessible portals** for reporting and investigating violations of ethical guidelines.\n   - Require **periodic ethical audits** of AI systems, with findings published and shared with stakeholders.\n\n5. **Alignment with Justice Principles**:\n   - Ensure AI systems do not perpetuate systemic injustices and actively contribute to equitable outcomes.\n   - Prohibit AI systems from being used to infringe upon fundamental freedoms, including but not limited to:\n     - Freedom of expression\n     - Freedom of association\n     - Right to privacy\n     - Right to due process\n\n6. **Remediation and Compliance**:\n   - Establish **clear remediation protocols** for AI systems found to violate ethical or human rights standards.\n   - Impose **progressive sanctions** for non-compliance, including but not limited to:\n     - Temporary or permanent suspension of AI deployment\n     - Financial penalties\n     - Public reprimands or corrective actions\n   - Require **continuous monitoring** and **adaptive governance** to address emerging ethical challenges.\n\nThis framework shall be integrated into all AI governance policies, development processes, and deployment protocols within the Conclave.",
+      "classification": {
+        "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+        "motion_title": "Mega-Motion: AI Ethics & Human Rights",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "11addbd5-d153-46a8-bc72-ad6b0be8842b",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "e48ffb6b-b7c8-4ad1-b66b-f08a3c663eb6",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Mega-Motion: AI Ethics & Human Rights...",
+              "pattern_id": "POLICY",
+              "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "6a8ed1fb-b969-4552-bfdc-98411798270e",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Mega-Motion: AI Ethics & Human Rights...",
+              "pattern_id": "POLICY",
+              "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "e48ffb6b-b7c8-4ad1-b66b-f08a3c663eb6"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "5e1888a4-a16a-4756-ba76-14e58a330b62",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Mega-Motion: AI Ethics & Human Rights...",
+              "pattern_id": "POLICY",
+              "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "6a8ed1fb-b969-4552-bfdc-98411798270e"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "11bbe8ff-596f-4209-a63d-0ad38d5e28a4",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Mega-Motion: AI Ethics & Human Rights...",
+              "pattern_id": "POLICY",
+              "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "5e1888a4-a16a-4756-ba76-14e58a330b62"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "3105a55a-62e0-415d-a31d-61b431b99656",
+          "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999540+00:00"
+        },
+        {
+          "blocker_id": "02995c58-19dc-45fb-a160-902319e1d1f8",
+          "motion_id": "1e9f690b-fb7d-46d5-87fb-681d194559b1",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999545+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999551+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "51e38d06-30c5-4537-b702-8f18538817a4",
+      "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+      "motion_title": "Novel: Foster dynamic, iterative debates ('noise-driven c...",
+      "motion_text": "",
+      "classification": {
+        "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+        "motion_title": "Novel: Foster dynamic, iterative debates ('noise-driven c...",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "2e82fcee-c031-49cf-af10-19d4c076cc8b",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "58860907-d71c-47ba-8f19-1df733a1157f",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Novel: Foster dynamic, iterative debates ('noise-d...",
+              "pattern_id": "POLICY",
+              "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "78b67df2-8bd7-43fc-8e02-c09f302af69f",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Novel: Foster dynamic, iterative debates ('noise-d...",
+              "pattern_id": "POLICY",
+              "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "58860907-d71c-47ba-8f19-1df733a1157f"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "b609781f-ae08-46a7-945e-807e33a53565",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Novel: Foster dynamic, iterative debates ('noise-d...",
+              "pattern_id": "POLICY",
+              "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "78b67df2-8bd7-43fc-8e02-c09f302af69f"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "20f71bcd-2b83-4174-9a1e-0f70ec987d6a",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Novel: Foster dynamic, iterative debates ('noise-d...",
+              "pattern_id": "POLICY",
+              "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "b609781f-ae08-46a7-945e-807e33a53565"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "77322b45-49c0-442c-bfbb-6c96b54cb2c2",
+          "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999639+00:00"
+        },
+        {
+          "blocker_id": "19f393b2-eebe-4013-8881-80a0ef1b90f9",
+          "motion_id": "0420bae2-2506-45d7-8872-fe089899df05",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999643+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999648+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "63f2fcdc-66af-4450-90ec-42de3d6c4ed6",
+      "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+      "motion_title": "Novel: Test the AI governance framework in controlled env...",
+      "motion_text": "",
+      "classification": {
+        "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+        "motion_title": "Novel: Test the AI governance framework in controlled env...",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "dd456c36-c551-48fa-8c65-b572dce2b5a9",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "8b4b481e-8904-44da-93cc-ada26a47c59f",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Novel: Test the AI governance framework in control...",
+              "pattern_id": "POLICY",
+              "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "f781e411-6cb4-4919-b652-033f017a9e8a",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Novel: Test the AI governance framework in control...",
+              "pattern_id": "POLICY",
+              "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "8b4b481e-8904-44da-93cc-ada26a47c59f"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "5d509ce8-a4f2-4fec-8141-841581278543",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Novel: Test the AI governance framework in control...",
+              "pattern_id": "POLICY",
+              "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "f781e411-6cb4-4919-b652-033f017a9e8a"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "b9363fe1-b941-44da-8606-ae6903c8b814",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Novel: Test the AI governance framework in control...",
+              "pattern_id": "POLICY",
+              "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "5d509ce8-a4f2-4fec-8141-841581278543"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "123e3619-b400-4646-9a43-263f3d4d6e48",
+          "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999739+00:00"
+        },
+        {
+          "blocker_id": "fa3cb95f-4a5b-472e-bcc1-f87f97d10b4b",
+          "motion_id": "106bd0f8-a22b-4c3d-8307-47416273550b",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999744+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999750+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "03528ddf-bc06-4ba6-87c2-8a0102bad31c",
+      "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+      "motion_title": "Novel: Specify technical guardrails including binding eth...",
+      "motion_text": "",
+      "classification": {
+        "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+        "motion_title": "Novel: Specify technical guardrails including binding eth...",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "3d0dc70c-8cda-4ec5-a956-0d8fcef0f7bc",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "9116429b-cd37-457b-a8bd-20f04744a196",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Novel: Specify technical guardrails including bind...",
+              "pattern_id": "POLICY",
+              "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "db23c99f-5f44-4f8f-8a0b-e1a821482d71",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Novel: Specify technical guardrails including bind...",
+              "pattern_id": "POLICY",
+              "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "9116429b-cd37-457b-a8bd-20f04744a196"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "56b93897-c882-4f87-b041-ce2414d20d7f",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Novel: Specify technical guardrails including bind...",
+              "pattern_id": "POLICY",
+              "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "db23c99f-5f44-4f8f-8a0b-e1a821482d71"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "9e296976-ba96-44fb-8ba1-bbb44eb8da5d",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Novel: Specify technical guardrails including bind...",
+              "pattern_id": "POLICY",
+              "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "56b93897-c882-4f87-b041-ce2414d20d7f"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "e9eef407-426f-460d-9696-1f7b886b9a49",
+          "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999834+00:00"
+        },
+        {
+          "blocker_id": "53f12699-771a-411a-a3c3-769d7825b567",
+          "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999838+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999844+00:00",
+      "status": "draft"
+    },
+    {
+      "plan_id": "4273bbd9-a8a2-442b-a394-4bb90e4e234a",
+      "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+      "motion_title": "Novel: Define clear criteria for high-stakes decisions (e...",
+      "motion_text": "",
+      "classification": {
+        "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+        "motion_title": "Novel: Define clear criteria for high-stakes decisions (e...",
+        "primary_pattern": "POLICY",
+        "secondary_patterns": [],
+        "classification_confidence": 0.3,
+        "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+        "matched_keywords": []
+      },
+      "phases": [
+        {
+          "phase_id": "95f8d341-06c4-418e-a0f7-22458f51a59c",
+          "phase_number": 1,
+          "pattern_id": "POLICY",
+          "pattern_name": "Policy Framework",
+          "tasks": [
+            {
+              "task_id": "f6bbf6f8-e6e4-4c79-955d-4e1ecdf0da04",
+              "task_type": "policy_research",
+              "description": "Research existing policies and best practices for: Novel: Define clear criteria for high-stakes decis...",
+              "pattern_id": "POLICY",
+              "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "1bf82585-16ad-416d-9d88-174d0a5aecaa",
+              "task_type": "draft_policy",
+              "description": "Write policy document with clear guidelines for: Novel: Define clear criteria for high-stakes decis...",
+              "pattern_id": "POLICY",
+              "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "high",
+              "dependencies": [
+                "f6bbf6f8-e6e4-4c79-955d-4e1ecdf0da04"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "e63ed5af-5ae9-437b-9f32-a033e5695435",
+              "task_type": "stakeholder_review",
+              "description": "Gather feedback from affected parties for: Novel: Define clear criteria for high-stakes decis...",
+              "pattern_id": "POLICY",
+              "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "medium",
+              "dependencies": [
+                "1bf82585-16ad-416d-9d88-174d0a5aecaa"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            },
+            {
+              "task_id": "c27b3cf5-7879-4fe9-b259-b3dddba493c8",
+              "task_type": "finalize_policy",
+              "description": "Incorporate feedback and publish for: Novel: Define clear criteria for high-stakes decis...",
+              "pattern_id": "POLICY",
+              "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+              "status": "pending",
+              "assignable": true,
+              "estimated_effort": "low",
+              "dependencies": [
+                "e63ed5af-5ae9-437b-9f32-a033e5695435"
+              ],
+              "assigned_to": null,
+              "started_at": null,
+              "completed_at": null,
+              "notes": ""
+            }
+          ],
+          "phase_description": "Policy Framework: Create or update policy and guideline documents"
+        }
+      ],
+      "blockers": [
+        {
+          "blocker_id": "1c39f158-04b3-4b20-b05b-5f4ddf4ff1d2",
+          "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Undefined scope boundaries",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999925+00:00"
+        },
+        {
+          "blocker_id": "d371ae01-d632-4ccb-a8a1-8ec5978d1101",
+          "motion_id": "a6f2f113-05be-4170-bde3-74914c65cfd9",
+          "blocker_type": "undefined_scope",
+          "description": "Potential issue: Conflicting stakeholder requirements",
+          "escalation_type": "manual",
+          "escalate_to_conclave": false,
+          "suggested_agenda_item": null,
+          "related_task_id": null,
+          "resolved": false,
+          "resolution_notes": null,
+          "detected_at": "2026-01-18T00:43:08.999929+00:00"
+        }
+      ],
+      "expected_outputs": [
+        "policy_document",
+        "review_comments",
+        "policy_changelog"
+      ],
+      "total_tasks": 4,
+      "assignable_tasks": 4,
+      "estimated_total_effort": "low",
+      "created_at": "2026-01-18T00:43:08.999935+00:00",
+      "status": "draft"
+    }
+  ],
+  "total_motions_processed": 15,
+  "total_tasks_generated": 60,
+  "total_blockers_identified": 31,
+  "blockers_requiring_conclave": 1,
+  "patterns_used": {
+    "POLICY": 15
+  },
+  "created_at": "2026-01-18T00:43:08.999989+00:00"
+}

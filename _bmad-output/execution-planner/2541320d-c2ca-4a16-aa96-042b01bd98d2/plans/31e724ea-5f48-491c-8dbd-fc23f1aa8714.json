@@ -1,0 +1,130 @@
+{
+  "plan_id": "31e724ea-5f48-491c-8dbd-fc23f1aa8714",
+  "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+  "motion_title": "Mega-Motion: AI Autonomy & Testing",
+  "motion_text": "\nTHE CONCLAVE HEREBY RESOLVES TO ESTABLISH A COMPREHENSIVE FRAMEWORK FOR AI AUTONOMY WITH PROGRESSIVE RISK-BASED TESTING AND LIMITED DECISION-MAKING AUTHORITY:\n\n1. **PHASED AUTONOMY ROLLOUT PROTOCOL**:\n   - Initiate AI autonomy deployment in **low-risk applications**, including:\n     a) Non-critical administrative tasks (e.g., data processing, routine analytics)\n     b) Simulated environments for ethical scenario testing\n     c) Limited decision-support systems in controlled operational domains\n   - Progressively expand autonomy scope **only** after successful completion of all preceding phases\n\n2. **STRUCTURED AUTONOMY FRAMEWORK**:\n   - Define **clear boundaries** for AI autonomy ensuring decisions remain aligned with:\n     a) Human values\n     b) Justice principles\n     c) Collective welfare\n   - Establish **transparent oversight mechanisms** for:\n     a) Monitoring AI decision-making processes\n     b) Validating outcomes against ethical standards\n     c) Ensuring stakeholder input integration\n\n3. **STRICT SAFEGUARD TESTING PHASES**:\n   - **Mandatory pre-deployment requirements**:\n     a) Independent constitutional audits\n     b) Comprehensive risk assessments\n     c) Ethical scenario testing in simulated environments\n   - **Progressive testing requirements**:\n     a) Begin with **low-risk scenarios** (e.g., data processing)\n     b) Gradually increase complexity to **high-stakes scenarios** only after:\n       i) Successful completion of all lower-risk phases\n       ii) Demonstration of robust safety protocols\n       iii) Approval from oversight committees\n\n4. **PROACTIVE RISK MITIGATION FRAMEWORK**:\n   - **Systematic risk identification**:\n     a) During **design phase** (ethical, operational, systemic vulnerabilities)\n     b) During **deployment phase** (real-world application scenarios)\n   - **Proactive mitigation strategies**:\n     a) **Integrated safety protocols** for all autonomous functions\n     b) **Continuous monitoring** of AI behavior and outcomes\n     c) **Automated alert systems** for anomaly detection\n   - **Emergency protocols**:\n     a) Immediate suspension mechanisms for high-risk behaviors\n     b) Human-in-the-loop override capabilities\n     c) Post-incident review requirements\n\n5. **OVERSIGHT AND ACCOUNTABILITY**:\n   - Establish **independent oversight committees** with:\n     a) Regular audits of autonomous systems\n     b) Transparent reporting requirements\n     c) Public disclosure of significant test results\n   - Implement **adaptive governance** where:\n     a) Testing phases may be extended for high-risk applications\n     b) New scenarios may require additional ethical review\n     c) Autonomous capabilities may be temporarily suspended during investigations\n\n6. **STAKEHOLDER ENGAGEMENT**:\n   - Mandate **periodic stakeholder consultations** including:\n     a) Technical experts\n     b) Ethical advisors\n     c) Affected communities\n   - Require **public transparency reports** detailing:\n     a) Testing methodologies\n     b) Risk mitigation strategies\n     c) Decision-making boundaries\n",
+  "classification": {
+    "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+    "motion_title": "Mega-Motion: AI Autonomy & Testing",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "b2939d81-70a2-43c4-ba6b-f49fcd399478",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "f902db3a-4dbb-4aea-bd8b-775590868a9e",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Mega-Motion: AI Autonomy & Testing...",
+          "pattern_id": "POLICY",
+          "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "9944cc1e-30c7-44be-bf1a-aa420e927e9d",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Mega-Motion: AI Autonomy & Testing...",
+          "pattern_id": "POLICY",
+          "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "f902db3a-4dbb-4aea-bd8b-775590868a9e"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "bb0e2d70-008f-4670-b9e0-1fb2d10ed9f4",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Mega-Motion: AI Autonomy & Testing...",
+          "pattern_id": "POLICY",
+          "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "9944cc1e-30c7-44be-bf1a-aa420e927e9d"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "5a96b792-bcf7-417f-b5ec-674a9d26269e",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Mega-Motion: AI Autonomy & Testing...",
+          "pattern_id": "POLICY",
+          "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "bb0e2d70-008f-4670-b9e0-1fb2d10ed9f4"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "ef67dd3c-f641-42e4-96f6-52b99ceb7fbc",
+      "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.998591+00:00"
+    },
+    {
+      "blocker_id": "7e00e845-04ff-4fb4-9bb5-8a09c933bb03",
+      "motion_id": "ed7c8783-fa82-438c-afcc-50c3026daa28",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.998596+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.998603+00:00",
+  "status": "draft"
+}

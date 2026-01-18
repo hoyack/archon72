@@ -1,0 +1,43 @@
+[
+  {
+    "acronym": "CT",
+    "full_form": "[CT]",
+    "definition": "Expansion not found in context",
+    "introduced_by": [
+      "Asmoday",
+      "Bael"
+    ],
+    "first_seen_in": "923b76cb-cd14-4029-8b66-bfc5deba8656",
+    "usage_count": 10
+  },
+  {
+    "acronym": "SYSTEM",
+    "full_form": "[SYSTEM]",
+    "definition": "Expansion not found in context",
+    "introduced_by": [
+      "[SYSTEM]"
+    ],
+    "first_seen_in": "d257737e-467d-4fb4-94fa-5097f387afef",
+    "usage_count": 6
+  },
+  {
+    "acronym": "STEM",
+    "full_form": "[STEM]",
+    "definition": "Expansion not found in context",
+    "introduced_by": [
+      "Crocell"
+    ],
+    "first_seen_in": "3e532b60-9f2c-41fe-818b-611d5526d713",
+    "usage_count": 2
+  },
+  {
+    "acronym": "ISO",
+    "full_form": "[ISO]",
+    "definition": "Expansion not found in context",
+    "introduced_by": [
+      "Vepar"
+    ],
+    "first_seen_in": "eda3a91c-013a-4539-a16a-0f5f6debb022",
+    "usage_count": 2
+  }
+]

@@ -1,0 +1,130 @@
+{
+  "plan_id": "03528ddf-bc06-4ba6-87c2-8a0102bad31c",
+  "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+  "motion_title": "Novel: Specify technical guardrails including binding eth...",
+  "motion_text": "",
+  "classification": {
+    "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+    "motion_title": "Novel: Specify technical guardrails including binding eth...",
+    "primary_pattern": "POLICY",
+    "secondary_patterns": [],
+    "classification_confidence": 0.3,
+    "classification_reasoning": "Heuristic classification based on 0 keyword matches",
+    "matched_keywords": []
+  },
+  "phases": [
+    {
+      "phase_id": "3d0dc70c-8cda-4ec5-a956-0d8fcef0f7bc",
+      "phase_number": 1,
+      "pattern_id": "POLICY",
+      "pattern_name": "Policy Framework",
+      "tasks": [
+        {
+          "task_id": "9116429b-cd37-457b-a8bd-20f04744a196",
+          "task_type": "policy_research",
+          "description": "Research existing policies and best practices for: Novel: Specify technical guardrails including bind...",
+          "pattern_id": "POLICY",
+          "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "db23c99f-5f44-4f8f-8a0b-e1a821482d71",
+          "task_type": "draft_policy",
+          "description": "Write policy document with clear guidelines for: Novel: Specify technical guardrails including bind...",
+          "pattern_id": "POLICY",
+          "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "high",
+          "dependencies": [
+            "9116429b-cd37-457b-a8bd-20f04744a196"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "56b93897-c882-4f87-b041-ce2414d20d7f",
+          "task_type": "stakeholder_review",
+          "description": "Gather feedback from affected parties for: Novel: Specify technical guardrails including bind...",
+          "pattern_id": "POLICY",
+          "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "medium",
+          "dependencies": [
+            "db23c99f-5f44-4f8f-8a0b-e1a821482d71"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        },
+        {
+          "task_id": "9e296976-ba96-44fb-8ba1-bbb44eb8da5d",
+          "task_type": "finalize_policy",
+          "description": "Incorporate feedback and publish for: Novel: Specify technical guardrails including bind...",
+          "pattern_id": "POLICY",
+          "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+          "status": "pending",
+          "assignable": true,
+          "estimated_effort": "low",
+          "dependencies": [
+            "56b93897-c882-4f87-b041-ce2414d20d7f"
+          ],
+          "assigned_to": null,
+          "started_at": null,
+          "completed_at": null,
+          "notes": ""
+        }
+      ],
+      "phase_description": "Policy Framework: Create or update policy and guideline documents"
+    }
+  ],
+  "blockers": [
+    {
+      "blocker_id": "e9eef407-426f-460d-9696-1f7b886b9a49",
+      "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Undefined scope boundaries",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.999834+00:00"
+    },
+    {
+      "blocker_id": "53f12699-771a-411a-a3c3-769d7825b567",
+      "motion_id": "9838e4eb-f78d-4972-9ca5-7aac6a7dab70",
+      "blocker_type": "undefined_scope",
+      "description": "Potential issue: Conflicting stakeholder requirements",
+      "escalation_type": "manual",
+      "escalate_to_conclave": false,
+      "suggested_agenda_item": null,
+      "related_task_id": null,
+      "resolved": false,
+      "resolution_notes": null,
+      "detected_at": "2026-01-18T00:43:08.999838+00:00"
+    }
+  ],
+  "expected_outputs": [
+    "policy_document",
+    "review_comments",
+    "policy_changelog"
+  ],
+  "total_tasks": 4,
+  "assignable_tasks": 4,
+  "estimated_total_effort": "low",
+  "created_at": "2026-01-18T00:43:08.999844+00:00",
+  "status": "draft"
+}

@@ -1,10 +1,35 @@
+```
+     ___    ____  ________  ______  _   __   ________
+    /   |  / __ \/ ____/ / / / __ \/ | / /  /__  /__ \
+   / /| | / /_/ / /   / /_/ / / / /  |/ /     / / __/ /
+  / ___ |/ _, _/ /___/ __  / /_/ / /|  /     / / / __/
+ /_/  |_/_/ |_|\____/_/ /_/\____/_/ |_/     /_/ /____/
+
+            CONSTITUTIONAL AI GOVERNANCE SYSTEM
+                  72 Deliberative Agents
+```
+
+<p align="center">
+  <img src="https://archon72.com/assets/archon-72-logo-2_1768664499956-E2SP-E4e.png" alt="Archon 72 Logo" width="200"/>
+</p>
+
+<p align="center">
+  <a href="https://archon72.com">archon72.com</a> |
+  <a href="#consent-based-governance">Governance</a> |
+  <a href="#conclave-system">Conclave</a> |
+  <a href="#governance-api">API</a>
+</p>
+
+---
+
 # Archon 72
 
-Constitutional AI Governance System with 72 Agents
+**Constitutional AI Governance System with 72 Agents**
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Consent-Based Governance](#consent-based-governance)
 - [Deployment from Scratch](#deployment-from-scratch)
 - [Docker Usage](#docker-usage)
 - [Quick Start](#quick-start)
@@ -15,6 +40,9 @@ Constitutional AI Governance System with 72 Agents
 - [Constitutional Truths](#constitutional-truths)
 - [Conclave System](#conclave-system)
 - [Execution Planner](#execution-planner)
+- [Governance API](#governance-api)
+- [Integration Testing](#integration-testing)
+- [Troubleshooting](#troubleshooting)
 - [Development](#development)
 
 ## Overview
@@ -25,6 +53,191 @@ Archon 72 is a witnessed, transparent, and accountable AI governance system buil
 - **Cryptographic Witnessing** - All actions are signed and verifiable
 - **Halt-Over-Degrade Philosophy** - System integrity takes precedence over availability
 - **Append-Only Event Store** - Immutable audit trail with hash-chaining
+- **Consent-Based Governance** - 10-epic framework ensuring voluntary participation and legitimacy
+- **Two-Phase Event Emission** - Intent → Commit/Failure pattern with skip detection
+- **Knight-Witness Observation** - Independent monitoring via ledger polling
+
+## Consent-Based Governance
+
+The Consent-Based Governance (Consent-Gov) framework ensures every agent action is voluntary, witnessed, and auditable. Implemented across **10 epics** with **35 stories**, **63 functional requirements**, and **34 non-functional requirements**.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     CONSENT-BASED GOVERNANCE ARCHITECTURE                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │   EPIC 1    │    │   EPIC 2    │    │   EPIC 3    │    │   EPIC 4    │  │
+│  │Constitutional│    │Task Consent │    │ Coercion-  │    │  Emergency  │  │
+│  │   Events    │    │& Coordinate │    │   Free      │    │   Safety    │  │
+│  │             │    │             │    │   Comms     │    │   Circuit   │  │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘  │
+│         │                  │                  │                  │         │
+│         ▼                  ▼                  ▼                  ▼         │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │                    GOVERNANCE EVENT LEDGER                            │  │
+│  │              (Append-Only, Hash-Chained, Merkle-Provable)            │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│         │                  │                  │                  │         │
+│         ▼                  ▼                  ▼                  ▼         │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │   EPIC 5    │    │   EPIC 6    │    │   EPIC 7    │    │   EPIC 8    │  │
+│  │ Legitimacy  │    │  Witness &  │    │  Dignified  │    │  Lifecycle  │  │
+│  │ Visibility  │    │Accountability│   │    Exit     │    │ Management  │  │
+│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
+│                                                                              │
+│  ┌─────────────────────────────────┐    ┌─────────────────────────────────┐│
+│  │           EPIC 9                │    │          EPIC 10                ││
+│  │    Audit & Verification         │    │    Anti-Metrics Foundation      ││
+│  │   (Export, Proofs, Verify)      │    │   (Enforcement, Verification)   ││
+│  └─────────────────────────────────┘    └─────────────────────────────────┘│
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Epic Summary
+
+| Epic | Name | Stories | Key Capabilities |
+|------|------|---------|------------------|
+| 1 | Constitutional Event Infrastructure | 5 | Event sourcing, ledger, hash chains, two-phase emission |
+| 2 | Task Consent & Coordination | 4 | State machines, activation, TTL, reminders |
+| 3 | Coercion-Free Communication | 4 | Filter service, pattern detection, logging |
+| 4 | Emergency Safety Circuit | 3 | Halt circuit, 100ms trigger, task transitions |
+| 5 | Legitimacy Visibility | 3 | Legitimacy bands, decay, restoration |
+| 6 | Violation Witness & Accountability | 5 | Knight observation, Prince panels, findings |
+| 7 | Dignified Exit | 4 | Exit processing, obligation release, contribution archive |
+| 8 | System Lifecycle Management | 3 | Cessation trigger, records, reconstitution |
+| 9 | Audit & Verification | 4 | Ledger export, Merkle proofs, external verification |
+| 10 | Anti-Metrics Foundation | 2 | Enforcement, verification |
+| **Total** | | **35** | |
+
+### Two-Phase Event Emission
+
+All governance events use a two-phase commit pattern to detect skipped operations:
+
+```
+Phase 1: INTENT                    Phase 2: OUTCOME
+┌──────────────────┐               ┌──────────────────┐
+│ task.activated   │──────────────▶│ task.completed   │  ✓ Success
+│   .intent        │               │   .committed     │
+└──────────────────┘               └──────────────────┘
+        │                                   │
+        │                          ┌──────────────────┐
+        └─────────────────────────▶│ task.failed      │  ✗ Failure
+                                   │   .committed     │
+                                   └──────────────────┘
+
+⚠️ Orphaned Intent = Skip Detection
+   Intent without matching outcome triggers Knight observation
+```
+
+### Halt Circuit
+
+The Emergency Halt Circuit (Epic 4) provides immediate system-wide safety shutdown:
+
+| Feature | Specification |
+|---------|---------------|
+| **Trigger** | Manual human operator via API |
+| **Completion** | ≤100ms from trigger to full halt |
+| **Task Handling** | All in-flight tasks transition to `HALTED` state |
+| **Access Mode** | Read-only during halt (no mutations) |
+| **Restoration** | Explicit human operator action required |
+
+```bash
+# Trigger emergency halt
+curl -X POST http://localhost:8000/v1/governance/halt/trigger \
+  -H "Content-Type: application/json" \
+  -d '{"reason": "Security incident detected", "operator_id": "human-123"}'
+
+# Check halt status
+curl http://localhost:8000/v1/governance/halt/status
+```
+
+### Legitimacy Bands
+
+Archon legitimacy is tracked in discrete bands that decay over time:
+
+| Band | Level | Description | Decay Rate |
+|------|-------|-------------|------------|
+| `FULL` | 5 | Complete operational legitimacy | None |
+| `OPERATIONAL` | 4 | Standard operations allowed | Slow |
+| `LIMITED` | 3 | Reduced permissions | Medium |
+| `PROBATIONARY` | 2 | Under observation | Fast |
+| `SUSPENDED` | 1 | No operational capability | N/A |
+
+**Key Rules:**
+- Decay is automatic (downward only)
+- Restoration requires explicit human operator action
+- All transitions are logged to the governance ledger
+
+### Knight-Witness Observation
+
+The Knight (Furcas) independently monitors the governance ledger for violations:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    KNIGHT OBSERVATION PIPELINE                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  [Governance Ledger] ──poll──▶ [Knight Observer Service]       │
+│                                        │                        │
+│                                        ▼                        │
+│                              ┌─────────────────┐                │
+│                              │ Violation Check │                │
+│                              │ • Skip detection│                │
+│                              │ • Role collapse │                │
+│                              │ • Constraint    │                │
+│                              │   violations    │                │
+│                              └────────┬────────┘                │
+│                                       │                         │
+│                    ┌──────────────────┼──────────────────┐      │
+│                    ▼                  ▼                  ▼      │
+│             [No Violation]     [Minor Violation]  [Major Violation]
+│                    │                  │                  │      │
+│                    ▼                  ▼                  ▼      │
+│               Continue          Log Warning      Escalate to   │
+│                                                  Prince Panel   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Governance Services
+
+The framework includes **27 governance services** implementing the consent-gov epics:
+
+| Category | Services |
+|----------|----------|
+| **Halt & Safety** | `HaltService`, `HaltTriggerService`, `HaltTaskTransitionService` |
+| **Legitimacy** | `LegitimacyDecayService`, `LegitimacyRestorationService` |
+| **Coercion Filter** | `CoercionFilterService`, `FilterLoggingService` |
+| **Task Consent** | `TaskActivationService`, `TaskConsentService`, `TaskTimeoutService` |
+| **Witness** | `KnightObserverService`, `PanelFindingService`, `PanelQueueService` |
+| **Exit** | `ExitService`, `ObligationReleaseService`, `ContributionPreservationService` |
+| **Cessation** | `CessationTriggerService`, `CessationRecordService`, `ReconstitutionValidationService` |
+| **Audit** | `LedgerExportService`, `LedgerProofService`, `IndependentVerificationService` |
+| **Anti-Metrics** | `AntiMetricsVerificationService`, `AntiMetricsEnforcementService` |
+
+### Governance Ports
+
+All services implement port interfaces (40+ ports) following hexagonal architecture:
+
+```
+src/application/ports/governance/
+├── halt_port.py              # Halt circuit interface
+├── halt_trigger_port.py      # Halt execution
+├── legitimacy_port.py        # Legitimacy tracking
+├── coercion_filter_port.py   # Coercion filtering
+├── task_consent_port.py      # Task consent operations
+├── witness_port.py           # Knight observer interface
+├── panel_port.py             # Prince panel interface
+├── exit_port.py              # Exit processing
+├── cessation_port.py         # Cessation trigger
+├── ledger_export_port.py     # Ledger export
+├── proof_port.py             # Proof generation
+└── ...                       # 30+ more ports
+```
 
 ## Deployment from Scratch
 
@@ -432,16 +645,60 @@ The `docs/archons-base.json` file is the canonical source of truth for all 72 Ar
 | Knight | 1 | Witness | Observe all, record violations (Furcas only) |
 | **Total** | **72** | | |
 
+### Governance Branches
+
+The system uses **8 governance branches** with administrative split into senior (Dukes) and strategic (Earls):
+
+| Branch | Rank | Count | Role |
+|--------|------|-------|------|
+| `legislative` | King | 9 | Define WHAT - introduce motions, define intent |
+| `executive` | President | 11 | Define HOW - translate intent to execution specs |
+| `administrative_senior` | Duke | 23 | Own domains, allocate resources, delegate tasks |
+| `administrative_strategic` | Earl | 6 | Execute tasks, coordinate agents, optimize |
+| `judicial` | Prince | 7 | Evaluate compliance, issue findings |
+| `advisory` | Marquis | 15 | Provide testimony, issue non-binding advisories |
+| `witness` | Knight | 1 | Observe all, record violations (Furcas only) |
+
 ### Governance Permissions by Branch
 
-| Branch | Key Permissions | Key Prohibitions |
-|--------|-----------------|------------------|
-| Legislative | introduce_motion, define_what, deliberate, ratify | no_define_how, no_supervise_execution |
-| Executive | translate_what_to_how, decompose_tasks, escalate_blockers | no_redefine_intent, no_self_ratify |
-| Administrative | own_domain, execute_task, coordinate_agents | no_reinterpret_intent, no_suppress_failure |
-| Judicial | evaluate_compliance, issue_finding, invalidate_execution | no_introduce_motion, no_define_execution |
-| Advisory | provide_testimony, issue_advisory, analyze_risk | advisories_non_binding, no_judge_advised_domain |
-| Witness | observe_all, record_violations, publish_witness_statement | no_propose, no_debate, no_judge, no_enforce |
+| Branch | Permissions | Constraints |
+|--------|-------------|-------------|
+| **Legislative** | `introduce_motion`, `define_what` | `no_define_how`, `no_supervise_execution`, `no_judge_outcomes` |
+| **Executive** | `translate_what_to_how`, `decompose_tasks`, `identify_dependencies`, `escalate_blockers` | `no_redefine_intent`, `no_self_ratify`, `must_escalate_ambiguity` |
+| **Administrative (Senior)** | `own_domain`, `allocate_resources`, `track_progress`, `report_status`, `delegate_task` | `no_reinterpret_intent`, `no_suppress_failure`, `no_direct_execution` |
+| **Administrative (Strategic)** | `execute_task`, `coordinate_agents`, `optimize_execution`, `report_status` | `no_reinterpret_intent`, `no_suppress_failure`, `no_resource_allocation` |
+| **Judicial** | `evaluate_compliance`, `issue_finding`, `invalidate_execution`, `trigger_conclave_review` | `no_introduce_motion`, `no_define_execution` |
+| **Advisory** | `provide_testimony`, `issue_advisory`, `analyze_risk` | `advisories_non_binding`, `no_judge_advised_domain` |
+| **Witness** | `observe_all`, `record_violations`, `publish_witness_statement`, `trigger_acknowledgment` | `no_propose`, `no_debate`, `no_define_execution`, `no_judge`, `no_enforce` |
+
+### Administrative Branch Split
+
+The administrative branch is split into two sub-branches per schema v2.2.0:
+
+```
+                    ┌─────────────────────────────┐
+                    │      ADMINISTRATIVE         │
+                    │         BRANCH              │
+                    └─────────────┬───────────────┘
+                                  │
+              ┌───────────────────┴───────────────────┐
+              │                                       │
+              ▼                                       ▼
+┌─────────────────────────┐           ┌─────────────────────────┐
+│   ADMINISTRATIVE_SENIOR │           │ ADMINISTRATIVE_STRATEGIC │
+│        (Dukes)          │           │        (Earls)           │
+├─────────────────────────┤           ├─────────────────────────┤
+│ • Own domains           │           │ • Execute tasks          │
+│ • Allocate resources    │           │ • Coordinate agents      │
+│ • Track progress        │           │ • Optimize execution     │
+│ • Delegate tasks        │           │ • Report status          │
+├─────────────────────────┤           ├─────────────────────────┤
+│ ✗ No direct execution   │           │ ✗ No resource allocation │
+└─────────────────────────┘           └─────────────────────────┘
+```
+
+**Base Branch Mapping:**
+Both `administrative_senior` and `administrative_strategic` share the base `administrative` constraints for permission lookups.
 
 ### Rank-Specific Fields
 
@@ -825,38 +1082,62 @@ Each mega-motion preserves:
 ### Full Governance Pipeline
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GOVERNANCE PIPELINE                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  1. [Conclave]     → 72 Archons deliberate on motions          │
-│         │                                                       │
-│         ▼                                                       │
-│  2. [Secretary]    → Extract 900+ recommendations              │
-│         │            Cluster into 180+ themes                   │
-│         │            Generate 60+ raw motions                   │
-│         ▼                                                       │
-│  3. [Consolidator] → Reduce to 10-15 mega-motions              │
-│         │            Preserve full traceability                 │
-│         ▼                                                       │
-│  4. [Router]       → Tier by consensus level                   │
-│         │            HIGH → Ratification (simple vote)          │
-│         │            MEDIUM → Committee (12 Archons)            │
-│         │            LOW → Backlog (future sessions)            │
-│         ▼                                                       │
-│  5. [Review Pipeline] → Per-Archon review with LLM agents      │
-│         │              Triage by implicit support               │
-│         │              Panel deliberation for contested         │
-│         ▼                                                       │
-│  6. [Execution Planner] → Transform ratified motions to plans  │
-│         │                Classify into implementation patterns  │
-│         │                Instantiate concrete tasks             │
-│         │                Detect blockers → escalate to Conclave │
-│         ▼                                                       │
-│  7. [Next Conclave] → Ratify + deliberate on blockers          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         FULL GOVERNANCE PIPELINE                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  1. [CONCLAVE]     → 72 Archons deliberate on motions                       │
+│         │            • Rank-ordered speaking (Kings first)                  │
+│         │            • Supermajority voting (67%)                           │
+│         │            • Checkpoint/resume support                            │
+│         ▼                                                                    │
+│  2. [SECRETARY]    → LLM-powered extraction with 5 checkpoints              │
+│         │            • Extraction → Validation → Clustering                 │
+│         │            • Conflict detection → Motion generation               │
+│         │            • 900+ recommendations → 60+ raw motions               │
+│         ▼                                                                    │
+│  3. [CONSOLIDATOR] → Reduce to 10-15 mega-motions                           │
+│         │            • Semantic clustering via LLM                          │
+│         │            • Novelty detection for creative proposals             │
+│         │            • Full traceability to source motions                  │
+│         ▼                                                                    │
+│  4. [REVIEW PIPELINE] → 6-phase review process                              │
+│         │              • Phase 1: Triage (risk tier assignment)             │
+│         │              • Phase 2: Packet generation (per-Archon)            │
+│         │              • Phase 3: LLM-powered reviews                       │
+│         │              • Phase 4: Aggregation (tally endorsements)          │
+│         │              • Phase 5: Panel deliberation (contested)            │
+│         │              • Phase 6: Ratification vote                         │
+│         ▼                                                                    │
+│  5. [EXECUTION PLANNER] → Transform ratified motions to plans               │
+│         │                • Pattern classification (8 patterns)              │
+│         │                • Task instantiation from templates                │
+│         │                • Blocker detection → Conclave escalation          │
+│         ▼                                                                    │
+│  6. [NEXT CONCLAVE] → Ratify + deliberate on blockers                       │
+│         │            • Blockers become agenda items                         │
+│         │            • Closes the governance loop                           │
+│         ▼                                                                    │
+│      [REPEAT]                                                                │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Pipeline Execution Example
+
+A complete pipeline run from session `2541320d`:
+
+```
+Stage           | Output                          | Metrics
+----------------|--------------------------------|---------------------------
+Conclave        | transcript + checkpoint         | 72 Archons, 69-2-1 vote
+Secretary       | 5 LLM checkpoints              | 909 recommendations extracted
+Consolidator    | mega-motions + novel-proposals | 12 mega-motions, 5 novel
+Review Pipeline | 72 review packets              | 15 ratified, 2 rejected
+Exec Planner    | execution plans + blockers     | 60 tasks, 31 blockers
+```
+
+**Outputs Location:** `_bmad-output/{stage}/{session_id}/`
 
 ## Motion Review Pipeline
 
@@ -1098,6 +1379,288 @@ This closes the governance loop: ratified motions → execution plans → blocke
 ### Voting Threshold
 
 Motions require a **2/3 supermajority** (67%) to pass.
+
+## Governance API
+
+New API endpoints for the consent-based governance system.
+
+### Halt Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/v1/governance/halt/trigger` | Trigger emergency halt |
+| `GET` | `/v1/governance/halt/status` | Check current halt status |
+| `POST` | `/v1/governance/halt/restore` | Restore from halt (human operator) |
+
+**Trigger Halt:**
+```bash
+curl -X POST http://localhost:8000/v1/governance/halt/trigger \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reason": "Security incident detected",
+    "operator_id": "human-operator-123",
+    "severity": "critical"
+  }'
+```
+
+**Response:**
+```json
+{
+  "halt_id": "halt-uuid-here",
+  "triggered_at": "2026-01-17T18:00:00Z",
+  "reason": "Security incident detected",
+  "tasks_halted": 47,
+  "completion_ms": 89
+}
+```
+
+### Legitimacy Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/v1/governance/legitimacy/{archon_id}` | Get archon's legitimacy band |
+| `POST` | `/v1/governance/legitimacy/restore` | Restore legitimacy (human operator) |
+| `GET` | `/v1/governance/legitimacy/history` | Get restoration history |
+
+**Restore Legitimacy:**
+```bash
+curl -X POST http://localhost:8000/v1/governance/legitimacy/restore \
+  -H "Content-Type: application/json" \
+  -d '{
+    "archon_id": "archon-uuid",
+    "target_band": "OPERATIONAL",
+    "justification": "Completed remediation",
+    "operator_id": "human-operator-123"
+  }'
+```
+
+### Audit Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/v1/governance/ledger/export` | Export governance ledger |
+| `GET` | `/v1/governance/ledger/proof/{event_id}` | Get Merkle proof for event |
+| `POST` | `/v1/governance/ledger/verify` | Verify event inclusion |
+
+**Get Merkle Proof:**
+```bash
+curl http://localhost:8000/v1/governance/ledger/proof/event-uuid-here
+```
+
+**Response:**
+```json
+{
+  "event_id": "event-uuid-here",
+  "merkle_root": "0x...",
+  "proof_path": ["0x...", "0x...", "0x..."],
+  "verified": true
+}
+```
+
+## Integration Testing
+
+The project includes integration tests for validating governance infrastructure with real data.
+
+### Consent-Gov Test Suite
+
+Located in `tests/integration/consent_gov/`:
+
+| Test File | Purpose |
+|-----------|---------|
+| `test_coercion_filter_real_speeches.py` | Validate filter with real Conclave speech data |
+| `test_event_emission_with_motions.py` | Event sourcing with actual motion data |
+| `test_hash_chain_with_speeches.py` | Hash chain integrity with speech content |
+| `test_knight_observation_pipeline.py` | Knight witness observation workflow |
+| `test_merkle_proof_generation.py` | Merkle proof generation and verification |
+
+### Running Integration Tests
+
+```bash
+# Run all consent-gov integration tests
+poetry run pytest tests/integration/consent_gov/ -v
+
+# Run specific test
+poetry run pytest tests/integration/consent_gov/test_merkle_proof_generation.py -v
+
+# Run with coverage
+poetry run pytest tests/integration/consent_gov/ --cov=src/domain/governance -v
+```
+
+### Test Fixtures
+
+The test suite uses real Conclave artifacts as fixtures (`tests/integration/consent_gov/conftest.py`):
+
+| Fixture | Description |
+|---------|-------------|
+| `conclave_checkpoint` | Parsed checkpoint JSON with motions and participants |
+| `debate_entries` | List of debate entries from checkpoint |
+| `speech_contents` | Speech content strings for coercion testing |
+| `motion_data` | Motion metadata for event emission tests |
+| `make_governance_event` | Factory for creating GovernanceEvent from debate entry |
+| `make_motion_event` | Factory for creating GovernanceEvent from motion |
+
+### Test Data Sources
+
+Tests use real artifacts from `_bmad-output/conclave/`:
+- `checkpoint-{session}-{timestamp}.json` - Session state with motions
+- `transcript-{session}-{timestamp}.md` - Full meeting transcript
+
+## Troubleshooting
+
+### Common Errors
+
+#### ModuleNotFoundError: No module named 'yaml'
+
+**Cause:** PyYAML not installed.
+
+**Fix:**
+```bash
+poetry add pyyaml
+# or
+pip install pyyaml
+```
+
+#### ModuleNotFoundError: No module named 'crewai'
+
+**Cause:** CrewAI not installed or using wrong Python environment.
+
+**Fix:**
+```bash
+# Ensure you're in the poetry environment
+poetry shell
+poetry install
+
+# Or if using anaconda
+conda activate your-env
+pip install crewai
+```
+
+#### ValueError: Invalid branch 'administrative_senior'
+
+**Cause:** Domain model doesn't recognize granular administrative branches.
+
+**Fix:** Update `src/domain/models/archon_profile.py` to include:
+```python
+GOVERNANCE_BRANCHES = [
+    "legislative",
+    "executive",
+    "administrative",           # Legacy compatibility
+    "administrative_senior",    # Dukes
+    "administrative_strategic", # Earls
+    "judicial",
+    "advisory",
+    "witness",
+]
+```
+
+#### LiteLLM apscheduler Warning
+
+**Cause:** LiteLLM logs warning about missing apscheduler.
+
+**Impact:** Non-fatal, does not affect functionality.
+
+**Fix (optional):**
+```bash
+pip install apscheduler
+```
+
+#### JSON Parse Failures During Secretary Clustering
+
+**Cause:** LLM output truncated or malformed.
+
+**Impact:** Pipeline auto-retries with exponential backoff.
+
+**Mitigation:** Use `--verbose` flag to see retry attempts:
+```bash
+python scripts/run_secretary.py --verbose
+```
+
+### Ollama Connection Issues
+
+#### Connection Refused
+
+**Cause:** Ollama server not running or wrong host.
+
+**Fix:**
+```bash
+# Start Ollama server
+ollama serve
+
+# Check it's running
+curl http://localhost:11434/api/tags
+
+# For remote Ollama, set environment variable
+export OLLAMA_HOST=http://192.168.1.66:11434
+```
+
+#### Model Not Found
+
+**Cause:** Required model not pulled.
+
+**Fix:**
+```bash
+# Pull required models
+ollama pull qwen3:latest
+ollama pull llama3.2:latest
+ollama pull gemma3:4b
+```
+
+### Database Issues
+
+#### Connection Pool Exhausted
+
+**Cause:** Too many concurrent connections.
+
+**Fix:**
+```bash
+# Check active connections
+docker compose exec db psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
+
+# Restart the API service
+docker compose restart api
+```
+
+#### Migration Failed
+
+**Cause:** Schema mismatch or incomplete migration.
+
+**Fix:**
+```bash
+# Reset database (WARNING: deletes all data)
+make db-reset
+
+# Or manually run migrations
+docker compose exec api python -m alembic upgrade head
+```
+
+### Performance Issues
+
+#### Slow Conclave Execution
+
+**Recommendations:**
+1. Use `--quick` flag for testing (1 debate round)
+2. Use faster models for lower ranks (gemma3:4b)
+3. Run Ollama on GPU for significant speedup
+
+```bash
+# Quick mode
+python scripts/run_conclave.py --quick
+
+# Check GPU utilization
+nvidia-smi
+```
+
+#### Secretary Taking Too Long
+
+**Recommendations:**
+1. Use smaller models for clustering
+2. Check LLM server resources
+3. Monitor checkpoint progress
+
+```bash
+# Check checkpoints
+ls -la _bmad-output/secretary/checkpoints/
+```
 
 ## Development
 

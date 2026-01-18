@@ -124,11 +124,12 @@ class TestProceduralRecordGeneratorStubWithMockData:
 
         result = await stub.generate_record(deliberation_id=delib_id)
 
-        assert result.agenda_items == ["Motion A", "Motion B"]
-        assert result.participant_ids == ["agent-1", "agent-2", "agent-3"]
+        # Note: The stub returns tuples for sequence fields
+        assert result.agenda_items == ("Motion A", "Motion B")
+        assert result.participant_ids == ("agent-1", "agent-2", "agent-3")
         assert result.vote_summary == {"aye": 45, "nay": 20, "abstain": 7}
         assert len(result.timeline_events) == 2
-        assert result.decisions == ["Approved Motion A", "Rejected Motion B"]
+        assert result.decisions == ("Approved Motion A", "Rejected Motion B")
 
 
 class TestProceduralRecordGeneratorStubGetRecord:

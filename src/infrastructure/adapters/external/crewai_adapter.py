@@ -44,7 +44,7 @@ from src.domain.models.archon_profile import ArchonProfile
 from src.domain.models.llm_config import LLMConfig
 
 if TYPE_CHECKING:
-    from crewai_tools import BaseTool
+    from crewai.tools import BaseTool
 
 logger = get_logger(__name__)
 

@@ -295,6 +295,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             target_service=target_service,
             target_branch=target_branch,
             reason=f"Routing from state {request.target_state.value} per FR-GOV-23",
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Record routing history
@@ -374,6 +375,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
                 current_state=current_state or GovernanceState.INTRODUCED,
                 next_action="Awaiting escalation resolution",
                 blocking_issues=(branch_result.error or "Branch failure",),
+                timestamp=datetime.now(timezone.utc),
             )
 
             return HandleCompletionResult(
@@ -420,6 +422,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             motion_id=request.motion_id,
             current_state=branch_result.next_state,
             next_action=f"Transitioned to {branch_result.next_state.value}",
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Route to next branch if not terminal
@@ -471,7 +474,8 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             if state.is_blocked:
                 blocked_motions.append(motion_id)
 
-            time_in_state = state.time_in_state
+            now = datetime.now(timezone.utc)
+            time_in_state = state.time_in_state(now)
             if time_in_state > oldest_motion_age:
                 oldest_motion_age = time_in_state
 
@@ -483,6 +487,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             recent_completions=len(self._completions_24h),
             recent_failures=len(self._failures_24h),
             total_processed=self._total_processed,
+            timestamp=datetime.now(timezone.utc),
         )
 
     async def get_motion_status(
@@ -547,6 +552,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
             strategy=strategy,
             original_error=error_message,
             action_taken=action_taken,
+            timestamp=datetime.now(timezone.utc),
         )
 
         self._escalations[escalation.escalation_id] = escalation
@@ -563,6 +569,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
                 current_state=current_state or GovernanceState.INTRODUCED,
                 next_action="Awaiting escalation resolution",
                 blocking_issues=(blocking_reason,),
+                timestamp=datetime.now(timezone.utc),
             )
 
         log.warning(
@@ -624,6 +631,7 @@ class FlowOrchestratorService(FlowOrchestratorProtocol, LoggingMixin):
                 current_state=current_state,
                 next_action=f"Escalation resolved: {resolution_notes}",
                 blocking_issues=(),  # Clear blocking
+                timestamp=datetime.now(timezone.utc),
             )
 
         # Witness resolution

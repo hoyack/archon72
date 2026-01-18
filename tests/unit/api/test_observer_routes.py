@@ -634,13 +634,26 @@ class TestSSEStreamEndpoint:
         """Create test client."""
         return TestClient(app_with_observer_routes)
 
-    def test_sse_endpoint_exists(self, client) -> None:
-        """Test that GET /events/stream endpoint exists."""
-        # Use stream=True to handle SSE response
-        # The endpoint exists and will return a streaming response
-        # We just verify it doesn't return 404
-        with client.stream("GET", "/v1/observer/events/stream") as response:
-            assert response.status_code != 404
+    def test_sse_endpoint_exists(self) -> None:
+        """Test that GET /events/stream endpoint exists.
+
+        Note: We check route registration rather than making an actual streaming
+        request because SSE endpoints run indefinitely and would hang the test.
+        """
+        from src.api.routes.observer import router
+
+        # Check that the /events/stream route is registered
+        # Note: route.path includes the router prefix
+        stream_route_exists = False
+        for route in router.routes:
+            if hasattr(route, "path") and route.path.endswith("/events/stream"):
+                stream_route_exists = True
+                # Verify it's a GET endpoint
+                if hasattr(route, "methods"):
+                    assert "GET" in route.methods
+                break
+
+        assert stream_route_exists, "SSE stream endpoint /events/stream not found in router"
 
     def test_sse_endpoint_returns_streaming_response(self) -> None:
         """Test that SSE endpoint returns EventSourceResponse type.

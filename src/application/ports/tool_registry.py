@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from crewai_tools import BaseTool
+    from crewai.tools import BaseTool
 
 __all__ = [
     "ToolRegistryProtocol",

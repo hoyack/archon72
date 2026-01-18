@@ -196,7 +196,7 @@ class TestProceduralRecordPayloadToDict:
         )
         decisions = ("Approved Motion A",)
         record_hash = "2" * 64
-        created_at = datetime(2025, 12, 28, 12, 0, 0, tzinfo=UTC)
+        created_at = datetime(2025, 12, 28, 12, 0, 0, tzinfo=timezone.utc)
 
         payload = ProceduralRecordPayload(
             record_id=record_id,

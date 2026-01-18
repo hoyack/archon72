@@ -127,7 +127,10 @@ class FailurePropagationAdapter(FailurePropagationProtocol):
             witness_ref = statement.statement_id
 
         # Step 2: Mark as propagated
-        propagated_signal = signal.with_propagation(witness_ref)
+        propagated_signal = signal.with_propagation(
+            timestamp=datetime.now(timezone.utc),
+            witness_ref=witness_ref,
+        )
 
         # Step 3: Store in event store (in-memory for now)
         self._failure_signals[signal.signal_id] = propagated_signal

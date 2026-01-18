@@ -71,6 +71,7 @@ class TestBreachType:
             "TIMING_VIOLATION",
             "QUORUM_VIOLATION",
             "OVERRIDE_ABUSE",
+            "EMERGENCE_VIOLATION",
         }
         actual_types = {bt.value for bt in BreachType}
         assert actual_types == expected_types

@@ -59,7 +59,7 @@ class TestOutputViewPayload:
         from src.domain.events.output_view import OutputViewPayload
 
         output_id = uuid4()
-        viewed_at = datetime(2026, 1, 6, 12, 0, 0, tzinfo=UTC)
+        viewed_at = datetime(2026, 1, 6, 12, 0, 0, tzinfo=timezone.utc)
         payload = OutputViewPayload(
             output_id=output_id,
             viewer_id="user-123",

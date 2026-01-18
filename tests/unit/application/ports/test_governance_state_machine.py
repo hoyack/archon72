@@ -300,6 +300,7 @@ class TestStateTransition:
             from_state=GovernanceState.INTRODUCED,
             to_state=GovernanceState.DELIBERATING,
             triggered_by="king-archon-001",
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert transition.motion_id == motion_id
@@ -321,6 +322,7 @@ class TestStateTransition:
             from_state=GovernanceState.INTRODUCED,
             to_state=GovernanceState.DELIBERATING,
             triggered_by="king-archon-001",
+            timestamp=datetime.now(timezone.utc),
         )
 
         with pytest.raises(AttributeError):
@@ -340,6 +342,7 @@ class TestStateTransition:
             to_state=GovernanceState.DELIBERATING,
             triggered_by="king-archon-001",
             reason="King introduced motion",
+            timestamp=datetime.now(timezone.utc),
         )
 
         d = transition.to_dict()
@@ -426,6 +429,7 @@ class TestTransitionRejection:
             attempted_state=GovernanceState.EXECUTING,
             reason="Skip not allowed per FR-GOV-23",
             skipped_states=[GovernanceState.DELIBERATING, GovernanceState.PLANNING],
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert rejection.motion_id == motion_id
@@ -447,6 +451,7 @@ class TestTransitionRejection:
             current_state=GovernanceState.INTRODUCED,
             attempted_state=GovernanceState.EXECUTING,
             reason="Skip not allowed",
+            timestamp=datetime.now(timezone.utc),
         )
 
         with pytest.raises(AttributeError):

@@ -57,26 +57,17 @@ class CollectiveOutputStub(CollectiveOutputPort):
 
         Args:
             payload: The collective output payload to store.
-            event_sequence: The event sequence number (ignored, auto-incremented).
+            event_sequence: The event sequence number to associate with this output.
 
         Returns:
             StoredCollectiveOutput with storage metadata.
-
-        Note:
-            The event_sequence parameter is ignored in this stub.
-            The stub maintains its own auto-incrementing sequence for
-            proper test isolation and realistic behavior.
         """
-        # Use auto-incrementing sequence (ignore passed value for stub realism)
-        actual_sequence = self._next_sequence
-        self._next_sequence += 1
-
         self._storage[payload.output_id] = payload
-        self._sequences[payload.output_id] = actual_sequence
+        self._sequences[payload.output_id] = event_sequence
 
         return StoredCollectiveOutput(
             output_id=payload.output_id,
-            event_sequence=actual_sequence,
+            event_sequence=event_sequence,
             content_hash=payload.content_hash,
             stored_at=datetime.now(timezone.utc),
         )

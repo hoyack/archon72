@@ -7,6 +7,11 @@ Tests verify:
 - Factory function creates populated registry
 """
 
+import pytest
+
+# Skip entire module if crewai_tools is not installed
+pytest.importorskip("crewai_tools", reason="crewai_tools not installed")
+
 from src.application.ports.tool_registry import ToolRegistryProtocol
 from src.infrastructure.adapters.tools.archon_tools import (
     ALL_ARCHON_TOOLS,

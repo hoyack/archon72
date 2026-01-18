@@ -24,6 +24,14 @@ from src.infrastructure.stubs.writer_lock_stub import (
 )
 
 
+@pytest.fixture(autouse=True)
+def reset_global_lock_state():
+    """Reset global lock state before each test to ensure test isolation."""
+    WriterLockStub.reset_global_state()
+    yield
+    WriterLockStub.reset_global_state()
+
+
 class TestWriterLockStubDefaultMode:
     """Tests for DEFAULT mode (basic development scenario)."""
 
@@ -266,11 +274,6 @@ class TestWriterLockStubFencingToken:
 
 class TestWriterLockStubGlobalLockSimulation:
     """Tests for global lock holder simulation (distributed lock behavior)."""
-
-    @pytest.fixture(autouse=True)
-    def reset_global_state(self) -> None:
-        """Reset global state before each test."""
-        WriterLockStub.reset_global_state()
 
     @pytest.mark.asyncio
     async def test_second_instance_cannot_acquire(self) -> None:

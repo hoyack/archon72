@@ -8,6 +8,7 @@ Per CT-11: Silent failure destroys legitimacy → HALT OVER DEGRADE
 Per CT-12: Witnessing creates accountability → All transitions witnessed
 """
 
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -376,6 +377,7 @@ class TestHandleCompletion:
             success=True,
             output={"votes": 72, "in_favor": 72},
             next_state=GovernanceState.RATIFIED,
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(
@@ -404,6 +406,7 @@ class TestHandleCompletion:
             success=True,
             output={},
             next_state=GovernanceState.PLANNING,
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(
@@ -431,6 +434,7 @@ class TestHandleCompletion:
             output={},
             error="Resource allocation failed",
             error_type="system_error",
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(
@@ -460,6 +464,7 @@ class TestHandleCompletion:
             output={},
             error="Compliance check failed",
             error_type="compliance_error",
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(
@@ -486,6 +491,7 @@ class TestHandleCompletion:
             success=True,
             output={},
             next_state=GovernanceState.ACKNOWLEDGED,
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(
@@ -627,6 +633,7 @@ class TestGetBlockedMotions:
             output={},
             error="System error",
             error_type="system_error",
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(

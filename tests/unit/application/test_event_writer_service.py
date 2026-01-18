@@ -43,6 +43,14 @@ from src.infrastructure.stubs.terminal_event_detector_stub import (
 from src.infrastructure.stubs.writer_lock_stub import WriterLockStub
 
 
+@pytest.fixture(autouse=True)
+def reset_global_lock_state():
+    """Reset global lock state before each test to ensure test isolation."""
+    WriterLockStub.reset_global_state()
+    yield
+    WriterLockStub.reset_global_state()
+
+
 @pytest.fixture
 def mock_atomic_writer() -> AsyncMock:
     """Create a mock AtomicEventWriter."""

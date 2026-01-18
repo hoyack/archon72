@@ -10,6 +10,7 @@ Per Government PRD:
 - CT-13: Integrity outranks availability
 """
 
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 from uuid import uuid4
 
@@ -115,6 +116,7 @@ def sample_failure_signal() -> FailureSignal:
             "error": "Test failure",
             "stack_trace": "...",
         },
+        timestamp=datetime.now(timezone.utc),
     )
 
 
@@ -300,6 +302,7 @@ class TestFailureSignalTypes:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={"test": True},
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert signal.signal_type == signal_type
@@ -324,6 +327,7 @@ class TestFailureSignalTypes:
             task_id=uuid4(),
             severity=severity,
             evidence={"test": True},
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert signal.severity == severity
@@ -436,6 +440,7 @@ class TestPrinceNotification:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         task_spec = {
@@ -462,6 +467,7 @@ class TestPrinceNotification:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         timeline = [
@@ -522,6 +528,7 @@ class TestFailureChainIntegrity:
                 task_id=task_id,
                 severity=FailureSeverity.HIGH,
                 evidence={"attempt": i},
+                timestamp=datetime.now(timezone.utc),
             )
             await failure_adapter.emit_failure(signal)
 
@@ -547,6 +554,7 @@ class TestFailureChainIntegrity:
                 severity=FailureSeverity.HIGH,
                 evidence={},
                 motion_ref=motion_ref,
+                timestamp=datetime.now(timezone.utc),
             )
             await failure_adapter.emit_failure(signal)
 
@@ -590,6 +598,7 @@ class TestAntiSuppressionEnforcement:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Start monitoring with immediate timeout
@@ -613,6 +622,7 @@ class TestAntiSuppressionEnforcement:
             task_id=uuid4(),
             severity=FailureSeverity.CRITICAL,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         suppression_service.start_monitoring(signal, timeout_seconds=0)
@@ -641,6 +651,7 @@ class TestAntiSuppressionEnforcement:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         violation = SuppressionViolation.create(
@@ -648,6 +659,7 @@ class TestAntiSuppressionEnforcement:
             suppressing_archon_id="duke_test",
             detection_method=SuppressionDetectionMethod.TIMEOUT,
             task_id=signal.task_id,
+            timestamp=datetime.now(timezone.utc),
         )
 
         witness_ref = await failure_adapter.record_suppression_violation(violation)
@@ -671,6 +683,7 @@ class TestAntiSuppressionEnforcement:
                 suppressing_archon_id=archon_id,
                 detection_method=SuppressionDetectionMethod.TIMEOUT,
                 task_id=uuid4(),
+                timestamp=datetime.now(timezone.utc),
             )
             await failure_adapter.record_suppression_violation(violation)
 
@@ -699,6 +712,7 @@ class TestFailureSignalDomainModel:
             task_id=task_id,
             severity=FailureSeverity.CRITICAL,
             evidence={"constraint": "memory_limit", "used": 512, "limit": 256},
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert signal.signal_id is not None
@@ -717,6 +731,7 @@ class TestFailureSignalDomainModel:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         with pytest.raises(AttributeError):
@@ -730,12 +745,13 @@ class TestFailureSignalDomainModel:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert signal.is_propagated is False
 
         witness_ref = uuid4()
-        propagated = signal.with_propagation(witness_ref)
+        propagated = signal.with_propagation(datetime.now(timezone.utc), witness_ref)
 
         assert propagated.is_propagated is True
         assert propagated.propagated_at is not None
@@ -751,6 +767,7 @@ class TestFailureSignalDomainModel:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert signal.prince_notified is False
@@ -769,6 +786,7 @@ class TestFailureSignalDomainModel:
             task_id=uuid4(),
             severity=FailureSeverity.CRITICAL,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         high = FailureSignal.create(
@@ -777,6 +795,7 @@ class TestFailureSignalDomainModel:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert critical.is_critical is True
@@ -795,6 +814,7 @@ class TestSuppressionViolationDomainModel:
             suppressing_archon_id="duke_bad",
             detection_method=SuppressionDetectionMethod.TIMEOUT,
             task_id=task_id,
+            timestamp=datetime.now(timezone.utc),
             evidence={"timeout_seconds": 30, "elapsed": 45},
         )
 
@@ -811,6 +831,7 @@ class TestSuppressionViolationDomainModel:
             suppressing_archon_id="duke_test",
             detection_method=SuppressionDetectionMethod.TIMEOUT,
             task_id=uuid4(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         with pytest.raises(AttributeError):
@@ -823,6 +844,7 @@ class TestSuppressionViolationDomainModel:
             suppressing_archon_id="duke_test",
             detection_method=SuppressionDetectionMethod.TIMEOUT,
             task_id=uuid4(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         witness_ref = uuid4()
@@ -840,6 +862,7 @@ class TestSuppressionViolationDomainModel:
             suppressing_archon_id="duke_test",
             detection_method=SuppressionDetectionMethod.MANUAL_OVERRIDE,
             task_id=uuid4(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         data = violation.to_dict()
@@ -892,6 +915,7 @@ class TestFailureTimeline:
                 task_id=task_id,
                 severity=FailureSeverity.HIGH,
                 evidence={"attempt": i},
+                timestamp=datetime.now(timezone.utc),
             )
             await failure_adapter.emit_failure(signal)
 
@@ -921,6 +945,7 @@ class TestCriticalTimeoutHandling:
             task_id=uuid4(),
             severity=FailureSeverity.CRITICAL,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         high_signal = FailureSignal.create(
@@ -929,6 +954,7 @@ class TestCriticalTimeoutHandling:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=datetime.now(timezone.utc),
         )
 
         critical_monitored = suppression_service.start_monitoring(critical_signal)

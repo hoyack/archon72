@@ -17,7 +17,8 @@ Options:
     --session NAME       Session name (default: auto-generated)
     --resume FILE        Resume from checkpoint file
     --motion TITLE       Motion title for new business
-    --motion-text TEXT   Full motion text
+    --motion-text TEXT   Full motion text (inline)
+    --motion-file FILE   Load motion text from file (overrides --motion-text)
     --motion-type TYPE   Motion type: constitutional, policy, open (default: open)
     --debate-rounds N    Max debate rounds (default: 3)
     --quick              Quick mode: 1 debate round, shorter timeouts
@@ -220,16 +221,29 @@ async def run_conclave(args: argparse.Namespace) -> None:
         args.motion
         or "Should AI systems be granted limited autonomous decision-making authority?"
     )
-    motion_text = args.motion_text or (
-        "WHEREAS AI systems have demonstrated increasing capability in complex reasoning tasks; and "
-        "WHEREAS the Archon 72 Conclave serves as a constitutional governance body; "
-        "BE IT RESOLVED that the Conclave shall deliberate on establishing a framework for "
-        "limited autonomous decision-making authority for AI systems, subject to: "
-        "(1) Constitutional safeguards ensuring alignment with human values; "
-        "(2) Mandatory human oversight for high-stakes decisions; "
-        "(3) Transparent audit trails for all autonomous actions; "
-        "(4) Regular review and amendment procedures."
-    )
+
+    # Load motion text: file takes precedence over inline text
+    if args.motion_file:
+        motion_file_path = Path(args.motion_file)
+        if not motion_file_path.exists():
+            print(f"{Colors.RED}Error: Motion file not found: {args.motion_file}{Colors.ENDC}")
+            sys.exit(1)
+        motion_text = motion_file_path.read_text(encoding="utf-8").strip()
+        print(f"{Colors.GREEN}Loaded motion text from: {args.motion_file}{Colors.ENDC}")
+    elif args.motion_text:
+        motion_text = args.motion_text
+    else:
+        # Default motion text
+        motion_text = (
+            "WHEREAS AI systems have demonstrated increasing capability in complex reasoning tasks; and "
+            "WHEREAS the Archon 72 Conclave serves as a constitutional governance body; "
+            "BE IT RESOLVED that the Conclave shall deliberate on establishing a framework for "
+            "limited autonomous decision-making authority for AI systems, subject to: "
+            "(1) Constitutional safeguards ensuring alignment with human values; "
+            "(2) Mandatory human oversight for high-stakes decisions; "
+            "(3) Transparent audit trails for all autonomous actions; "
+            "(4) Regular review and amendment procedures."
+        )
     motion_type_str = args.motion_type.lower() if args.motion_type else "open"
     motion_type = {
         "constitutional": MotionType.CONSTITUTIONAL,
@@ -347,14 +361,21 @@ Examples:
   # Run with default motion
   python scripts/run_conclave.py
 
-  # Run with custom motion
+  # Run with custom motion (inline text)
   python scripts/run_conclave.py --motion "Establish AI ethics committee" --motion-type policy
+
+  # Run with motion text from file (recommended for complex motions)
+  python scripts/run_conclave.py --motion "Ethics Framework" --motion-file motions/ethics.md --motion-type constitutional
 
   # Quick test (1 debate round)
   python scripts/run_conclave.py --quick
 
   # Resume interrupted session
   python scripts/run_conclave.py --resume _bmad-output/conclave/checkpoint-xxx.json
+
+Motion File Format:
+  Motion files should contain the full motion text in plain text or markdown.
+  The WHEREAS...BE IT RESOLVED format is recommended for formal motions.
 """,
     )
     parser.add_argument(
@@ -375,7 +396,12 @@ Examples:
     parser.add_argument(
         "--motion-text",
         type=str,
-        help="Full motion text",
+        help="Full motion text (inline)",
+    )
+    parser.add_argument(
+        "--motion-file",
+        type=str,
+        help="Load motion text from file (overrides --motion-text)",
     )
     parser.add_argument(
         "--motion-type",

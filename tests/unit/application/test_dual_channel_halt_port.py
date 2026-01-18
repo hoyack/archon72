@@ -19,6 +19,8 @@ from src.application.ports.dual_channel_halt import (
     DualChannelHaltTransport,
     HaltFlagState,
 )
+from src.domain.events.halt_cleared import HaltClearedPayload
+from src.domain.models.ceremony_evidence import CeremonyEvidence
 
 
 class TestDualChannelHaltTransportInterface:
@@ -142,6 +144,17 @@ class TestDualChannelHaltTransportConcreteImplementation:
 
             async def resolve_conflict(self) -> None:
                 pass
+
+            async def clear_halt(
+                self, ceremony_evidence: CeremonyEvidence
+            ) -> HaltClearedPayload:
+                return HaltClearedPayload(
+                    cleared_at=ceremony_evidence.ceremony_timestamp,
+                    ceremony_id=ceremony_evidence.ceremony_id,
+                    approvers=ceremony_evidence.approvers,
+                    cleared_by_db=True,
+                    cleared_by_redis=True,
+                )
 
         # Should be instantiable
         impl = ConcreteDualChannelHalt()

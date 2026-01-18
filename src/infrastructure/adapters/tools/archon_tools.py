@@ -23,7 +23,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from crewai_tools import BaseTool
+from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 from structlog import get_logger
 

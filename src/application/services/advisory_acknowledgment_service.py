@@ -173,6 +173,7 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
             advisory_id=request.advisory_id,
             acknowledged_by=request.archon_id,
             understanding=request.understanding,
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Store acknowledgment
@@ -238,6 +239,7 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
             decided_by=request.decided_by,
             reasoning=request.reasoning,
             decision_summary=request.decision_summary,
+            timestamp=datetime.now(timezone.utc),
             witnessed_by="furcas",  # Knight-Witness per CT-12
         )
 
@@ -384,6 +386,7 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
                     advisory_id=advisory_id,
                     archon_id=archon_id,
                     deadline=deadline,
+                    timestamp=datetime.now(timezone.utc),
                     consecutive_misses=consecutive,
                     status=status,
                 )
@@ -457,6 +460,7 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
             marquis_id=marquis_id,
             advisory_id=advisory_id,
             topic=topic,
+            timestamp=datetime.now(timezone.utc),
         )
         self._advisory_windows[window.window_id] = window
 
@@ -494,7 +498,7 @@ class AdvisoryAcknowledgmentService(AdvisoryAcknowledgmentProtocol):
         if not window:
             return None
 
-        closed_window = window.with_closed()
+        closed_window = window.with_closed(timestamp=datetime.now(timezone.utc))
         self._advisory_windows[window_id] = closed_window
 
         # Witness window closing per CT-12

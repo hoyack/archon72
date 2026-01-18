@@ -159,8 +159,8 @@ class TestWitnessIsActive:
 
     def test_is_active_at_specific_time(self) -> None:
         """Test is_active() with specific timestamp."""
-        start = datetime(2025, 1, 1, tzinfo=UTC)
-        end = datetime(2025, 12, 31, tzinfo=UTC)
+        start = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        end = datetime(2025, 12, 31, tzinfo=timezone.utc)
         witness = Witness(
             witness_id=f"WITNESS:{uuid4()}",
             public_key=bytes(32),
@@ -169,15 +169,15 @@ class TestWitnessIsActive:
         )
 
         # During active period
-        mid = datetime(2025, 6, 15, tzinfo=UTC)
+        mid = datetime(2025, 6, 15, tzinfo=timezone.utc)
         assert witness.is_active(at=mid) is True
 
         # Before active period
-        before = datetime(2024, 12, 31, tzinfo=UTC)
+        before = datetime(2024, 12, 31, tzinfo=timezone.utc)
         assert witness.is_active(at=before) is False
 
         # After active period
-        after = datetime(2026, 1, 1, tzinfo=UTC)
+        after = datetime(2026, 1, 1, tzinfo=timezone.utc)
         assert witness.is_active(at=after) is False
 
 

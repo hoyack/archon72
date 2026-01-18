@@ -45,9 +45,13 @@ class TestGetAllCheckpointsMethod:
         # Should be a coroutine function
         inspect.signature(method)
 
-        # Check return type hints include list[Checkpoint]
-        hints = get_type_hints(method)
-        assert "return" in hints
+        # Check return type annotation string includes Checkpoint
+        # Note: We check annotations directly as get_type_hints requires
+        # the TYPE_CHECKING imports to be available at runtime
+        annotations = getattr(method, "__annotations__", {})
+        assert "return" in annotations
+        return_annotation = str(annotations["return"])
+        assert "Checkpoint" in return_annotation
 
 
 class TestGetCheckpointByIdMethod:

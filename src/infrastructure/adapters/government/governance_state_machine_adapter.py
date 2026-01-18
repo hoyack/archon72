@@ -124,6 +124,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
                 current_state=current_state,
                 attempted_state=request.to_state,
                 reason=f"Motion is in terminal state {current_state.value}",
+                timestamp=datetime.now(timezone.utc),
             )
 
             # Witness the rejection
@@ -153,6 +154,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
                 attempted_by=request.triggered_by,
                 source="api",
                 escalate=False,
+                timestamp=datetime.now(timezone.utc),
             )
 
             # Record in audit trail (AC6)
@@ -164,6 +166,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
                 attempted_state=request.to_state,
                 reason=f"Invalid transition: {current_state.value} → {request.to_state.value}. "
                 f"No step may be skipped per FR-GOV-23.",
+                timestamp=datetime.now(timezone.utc),
                 skipped_states=skipped_states,
             )
 
@@ -183,6 +186,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
             to_state=request.to_state,
             triggered_by=request.triggered_by,
             reason=request.reason,
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Update state
@@ -394,6 +398,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
             to_state=GovernanceState.INTRODUCED,
             triggered_by=introduced_by,
             reason="Motion introduced",
+            timestamp=datetime.now(timezone.utc),
         )
 
         self._transition_history[motion_id].append(transition)
@@ -496,6 +501,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
             attempted_by=request.triggered_by,
             source="force_api",
             escalate=True,  # Escalate to Conclave per AC4
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Record in audit trail
@@ -508,6 +514,7 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
             attempted_state=request.to_state,
             reason=f"FORCED_SKIP_ATTEMPT: {current_state.value} → {request.to_state.value}. "
             f"Rejected and escalated to Conclave per AC4.",
+            timestamp=datetime.now(timezone.utc),
             skipped_states=skipped_states,
         )
 
@@ -607,7 +614,10 @@ class GovernanceStateMachineAdapter(GovernanceStateMachineProtocol):
         Returns:
             Created audit entry
         """
-        audit_entry = SkipAttemptAuditEntry.create(violation=violation)
+        audit_entry = SkipAttemptAuditEntry.create(
+            violation=violation,
+            timestamp=datetime.now(timezone.utc),
+        )
         self._skip_attempt_audit.append(audit_entry)
 
         if self._verbose:

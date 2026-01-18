@@ -703,6 +703,7 @@ class TestSkipAttemptViolation:
             attempted_by="test-archon",
             source="api",
             escalate=False,
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert violation.motion_id == motion_id
@@ -723,6 +724,7 @@ class TestSkipAttemptViolation:
             skipped_states=[GovernanceState.DELIBERATING],
             attempt_type=SkipAttemptType.SIMPLE_SKIP,
             attempted_by="test-archon",
+            timestamp=datetime.now(timezone.utc),
         )
 
         with pytest.raises(AttributeError):
@@ -737,6 +739,7 @@ class TestSkipAttemptViolation:
             skipped_states=[GovernanceState.DELIBERATING],
             attempt_type=SkipAttemptType.SIMPLE_SKIP,
             attempted_by="test-archon",
+            timestamp=datetime.now(timezone.utc),
         )
 
         d = violation.to_dict()
@@ -759,6 +762,7 @@ class TestSkipAttemptError:
             skipped_states=[GovernanceState.DELIBERATING, GovernanceState.RATIFIED],
             attempt_type=SkipAttemptType.BULK_SKIP,
             attempted_by="test-archon",
+            timestamp=datetime.now(timezone.utc),
         )
 
         error = SkipAttemptError(violation)
@@ -776,6 +780,7 @@ class TestSkipAttemptError:
             skipped_states=[GovernanceState.DELIBERATING, GovernanceState.RATIFIED],
             attempt_type=SkipAttemptType.BULK_SKIP,
             attempted_by="test-archon",
+            timestamp=datetime.now(timezone.utc),
         )
 
         error = SkipAttemptError(violation)
@@ -802,6 +807,7 @@ class TestForceSkipAttemptError:
             attempt_type=SkipAttemptType.FORCE_SKIP,
             attempted_by="admin",
             escalate=True,
+            timestamp=datetime.now(timezone.utc),
         )
 
         error = ForceSkipAttemptError(violation)

@@ -6,6 +6,11 @@ Tests for liveness and readiness checks.
 import pytest
 
 from src.api.models.health import DependencyCheck, HealthResponse, ReadyResponse
+from src.application.dtos.health import (
+    DependencyCheckDTO,
+    HealthResponseDTO,
+    ReadyResponseDTO,
+)
 from src.application.services.health_service import HealthService
 from src.infrastructure.monitoring.metrics import reset_metrics_collector
 
@@ -25,7 +30,7 @@ class TestHealthService:
         service = HealthService()
         result = await service.check_liveness()
 
-        assert isinstance(result, HealthResponse)
+        assert isinstance(result, HealthResponseDTO)
         assert result.status == "healthy"
 
     @pytest.mark.asyncio
@@ -49,7 +54,8 @@ class TestHealthService:
         collector.record_startup("api")
         time.sleep(0.1)
 
-        service = HealthService()
+        # Must inject the metrics_collector for uptime tracking to work
+        service = HealthService(metrics_collector=collector)
         result = await service.check_liveness()
 
         assert result.uptime_seconds >= 0.1
@@ -60,7 +66,7 @@ class TestHealthService:
         service = HealthService()
         result = await service.check_readiness()
 
-        assert isinstance(result, ReadyResponse)
+        assert isinstance(result, ReadyResponseDTO)
         assert result.status == "ready"
 
     @pytest.mark.asyncio
@@ -80,7 +86,7 @@ class TestHealthService:
         result = await service.check_readiness()
 
         for name, check in result.checks.items():
-            assert isinstance(check, DependencyCheck)
+            assert isinstance(check, DependencyCheckDTO)
             assert check.name == name
             assert check.healthy is True
             assert check.latency_ms is not None
@@ -92,7 +98,7 @@ class TestHealthService:
         service = HealthService()
         result = await service._check_database()
 
-        assert isinstance(result, DependencyCheck)
+        assert isinstance(result, DependencyCheckDTO)
         assert result.name == "database"
         assert result.healthy is True
 
@@ -102,7 +108,7 @@ class TestHealthService:
         service = HealthService()
         result = await service._check_redis()
 
-        assert isinstance(result, DependencyCheck)
+        assert isinstance(result, DependencyCheckDTO)
         assert result.name == "redis"
         assert result.healthy is True
 
@@ -112,7 +118,7 @@ class TestHealthService:
         service = HealthService()
         result = await service._check_event_store()
 
-        assert isinstance(result, DependencyCheck)
+        assert isinstance(result, DependencyCheckDTO)
         assert result.name == "event_store"
         assert result.healthy is True
 

@@ -7,6 +7,11 @@ Tests verify:
 - Tools are stateless (can be called multiple times)
 """
 
+import pytest
+
+# Skip entire module if crewai_tools is not installed
+pytest.importorskip("crewai_tools", reason="crewai_tools not installed")
+
 from src.infrastructure.adapters.tools.archon_tools import (
     ALL_ARCHON_TOOLS,
     TOOL_NAME_TO_CLASS,

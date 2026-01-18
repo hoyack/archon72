@@ -46,14 +46,13 @@ class HeartbeatVerifier:
     Example:
         >>> from uuid import uuid4
         >>> from datetime import datetime, timezone
-        >>> from src.application.ports.agent_orchestrator import AgentStatus
         >>> from src.domain.models.heartbeat import Heartbeat
         >>> verifier = HeartbeatVerifier()
         >>> heartbeat = Heartbeat(
         ...     heartbeat_id=uuid4(),
         ...     agent_id="archon-1",
         ...     session_id=uuid4(),
-        ...     status=AgentStatus.BUSY,
+        ...     status="busy",  # String status instead of enum
         ...     memory_usage_mb=256,
         ...     timestamp=datetime.now(timezone.utc),
         ...     signature="valid_sig",

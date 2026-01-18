@@ -13,7 +13,13 @@ Time Authority (HARDENING-3):
 - Use advance() for simulating time passing
 """
 
+import os
 from datetime import datetime, timezone
+
+# Disable crewai telemetry to prevent SystemExit during testing
+# Must be set before any crewai imports occur
+os.environ["CREWAI_DISABLE_TELEMETRY"] = "true"
+os.environ["CREWAI_DISABLE_TRACKING"] = "true"
 
 import pytest
 

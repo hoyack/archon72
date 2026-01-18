@@ -542,6 +542,7 @@ class TestNonApprovalDistinction:
             advisory_id=uuid4(),
             acknowledged_by="paimon",
             understanding="Test",
+            timestamp=datetime.now(timezone.utc),
         )
         assert ack.approved is False
 
@@ -551,6 +552,7 @@ class TestNonApprovalDistinction:
             advisory_id=uuid4(),
             acknowledged_by="paimon",
             understanding="Test",
+            timestamp=datetime.now(timezone.utc),
         )
         data = ack.to_dict()
         assert "approved" in data
@@ -679,6 +681,7 @@ class TestDomainModels:
             advisory_id=uuid4(),
             acknowledged_by="paimon",
             understanding="Test",
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             ack.understanding = "Modified"  # type: ignore
@@ -690,6 +693,7 @@ class TestDomainModels:
             decided_by="paimon",
             reasoning="Test reason",
             decision_summary="Test decision",
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             decision.reasoning = "Modified"  # type: ignore
@@ -700,6 +704,7 @@ class TestDomainModels:
             marquis_id="orias",
             advisory_id=uuid4(),
             topic="Test topic",
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             window.topic = "Modified"  # type: ignore
@@ -710,10 +715,11 @@ class TestDomainModels:
             marquis_id="orias",
             advisory_id=uuid4(),
             topic="Test topic",
+            timestamp=datetime.now(timezone.utc),
         )
         assert window.is_open is True
 
-        closed = window.with_closed()
+        closed = window.with_closed(timestamp=datetime.now(timezone.utc))
         assert closed.is_open is False
         assert window.is_open is True  # Original unchanged
 
@@ -723,6 +729,7 @@ class TestDomainModels:
             advisory_id=uuid4(),
             archon_id="paimon",
             deadline=datetime.now(timezone.utc),
+            timestamp=datetime.now(timezone.utc),
             consecutive_misses=2,
             status=AcknowledgmentDeadlineStatus.WARNING,
         )

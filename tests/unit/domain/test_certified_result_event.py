@@ -177,7 +177,7 @@ class TestCertifiedResultPayloadToDict:
         deliberation_id = uuid4()
         result_hash = "1" * 64
         participant_count = 72
-        certification_timestamp = datetime(2025, 12, 28, 12, 0, 0, tzinfo=UTC)
+        certification_timestamp = datetime(2025, 12, 28, 12, 0, 0, tzinfo=timezone.utc)
         certification_key_id = "CERT:key-008"
         result_type = "vote"
 

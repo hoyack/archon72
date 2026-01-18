@@ -39,7 +39,13 @@
 - [Archon Governance Schema](#archon-governance-schema)
 - [Constitutional Truths](#constitutional-truths)
 - [Conclave System](#conclave-system)
+- [Automated Secretary System](#automated-secretary-system)
+- [Motion Consolidator](#motion-consolidator)
+- [Motion Review Pipeline](#motion-review-pipeline)
 - [Execution Planner](#execution-planner)
+- [Full Governance Pipeline](#full-governance-pipeline)
+  - [Conclave Agenda Sources](#conclave-agenda-sources)
+  - [Complete Command Sequence](#complete-command-sequence)
 - [Governance API](#governance-api)
 - [Integration Testing](#integration-testing)
 - [Troubleshooting](#troubleshooting)
@@ -795,14 +801,38 @@ python scripts/run_conclave.py
 # Quick test (1 debate round)
 python scripts/run_conclave.py --quick
 
-# Custom motion
+# Custom motion (inline text)
 python scripts/run_conclave.py \
   --motion "Establish AI ethics committee" \
+  --motion-text "WHEREAS AI ethics require formal oversight; BE IT RESOLVED..." \
   --motion-type policy \
   --debate-rounds 5
 
+# Custom motion from file (recommended for complex motions)
+python scripts/run_conclave.py \
+  --motion "Constitutional Amendment: Consent Framework" \
+  --motion-file motions/consent-framework.md \
+  --motion-type constitutional
+
 # Resume interrupted session
 python scripts/run_conclave.py --resume _bmad-output/conclave/checkpoint-xxx.json
+```
+
+### Motion File Format
+
+Motion files should contain the full motion text in plain text or markdown. The recommended format for formal motions:
+
+```markdown
+WHEREAS [statement of fact or condition]; and
+WHEREAS [additional supporting statement];
+
+BE IT RESOLVED that the Conclave shall:
+
+1. [First action item]
+2. [Second action item]
+3. [Third action item]
+
+This resolution shall take effect [timing].
 ```
 
 ### Command Line Options
@@ -811,7 +841,8 @@ python scripts/run_conclave.py --resume _bmad-output/conclave/checkpoint-xxx.jso
 |--------|-------------|---------|
 | `--session NAME` | Session name | Auto-generated |
 | `--motion TITLE` | Motion title | Default AI autonomy question |
-| `--motion-text TEXT` | Full motion text | Default resolution text |
+| `--motion-text TEXT` | Full motion text (inline) | Default resolution text |
+| `--motion-file FILE` | Load motion text from file (overrides --motion-text) | None |
 | `--motion-type TYPE` | `constitutional`, `policy`, `procedural`, `open` | `open` |
 | `--debate-rounds N` | Number of debate rounds | 3 |
 | `--quick` | Quick mode (1 round, faster) | Off |
@@ -1079,7 +1110,7 @@ Each mega-motion preserves:
 - `all_supporting_archons[]` - All Archons who contributed
 - `consensus_tier` - HIGH (10+), MEDIUM (4-9), LOW (2-3)
 
-### Full Governance Pipeline
+## Full Governance Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1138,6 +1169,121 @@ Exec Planner    | execution plans + blockers     | 60 tasks, 31 blockers
 ```
 
 **Outputs Location:** `_bmad-output/{stage}/{session_id}/`
+
+### Conclave Agenda Sources
+
+The Conclave receives its agenda from **two distinct sources**, creating a closed governance loop:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         CONCLAVE AGENDA SOURCES                                  │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  SOURCE 1: MOTION QUEUE (Forward Flow)                                          │
+│  ════════════════════════════════════                                           │
+│                                                                                  │
+│    Previous Conclave Transcript                                                  │
+│           │                                                                      │
+│           ▼                                                                      │
+│    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                     │
+│    │  SECRETARY   │───▶│ MOTION QUEUE │───▶│ CONSOLIDATOR │                     │
+│    │              │    │              │    │  (optional)  │                     │
+│    │ • Extract    │    │ • Persist    │    │              │                     │
+│    │   speeches   │    │   motions    │    │ • Group into │                     │
+│    │ • Cluster    │    │ • Track      │    │   mega-      │                     │
+│    │   themes     │    │   endorse-   │    │   motions    │                     │
+│    │ • Generate   │    │   ments      │    │              │                     │
+│    │   motions    │    │ • Rank by    │    │              │                     │
+│    │              │    │   priority   │    │              │                     │
+│    └──────────────┘    └──────┬───────┘    └──────────────┘                     │
+│                               │                                                  │
+│                               ▼                                                  │
+│                    ┌─────────────────────┐                                       │
+│                    │   NEXT CONCLAVE     │                                       │
+│                    │      AGENDA         │◀──────────────────────┐               │
+│                    │                     │                       │               │
+│                    │  • Motion Queue     │                       │               │
+│                    │    items (ranked)   │                       │               │
+│                    │  • Blocker          │                       │               │
+│                    │    escalations      │                       │               │
+│                    └─────────────────────┘                       │               │
+│                               ▲                                  │               │
+│                               │                                  │               │
+│  SOURCE 2: BLOCKER ESCALATIONS (Feedback Loop)                   │               │
+│  ═════════════════════════════════════════════                   │               │
+│                                                                  │               │
+│    Ratified Motions (from Review Pipeline)                       │               │
+│           │                                                      │               │
+│           ▼                                                      │               │
+│    ┌──────────────────────────────────────────┐                  │               │
+│    │         EXECUTION PLANNER                │                  │               │
+│    │                                          │                  │               │
+│    │  1. Classify into 8 patterns:            │                  │               │
+│    │     CONST, POLICY, TECH, PROC,           │                  │               │
+│    │     RESEARCH, ORG, RESOURCE, ARCHON      │                  │               │
+│    │                                          │                  │               │
+│    │  2. Instantiate tasks from templates     │                  │               │
+│    │                                          │                  │               │
+│    │  3. Detect blockers:                     │                  │               │
+│    │     • undefined_scope ──────────────────────────────────────┘               │
+│    │     • policy_conflict                    │                                  │
+│    │     • resource_gap                       │                                  │
+│    │     • technical_infeasibility            │                                  │
+│    │     • stakeholder_conflict               │                                  │
+│    │                                          │                                  │
+│    └──────────────────────────────────────────┘                                  │
+│                                                                                  │
+│  Output: blockers_summary.json contains:                                         │
+│    {                                                                             │
+│      "agenda_items": [                                                           │
+│        "Clarify scope for: AI Ethics Framework...",                              │
+│        "Resolve policy conflict for: Emergency Halt..."                          │
+│      ]                                                                           │
+│    }                                                                             │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Key Insight:** The governance system is **self-sustaining**:
+- Each Conclave's deliberations feed the **next Conclave's motion queue** (via Secretary)
+- Each Execution Planner run feeds **blocker escalations** back to the next Conclave
+- This creates a closed loop where issues are never silently dropped
+
+### Complete Command Sequence
+
+Run the full governance pipeline in order:
+
+```bash
+# 1. CONCLAVE - Deliberate on motions (or use existing transcript)
+#    Option A: Inline motion text
+python scripts/run_conclave.py --motion "Your Motion Title" --motion-text "WHEREAS..." --motion-type policy
+#    Option B: Load motion from file (recommended for complex motions)
+python scripts/run_conclave.py --motion "Your Motion Title" --motion-file motions/your-motion.md --motion-type policy
+
+# 2. SECRETARY - Extract recommendations from transcript
+python scripts/run_secretary.py _bmad-output/conclave/transcript-<session>.md
+
+# 3. CONSOLIDATOR - Group motions into mega-motions (optional but recommended)
+python scripts/run_consolidator.py _bmad-output/secretary/<session>/
+
+# 4. REVIEW PIPELINE - Triage, review, and ratify motions
+python scripts/run_review_pipeline.py _bmad-output/consolidator/<session>/
+
+# 5. EXECUTION PLANNER - Transform ratified motions into tasks + blockers
+python scripts/run_execution_planner.py _bmad-output/review-pipeline/<session>/
+
+# 6. NEXT CONCLAVE - Agenda populated from:
+#    - Motion Queue (persistent across sessions)
+#    - Blocker escalations (from execution planner)
+python scripts/run_conclave.py  # Pulls from queue automatically
+```
+
+**Pro Tips:**
+- Use `--verbose` on any command for detailed logging
+- Use `--real-agent` on review pipeline and execution planner for LLM-powered analysis
+- Use `--triage-only` on review pipeline to skip simulation
+- Use `--motion-file` to load complex motions from markdown files
+- Sessions can be interrupted (Ctrl+C) and resumed with `--resume`
 
 ## Motion Review Pipeline
 

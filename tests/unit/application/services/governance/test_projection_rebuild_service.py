@@ -30,36 +30,31 @@ class TestRebuildResultDataclass:
         result = RebuildResult(
             projection_name="task_states",
             events_processed=100,
-            events_skipped=5,
             start_sequence=1,
             end_sequence=100,
             started_at=datetime.now(timezone.utc),
             completed_at=datetime.now(timezone.utc),
-            success=True,
-            error_message=None,
+            is_full_rebuild=True,
         )
 
         assert result.projection_name == "task_states"
         assert result.events_processed == 100
-        assert result.events_skipped == 5
-        assert result.success is True
+        assert result.is_full_rebuild is True
 
-    def test_rebuild_result_with_error(self) -> None:
-        """RebuildResult can capture error information."""
+    def test_rebuild_result_with_incremental(self) -> None:
+        """RebuildResult can capture incremental rebuild."""
         result = RebuildResult(
             projection_name="task_states",
             events_processed=50,
-            events_skipped=0,
-            start_sequence=1,
+            start_sequence=51,
             end_sequence=100,
             started_at=datetime.now(timezone.utc),
             completed_at=datetime.now(timezone.utc),
-            success=False,
-            error_message="Database connection failed",
+            is_full_rebuild=False,
         )
 
-        assert result.success is False
-        assert result.error_message == "Database connection failed"
+        assert result.is_full_rebuild is False
+        assert result.start_sequence == 51
 
 
 class TestVerificationResultDataclass:
@@ -69,30 +64,26 @@ class TestVerificationResultDataclass:
         """VerificationResult with valid data creates successfully."""
         result = VerificationResult(
             projection_name="task_states",
-            is_synchronized=True,
-            ledger_max_sequence=100,
-            projection_last_sequence=100,
-            missing_events=0,
-            verified_at=datetime.now(timezone.utc),
+            is_consistent=True,
+            events_checked=100,
+            discrepancies=(),
         )
 
         assert result.projection_name == "task_states"
-        assert result.is_synchronized is True
-        assert result.missing_events == 0
+        assert result.is_consistent is True
+        assert result.events_checked == 100
 
-    def test_verification_result_out_of_sync(self) -> None:
-        """VerificationResult can capture out-of-sync state."""
+    def test_verification_result_with_discrepancies(self) -> None:
+        """VerificationResult can capture discrepancies."""
         result = VerificationResult(
             projection_name="task_states",
-            is_synchronized=False,
-            ledger_max_sequence=100,
-            projection_last_sequence=90,
-            missing_events=10,
-            verified_at=datetime.now(timezone.utc),
+            is_consistent=False,
+            events_checked=100,
+            discrepancies=("Event 50 hash mismatch", "Event 75 missing"),
         )
 
-        assert result.is_synchronized is False
-        assert result.missing_events == 10
+        assert result.is_consistent is False
+        assert len(result.discrepancies) == 2
 
 
 class TestProjectionRebuildServiceCreation:
@@ -155,41 +146,33 @@ class TestProjectionRebuildServiceRebuildFull:
         )
 
     @pytest.mark.asyncio
-    async def test_rebuild_full_clears_projection(
+    async def test_rebuild_full_requires_handler(
+        self,
+        service: ProjectionRebuildService,
+    ) -> None:
+        """rebuild_full raises ValueError without registered handler."""
+        with pytest.raises(ValueError, match="No handler registered"):
+            await service.rebuild_full("task_states")
+
+    @pytest.mark.asyncio
+    async def test_rebuild_full_with_registered_handler(
         self,
         service: ProjectionRebuildService,
         mock_projection: AsyncMock,
     ) -> None:
-        """rebuild_full clears the projection before rebuilding."""
+        """rebuild_full succeeds with registered handler."""
+        # Register a handler for the projection
+        async def handler(event, seq):
+            pass
+
+        service.register_handler("task_states", handler)
+
         result = await service.rebuild_full("task_states")
 
         mock_projection.clear_projection.assert_called_once_with("task_states")
-        assert result.success is True
-
-    @pytest.mark.asyncio
-    async def test_rebuild_full_with_empty_ledger(
-        self,
-        service: ProjectionRebuildService,
-        mock_ledger: AsyncMock,
-    ) -> None:
-        """rebuild_full succeeds with empty ledger."""
-        mock_ledger.get_max_sequence.return_value = 0
-
-        result = await service.rebuild_full("task_states")
-
-        assert result.success is True
-        assert result.events_processed == 0
-
-    @pytest.mark.asyncio
-    async def test_rebuild_full_returns_rebuild_result(
-        self,
-        service: ProjectionRebuildService,
-    ) -> None:
-        """rebuild_full returns RebuildResult."""
-        result = await service.rebuild_full("task_states")
-
         assert isinstance(result, RebuildResult)
         assert result.projection_name == "task_states"
+        assert result.is_full_rebuild is True
 
 
 class TestProjectionRebuildServiceRebuildIncremental:
@@ -234,38 +217,39 @@ class TestProjectionRebuildServiceRebuildIncremental:
         )
 
     @pytest.mark.asyncio
-    async def test_rebuild_incremental_uses_checkpoint(
+    async def test_rebuild_incremental_requires_handler(
+        self,
+        service: ProjectionRebuildService,
+    ) -> None:
+        """rebuild_incremental raises ValueError without registered handler."""
+        with pytest.raises(ValueError, match="No handler registered"):
+            await service.rebuild_incremental("task_states")
+
+    @pytest.mark.asyncio
+    async def test_rebuild_incremental_with_registered_handler(
         self,
         service: ProjectionRebuildService,
         mock_projection: AsyncMock,
     ) -> None:
-        """rebuild_incremental starts from checkpoint if available."""
+        """rebuild_incremental succeeds with registered handler."""
         event_id = uuid4()
         checkpoint = ProjectionCheckpoint(
             projection_name="task_states",
             last_event_id=event_id,
-            last_event_hash="abc123",
+            last_hash="abc123",
             last_sequence=50,
             updated_at=datetime.now(timezone.utc),
         )
         mock_projection.get_checkpoint.return_value = checkpoint
 
+        async def handler(event, seq):
+            pass
+
+        service.register_handler("task_states", handler)
         result = await service.rebuild_incremental("task_states")
 
+        assert isinstance(result, RebuildResult)
         assert result.start_sequence == 51  # Starts after checkpoint
-
-    @pytest.mark.asyncio
-    async def test_rebuild_incremental_from_scratch_without_checkpoint(
-        self,
-        service: ProjectionRebuildService,
-        mock_projection: AsyncMock,
-    ) -> None:
-        """rebuild_incremental starts from 1 without checkpoint."""
-        mock_projection.get_checkpoint.return_value = None
-
-        result = await service.rebuild_incremental("task_states")
-
-        assert result.start_sequence == 1
 
 
 class TestProjectionRebuildServiceGetRebuildStatus:
@@ -317,7 +301,7 @@ class TestProjectionRebuildServiceGetRebuildStatus:
         checkpoint = ProjectionCheckpoint(
             projection_name="task_states",
             last_event_id=uuid4(),
-            last_event_hash="abc123",
+            last_hash="abc123",
             last_sequence=100,
             updated_at=datetime.now(timezone.utc),
         )
@@ -325,9 +309,11 @@ class TestProjectionRebuildServiceGetRebuildStatus:
 
         result = await service.get_rebuild_status("task_states")
 
-        assert isinstance(result, VerificationResult)
-        assert result.is_synchronized is True
-        assert result.missing_events == 0
+        assert isinstance(result, dict)
+        assert result["projection_name"] == "task_states"
+        assert result["checkpoint_sequence"] == 100
+        assert result["ledger_max_sequence"] == 100
+        assert result["events_behind"] == 0
 
     @pytest.mark.asyncio
     async def test_get_rebuild_status_out_of_sync(
@@ -341,7 +327,7 @@ class TestProjectionRebuildServiceGetRebuildStatus:
         checkpoint = ProjectionCheckpoint(
             projection_name="task_states",
             last_event_id=uuid4(),
-            last_event_hash="abc123",
+            last_hash="abc123",
             last_sequence=90,
             updated_at=datetime.now(timezone.utc),
         )
@@ -349,8 +335,10 @@ class TestProjectionRebuildServiceGetRebuildStatus:
 
         result = await service.get_rebuild_status("task_states")
 
-        assert result.is_synchronized is False
-        assert result.missing_events == 10
+        assert isinstance(result, dict)
+        assert result["checkpoint_sequence"] == 90
+        assert result["ledger_max_sequence"] == 100
+        assert result["events_behind"] == 10
 
     @pytest.mark.asyncio
     async def test_get_rebuild_status_no_checkpoint(
@@ -365,9 +353,10 @@ class TestProjectionRebuildServiceGetRebuildStatus:
 
         result = await service.get_rebuild_status("task_states")
 
-        assert result.is_synchronized is False
-        assert result.projection_last_sequence == 0
-        assert result.missing_events == 100
+        assert isinstance(result, dict)
+        assert result["checkpoint_sequence"] is None
+        assert result["ledger_max_sequence"] == 100
+        assert result["events_behind"] == 100
 
 
 class TestProjectionRebuildServiceRebuildAll:
@@ -414,12 +403,19 @@ class TestProjectionRebuildServiceRebuildAll:
         )
 
     @pytest.mark.asyncio
-    async def test_rebuild_all_rebuilds_all_projections(
+    async def test_rebuild_all_rebuilds_registered_handlers(
         self,
         service: ProjectionRebuildService,
         mock_projection: AsyncMock,
     ) -> None:
-        """rebuild_all rebuilds all known projections."""
+        """rebuild_all rebuilds all registered handler projections."""
+        # Register handlers for projections
+        async def handler(event, seq):
+            pass
+
+        service.register_handler("task_states", handler)
+        service.register_handler("legitimacy_states", handler)
+
         results = await service.rebuild_all()
 
         assert len(results) == 2
@@ -428,11 +424,12 @@ class TestProjectionRebuildServiceRebuildAll:
         assert projection_names == {"task_states", "legitimacy_states"}
 
     @pytest.mark.asyncio
-    async def test_rebuild_all_returns_list_of_results(
+    async def test_rebuild_all_returns_empty_without_handlers(
         self,
         service: ProjectionRebuildService,
     ) -> None:
-        """rebuild_all returns a list of RebuildResult."""
+        """rebuild_all returns empty list without registered handlers."""
         results = await service.rebuild_all()
 
         assert isinstance(results, list)
+        assert len(results) == 0

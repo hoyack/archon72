@@ -230,6 +230,7 @@ class SuppressionDetectionService:
                     suppressing_archon_id=monitored.signal.source_archon_id,
                     detection_method=SuppressionDetectionMethod.TIMEOUT,
                     task_id=monitored.signal.task_id,
+                    timestamp=now,
                     evidence={
                         "signal_type": monitored.signal.signal_type.value,
                         "severity": monitored.signal.severity.value,
@@ -289,6 +290,7 @@ class SuppressionDetectionService:
             suppressing_archon_id=suppressing_archon_id,
             detection_method=method,
             task_id=task_id,
+            timestamp=datetime.now(timezone.utc),
             evidence=evidence or {},
         )
         self._violations[violation.violation_id] = violation
@@ -460,6 +462,7 @@ class SuppressionDetectionService:
             task_id=task_id,
             severity=severity,
             evidence=evidence,
+            timestamp=datetime.now(timezone.utc),
             motion_ref=motion_ref,
         )
         self.start_monitoring(signal)

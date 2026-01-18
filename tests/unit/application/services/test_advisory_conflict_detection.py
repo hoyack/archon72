@@ -11,6 +11,7 @@ Test coverage:
 - AC6: Conflict audit trail
 """
 
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, create_autospec
 from uuid import uuid4
 
@@ -87,6 +88,7 @@ def sample_advisory_window() -> AdvisoryWindow:
         marquis_id="orias",
         advisory_id=uuid4(),
         topic="quantum computing security",
+        timestamp=datetime.now(timezone.utc),
     )
 
 
@@ -241,6 +243,7 @@ class TestPrincePanelExclusion:
                 marquis_id="orias",
                 advisory_id=uuid4(),
                 topic="quantum computing",
+                timestamp=datetime.now(timezone.utc),
             )
         )
         service.register_advisory_window(
@@ -248,6 +251,7 @@ class TestPrincePanelExclusion:
                 marquis_id="bael",
                 advisory_id=uuid4(),
                 topic="quantum security",
+                timestamp=datetime.now(timezone.utc),
             )
         )
 
@@ -492,6 +496,7 @@ class TestConflictResolutionPath:
                 marquis_id="orias",
                 advisory_id=uuid4(),
                 topic="quantum computing",
+                timestamp=datetime.now(timezone.utc),
             )
         )
         service.register_advisory_window(
@@ -499,6 +504,7 @@ class TestConflictResolutionPath:
                 marquis_id="bael",
                 advisory_id=uuid4(),
                 topic="quantum security",
+                timestamp=datetime.now(timezone.utc),
             )
         )
 
@@ -526,6 +532,7 @@ class TestConflictResolutionPath:
                 marquis_id="orias",
                 advisory_id=uuid4(),
                 topic="quantum computing",
+                timestamp=datetime.now(timezone.utc),
             )
         )
 
@@ -556,6 +563,7 @@ class TestConflictResolutionPath:
                 marquis_id="orias",
                 advisory_id=uuid4(),
                 topic="quantum computing",
+                timestamp=datetime.now(timezone.utc),
             )
         )
 
@@ -821,6 +829,7 @@ class TestKnightWitnessIntegration:
             marquis_id="orias",
             advisory_id=uuid4(),
             topic="quantum computing",
+            timestamp=datetime.now(timezone.utc),
         )
         service.register_advisory_window(window)
 
@@ -974,6 +983,7 @@ class TestConfiguration:
                 marquis_id="orias",
                 advisory_id=uuid4(),
                 topic="quantum computing",
+                timestamp=datetime.now(timezone.utc),
             )
         )
 

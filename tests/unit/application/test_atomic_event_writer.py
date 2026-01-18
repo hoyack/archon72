@@ -309,10 +309,11 @@ class TestAtomicEventWriterHashChain:
         mock_event_store: AsyncMock,
     ) -> None:
         """Test that subsequent events chain to previous event hash."""
-        # Mock a previous event
+        # Mock a previous event with valid 64-char hex hash
+        valid_prev_hash = "a" * 64  # Valid 64-character lowercase hex string
         mock_prev_event = MagicMock()
         mock_prev_event.sequence = 1
-        mock_prev_event.content_hash = "prev_content_hash_12345"
+        mock_prev_event.content_hash = valid_prev_hash
         mock_event_store.get_latest_event = AsyncMock(return_value=mock_prev_event)
 
         await atomic_writer.write_event(
@@ -326,7 +327,7 @@ class TestAtomicEventWriterHashChain:
         call_args = mock_event_store.append_event.call_args
         event = call_args[0][0]
         assert event.sequence == 2
-        assert event.prev_hash == "prev_content_hash_12345"
+        assert event.prev_hash == valid_prev_hash
 
 
 class TestAtomicEventWriterTimeAuthority:

@@ -533,7 +533,8 @@ class TestIntegrationWithRealData:
         for branch in [
             "legislative",
             "executive",
-            "administrative",
+            "administrative_senior",
+            "administrative_strategic",
             "judicial",
             "advisory",
             "witness",

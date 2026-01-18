@@ -146,6 +146,16 @@ class EventStoreStub(EventStorePort):
     ) -> int:
         return 0
 
+    # Hash verification methods (Story 6.8 - FR125)
+    async def get_all(self, limit: int | None = None) -> list["Event"]:
+        return []
+
+    async def get_by_id(self, event_id: str) -> "Event | None":
+        return None
+
+    async def get_by_sequence(self, sequence: int) -> "Event | None":
+        return None
+
 
 @lru_cache(maxsize=1)
 def get_rate_limiter() -> ObserverRateLimiter:

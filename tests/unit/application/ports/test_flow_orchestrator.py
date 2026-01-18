@@ -372,6 +372,7 @@ class TestBranchResult:
             success=True,
             output={"deliberation": "complete"},
             next_state=GovernanceState.RATIFIED,
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert result.motion_id == motion_id
@@ -391,6 +392,7 @@ class TestBranchResult:
             output={},
             error="Compliance check failed",
             error_type="compliance_error",
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert result.success is False
@@ -405,12 +407,14 @@ class TestBranchResult:
             branch=GovernanceBranch.EXECUTIVE,
             success=True,
             output={},
+            timestamp=datetime.now(timezone.utc),
         )
         result2 = BranchResult.create(
             motion_id=uuid4(),
             branch=GovernanceBranch.EXECUTIVE,
             success=True,
             output={},
+            timestamp=datetime.now(timezone.utc),
         )
         assert result1.result_id != result2.result_id
 
@@ -421,6 +425,7 @@ class TestBranchResult:
             branch=GovernanceBranch.WITNESS,
             success=True,
             output={},
+            timestamp=datetime.now(timezone.utc),
         )
         assert isinstance(result.completed_at, datetime)
         assert result.completed_at.tzinfo == timezone.utc
@@ -432,6 +437,7 @@ class TestBranchResult:
             branch=GovernanceBranch.EXECUTIVE,
             success=True,
             output={},
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             result.success = False  # type: ignore[misc]
@@ -447,6 +453,7 @@ class TestMotionPipelineState:
             motion_id=motion_id,
             current_state=GovernanceState.DELIBERATING,
             next_action="Awaiting Conclave decision",
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert state.motion_id == motion_id
@@ -462,6 +469,7 @@ class TestMotionPipelineState:
             current_state=GovernanceState.PLANNING,
             next_action="Resolve blocking issues",
             blocking_issues=("Missing resources", "Pending approval"),
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert len(state.blocking_issues) == 2
@@ -473,6 +481,7 @@ class TestMotionPipelineState:
             motion_id=uuid4(),
             current_state=GovernanceState.EXECUTING,
             next_action="Continue execution",
+            timestamp=datetime.now(timezone.utc),
         )
         assert unblocked.is_blocked is False
 
@@ -481,6 +490,7 @@ class TestMotionPipelineState:
             current_state=GovernanceState.PLANNING,
             next_action="Awaiting resolution",
             blocking_issues=("Resource unavailable",),
+            timestamp=datetime.now(timezone.utc),
         )
         assert blocked.is_blocked is True
 
@@ -490,9 +500,10 @@ class TestMotionPipelineState:
             motion_id=uuid4(),
             current_state=GovernanceState.JUDGING,
             next_action="Awaiting judgment",
+            timestamp=datetime.now(timezone.utc),
         )
 
-        time_in_state = state.time_in_state
+        time_in_state = state.time_in_state(datetime.now(timezone.utc))
         assert isinstance(time_in_state, timedelta)
         assert time_in_state.total_seconds() >= 0
 
@@ -502,6 +513,7 @@ class TestMotionPipelineState:
             motion_id=uuid4(),
             current_state=GovernanceState.WITNESSING,
             next_action="Awaiting witness",
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             state.retry_count = 5  # type: ignore[misc]
@@ -523,6 +535,7 @@ class TestPipelineStatus:
             oldest_motion_age=timedelta(hours=48),
             recent_completions=5,
             recent_failures=1,
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert status.active_motions == 10
@@ -542,6 +555,7 @@ class TestPipelineStatus:
             oldest_motion_age=timedelta(days=7),
             recent_completions=0,
             recent_failures=2,
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert len(status.blocked_motions) == 2
@@ -556,6 +570,7 @@ class TestPipelineStatus:
             oldest_motion_age=timedelta(0),
             recent_completions=0,
             recent_failures=0,
+            timestamp=datetime.now(timezone.utc),
         )
         assert isinstance(status.queried_at, datetime)
         assert status.queried_at.tzinfo == timezone.utc
@@ -569,6 +584,7 @@ class TestPipelineStatus:
             oldest_motion_age=timedelta(hours=1),
             recent_completions=0,
             recent_failures=0,
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             status.active_motions = 100  # type: ignore[misc]
@@ -586,6 +602,7 @@ class TestRoutingDecision:
             target_service="president_service",
             target_branch=GovernanceBranch.EXECUTIVE,
             reason="Motion ratified, routing to President for planning",
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert decision.motion_id == motion_id
@@ -602,6 +619,7 @@ class TestRoutingDecision:
             target_service="conclave_service",
             target_branch=GovernanceBranch.DELIBERATIVE,
             reason="Test routing",
+            timestamp=datetime.now(timezone.utc),
         )
         decision2 = RoutingDecision.create(
             motion_id=uuid4(),
@@ -609,6 +627,7 @@ class TestRoutingDecision:
             target_service="conclave_service",
             target_branch=GovernanceBranch.DELIBERATIVE,
             reason="Test routing",
+            timestamp=datetime.now(timezone.utc),
         )
         assert decision1.decision_id != decision2.decision_id
 
@@ -620,6 +639,7 @@ class TestRoutingDecision:
             target_service="duke_service",
             target_branch=GovernanceBranch.ADMINISTRATIVE,
             reason="Routing to Duke",
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             decision.reason = "Modified reason"  # type: ignore[misc]
@@ -637,6 +657,7 @@ class TestEscalationRecord:
             strategy=ErrorEscalationStrategy.CONCLAVE_REVIEW,
             original_error="Archon lacks required rank",
             action_taken="Referred to Conclave for review",
+            timestamp=datetime.now(timezone.utc),
         )
 
         assert escalation.motion_id == motion_id
@@ -654,6 +675,7 @@ class TestEscalationRecord:
             strategy=ErrorEscalationStrategy.HALT_AND_ALERT,
             original_error="Database connection failed",
             action_taken="System halted, alert sent",
+            timestamp=datetime.now(timezone.utc),
         )
         escalation2 = EscalationRecord.create(
             motion_id=uuid4(),
@@ -661,6 +683,7 @@ class TestEscalationRecord:
             strategy=ErrorEscalationStrategy.HALT_AND_ALERT,
             original_error="Database connection failed",
             action_taken="System halted, alert sent",
+            timestamp=datetime.now(timezone.utc),
         )
         assert escalation1.escalation_id != escalation2.escalation_id
 
@@ -672,6 +695,7 @@ class TestEscalationRecord:
             strategy=ErrorEscalationStrategy.RETRY_WITH_BACKOFF,
             original_error="Service timeout",
             action_taken="Scheduled retry with backoff",
+            timestamp=datetime.now(timezone.utc),
         )
         assert isinstance(escalation.escalated_at, datetime)
         assert escalation.escalated_at.tzinfo == timezone.utc
@@ -684,6 +708,7 @@ class TestEscalationRecord:
             strategy=ErrorEscalationStrategy.RETURN_TO_PREVIOUS,
             original_error="Invalid input",
             action_taken="Returned to previous step",
+            timestamp=datetime.now(timezone.utc),
         )
         with pytest.raises(AttributeError):
             escalation.resolved = True  # type: ignore[misc]
@@ -739,6 +764,7 @@ class TestProcessMotionResult:
             target_service="conclave_service",
             target_branch=GovernanceBranch.DELIBERATIVE,
             reason="Routing for deliberation",
+            timestamp=datetime.now(timezone.utc),
         )
 
         result = ProcessMotionResult(
@@ -793,6 +819,7 @@ class TestHandleCompletionRequest:
             success=True,
             output={"votes": 72, "in_favor": 72},
             next_state=GovernanceState.RATIFIED,
+            timestamp=datetime.now(timezone.utc),
         )
 
         request = HandleCompletionRequest(
@@ -829,6 +856,7 @@ class TestHandleCompletionResult:
             strategy=ErrorEscalationStrategy.HALT_AND_ALERT,
             original_error="Critical failure",
             action_taken="Pipeline halted",
+            timestamp=datetime.now(timezone.utc),
         )
 
         result = HandleCompletionResult(

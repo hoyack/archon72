@@ -29,41 +29,58 @@ AEGIS_RANKS = [
 ]
 
 # Governance branches per Government PRD §4
+# Administrative branch split into senior (Dukes) and strategic (Earls) per schema v2.2.0
 GOVERNANCE_BRANCHES = [
-    "legislative",     # Kings - introduce motions, define WHAT
-    "executive",       # Presidents - translate WHAT to HOW
-    "administrative",  # Dukes/Earls - own domains, execute tasks
-    "judicial",        # Princes - evaluate compliance
-    "advisory",        # Marquis - expert testimony
-    "witness",         # Knight (Furcas only) - observe and record
+    "legislative",            # Kings - introduce motions, define WHAT
+    "executive",              # Presidents - translate WHAT to HOW
+    "administrative",         # Generic administrative (legacy compatibility)
+    "administrative_senior",  # Dukes - own domains, allocate resources
+    "administrative_strategic",  # Earls - execute tasks, coordinate agents
+    "judicial",               # Princes - evaluate compliance
+    "advisory",               # Marquis - expert testimony
+    "witness",                # Knight (Furcas only) - observe and record
 ]
 
+# Base branch mapping for permission/constraint lookup
+# Maps granular branches to their base branch for shared permissions
+BASE_BRANCH = {
+    "administrative_senior": "administrative",
+    "administrative_strategic": "administrative",
+}
+
 # Rank to branch mapping per Government PRD
+# Dukes and Earls now have distinct administrative sub-branches per schema v2.2.0
 RANK_TO_BRANCH = {
     "King": "legislative",
     "President": "executive",
-    "Duke": "administrative",
-    "Earl": "administrative",
+    "Duke": "administrative_senior",
+    "Earl": "administrative_strategic",
     "Prince": "judicial",
     "Marquis": "advisory",
     "Knight": "witness",
 }
 
 # Governance permissions per branch (Government PRD §4)
+# Administrative sub-branches have distinct permissions per schema v2.2.0
 BRANCH_PERMISSIONS = {
     "legislative": ["introduce_motion", "define_what"],
     "executive": ["translate_what_to_how", "decompose_tasks", "identify_dependencies", "escalate_blockers"],
     "administrative": ["own_domain", "allocate_resources", "track_progress", "report_status", "execute_task", "coordinate_agents"],
+    "administrative_senior": ["own_domain", "allocate_resources", "track_progress", "report_status", "delegate_task"],
+    "administrative_strategic": ["execute_task", "coordinate_agents", "optimize_execution", "report_status"],
     "judicial": ["evaluate_compliance", "issue_finding", "invalidate_execution", "trigger_conclave_review"],
     "advisory": ["provide_testimony", "issue_advisory", "analyze_risk"],
     "witness": ["observe_all", "record_violations", "publish_witness_statement", "trigger_acknowledgment"],
 }
 
 # Governance constraints per branch (Government PRD §4)
+# Administrative sub-branches share core constraints with role-specific additions
 BRANCH_CONSTRAINTS = {
     "legislative": ["no_define_how", "no_supervise_execution", "no_judge_outcomes"],
     "executive": ["no_redefine_intent", "no_self_ratify", "must_escalate_ambiguity"],
     "administrative": ["no_reinterpret_intent", "no_suppress_failure"],
+    "administrative_senior": ["no_reinterpret_intent", "no_suppress_failure", "no_direct_execution"],
+    "administrative_strategic": ["no_reinterpret_intent", "no_suppress_failure", "no_resource_allocation"],
     "judicial": ["no_introduce_motion", "no_define_execution"],
     "advisory": ["advisories_non_binding", "no_judge_advised_domain"],
     "witness": ["no_propose", "no_debate", "no_define_execution", "no_judge", "no_enforce"],
@@ -229,6 +246,40 @@ class ArchonProfile:
     def is_advisory(self) -> bool:
         """Check if this archon is in the advisory branch (Marquis)."""
         return self.governance_branch == "advisory"
+
+    @property
+    def is_administrative(self) -> bool:
+        """Check if this archon is in the administrative branch (Duke or Earl).
+
+        This includes both administrative_senior (Dukes) and
+        administrative_strategic (Earls) sub-branches.
+        """
+        return self.governance_branch in (
+            "administrative",
+            "administrative_senior",
+            "administrative_strategic",
+        )
+
+    @property
+    def is_administrative_senior(self) -> bool:
+        """Check if this archon is in the senior administrative branch (Duke)."""
+        return self.governance_branch == "administrative_senior"
+
+    @property
+    def is_administrative_strategic(self) -> bool:
+        """Check if this archon is in the strategic administrative branch (Earl)."""
+        return self.governance_branch == "administrative_strategic"
+
+    @property
+    def base_governance_branch(self) -> str:
+        """Get the base governance branch, mapping sub-branches to their parent.
+
+        This is useful when you need the general branch category rather than
+        the specific sub-branch. For example, both administrative_senior and
+        administrative_strategic map to 'administrative'.
+        """
+        branch = self.governance_branch
+        return BASE_BRANCH.get(branch, branch)
 
     def has_permission(self, permission: str) -> bool:
         """Check if this archon has a specific governance permission.

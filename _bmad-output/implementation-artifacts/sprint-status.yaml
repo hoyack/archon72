@@ -336,7 +336,7 @@ development_status:
   consent-gov-1-5-projection-infrastructure: done
   consent-gov-1-6-two-phase-event-emission: done
   consent-gov-1-7-merkle-tree-proof-of-inclusion: done
-  consent-gov-epic-1-retrospective: optional
+  consent-gov-epic-1-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 2: Task Consent & Coordination (P1)
@@ -351,7 +351,7 @@ development_status:
   consent-gov-2-5-task-ttl-auto-transitions: done
   consent-gov-2-6-task-reminders: done
   consent-gov-2-7-role-specific-task-constraints: done
-  consent-gov-epic-2-retrospective: optional
+  consent-gov-epic-2-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 3: Coercion-Free Communication (P1)
@@ -363,7 +363,7 @@ development_status:
   consent-gov-3-2-coercion-filter-service: done
   consent-gov-3-3-filter-decision-logging: done
   consent-gov-3-4-coercion-pattern-detection: done
-  consent-gov-epic-3-retrospective: optional
+  consent-gov-epic-3-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 4: Emergency Safety Circuit (P0 - Critical)
@@ -374,7 +374,7 @@ development_status:
   consent-gov-4-1-halt-circuit-port-adapter: done
   consent-gov-4-2-halt-trigger-execution: done
   consent-gov-4-3-task-state-transitions-on-halt: done
-  consent-gov-epic-4-retrospective: optional
+  consent-gov-epic-4-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 5: Legitimacy Visibility (P2)
@@ -385,7 +385,7 @@ development_status:
   consent-gov-5-1-legitimacy-band-domain-model: done
   consent-gov-5-2-automatic-downward-transitions: done
   consent-gov-5-3-explicit-upward-transitions: done
-  consent-gov-epic-5-retrospective: optional
+  consent-gov-epic-5-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 6: Violation Witness & Accountability (P1)
@@ -398,7 +398,7 @@ development_status:
   consent-gov-6-3-witness-statement-routing: done
   consent-gov-6-4-prince-panel-domain-model: done
   consent-gov-6-5-panel-finding-preservation: done
-  consent-gov-epic-6-retrospective: optional
+  consent-gov-epic-6-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 7: Dignified Exit (P1)
@@ -410,7 +410,7 @@ development_status:
   consent-gov-7-2-obligation-release: done
   consent-gov-7-3-contribution-preservation: done
   consent-gov-7-4-follow-up-contact-prevention: done
-  consent-gov-epic-7-retrospective: optional
+  consent-gov-epic-7-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 8: System Lifecycle Management (P2)
@@ -421,7 +421,7 @@ development_status:
   consent-gov-8-1-system-cessation-trigger: done
   consent-gov-8-2-cessation-record-creation: done
   consent-gov-8-3-reconstitution-validation: done
-  consent-gov-epic-8-retrospective: optional
+  consent-gov-epic-8-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 9: Audit & Verification (P2)
@@ -433,7 +433,7 @@ development_status:
   consent-gov-9-2-cryptographic-proof-generation: done
   consent-gov-9-3-independent-verification: done
   consent-gov-9-4-state-transition-logging: done
-  consent-gov-epic-9-retrospective: optional
+  consent-gov-epic-9-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Consent-Gov Epic 10: Anti-Metrics Foundation (P1)
@@ -443,4 +443,4 @@ development_status:
   consent-gov-epic-10: done
   consent-gov-10-1-anti-metrics-data-layer-enforcement: done
   consent-gov-10-2-anti-metrics-verification: done
-  consent-gov-epic-10-retrospective: optional
+  consent-gov-epic-10-retrospective: done

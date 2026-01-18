@@ -123,8 +123,16 @@ workflow_status:
       status: "_bmad-output/implementation-artifacts/sprint-status.yaml"
       agent: sm
       command: "/bmad:bmm:workflows:sprint-planning"
-      note: "ACTIVE: Epics 0-9 done. Epic 10 (CrewAI Integration) in-progress - Story 10-1 done, 10-2 ready-for-dev"
-      completed: "2026-01-06"
+      note: "COMPLETE: All epics done - Core (0-10), Gov (1-10), Hardening, Consent-Gov (1-10)"
+      completed: "2026-01-17"
+
+    - id: retrospective
+      name: "Consent-Gov Combined Retrospective"
+      status: "_bmad-output/implementation-artifacts/retrospectives/consent-gov-epics-1-10-retro-2026-01-17.md"
+      agent: sm
+      command: "/bmad:bmm:workflows:retrospective"
+      note: "COMPLETE: Combined retro for Consent-Gov Epics 1-10 - 35 stories, 63 FRs, 34 NFRs"
+      completed: "2026-01-17"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CURRENT WORK IN PROGRESS (2026-01-17)

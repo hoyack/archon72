@@ -12,7 +12,7 @@ Constitutional Constraints:
 from __future__ import annotations
 
 import inspect
-from typing import Protocol, get_type_hints
+from typing import Protocol
 
 import pytest
 

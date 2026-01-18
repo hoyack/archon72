@@ -46,7 +46,6 @@ from pydantic import BaseModel, Field, PlainSerializer, field_validator
 from src.application.dtos.observer import (
     CheckpointAnchor,
     HashChainProof,
-    HashChainProofEntry,
     MerkleProof,
     MerkleProofEntry,
     NotificationEventType,

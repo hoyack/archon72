@@ -69,7 +69,6 @@ def test_domain_has_no_external_layer_imports(src_path: Path) -> None:
             )
         # Check for application imports that aren't allowed patterns
         if "from src.application" in content or "import src.application" in content:
-            has_allowed = any(pattern in content for pattern in allowed_patterns)
             # Check for non-port application imports
             lines_with_app_import = [
                 line for line in content.split("\n")

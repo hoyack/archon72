@@ -43,9 +43,10 @@ from pydantic import BaseModel, Field, PlainSerializer, field_validator
 
 # Re-export shared Pydantic models from application DTOs
 # These models are defined in the application layer to maintain proper dependency direction
-from src.application.dtos.observer import (
+from src.application.dtos.observer import (  # noqa: F401
     CheckpointAnchor,
     HashChainProof,
+    HashChainProofEntry,
     MerkleProof,
     MerkleProofEntry,
     NotificationEventType,
@@ -53,6 +54,19 @@ from src.application.dtos.observer import (
     WebhookSubscription,
     WebhookSubscriptionResponse,
 )
+
+# Explicit re-exports for public API
+__all__ = [
+    "CheckpointAnchor",
+    "HashChainProof",
+    "HashChainProofEntry",
+    "MerkleProof",
+    "MerkleProofEntry",
+    "NotificationEventType",
+    "NotificationPayload",
+    "WebhookSubscription",
+    "WebhookSubscriptionResponse",
+]
 
 # Note: The above models are now defined in src.application.dtos.observer
 # and re-exported here for backward compatibility with existing API routes.

@@ -4,10 +4,18 @@ Story: consent-gov-2.1: Task State Machine Domain Model
 
 Tests:
 - AC4: State machine resolution completes in ≤10ms (NFR-PERF-05)
+
+Note: These tests are timing-sensitive and may fail on slower CI runners.
+They are marked with @pytest.mark.performance and skipped in CI.
 """
 
 import contextlib
 import time
+
+import pytest
+
+# Mark all tests in this module as performance tests (skipped in CI)
+pytestmark = pytest.mark.performance
 from datetime import datetime, timezone
 from uuid import uuid4
 

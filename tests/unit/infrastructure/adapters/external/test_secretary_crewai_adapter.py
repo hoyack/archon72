@@ -7,11 +7,19 @@ Validates:
 - AC3: Checkpoint saving/loading
 - AC4: JSON parsing and sanitization
 - AC5: Full pipeline processing
+
+Note: These tests require CrewAI/LiteLLM which needs API keys.
+They are marked with @pytest.mark.requires_llm and skipped in CI.
 """
 
 from __future__ import annotations
 
 import json
+
+import pytest
+
+# Mark all tests in this module as requiring LLM (skipped in CI)
+pytestmark = pytest.mark.requires_llm
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch

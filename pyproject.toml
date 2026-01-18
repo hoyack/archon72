@@ -162,6 +162,9 @@ markers = [
     "smoke: mark test as quick smoke test for CI validation",
     "load: mark test as load/stress test (expensive, requires API keys)",
     "requires_api_keys: mark test as requiring LLM API keys to run",
+    "requires_llm: mark test as requiring LLM/AI API connection (skipped in CI)",
+    "requires_supabase: mark test as requiring real Supabase connection (skipped in CI)",
+    "performance: mark test as performance/timing sensitive (skipped in CI)",
     "timeout: mark test with a timeout in seconds",
 ]
 

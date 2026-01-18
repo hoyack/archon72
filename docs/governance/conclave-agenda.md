@@ -38,16 +38,19 @@ The Agenda Generator must satisfy these non-negotiable requirements:
 
 The Agenda Generator consumes from exactly 6 input queues. No other source can place items on the agenda.
 
-### Queue 1: New Motions
+See also: [Legislative Branch](legislative-branch.md).
+
+### Queue 1: Motion Seeds (Non-binding Proposals)
 
 | Property | Value |
 |----------|-------|
-| Source | Dukes, Earls (via Duke sponsorship) |
+| Source | Eligible participants (Seed submitters) |
 | Priority | Band 3 (New Business) |
 | Subject to quota | YES - max 1 per realm per Conclave |
 | Can be deferred | YES |
 
 New motions requesting authorization, resources, or policy changes. These enter the queue as **Motion Seeds** and require appropriate King sponsorship before they are admitted as Motions. See [The Legislative Branch](./legislative-branch.md) for sponsorship rules.
+Non-binding motion seeds submitted by eligible participants; they are not Motions.
 
 ### Queue 2: Deferred Motions
 
@@ -106,6 +109,12 @@ Items that constitutionally require periodic review (e.g., expiring authorizatio
 
 ---
 
+## Motion Promotion Boundary (Seed → Motion)
+
+Motion Seeds are recorded as non-binding proposals. A Seed becomes a Motion only when introduced by a King under a valid realm. The Motion Admission Gate applies only to Motions, not Seeds.
+
+---
+
 ## Priority Bands
 
 Items are placed into 5 priority bands. Higher bands are processed first.
@@ -144,9 +153,9 @@ Motions that were previously submitted but not resolved. Deferral count is visib
 **Standard priority. Subject to realm quotas.**
 
 Sources:
-- New Motions (Queue 1)
+- Motion Seeds (Queue 1)
 
-New items requesting authorization. Limited to 1 per realm per Conclave to prevent flooding.
+Seeds submitted for consideration. Limited to 1 per realm per Conclave to prevent flooding.
 
 ### Band 4: Optional/Overflow
 
@@ -203,6 +212,8 @@ Only new motions are quota-constrained.
 ---
 
 ## Motion Admission Gate
+
+The admission gate evaluates Motions, not Seeds.
 
 Before entering any queue, motions pass through an admission gate that validates:
 

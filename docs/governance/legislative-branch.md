@@ -74,9 +74,15 @@ They do not represent the system as a whole.
 
 ## Motions (Legislative Output)
 
+### Pre-Motion Artifacts (Motion Seeds)
+
+**Motion Seeds** are recorded proposals that have **no agenda standing** and do **not** require Admission Gate validation.
+
 ### Motion Definition
 
 A **Motion** is a declaration of intent consisting of:
+
+It exists only after formal introduction by a King; non-introduced proposals remain Motion Seeds.
 
 | Component | Description |
 |-----------|-------------|
@@ -95,6 +101,18 @@ A Motion must be:
 | **Realm-valid** | Sponsored by King(s) of affected Realm(s) |
 | **Free of HOW** | No tasks, steps, timelines, or tool specifications |
 | **Explicitly scoped** | Clear boundaries of what is and is not covered |
+
+### Anti-Forgery Clause (Constitutional Definition)
+
+Any submission labeled “Motion” is **validated against the Motion Definition/Requirements in this document** and the **Motion Admission Gate** rules in [Conclave Agenda Control](./conclave-agenda.md). A Motion is only admissible when the schema fields align with the declared realm intent:
+
+- `realm_assignment.primary_realm` must match the sponsoring King’s Realm for single-realm motions.
+- `realm_assignment.primary_sponsor` must be the sponsoring King.
+- `realm_assignment.cross_realm` must truthfully indicate cross-realm scope, and when `true` the `co_sponsors` list must enumerate each required cross-realm King.
+- `co_sponsors` is only valid for cross-realm motions and must correspond to affected Realms.
+
+Malformed or invalid “Motion” attempts **must be recorded with explicit reason codes** (e.g., realm mismatch, missing sponsor, cross-realm without full `co_sponsors`) rather than silently dropped.
+See [Conclave Agenda Control](./conclave-agenda.md) for agenda sequencing and admission mechanics.
 
 ### Motion Types
 
@@ -452,4 +470,3 @@ See [schemas/motion.json](./schemas/motion.json) for the complete JSON Schema.
 - [Legitimacy System](./legitimacy-system.md) - How legislative behavior affects legitimacy
 - [Appeal & Cessation](./appeal-cessation.md) - King appeal rights and limits
 - [Enforcement Flow](./enforcement-flow.md) - Witness oversight of Legislative Branch
-

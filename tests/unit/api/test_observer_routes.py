@@ -653,7 +653,9 @@ class TestSSEStreamEndpoint:
                     assert "GET" in route.methods
                 break
 
-        assert stream_route_exists, "SSE stream endpoint /events/stream not found in router"
+        assert stream_route_exists, (
+            "SSE stream endpoint /events/stream not found in router"
+        )
 
     def test_sse_endpoint_returns_streaming_response(self) -> None:
         """Test that SSE endpoint returns EventSourceResponse type.

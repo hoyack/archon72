@@ -71,7 +71,8 @@ def test_domain_has_no_external_layer_imports(src_path: Path) -> None:
         if "from src.application" in content or "import src.application" in content:
             # Check for non-port application imports
             lines_with_app_import = [
-                line for line in content.split("\n")
+                line
+                for line in content.split("\n")
                 if ("from src.application" in line or "import src.application" in line)
                 and not any(pattern in line for pattern in allowed_patterns)
             ]
@@ -114,10 +115,17 @@ def test_application_has_no_forbidden_imports(src_path: Path) -> None:
                 f"{py_file} contains forbidden import: {forbidden_import}"
             )
         # Check for infrastructure imports that aren't allowed patterns
-        if "from src.infrastructure" in content or "import src.infrastructure" in content:
+        if (
+            "from src.infrastructure" in content
+            or "import src.infrastructure" in content
+        ):
             lines_with_infra_import = [
-                line for line in content.split("\n")
-                if ("from src.infrastructure" in line or "import src.infrastructure" in line)
+                line
+                for line in content.split("\n")
+                if (
+                    "from src.infrastructure" in line
+                    or "import src.infrastructure" in line
+                )
                 and not any(pattern in line for pattern in allowed_infra_patterns)
             ]
             assert not lines_with_infra_import, (
@@ -154,10 +162,17 @@ def test_api_has_no_direct_infrastructure_imports(src_path: Path) -> None:
     for py_file in api_files:
         content = py_file.read_text()
         # Check for infrastructure imports that aren't allowed patterns
-        if "from src.infrastructure" in content or "import src.infrastructure" in content:
+        if (
+            "from src.infrastructure" in content
+            or "import src.infrastructure" in content
+        ):
             lines_with_infra_import = [
-                line for line in content.split("\n")
-                if ("from src.infrastructure" in line or "import src.infrastructure" in line)
+                line
+                for line in content.split("\n")
+                if (
+                    "from src.infrastructure" in line
+                    or "import src.infrastructure" in line
+                )
                 and not any(pattern in line for pattern in allowed_infra_patterns)
             ]
             assert not lines_with_infra_import, (

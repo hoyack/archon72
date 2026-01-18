@@ -161,6 +161,7 @@ class TestProjectionRebuildServiceRebuildFull:
         mock_projection: AsyncMock,
     ) -> None:
         """rebuild_full succeeds with registered handler."""
+
         # Register a handler for the projection
         async def handler(event, seq):
             pass
@@ -409,6 +410,7 @@ class TestProjectionRebuildServiceRebuildAll:
         mock_projection: AsyncMock,
     ) -> None:
         """rebuild_all rebuilds all registered handler projections."""
+
         # Register handlers for projections
         async def handler(event, seq):
             pass

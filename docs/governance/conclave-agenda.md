@@ -49,6 +49,7 @@ See also: [Legislative Branch](legislative-branch.md).
 | Subject to quota | YES - max 1 per realm per Conclave |
 | Can be deferred | YES |
 
+New motions requesting authorization, resources, or policy changes. These enter the queue as **Motion Seeds** and require appropriate King sponsorship before they are admitted as Motions. See [The Legislative Branch](./legislative-branch.md) for sponsorship rules.
 Non-binding motion seeds submitted by eligible participants; they are not Motions.
 
 ### Queue 2: Deferred Motions

@@ -37,6 +37,7 @@ This keeps Archon 72 out of automation fantasy and out of liability traps.
 | [Legitimacy System](./legitimacy-system.md) | Banded state machine for procedural erosion visibility |
 | [Capacity Governance](./capacity-governance.md) | Making scarcity visible and prioritization accountable |
 | [Appeal & Cessation](./appeal-cessation.md) | Bounded disagreement, retry prevention, dignified shutdown |
+| [Governance Glossary](./glossary.md) | Definitions for core governance terms |
 
 ### Contracts (Earl ↔ Cluster)
 
@@ -165,4 +166,3 @@ authorized → activated → routed → accepted → in_progress → reported �
 - [Archon Governance Schema](../archons-base.json) - The 72 Archon definitions
 - [Rank Matrix](../../config/permissions/rank-matrix.yaml) - Branch permissions and prohibitions
 - [PRD: Governance Requirements](../_bmad-output/planning-artifacts/gov-requirements.md) - Original requirements
-

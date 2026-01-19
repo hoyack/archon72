@@ -23,69 +23,19 @@ import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import Any
 
+# Re-export PromotionBudgetStore for backward compatibility
+from src.application.ports.promotion_budget_store import PromotionBudgetStore
 
-@runtime_checkable
-class PromotionBudgetStore(Protocol):
-    """Protocol for promotion budget storage (P1).
-
-    All implementations must provide atomic check+consume semantics.
-    """
-
-    def can_promote(self, king_id: str, cycle_id: str, count: int = 1) -> bool:
-        """Check if a King can promote within their budget.
-
-        Args:
-            king_id: The King's archon ID.
-            cycle_id: The cycle identifier.
-            count: Number of promotions to check.
-
-        Returns:
-            True if the King has sufficient budget remaining.
-        """
-        ...
-
-    def consume(self, king_id: str, cycle_id: str, count: int = 1) -> int:
-        """Atomically consume promotion budget.
-
-        This must be atomic: concurrent calls must not exceed budget.
-
-        Args:
-            king_id: The King's archon ID.
-            cycle_id: The cycle identifier.
-            count: Number of promotions to consume.
-
-        Returns:
-            New total used count after consumption.
-
-        Raises:
-            PromotionBudgetExceededError: If budget would be exceeded.
-        """
-        ...
-
-    def get_usage(self, king_id: str, cycle_id: str) -> int:
-        """Get current usage count for a King in a cycle.
-
-        Args:
-            king_id: The King's archon ID.
-            cycle_id: The cycle identifier.
-
-        Returns:
-            Number of promotions already consumed.
-        """
-        ...
-
-    def get_budget(self, king_id: str) -> int:
-        """Get the promotion budget for a King.
-
-        Args:
-            king_id: The King's archon ID.
-
-        Returns:
-            The King's promotion budget.
-        """
-        ...
+__all__ = [
+    "PromotionBudgetStore",
+    "BudgetRecord",
+    "PromotionBudgetExceededError",
+    "InMemoryBudgetStore",
+    "FileBudgetStore",
+    "RedisBudgetStore",
+]
 
 
 @dataclass

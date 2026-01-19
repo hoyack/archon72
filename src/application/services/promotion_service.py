@@ -23,6 +23,7 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
+from src.application.ports.promotion_budget_store import PromotionBudgetStore
 from src.application.services.base import LoggingMixin
 from src.domain.models.motion_seed import (
     KING_REALM_MAP,
@@ -34,10 +35,7 @@ from src.domain.models.motion_seed import (
     is_king,
     validate_king_realm_match,
 )
-from src.infrastructure.adapters.persistence.budget_store import (
-    InMemoryBudgetStore,
-    PromotionBudgetStore,
-)
+from src.infrastructure.stubs.budget_store_stub import InMemoryBudgetStore
 
 
 @dataclass

@@ -42,6 +42,7 @@
 - [Automated Secretary System](#automated-secretary-system)
 - [Motion Consolidator](#motion-consolidator)
 - [Motion Review Pipeline](#motion-review-pipeline)
+- [Motion Gates Hardening](#motion-gates-hardening)
 - [Execution Planner](#execution-planner)
 - [Full Governance Pipeline](#full-governance-pipeline)
   - [Conclave Agenda Sources](#conclave-agenda-sources)
@@ -1363,6 +1364,21 @@ When using `--real-agent`, each Archon uses their specific LLM binding from `con
 3. Global `_default` (gemma3:4b)
 
 All local models use Ollama via `OLLAMA_HOST` environment variable.
+
+## Motion Gates Hardening
+
+Motion Gates enforce the boundary between abundant **Seeds** and scarce **Motions**. The hardening work closes governance gaps and adds tripwire tests to prevent combinatorial explosion regressions.
+
+**What changed (Hardening H1-H5):**
+- **H1 Promotion Budget**: Each King has a per-cycle promotion budget (default: 3). Growth bound becomes `O(kings x budget)` (9 x 3 = 27 max motions per cycle).
+- **H2 Boundary Tripwires**: Added integration tests that lock the Seed-to-Motion boundary, admission status requirements, and immutability checks.
+- **H3 Seed Immutability**: `seed_text`, `submitted_by`, `submitted_at`, and `source_references` are immutable once a Seed is promoted.
+- **H4 Cross-Realm Escalation**: Motions spanning 4+ realms require escalation; the admission gate flags and rejects these unless explicitly approved.
+- **H5 Backward-Compat Guardrails**: Secretary/cluster shims now assert they create only `MotionSeed` records and never bypass promotion or admission.
+
+**Developer notes:**
+- `PromotionService.promote(...)` now requires a `cycle_id` to enforce budget tracking.
+- See `docs/spikes/motion-gates-hardening.md` for the full specification and rationale.
 
 ### Review Pipeline Outputs
 

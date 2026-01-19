@@ -25,16 +25,14 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
-from uuid import uuid4
 
 from src.application.services.base import LoggingMixin
 from src.domain.models.motion_seed import (
-    KING_IDS,
     VALID_REALMS,
-    AdmissionRejectReason,
     AdmissionRecord,
+    AdmissionRejectReason,
     AdmissionStatus,
     get_king_realm,
     is_king,

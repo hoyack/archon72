@@ -20,8 +20,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
-from uuid import UUID
 
 from src.application.services.base import LoggingMixin
 from src.domain.models.motion_seed import (

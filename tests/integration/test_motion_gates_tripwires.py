@@ -10,25 +10,23 @@ Per the Motion Gates Hardening Spec (H2):
 > If any test fails, the explosion protection is compromised.
 """
 
-import pytest
 from datetime import datetime, timezone
 
-from src.domain.models.motion_seed import (
-    KING_IDS,
-    KING_REALM_MAP,
-    DEFAULT_KING_PROMOTION_BUDGET,
-    MotionSeed,
-    PromotionBudgetTracker,
-    SeedStatus,
-    get_king_realm,
-)
 from src.application.services.admission_gate_service import (
     AdmissionGateService,
     MotionCandidate,
 )
 from src.application.services.promotion_service import PromotionService
 from src.application.services.seed_pool_service import SeedPoolService
-
+from src.domain.models.motion_seed import (
+    DEFAULT_KING_PROMOTION_BUDGET,
+    KING_IDS,
+    KING_REALM_MAP,
+    MotionSeed,
+    PromotionBudgetTracker,
+    SeedStatus,
+    get_king_realm,
+)
 
 # =============================================================================
 # H2 Tripwire Test 1: Seeds never touch Motion creation path directly
@@ -89,7 +87,8 @@ class TestSeedMotionBoundary:
         promotable = pool.get_seeds_for_promotion()
         stats = pool.get_stats()
 
-        # Verify no promotions occurred
+        # Verify no promotions occurred (seeds are promotable but not promoted)
+        assert len(promotable) > 0, "Seeds should be available for promotion"
         assert stats.promoted_seeds == 0
         for seed in seeds:
             assert seed.status in (SeedStatus.RECORDED, SeedStatus.CLUSTERED)
@@ -363,7 +362,8 @@ class TestBackwardCompatibilityShim:
         Tripwire: If this creates Motion records, explosion protection is violated.
         """
         from uuid import uuid4
-        from src.domain.models.secretary import QueuedMotion, ConsensusLevel
+
+        from src.domain.models.secretary import ConsensusLevel, QueuedMotion
 
         pool = SeedPoolService(output_dir=tmp_path / "pool")
 
@@ -412,13 +412,12 @@ class TestBackwardCompatibilityShim:
 
         Tripwire: If this creates Motion records, explosion protection is violated.
         """
-        from uuid import uuid4
         from src.domain.models.secretary import (
-            RecommendationCluster,
             ExtractedRecommendation,
-            SourceReference,
             RecommendationCategory,
+            RecommendationCluster,
             RecommendationType,
+            SourceReference,
         )
 
         pool = SeedPoolService(output_dir=tmp_path / "pool")

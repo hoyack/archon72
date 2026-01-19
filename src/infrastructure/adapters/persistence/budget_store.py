@@ -20,7 +20,6 @@ import json
 import os
 import tempfile
 import threading
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -237,7 +236,7 @@ class FileBudgetStore:
             return None
 
         try:
-            with open(path, "r") as f:
+            with open(path) as f:
                 # Use fcntl for read locking on the file itself
                 fcntl.flock(f.fileno(), fcntl.LOCK_SH)
                 try:
@@ -310,10 +309,7 @@ class FileBudgetStore:
             record = self._read_record(king_id, cycle_id)
             budget = self.get_budget(king_id)
 
-            if record is None:
-                used = 0
-            else:
-                used = record.used
+            used = 0 if record is None else record.used
 
             # Check budget
             if used + count > budget:

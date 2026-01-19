@@ -12,26 +12,10 @@ Per Motion Gates spec (docs/spikes/motion-gates.md):
 - Admission Gate validates Motions, not Seeds
 """
 
-import pytest
 from datetime import datetime, timezone
-from uuid import uuid4
 
-from src.domain.models.motion_seed import (
-    AdmissionRejectReason,
-    AdmissionStatus,
-    KING_IDS,
-    KING_REALM_MAP,
-    MotionSeed,
-    PromotionBudgetExceededError,
-    PromotionBudgetTracker,
-    PromotionRejectReason,
-    RealmAssignment,
-    SeedImmutabilityError,
-    SeedStatus,
-    is_king,
-    get_king_realm,
-    validate_king_realm_match,
-)
+import pytest
+
 from src.application.services.admission_gate_service import (
     AdmissionGateService,
     MotionCandidate,
@@ -42,7 +26,20 @@ from src.application.services.promotion_service import (
 from src.application.services.seed_pool_service import (
     SeedPoolService,
 )
-
+from src.domain.models.motion_seed import (
+    KING_IDS,
+    KING_REALM_MAP,
+    AdmissionRejectReason,
+    AdmissionStatus,
+    MotionSeed,
+    PromotionBudgetTracker,
+    PromotionRejectReason,
+    SeedImmutabilityError,
+    SeedStatus,
+    get_king_realm,
+    is_king,
+    validate_king_realm_match,
+)
 
 # =============================================================================
 # Test Fixtures

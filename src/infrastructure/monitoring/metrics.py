@@ -119,6 +119,53 @@ class MetricsCollector:
             registry=self._registry,
         )
 
+        # Petition queue capacity metrics (Story 1.3, FR-1.4, AC4)
+        # These enable alerting on queue saturation before 503s occur
+
+        # Current queue depth gauge (AC3: petition_queue_depth{state="RECEIVED"})
+        self.petition_queue_depth = Gauge(
+            name="petition_queue_depth",
+            documentation="Current number of petitions in RECEIVED state",
+            labelnames=["service", "environment", "state"],
+            registry=self._registry,
+        )
+
+        # Queue threshold gauge (for calculating utilization percentage)
+        self.petition_queue_threshold = Gauge(
+            name="petition_queue_threshold",
+            documentation="Configured petition queue threshold",
+            labelnames=["service", "environment"],
+            registry=self._registry,
+        )
+
+        # Rejection counter for 503 responses
+        self.petition_queue_rejections_total = Counter(
+            name="petition_queue_rejections_total",
+            documentation="Total petition submissions rejected due to queue overflow",
+            labelnames=["service", "environment"],
+            registry=self._registry,
+        )
+
+        # Rate limit metrics (Story 1.4, FR-1.5, HC-4, AC4)
+        # These enable alerting on rate limiting activity
+
+        # Rate limit hits counter (429 responses due to rate limiting)
+        self.petition_rate_limit_hits_total = Counter(
+            name="petition_rate_limit_hits_total",
+            documentation="Total petition submissions rejected due to rate limiting",
+            labelnames=["service", "environment"],
+            registry=self._registry,
+        )
+
+        # Rate limit remaining gauge (per submitter)
+        # Note: This is an aggregate metric, not per-submitter (would be too many labels)
+        self.petition_rate_limit_checks_total = Counter(
+            name="petition_rate_limit_checks_total",
+            documentation="Total rate limit checks performed",
+            labelnames=["service", "environment", "result"],
+            registry=self._registry,
+        )
+
     def set_uptime(self, service: str, seconds: float) -> None:
         """Set uptime gauge for a service.
 
@@ -201,6 +248,67 @@ class MetricsCollector:
         """
         self.startup_times[service] = time.time()
         self.increment_service_starts(service)
+
+    def set_petition_queue_depth(self, depth: int, state: str = "RECEIVED") -> None:
+        """Set the current petition queue depth gauge (Story 1.3, AC3).
+
+        Args:
+            depth: Current number of petitions in the specified state.
+            state: Petition state being measured (default: "RECEIVED").
+        """
+        self.petition_queue_depth.labels(
+            service=self._service_name,
+            environment=self._environment,
+            state=state,
+        ).set(depth)
+
+    def set_petition_queue_threshold(self, threshold: int) -> None:
+        """Set the petition queue threshold gauge (Story 1.3, AC4).
+
+        Args:
+            threshold: Configured threshold before 503 rejections.
+        """
+        self.petition_queue_threshold.labels(
+            service=self._service_name,
+            environment=self._environment,
+        ).set(threshold)
+
+    def increment_petition_queue_rejections(self) -> None:
+        """Increment the petition queue rejections counter (Story 1.3, AC4).
+
+        Called when a 503 is returned due to queue overflow.
+        """
+        self.petition_queue_rejections_total.labels(
+            service=self._service_name,
+            environment=self._environment,
+        ).inc()
+
+    def increment_petition_rate_limit_hits(self) -> None:
+        """Increment the petition rate limit hits counter (Story 1.4, AC4).
+
+        Called when a 429 is returned due to rate limiting.
+        """
+        self.petition_rate_limit_hits_total.labels(
+            service=self._service_name,
+            environment=self._environment,
+        ).inc()
+        # Also record as a rate limit check with "blocked" result
+        self.petition_rate_limit_checks_total.labels(
+            service=self._service_name,
+            environment=self._environment,
+            result="blocked",
+        ).inc()
+
+    def increment_petition_rate_limit_allowed(self) -> None:
+        """Increment the petition rate limit checks counter for allowed requests (Story 1.4, AC4).
+
+        Called when a rate limit check passes (submitter is under limit).
+        """
+        self.petition_rate_limit_checks_total.labels(
+            service=self._service_name,
+            environment=self._environment,
+            result="allowed",
+        ).inc()
 
     def get_uptime_seconds(self, service: str) -> float:
         """Get uptime in seconds for a service.

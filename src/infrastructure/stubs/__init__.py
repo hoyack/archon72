@@ -136,6 +136,36 @@ from src.infrastructure.stubs.override_trend_repository_stub import (
     OverrideTrendRepositoryStub,
 )
 from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
+from src.infrastructure.stubs.petition_submission_repository_stub import (
+    PetitionSubmissionRepositoryStub,
+)
+from src.infrastructure.stubs.petition_event_emitter_stub import (
+    EmittedEvent,
+    EmittedFateEvent,
+    PetitionEventEmitterStub,
+)
+from src.infrastructure.stubs.job_scheduler_stub import (
+    JobSchedulerStub,
+)
+from src.infrastructure.stubs.content_hash_service_stub import (
+    ContentHashServiceStub,
+    HashOperation,
+)
+from src.infrastructure.stubs.realm_registry_stub import (
+    RealmOperation,
+    RealmRegistryStub,
+)
+from src.infrastructure.stubs.archon_pool_stub import (
+    ArchonPoolOperation,
+    ArchonPoolStub,
+    create_test_archon,
+)
+from src.infrastructure.stubs.queue_capacity_stub import (
+    QueueCapacityStub,
+)
+from src.infrastructure.stubs.rate_limiter_stub import (
+    RateLimiterStub,
+)
 from src.infrastructure.stubs.prohibited_language_scanner_stub import (
     ConfigurableScannerStub,
     ProhibitedLanguageScannerStub,
@@ -262,6 +292,28 @@ __all__: list[str] = [
     "CessationAgendaRepositoryStub",
     # Petition (Story 7.2, FR39)
     "PetitionRepositoryStub",
+    # Petition submission (Story 0.3, AC3)
+    "PetitionSubmissionRepositoryStub",
+    # Petition event emitter (Story 1.2, FR-1.7; Story 1.7, FR-2.5)
+    "EmittedEvent",
+    "EmittedFateEvent",
+    "PetitionEventEmitterStub",
+    # Job Scheduler (Story 0.4, AC3)
+    "JobSchedulerStub",
+    # Content Hash Service (Story 0.5, AC3)
+    "ContentHashServiceStub",
+    "HashOperation",
+    # Realm Registry (Story 0.6, HP-3, HP-4)
+    "RealmOperation",
+    "RealmRegistryStub",
+    # Archon Pool (Story 0.7, HP-11, FR-11.1)
+    "ArchonPoolOperation",
+    "ArchonPoolStub",
+    "create_test_archon",
+    # Queue Capacity (Story 1.3, FR-1.4)
+    "QueueCapacityStub",
+    # Rate Limiter (Story 1.4, FR-1.5, HC-4)
+    "RateLimiterStub",
     "SignatureVerifierStub",
     # Schema irreversibility (Story 7.3, FR40, NFR40)
     "TerminalEventDetectorStub",

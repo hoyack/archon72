@@ -79,11 +79,15 @@ class JsonYamlArchonProfileAdapter(ArchonProfileRepository):
         identities = self._load_json_identities()
 
         for archon_id, identity in identities.items():
-            llm_config = self._resolve_llm_config(
-                archon_id=archon_id,
-                aegis_rank=identity["aegis_rank"],
-                llm_configs=llm_configs,
-            )
+            llm_config_data = identity.get("llm_config")
+            if llm_config_data:
+                llm_config = self._dict_to_llm_config(llm_config_data)
+            else:
+                llm_config = self._resolve_llm_config(
+                    archon_id=archon_id,
+                    aegis_rank=identity["aegis_rank"],
+                    llm_configs=llm_configs,
+                )
 
             # Determine branch: use JSON value or derive from rank
             branch = identity.get("branch", "")
@@ -175,6 +179,7 @@ class JsonYamlArchonProfileAdapter(ArchonProfileRepository):
                         "max_legions": int(archon.get("max_legions", 0)),
                         "created_at": created_at,
                         "updated_at": updated_at,
+                        "llm_config": archon.get("llm_config"),
                     }
 
         except (json.JSONDecodeError, KeyError, ValueError) as e:

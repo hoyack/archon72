@@ -14,6 +14,7 @@ from src.api.routes.health import router as health_router
 from src.api.routes.metrics import router as metrics_router
 from src.api.routes.observer import router as observer_router
 from src.api.routes.override import router as override_router
+from src.api.routes.petition_submission import router as petition_submission_router
 from src.api.startup import (
     configure_logging,
     record_service_startup,
@@ -75,3 +76,4 @@ app.include_router(health_router)
 app.include_router(metrics_router)
 app.include_router(observer_router)
 app.include_router(override_router)
+app.include_router(petition_submission_router)

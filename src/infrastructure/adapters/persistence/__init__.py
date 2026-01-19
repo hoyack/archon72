@@ -9,6 +9,7 @@ Available adapters:
 - HaltFlagRepository: Abstract halt flag repository interface
 - TerminalEventDetector: PostgreSQL terminal event detection (Story 7.6)
 - InMemoryTerminalEventDetector: In-memory terminal detection for testing
+- PostgresRateLimitStore: PostgreSQL rate limit bucket storage (Story 1.4, D4)
 """
 
 from src.infrastructure.adapters.persistence.halt_flag_repository import (
@@ -20,6 +21,9 @@ from src.infrastructure.adapters.persistence.terminal_event_detector import (
     InMemoryTerminalEventDetector,
     TerminalEventDetector,
 )
+from src.infrastructure.adapters.persistence.rate_limit_store import (
+    PostgresRateLimitStore,
+)
 from src.infrastructure.adapters.persistence.witness_pool import InMemoryWitnessPool
 
 __all__: list[str] = [
@@ -29,4 +33,6 @@ __all__: list[str] = [
     "InMemoryHaltFlagRepository",
     "TerminalEventDetector",
     "InMemoryTerminalEventDetector",
+    # Rate limit store (Story 1.4, D4)
+    "PostgresRateLimitStore",
 ]

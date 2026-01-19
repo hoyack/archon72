@@ -135,282 +135,405 @@ workflow_status:
       completed: "2026-01-17"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CURRENT WORK IN PROGRESS (2026-01-17)
+# CURRENT WORK IN PROGRESS (2026-01-19)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "ALL CONSENT-GOV EPICS COMPLETE"
-  status: done
+  epic: "Petition Epic 2A: Core Deliberation Protocol"
+  status: in-progress
 
-  completed_this_session:
-    # Gov Epic 4: Duke/Earl Services
-    - id: "gov-4-1-duke-service-port"
-      status: done
-      summary: "Duke service port and adapter for execution planning"
-      files_created:
-        - src/application/ports/duke_service.py
-        - src/infrastructure/adapters/government/duke_service_adapter.py
-        - tests/unit/application/ports/test_duke_service.py
-      tests: "35 unit tests passing"
+  completed_epic: "Petition Epic 1: Petition Intake & State Machine (8/8 stories DONE)"
 
-    - id: "gov-4-2-earl-service-port"
-      status: done
-      summary: "Earl service port and adapter for resource management"
-      files_created:
-        - src/application/ports/earl_service.py
-        - src/infrastructure/adapters/government/earl_service_adapter.py
-        - tests/unit/application/ports/test_earl_service.py
-      tests: "29 unit tests passing"
+  current_story: petition-2a-1-deliberation-session-domain-model
+  current_story_status: ready
 
-    # Gov Epic 6: Marquis Advisory Service
-    - id: "gov-6-1-marquis-service-port"
-      status: done
-      summary: "Marquis service port and adapter for advisory opinions"
-      files_created:
-        - src/application/ports/marquis_service.py
-        - src/infrastructure/adapters/government/marquis_service_adapter.py
-        - tests/unit/application/ports/test_marquis_service.py
-      tests: "21 unit tests passing"
+  backlog:
+    - petition-2a-1-deliberation-session-domain-model
+    - petition-2a-2-archon-assignment-service
+    - petition-2a-3-deliberation-context-package-builder
+    - petition-2a-4-deliberation-protocol-orchestrator
+    - petition-2a-5-crewai-deliberation-adapter
+    - petition-2a-6-supermajority-consensus-resolution
+    - petition-2a-7-phase-level-witness-batching
+    - petition-2a-8-disposition-emission-pipeline-routing
 
-    # Gov Epic 8: Flow Orchestrator
-    - id: "gov-8-1-governance-state-machine"
-      status: done
-      summary: "Governance state machine for motion lifecycle"
-      files_created:
-        - src/application/ports/governance_state_machine.py
-        - src/infrastructure/adapters/government/governance_state_machine_adapter.py
-        - tests/unit/application/ports/test_governance_state_machine.py
-      tests: "42 unit tests passing"
+  note: "Petition Epic 1 COMPLETE (2026-01-19). Epic 2A is CRITICAL PATH for Three Fates mini-Conclave."
 
-    - id: "gov-8-2-flow-orchestrator"
-      status: done
-      summary: "Flow orchestrator coordinating 7-step governance pipeline"
-      files_created:
-        - src/application/ports/flow_orchestrator.py
-        - src/application/services/flow_orchestrator_service.py
-        - tests/unit/application/ports/test_flow_orchestrator.py
-        - tests/unit/application/services/test_flow_orchestrator_service.py
-      tests: "129 unit tests passing (87 port + 42 service)"
-      key_features:
-        - "7-step canonical flow: King→Conclave→President→Duke/Earl→Prince→Knight→Conclave"
-        - "STATE_SERVICE_MAP routing configuration"
-        - "Error escalation strategies (RETURN_TO_PREVIOUS, CONCLAVE_REVIEW, HALT_AND_ALERT, RETRY)"
-        - "Pipeline status tracking with 24h statistics"
-        - "Knight witness integration per CT-12"
+# ═══════════════════════════════════════════════════════════════════════════════
+# PETITION SYSTEM EPICS (from petition-system-epics.md)
+# Three Fates deliberation, petition lifecycle, co-signing, escalation
+# Source: petition-system-prd.md (70 FRs, 53 NFRs)
+# Total: 10 Epics, 71 Stories
+# ═══════════════════════════════════════════════════════════════════════════════
+petition_system:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 0: Foundation & Migration (P0)
+  # CrewAI multi-agent setup, domain models, migration from Story 7.2
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-0:
+    name: "Foundation & Migration"
+    priority: P0
+    status: done
+    stories:
+      - id: petition-0-1-crewai-multi-agent-feasibility-spike
+        name: "CrewAI Multi-Agent Feasibility Spike"
+        status: done
+        completed: "2026-01-19"
+        note: "GO recommendation - mock tests pass, real LLM deferred"
+      - id: petition-0-2-petition-domain-model-base-schema
+        name: "Petition Domain Model & Base Schema"
+        status: done
+        completed: "2026-01-19"
+        note: "Migration 012, domain model, unit+integration tests"
+      - id: petition-0-3-story-7-2-cessation-petition-migration
+        name: "Story 7.2 Cessation Petition Migration"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-0-3-story-7-2-cessation-petition-migration.md"
+        note: "Dual-write repo, adapter, migration/rollback scripts, 75 new tests"
+      - id: petition-0-4-job-queue-infrastructure
+        name: "Job Queue Infrastructure"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-0-4-job-queue-infrastructure.md"
+        note: "HP-1, HC-6, NFR-7.5 - Deadline monitoring for referral/deliberation timeouts"
+      - id: petition-0-5-content-hashing-service-blake3
+        name: "Content Hashing Service (BLAKE3)"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-0-5-content-hashing-service-blake3.md"
+        note: "HP-2, HC-5 - BLAKE3 hashing for duplicate detection and witness integrity"
+      - id: petition-0-6-realm-registry-routing
+        name: "Realm Registry & Routing"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-0-6-realm-registry-routing.md"
+        note: "HP-3, HP-4, NFR-7.3 - 9 canonical realms, sentinel mapping, routing service"
+      - id: petition-0-7-archon-persona-definitions-three-fates
+        name: "Archon Persona Definitions (Three Fates)"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-0-7-archon-persona-definitions-three-fates.md"
+        note: "HP-11, FR-11.1 - 7 Fate Archons, 5 deliberation styles, deterministic selection"
 
-    - id: "gov-8-3-skip-prevention"
-      status: done
-      summary: "Skip prevention enforcement per FR-GOV-23"
-      files_created:
-        - tests/unit/infrastructure/adapters/government/test_skip_prevention.py
-      files_modified:
-        - src/application/ports/governance_state_machine.py
-        - src/infrastructure/adapters/government/governance_state_machine_adapter.py
-      tests: "40 unit tests passing"
-      key_features:
-        - "SkipAttemptViolation domain model with CRITICAL severity"
-        - "SkipAttemptType enum (SIMPLE_SKIP, FORCE_SKIP, BULK_SKIP)"
-        - "Force skip prevention with Conclave escalation (AC4)"
-        - "validate_transition() for API-level enforcement (AC5)"
-        - "Full audit trail via get_skip_attempts() (AC6)"
-        - "ForceSkipAttemptError for privileged skip attempts"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 1: Petition Intake & State Machine (P0)
+  # REST API, events, queue protection, rate limiting, state transitions
+  # FR-1.1 to FR-1.7, FR-2.1 to FR-2.6
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-1:
+    name: "Petition Intake & State Machine"
+    priority: P0
+    status: done
+    completed: "2026-01-19"
+    stories:
+      - id: petition-1-1-petition-submission-rest-endpoint
+        name: "Petition Submission REST Endpoint"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-1-petition-submission-rest-endpoint.md"
+        note: "FR-1.1, FR-1.2, FR-1.3, FR-1.6, FR-10.1 - REST API, schema validation, content hashing, halt behavior"
+      - id: petition-1-2-petition-received-event-emission
+        name: "Petition Received Event Emission"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-2-petition-received-event-emission.md"
+        note: "FR-1.7, CT-12, CT-13 - Two-phase event emission, graceful degradation, 26 tests"
+      - id: petition-1-3-queue-overflow-protection-503
+        name: "Queue Overflow Protection (503)"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-3-queue-overflow-protection-503.md"
+        note: "FR-1.4, NFR-3.1, CT-11 - 503 response, Retry-After header, hysteresis, Prometheus metrics"
+      - id: petition-1-4-submitter-rate-limiting
+        name: "Submitter Rate Limiting"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-4-submitter-rate-limiting.md"
+        note: "FR-1.5 - Sliding window rate limiting, PostgreSQL storage, 429 responses, Prometheus metrics"
+      - id: petition-1-5-state-machine-domain-model
+        name: "State Machine Domain Model"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-5-state-machine-domain-model.md"
+        note: "FR-2.1, FR-2.3, FR-2.6 - Transition matrix, terminal states (Three Fates), 22 tests"
+      - id: petition-1-6-atomic-fate-assignment-cas
+        name: "Atomic Fate Assignment (CAS)"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-6-atomic-fate-assignment-cas.md"
+        note: "FR-2.4, NFR-3.2 - ConcurrentModificationError, CAS stub, 35 new tests (syntax verified)"
+      - id: petition-1-7-fate-event-emission-transactional
+        name: "Fate Event Emission (Transactional)"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-7-fate-event-emission-transactional.md"
+        note: "FR-2.5, NFR-3.3, HC-1 - Transactional fate events, atomic with state change, rollback on failure"
+      - id: petition-1-8-petition-status-query-endpoint
+        name: "Petition Status Query Endpoint"
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-1-8-petition-status-query-endpoint.md"
+        note: "FR-7.1, FR-7.4, NFR-1.2, D7 - Status query, co_signer_count, fate_reason for terminal states, 13 tests"
 
-    - id: "gov-8-4-role-collapse-prevention"
-      status: done
-      summary: "Role collapse prevention per FR-GOV-23 and PRD §2.1"
-      files_created:
-        - src/application/ports/branch_action_tracker.py
-        - src/application/services/role_collapse_detection_service.py
-        - src/infrastructure/adapters/government/branch_action_tracker_adapter.py
-        - tests/unit/application/services/test_role_collapse_detection.py
-      files_modified:
-        - src/application/ports/permission_enforcer.py
-        - src/application/services/flow_orchestrator_service.py
-      tests: "47 unit tests passing"
-      key_features:
-        - "BranchAction domain model for action tracking"
-        - "BranchConflictRule with CRITICAL/MAJOR severity"
-        - "Role collapse detection per PRD §2.1: No entity may define intent, execute it, AND judge it"
-        - "Pre-routing collapse check in Flow Orchestrator"
-        - "Knight witness integration for violations"
-        - "Conflict rules: legislative↔executive, executive↔judicial, advisory↔judicial"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 2A: Core Deliberation Protocol (CRITICAL PATH)
+  # Three Fates mini-Conclave, structured protocol, supermajority consensus
+  # FR-11.1 to FR-11.12 (ALL P0)
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-2a:
+    name: "Core Deliberation Protocol"
+    priority: P0-CRITICAL
+    status: in-progress
+    stories:
+      - id: petition-2a-1-deliberation-session-domain-model
+        name: "Deliberation Session Domain Model"
+        status: ready
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-1-deliberation-session-domain-model.md"
+        note: "FR-11.1, FR-11.4 - DeliberationSession aggregate, phase transitions, consensus invariants"
+      - id: petition-2a-2-archon-assignment-service
+        name: "Archon Assignment Service"
+        status: ready
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-2-archon-assignment-service.md"
+        note: "FR-11.1, FR-11.2 - Deterministic 3-archon selection, idempotent assignment, session creation"
+      - id: petition-2a-3-deliberation-context-package-builder
+        name: "Deliberation Context Package Builder"
+        status: backlog
+      - id: petition-2a-4-deliberation-protocol-orchestrator
+        name: "Deliberation Protocol Orchestrator"
+        status: backlog
+      - id: petition-2a-5-crewai-deliberation-adapter
+        name: "CrewAI Deliberation Adapter"
+        status: backlog
+      - id: petition-2a-6-supermajority-consensus-resolution
+        name: "Supermajority Consensus Resolution"
+        status: backlog
+      - id: petition-2a-7-phase-level-witness-batching
+        name: "Phase-Level Witness Batching"
+        status: backlog
+      - id: petition-2a-8-disposition-emission-pipeline-routing
+        name: "Disposition Emission & Pipeline Routing"
+        status: backlog
 
-    - id: "gov-4-3-failure-signal-propagation"
-      status: done
-      summary: "Failure signal propagation per FR-GOV-13 - no suppression of failures"
-      files_created:
-        - src/application/ports/failure_propagation.py
-        - src/application/services/suppression_detection_service.py
-        - src/infrastructure/adapters/government/failure_propagation_adapter.py
-        - tests/unit/application/services/test_failure_propagation.py
-        - tests/integration/test_failure_propagation_integration.py
-      tests: "57 tests passing (45 unit + 12 integration)"
-      key_features:
-        - "FailureSignal domain model with 6 failure types and 4 severity levels"
-        - "SuppressionViolation model for detecting suppression attempts"
-        - "SuppressionDetectionService with timeout monitoring"
-        - "FailurePropagationAdapter with Knight witnessing per CT-12"
-        - "Prince notification with full context (task spec, timeline, evidence)"
-        - "Anti-suppression enforcement per FR-GOV-13"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 2B: Deliberation Edge Cases & Guarantees (P0)
+  # Dissent, timeouts, deadlock, archon substitution, audit trail
+  # NFR-10.1 to NFR-10.6
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-2b:
+    name: "Deliberation Edge Cases & Guarantees"
+    priority: P0
+    status: backlog
+    stories:
+      - id: petition-2b-1-dissent-recording-service
+        name: "Dissent Recording Service"
+        status: backlog
+      - id: petition-2b-2-deliberation-timeout-enforcement
+        name: "Deliberation Timeout Enforcement"
+        status: backlog
+      - id: petition-2b-3-deadlock-detection-auto-escalation
+        name: "Deadlock Detection & Auto-Escalation"
+        status: backlog
+      - id: petition-2b-4-archon-substitution-on-failure
+        name: "Archon Substitution on Failure"
+        status: backlog
+      - id: petition-2b-5-transcript-preservation-hash-referencing
+        name: "Transcript Preservation & Hash Referencing"
+        status: backlog
+      - id: petition-2b-6-audit-trail-reconstruction
+        name: "Audit Trail Reconstruction"
+        status: backlog
+      - id: petition-2b-7-deliberation-load-testing-harness
+        name: "Deliberation Load Testing Harness"
+        status: backlog
+      - id: petition-2b-8-deliberation-chaos-testing
+        name: "Deliberation Chaos Testing"
+        status: backlog
 
-    - id: "gov-6-2-advisory-acknowledgment-tracking"
-      status: done
-      summary: "Advisory acknowledgment tracking per FR-GOV-18 - acknowledged but not obeyed"
-      files_created:
-        - src/application/ports/advisory_acknowledgment.py
-        - src/application/services/advisory_acknowledgment_service.py
-        - tests/unit/application/services/test_advisory_acknowledgment.py
-      tests: "41 unit tests passing"
-      key_features:
-        - "AdvisoryAcknowledgment domain model with approved=False always"
-        - "ContraryDecision domain model with reasoning documentation"
-        - "AdvisoryWindow domain model for Marquis-Judge conflict prevention"
-        - "Deadline enforcement with escalation pattern (default 48h)"
-        - "Topic overlap detection for advisory window conflicts"
-        - "Knight witnessing for all operations per CT-12"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 3: Acknowledgment Execution (P1)
+  # Reason codes, rationale requirements, dwell time, metrics
+  # FR-3.1 to FR-3.6
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-3:
+    name: "Acknowledgment Execution"
+    priority: P1
+    status: backlog
+    stories:
+      - id: petition-3-1-acknowledgment-reason-code-enumeration
+        name: "Acknowledgment Reason Code Enumeration"
+        status: backlog
+      - id: petition-3-2-acknowledgment-execution-service
+        name: "Acknowledgment Execution Service"
+        status: backlog
+      - id: petition-3-3-rationale-requirement-enforcement
+        name: "Rationale Requirement Enforcement"
+        status: backlog
+      - id: petition-3-4-duplicate-petition-reference
+        name: "Duplicate Petition Reference"
+        status: backlog
+      - id: petition-3-5-minimum-dwell-time-enforcement
+        name: "Minimum Dwell Time Enforcement"
+        status: backlog
+      - id: petition-3-6-acknowledgment-rate-metrics
+        name: "Acknowledgment Rate Metrics"
+        status: backlog
 
-    - id: "gov-6-3-advisory-conflict-prevention"
-      status: done
-      summary: "Advisory conflict prevention per FR-GOV-18 - Marquis cannot judge advised topics"
-      files_created:
-        - src/application/services/advisory_conflict_detection_service.py
-        - tests/unit/application/services/test_advisory_conflict_detection.py
-      tests: "40 unit tests passing"
-      key_features:
-        - "TopicOverlap model with configurable threshold (default 0.6)"
-        - "AdvisoryConflict model with resolution tracking"
-        - "AdvisoryConflictViolation model with MAJOR severity"
-        - "Prince panel exclusion for conflicted Marquis"
-        - "Escalation to Conclave when all Princes conflicted"
-        - "Full conflict audit trail per AC6"
-        - "Knight witnessing for all conflicts per CT-12"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 4: Knight Referral Workflow (P1)
+  # Referral domain, decision packages, extensions, timeouts
+  # FR-4.1 to FR-4.7
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-4:
+    name: "Knight Referral Workflow"
+    priority: P1
+    status: backlog
+    stories:
+      - id: petition-4-1-referral-domain-model-schema
+        name: "Referral Domain Model & Schema"
+        status: backlog
+      - id: petition-4-2-referral-execution-service
+        name: "Referral Execution Service"
+        status: backlog
+      - id: petition-4-3-knight-decision-package
+        name: "Knight Decision Package"
+        status: backlog
+      - id: petition-4-4-knight-recommendation-submission
+        name: "Knight Recommendation Submission"
+        status: backlog
+      - id: petition-4-5-extension-request-handling
+        name: "Extension Request Handling"
+        status: backlog
+      - id: petition-4-6-referral-timeout-auto-acknowledge
+        name: "Referral Timeout Auto-Acknowledge"
+        status: backlog
+      - id: petition-4-7-knight-concurrent-referral-limit
+        name: "Knight Concurrent Referral Limit"
+        status: backlog
 
-    # Consent Gov Epic 1: Event Sourcing Foundation
-    - id: "consent-gov-1-6-two-phase-event-emission"
-      status: done
-      summary: "Two-phase event emission for Knight observability (intent → commit/failure)"
-      files_created:
-        - src/domain/governance/events/two_phase_events.py
-        - src/application/ports/governance/two_phase_emitter_port.py
-        - src/application/services/governance/two_phase_event_emitter.py
-        - src/application/services/governance/orphan_intent_detector.py
-        - src/application/services/governance/two_phase_gap_detector.py
-        - src/application/services/governance/two_phase_execution.py
-        - tests/unit/domain/governance/events/test_two_phase_events.py
-        - tests/unit/application/services/governance/test_two_phase_event_emitter.py
-        - tests/unit/application/services/governance/test_orphan_intent_detector.py
-        - tests/unit/application/services/governance/test_two_phase_gap_detector.py
-        - tests/unit/application/services/governance/test_two_phase_execution.py
-        - tests/integration/governance/test_two_phase_lifecycle.py
-      tests: "107 tests passing (95 unit + 12 integration)"
-      key_features:
-        - "IntentEmittedEvent, CommitConfirmedEvent, FailureRecordedEvent domain models"
-        - "TwoPhaseEventEmitter service with in-memory pending intent tracking"
-        - "OrphanIntentDetector for auto-resolution of orphaned intents"
-        - "TwoPhaseGapDetector for ledger-based gap detection"
-        - "TwoPhaseExecution async context manager for automatic intent/outcome"
-        - "28 new event types for two-phase emission across all branches"
-        - "Configurable orphan timeout (default 5 minutes)"
-        - "Knight observability - intent visible immediately upon action initiation"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 5: Co-signing & Auto-Escalation (P0)
+  # Co-sign domain, identity verification, SYBIL-1, threshold checking
+  # FR-6.1 to FR-6.6, FR-5.1 to FR-5.3
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-5:
+    name: "Co-signing & Auto-Escalation"
+    priority: P0
+    status: backlog
+    stories:
+      - id: petition-5-1-co-sign-domain-model-schema
+        name: "Co-Sign Domain Model & Schema"
+        status: backlog
+      - id: petition-5-2-co-sign-submission-endpoint
+        name: "Co-Sign Submission Endpoint"
+        status: backlog
+      - id: petition-5-3-identity-verification-for-co-sign
+        name: "Identity Verification for Co-Sign"
+        status: backlog
+      - id: petition-5-4-sybil-1-rate-limiting
+        name: "SYBIL-1 Rate Limiting"
+        status: backlog
+      - id: petition-5-5-escalation-threshold-checking
+        name: "Escalation Threshold Checking"
+        status: backlog
+      - id: petition-5-6-auto-escalation-execution
+        name: "Auto-Escalation Execution"
+        status: backlog
+      - id: petition-5-7-co-signer-deduplication-enforcement
+        name: "Co-Signer Deduplication Enforcement"
+        status: backlog
+      - id: petition-5-8-co-signer-count-scalability
+        name: "Co-Signer Count Scalability"
+        status: backlog
 
-    # Consent-Gov Epic 1: Event Sourcing Foundation (continued)
-    - id: "consent-gov-1-7-merkle-tree-proof-of-inclusion"
-      status: done
-      summary: "Merkle tree proof-of-inclusion for governance event ledger"
-      files_created:
-        - src/domain/governance/events/merkle_tree.py
-        - src/application/ports/governance/merkle_tree_port.py
-        - src/application/services/governance/epoch_manager.py
-        - src/infrastructure/adapters/governance/merkle_tree_adapter.py
-        - migrations/011_create_merkle_epochs_table.sql
-        - tests/unit/domain/governance/events/test_merkle_tree.py
-        - tests/unit/application/services/governance/test_epoch_manager.py
-        - tests/integration/governance/test_merkle_proofs.py
-      tests: "90 tests passing (44 unit + 27 epoch manager + 19 integration)"
-      key_features:
-        - "MerkleTree class with configurable hash algorithm (BLAKE3/SHA-256)"
-        - "MerkleProof frozen dataclass with event_id, event_hash, merkle_path, merkle_root, epoch, leaf_index"
-        - "verify_merkle_proof() standalone function - no database access required"
-        - "EpochManagerService for epoch lifecycle management"
-        - "PostgresMerkleTreeAdapter for proof persistence"
-        - "Order-dependent internal hashes for security (wrong leaf_index fails verification)"
-        - "AD-7, NFR-CONST-02, NFR-AUDIT-06, FR57 compliance"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 6: King Escalation & Adoption Bridge (P0)
+  # Escalation queue, adoption, budget consumption, provenance
+  # FR-5.4 to FR-5.8
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-6:
+    name: "King Escalation & Adoption Bridge"
+    priority: P0
+    status: backlog
+    stories:
+      - id: petition-6-1-king-escalation-queue
+        name: "King Escalation Queue"
+        status: backlog
+      - id: petition-6-2-escalation-decision-package
+        name: "Escalation Decision Package"
+        status: backlog
+      - id: petition-6-3-petition-adoption-creates-motion
+        name: "Petition Adoption Creates Motion"
+        status: backlog
+      - id: petition-6-4-adoption-budget-consumption
+        name: "Adoption Budget Consumption"
+        status: backlog
+      - id: petition-6-5-escalation-acknowledgment-by-king
+        name: "Escalation Acknowledgment by King"
+        status: backlog
+      - id: petition-6-6-adoption-provenance-immutability
+        name: "Adoption Provenance Immutability"
+        status: backlog
 
-  # Consent-Gov Epic 6: Violation Witness & Accountability
-    - id: "consent-gov-6-1-knight-witness-domain-model"
-      status: done
-      summary: "Knight Witness Domain Model for neutral observation of governance activity"
-      files_created:
-        - src/domain/governance/witness/__init__.py
-        - src/domain/governance/witness/observation_type.py
-        - src/domain/governance/witness/observation_content.py
-        - src/domain/governance/witness/witness_statement.py
-        - src/domain/governance/witness/witness_statement_factory.py
-        - src/domain/governance/witness/errors.py
-        - src/application/ports/governance/witness_port.py
-        - tests/unit/domain/governance/witness/__init__.py
-        - tests/unit/domain/governance/witness/test_witness_statement.py
-        - tests/unit/domain/governance/witness/test_witness_statement_factory.py
-        - tests/unit/application/ports/governance/test_witness_port.py
-      tests: "47 unit tests passing"
-      key_features:
-        - "ObservationType enum (BRANCH_ACTION, POTENTIAL_VIOLATION, TIMING_ANOMALY, HASH_CHAIN_GAP)"
-        - "ObservationContent frozen dataclass with factual-only fields (what, when, who, where)"
-        - "WitnessStatement frozen dataclass (immutable, no judgment fields)"
-        - "WitnessStatementFactory with judgment language validation (12 banned indicators)"
-        - "WitnessPort Protocol with suppression prevention (no delete/modify methods)"
-        - "FR33, FR34, NFR-CONST-07 compliance"
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 7: Observer Engagement (P2)
+  # Status tokens, notifications, withdrawal, transcript access
+  # FR-7.1 to FR-7.5
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-7:
+    name: "Observer Engagement"
+    priority: P2
+    status: backlog
+    stories:
+      - id: petition-7-1-status-token-for-long-poll
+        name: "Status Token for Long-Poll"
+        status: backlog
+      - id: petition-7-2-fate-assignment-notification
+        name: "Fate Assignment Notification"
+        status: backlog
+      - id: petition-7-3-petition-withdrawal
+        name: "Petition Withdrawal"
+        status: backlog
+      - id: petition-7-4-transcript-access-mediation-service
+        name: "Transcript Access Mediation Service"
+        status: backlog
+      - id: petition-7-5-phase-summary-generation
+        name: "Phase Summary Generation"
+        status: backlog
+      - id: petition-7-6-governance-transcript-access-elevated
+        name: "Governance Transcript Access (Elevated)"
+        status: backlog
 
-    - id: "consent-gov-6-2-passive-knight-observation"
-      status: done
-      summary: "Passive Knight Observation via ledger polling for governance events"
-      files_created:
-        - src/application/services/governance/knight_observer_service.py
-        - tests/unit/application/services/governance/test_knight_observer_service.py
-      files_modified:
-        - src/application/services/governance/__init__.py
-      tests: "35 unit tests passing"
-      key_features:
-        - "KnightObserverService with ledger-based polling (passive observation)"
-        - "ObservationMetrics and GapDetection domain models"
-        - "Sequence gap detection with witness statement recording"
-        - "Panel observation for Prince Panel conduct (FR41)"
-        - "Latency monitoring with NFR-OBS-01 threshold (1 second)"
-        - "Loose coupling: services write to ledger, Knight polls"
-        - "Position tracking for resume-from-sequence capability"
-        - "FR33, FR41, NFR-OBS-01, NFR-AUDIT-01, AD-16 compliance"
-
-    - id: "consent-gov-6-3-witness-statement-routing"
-      status: done
-      summary: "Witness statement routing to Prince Panel queue with priority assignment"
-      files_created:
-        - src/domain/governance/queue/__init__.py
-        - src/domain/governance/queue/priority.py
-        - src/domain/governance/queue/status.py
-        - src/domain/governance/queue/queued_statement.py
-        - src/application/ports/governance/panel_queue_port.py
-        - src/application/services/governance/witness_routing_service.py
-        - tests/unit/domain/governance/queue/__init__.py
-        - tests/unit/domain/governance/queue/test_queue_models.py
-        - tests/unit/application/services/governance/test_witness_routing_service.py
-      files_modified:
-        - src/application/ports/governance/__init__.py
-        - src/application/services/governance/__init__.py
-      tests: "51 unit tests passing"
-      key_features:
-        - "WitnessRoutingService with routing rules (POTENTIAL_VIOLATION, TIMING_ANOMALY, HASH_CHAIN_GAP routed; BRANCH_ACTION not)"
-        - "QueuePriority enum (CRITICAL, HIGH, MEDIUM, LOW)"
-        - "QueueItemStatus enum (PENDING, ACKNOWLEDGED, IN_REVIEW, RESOLVED)"
-        - "QueuedStatement frozen dataclass (immutable)"
-        - "PanelQueuePort Protocol - append-only (no delete/modify methods)"
-        - "Two-phase event emission for judicial.witness.statement_queued"
-        - "Priority determination based on observation type and content keywords"
-        - "FR35, NFR-CONST-07 compliance"
-
-  ready_for_dev: []
-
-  next_story: null  # All Consent-Gov stories complete
-
-  backlog: []
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 8: Legitimacy Metrics & Governance (P1)
+  # Decay metrics, alerting, orphan detection, dashboard, META routing
+  # FR-8.1 to FR-8.5, FR-10.4
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-8:
+    name: "Legitimacy Metrics & Governance"
+    priority: P1
+    status: backlog
+    stories:
+      - id: petition-8-1-legitimacy-decay-metric-computation
+        name: "Legitimacy Decay Metric Computation"
+        status: backlog
+      - id: petition-8-2-legitimacy-decay-alerting
+        name: "Legitimacy Decay Alerting"
+        status: backlog
+      - id: petition-8-3-orphan-petition-detection
+        name: "Orphan Petition Detection"
+        status: backlog
+      - id: petition-8-4-high-archon-legitimacy-dashboard
+        name: "High Archon Legitimacy Dashboard"
+        status: backlog
+      - id: petition-8-5-meta-petition-routing
+        name: "META Petition Routing"
+        status: backlog
+      - id: petition-8-6-adoption-ratio-monitoring-prevent-7
+        name: "Adoption Ratio Monitoring (Prevent §7)"
+        status: backlog
+      - id: petition-8-7-realm-health-aggregate
+        name: "Realm Health Aggregate"
+        status: backlog
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MILESTONE: ALL CONSENT-GOV EPICS COMPLETE (2026-01-17)

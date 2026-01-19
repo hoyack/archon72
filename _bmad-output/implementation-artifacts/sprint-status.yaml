@@ -1,4 +1,4 @@
-# generated: 2026-01-15 (refreshed)
+# generated: 2026-01-19 (refreshed - added Petition System epics)
 # project: archon72
 # project_key: archon72
 # tracking_system: file-system
@@ -33,7 +33,7 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2026-01-15
+generated: 2026-01-19
 project: archon72
 project_key: archon72
 tracking_system: file-system
@@ -444,3 +444,159 @@ development_status:
   consent-gov-10-1-anti-metrics-data-layer-enforcement: done
   consent-gov-10-2-anti-metrics-verification: done
   consent-gov-epic-10-retrospective: done
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PETITION SYSTEM EPICS (from petition-system-epics.md)
+  # Three Fates deliberation, petition lifecycle, co-signing, escalation
+  # Source: petition-system-prd.md (70 FRs, 53 NFRs)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 0: Foundation & Migration (P0)
+  # CrewAI multi-agent setup, domain models, migration from Story 7.2
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-0: done
+  petition-0-1-crewai-multi-agent-feasibility-spike: done
+  petition-0-2-petition-domain-model-base-schema: done
+  petition-0-3-story-7-2-cessation-petition-migration: done
+  petition-0-4-job-queue-infrastructure: done
+  petition-0-5-content-hashing-service-blake3: done
+  petition-0-6-realm-registry-routing: done
+  petition-0-7-archon-persona-definitions-three-fates: done
+  petition-epic-0-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 1: Petition Intake & State Machine (P0)
+  # REST API, events, queue protection, rate limiting, state transitions
+  # FR-1.1 to FR-1.7, FR-2.1 to FR-2.6
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-1: done
+  petition-1-1-petition-submission-rest-endpoint: done
+  petition-1-2-petition-received-event-emission: done
+  petition-1-3-queue-overflow-protection-503: done
+  petition-1-4-submitter-rate-limiting: done
+  petition-1-5-state-machine-domain-model: done
+  petition-1-6-atomic-fate-assignment-cas: done
+  petition-1-7-fate-event-emission-transactional: done
+  petition-1-8-petition-status-query-endpoint: done
+  petition-epic-1-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 2A: Core Deliberation Protocol (CRITICAL PATH)
+  # Three Fates mini-Conclave, structured protocol, supermajority consensus
+  # FR-11.1 to FR-11.12 (ALL P0)
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-2a: backlog
+  petition-2a-1-deliberation-session-domain-model: backlog
+  petition-2a-2-archon-assignment-service: backlog
+  petition-2a-3-deliberation-context-package-builder: backlog
+  petition-2a-4-deliberation-protocol-orchestrator: backlog
+  petition-2a-5-crewai-deliberation-adapter: backlog
+  petition-2a-6-supermajority-consensus-resolution: backlog
+  petition-2a-7-phase-level-witness-batching: backlog
+  petition-2a-8-disposition-emission-pipeline-routing: backlog
+  petition-epic-2a-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 2B: Deliberation Edge Cases & Guarantees (P0)
+  # Dissent, timeouts, deadlock, archon substitution, audit trail
+  # NFR-10.1 to NFR-10.6
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-2b: backlog
+  petition-2b-1-dissent-recording-service: backlog
+  petition-2b-2-deliberation-timeout-enforcement: backlog
+  petition-2b-3-deadlock-detection-auto-escalation: backlog
+  petition-2b-4-archon-substitution-on-failure: backlog
+  petition-2b-5-transcript-preservation-hash-referencing: backlog
+  petition-2b-6-audit-trail-reconstruction: backlog
+  petition-2b-7-deliberation-load-testing-harness: backlog
+  petition-2b-8-deliberation-chaos-testing: backlog
+  petition-epic-2b-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 3: Acknowledgment Execution (P1)
+  # Reason codes, rationale requirements, dwell time, metrics
+  # FR-3.1 to FR-3.6
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-3: backlog
+  petition-3-1-acknowledgment-reason-code-enumeration: backlog
+  petition-3-2-acknowledgment-execution-service: backlog
+  petition-3-3-rationale-requirement-enforcement: backlog
+  petition-3-4-duplicate-petition-reference: backlog
+  petition-3-5-minimum-dwell-time-enforcement: backlog
+  petition-3-6-acknowledgment-rate-metrics: backlog
+  petition-epic-3-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 4: Knight Referral Workflow (P1)
+  # Referral domain, decision packages, extensions, timeouts
+  # FR-4.1 to FR-4.7
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-4: backlog
+  petition-4-1-referral-domain-model-schema: backlog
+  petition-4-2-referral-execution-service: backlog
+  petition-4-3-knight-decision-package: backlog
+  petition-4-4-knight-recommendation-submission: backlog
+  petition-4-5-extension-request-handling: backlog
+  petition-4-6-referral-timeout-auto-acknowledge: backlog
+  petition-4-7-knight-concurrent-referral-limit: backlog
+  petition-epic-4-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 5: Co-signing & Auto-Escalation (P0)
+  # Co-sign domain, identity verification, SYBIL-1, threshold checking
+  # FR-6.1 to FR-6.6, FR-5.1 to FR-5.3
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-5: backlog
+  petition-5-1-co-sign-domain-model-schema: backlog
+  petition-5-2-co-sign-submission-endpoint: backlog
+  petition-5-3-identity-verification-for-co-sign: backlog
+  petition-5-4-sybil-1-rate-limiting: backlog
+  petition-5-5-escalation-threshold-checking: backlog
+  petition-5-6-auto-escalation-execution: backlog
+  petition-5-7-co-signer-deduplication-enforcement: backlog
+  petition-5-8-co-signer-count-scalability: backlog
+  petition-epic-5-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 6: King Escalation & Adoption Bridge (P0)
+  # Escalation queue, adoption, budget consumption, provenance
+  # FR-5.4 to FR-5.8
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-6: backlog
+  petition-6-1-king-escalation-queue: backlog
+  petition-6-2-escalation-decision-package: backlog
+  petition-6-3-petition-adoption-creates-motion: backlog
+  petition-6-4-adoption-budget-consumption: backlog
+  petition-6-5-escalation-acknowledgment-by-king: backlog
+  petition-6-6-adoption-provenance-immutability: backlog
+  petition-epic-6-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 7: Observer Engagement (P2)
+  # Status tokens, notifications, withdrawal, transcript access
+  # FR-7.1 to FR-7.5
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-7: backlog
+  petition-7-1-status-token-for-long-poll: backlog
+  petition-7-2-fate-assignment-notification: backlog
+  petition-7-3-petition-withdrawal: backlog
+  petition-7-4-transcript-access-mediation-service: backlog
+  petition-7-5-phase-summary-generation: backlog
+  petition-7-6-governance-transcript-access-elevated: backlog
+  petition-epic-7-retrospective: optional
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Petition Epic 8: Legitimacy Metrics & Governance (P1)
+  # Decay metrics, alerting, orphan detection, dashboard, META routing
+  # FR-8.1 to FR-8.5, FR-10.4
+  # ═══════════════════════════════════════════════════════════════════════════
+  petition-epic-8: backlog
+  petition-8-1-legitimacy-decay-metric-computation: backlog
+  petition-8-2-legitimacy-decay-alerting: backlog
+  petition-8-3-orphan-petition-detection: backlog
+  petition-8-4-high-archon-legitimacy-dashboard: backlog
+  petition-8-5-meta-petition-routing: backlog
+  petition-8-6-adoption-ratio-monitoring-prevent-7: backlog
+  petition-8-7-realm-health-aggregate: backlog
+  petition-epic-8-retrospective: optional

@@ -1,0 +1,22 @@
+[
+  {
+    "acronym": "STEM",
+    "full_form": "[STEM]",
+    "definition": "Expansion not found in context",
+    "introduced_by": [
+      "Crocell"
+    ],
+    "first_seen_in": "29664d9e-99fe-461c-938d-8b4ebf40100e",
+    "usage_count": 6
+  },
+  {
+    "acronym": "NLP",
+    "full_form": "f more sophisticated natural language processing",
+    "definition": "f more sophisticated natural language processing",
+    "introduced_by": [
+      "Decarabia"
+    ],
+    "first_seen_in": "9f5f8828-b3d3-47d3-b3c8-dab9a8ef0dd8",
+    "usage_count": 2
+  }
+]

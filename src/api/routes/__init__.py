@@ -16,6 +16,7 @@ Available routers:
 - compliance: Compliance documentation API (NFR31-34, Story 9.9 - public read)
 - halt: Halt trigger API (FR22-23, Story 4-2 - requires auth)
 - legitimacy: Legitimacy restoration API (FR30-32, Story 5-3 - auth for restore)
+- petition_submission: Three Fates petition submission (Story 1.1, FR-1.1 - public)
 """
 
 from src.api.routes.complexity_budget import router as complexity_budget_router
@@ -30,6 +31,7 @@ from src.api.routes.legitimacy import router as legitimacy_router
 from src.api.routes.observer import router as observer_router
 from src.api.routes.override import router as override_router
 from src.api.routes.petition import router as petition_router
+from src.api.routes.petition_submission import router as petition_submission_router
 from src.api.routes.waiver import router as waiver_router
 
 __all__: list[str] = [
@@ -38,6 +40,7 @@ __all__: list[str] = [
     "observer_router",
     "override_router",
     "petition_router",
+    "petition_submission_router",
     "incident_router",
     "complexity_budget_router",
     "failure_prevention_router",

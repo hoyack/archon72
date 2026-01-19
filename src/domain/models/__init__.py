@@ -96,6 +96,14 @@ from src.domain.models.constitutional_threshold import (
     ConstitutionalThreshold,
     ConstitutionalThresholdRegistry,
 )
+from src.domain.models.deliberation_session import (
+    CONSENSUS_THRESHOLD,
+    PHASE_TRANSITION_MATRIX as DELIBERATION_PHASE_TRANSITION_MATRIX,
+    REQUIRED_ARCHON_COUNT,
+    DeliberationOutcome,
+    DeliberationPhase,
+    DeliberationSession,
+)
 from src.domain.models.context_bundle import (
     BUNDLE_ID_PREFIX,
     CONTENT_REF_LENGTH,
@@ -110,6 +118,26 @@ from src.domain.models.context_bundle import (
     validate_content_ref,
 )
 from src.domain.models.event_type_registry import EventTypeRegistry
+from src.domain.models.fate_archon import (
+    DELIBERATION_PROMPT_HEADER,
+    FATE_ARCHON_AMON,
+    FATE_ARCHON_BY_ID,
+    FATE_ARCHON_BY_NAME,
+    FATE_ARCHON_FORNEUS,
+    FATE_ARCHON_IDS,
+    FATE_ARCHON_LERAJE,
+    FATE_ARCHON_MARCHOSIAS,
+    FATE_ARCHON_NABERIUS,
+    FATE_ARCHON_ORIAS,
+    FATE_ARCHON_RONOVE,
+    THREE_FATES_POOL,
+    DeliberationStyle,
+    FateArchon,
+    get_fate_archon_by_id,
+    get_fate_archon_by_name,
+    is_valid_fate_archon_id,
+    list_fate_archons,
+)
 from src.domain.models.failure_mode import (
     DEFAULT_FAILURE_MODES,
     EarlyWarning,
@@ -192,6 +220,25 @@ from src.domain.models.pending_escalation import (
 from src.domain.models.petition import (
     CoSigner,
     Petition,
+)
+from src.domain.models.petition_submission import (
+    PetitionState,
+    PetitionSubmission,
+    PetitionType,
+    STATE_TRANSITION_MATRIX,
+    TERMINAL_STATES,
+)
+from src.domain.models.realm import (
+    CANONICAL_REALM_IDS,
+    REALM_DISPLAY_NAMES,
+    Realm,
+    RealmStatus,
+    is_canonical_realm,
+)
+from src.domain.models.scheduled_job import (
+    DeadLetterJob,
+    JobStatus,
+    ScheduledJob,
 )
 from src.domain.models.prohibited_language import (
     DEFAULT_PROHIBITED_TERMS,
@@ -326,6 +373,22 @@ __all__: list[str] = [
     # Petition models (Story 7.2, FR39)
     "CoSigner",
     "Petition",
+    # Petition submission models (Story 0.2, FR-2.2, Story 1.5)
+    "PetitionState",
+    "PetitionSubmission",
+    "PetitionType",
+    "STATE_TRANSITION_MATRIX",
+    "TERMINAL_STATES",
+    # Realm models (Story 0.6, HP-3, HP-4)
+    "CANONICAL_REALM_IDS",
+    "REALM_DISPLAY_NAMES",
+    "Realm",
+    "RealmStatus",
+    "is_canonical_realm",
+    # Scheduled job models (Story 0.4, HP-1, HC-6, NFR-7.5)
+    "DeadLetterJob",
+    "JobStatus",
+    "ScheduledJob",
     # Cessation models (Story 7.4, FR41)
     "SYSTEM_STATUS_CEASED",
     "CeasedStatusHeader",
@@ -439,4 +502,30 @@ __all__: list[str] = [
     "Vote",
     "VoteChoice",
     "get_rank_priority",
+    # FateArchon models (Story 0.7, HP-11)
+    "DELIBERATION_PROMPT_HEADER",
+    "DeliberationStyle",
+    "FATE_ARCHON_AMON",
+    "FATE_ARCHON_BY_ID",
+    "FATE_ARCHON_BY_NAME",
+    "FATE_ARCHON_FORNEUS",
+    "FATE_ARCHON_IDS",
+    "FATE_ARCHON_LERAJE",
+    "FATE_ARCHON_MARCHOSIAS",
+    "FATE_ARCHON_NABERIUS",
+    "FATE_ARCHON_ORIAS",
+    "FATE_ARCHON_RONOVE",
+    "FateArchon",
+    "THREE_FATES_POOL",
+    "get_fate_archon_by_id",
+    "get_fate_archon_by_name",
+    "is_valid_fate_archon_id",
+    "list_fate_archons",
+    # Deliberation session models (Story 2A.1, FR-11.1, FR-11.4)
+    "CONSENSUS_THRESHOLD",
+    "DELIBERATION_PHASE_TRANSITION_MATRIX",
+    "REQUIRED_ARCHON_COUNT",
+    "DeliberationOutcome",
+    "DeliberationPhase",
+    "DeliberationSession",
 ]

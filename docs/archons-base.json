@@ -471,7 +471,16 @@
         "privacy",
         "discretion"
       ],
-      "elevenlabs_voice_id": "Lk29MNavZhOG5FkVspXl"
+      "elevenlabs_voice_id": "Lk29MNavZhOG5FkVspXl",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 6600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "177ee194-ff00-45b7-a3b0-b05e7675e718",
@@ -517,7 +526,16 @@
         "relationship",
         "facilitation"
       ],
-      "elevenlabs_voice_id": "J6ztGyM6e7omeh5pPJ5t"
+      "elevenlabs_voice_id": "J6ztGyM6e7omeh5pPJ5t",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.675,
+        "max_tokens": 8500,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "1a4a2056-e2b5-42a7-a338-8b8b67509f1f",
@@ -565,7 +583,16 @@
         "knowledge",
         "skill"
       ],
-      "elevenlabs_voice_id": "WQtnYFc7Yukn61S8uhNK"
+      "elevenlabs_voice_id": "WQtnYFc7Yukn61S8uhNK",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.7,
+        "max_tokens": 20000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "6a00c2d0-55e9-4b4e-89d5-c7de3a2fd26d",
@@ -610,7 +637,16 @@
         "analytics",
         "forecasting"
       ],
-      "elevenlabs_voice_id": "Cj3OegwgdZmvkrNVdS6i"
+      "elevenlabs_voice_id": "Cj3OegwgdZmvkrNVdS6i",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.725,
+        "max_tokens": 2200,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "87a5c59f-369b-405d-975b-4369c4bd1488",
@@ -653,7 +689,16 @@
         "character",
         "virtue"
       ],
-      "elevenlabs_voice_id": "dVt7o123a2mAmac39HPP"
+      "elevenlabs_voice_id": "dVt7o123a2mAmac39HPP",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.75,
+        "max_tokens": 7200,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "782597cf-8a7b-48c9-bc9f-128019f4bcc2",
@@ -696,7 +741,16 @@
         "guidance",
         "counsel"
       ],
-      "elevenlabs_voice_id": "R5K8jeM4ywgvXuZtDWWh"
+      "elevenlabs_voice_id": "R5K8jeM4ywgvXuZtDWWh",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 4000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "85484a39-60e3-4e47-8aee-2dcbd68347df",
@@ -740,7 +794,16 @@
         "anomaly",
         "detection"
       ],
-      "elevenlabs_voice_id": "vyJKOz9xx1xClFTqqvv3"
+      "elevenlabs_voice_id": "vyJKOz9xx1xClFTqqvv3",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.675,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "9b439711-9217-4c30-8c0f-9a589c3c7e38",
@@ -782,7 +845,16 @@
         "charisma",
         "enhancement"
       ],
-      "elevenlabs_voice_id": "XIUVSt5umWufiun95ncW"
+      "elevenlabs_voice_id": "XIUVSt5umWufiun95ncW",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.7,
+        "max_tokens": 3300,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "da58a598-bfab-42e9-849c-1c34012104c6",
@@ -829,7 +901,16 @@
         "team",
         "building"
       ],
-      "elevenlabs_voice_id": "Y23cr3JpAZPil235W5iO"
+      "elevenlabs_voice_id": "Y23cr3JpAZPil235W5iO",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.725,
+        "max_tokens": 8000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "1800b098-c312-43a0-bffd-e4b4f3610a56",
@@ -874,7 +955,16 @@
         "knowledge",
         "transfer"
       ],
-      "elevenlabs_voice_id": "yzlDvaCU8OHxnUaTk83m"
+      "elevenlabs_voice_id": "yzlDvaCU8OHxnUaTk83m",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 6600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "1d06b824-d23f-4de6-8104-5ad3fd2762e3",
@@ -917,7 +1007,16 @@
       "portfolio_scope": [
         "infrastructure"
       ],
-      "elevenlabs_voice_id": "jkXqFvv0ZjPIvECuib52"
+      "elevenlabs_voice_id": "jkXqFvv0ZjPIvECuib52",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 4000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "2383379b-b92f-4776-84bc-b1110fccad57",
@@ -961,7 +1060,16 @@
         "alchemical",
         "transformation"
       ],
-      "elevenlabs_voice_id": "WPKcH1cSa9lW9L6vrZ5K"
+      "elevenlabs_voice_id": "WPKcH1cSa9lW9L6vrZ5K",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 3300,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "384f43b3-5037-4acd-83ee-275084bcc076",
@@ -1006,7 +1114,16 @@
         "behavioral",
         "intelligence"
       ],
-      "elevenlabs_voice_id": "FRCWGHGdNg52Eppjpr8D"
+      "elevenlabs_voice_id": "FRCWGHGdNg52Eppjpr8D",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "5c494582-4053-46e7-ad3a-ae8f7f5af2df",
@@ -1051,7 +1168,16 @@
         "wellness",
         "recovery"
       ],
-      "elevenlabs_voice_id": "Og6D1NXihNzKW8efXMBs"
+      "elevenlabs_voice_id": "Og6D1NXihNzKW8efXMBs",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.625,
+        "max_tokens": 5000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "65b64f9a-6758-48e0-91ca-852e7b7b1287",
@@ -1096,7 +1222,16 @@
         "technical",
         "solutions"
       ],
-      "elevenlabs_voice_id": "N5TW8BSizV3JDeP6sh30"
+      "elevenlabs_voice_id": "N5TW8BSizV3JDeP6sh30",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "94ad5f7a-7241-4fc1-98c0-e079e4982d99",
@@ -1139,7 +1274,16 @@
       "portfolio_scope": [
         "conflict"
       ],
-      "elevenlabs_voice_id": "ec2mke7sQ5C7wQSSSJBO"
+      "elevenlabs_voice_id": "ec2mke7sQ5C7wQSSSJBO",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "d7a3b791-9db3-434c-a2c4-7bddb0bb3d9a",
@@ -1184,7 +1328,16 @@
         "astrology",
         "divination"
       ],
-      "elevenlabs_voice_id": "BmhdA5681ordmE6e91bV"
+      "elevenlabs_voice_id": "BmhdA5681ordmE6e91bV",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "dfbc91a1-5494-412f-8b91-5328170860d6",
@@ -1228,7 +1381,16 @@
         "resource",
         "discovery"
       ],
-      "elevenlabs_voice_id": "phienOJMhzh7UdgWD8cA"
+      "elevenlabs_voice_id": "phienOJMhzh7UdgWD8cA",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3800,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "efa2d111-fbe5-4c44-b4fc-8bbe428e0f8b",
@@ -1271,7 +1433,16 @@
         "identity",
         "perception"
       ],
-      "elevenlabs_voice_id": "3JC60CRRiqpSlfFHQrm8"
+      "elevenlabs_voice_id": "3JC60CRRiqpSlfFHQrm8",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.625,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "fefa7c61-aa4d-42ff-9654-81a08050b04f",
@@ -1316,7 +1487,16 @@
         "herbalism",
         "ethics"
       ],
-      "elevenlabs_voice_id": "1QO4U8BnQecWSc6gStPo"
+      "elevenlabs_voice_id": "1QO4U8BnQecWSc6gStPo",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 2900,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "caa48223-c30c-4d07-aac1-3c04c842eb57",
@@ -1364,7 +1544,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "nJyvTPpFFKF9DDv2Divl",
-      "goal": "Develop members through paradigm shifts via disruption, language teaching, and restoring strays."
+      "goal": "Develop members through paradigm shifts via disruption, language teaching, and restoring strays.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 3100,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "1e6f307e-396f-4759-8bd1-224edfd9f9b8",
@@ -1408,7 +1597,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "799VsfEAza9ANkVQA4gV",
-      "goal": "Develop members through cunning acquisition via strategic theft, opportunity, and lawful boldness."
+      "goal": "Develop members through cunning acquisition via strategic theft, opportunity, and lawful boldness.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 1000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "dde720fe-d43d-465e-be32-467e2f147dc8",
@@ -1454,7 +1652,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "8E28IgG4DJVH1VCy2ZhP",
-      "goal": "Develop members through behavioral insight via animal-language interpretation and reconciliation."
+      "goal": "Develop members through behavioral insight via animal-language interpretation and reconciliation.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "8fea0063-f8ee-48fa-bf61-341a0dd72319",
@@ -1503,7 +1710,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "817XZRROAFycIvgocJII",
-      "goal": "Develop members through mediation via truth-seeking and reconciliation."
+      "goal": "Develop members through mediation via truth-seeking and reconciliation.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.625,
+        "max_tokens": 4500,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "3ae50773-ac7a-4af8-82b1-869d86f712c2",
@@ -1552,7 +1768,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "jJKrAKpfdrZyzDo4GWeS",
-      "goal": "Develop members through intelligence via secret discovery, risk assessment, and foresight."
+      "goal": "Develop members through intelligence via secret discovery, risk assessment, and foresight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 6000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "ca43a99f-2313-45ff-b85f-d1f78914d211",
@@ -1595,7 +1820,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "Q4QBaeC493glPG2w9Sve",
-      "goal": "Develop members through partnership strategy via attraction, influence, and connection management."
+      "goal": "Develop members through partnership strategy via attraction, influence, and connection management.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "e889b12d-8896-4dfb-8f75-c020f27e1bc6",
@@ -1643,7 +1877,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "nfYCNm9sIpt7tHLTsXMx",
-      "goal": "Develop members through rapid deployment via instant transport and logistical guidance."
+      "goal": "Develop members through rapid deployment via instant transport and logistical guidance.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "25a1566f-25ec-439a-b2d5-a6cb752b2627",
@@ -1687,7 +1930,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "aKP9XpZvu7JY4VGXW6wh",
-      "goal": "Develop members through relationship encouragement via fostering true love and fidelity."
+      "goal": "Develop members through relationship encouragement via fostering true love and fidelity.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "0defc62f-550f-4ba9-8b14-78018530d695",
@@ -1732,7 +1984,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "jZFQQazi8ZNjAcHLufkA",
-      "goal": "Develop members through controlled chaos via destruction and secret insight."
+      "goal": "Develop members through controlled chaos via destruction and secret insight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.625,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "d12e2ddc-ba9e-4ae0-a1a8-e8a5c82f0f1f",
@@ -1777,7 +2038,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "ghjxHgKT6SV8o6B60j6G",
-      "goal": "Develop members through wealth building via prosperity, wisdom, and eloquence."
+      "goal": "Develop members through wealth building via prosperity, wisdom, and eloquence.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "93cf41a6-2629-471b-9f7c-92f2fd790d49",
@@ -1820,7 +2090,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "oICTAuYSNkixFcYyTmHW",
-      "goal": "Develop members through transmutation via material transformation and rigorous testing of counsel."
+      "goal": "Develop members through transmutation via material transformation and rigorous testing of counsel.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "10fb3806-3870-4859-928d-e3f8ea4de8b4",
@@ -1870,7 +2149,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "A8BYGhnjlXznR9CFkfty",
-      "goal": "Develop members through scientific education via liberal sciences and revelation of hidden knowledge."
+      "goal": "Develop members through scientific education via liberal sciences and revelation of hidden knowledge.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 4000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "28ee730a-5a72-485f-963b-a472554a4552",
@@ -1913,7 +2201,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "g4u0R8D1R5rqJpdHV16i",
-      "goal": "Develop members through strategic competition via command of winds and calculated power."
+      "goal": "Develop members through strategic competition via command of winds and calculated power.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "8535a501-cf55-4062-afcb-63badcff6c2c",
@@ -1956,7 +2253,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "3nr7aJfPDtJDBpJV57yJ",
-      "goal": "Develop members through naval operations via maritime command and enemy exposure."
+      "goal": "Develop members through naval operations via maritime command and enemy exposure.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.625,
+        "max_tokens": 2900,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "5f98d02b-c941-41d5-9a98-136d057519ee",
@@ -2001,7 +2307,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "t39EDluBMNdEwAEnzJ5l",
-      "goal": "Develop members through connection building via alliance forging and temporal insight."
+      "goal": "Develop members through connection building via alliance forging and temporal insight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 3700,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "1eeb533f-120e-45c9-8749-3340fdaa4aa0",
@@ -2050,7 +2365,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "6TZCFVID4Nh9RXKspYra",
-      "goal": "Develop members through STEM education via geometry, liberal sciences, and clear communication."
+      "goal": "Develop members through STEM education via geometry, liberal sciences, and clear communication.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 4800,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "5d07f6ad-3848-425b-92df-a8b41c03972a",
@@ -2096,7 +2420,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "3m36uAzAGCMmHXGrPeGF",
-      "goal": "Develop members through data science training via astronomy and analytic instruction."
+      "goal": "Develop members through data science training via astronomy and analytic instruction.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "31551a42-af58-4c8c-9d5a-edb3b87fdf99",
@@ -2140,7 +2473,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "xJoyUEcL2vNhgu0eo3vf",
-      "goal": "Develop members through philosophical education via spiritual inquiry and truth from the departed."
+      "goal": "Develop members through philosophical education via spiritual inquiry and truth from the departed.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "384ee98e-1710-4d05-aa8f-b53c9d6fc28a",
@@ -2185,7 +2527,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "iSkbSHRmleQ1JdE1sC96",
-      "goal": "Develop members through treasure discovery via revealing hidden riches and guidance in love."
+      "goal": "Develop members through treasure discovery via revealing hidden riches and guidance in love.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.625,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "93f00430-244e-4f3d-8fe9-0b12a4aaa61e",
@@ -2232,7 +2583,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "f6iMp457mTpR396EPn0C",
-      "goal": "Develop members through maker training via practical skills, crafts, and philosophy."
+      "goal": "Develop members through maker training via practical skills, crafts, and philosophy.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.65,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "773f3bad-755b-46c9-97b8-e7e7313b6102",
@@ -2275,7 +2635,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "VtEE9zsS82iEwWyG9vOe",
-      "goal": "Develop members through creative expression via music, nature command, and artistic inspiration."
+      "goal": "Develop members through creative expression via music, nature command, and artistic inspiration.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 2900,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "ddae2457-7391-4c5b-af53-238d016eec8a",
@@ -2319,7 +2688,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "pq7Y190IlTZ4RPXFkTli",
-      "goal": "Develop members through insight generation via mind-reading, influence, and teaching the arts."
+      "goal": "Develop members through insight generation via mind-reading, influence, and teaching the arts.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.575,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "dfd4f606-621c-4fbe-8d0f-69c546969172",
@@ -2364,7 +2742,16 @@
       ],
       "max_concurrent_programs": 3,
       "elevenlabs_voice_id": "lKBmjZnYxHTILhNTRUbX",
-      "goal": "Develop members through reliable counsel via truthful answers and protective force."
+      "goal": "Develop members through reliable counsel via truthful answers and protective force.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.6,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "83e07040-c1e2-462d-8844-3a793ae7eb8d",
@@ -2416,7 +2803,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "tMdrGqSNH9wcbqjwT37r",
-      "goal": "Develop members through discovery via revealing hidden things and future insight."
+      "goal": "Develop members through discovery via revealing hidden things and future insight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.525,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "ef468bb3-bd89-4d36-94aa-7b9ee054720f",
@@ -2468,7 +2864,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "GsTbs5gWVpZwJGeVpWGL",
-      "goal": "Develop members through attraction strategy via desire, persuasion, and emotional influence."
+      "goal": "Develop members through attraction strategy via desire, persuasion, and emotional influence.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 6000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "89cc33b8-cf98-46d0-8f6f-132e4826e1b6",
@@ -2521,7 +2926,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "tqEO7jZweeJpaZQLgd9S",
-      "goal": "Develop members through reconciliation via truth-telling and mending disputes."
+      "goal": "Develop members through reconciliation via truth-telling and mending disputes.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.45,
+        "max_tokens": 6000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "3ed265f1-5a01-496b-8892-1a103172b6a1",
@@ -2574,7 +2988,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "SrYbGDTCRwVdkZlx5T5P",
-      "goal": "Develop members through astronomy and herbalism via teaching celestial and botanical virtues."
+      "goal": "Develop members through astronomy and herbalism via teaching celestial and botanical virtues.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.1:671b-cloud",
+        "temperature": 0.475,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "71f9ad05-acb2-46d8-a391-88d86ac55ec8",
@@ -2626,7 +3049,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "XPjBXBwdAwTVJrdPJiXJ",
-      "goal": "Develop members through loyal divination via truthful answers and protection from temptation."
+      "goal": "Develop members through loyal divination via truthful answers and protection from temptation.",
+      "llm_config": {
+        "provider": "local",
+        "model": "gemma3:12b-cloud",
+        "temperature": 0.5,
+        "max_tokens": 2000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "5574143e-997c-4df1-a2f0-9feddcace51d",
@@ -2678,7 +3110,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "ovI5zIW7jr2FCAFG8xlC",
-      "goal": "Develop members through courage and wit via boldness and foresight."
+      "goal": "Develop members through courage and wit via boldness and foresight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.525,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "d7418526-9e6e-422a-993c-abeecd9b6b7b",
@@ -2731,7 +3172,16 @@
         "named_in_witness_log"
       ],
       "elevenlabs_voice_id": "ga9peRF3ZegsSSbKtA2f",
-      "goal": "Develop members through rapid response via swift transport and retrieval."
+      "goal": "Develop members through rapid response via swift transport and retrieval.",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:20b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "c5a17f41-0949-41e3-8fa3-eb92359c00e4",
@@ -2779,7 +3229,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "d3ErliQVUgLvWzqvtVpm",
-      "goal": "Develop members through reconciliation and prediction via insight into past and future."
+      "goal": "Develop members through reconciliation and prediction via insight into past and future.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.55,
+        "max_tokens": 4000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "e77813b9-e6ad-4843-84a8-688ef474b48c",
@@ -2826,7 +3285,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "EhrusQ5AwbNaLxjskL5D",
-      "goal": "Develop members through conflict resolution via competitive stress-testing and disciplined struggle."
+      "goal": "Develop members through conflict resolution via competitive stress-testing and disciplined struggle.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.575,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "4cd114f3-6016-4300-8024-a68ce32ed8ff",
@@ -2873,7 +3341,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "QqfT6Ehdr7tuVZ8gfamn",
-      "goal": "Develop members through reputation restoration via persuasive rhetoric and honor repair."
+      "goal": "Develop members through reputation restoration via persuasive rhetoric and honor repair.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.6,
+        "max_tokens": 1900,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "36eff417-fcb8-4836-811a-d558f14fae05",
@@ -2919,7 +3396,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "e3EMghl0Nlc7QAsFAvj8",
-      "goal": "Develop members through strategic communication via rhetoric, language, and relationship leverage."
+      "goal": "Develop members through strategic communication via rhetoric, language, and relationship leverage.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.625,
+        "max_tokens": 1900,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "c0ecceaa-7358-43c9-8bfd-a32602c8f0d7",
@@ -2968,7 +3454,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "L74QJm9s0u9F1xezAhNs",
-      "goal": "Develop members through rhetoric mastery via language teaching and social favor."
+      "goal": "Develop members through rhetoric mastery via language teaching and social favor.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.65,
+        "max_tokens": 2900,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "be154c9d-faf3-4386-bb20-66e7b5d62aca",
@@ -3015,7 +3510,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "dPDJFxbaAD8aX67mBY4X",
-      "goal": "Develop members through confidence building via disciplined strength and loyal courage."
+      "goal": "Develop members through confidence building via disciplined strength and loyal courage.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.55,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "2f32c8c4-c858-44cf-9ad7-30c6f495e4e4",
@@ -3062,7 +3566,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "Ss2BpxgC0uYg9J2swBT1",
-      "goal": "Develop members through creative excellence via poetic instruction and scientific insight."
+      "goal": "Develop members through creative excellence via poetic instruction and scientific insight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.575,
+        "max_tokens": 2000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "86e771a2-0cf3-4150-a9f3-b417337cf6bc",
@@ -3110,7 +3623,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "Z82dDdDD9AeYxoDADrqk",
-      "goal": "Develop members through fortification and affliction via defensive construction and endurance."
+      "goal": "Develop members through fortification and affliction via defensive construction and endurance.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.6,
+        "max_tokens": 5000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "d56e8678-6866-476f-b70c-b8fe9e5d9463",
@@ -3156,7 +3678,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "lmZQW1CLp0wOmwWRkD6M",
-      "goal": "Develop members through perception management via illusion, sensory control, and covert acquisition."
+      "goal": "Develop members through perception management via illusion, sensory control, and covert acquisition.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.625,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "43d83b84-243b-49ae-9ff4-c3f510db9982",
@@ -3204,7 +3735,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "QGHIHYKoHkOU6QutrZKa",
-      "goal": "Develop members through status building via celestial knowledge and dignities."
+      "goal": "Develop members through status building via celestial knowledge and dignities.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.65,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "73e18f0f-cbe8-4a86-be6a-25ff48ac1d36",
@@ -3251,7 +3791,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "0oyGw7g5GDmzD54KqveN",
-      "goal": "Develop members through disruption strategy via sowing discord and hard conflict lessons."
+      "goal": "Develop members through disruption strategy via sowing discord and hard conflict lessons.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.55,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "0eba34be-027d-4903-a1b0-ad742f58ab68",
@@ -3299,7 +3848,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "FZb24HkiCsWZKaKeSAi2",
-      "goal": "Develop members through major project development via geometry, measurement, and transformation."
+      "goal": "Develop members through major project development via geometry, measurement, and transformation.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.575,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "3b3582fc-25e7-4719-8760-3fffceb105e9",
@@ -3345,7 +3903,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "f0n237P4c0nbNvzNSQVa",
-      "goal": "Develop members through African operations via scholarly training and hidden treasure discovery."
+      "goal": "Develop members through African operations via scholarly training and hidden treasure discovery.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.6,
+        "max_tokens": 2000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "6d83f162-e718-49e7-8fbd-9b0f521e52f3",
@@ -3395,7 +3962,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "4dLTBaEBk8rzPzvmB7HR",
-      "goal": "Develop members through cosmic knowledge via herbs, stones, and familiar support."
+      "goal": "Develop members through cosmic knowledge via herbs, stones, and familiar support.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.625,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "cb99b98d-e78c-48f7-93d6-a1c56edb0be9",
@@ -3442,7 +4018,16 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "e72KDVAQqZE0jI32I58L",
-      "goal": "Develop members through liberal sciences via patient teaching and spectral intelligence."
+      "goal": "Develop members through liberal sciences via patient teaching and spectral intelligence.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.2:cloud",
+        "temperature": 0.65,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "07fec517-1529-4499-aa55-b0a9faaf47b1",
@@ -3483,7 +4068,16 @@
       ],
       "max_concurrent_tasks": 5,
       "elevenlabs_voice_id": "KTlOM5oBw4rKBYugI6cM",
-      "goal": "Develop members through strategic acquisition via bold recovery and decisive force."
+      "goal": "Develop members through strategic acquisition via bold recovery and decisive force.",
+      "llm_config": {
+        "provider": "local",
+        "model": "nemotron-3-nano:30b-cloud",
+        "temperature": 0.45,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "78c885cc-c9b0-4b61-bba9-50692b62fc8d",
@@ -3524,7 +4118,16 @@
       ],
       "max_concurrent_tasks": 5,
       "elevenlabs_voice_id": "CKFRmjezGaYsXNcS2h7K",
-      "goal": "Develop members through weather and discord via storms, passion, and compelled truth."
+      "goal": "Develop members through weather and discord via storms, passion, and compelled truth.",
+      "llm_config": {
+        "provider": "local",
+        "model": "kimi-k2-thinking:cloud",
+        "temperature": 0.475,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "71d8cccb-208f-49cd-a9c2-d7930076da70",
@@ -3565,7 +4168,16 @@
       ],
       "max_concurrent_tasks": 5,
       "elevenlabs_voice_id": "NfNeogw36K3fMCqn84MD",
-      "goal": "Develop members through astronomy education via stellar knowledge and herbal virtues."
+      "goal": "Develop members through astronomy education via stellar knowledge and herbal virtues.",
+      "llm_config": {
+        "provider": "local",
+        "model": "gpt-oss:120b-cloud",
+        "temperature": 0.5,
+        "max_tokens": 3000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "3836da54-2509-4dc1-be4d-0c321cd66e58",
@@ -3606,7 +4218,16 @@
       ],
       "max_concurrent_tasks": 5,
       "elevenlabs_voice_id": "sTN8dM12AuwOfFL75DpM",
-      "goal": "Develop members through military operations via fortification and siege execution."
+      "goal": "Develop members through military operations via fortification and siege execution.",
+      "llm_config": {
+        "provider": "local",
+        "model": "qwen3-next:80b-cloud",
+        "temperature": 0.525,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "3af355a1-9026-4d4a-9294-9964bf230751",
@@ -3647,7 +4268,16 @@
       ],
       "max_concurrent_tasks": 5,
       "elevenlabs_voice_id": "QQHvU7WeOi5BJSUDGfFM",
-      "goal": "Develop members through transformation and knowledge via astrology, geometry, and liminal insight."
+      "goal": "Develop members through transformation and knowledge via astrology, geometry, and liminal insight.",
+      "llm_config": {
+        "provider": "local",
+        "model": "deepseek-v3.1:671b-cloud",
+        "temperature": 0.55,
+        "max_tokens": 2600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "8bfe38f1-8bed-48fd-8447-fc36aed2a672",
@@ -3689,7 +4319,16 @@
       ],
       "max_concurrent_tasks": 5,
       "elevenlabs_voice_id": "Ur9QCeicvWLx6Ce8976m",
-      "goal": "Develop members through asset recovery via justice, punishment, and restitution."
+      "goal": "Develop members through asset recovery via justice, punishment, and restitution.",
+      "llm_config": {
+        "provider": "local",
+        "model": "ministral-3:14b-cloud",
+        "temperature": 0.45,
+        "max_tokens": 3600,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     },
     {
       "id": "1b872789-7990-4163-b54b-6bc45746e2f6",
@@ -3749,7 +4388,16 @@
         "witness_suppression",
         "jurisdiction_overreach"
       ],
-      "elevenlabs_voice_id": "Lo6ksUQwwkudVGLZYuwD"
+      "elevenlabs_voice_id": "Lo6ksUQwwkudVGLZYuwD",
+      "llm_config": {
+        "provider": "local",
+        "model": "nemotron-3-nano:30b-cloud",
+        "temperature": 0.475,
+        "max_tokens": 2000,
+        "timeout_ms": 180000,
+        "api_key_env": null,
+        "base_url": "http://192.168.1.104:11434"
+      }
     }
   ],
   "system_voices": {
@@ -3758,5 +4406,8 @@
       "name": "Supreme Architect",
       "description": "System narrator voice, not assigned to any archon"
     }
+  },
+  "schema_notes": {
+    "crewai_llm_config": "Per-archon CrewAI LLM binding; provider: local|openai|anthropic|google. base_url only used for local or custom endpoints."
   }
 }

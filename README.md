@@ -1832,6 +1832,7 @@ docker compose exec api python -m alembic upgrade head
 ```bash
 # Quick mode
 python scripts/run_conclave.py --quick
+python scripts/run_conclave.py --quick --no-queue --no-blockers
 
 # Check GPU utilization
 nvidia-smi

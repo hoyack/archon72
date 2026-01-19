@@ -1,0 +1,492 @@
+"""Deliberation session domain model (Story 2A.1, FR-11.1, FR-11.4).
+
+This module defines the DeliberationSession aggregate for the Three Fates
+mini-Conclave deliberation system. A deliberation session tracks the
+structured protocol through which 3 Marquis-rank Archons assess a petition.
+
+Constitutional Constraints:
+- CT-14: Silence is expensive - every claim terminates in witnessed fate
+- AT-1: Every petition terminates in exactly one of Three Fates
+- AT-6: Deliberation is collective judgment, not unilateral decision
+- FR-11.1: System SHALL assign exactly 3 Marquis-rank Archons
+- FR-11.4: Deliberation SHALL follow structured protocol
+- NFR-10.3: Consensus determinism - 100% reproducible
+- NFR-10.4: Witness completeness - 100% utterances witnessed
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from typing import TYPE_CHECKING
+from uuid import UUID
+
+if TYPE_CHECKING:
+    pass
+
+
+class DeliberationPhase(Enum):
+    """Phase in the deliberation protocol (FR-11.4).
+
+    The deliberation follows a strict protocol sequence:
+    ASSESS -> POSITION -> CROSS_EXAMINE -> VOTE -> COMPLETE
+
+    Phases:
+        ASSESS: Phase 1 - Independent assessment of petition
+        POSITION: Phase 2 - State preferred disposition
+        CROSS_EXAMINE: Phase 3 - Challenge positions
+        VOTE: Phase 4 - Cast final votes
+        COMPLETE: Terminal - Deliberation finished
+    """
+
+    ASSESS = "ASSESS"
+    POSITION = "POSITION"
+    CROSS_EXAMINE = "CROSS_EXAMINE"
+    VOTE = "VOTE"
+    COMPLETE = "COMPLETE"
+
+    def is_terminal(self) -> bool:
+        """Check if this phase is the terminal phase.
+
+        Returns:
+            True if this is the COMPLETE phase, False otherwise.
+        """
+        return self == DeliberationPhase.COMPLETE
+
+    def next_phase(self) -> DeliberationPhase | None:
+        """Get the next phase in the protocol sequence.
+
+        Returns:
+            The next phase, or None if this is the terminal phase.
+        """
+        return PHASE_TRANSITION_MATRIX.get(self)
+
+
+class DeliberationOutcome(Enum):
+    """Possible outcomes of deliberation (Three Fates).
+
+    These map to the terminal PetitionState values:
+    - ACKNOWLEDGE -> PetitionState.ACKNOWLEDGED
+    - REFER -> PetitionState.REFERRED
+    - ESCALATE -> PetitionState.ESCALATED
+
+    Outcomes:
+        ACKNOWLEDGE: Petition acknowledged, no further action
+        REFER: Referred to Knight for review
+        ESCALATE: Escalated to King for adoption consideration
+    """
+
+    ACKNOWLEDGE = "ACKNOWLEDGE"
+    REFER = "REFER"
+    ESCALATE = "ESCALATE"
+
+
+# Phase transition matrix (FR-11.4)
+# Maps each phase to its valid next phase (strict sequence)
+PHASE_TRANSITION_MATRIX: dict[DeliberationPhase, DeliberationPhase | None] = {
+    DeliberationPhase.ASSESS: DeliberationPhase.POSITION,
+    DeliberationPhase.POSITION: DeliberationPhase.CROSS_EXAMINE,
+    DeliberationPhase.CROSS_EXAMINE: DeliberationPhase.VOTE,
+    DeliberationPhase.VOTE: DeliberationPhase.COMPLETE,
+    DeliberationPhase.COMPLETE: None,  # Terminal
+}
+
+# Minimum votes needed for consensus (2-of-3 supermajority)
+CONSENSUS_THRESHOLD = 2
+
+# Required number of archons per deliberation (FR-11.1)
+REQUIRED_ARCHON_COUNT = 3
+
+
+def _utc_now() -> datetime:
+    """Return current UTC time with timezone info."""
+    return datetime.now(timezone.utc)
+
+
+@dataclass(frozen=True, eq=True)
+class DeliberationSession:
+    """A mini-Conclave deliberation session (Story 2A.1, FR-11.1, FR-11.4).
+
+    This aggregate represents a Three Fates deliberation on a single petition.
+    Exactly 3 Marquis-rank Archons are assigned to deliberate following a
+    structured protocol: Assess -> Position -> Cross-Examine -> Vote.
+
+    Constitutional Constraints:
+    - CT-12: Frozen dataclass ensures immutability
+    - FR-11.1: assigned_archons MUST contain exactly 3 unique archon IDs
+    - FR-11.4: phase progression follows strict protocol sequence
+    - AT-6: outcome requires 2-of-3 consensus (collective judgment)
+
+    Attributes:
+        session_id: UUIDv7 unique identifier.
+        petition_id: Foreign key to petition_submissions.
+        assigned_archons: Tuple of exactly 3 archon UUIDs (ordered).
+        phase: Current deliberation phase.
+        phase_transcripts: Map of phase to Blake3 transcript hash.
+        votes: Map of archon_id to their vote.
+        outcome: Final deliberation outcome (None until resolved).
+        dissent_archon_id: UUID of dissenting archon in 2-1 vote (None if unanimous).
+        created_at: Session creation timestamp (UTC).
+        completed_at: Completion timestamp (None until complete).
+        version: Optimistic locking version for concurrent access.
+    """
+
+    session_id: UUID
+    petition_id: UUID
+    assigned_archons: tuple[UUID, UUID, UUID]
+    phase: DeliberationPhase = field(default=DeliberationPhase.ASSESS)
+    phase_transcripts: dict[DeliberationPhase, bytes] = field(default_factory=dict)
+    votes: dict[UUID, DeliberationOutcome] = field(default_factory=dict)
+    outcome: DeliberationOutcome | None = field(default=None)
+    dissent_archon_id: UUID | None = field(default=None)
+    created_at: datetime = field(default_factory=_utc_now)
+    completed_at: datetime | None = field(default=None)
+    version: int = field(default=1)
+
+    def __post_init__(self) -> None:
+        """Validate deliberation session invariants."""
+        self._validate_archons()
+        self._validate_phase_state()
+
+    def _validate_archons(self) -> None:
+        """Validate archon assignment invariants (FR-11.1).
+
+        Raises:
+            InvalidArchonAssignmentError: If archon assignment violates invariants.
+        """
+        from src.domain.errors.deliberation import InvalidArchonAssignmentError
+
+        # Must have exactly 3 archons
+        if len(self.assigned_archons) != REQUIRED_ARCHON_COUNT:
+            raise InvalidArchonAssignmentError(
+                message=f"Exactly {REQUIRED_ARCHON_COUNT} archons required, got {len(self.assigned_archons)}",
+                archon_count=len(self.assigned_archons),
+            )
+
+        # Check for duplicates
+        archon_set = set(self.assigned_archons)
+        if len(archon_set) != REQUIRED_ARCHON_COUNT:
+            raise InvalidArchonAssignmentError(
+                message="Duplicate archon IDs not allowed",
+                archon_count=len(self.assigned_archons),
+            )
+
+    def _validate_phase_state(self) -> None:
+        """Validate phase-related state consistency."""
+        from src.domain.errors.deliberation import ConsensusNotReachedError
+
+        # If outcome is set, validate consensus was achieved
+        if self.outcome is not None:
+            if len(self.votes) != REQUIRED_ARCHON_COUNT:
+                raise ConsensusNotReachedError(
+                    message=f"Outcome set without all {REQUIRED_ARCHON_COUNT} votes recorded",
+                    votes_received=len(self.votes),
+                    votes_required=REQUIRED_ARCHON_COUNT,
+                )
+
+            # Verify consensus matches outcome
+            vote_counts: dict[DeliberationOutcome, int] = {}
+            for vote in self.votes.values():
+                vote_counts[vote] = vote_counts.get(vote, 0) + 1
+
+            if vote_counts.get(self.outcome, 0) < CONSENSUS_THRESHOLD:
+                raise ConsensusNotReachedError(
+                    message=f"Outcome {self.outcome.value} does not have {CONSENSUS_THRESHOLD}-of-{REQUIRED_ARCHON_COUNT} consensus",
+                    votes_received=vote_counts.get(self.outcome, 0),
+                    votes_required=CONSENSUS_THRESHOLD,
+                )
+
+    @classmethod
+    def create(
+        cls,
+        session_id: UUID,
+        petition_id: UUID,
+        assigned_archons: tuple[UUID, UUID, UUID],
+    ) -> DeliberationSession:
+        """Create a new deliberation session.
+
+        Factory method for creating a new session with validated archons.
+
+        Args:
+            session_id: UUIDv7 for the session.
+            petition_id: UUID of the petition being deliberated.
+            assigned_archons: Tuple of exactly 3 archon UUIDs.
+
+        Returns:
+            New DeliberationSession in ASSESS phase.
+
+        Raises:
+            InvalidArchonAssignmentError: If archon assignment violates invariants.
+        """
+        return cls(
+            session_id=session_id,
+            petition_id=petition_id,
+            assigned_archons=assigned_archons,
+        )
+
+    def with_phase(self, new_phase: DeliberationPhase) -> DeliberationSession:
+        """Create new session with updated phase (FR-11.4).
+
+        Enforces strict phase progression: ASSESS -> POSITION -> CROSS_EXAMINE -> VOTE -> COMPLETE.
+
+        Args:
+            new_phase: The phase to transition to.
+
+        Returns:
+            New DeliberationSession with updated phase.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            InvalidPhaseTransitionError: If transition violates protocol order.
+        """
+        from src.domain.errors.deliberation import (
+            InvalidPhaseTransitionError,
+            SessionAlreadyCompleteError,
+        )
+
+        # Cannot modify completed session
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot modify completed deliberation session",
+            )
+
+        # Validate phase progression
+        expected_next = self.phase.next_phase()
+        if new_phase != expected_next:
+            raise InvalidPhaseTransitionError(
+                from_phase=self.phase,
+                to_phase=new_phase,
+                expected_phase=expected_next,
+            )
+
+        # If transitioning to COMPLETE, set completed_at
+        completed_at = _utc_now() if new_phase == DeliberationPhase.COMPLETE else self.completed_at
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=new_phase,
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=completed_at,
+            version=self.version + 1,
+        )
+
+    def with_transcript(
+        self, phase: DeliberationPhase, transcript_hash: bytes
+    ) -> DeliberationSession:
+        """Create new session with phase transcript recorded.
+
+        Phase transcripts store Blake3 hashes of deliberation content
+        for witness integrity verification (NFR-10.4).
+
+        Args:
+            phase: The phase whose transcript is being recorded.
+            transcript_hash: Blake3 hash of the transcript (32 bytes).
+
+        Returns:
+            New DeliberationSession with transcript recorded.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            ValueError: If transcript hash is not 32 bytes.
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot modify completed deliberation session",
+            )
+
+        if len(transcript_hash) != 32:
+            raise ValueError("Transcript hash must be 32 bytes (Blake3)")
+
+        new_transcripts = dict(self.phase_transcripts)
+        new_transcripts[phase] = transcript_hash
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=self.phase,
+            phase_transcripts=new_transcripts,
+            votes=dict(self.votes),
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=self.completed_at,
+            version=self.version + 1,
+        )
+
+    def with_votes(
+        self, votes: dict[UUID, DeliberationOutcome]
+    ) -> DeliberationSession:
+        """Create new session with votes recorded.
+
+        All 3 assigned archons must vote. Only assigned archons can vote.
+
+        Args:
+            votes: Map of archon_id to their vote. Must have exactly 3 entries.
+
+        Returns:
+            New DeliberationSession with votes recorded.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            InvalidArchonAssignmentError: If vote is from non-assigned archon.
+            ValueError: If vote count doesn't match archon count.
+        """
+        from src.domain.errors.deliberation import (
+            InvalidArchonAssignmentError,
+            SessionAlreadyCompleteError,
+        )
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot modify completed deliberation session",
+            )
+
+        # Validate vote count
+        if len(votes) != REQUIRED_ARCHON_COUNT:
+            raise ValueError(
+                f"Exactly {REQUIRED_ARCHON_COUNT} votes required, got {len(votes)}"
+            )
+
+        # Validate all voters are assigned archons
+        assigned_set = set(self.assigned_archons)
+        for archon_id in votes:
+            if archon_id not in assigned_set:
+                raise InvalidArchonAssignmentError(
+                    message=f"Archon {archon_id} is not assigned to this session",
+                    archon_count=len(votes),
+                )
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=self.phase,
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(votes),
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=self.completed_at,
+            version=self.version + 1,
+        )
+
+    def with_outcome(self) -> DeliberationSession:
+        """Create new session with outcome resolved from votes (AT-6).
+
+        Resolves 2-of-3 supermajority consensus from recorded votes.
+        Automatically identifies dissenting archon in 2-1 votes.
+        Transitions phase to COMPLETE.
+
+        Returns:
+            New DeliberationSession with outcome set and phase COMPLETE.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            ConsensusNotReachedError: If votes don't have 2-of-3 agreement.
+        """
+        from src.domain.errors.deliberation import (
+            ConsensusNotReachedError,
+            SessionAlreadyCompleteError,
+        )
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot modify completed deliberation session",
+            )
+
+        if len(self.votes) != REQUIRED_ARCHON_COUNT:
+            raise ConsensusNotReachedError(
+                message=f"Cannot resolve outcome without all {REQUIRED_ARCHON_COUNT} votes",
+                votes_received=len(self.votes),
+                votes_required=REQUIRED_ARCHON_COUNT,
+            )
+
+        # Count votes by outcome
+        vote_counts: dict[DeliberationOutcome, list[UUID]] = {}
+        for archon_id, vote in self.votes.items():
+            if vote not in vote_counts:
+                vote_counts[vote] = []
+            vote_counts[vote].append(archon_id)
+
+        # Find outcome with 2+ votes (supermajority)
+        resolved_outcome: DeliberationOutcome | None = None
+        dissent_archon: UUID | None = None
+
+        for outcome, voters in vote_counts.items():
+            if len(voters) >= CONSENSUS_THRESHOLD:
+                resolved_outcome = outcome
+                # Find dissenter (if any)
+                for other_outcome, other_voters in vote_counts.items():
+                    if other_outcome != outcome and len(other_voters) == 1:
+                        dissent_archon = other_voters[0]
+                        break
+                break
+
+        if resolved_outcome is None:
+            # This can happen if all 3 archons vote differently (shouldn't be possible with 3 outcomes)
+            raise ConsensusNotReachedError(
+                message="No outcome achieved 2-of-3 consensus",
+                votes_received=len(self.votes),
+                votes_required=CONSENSUS_THRESHOLD,
+            )
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=DeliberationPhase.COMPLETE,
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),
+            outcome=resolved_outcome,
+            dissent_archon_id=dissent_archon,
+            created_at=self.created_at,
+            completed_at=_utc_now(),
+            version=self.version + 1,
+        )
+
+    def is_archon_assigned(self, archon_id: UUID) -> bool:
+        """Check if an archon is assigned to this session.
+
+        Args:
+            archon_id: UUID of the archon to check.
+
+        Returns:
+            True if the archon is assigned, False otherwise.
+        """
+        return archon_id in self.assigned_archons
+
+    def get_archon_vote(self, archon_id: UUID) -> DeliberationOutcome | None:
+        """Get an archon's vote if recorded.
+
+        Args:
+            archon_id: UUID of the archon.
+
+        Returns:
+            The archon's vote, or None if not yet recorded.
+        """
+        return self.votes.get(archon_id)
+
+    def has_transcript(self, phase: DeliberationPhase) -> bool:
+        """Check if transcript is recorded for a phase.
+
+        Args:
+            phase: The phase to check.
+
+        Returns:
+            True if transcript hash is recorded, False otherwise.
+        """
+        return phase in self.phase_transcripts

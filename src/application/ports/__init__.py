@@ -98,6 +98,15 @@ from src.application.ports.configuration_floor_validator import (
     ThresholdStatus,
     ThresholdViolation,
 )
+from src.application.ports.content_hash_service import (
+    ContentHashServiceProtocol,
+)
+from src.application.ports.realm_registry import (
+    RealmRegistryProtocol,
+)
+from src.application.ports.archon_pool import (
+    ArchonPoolProtocol,
+)
 from src.application.ports.constitution_validator import ConstitutionValidatorProtocol
 from src.application.ports.constitutional_health import (
     ConstitutionalHealthPort,
@@ -312,6 +321,25 @@ from src.application.ports.override_trend_repository import (
 )
 from src.application.ports.petition_repository import (
     PetitionRepositoryProtocol,
+)
+from src.application.ports.petition_submission_repository import (
+    PetitionSubmissionRepositoryProtocol,
+)
+from src.application.ports.petition_event_emitter import (
+    PetitionEventEmitterPort,
+)
+from src.application.ports.job_scheduler import (
+    JobSchedulerProtocol,
+)
+from src.application.ports.queue_capacity import (
+    QueueCapacityPort,
+)
+from src.application.ports.rate_limiter import (
+    RateLimitResult,
+    RateLimiterPort,
+)
+from src.application.ports.rate_limit_store import (
+    RateLimitStorePort,
 )
 from src.application.ports.procedural_record_generator import (
     ProceduralRecordData,
@@ -562,6 +590,24 @@ __all__: list[str] = [
     "CessationAgendaRepositoryProtocol",
     # Petition repository (Story 7.2, FR39)
     "PetitionRepositoryProtocol",
+    # Petition submission repository (Story 0.3, FR-9.1)
+    "PetitionSubmissionRepositoryProtocol",
+    # Petition event emitter (Story 1.2, FR-1.7)
+    "PetitionEventEmitterPort",
+    # Job Scheduler (Story 0.4, HP-1, HC-6, NFR-7.5)
+    "JobSchedulerProtocol",
+    # Queue Capacity (Story 1.3, FR-1.4, NFR-3.1, CT-11)
+    "QueueCapacityPort",
+    # Rate Limiter (Story 1.4, FR-1.5, HC-4, D4)
+    "RateLimitResult",
+    "RateLimiterPort",
+    "RateLimitStorePort",
+    # Content Hash Service (Story 0.5, HP-2, HC-5)
+    "ContentHashServiceProtocol",
+    # Realm Registry (Story 0.6, HP-3, HP-4)
+    "RealmRegistryProtocol",
+    # Archon Pool (Story 0.7, HP-11, FR-11.1)
+    "ArchonPoolProtocol",
     # Signature verifier (Story 7.2, FR39, AC4)
     "SignatureVerifierProtocol",
     # Terminal event detection (Story 7.3, FR40, NFR40)

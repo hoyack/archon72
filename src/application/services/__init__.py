@@ -81,6 +81,16 @@ from src.application.services.constitution_supremacy_service import (
 from src.application.services.constitutional_health_service import (
     ConstitutionalHealthService,
 )
+from src.application.services.content_hash_service import (
+    Blake3ContentHashService,
+)
+from src.application.services.realm_registry import (
+    RealmRegistryService,
+)
+from src.application.services.archon_pool import (
+    ArchonPoolService,
+    get_archon_pool_service,
+)
 from src.application.services.context_bundle_service import (
     ContextBundleService,
     CreateBundleInput,
@@ -187,6 +197,16 @@ from src.application.services.petition_service import (
     PetitionService,
     SubmitPetitionResult,
 )
+from src.application.services.queue_capacity_service import (
+    QueueCapacityService,
+)
+from src.application.services.rate_limit_service import (
+    RateLimitService,
+)
+from src.application.services.rate_limit_cleanup_service import (
+    RateLimitCleanupJobHandler,
+    RateLimitCleanupService,
+)
 from src.application.services.pre_operational_verification_service import (
     VERIFICATION_BYPASS_ENABLED,
     VERIFICATION_BYPASS_MAX_COUNT,
@@ -277,6 +297,13 @@ from src.application.services.witness_service import WitnessService
 
 __all__: list[str] = [
     "AtomicEventWriter",
+    # Content Hash Service (Story 0.5, HP-2, HC-5)
+    "Blake3ContentHashService",
+    # Realm Registry Service (Story 0.6, HP-3, HP-4)
+    "RealmRegistryService",
+    # Archon Pool Service (Story 0.7, HP-11, FR-11.1)
+    "ArchonPoolService",
+    "get_archon_pool_service",
     "ConcurrentDeliberationService",
     "ConcurrentResult",
     "ContextBundleService",
@@ -383,6 +410,13 @@ __all__: list[str] = [
     "CosignPetitionResult",
     "PetitionService",
     "SubmitPetitionResult",
+    # Queue Capacity Service (Story 1.3, FR-1.4, NFR-3.1)
+    "QueueCapacityService",
+    # Rate Limit Service (Story 1.4, FR-1.5, HC-4, D4)
+    "RateLimitService",
+    # Rate Limit Cleanup Service (Story 1.4, AC3, D4)
+    "RateLimitCleanupService",
+    "RateLimitCleanupJobHandler",
     # Public triggers service (Story 7.7, FR134)
     "PublicTriggersService",
     # Integrity Case Artifact service (Story 7.10, FR144)

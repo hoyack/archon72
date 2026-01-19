@@ -54,6 +54,15 @@ from src.domain.errors.cessation import (
     InvalidCessationDecisionError,
 )
 from src.domain.errors.collective import FR11ViolationError
+from src.domain.errors.concurrent_modification import ConcurrentModificationError
+from src.domain.errors.deliberation import (
+    ConsensusNotReachedError,
+    DeliberationError,
+    InvalidArchonAssignmentError,
+    InvalidPhaseTransitionError,
+    SessionAlreadyCompleteError,
+)
+from src.domain.errors.event_emission import FateEventEmissionError
 from src.domain.errors.collusion import (
     CollusionDefenseError,
     CollusionInvestigationRequiredError,
@@ -195,6 +204,12 @@ from src.domain.errors.prohibited_language import (
     ProhibitedLanguageError,
     ProhibitedLanguageScanError,
     ProhibitedTermsConfigurationError,
+)
+from src.domain.errors.queue_overflow import QueueOverflowError
+from src.domain.errors.rate_limit import RateLimitExceededError
+from src.domain.errors.state_transition import (
+    InvalidStateTransitionError,
+    PetitionAlreadyFatedError,
 )
 from src.domain.errors.publication import (
     PublicationBlockedError,
@@ -508,4 +523,21 @@ __all__: list[str] = [
     "SemanticScanError",
     "SemanticViolationError",
     "SemanticViolationSuspectedError",
+    # Queue overflow errors (Story 1.3, FR-1.4)
+    "QueueOverflowError",
+    # Rate limit errors (Story 1.4, FR-1.5, HC-4)
+    "RateLimitExceededError",
+    # State transition errors (Story 1.5, FR-2.1, FR-2.3, FR-2.6)
+    "InvalidStateTransitionError",
+    "PetitionAlreadyFatedError",
+    # Concurrent modification error (Story 1.6, FR-2.4, NFR-3.2)
+    "ConcurrentModificationError",
+    # Event emission error (Story 1.7, FR-2.5, HC-1)
+    "FateEventEmissionError",
+    # Deliberation errors (Story 2A.1, FR-11.1, FR-11.4)
+    "ConsensusNotReachedError",
+    "DeliberationError",
+    "InvalidArchonAssignmentError",
+    "InvalidPhaseTransitionError",
+    "SessionAlreadyCompleteError",
 ]

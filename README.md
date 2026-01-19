@@ -1376,9 +1376,25 @@ Motion Gates enforce the boundary between abundant **Seeds** and scarce **Motion
 - **H4 Cross-Realm Escalation**: Motions spanning 4+ realms require escalation; the admission gate flags and rejects these unless explicitly approved.
 - **H5 Backward-Compat Guardrails**: Secretary/cluster shims now assert they create only `MotionSeed` records and never bypass promotion or admission.
 
+**Budget Durability (P1-P4):**
+
+The promotion budget system persists across restarts and handles concurrent access atomically:
+
+| Store | Use Case | Durability |
+|-------|----------|------------|
+| `InMemoryBudgetStore` | Testing only | Resets on restart |
+| `FileBudgetStore` | Single-node production | Atomic via lockfile + fsync |
+| `RedisBudgetStore` | Horizontal scaling | Atomic via Lua script |
+
+Storage layout for file store: `_bmad-output/budget-ledger/{cycle_id}/{king_id}.json`
+
+**Invariant:** Budget consumption is atomic—under concurrent promotion attempts, exactly N promotions succeed for budget N.
+
 **Developer notes:**
 - `PromotionService.promote(...)` now requires a `cycle_id` to enforce budget tracking.
-- See `docs/spikes/motion-gates-hardening.md` for the full specification and rationale.
+- Pass a `budget_store` to `PromotionService()` for production; defaults to `InMemoryBudgetStore` for tests.
+- See `docs/spikes/motion-gates-hardening.md` for hardening specification.
+- See `docs/spikes/promotion-budget-durability.md` for persistence implementation details.
 
 ### Review Pipeline Outputs
 

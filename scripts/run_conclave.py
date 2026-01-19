@@ -26,6 +26,8 @@ Options:
 
 import argparse
 import asyncio
+import glob
+import json
 import os
 import sys
 from datetime import datetime
@@ -35,6 +37,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
+# Disable CrewAI telemetry and force writable storage before CrewAI imports.
+os.environ.setdefault("CREWAI_DISABLE_TELEMETRY", "true")
+os.environ.setdefault("CREWAI_DISABLE_TRACKING", "true")
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
+os.environ.setdefault("CREWAI_TESTING", "true")
+os.environ.setdefault("CREWAI_STORAGE_DIR", "archon72")
+os.environ.setdefault("XDG_DATA_HOME", "/tmp/crewai-data")
+Path(os.environ["XDG_DATA_HOME"]).mkdir(parents=True, exist_ok=True)
 
 # Load environment variables
 load_dotenv()
@@ -125,6 +137,35 @@ def format_progress(event: str, message: str, data: dict) -> None:
         print(f"{Colors.DIM}[{event}]{Colors.ENDC} {message}")
 
 
+def find_latest_blockers_summary() -> Path | None:
+    """Find the most recent blockers_summary.json file."""
+    pattern = "_bmad-output/execution-planner/*/blockers_summary.json"
+    files = glob.glob(pattern)
+    if not files:
+        return None
+    return Path(max(files, key=lambda f: Path(f).stat().st_mtime))
+
+
+def load_blocker_agenda_items(summary_path: Path) -> list[str]:
+    """Load Conclave agenda items from an execution planner blockers summary."""
+    with open(summary_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    agenda_items = [item for item in data.get("agenda_items", []) if item]
+    if agenda_items:
+        return agenda_items
+
+    blockers = data.get("blockers", [])
+    items = []
+    for blocker in blockers:
+        if not blocker.get("escalate_to_conclave"):
+            continue
+        item = blocker.get("suggested_agenda_item") or blocker.get("description")
+        if item:
+            items.append(item)
+    return items
+
+
 async def run_conclave(args: argparse.Namespace) -> None:
     """Run the Conclave session.
 
@@ -136,7 +177,8 @@ async def run_conclave(args: argparse.Namespace) -> None:
         ConclaveConfig,
         ConclaveService,
     )
-    from src.domain.models.conclave import MotionType
+    from src.application.services.motion_queue_service import MotionQueueService
+    from src.domain.models.conclave import Motion, MotionType
     from src.infrastructure.adapters.config.archon_profile_adapter import (
         create_archon_profile_repository,
     )
@@ -216,51 +258,111 @@ async def run_conclave(args: argparse.Namespace) -> None:
     print(f"  Max debate rounds: {config.max_debate_rounds}")
     print(f"  Supermajority threshold: {config.supermajority_threshold:.1%}")
 
-    # Determine motion details
-    motion_title = (
-        args.motion
-        or "Should AI systems be granted limited autonomous decision-making authority?"
-    )
+    # Build motion plans (queue + blockers unless custom motion specified)
+    custom_motion_requested = bool(args.motion or args.motion_text or args.motion_file)
+    use_queue = not args.no_queue and not custom_motion_requested
+    use_blockers = not args.no_blockers and not custom_motion_requested
+    motion_plans: list[dict] = []
+    queue_service = MotionQueueService()
 
-    # Load motion text: file takes precedence over inline text
-    if args.motion_file:
-        motion_file_path = Path(args.motion_file)
-        if not motion_file_path.exists():
-            print(f"{Colors.RED}Error: Motion file not found: {args.motion_file}{Colors.ENDC}")
-            sys.exit(1)
-        motion_text = motion_file_path.read_text(encoding="utf-8").strip()
-        print(f"{Colors.GREEN}Loaded motion text from: {args.motion_file}{Colors.ENDC}")
-    elif args.motion_text:
-        motion_text = args.motion_text
-    else:
-        # Default motion text
-        motion_text = (
-            "WHEREAS AI systems have demonstrated increasing capability in complex reasoning tasks; and "
-            "WHEREAS the Archon 72 Conclave serves as a constitutional governance body; "
-            "BE IT RESOLVED that the Conclave shall deliberate on establishing a framework for "
-            "limited autonomous decision-making authority for AI systems, subject to: "
-            "(1) Constitutional safeguards ensuring alignment with human values; "
-            "(2) Mandatory human oversight for high-stakes decisions; "
-            "(3) Transparent audit trails for all autonomous actions; "
-            "(4) Regular review and amendment procedures."
+    if use_queue:
+        queued = queue_service.select_for_conclave(
+            max_items=args.queue_max_items,
+            min_consensus=args.queue_min_consensus,
         )
-    motion_type_str = args.motion_type.lower() if args.motion_type else "open"
-    motion_type = {
-        "constitutional": MotionType.CONSTITUTIONAL,
-        "policy": MotionType.POLICY,
-        "procedural": MotionType.PROCEDURAL,
-        "open": MotionType.OPEN,
-    }.get(motion_type_str, MotionType.OPEN)
+        for queued_motion in queued:
+            motion = queue_service.promote_to_conclave(
+                queued_motion.queued_motion_id,
+                session.session_id,
+            )
+            if motion:
+                motion_plans.append(
+                    {
+                        "source": "queue",
+                        "motion": motion,
+                        "queued_motion_id": queued_motion.queued_motion_id,
+                    }
+                )
 
-    print(f"\n{Colors.BLUE}Motion to be considered:{Colors.ENDC}")
-    print(f"  Title: {motion_title}")
-    print(f"  Type: {motion_type.value}")
-    print(f"  Text: {motion_text[:200]}...")
+    if use_blockers:
+        blockers_path = Path(args.blockers_path) if args.blockers_path else None
+        if blockers_path and blockers_path.is_dir():
+            blockers_path = blockers_path / "blockers_summary.json"
+        if blockers_path is None:
+            blockers_path = find_latest_blockers_summary()
+        if blockers_path and blockers_path.exists():
+            agenda_items = load_blocker_agenda_items(blockers_path)
+            for item in agenda_items:
+                motion = Motion.create(
+                    motion_type=MotionType.PROCEDURAL,
+                    title=f"Blocker Escalation: {item[:60]}",
+                    text=f"AGENDA ITEM:\n\n{item}\n",
+                    proposer_id="execution_planner",
+                    proposer_name="Execution Planner",
+                    max_debate_rounds=config.max_debate_rounds,
+                )
+                motion_plans.append(
+                    {"source": "blocker", "motion": motion, "queued_motion_id": None}
+                )
+
+    if custom_motion_requested or not motion_plans:
+        motion_title = (
+            args.motion
+            or "Should AI systems be granted limited autonomous decision-making authority?"
+        )
+
+        # Load motion text: file takes precedence over inline text
+        if args.motion_file:
+            motion_file_path = Path(args.motion_file)
+            if not motion_file_path.exists():
+                print(f"{Colors.RED}Error: Motion file not found: {args.motion_file}{Colors.ENDC}")
+                sys.exit(1)
+            motion_text = motion_file_path.read_text(encoding="utf-8").strip()
+            print(f"{Colors.GREEN}Loaded motion text from: {args.motion_file}{Colors.ENDC}")
+        elif args.motion_text:
+            motion_text = args.motion_text
+        else:
+            # Default motion text
+            motion_text = (
+                "WHEREAS AI systems have demonstrated increasing capability in complex reasoning tasks; and "
+                "WHEREAS the Archon 72 Conclave serves as a constitutional governance body; "
+                "BE IT RESOLVED that the Conclave shall deliberate on establishing a framework for "
+                "limited autonomous decision-making authority for AI systems, subject to: "
+                "(1) Constitutional safeguards ensuring alignment with human values; "
+                "(2) Mandatory human oversight for high-stakes decisions; "
+                "(3) Transparent audit trails for all autonomous actions; "
+                "(4) Regular review and amendment procedures."
+            )
+        motion_type_str = args.motion_type.lower() if args.motion_type else "open"
+        motion_type = {
+            "constitutional": MotionType.CONSTITUTIONAL,
+            "policy": MotionType.POLICY,
+            "procedural": MotionType.PROCEDURAL,
+            "open": MotionType.OPEN,
+        }.get(motion_type_str, MotionType.OPEN)
+
+        motion_plans = [
+            {
+                "source": "custom",
+                "motion_type": motion_type,
+                "motion_title": motion_title,
+                "motion_text": motion_text,
+                "queued_motion_id": None,
+            }
+        ]
+
+    print(f"\n{Colors.BLUE}Motions to be considered:{Colors.ENDC}")
+    for idx, plan in enumerate(motion_plans, 1):
+        if plan["source"] == "custom":
+            print(f"  {idx}. {plan['motion_title']} ({plan['motion_type'].value})")
+        else:
+            print(f"  {idx}. {plan['motion'].title} ({plan['source']})")
 
     # Estimate time
-    total_turns = len(archon_profiles) * config.max_debate_rounds + len(
-        archon_profiles
+    total_turns_per_motion = len(archon_profiles) * (
+        config.max_debate_rounds + 1
     )  # debate + voting
+    total_turns = total_turns_per_motion * len(motion_plans)
     avg_time_per_turn = 15  # seconds
     estimated_minutes = (total_turns * avg_time_per_turn) / 60
 
@@ -268,7 +370,7 @@ async def run_conclave(args: argparse.Namespace) -> None:
         f"\n{Colors.YELLOW}Estimated duration: {estimated_minutes:.0f}-{estimated_minutes * 2:.0f} minutes{Colors.ENDC}"
     )
     print(
-        f"{Colors.DIM}({total_turns} total turns: {config.max_debate_rounds} debate rounds + 1 voting round){Colors.ENDC}"
+        f"{Colors.DIM}({total_turns} total turns: {config.max_debate_rounds} debate rounds + 1 voting round per motion){Colors.ENDC}"
     )
 
     print_header("CONCLAVE IN SESSION")
@@ -283,29 +385,32 @@ async def run_conclave(args: argparse.Namespace) -> None:
         # Phase 3: Move to New Business
         await conclave.advance_to_new_business()
 
-        # Phase 4: Propose Motion
-        # First archon (by rank) proposes
-        proposer = archon_profiles[0]
-        await conclave.propose_motion(
-            proposer_id=proposer.id,
-            motion_type=motion_type,
-            title=motion_title,
-            text=motion_text,
-        )
+        seconder = archon_profiles[1] if len(archon_profiles) > 1 else archon_profiles[0]
 
-        # Phase 5: Second Motion
-        # Second archon (by rank) seconds
-        seconder = archon_profiles[1]
-        await conclave.second_motion(seconder_id=seconder.id)
+        for idx, plan in enumerate(motion_plans, 1):
+            if plan["source"] == "custom":
+                proposer = archon_profiles[0]
+                await conclave.propose_motion(
+                    proposer_id=proposer.id,
+                    motion_type=plan["motion_type"],
+                    title=plan["motion_title"],
+                    text=plan["motion_text"],
+                )
+            else:
+                conclave.add_external_motion(plan["motion"])
 
-        # Phase 6: Debate
-        await conclave.conduct_debate()
+            await conclave.second_motion(seconder_id=seconder.id)
+            await conclave.conduct_debate()
+            await conclave.call_question()
+            vote_result = await conclave.conduct_vote()
 
-        # Phase 7: Call the Question
-        await conclave.call_question()
-
-        # Phase 8: Vote
-        await conclave.conduct_vote()
+            queued_motion_id = plan.get("queued_motion_id")
+            if queued_motion_id:
+                queue_service.mark_voted(
+                    queued_motion_id,
+                    passed=vote_result.get("passed", False),
+                    vote_details=vote_result,
+                )
 
         # Phase 9: Adjourn
         await conclave.adjourn()
@@ -420,6 +525,35 @@ Motion File Format:
         "--quick",
         action="store_true",
         help="Quick mode: 1 debate round, shorter timeouts",
+    )
+    parser.add_argument(
+        "--no-queue",
+        action="store_true",
+        help="Disable loading motions from the motion queue",
+    )
+    parser.add_argument(
+        "--queue-max-items",
+        type=int,
+        default=5,
+        help="Max motion queue items to include (default: 5)",
+    )
+    parser.add_argument(
+        "--queue-min-consensus",
+        type=str,
+        default="medium",
+        choices=["critical", "high", "medium", "low", "single"],
+        help="Minimum consensus tier for motion queue items",
+    )
+    parser.add_argument(
+        "--no-blockers",
+        action="store_true",
+        help="Disable loading blockers from execution planner",
+    )
+    parser.add_argument(
+        "--blockers-path",
+        type=str,
+        default=None,
+        help="Path to blockers_summary.json or execution-planner session dir",
     )
 
     args = parser.parse_args()

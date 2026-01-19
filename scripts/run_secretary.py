@@ -111,6 +111,14 @@ async def run_enhanced(
 
     # Save and display results
     output_dir = service.save_report(report)
+    try:
+        from src.application.services.motion_queue_service import MotionQueueService
+
+        queue = MotionQueueService()
+        imported = queue.import_from_report(report)
+        print(f"\nImported {imported} motions into queue: {queue.queue_dir}")
+    except Exception as e:
+        print(f"Warning: failed to import motion queue: {e}")
 
     print(f"\n{'=' * 60}")
     print("SECRETARY REPORT COMPLETE")
@@ -174,6 +182,14 @@ def run_regex(
 
     # Save and display results
     output_dir = service.save_report(report)
+    try:
+        from src.application.services.motion_queue_service import MotionQueueService
+
+        queue = MotionQueueService()
+        imported = queue.import_from_report(report)
+        print(f"\nImported {imported} motions into queue: {queue.queue_dir}")
+    except Exception as e:
+        print(f"Warning: failed to import motion queue: {e}")
 
     print(f"\n{'=' * 60}")
     print("SECRETARY REPORT COMPLETE")

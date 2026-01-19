@@ -953,6 +953,62 @@ class SecretaryService:
 
         return "\n".join(lines)
 
+    def _serialize_source_reference(self, source: SourceReference) -> dict:
+        """Serialize a SourceReference for JSON output."""
+        return {
+            "archon_id": source.archon_id,
+            "archon_name": source.archon_name,
+            "archon_rank": source.archon_rank,
+            "line_number": source.line_number,
+            "timestamp": source.timestamp.isoformat(),
+            "raw_text": source.raw_text,
+        }
+
+    def _serialize_recommendation(self, rec: ExtractedRecommendation) -> dict:
+        """Serialize an ExtractedRecommendation for JSON output."""
+        return {
+            "recommendation_id": str(rec.recommendation_id),
+            "source": self._serialize_source_reference(rec.source),
+            "category": rec.category.value,
+            "recommendation_type": rec.recommendation_type.value,
+            "summary": rec.summary,
+            "keywords": rec.keywords,
+            "extracted_at": rec.extracted_at.isoformat(),
+            "motion_id": str(rec.motion_id) if rec.motion_id else None,
+            "motion_title": rec.motion_title,
+            "stance": rec.stance,
+        }
+
+    def _serialize_queued_motion(self, motion: QueuedMotion) -> dict:
+        """Serialize a QueuedMotion for JSON output."""
+        return {
+            "queued_motion_id": str(motion.queued_motion_id),
+            "status": motion.status.value,
+            "title": motion.title,
+            "text": motion.text,
+            "rationale": motion.rationale,
+            "source_cluster_id": str(motion.source_cluster_id)
+            if motion.source_cluster_id
+            else None,
+            "source_cluster_theme": motion.source_cluster_theme,
+            "original_archon_count": motion.original_archon_count,
+            "consensus_level": motion.consensus_level.value,
+            "supporting_archons": motion.supporting_archons,
+            "source_session_id": str(motion.source_session_id)
+            if motion.source_session_id
+            else None,
+            "source_session_name": motion.source_session_name,
+            "endorsements": motion.endorsements,
+            "endorsement_count": motion.endorsement_count,
+            "created_at": motion.created_at.isoformat(),
+            "promoted_at": motion.promoted_at.isoformat()
+            if motion.promoted_at
+            else None,
+            "target_conclave_id": str(motion.target_conclave_id)
+            if motion.target_conclave_id
+            else None,
+        }
+
     def save_report(self, report: SecretaryReport) -> Path:
         """Save complete report and artifacts to disk."""
         # Create session output directory
@@ -979,6 +1035,25 @@ class SecretaryService:
 
         summary_path.write_text(
             json.dumps(report.to_dict(), indent=2, default=str),
+            encoding="utf-8",
+        )
+
+        # Save detailed JSON artifacts for downstream pipeline
+        motion_queue_path = session_dir / "motion-queue.json"
+        motion_queue_path.write_text(
+            json.dumps(
+                [self._serialize_queued_motion(m) for m in report.motion_queue],
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        recommendations_path = session_dir / "recommendations.json"
+        recommendations_path.write_text(
+            json.dumps(
+                [self._serialize_recommendation(r) for r in report.recommendations],
+                indent=2,
+            ),
             encoding="utf-8",
         )
 

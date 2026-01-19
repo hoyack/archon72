@@ -819,6 +819,10 @@ python scripts/run_conclave.py \
 python scripts/run_conclave.py --resume _bmad-output/conclave/checkpoint-xxx.json
 ```
 
+If no `--motion*` arguments are provided, the CLI loads motions from the queue and
+execution planner blockers (if available). Use `--no-queue` or `--no-blockers`
+to disable those sources.
+
 ### Motion File Format
 
 Motion files should contain the full motion text in plain text or markdown. The recommended format for formal motions:
@@ -848,6 +852,11 @@ This resolution shall take effect [timing].
 | `--debate-rounds N` | Number of debate rounds | 3 |
 | `--quick` | Quick mode (1 round, faster) | Off |
 | `--resume FILE` | Resume from checkpoint | None |
+| `--no-queue` | Disable motion queue ingestion | Off |
+| `--queue-max-items` | Max queue items to include | 5 |
+| `--queue-min-consensus` | Minimum consensus tier | `medium` |
+| `--no-blockers` | Disable blocker escalations | Off |
+| `--blockers-path` | Path to blockers_summary.json | Auto-detect |
 
 ### Monitoring Output
 

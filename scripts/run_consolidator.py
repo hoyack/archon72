@@ -25,6 +25,7 @@ import argparse
 import asyncio
 import glob
 import sys
+import time
 from pathlib import Path
 
 # Add project root to path
@@ -50,6 +51,45 @@ def find_latest_motions_checkpoint() -> Path | None:
     return Path(max(files, key=lambda f: Path(f).stat().st_mtime))
 
 
+def prepare_motions_checkpoint_from_report(
+    report_path: Path,
+) -> tuple[Path, Path | None]:
+    """Create motions/recommendations checkpoints from a secretary report directory."""
+    import json
+
+    data = json.loads(report_path.read_text(encoding="utf-8"))
+    session_id = data.get("source_session_id", "unknown-session")
+    timestamp = int(time.time())
+    prefix = f"{session_id}_{timestamp}"
+
+    session_dir = report_path.parent
+    motion_queue_path = session_dir / "motion-queue.json"
+    recommendations_path = session_dir / "recommendations.json"
+
+    motions = []
+    if motion_queue_path.exists():
+        motions = json.loads(motion_queue_path.read_text(encoding="utf-8"))
+
+    recommendations = []
+    if recommendations_path.exists():
+        recommendations = json.loads(recommendations_path.read_text(encoding="utf-8"))
+
+    temp_dir = Path("_tmp/secretary-checkpoints")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    motions_path = temp_dir / f"{prefix}_05_motions.json"
+    motions_path.write_text(json.dumps(motions, indent=2), encoding="utf-8")
+
+    output_recommendations_path = None
+    if recommendations:
+        output_recommendations_path = temp_dir / f"{prefix}_01_extraction.json"
+        output_recommendations_path.write_text(
+            json.dumps(recommendations, indent=2), encoding="utf-8"
+        )
+
+    return motions_path, output_recommendations_path
+
+
 async def run_consolidator(
     checkpoint_path: Path,
     target_count: int,
@@ -57,6 +97,7 @@ async def run_consolidator(
     run_novelty: bool,
     run_summary: bool,
     run_acronyms: bool,
+    recommendations_checkpoint: Path | None = None,
 ) -> None:
     """Run the motion consolidator with full analysis."""
     print(f"\n{'=' * 60}")
@@ -80,6 +121,7 @@ async def run_consolidator(
     print("Running full consolidation...")
     result = await consolidator.consolidate_full(
         motions_checkpoint=checkpoint_path,
+        recommendations_checkpoint=recommendations_checkpoint,
         run_novelty=run_novelty,
         run_summary=run_summary,
         run_acronyms=run_acronyms,
@@ -222,6 +264,21 @@ def main():
         print(f"Error: Checkpoint not found: {args.checkpoint}")
         sys.exit(1)
 
+    recommendations_checkpoint = None
+    if args.checkpoint.is_dir() or args.checkpoint.name == "secretary-report.json":
+        report_path = (
+            args.checkpoint / "secretary-report.json"
+            if args.checkpoint.is_dir()
+            else args.checkpoint
+        )
+        if not report_path.exists():
+            print(f"Error: secretary-report.json not found in {args.checkpoint}")
+            sys.exit(1)
+        args.checkpoint, recommendations_checkpoint = (
+            prepare_motions_checkpoint_from_report(report_path)
+        )
+        print(f"Prepared motions checkpoint: {args.checkpoint}")
+
     # Determine which analyses to run
     if args.basic:
         run_novelty = False
@@ -241,6 +298,7 @@ def main():
             run_novelty,
             run_summary,
             run_acronyms,
+            recommendations_checkpoint=recommendations_checkpoint,
         )
     )
 

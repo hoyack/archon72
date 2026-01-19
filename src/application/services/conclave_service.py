@@ -420,6 +420,18 @@ class ConclaveService:
 
         return motion
 
+    def add_external_motion(self, motion: Motion) -> None:
+        """Add a pre-built motion to the session without permission checks.
+
+        This supports agenda items sourced from the motion queue or execution
+        planner blockers (external to the Conclave proposer workflow).
+        """
+        if not self._session:
+            raise ValueError("No active session")
+
+        self._session.add_motion(motion)
+        self._session.current_motion_index = len(self._session.motions) - 1
+
     async def second_motion(self, seconder_id: str) -> bool:
         """Second the current motion.
 
@@ -1099,10 +1111,10 @@ You may briefly explain your reasoning.
                     )
 
                 logger.warning(
-                    "king_defined_execution_violation",
-                    archon_id=archon.id,
-                    archon_name=archon.name,
-                    violations=execution_details,
+                    "king_defined_execution_violation archon_id=%s archon_name=%s violations=%s",
+                    archon.id,
+                    archon.name,
+                    execution_details,
                 )
 
         return len(violations) == 0, violations

@@ -62,6 +62,11 @@ class MotionQueueService:
         # Load existing queue
         self._queue: list[QueuedMotion] = self._load_queue()
 
+    @property
+    def queue_dir(self) -> Path:
+        """Expose the queue directory for CLI reporting."""
+        return self._queue_dir
+
     # =========================================================================
     # Queue Management
     # =========================================================================
@@ -357,6 +362,27 @@ class MotionQueueService:
         Returns:
             List of AgendaItems sorted by priority
         """
+        selected = self.select_for_conclave(
+            max_items=max_items,
+            min_consensus=min_consensus,
+        )
+
+        return [self.format_as_agenda_item(m) for m in selected]
+
+    def select_for_conclave(
+        self,
+        max_items: int = 5,
+        min_consensus: str = "medium",
+    ) -> list[QueuedMotion]:
+        """Select queued motions for the next Conclave.
+
+        Args:
+            max_items: Maximum number of items to include
+            min_consensus: Minimum consensus level (critical, high, medium, low)
+
+        Returns:
+            List of QueuedMotion sorted by priority
+        """
         # Map string to level order for comparison
         level_order = ["critical", "high", "medium", "low", "single"]
         min_index = level_order.index(min_consensus)
@@ -382,9 +408,7 @@ class MotionQueueService:
         )
 
         # Take top N
-        selected = eligible[:max_items]
-
-        return [self.format_as_agenda_item(m) for m in selected]
+        return eligible[:max_items]
 
     def promote_to_conclave(
         self,

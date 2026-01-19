@@ -439,7 +439,8 @@ class PromotionService(LoggingMixin):
             title=title or seed.proposed_title or "Untitled Motion",
             normative_intent=normative_intent or seed.seed_text,
             constraints=constraints,
-            success_criteria=success_criteria or "Motion successfully ratified and implemented",
+            success_criteria=success_criteria
+            or "Motion successfully ratified and implemented",
             realm_id=seed.proposed_realm,
         )
 

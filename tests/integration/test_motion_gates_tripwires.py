@@ -405,7 +405,9 @@ class TestBackwardCompatibilityShim:
         assert queued_motion.text in seed.seed_text
 
         # 7. Provenance tracked
-        assert seed.metadata.get("source_queued_motion_id") == str(queued_motion.queued_motion_id)
+        assert seed.metadata.get("source_queued_motion_id") == str(
+            queued_motion.queued_motion_id
+        )
 
     def test_h5_cluster_shim_creates_only_seeds(self, tmp_path) -> None:
         """add_seeds_from_cluster must only create Seeds, not Motions.
@@ -622,8 +624,7 @@ class TestConcurrencyAtomicity:
 
         with ThreadPoolExecutor(max_workers=num_attempts) as executor:
             futures = [
-                executor.submit(attempt_promotion, i)
-                for i in range(num_attempts)
+                executor.submit(attempt_promotion, i) for i in range(num_attempts)
             ]
             for future in as_completed(futures):
                 results.append(future.result())
@@ -693,8 +694,7 @@ class TestConcurrencyAtomicity:
 
         with ThreadPoolExecutor(max_workers=num_attempts) as executor:
             futures = [
-                executor.submit(attempt_promotion, i)
-                for i in range(num_attempts)
+                executor.submit(attempt_promotion, i) for i in range(num_attempts)
             ]
             for future in as_completed(futures):
                 results.append(future.result())

@@ -127,8 +127,7 @@ class PromotionBudgetExceededError(Exception):
         self.budget = budget
         self.used = used
         super().__init__(
-            f"King {king_id} budget exceeded for cycle {cycle_id}: "
-            f"used {used}/{budget}"
+            f"King {king_id} budget exceeded for cycle {cycle_id}: used {used}/{budget}"
         )
 
 

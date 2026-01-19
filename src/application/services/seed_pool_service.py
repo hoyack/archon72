@@ -430,26 +430,26 @@ class SeedPoolService(LoggingMixin):
         promotable_seeds = self.get_seeds_for_promotion()
         if promotable_seeds:
             for seed in promotable_seeds[:20]:  # Limit to first 20
-                lines.extend([
-                    f"### {seed.proposed_title or 'Untitled Seed'}",
-                    "",
-                    f"**Seed ID:** `{seed.seed_id}`",
-                    f"**Submitted by:** {seed.submitted_by_name}",
-                    f"**Status:** {seed.status.value}",
-                    f"**Support signals:** {len(seed.support_signals)}",
-                    "",
-                    "**Content:**",
-                    "",
-                    f"> {seed.seed_text[:300]}{'...' if len(seed.seed_text) > 300 else ''}",
-                    "",
-                    "---",
-                    "",
-                ])
+                lines.extend(
+                    [
+                        f"### {seed.proposed_title or 'Untitled Seed'}",
+                        "",
+                        f"**Seed ID:** `{seed.seed_id}`",
+                        f"**Submitted by:** {seed.submitted_by_name}",
+                        f"**Status:** {seed.status.value}",
+                        f"**Support signals:** {len(seed.support_signals)}",
+                        "",
+                        "**Content:**",
+                        "",
+                        f"> {seed.seed_text[:300]}{'...' if len(seed.seed_text) > 300 else ''}",
+                        "",
+                        "---",
+                        "",
+                    ]
+                )
 
             if len(promotable_seeds) > 20:
-                lines.append(
-                    f"*...and {len(promotable_seeds) - 20} more seeds*"
-                )
+                lines.append(f"*...and {len(promotable_seeds) - 20} more seeds*")
         else:
             lines.append("No seeds currently available for promotion.")
 

@@ -37,7 +37,9 @@ class SeedImmutabilityError(Exception):
     def __init__(self, seed_id: str, field_name: str, message: str | None = None):
         self.seed_id = seed_id
         self.field_name = field_name
-        self.message = message or f"Cannot modify {field_name} on promoted seed {seed_id}"
+        self.message = (
+            message or f"Cannot modify {field_name} on promoted seed {seed_id}"
+        )
         super().__init__(self.message)
 
 
@@ -372,7 +374,9 @@ class MotionSeed:
     """
 
     seed_id: UUID
-    _seed_text: str = field(repr=False)  # Unaltered original proposal (private for immutability)
+    _seed_text: str = field(
+        repr=False
+    )  # Unaltered original proposal (private for immutability)
     _submitted_by: str = field(repr=False)  # Archon ID (private for immutability)
     submitted_by_name: str
     _submitted_at: datetime = field(repr=False)  # (private for immutability)
@@ -390,7 +394,9 @@ class MotionSeed:
     # Provenance
     source_cycle: str | None = None  # e.g., "conclave-20260117-180111"
     source_event: str | None = None  # e.g., "secretary-extraction"
-    _source_references: list[str] = field(default_factory=list)  # (private for immutability)
+    _source_references: list[str] = field(
+        default_factory=list
+    )  # (private for immutability)
 
     # Clustering (if clustered)
     cluster_id: str | None = None
@@ -415,8 +421,9 @@ class MotionSeed:
         """Set seed text - raises SeedImmutabilityError if promoted."""
         if self.status == SeedStatus.PROMOTED:
             raise SeedImmutabilityError(
-                str(self.seed_id), "seed_text",
-                "Cannot modify seed_text after promotion (H3)"
+                str(self.seed_id),
+                "seed_text",
+                "Cannot modify seed_text after promotion (H3)",
             )
         self._seed_text = value
 
@@ -430,8 +437,9 @@ class MotionSeed:
         """Set submitter - raises SeedImmutabilityError if promoted."""
         if self.status == SeedStatus.PROMOTED:
             raise SeedImmutabilityError(
-                str(self.seed_id), "submitted_by",
-                "Cannot modify submitted_by after promotion (H3)"
+                str(self.seed_id),
+                "submitted_by",
+                "Cannot modify submitted_by after promotion (H3)",
             )
         self._submitted_by = value
 
@@ -445,8 +453,9 @@ class MotionSeed:
         """Set submission timestamp - raises SeedImmutabilityError if promoted."""
         if self.status == SeedStatus.PROMOTED:
             raise SeedImmutabilityError(
-                str(self.seed_id), "submitted_at",
-                "Cannot modify submitted_at after promotion (H3)"
+                str(self.seed_id),
+                "submitted_at",
+                "Cannot modify submitted_at after promotion (H3)",
             )
         self._submitted_at = value
 
@@ -467,8 +476,9 @@ class MotionSeed:
         """Set source references - raises SeedImmutabilityError if promoted."""
         if self.status == SeedStatus.PROMOTED:
             raise SeedImmutabilityError(
-                str(self.seed_id), "source_references",
-                "Cannot modify source_references after promotion (H3)"
+                str(self.seed_id),
+                "source_references",
+                "Cannot modify source_references after promotion (H3)",
             )
         self._source_references = value
 
@@ -485,8 +495,9 @@ class MotionSeed:
         """
         if self.status == SeedStatus.PROMOTED:
             raise SeedImmutabilityError(
-                str(self.seed_id), "source_references",
-                "Cannot add source reference after promotion (H3)"
+                str(self.seed_id),
+                "source_references",
+                "Cannot add source reference after promotion (H3)",
             )
         self._source_references.append(reference)
 
@@ -636,15 +647,15 @@ class RealmAssignment:
     # Cross-realm flag
     is_cross_realm: bool = False
 
-    def add_cosponsor(
-        self, king_id: str, king_name: str, realm_id: str
-    ) -> None:
+    def add_cosponsor(self, king_id: str, king_name: str, realm_id: str) -> None:
         """Add a co-sponsor King for cross-realm motion."""
-        self.co_sponsors.append({
-            "king_id": king_id,
-            "king_name": king_name,
-            "realm_id": realm_id,
-        })
+        self.co_sponsors.append(
+            {
+                "king_id": king_id,
+                "king_name": king_name,
+                "realm_id": realm_id,
+            }
+        )
         self.is_cross_realm = True
 
     def to_dict(self) -> dict[str, Any]:

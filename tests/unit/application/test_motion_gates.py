@@ -131,15 +131,17 @@ class TestKingRealmMapping:
 
     def test_king_realm_match_valid(self, bael_king_id: str) -> None:
         """validate_king_realm_match should return True for correct realm."""
-        assert validate_king_realm_match(
-            bael_king_id, "realm_privacy_discretion_services"
-        ) is True
+        assert (
+            validate_king_realm_match(bael_king_id, "realm_privacy_discretion_services")
+            is True
+        )
 
     def test_king_realm_match_invalid(self, bael_king_id: str) -> None:
         """validate_king_realm_match should return False for wrong realm."""
-        assert validate_king_realm_match(
-            bael_king_id, "realm_relationship_facilitation"
-        ) is False
+        assert (
+            validate_king_realm_match(bael_king_id, "realm_relationship_facilitation")
+            is False
+        )
 
 
 # =============================================================================
@@ -175,7 +177,9 @@ class TestMotionSeed:
         assert sample_seed.status == SeedStatus.CLUSTERED
         assert sample_seed.cluster_id == "cluster-123"
 
-    def test_seed_mark_promoted(self, sample_seed: MotionSeed, bael_king_id: str) -> None:
+    def test_seed_mark_promoted(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
         """Seeds can be marked as promoted."""
         sample_seed.mark_promoted("motion-123", king_id=bael_king_id)
 
@@ -352,10 +356,12 @@ class TestAdmissionGate:
         # Create co-sponsors for 3 additional realms (4 total)
         co_sponsors = []
         for king_id in king_ids[1:4]:
-            co_sponsors.append({
-                "king_id": king_id,
-                "realm_id": get_king_realm(king_id),
-            })
+            co_sponsors.append(
+                {
+                    "king_id": king_id,
+                    "realm_id": get_king_realm(king_id),
+                }
+            )
 
         candidate = MotionCandidate(
             motion_id="motion-cross-realm",
@@ -392,10 +398,12 @@ class TestAdmissionGate:
         # Create co-sponsors for 2 additional realms (3 total)
         co_sponsors = []
         for king_id in king_ids[1:3]:
-            co_sponsors.append({
-                "king_id": king_id,
-                "realm_id": get_king_realm(king_id),
-            })
+            co_sponsors.append(
+                {
+                    "king_id": king_id,
+                    "realm_id": get_king_realm(king_id),
+                }
+            )
 
         candidate = MotionCandidate(
             motion_id="motion-three-realm",
@@ -418,7 +426,9 @@ class TestAdmissionGate:
         # Should be admitted but with warning
         assert record.status == AdmissionStatus.ADMITTED
         assert record.requires_escalation is False
-        assert len(record.warnings) > 0  # Should have warning about approaching threshold
+        assert (
+            len(record.warnings) > 0
+        )  # Should have warning about approaching threshold
 
 
 # =============================================================================
@@ -535,10 +545,12 @@ class TestPromotionService:
             normative_intent="Privacy and relationships",
             constraints="",
             success_criteria="Done",
-            co_sponsors=[{
-                "king_id": beleth_king_id,
-                "realm_id": "realm_relationship_facilitation",
-            }],
+            co_sponsors=[
+                {
+                    "king_id": beleth_king_id,
+                    "realm_id": "realm_relationship_facilitation",
+                }
+            ],
         )
 
         assert result.success is True
@@ -592,7 +604,9 @@ class TestPromotionService:
             success_criteria="Done",
         )
         assert result.success is False
-        assert result.error_code == PromotionRejectReason.PROMOTION_BUDGET_EXCEEDED.value
+        assert (
+            result.error_code == PromotionRejectReason.PROMOTION_BUDGET_EXCEEDED.value
+        )
 
     def test_h1_budget_resets_per_cycle(
         self,
@@ -710,9 +724,7 @@ class TestSeedImmutability:
 
         assert exc_info.value.field_name == "source_references"
 
-    def test_h3_fields_mutable_before_promotion(
-        self, sample_seed: MotionSeed
-    ) -> None:
+    def test_h3_fields_mutable_before_promotion(self, sample_seed: MotionSeed) -> None:
         """H3: Fields should be mutable before promotion."""
         # These should not raise
         sample_seed.seed_text = "Updated text"
@@ -736,7 +748,9 @@ class TestSeedImmutability:
 
         # After promotion, source_references returns a tuple (immutable)
         refs = sample_seed.source_references
-        assert isinstance(refs, tuple), "Must return tuple after promotion to prevent mutation"
+        assert isinstance(refs, tuple), (
+            "Must return tuple after promotion to prevent mutation"
+        )
         assert refs == ("original-ref",)
 
         # Attempting to append should fail (tuples don't have append)
@@ -782,9 +796,7 @@ class TestSeedPool:
         assert added.seed_id == sample_seed.seed_id
         assert seed_pool.get_seed(str(sample_seed.seed_id)) is not None
 
-    def test_get_seeds_for_promotion(
-        self, seed_pool: SeedPoolService
-    ) -> None:
+    def test_get_seeds_for_promotion(self, seed_pool: SeedPoolService) -> None:
         """Can retrieve seeds available for promotion."""
         seed1 = MotionSeed.create(
             seed_text="Seed 1",

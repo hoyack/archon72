@@ -1,13 +1,14 @@
 ---
 project_name: 'Archon 72 Conclave Backend'
 user_name: 'Grand Architect'
-date: '2025-12-28'
-sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'security_rules', 'anti_patterns', 'constitutional_rules', 'architecture_summary']
+date: '2026-01-19'
+sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'security_rules', 'anti_patterns', 'constitutional_rules', 'architecture_summary', 'petition_system_rules']
 status: 'complete'
-rule_count: 62
+rule_count: 74
 optimized_for_llm: true
 architecture_complete: true
-architecture_date: '2025-12-28'
+architecture_date: '2026-01-19'
+petition_system_architecture: true
 ---
 
 # Project Context for AI Agents
@@ -401,6 +402,241 @@ src/
 
 ---
 
+---
+
+## Petition System Implementation Rules (2026-01-19)
+
+**Architecture Document:** `_bmad-output/planning-artifacts/petition-system-architecture.md`
+
+### Three Fates State Machine (CRITICAL)
+
+Every claim MUST terminate in exactly one fate:
+
+| Fate | Meaning | Transition From |
+|------|---------|-----------------|
+| **RECEIVED** | Initial state | (entry) |
+| **ACKNOWLEDGED** | Claim noted, no action | RECEIVED |
+| **REFERRED** | Routed to realm | RECEIVED |
+| **ESCALATED** | Elevated to Conclave | RECEIVED |
+
+**State Machine Rules:**
+- No claim may remain in RECEIVED indefinitely (CT-14: Silence Expensive)
+- Fate transitions are IRREVERSIBLE
+- All transitions must be witnessed (CT-12)
+
+---
+
+### Schema Versioning (D2)
+
+**ALL event payloads MUST include `schema_version`:**
+
+```python
+# CORRECT
+event_payload = {
+    "claim_id": str(claim_id),
+    "fate": "ACKNOWLEDGED",
+    "schema_version": 1,  # REQUIRED
+}
+
+# WRONG - Missing schema_version
+event_payload = {
+    "claim_id": str(claim_id),
+    "fate": "ACKNOWLEDGED",
+}
+```
+
+**Version Bump Rules:**
+- Patch: New optional field
+- Minor: New required field with default
+- Major: Field rename/remove/type change
+
+---
+
+### Event Serialization (D2)
+
+**NEVER use `asdict()` for event payloads:**
+
+```python
+# WRONG - Breaks UUID/datetime serialization
+from dataclasses import asdict
+event_dict = asdict(payload)
+
+# CORRECT - Use to_dict() method
+event_dict = payload.to_dict()
+```
+
+**Reason:** `asdict()` doesn't handle UUID and datetime serialization correctly.
+
+---
+
+### Constitutional Operations Registry (D12)
+
+**These operations MUST NOT be retried on failure:**
+
+| Operation | Reason |
+|-----------|--------|
+| Witness ledger write | Hash chain integrity |
+| Fate transition | State machine irreversibility |
+| Event store append | Sequence number gaps |
+| Signature verification | Security audit trail |
+| Escalation budget consume | Double-spend prevention |
+
+**Pattern:**
+```python
+# CORRECT - Fail loud, no retry
+async def record_witness(self, record: WitnessRecord) -> None:
+    try:
+        await self._store.append(record)
+    except Exception:
+        # Log and propagate - NO RETRY
+        self._log.error("witness_write_failed", record_id=record.id)
+        raise
+
+# WRONG - Retrying constitutional operation
+@retry(max_attempts=3)  # FORBIDDEN for constitutional ops
+async def record_witness(self, record: WitnessRecord) -> None:
+    await self._store.append(record)
+```
+
+---
+
+### RFC 7807 Error Responses (D7)
+
+**Petition System errors require governance extensions:**
+
+```python
+# Standard RFC 7807 + Governance Extensions
+{
+    "type": "urn:archon72:petition:rate-limit-exceeded",
+    "title": "Rate Limit Exceeded",
+    "status": 429,
+    "detail": "Submitter has exceeded 10 claims per hour",
+    "instance": "/v1/claims",
+    # Governance extensions (REQUIRED for Petition System)
+    "trace_id": "abc123...",
+    "actor": "submitter:0x1234...",
+    "cycle_id": "cycle-2026-01",
+    "as_of_seq": 12345
+}
+```
+
+---
+
+### Keyset Pagination (D8)
+
+**Cursor Encoding:**
+- Format: URL-safe base64 (no padding)
+- Content: JSON `{"created_at": "ISO8601", "claim_id": "UUID"}`
+
+```python
+# CORRECT - URL-safe base64, no padding
+import base64
+import json
+
+def encode_cursor(created_at: datetime, claim_id: UUID) -> str:
+    payload = {"created_at": created_at.isoformat(), "claim_id": str(claim_id)}
+    return base64.urlsafe_b64encode(
+        json.dumps(payload).encode()
+    ).decode().rstrip("=")  # Remove padding
+
+def decode_cursor(cursor: str) -> dict:
+    # Add padding back
+    padded = cursor + "=" * (-len(cursor) % 4)
+    return json.loads(base64.urlsafe_b64decode(padded))
+```
+
+---
+
+### Witness Hash Chain (D6)
+
+**Blake3 for content hashing:**
+
+```python
+import blake3
+
+def hash_content(content: bytes) -> bytes:
+    return blake3.blake3(content).digest()
+
+def verify_chain(current: WitnessRecord, previous: WitnessRecord) -> bool:
+    expected_prev_hash = hash_content(previous.signable_content())
+    return current.prev_hash == expected_prev_hash
+```
+
+---
+
+### Petition System Service Pattern
+
+**All Petition System services MUST:**
+
+1. Inherit `LoggingMixin` and call `self._init_logger(component="petition")`
+2. Check halt state before writes (existing rule)
+3. Use constructor injection for dependencies
+4. Use `Depends()` only in route handlers
+
+```python
+# CORRECT
+class ClaimIntakeService(LoggingMixin):
+    def __init__(
+        self,
+        claim_repo: ClaimRepository,
+        witness_service: WitnessService,
+    ) -> None:
+        self._claim_repo = claim_repo
+        self._witness_service = witness_service
+        self._init_logger(component="petition")
+```
+
+---
+
+### Petition System Import Rules
+
+**Absolute imports only:**
+
+```python
+# CORRECT
+from src.domain.models.claim import Claim
+from src.application.ports.claim_repository import ClaimRepository
+
+# WRONG - Relative imports
+from ..models.claim import Claim
+from .claim_repository import ClaimRepository
+```
+
+---
+
+### Petition System Test Fixtures
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Pytest fixtures | `{entity}_fixture` | `claim_fixture` |
+| Factory functions | `make_{entity}` | `make_claim()` |
+| Builder pattern | `{Entity}Builder` | `ClaimBuilder()` |
+
+**Mock Policy:**
+- Mocks for external services only
+- Stubs for internal ports
+- Never mock the thing you're testing
+
+---
+
+### Quick Reference: Petition System
+
+**Before Writing Petition System Code:**
+1. Check architecture.md Section 4 (Decisions D1-D12)
+2. Include `schema_version` in ALL event payloads
+3. Use `to_dict()` not `asdict()` for events
+4. Never retry constitutional operations (D12 registry)
+5. Use RFC 7807 + governance extensions for errors
+6. Encode cursors as URL-safe base64 (no padding)
+
+**CI Will Fail If:**
+- Missing `schema_version` in event payloads
+- Using `asdict()` for event serialization
+- Retry decorators on constitutional operations
+- Missing governance extensions in error responses
+
+---
+
 _Project context complete. AI agents should read this file before implementing any code._
 
-_Last updated: 2025-12-28 (Architecture workflow complete)_
+_Last updated: 2026-01-19 (Petition System Architecture added)_

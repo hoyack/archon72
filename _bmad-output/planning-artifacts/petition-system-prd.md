@@ -341,6 +341,130 @@ From T2 (finite attention) and T3 (no silence), exactly three terminal states em
 
 ---
 
+## 13A. Three Fates Deliberation Engine
+
+### 13A.1 Overview
+
+The **Three Fates** are not merely terminal states—they are **three Marquis-rank Archon AI agents** that deliberate on every petition using a **supermajority consensus protocol**. This mini-Conclave ensures that petition disposition reflects collective deliberative judgment rather than unilateral decision.
+
+### 13A.2 Architectural Concept
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PETITION RECEIVED                            │
+│                          ↓                                      │
+│              ┌──────────────────────┐                          │
+│              │   Three Fates Pool   │                          │
+│              │  (Marquis Archons)   │                          │
+│              └──────────────────────┘                          │
+│                          ↓                                      │
+│    ┌─────────────────────────────────────────────────┐         │
+│    │           MINI-CONCLAVE DELIBERATION            │         │
+│    │                                                 │         │
+│    │  ┌─────────┐  ┌─────────┐  ┌─────────┐        │         │
+│    │  │ Fate-1  │  │ Fate-2  │  │ Fate-3  │        │         │
+│    │  │(Archon) │  │(Archon) │  │(Archon) │        │         │
+│    │  └────┬────┘  └────┬────┘  └────┬────┘        │         │
+│    │       │            │            │              │         │
+│    │       └────────────┼────────────┘              │         │
+│    │                    ↓                           │         │
+│    │         SUPERMAJORITY VOTE (2-of-3)           │         │
+│    └─────────────────────────────────────────────────┘         │
+│                          ↓                                      │
+│    ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
+│    │ ACKNOWLEDGE │  │   REFER     │  │  ESCALATE   │          │
+│    └─────────────┘  └─────────────┘  └─────────────┘          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 13A.3 Deliberation Protocol
+
+**Phase 1: Assessment** (Individual)
+- Each Fate Archon independently analyzes the petition
+- Generates initial assessment with reasoning
+- All assessments witnessed per CT-12
+
+**Phase 2: Position Statement** (Sequential)
+- Each Archon states preferred disposition
+- Provides constitutional and practical rationale
+- Cross-references prior similar petitions
+
+**Phase 3: Cross-Examination** (Interactive)
+- Archons may challenge each other's positions
+- Maximum 3 deliberation rounds
+- Deadlock triggers auto-ESCALATE
+
+**Phase 4: Consensus Vote** (Atomic)
+- Each Archon casts vote: ACKNOWLEDGE | REFER | ESCALATE
+- Supermajority (2-of-3) determines outcome
+- Dissenting opinion recorded for audit
+
+### 13A.4 Disposition Options
+
+| Disposition | Meaning | Next Pipeline Stage |
+|-------------|---------|---------------------|
+| ACKNOWLEDGE | Petition received, no further action | Terminal (with reason code) |
+| REFER | Requires domain expert review | Knight Referral Queue |
+| ESCALATE | Significant enough for Realm authority | King Escalation Queue |
+
+### 13A.5 Timeout & Deadlock Handling
+
+| Scenario | Trigger | Resolution |
+|----------|---------|------------|
+| Deliberation timeout | > 5 minutes elapsed | Auto-ESCALATE |
+| Persistent deadlock | 3 rounds, no supermajority | Auto-ESCALATE |
+| Archon unavailable | Response timeout > 30 sec | Substitute from pool |
+
+### 13A.6 Constitutional Compliance
+
+- **CT-12**: All deliberation utterances preserved and hash-witnessed at phase boundaries
+- **CT-14**: Deliberation ensures every petition terminates in witnessed fate
+- **Auditability**: Full transcript preserved for reconstruction
+
+### 13A.7 Witness Architecture (Ruling-1)
+
+**Witness unit = phase, not speech act.**
+
+Each phase (ASSESS, POSITION, CROSS_EXAMINE, VOTE) produces one witness event containing:
+- Hash of full transcript for that phase
+- Participating Archons
+- Start/end timestamps
+- Phase outcome metadata (e.g., "positions converged", "dissent present")
+
+**Raw utterances:**
+- Stored as content-addressed, immutable artifacts
+- Referenced by hash in witness events
+- Not individual ledger events
+
+This satisfies FR-11.7 without violating NFR-10.5 (100+ concurrent deliberations).
+
+### 13A.8 Transcript Access Model (Ruling-2)
+
+**Access is tiered, explicit, and non-default.**
+
+| Audience | Access Level |
+|----------|--------------|
+| Internal system (Knight/Princes) | Full transcripts |
+| Petitioner | Phase summaries + final disposition rationale |
+| Public observers | No raw transcripts by default |
+| Escalated/audited cases | Selective release via mediated process |
+
+**Observers receive:**
+- Phase-level witness records
+- Vote outcomes
+- Dissent presence indicator
+- Hash references (proving transcripts exist and are immutable)
+
+**Transcript release** (when permitted):
+- Is a deliberate act
+- Is logged
+- Is attributed
+- Is scoped
+
+*Transparency = traceability, not voyeurism.*
+
+---
+
 ## 14. Constitutional Alignment
 
 ### 14.1 Existing Constitutional Truths Applied
@@ -637,7 +761,24 @@ Monitor legitimacy dashboard → Review decay alerts
 | FR-10.3 | GRIEVANCE petitions SHALL auto-escalate at 50 co-signers | P1 | Petition Types |
 | FR-10.4 | META petitions (about petition system) SHALL route to High Archon | P2 | META-1 |
 
-### 16.11 Functional Requirements Summary
+### 16.11 Three Fates Deliberation
+
+| FR ID | Requirement | Priority | Source |
+|-------|-------------|----------|--------|
+| FR-11.1 | System SHALL assign exactly 3 Marquis-rank Archons from Three Fates pool to deliberate each petition | P0 | Section 13A |
+| FR-11.2 | System SHALL initiate mini-Conclave deliberation session when petition enters RECEIVED state | P0 | Section 13A |
+| FR-11.3 | System SHALL provide deliberation context package (petition, type, co-signer count, similar petitions) to each Fate Archon | P0 | Section 13A |
+| FR-11.4 | Deliberation SHALL follow structured protocol: Assess → Position → Cross-Examine → Vote | P0 | Section 13A |
+| FR-11.5 | System SHALL require supermajority consensus (2-of-3 Archons) for disposition decision | P0 | Section 13A |
+| FR-11.6 | Fate Archons SHALL vote for exactly one disposition: ACKNOWLEDGE, REFER, or ESCALATE | P0 | Section 13A |
+| FR-11.7 | System SHALL preserve ALL deliberation utterances (hash-referenced) with ledger witnessing at phase boundaries per CT-12 | P0 | CT-12, Ruling-1 |
+| FR-11.8 | System SHALL record dissenting opinion when vote is not unanimous | P0 | Auditability |
+| FR-11.9 | System SHALL enforce deliberation timeout (5 minutes default) with auto-ESCALATE on expiry | P0 | Section 13A.5 |
+| FR-11.10 | System SHALL auto-ESCALATE after 3 deliberation rounds without supermajority (deadlock) | P0 | Section 13A.5 |
+| FR-11.11 | System SHALL route petition to appropriate pipeline based on deliberation outcome | P0 | Section 13A.4 |
+| FR-11.12 | System SHALL preserve complete deliberation transcript for audit reconstruction | P0 | NFR-6.5 |
+
+### 16.12 Functional Requirements Summary
 
 | Group | FRs | P0 | P1 | P2 |
 |-------|-----|----|----|----|
@@ -651,7 +792,8 @@ Monitor legitimacy dashboard → Review decay alerts
 | Legitimacy | 5 | 0 | 5 | 0 |
 | Migration | 4 | 3 | 1 | 0 |
 | Types | 4 | 2 | 1 | 1 |
-| **Total** | **58** | **37** | **20** | **1** |
+| **Deliberation** | **12** | **12** | **0** | **0** |
+| **Total** | **70** | **49** | **20** | **1** |
 
 ---
 
@@ -751,7 +893,20 @@ Monitor legitimacy dashboard → Review decay alerts
 | NFR-9.4 | Load test harness | Simulates 10k petition flood | S1 |
 | NFR-9.5 | Chaos testing | Scheduler crash recovery | FM-7.1 |
 
-### 17.10 Non-Functional Requirements Summary
+### 17.10 Deliberation Performance
+
+| NFR ID | Requirement | Target | Measurement |
+|--------|-------------|--------|-------------|
+| NFR-10.1 | Deliberation end-to-end latency | p95 < 5 minutes | Session duration |
+| NFR-10.2 | Individual Archon response time | p95 < 30 seconds | Per-utterance latency |
+| NFR-10.3 | Consensus determinism | 100% reproducible given same inputs | Replay test |
+| NFR-10.4 | Witness completeness | 100% utterances witnessed | Audit gap detection |
+| NFR-10.5 | Concurrent deliberations | 100+ simultaneous sessions | Load test |
+| NFR-10.6 | Archon substitution latency | < 10 seconds on failure | Failover test |
+
+**Critical NFRs:** NFR-10.1 (deliberation latency), NFR-10.3 (determinism), NFR-10.4 (witness completeness)
+
+### 17.11 Non-Functional Requirements Summary
 
 | Group | NFRs | Critical |
 |-------|------|----------|
@@ -764,7 +919,8 @@ Monitor legitimacy dashboard → Review decay alerts
 | Operability | 5 | NFR-7.1 (orphan detection) |
 | Compatibility | 5 | NFR-8.1 (test parity) |
 | Testability | 5 | NFR-9.3 (FMEA coverage) |
-| **Total** | **47** | **12 critical** |
+| **Deliberation** | **6** | **NFR-10.1, NFR-10.3, NFR-10.4** |
+| **Total** | **53** | **15 critical** |
 
 ---
 
@@ -1245,11 +1401,13 @@ M4: Hardening & Metrics
 
 | Category | Count |
 |----------|-------|
-| Functional Requirements | 58 (37 P0, 20 P1, 1 P2) |
-| Non-Functional Requirements | 47 (12 critical) |
+| Functional Requirements | 70 (49 P0, 20 P1, 1 P2) |
+| Non-Functional Requirements | 53 (15 critical) |
 | Failure Modes Analyzed | 50 (10 critical) |
 | Milestones | 4 |
 | API Endpoints | 9 |
+
+**Amendment 13A (2026-01-19):** Added Three Fates Deliberation Engine (+12 FRs, +6 NFRs)
 
 ### 23.3 Constitutional Contribution
 

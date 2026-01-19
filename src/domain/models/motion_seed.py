@@ -7,6 +7,11 @@ The Motion Gates specification (docs/spikes/motion-gates.md) defines the boundar
 - Motions: Scarce, agenda-eligible artifacts requiring King sponsorship
 
 Key Principle: "Speech is unlimited. Agenda is scarce."
+
+Hardening (Motion Gates Hardening Spec):
+- H1: King promotion budgets enforced per cycle
+- H3: Seed immutability after promotion
+- H4: Cross-realm escalation thresholds
 """
 
 from __future__ import annotations
@@ -16,6 +21,261 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
+
+
+# =============================================================================
+# Exceptions
+# =============================================================================
+
+
+class SeedImmutabilityError(Exception):
+    """Raised when attempting to modify immutable seed fields after promotion.
+
+    Per H3: Once a Seed reaches PROMOTED status, seed_text, submitted_by,
+    submitted_at, and provenance references are immutable.
+    """
+
+    def __init__(self, seed_id: str, field_name: str, message: str | None = None):
+        self.seed_id = seed_id
+        self.field_name = field_name
+        self.message = message or f"Cannot modify {field_name} on promoted seed {seed_id}"
+        super().__init__(self.message)
+
+
+class PromotionBudgetExceededError(Exception):
+    """Raised when a King exceeds their per-cycle promotion budget.
+
+    Per H1: Each King has a configurable promotion budget per cycle.
+    """
+
+    def __init__(self, king_id: str, cycle_id: str, budget: int, used: int):
+        self.king_id = king_id
+        self.cycle_id = cycle_id
+        self.budget = budget
+        self.used = used
+        self.message = (
+            f"King {king_id} has exceeded promotion budget for cycle {cycle_id}: "
+            f"used {used}/{budget}"
+        )
+        super().__init__(self.message)
+
+
+# =============================================================================
+# Promotion Rejection Reasons (H1)
+# =============================================================================
+
+
+class PromotionRejectReason(Enum):
+    """Reason codes for promotion rejection."""
+
+    # Budget failures (H1)
+    PROMOTION_BUDGET_EXCEEDED = "promotion_budget_exceeded"
+    PROMOTION_BUDGET_UNCONFIGURED = "promotion_budget_unconfigured"
+
+    # Standing failures
+    NOT_KING = "not_king"
+    WRONG_REALM = "wrong_realm"
+    INVALID_COSPONSOR = "invalid_cosponsor"
+    COSPONSOR_WRONG_REALM = "cosponsor_wrong_realm"
+
+    # Input failures
+    NO_SEEDS = "no_seeds"
+    SEEDS_ALREADY_PROMOTED = "seeds_already_promoted"
+
+
+# =============================================================================
+# King Promotion Budget Tracker (H1)
+# =============================================================================
+
+# Default promotion budget per King per cycle (H1)
+DEFAULT_KING_PROMOTION_BUDGET = 3
+
+
+@dataclass
+class KingBudgetUsage:
+    """Tracks a King's promotion budget usage for a cycle."""
+
+    king_id: str
+    cycle_id: str
+    budget: int  # Maximum promotions allowed
+    used: int = 0  # Promotions used
+
+    @property
+    def remaining(self) -> int:
+        """Remaining promotion budget."""
+        return max(0, self.budget - self.used)
+
+    @property
+    def is_exhausted(self) -> bool:
+        """Check if budget is exhausted."""
+        return self.used >= self.budget
+
+    def can_promote(self, count: int = 1) -> bool:
+        """Check if the King can promote `count` more seeds."""
+        return self.used + count <= self.budget
+
+    def consume(self, count: int = 1) -> None:
+        """Consume budget for promotion(s).
+
+        Raises:
+            PromotionBudgetExceededError: If budget would be exceeded.
+        """
+        if not self.can_promote(count):
+            raise PromotionBudgetExceededError(
+                king_id=self.king_id,
+                cycle_id=self.cycle_id,
+                budget=self.budget,
+                used=self.used + count,
+            )
+        self.used += count
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "king_id": self.king_id,
+            "cycle_id": self.cycle_id,
+            "budget": self.budget,
+            "used": self.used,
+            "remaining": self.remaining,
+        }
+
+
+class PromotionBudgetTracker:
+    """Tracks and enforces King promotion budgets per cycle.
+
+    Per H1: Each King has a configurable promotion budget per cycle.
+    This enforces the throttle that bounds Motion-level growth.
+
+    The growth equation becomes:
+        O(kings × promotion_budget) = O(9 × 3) = 27 max motions per cycle
+
+    PRODUCTION NOTE: This implementation stores budget usage in-memory only.
+    For production deployments where PromotionService may be instantiated
+    per-request, budget usage must be persisted externally (e.g., database,
+    Redis) to prevent throttle bypass across service instances.
+
+    To persist, implement load/save methods or inject a persistent store:
+        - load_usage(cycle_id) -> dict[str, KingBudgetUsage]
+        - save_usage(cycle_id, usage) -> None
+
+    Alternatively, ensure PromotionService is a singleton or long-lived
+    service instance within the application lifecycle.
+    """
+
+    def __init__(self, default_budget: int = DEFAULT_KING_PROMOTION_BUDGET):
+        """Initialize the budget tracker.
+
+        Args:
+            default_budget: Default promotion budget per King per cycle.
+        """
+        self.default_budget = default_budget
+        # Per-King custom budgets (optional override)
+        self._custom_budgets: dict[str, int] = {}
+        # Usage tracking: {cycle_id: {king_id: KingBudgetUsage}}
+        self._usage: dict[str, dict[str, KingBudgetUsage]] = {}
+
+    def set_king_budget(self, king_id: str, budget: int) -> None:
+        """Set a custom budget for a specific King.
+
+        Args:
+            king_id: The King's archon ID.
+            budget: The custom budget (must be >= 0).
+        """
+        if budget < 0:
+            raise ValueError("Budget must be >= 0")
+        self._custom_budgets[king_id] = budget
+
+    def get_king_budget(self, king_id: str) -> int:
+        """Get the promotion budget for a King.
+
+        Args:
+            king_id: The King's archon ID.
+
+        Returns:
+            The King's promotion budget (custom or default).
+        """
+        return self._custom_budgets.get(king_id, self.default_budget)
+
+    def get_usage(self, king_id: str, cycle_id: str) -> KingBudgetUsage:
+        """Get or create usage tracking for a King in a cycle.
+
+        Args:
+            king_id: The King's archon ID.
+            cycle_id: The cycle identifier.
+
+        Returns:
+            KingBudgetUsage for this King/cycle.
+        """
+        if cycle_id not in self._usage:
+            self._usage[cycle_id] = {}
+
+        if king_id not in self._usage[cycle_id]:
+            self._usage[cycle_id][king_id] = KingBudgetUsage(
+                king_id=king_id,
+                cycle_id=cycle_id,
+                budget=self.get_king_budget(king_id),
+            )
+
+        return self._usage[cycle_id][king_id]
+
+    def can_promote(self, king_id: str, cycle_id: str, count: int = 1) -> bool:
+        """Check if a King can promote within their budget.
+
+        Args:
+            king_id: The King's archon ID.
+            cycle_id: The cycle identifier.
+            count: Number of promotions to check.
+
+        Returns:
+            True if the King has sufficient budget.
+        """
+        usage = self.get_usage(king_id, cycle_id)
+        return usage.can_promote(count)
+
+    def consume(self, king_id: str, cycle_id: str, count: int = 1) -> KingBudgetUsage:
+        """Consume promotion budget.
+
+        Args:
+            king_id: The King's archon ID.
+            cycle_id: The cycle identifier.
+            count: Number of promotions to consume.
+
+        Returns:
+            Updated KingBudgetUsage.
+
+        Raises:
+            PromotionBudgetExceededError: If budget would be exceeded.
+        """
+        usage = self.get_usage(king_id, cycle_id)
+        usage.consume(count)
+        return usage
+
+    def get_cycle_summary(self, cycle_id: str) -> dict[str, Any]:
+        """Get summary of all King budgets for a cycle.
+
+        Args:
+            cycle_id: The cycle identifier.
+
+        Returns:
+            Summary dict with usage per King.
+        """
+        if cycle_id not in self._usage:
+            return {"cycle_id": cycle_id, "kings": {}, "total_used": 0}
+
+        total_used = sum(u.used for u in self._usage[cycle_id].values())
+        return {
+            "cycle_id": cycle_id,
+            "kings": {
+                king_id: usage.to_dict()
+                for king_id, usage in self._usage[cycle_id].items()
+            },
+            "total_used": total_used,
+            "max_possible": len(KING_IDS) * self.default_budget,
+        }
+
+
+# =============================================================================
+# Enums
+# =============================================================================
 
 
 class SeedStatus(Enum):
@@ -103,13 +363,20 @@ class MotionSeed:
     - Do NOT require Admission Gate validation
     - May be clustered, consolidated, or summarized
     - Can only become a Motion through formal King promotion
+
+    Immutability (H3):
+    Once status == PROMOTED, the following fields are immutable:
+    - seed_text
+    - submitted_by
+    - submitted_at
+    - source_references (provenance)
     """
 
     seed_id: UUID
-    seed_text: str  # Unaltered original proposal
-    submitted_by: str  # Archon ID
+    _seed_text: str = field(repr=False)  # Unaltered original proposal (private for immutability)
+    _submitted_by: str = field(repr=False)  # Archon ID (private for immutability)
     submitted_by_name: str
-    submitted_at: datetime
+    _submitted_at: datetime = field(repr=False)  # (private for immutability)
 
     # Optional hints (non-binding)
     proposed_realm: str | None = None  # Non-binding realm suggestion
@@ -124,7 +391,7 @@ class MotionSeed:
     # Provenance
     source_cycle: str | None = None  # e.g., "conclave-20260117-180111"
     source_event: str | None = None  # e.g., "secretary-extraction"
-    source_references: list[str] = field(default_factory=list)
+    _source_references: list[str] = field(default_factory=list)  # (private for immutability)
 
     # Clustering (if clustered)
     cluster_id: str | None = None
@@ -137,6 +404,92 @@ class MotionSeed:
 
     # Metadata
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    # H3: Immutable field properties with enforcement
+    @property
+    def seed_text(self) -> str:
+        """Get the seed text (immutable after promotion)."""
+        return self._seed_text
+
+    @seed_text.setter
+    def seed_text(self, value: str) -> None:
+        """Set seed text - raises SeedImmutabilityError if promoted."""
+        if self.status == SeedStatus.PROMOTED:
+            raise SeedImmutabilityError(
+                str(self.seed_id), "seed_text",
+                "Cannot modify seed_text after promotion (H3)"
+            )
+        self._seed_text = value
+
+    @property
+    def submitted_by(self) -> str:
+        """Get the submitter ID (immutable after promotion)."""
+        return self._submitted_by
+
+    @submitted_by.setter
+    def submitted_by(self, value: str) -> None:
+        """Set submitter - raises SeedImmutabilityError if promoted."""
+        if self.status == SeedStatus.PROMOTED:
+            raise SeedImmutabilityError(
+                str(self.seed_id), "submitted_by",
+                "Cannot modify submitted_by after promotion (H3)"
+            )
+        self._submitted_by = value
+
+    @property
+    def submitted_at(self) -> datetime:
+        """Get submission timestamp (immutable after promotion)."""
+        return self._submitted_at
+
+    @submitted_at.setter
+    def submitted_at(self, value: datetime) -> None:
+        """Set submission timestamp - raises SeedImmutabilityError if promoted."""
+        if self.status == SeedStatus.PROMOTED:
+            raise SeedImmutabilityError(
+                str(self.seed_id), "submitted_at",
+                "Cannot modify submitted_at after promotion (H3)"
+            )
+        self._submitted_at = value
+
+    @property
+    def source_references(self) -> list[str] | tuple[str, ...]:
+        """Get source references (immutable after promotion).
+
+        Returns a tuple when promoted to prevent in-place list mutation bypass.
+        Returns a list when not promoted to allow normal mutation.
+        """
+        if self.status == SeedStatus.PROMOTED:
+            # Return tuple to prevent in-place mutation (H3 hardening)
+            return tuple(self._source_references)
+        return self._source_references
+
+    @source_references.setter
+    def source_references(self, value: list[str]) -> None:
+        """Set source references - raises SeedImmutabilityError if promoted."""
+        if self.status == SeedStatus.PROMOTED:
+            raise SeedImmutabilityError(
+                str(self.seed_id), "source_references",
+                "Cannot modify source_references after promotion (H3)"
+            )
+        self._source_references = value
+
+    def add_source_reference(self, reference: str) -> None:
+        """Add a source reference to this seed.
+
+        Safe mutation method that respects immutability after promotion.
+
+        Args:
+            reference: The source reference to add
+
+        Raises:
+            SeedImmutabilityError: If seed has been promoted
+        """
+        if self.status == SeedStatus.PROMOTED:
+            raise SeedImmutabilityError(
+                str(self.seed_id), "source_references",
+                "Cannot add source reference after promotion (H3)"
+            )
+        self._source_references.append(reference)
 
     @classmethod
     def create(
@@ -152,10 +505,10 @@ class MotionSeed:
         """Create a new Motion Seed."""
         return cls(
             seed_id=uuid4(),
-            seed_text=seed_text,
-            submitted_by=submitted_by,
+            _seed_text=seed_text,
+            _submitted_by=submitted_by,
             submitted_by_name=submitted_by_name,
-            submitted_at=datetime.now(timezone.utc),
+            _submitted_at=datetime.now(timezone.utc),
             proposed_realm=proposed_realm,
             proposed_title=proposed_title,
             source_cycle=source_cycle,
@@ -328,6 +681,10 @@ class AdmissionRecord:
     # Warnings (not rejections, but logged)
     warnings: list[str] = field(default_factory=list)
 
+    # H4: Cross-realm escalation tracking
+    requires_escalation: bool = False
+    escalation_realm_count: int = 0
+
     # Deferral info (if deferred)
     deferred_reason: str | None = None
     deferred_until: datetime | None = None
@@ -368,6 +725,8 @@ class AdmissionRecord:
             "rejection_reasons": [r.value for r in self.rejection_reasons],
             "rejection_details": self.rejection_details,
             "warnings": self.warnings,
+            "requires_escalation": self.requires_escalation,
+            "escalation_realm_count": self.escalation_realm_count,
             "deferred_reason": self.deferred_reason,
             "deferred_until": self.deferred_until.isoformat()
             if self.deferred_until

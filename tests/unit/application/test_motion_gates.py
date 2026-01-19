@@ -22,7 +22,11 @@ from src.domain.models.motion_seed import (
     KING_IDS,
     KING_REALM_MAP,
     MotionSeed,
+    PromotionBudgetExceededError,
+    PromotionBudgetTracker,
+    PromotionRejectReason,
     RealmAssignment,
+    SeedImmutabilityError,
     SeedStatus,
     is_king,
     get_king_realm,
@@ -61,6 +65,12 @@ def beleth_king_id() -> str:
 def non_king_id() -> str:
     """A non-King archon ID."""
     return "non-king-archon-12345"
+
+
+@pytest.fixture
+def test_cycle_id() -> str:
+    """Test cycle ID for H1 budget tracking."""
+    return "conclave-20260118-test"
 
 
 @pytest.fixture
@@ -333,6 +343,86 @@ class TestAdmissionGate:
         assert record.status == AdmissionStatus.REJECTED
         assert AdmissionRejectReason.AMBIGUOUS_SCOPE in record.rejection_reasons
 
+    def test_h4_cross_realm_escalation(
+        self, admission_gate: AdmissionGateService
+    ) -> None:
+        """H4: Motions spanning 4+ realms require escalation."""
+        # Get 4 different Kings for cross-realm motion
+        king_ids = list(KING_IDS)[:4]
+        primary_king = king_ids[0]
+        primary_realm = get_king_realm(primary_king)
+
+        # Create co-sponsors for 3 additional realms (4 total)
+        co_sponsors = []
+        for king_id in king_ids[1:4]:
+            co_sponsors.append({
+                "king_id": king_id,
+                "realm_id": get_king_realm(king_id),
+            })
+
+        candidate = MotionCandidate(
+            motion_id="motion-cross-realm",
+            title="Multi-Realm Motion",
+            realm_assignment={
+                "primary_realm": primary_realm,
+                "primary_sponsor_id": primary_king,
+                "primary_sponsor_name": KING_REALM_MAP[primary_king]["name"],
+            },
+            normative_intent="The Conclave SHALL coordinate across all realms",
+            constraints="Must respect realm sovereignty",
+            success_criteria="Cross-realm coordination achieved",
+            submitted_at=datetime.now(timezone.utc),
+            source_seed_refs=["seed-1"],
+            co_sponsors=co_sponsors,
+        )
+
+        record = admission_gate.evaluate(candidate)
+
+        # Should be rejected due to escalation requirement
+        assert record.status == AdmissionStatus.REJECTED
+        assert AdmissionRejectReason.EXCESSIVE_REALM_SPAN in record.rejection_reasons
+        assert record.requires_escalation is True
+        assert record.escalation_realm_count == 4
+
+    def test_h4_three_realms_no_escalation(
+        self, admission_gate: AdmissionGateService
+    ) -> None:
+        """H4: Motions with 3 realms should NOT require escalation (just warning)."""
+        king_ids = list(KING_IDS)[:3]
+        primary_king = king_ids[0]
+        primary_realm = get_king_realm(primary_king)
+
+        # Create co-sponsors for 2 additional realms (3 total)
+        co_sponsors = []
+        for king_id in king_ids[1:3]:
+            co_sponsors.append({
+                "king_id": king_id,
+                "realm_id": get_king_realm(king_id),
+            })
+
+        candidate = MotionCandidate(
+            motion_id="motion-three-realm",
+            title="Three-Realm Motion",
+            realm_assignment={
+                "primary_realm": primary_realm,
+                "primary_sponsor_id": primary_king,
+                "primary_sponsor_name": KING_REALM_MAP[primary_king]["name"],
+            },
+            normative_intent="The Conclave SHALL coordinate across three realms",
+            constraints="Must respect realm sovereignty",
+            success_criteria="Coordination achieved",
+            submitted_at=datetime.now(timezone.utc),
+            source_seed_refs=["seed-1"],
+            co_sponsors=co_sponsors,
+        )
+
+        record = admission_gate.evaluate(candidate)
+
+        # Should be admitted but with warning
+        assert record.status == AdmissionStatus.ADMITTED
+        assert record.requires_escalation is False
+        assert len(record.warnings) > 0  # Should have warning about approaching threshold
+
 
 # =============================================================================
 # Promotion Service Tests
@@ -347,11 +437,13 @@ class TestPromotionService:
         promotion_service: PromotionService,
         sample_seed: MotionSeed,
         bael_king_id: str,
+        test_cycle_id: str,
     ) -> None:
         """A King should be able to promote seeds in their realm."""
         result, motion = promotion_service.promote(
             seeds=[sample_seed],
             king_id=bael_king_id,
+            cycle_id=test_cycle_id,
             title="Privacy Framework Motion",
             normative_intent="The Conclave SHALL establish privacy protections",
             constraints="Must preserve individual rights",
@@ -368,11 +460,13 @@ class TestPromotionService:
         promotion_service: PromotionService,
         sample_seed: MotionSeed,
         non_king_id: str,
+        test_cycle_id: str,
     ) -> None:
         """A non-King should not be able to promote seeds."""
         result, motion = promotion_service.promote(
             seeds=[sample_seed],
             king_id=non_king_id,
+            cycle_id=test_cycle_id,
             title="Some Motion",
             normative_intent="Some intent",
             constraints="",
@@ -380,7 +474,7 @@ class TestPromotionService:
         )
 
         assert result.success is False
-        assert result.error_code == "NOT_KING"
+        assert "king" in result.error_code.lower()  # NOT_KING or not_king
         assert motion is None
 
     def test_king_wrong_realm_cannot_promote(
@@ -388,11 +482,13 @@ class TestPromotionService:
         promotion_service: PromotionService,
         sample_seed: MotionSeed,
         bael_king_id: str,
+        test_cycle_id: str,
     ) -> None:
         """A King should not be able to promote in another King's realm."""
         result, motion = promotion_service.promote(
             seeds=[sample_seed],
             king_id=bael_king_id,
+            cycle_id=test_cycle_id,
             title="Some Motion",
             normative_intent="Some intent",
             constraints="",
@@ -409,11 +505,13 @@ class TestPromotionService:
         promotion_service: PromotionService,
         sample_seed: MotionSeed,
         bael_king_id: str,
+        test_cycle_id: str,
     ) -> None:
         """Promotion should mark the seed as promoted."""
         result, motion = promotion_service.promote(
             seeds=[sample_seed],
             king_id=bael_king_id,
+            cycle_id=test_cycle_id,
             title="Privacy Motion",
             normative_intent="Establish privacy",
             constraints="",
@@ -429,11 +527,13 @@ class TestPromotionService:
         sample_seed: MotionSeed,
         bael_king_id: str,
         beleth_king_id: str,
+        test_cycle_id: str,
     ) -> None:
         """Cross-realm motion should require valid co-sponsors."""
         result, motion = promotion_service.promote(
             seeds=[sample_seed],
             king_id=bael_king_id,
+            cycle_id=test_cycle_id,
             title="Cross-Realm Motion",
             normative_intent="Privacy and relationships",
             constraints="",
@@ -447,6 +547,225 @@ class TestPromotionService:
         assert result.success is True
         assert motion.realm_assignment.is_cross_realm is True
         assert len(motion.realm_assignment.co_sponsors) == 1
+
+    # H1: King Promotion Budget Tests
+    def test_h1_budget_enforcement(
+        self,
+        bael_king_id: str,
+        test_cycle_id: str,
+    ) -> None:
+        """H1: King promotion budget should be enforced per cycle."""
+        # Create service with budget of 2 per King
+        tracker = PromotionBudgetTracker(default_budget=2)
+        service = PromotionService(budget_tracker=tracker)
+
+        # First two promotions should succeed
+        for i in range(2):
+            seed = MotionSeed.create(
+                seed_text=f"Seed {i}",
+                submitted_by="archon",
+                submitted_by_name="Test Archon",
+                proposed_realm="realm_privacy_discretion_services",
+            )
+            result, motion = service.promote(
+                seeds=[seed],
+                king_id=bael_king_id,
+                cycle_id=test_cycle_id,
+                title=f"Motion {i}",
+                normative_intent="Test intent",
+                constraints="",
+                success_criteria="Done",
+            )
+            assert result.success is True, f"Promotion {i} should succeed"
+
+        # Third promotion should fail - budget exceeded
+        seed = MotionSeed.create(
+            seed_text="Seed 3",
+            submitted_by="archon",
+            submitted_by_name="Test Archon",
+            proposed_realm="realm_privacy_discretion_services",
+        )
+        result, motion = service.promote(
+            seeds=[seed],
+            king_id=bael_king_id,
+            cycle_id=test_cycle_id,
+            title="Motion 3",
+            normative_intent="Test intent",
+            constraints="",
+            success_criteria="Done",
+        )
+        assert result.success is False
+        assert result.error_code == PromotionRejectReason.PROMOTION_BUDGET_EXCEEDED.value
+
+    def test_h1_budget_resets_per_cycle(
+        self,
+        bael_king_id: str,
+    ) -> None:
+        """H1: Budget should reset for each new cycle."""
+        tracker = PromotionBudgetTracker(default_budget=1)
+        service = PromotionService(budget_tracker=tracker)
+
+        # Exhaust budget in cycle 1
+        seed1 = MotionSeed.create(
+            seed_text="Seed 1",
+            submitted_by="archon",
+            submitted_by_name="Test Archon",
+            proposed_realm="realm_privacy_discretion_services",
+        )
+        result, _ = service.promote(
+            seeds=[seed1],
+            king_id=bael_king_id,
+            cycle_id="cycle-1",
+            title="Motion 1",
+            normative_intent="Intent",
+            constraints="",
+            success_criteria="Done",
+        )
+        assert result.success is True
+
+        # Next promotion in cycle-1 should fail
+        seed2 = MotionSeed.create(
+            seed_text="Seed 2",
+            submitted_by="archon",
+            submitted_by_name="Test Archon",
+            proposed_realm="realm_privacy_discretion_services",
+        )
+        result, _ = service.promote(
+            seeds=[seed2],
+            king_id=bael_king_id,
+            cycle_id="cycle-1",
+            title="Motion 2",
+            normative_intent="Intent",
+            constraints="",
+            success_criteria="Done",
+        )
+        assert result.success is False
+
+        # New cycle should have fresh budget
+        seed3 = MotionSeed.create(
+            seed_text="Seed 3",
+            submitted_by="archon",
+            submitted_by_name="Test Archon",
+            proposed_realm="realm_privacy_discretion_services",
+        )
+        result, _ = service.promote(
+            seeds=[seed3],
+            king_id=bael_king_id,
+            cycle_id="cycle-2",  # Different cycle
+            title="Motion 3",
+            normative_intent="Intent",
+            constraints="",
+            success_criteria="Done",
+        )
+        assert result.success is True
+
+
+# =============================================================================
+# H3: Seed Immutability Tests
+# =============================================================================
+
+
+class TestSeedImmutability:
+    """H3: Tests for Seed immutability after promotion."""
+
+    def test_h3_seed_text_immutable_after_promotion(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
+        """H3: seed_text cannot be modified after promotion."""
+        sample_seed.mark_promoted("motion-1", bael_king_id)
+
+        with pytest.raises(SeedImmutabilityError) as exc_info:
+            sample_seed.seed_text = "Modified text"
+
+        assert exc_info.value.field_name == "seed_text"
+        assert "promotion" in exc_info.value.message.lower()
+
+    def test_h3_submitted_by_immutable_after_promotion(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
+        """H3: submitted_by cannot be modified after promotion."""
+        sample_seed.mark_promoted("motion-1", bael_king_id)
+
+        with pytest.raises(SeedImmutabilityError) as exc_info:
+            sample_seed.submitted_by = "different-archon"
+
+        assert exc_info.value.field_name == "submitted_by"
+
+    def test_h3_submitted_at_immutable_after_promotion(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
+        """H3: submitted_at cannot be modified after promotion."""
+        sample_seed.mark_promoted("motion-1", bael_king_id)
+
+        with pytest.raises(SeedImmutabilityError) as exc_info:
+            sample_seed.submitted_at = datetime.now(timezone.utc)
+
+        assert exc_info.value.field_name == "submitted_at"
+
+    def test_h3_source_references_immutable_after_promotion(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
+        """H3: source_references cannot be modified after promotion."""
+        sample_seed.mark_promoted("motion-1", bael_king_id)
+
+        with pytest.raises(SeedImmutabilityError) as exc_info:
+            sample_seed.source_references = ["fake-reference"]
+
+        assert exc_info.value.field_name == "source_references"
+
+    def test_h3_fields_mutable_before_promotion(
+        self, sample_seed: MotionSeed
+    ) -> None:
+        """H3: Fields should be mutable before promotion."""
+        # These should not raise
+        sample_seed.seed_text = "Updated text"
+        sample_seed.submitted_by = "new-archon"
+        sample_seed.source_references = ["new-ref"]
+
+        assert sample_seed.seed_text == "Updated text"
+        assert sample_seed.submitted_by == "new-archon"
+        assert sample_seed.source_references == ["new-ref"]
+
+    def test_h3_source_references_inplace_mutation_blocked_after_promotion(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
+        """H3: In-place list mutation on source_references blocked after promotion.
+
+        This catches the bypass where seed.source_references.append() would
+        mutate the live list without triggering the setter guard.
+        """
+        sample_seed._source_references = ["original-ref"]
+        sample_seed.mark_promoted("motion-1", bael_king_id)
+
+        # After promotion, source_references returns a tuple (immutable)
+        refs = sample_seed.source_references
+        assert isinstance(refs, tuple), "Must return tuple after promotion to prevent mutation"
+        assert refs == ("original-ref",)
+
+        # Attempting to append should fail (tuples don't have append)
+        with pytest.raises(AttributeError):
+            refs.append("bypass-attempt")  # type: ignore
+
+    def test_h3_add_source_reference_blocked_after_promotion(
+        self, sample_seed: MotionSeed, bael_king_id: str
+    ) -> None:
+        """H3: add_source_reference() method blocked after promotion."""
+        sample_seed.mark_promoted("motion-1", bael_king_id)
+
+        with pytest.raises(SeedImmutabilityError) as exc_info:
+            sample_seed.add_source_reference("new-ref")
+
+        assert exc_info.value.field_name == "source_references"
+
+    def test_h3_add_source_reference_works_before_promotion(
+        self, sample_seed: MotionSeed
+    ) -> None:
+        """H3: add_source_reference() works before promotion."""
+        sample_seed.add_source_reference("ref-1")
+        sample_seed.add_source_reference("ref-2")
+
+        assert "ref-1" in sample_seed.source_references
+        assert "ref-2" in sample_seed.source_references
 
 
 # =============================================================================

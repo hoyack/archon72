@@ -112,12 +112,22 @@ class SeedPoolService(LoggingMixin):
 
         This provides backward compatibility with existing Secretary output.
 
+        H5 CONSTRAINT (Critical for explosion protection):
+        This method MUST ONLY create MotionSeed records, NEVER Motion records.
+        If this method ever creates Motion artifacts, bypass promotion, or
+        touch the admission gate, the combinatorial explosion protection is violated.
+
+        The output is always a Seed that:
+        - Has status = RECORDED (not PROMOTED)
+        - Has no motion_id
+        - Requires King promotion to become a Motion
+
         Args:
             queued_motion: The QueuedMotion from Secretary
             source_cycle: The source Conclave cycle identifier
 
         Returns:
-            The created MotionSeed
+            The created MotionSeed (NOT a Motion)
         """
         log = self._log_operation(
             "convert_queued_motion",
@@ -176,12 +186,16 @@ class SeedPoolService(LoggingMixin):
         Each recommendation in the cluster becomes a separate seed,
         maintaining full provenance.
 
+        H5 CONSTRAINT (Critical for explosion protection):
+        This method MUST ONLY create MotionSeed records, NEVER Motion records.
+        All output seeds have status = RECORDED and require King promotion.
+
         Args:
             cluster: The recommendation cluster
             source_cycle: The source Conclave cycle identifier
 
         Returns:
-            List of created MotionSeeds
+            List of created MotionSeeds (NOT Motions)
         """
         log = self._log_operation(
             "add_from_cluster",

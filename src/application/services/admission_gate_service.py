@@ -11,6 +11,9 @@ Validation Levels (from Motion Gates spec):
 4. Ambiguity: No "as needed", "TBD" in action-bearing fields
 5. Scope: Single primary_realm or explicit cross-realm co-sponsors
 
+Hardening (Motion Gates Hardening Spec):
+- H4: Cross-realm escalation - 4+ realms requires Council Head approval
+
 Constitutional Constraints:
 - I1: No Silent Loss - all rejections recorded with reason codes
 - I3: Admission Gate applies to Motions only (not Seeds)
@@ -109,6 +112,10 @@ AMBIGUITY_INDICATORS = [
 # Compile patterns for efficiency
 HOW_PATTERNS = [re.compile(p, re.IGNORECASE) for p in HOW_INDICATORS]
 AMBIGUITY_PATTERNS = [re.compile(p, re.IGNORECASE) for p in AMBIGUITY_INDICATORS]
+
+# H4: Cross-realm escalation threshold
+# Motions spanning this many or more realms require Council Head approval
+CROSS_REALM_ESCALATION_THRESHOLD = 4
 
 
 class AdmissionGateService(LoggingMixin):
@@ -385,7 +392,16 @@ class AdmissionGateService(LoggingMixin):
     def _validate_scope(
         self, candidate: MotionCandidate, record: AdmissionRecord
     ) -> None:
-        """Validate scope (single primary_realm or explicit cross-realm)."""
+        """Validate scope (single primary_realm or explicit cross-realm).
+
+        H4 Escalation Policy: Motions spanning 4+ realms are REJECTED with
+        requires_escalation=True. This prevents automatic admission of broad
+        cross-realm motions that could affect multiple governance domains.
+
+        The requires_escalation flag indicates the motion needs Council Head
+        review and can be resubmitted with explicit approval. Future enhancement
+        could implement a DEFERRED status with approval workflow.
+        """
         log = self._log_operation("validate_scope", motion_id=candidate.motion_id)
 
         realm = candidate.realm_assignment
@@ -422,10 +438,25 @@ class AdmissionGateService(LoggingMixin):
                         )
                     claimed_realms.add(cosponsor_realm)
 
-            # Warn (but don't reject) if spanning many realms
-            if len(claimed_realms) > 3:
+            # H4: Escalation for motions spanning 4+ realms
+            if len(claimed_realms) >= CROSS_REALM_ESCALATION_THRESHOLD:
+                record.scope_valid = False
+                record.add_rejection(
+                    AdmissionRejectReason.EXCESSIVE_REALM_SPAN,
+                    f"Motion spans {len(claimed_realms)} realms (threshold: {CROSS_REALM_ESCALATION_THRESHOLD}). "
+                    f"Requires Council Head approval for cross-realm escalation (H4).",
+                )
+                record.requires_escalation = True
+                record.escalation_realm_count = len(claimed_realms)
+                log.info(
+                    "h4_escalation_required",
+                    realm_count=len(claimed_realms),
+                    threshold=CROSS_REALM_ESCALATION_THRESHOLD,
+                )
+            elif len(claimed_realms) > 2:
+                # Warning for 3 realms (below threshold but notable)
                 record.warnings.append(
-                    f"Motion spans {len(claimed_realms)} realms - consider narrowing scope"
+                    f"Motion spans {len(claimed_realms)} realms - approaching escalation threshold"
                 )
                 log.debug("scope_warning", realm_count=len(claimed_realms))
 

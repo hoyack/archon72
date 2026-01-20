@@ -208,7 +208,9 @@ class WitnessChainVerification:
             ValueError: If verified_events > total_events.
         """
         if self.verified_events < 0:
-            raise ValueError(f"verified_events must be >= 0, got {self.verified_events}")
+            raise ValueError(
+                f"verified_events must be >= 0, got {self.verified_events}"
+            )
         if self.total_events < 0:
             raise ValueError(f"total_events must be >= 0, got {self.total_events}")
         if self.verified_events > self.total_events:
@@ -453,7 +455,9 @@ class AuditTimeline:
             "outcome": self.outcome,
             "termination_reason": self.termination_reason.value,
             "started_at": self.started_at.isoformat(),
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
             "witness_chain_valid": self.witness_chain_valid,
             "transcripts": self.transcripts,
             "dissent_record": self.dissent_record,

@@ -253,6 +253,11 @@ class AutoEscalationExecutorService:
             realm_id=petition.realm,
         )
 
+        log.debug(
+            "EscalationTriggered event payload created",
+            event_payload=escalation_event.to_dict(),
+        )
+
         log.info(
             "EscalationTriggered event created",
             event_type=PETITION_ESCALATION_TRIGGERED_EVENT_TYPE,
@@ -323,7 +328,7 @@ class AutoEscalationExecutorService:
 def _verify_protocol() -> None:
     """Verify AutoEscalationExecutorService implements the protocol."""
     # Import inside function to avoid circular imports
-    from unittest.mock import AsyncMock, MagicMock
+    from unittest.mock import MagicMock
 
     # Create mock dependencies
     mock_petition_repo = MagicMock()

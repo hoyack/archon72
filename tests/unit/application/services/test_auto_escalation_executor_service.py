@@ -21,7 +21,6 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.ports.auto_escalation_executor import (
-    AutoEscalationExecutorProtocol,
     AutoEscalationResult,
 )
 from src.application.services.auto_escalation_executor_service import (
@@ -31,7 +30,7 @@ from src.domain.errors import CoSignPetitionNotFoundError, SystemHaltedError
 from src.domain.models.petition_submission import PetitionState, PetitionType
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    pass
 
 
 # Test fixtures

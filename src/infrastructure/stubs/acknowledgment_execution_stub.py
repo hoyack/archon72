@@ -12,7 +12,7 @@ Constitutional Context:
 from __future__ import annotations
 
 from collections.abc import Sequence
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
@@ -31,7 +31,6 @@ from src.domain.errors.acknowledgment import (
 )
 from src.domain.events.acknowledgment import PetitionAcknowledgedEvent
 from src.domain.models.acknowledgment import (
-    ACKNOWLEDGMENT_SCHEMA_VERSION,
     MIN_ACKNOWLEDGING_ARCHONS,
     Acknowledgment,
 )

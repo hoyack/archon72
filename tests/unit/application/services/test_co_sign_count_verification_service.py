@@ -10,13 +10,10 @@ Tests the count consistency verification logic:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.ports.co_sign_count_verification import CountVerificationResult
 from src.application.services.co_sign_count_verification_service import (
@@ -75,7 +72,7 @@ class MockSessionFactory:
     def __init__(self, session: MockSession) -> None:
         self._session = session
 
-    def __call__(self) -> "MockSessionContextManager":
+    def __call__(self) -> MockSessionContextManager:
         return MockSessionContextManager(self._session)
 
 

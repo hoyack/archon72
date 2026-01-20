@@ -19,8 +19,8 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.ports.referral_timeout import (
-    ReferralTimeoutAction,
     ReferralTimeoutAcknowledgeError,
+    ReferralTimeoutAction,
     ReferralTimeoutResult,
     ReferralTimeoutWitnessError,
 )
@@ -28,7 +28,6 @@ from src.application.services.referral_timeout_service import (
     ReferralTimeoutService,
 )
 from src.domain.events.referral import REFERRAL_EXPIRED_EVENT_TYPE
-from src.domain.models.acknowledgment import Acknowledgment
 from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
 from src.domain.models.realm import Realm, RealmStatus
 from src.domain.models.referral import (
@@ -36,7 +35,6 @@ from src.domain.models.referral import (
     ReferralRecommendation,
     ReferralStatus,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Fixtures and Helpers

@@ -60,12 +60,6 @@ from src.domain.errors.co_sign import (
     CoSignPetitionNotFoundError,
 )
 from src.domain.errors.co_sign_rate_limit import CoSignRateLimitExceededError
-from src.domain.errors.identity import (
-    IdentityNotFoundError,
-    IdentityServiceUnavailableError,
-    IdentitySuspendedError,
-    IdentityVerificationError,
-)
 from src.domain.errors.collective import FR11ViolationError
 from src.domain.errors.collusion import (
     CollusionDefenseError,
@@ -102,6 +96,12 @@ from src.domain.errors.context_bundle import (
     InvalidBundleSignatureError,
     StaleBundleError,
 )
+from src.domain.errors.decision_package import (
+    DecisionPackageError,
+    DecisionPackageNotFoundError,
+    ReferralNotAssignedError,
+    UnauthorizedPackageAccessError,
+)
 from src.domain.errors.deliberation import (
     ArchonPoolExhaustedError,
     ConsensusNotReachedError,
@@ -116,40 +116,6 @@ from src.domain.errors.deliberation import (
     SessionAlreadyCompleteError,
     SessionAlreadyExistsError,
     SessionNotFoundError,
-)
-from src.domain.errors.decision_package import (
-    DecisionPackageError,
-    DecisionPackageNotFoundError,
-    ReferralNotAssignedError,
-    UnauthorizedPackageAccessError,
-)
-from src.domain.errors.recommendation import (
-    InvalidRecommendationError,
-    RationaleRequiredError as RecommendationRationaleRequiredError,
-    RecommendationAlreadySubmittedError,
-    RecommendationError,
-    ReferralNotInReviewError,
-    UnauthorizedRecommendationError,
-)
-from src.domain.errors.referral import (
-    ExtensionReasonRequiredError,
-    InvalidRealmError,
-    InvalidReferralStateError,
-    MaxExtensionsReachedError,
-    NotAssignedKnightError,
-    PetitionNotReferrableError,
-    ReferralAlreadyExistsError,
-    ReferralError,
-    ReferralJobSchedulingError,
-    ReferralNotFoundError,
-    ReferralWitnessHashError,
-)
-from src.domain.errors.knight_concurrent_limit import (
-    KnightAtCapacityError,
-    KnightNotFoundError,
-    KnightNotInRealmError,
-    NoEligibleKnightsError,
-    ReferralAlreadyAssignedError,
 )
 from src.domain.errors.escalation import (
     BreachAlreadyAcknowledgedError,
@@ -196,6 +162,12 @@ from src.domain.errors.hsm import (
     HSMModeViolationError,
     HSMNotConfiguredError,
 )
+from src.domain.errors.identity import (
+    IdentityNotFoundError,
+    IdentityServiceUnavailableError,
+    IdentitySuspendedError,
+    IdentityVerificationError,
+)
 from src.domain.errors.independence_attestation import (
     AttestationDeadlineMissedError,
     CapabilitySuspendedError,
@@ -226,6 +198,13 @@ from src.domain.errors.key_generation_ceremony import (
     DuplicateWitnessError,
     InsufficientWitnessesError,
     InvalidCeremonyStateError,
+)
+from src.domain.errors.knight_concurrent_limit import (
+    KnightAtCapacityError,
+    KnightNotFoundError,
+    KnightNotInRealmError,
+    NoEligibleKnightsError,
+    ReferralAlreadyAssignedError,
 )
 from src.domain.errors.override import (
     DurationValidationError,
@@ -273,11 +252,34 @@ from src.domain.errors.read_only import (
     ProvisionalBlockedDuringHaltError,
     WriteBlockedDuringHaltError,
 )
+from src.domain.errors.recommendation import (
+    InvalidRecommendationError,
+    RecommendationAlreadySubmittedError,
+    RecommendationError,
+    ReferralNotInReviewError,
+    UnauthorizedRecommendationError,
+)
+from src.domain.errors.recommendation import (
+    RationaleRequiredError as RecommendationRationaleRequiredError,
+)
 from src.domain.errors.recovery import (
     RecoveryAlreadyInProgressError,
     RecoveryNotPermittedError,
     RecoveryWaitingPeriodNotElapsedError,
     RecoveryWaitingPeriodNotStartedError,
+)
+from src.domain.errors.referral import (
+    ExtensionReasonRequiredError,
+    InvalidRealmError,
+    InvalidReferralStateError,
+    MaxExtensionsReachedError,
+    NotAssignedKnightError,
+    PetitionNotReferrableError,
+    ReferralAlreadyExistsError,
+    ReferralError,
+    ReferralJobSchedulingError,
+    ReferralNotFoundError,
+    ReferralWitnessHashError,
 )
 from src.domain.errors.rollback import (
     CheckpointNotFoundError,

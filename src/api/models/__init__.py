@@ -5,6 +5,11 @@ This module contains all Pydantic request/response models
 used by API endpoints.
 """
 
+from src.api.models.co_sign import (
+    CoSignErrorResponse,
+    CoSignRequest,
+    CoSignResponse,
+)
 from src.api.models.complexity_budget import (
     ComplexityBreachListResponse,
     ComplexityBreachResponse,
@@ -96,11 +101,6 @@ from src.api.models.waiver import (
     WaiverErrorResponse,
     WaiverResponse,
     WaiversListResponse,
-)
-from src.api.models.co_sign import (
-    CoSignErrorResponse,
-    CoSignRequest,
-    CoSignResponse,
 )
 
 __all__: list[str] = [

@@ -38,11 +38,10 @@ from src.application.ports.reviewer_agent import (
     ReviewError,
 )
 from src.domain.models.llm_config import LLMConfig
-from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 logger = get_logger(__name__)
-
 
 
 class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
@@ -96,7 +95,7 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
                 message="No profile repository provided. All Archons will use default LLM.",
             )
 
-    def _get_archon_llm(self, archon_name: str) -> LLM:
+    def _get_archon_llm(self, archon_name: str) -> LLM | str:
         """Get the appropriate LLM for an Archon.
 
         Looks up the Archon's profile to get their per-archon LLM binding.

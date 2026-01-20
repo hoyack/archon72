@@ -152,7 +152,10 @@ class PostgresTranscriptStore(TranscriptStoreProtocol):
 
                 if row is None:
                     # Should not happen, but handle gracefully
-                    log.error("transcript_store_failed", message="Insert succeeded but select failed")
+                    log.error(
+                        "transcript_store_failed",
+                        message="Insert succeeded but select failed",
+                    )
                     raise RuntimeError("Transcript storage failed - consistency error")
 
                 stored_size, stored_at, storage_path = row

@@ -15,7 +15,7 @@ import asyncio
 import random
 from datetime import datetime, timezone
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from src.application.ports.load_test_harness import TestPetition
 from src.domain.models.load_test_config import LoadTestConfig
@@ -100,10 +100,12 @@ class LoadTestHarnessStub:
         Returns:
             LoadTestReport with simulated results.
         """
-        self._run_calls.append({
-            "config": config.to_dict(),
-            "timestamp": datetime.now(timezone.utc),
-        })
+        self._run_calls.append(
+            {
+                "config": config.to_dict(),
+                "timestamp": datetime.now(timezone.utc),
+            }
+        )
 
         self._is_running = True
         started_at = datetime.now(timezone.utc)
@@ -153,7 +155,9 @@ class LoadTestHarnessStub:
             # Update throughput (simple sliding approximation)
             elapsed = (datetime.now(timezone.utc) - started_at).total_seconds()
             if elapsed > 0:
-                self._metrics.current_throughput = self._metrics.total_processed / elapsed
+                self._metrics.current_throughput = (
+                    self._metrics.total_processed / elapsed
+                )
 
             # Yield periodically to allow concurrent behavior
             if i % 10 == 0:

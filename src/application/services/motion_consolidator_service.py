@@ -23,16 +23,17 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 from uuid import UUID, uuid4
 
 from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.domain.models.secretary_agent import load_secretary_config_from_yaml
-from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 logger = get_logger(__name__)
 
@@ -223,6 +224,8 @@ class MotionConsolidatorService:
         self,
         verbose: bool = False,
         target_count: int = TARGET_MEGA_MOTION_COUNT,
+        llm: LLM | None = None,
+        llm_factory: Callable[[Any], LLM] | None = None,
     ) -> None:
         """Initialize the consolidator.
 
@@ -233,11 +236,14 @@ class MotionConsolidatorService:
         self._verbose = verbose
         self._target_count = target_count
 
-        # Load LLM config from YAML (uses JSON model for structured output)
-        _, json_config, _ = load_secretary_config_from_yaml()
+        if llm is None:
+            if llm_factory is None:
+                raise ValueError("llm or llm_factory is required")
+            # Load LLM config from YAML (uses JSON model for structured output)
+            _, json_config, _ = load_secretary_config_from_yaml()
+            llm = llm_factory(json_config)
 
-        # Create LLM for consolidation tasks
-        self._llm = self._create_llm(json_config)
+        self._llm = llm
         self._agent = Agent(
             role="Motion Consolidator",
             goal="Group related motions into coherent mega-motions while preserving all source references",
@@ -255,12 +261,8 @@ class MotionConsolidatorService:
         logger.info(
             "motion_consolidator_initialized",
             target_count=target_count,
-            model=json_config.model,
+            model=getattr(self._llm, "model", None),
         )
-
-    def _create_llm(self, llm_config) -> LLM:
-        """Create CrewAI LLM from config."""
-        return create_crewai_llm(llm_config)
 
     def load_motions_from_checkpoint(self, checkpoint_path: Path) -> list[SourceMotion]:
         """Load motions from Secretary checkpoint file.

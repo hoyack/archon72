@@ -41,6 +41,9 @@ from src.application.services.audit_event_query_service import (
     AUDIT_EVENT_QUERY_SYSTEM_AGENT_ID,
     AuditEventQueryService,
 )
+from src.application.services.auto_escalation_executor_service import (
+    AutoEscalationExecutorService,
+)
 from src.application.services.automatic_agenda_placement_service import (
     AGENDA_PLACEMENT_SYSTEM_AGENT_ID,
     ANTI_SUCCESS_SUSTAINED_THRESHOLD_DAYS,
@@ -64,6 +67,12 @@ from src.application.services.breach_declaration_service import (
 from src.application.services.cessation_consideration_service import (
     CESSATION_SYSTEM_AGENT_ID,
     CessationConsiderationService,
+)
+from src.application.services.co_sign_count_verification_service import (
+    CoSignCountVerificationService,
+)
+from src.application.services.co_sign_submission_service import (
+    CoSignSubmissionService,
 )
 from src.application.services.complexity_budget_escalation_service import (
     COMPLEXITY_ESCALATION_SYSTEM_AGENT_ID,
@@ -107,6 +116,9 @@ from src.application.services.context_bundle_service import (
 from src.application.services.context_package_builder_service import (
     ContextPackageBuilderService,
 )
+from src.application.services.decision_package_service import (
+    DecisionPackageBuilderService,
+)
 from src.application.services.deliberation_orchestrator_service import (
     DeliberationOrchestratorService,
 )
@@ -136,10 +148,12 @@ from src.application.services.escalation_threshold_service import (
     DEFAULT_GRIEVANCE_THRESHOLD,
     EscalationThresholdService,
 )
-from src.application.services.auto_escalation_executor_service import (
-    AutoEscalationExecutorService,
-)
 from src.application.services.event_writer_service import EventWriterService
+from src.application.services.extension_request_service import (
+    EXTENSION_DURATION_CYCLES,
+    MIN_REASON_LENGTH,
+    ExtensionRequestService,
+)
 from src.application.services.failure_prevention_service import (
     FailurePreventionService,
 )
@@ -189,6 +203,9 @@ from src.application.services.keeper_signature_service import (
 )
 from src.application.services.key_generation_ceremony_service import (
     KeyGenerationCeremonyService,
+)
+from src.application.services.knight_concurrent_limit_service import (
+    KnightConcurrentLimitService,
 )
 from src.application.services.load_shedding_service import (
     LoadSheddingService,
@@ -267,18 +284,14 @@ from src.application.services.rate_limit_cleanup_service import (
 from src.application.services.rate_limit_service import (
     RateLimitService,
 )
-from src.application.services.decision_package_service import (
-    DecisionPackageBuilderService,
+from src.application.services.realm_registry import (
+    RealmRegistryService,
 )
 from src.application.services.recommendation_submission_service import (
     MIN_RATIONALE_LENGTH,
     RecommendationSubmissionService,
 )
-from src.application.services.extension_request_service import (
-    EXTENSION_DURATION_CYCLES,
-    MIN_REASON_LENGTH,
-    ExtensionRequestService,
-)
+from src.application.services.recovery_coordinator import RecoveryCoordinator
 from src.application.services.referral_execution_service import (
     JOB_TYPE_REFERRAL_TIMEOUT,
     ReferralExecutionService,
@@ -286,19 +299,6 @@ from src.application.services.referral_execution_service import (
 from src.application.services.referral_timeout_service import (
     ReferralTimeoutService,
 )
-from src.application.services.knight_concurrent_limit_service import (
-    KnightConcurrentLimitService,
-)
-from src.application.services.co_sign_count_verification_service import (
-    CoSignCountVerificationService,
-)
-from src.application.services.co_sign_submission_service import (
-    CoSignSubmissionService,
-)
-from src.application.services.realm_registry import (
-    RealmRegistryService,
-)
-from src.application.services.recovery_coordinator import RecoveryCoordinator
 from src.application.services.rollback_coordinator_service import (
     RollbackCoordinatorService,
 )

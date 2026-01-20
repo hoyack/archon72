@@ -169,19 +169,25 @@ class TestReferralValidation:
         with pytest.raises(ValueError, match="extensions_granted must be 0-2"):
             Referral(**valid_referral_data, extensions_granted=3)
 
-    def test_invalid_deadline_not_timezone_aware(self, valid_referral_data: dict) -> None:
+    def test_invalid_deadline_not_timezone_aware(
+        self, valid_referral_data: dict
+    ) -> None:
         """Test that naive deadline is rejected."""
         valid_referral_data["deadline"] = datetime.now()  # No timezone
         with pytest.raises(ValueError, match="deadline must be timezone-aware"):
             Referral(**valid_referral_data)
 
-    def test_invalid_created_at_not_timezone_aware(self, valid_referral_data: dict) -> None:
+    def test_invalid_created_at_not_timezone_aware(
+        self, valid_referral_data: dict
+    ) -> None:
         """Test that naive created_at is rejected."""
         valid_referral_data["created_at"] = datetime.now()  # No timezone
         with pytest.raises(ValueError, match="created_at must be timezone-aware"):
             Referral(**valid_referral_data)
 
-    def test_invalid_completed_at_not_timezone_aware(self, valid_referral_data: dict) -> None:
+    def test_invalid_completed_at_not_timezone_aware(
+        self, valid_referral_data: dict
+    ) -> None:
         """Test that naive completed_at is rejected."""
         with pytest.raises(ValueError, match="completed_at must be timezone-aware"):
             Referral(
@@ -197,7 +203,9 @@ class TestReferralValidation:
         self, valid_referral_data: dict
     ) -> None:
         """Test that recommendation without COMPLETED status is rejected."""
-        with pytest.raises(ValueError, match="recommendation can only be set when status is COMPLETED"):
+        with pytest.raises(
+            ValueError, match="recommendation can only be set when status is COMPLETED"
+        ):
             Referral(
                 **valid_referral_data,
                 assigned_knight_id=uuid4(),
@@ -224,7 +232,9 @@ class TestReferralValidation:
         self, valid_referral_data: dict
     ) -> None:
         """Test that COMPLETED status without recommendation is rejected."""
-        with pytest.raises(ValueError, match="COMPLETED status requires recommendation"):
+        with pytest.raises(
+            ValueError, match="COMPLETED status requires recommendation"
+        ):
             Referral(
                 **valid_referral_data,
                 assigned_knight_id=uuid4(),
@@ -249,7 +259,9 @@ class TestReferralValidation:
 
     def test_invalid_assigned_without_knight(self, valid_referral_data: dict) -> None:
         """Test that ASSIGNED status without knight is rejected."""
-        with pytest.raises(ValueError, match="assigned_knight_id required for status assigned"):
+        with pytest.raises(
+            ValueError, match="assigned_knight_id required for status assigned"
+        ):
             Referral(
                 **valid_referral_data,
                 status=ReferralStatus.ASSIGNED,
@@ -258,7 +270,9 @@ class TestReferralValidation:
 
     def test_invalid_in_review_without_knight(self, valid_referral_data: dict) -> None:
         """Test that IN_REVIEW status without knight is rejected."""
-        with pytest.raises(ValueError, match="assigned_knight_id required for status in_review"):
+        with pytest.raises(
+            ValueError, match="assigned_knight_id required for status in_review"
+        ):
             Referral(
                 **valid_referral_data,
                 status=ReferralStatus.IN_REVIEW,
@@ -281,18 +295,24 @@ class TestReferralCanExtend:
             created_at=now,
         )
 
-    def test_can_extend_assigned_with_no_extensions(self, base_referral: Referral) -> None:
+    def test_can_extend_assigned_with_no_extensions(
+        self, base_referral: Referral
+    ) -> None:
         """Test can_extend returns True for ASSIGNED with 0 extensions."""
         assigned = base_referral.with_assignment(uuid4())
         assert assigned.can_extend()
 
-    def test_can_extend_assigned_with_one_extension(self, base_referral: Referral) -> None:
+    def test_can_extend_assigned_with_one_extension(
+        self, base_referral: Referral
+    ) -> None:
         """Test can_extend returns True for ASSIGNED with 1 extension."""
         assigned = base_referral.with_assignment(uuid4())
         extended = assigned.with_extension(assigned.deadline + timedelta(weeks=1))
         assert extended.can_extend()
 
-    def test_cannot_extend_assigned_with_max_extensions(self, base_referral: Referral) -> None:
+    def test_cannot_extend_assigned_with_max_extensions(
+        self, base_referral: Referral
+    ) -> None:
         """Test can_extend returns False for ASSIGNED with 2 extensions."""
         assigned = base_referral.with_assignment(uuid4())
         extended1 = assigned.with_extension(assigned.deadline + timedelta(weeks=1))
@@ -371,7 +391,9 @@ class TestReferralIsExpired:
         expired = base_referral.with_expired()
         assert expired.is_expired()
 
-    def test_is_not_expired_pending_before_deadline(self, base_referral: Referral) -> None:
+    def test_is_not_expired_pending_before_deadline(
+        self, base_referral: Referral
+    ) -> None:
         """Test is_expired returns False before deadline."""
         assert not base_referral.is_expired()
 
@@ -464,7 +486,9 @@ class TestReferralWithAssignment:
         with pytest.raises(ValueError, match="status must be PENDING"):
             assigned.with_assignment(uuid4())
 
-    def test_with_assignment_returns_new_instance(self, base_referral: Referral) -> None:
+    def test_with_assignment_returns_new_instance(
+        self, base_referral: Referral
+    ) -> None:
         """Test with_assignment returns a new instance."""
         assigned = base_referral.with_assignment(uuid4())
         assert assigned is not base_referral
@@ -536,7 +560,9 @@ class TestReferralWithExtension:
     ) -> None:
         """Test with_extension rejects deadline not after current."""
         with pytest.raises(ValueError, match="must be after current deadline"):
-            assigned_referral.with_extension(assigned_referral.deadline - timedelta(days=1))
+            assigned_referral.with_extension(
+                assigned_referral.deadline - timedelta(days=1)
+            )
 
     def test_with_extension_naive_deadline(self, assigned_referral: Referral) -> None:
         """Test with_extension rejects naive datetime."""
@@ -600,7 +626,9 @@ class TestReferralWithRecommendation:
         assigned = base.with_assignment(uuid4())
         return assigned.with_in_review()
 
-    def test_with_recommendation_acknowledge(self, in_review_referral: Referral) -> None:
+    def test_with_recommendation_acknowledge(
+        self, in_review_referral: Referral
+    ) -> None:
         """Test with_recommendation for ACKNOWLEDGE."""
         completed = in_review_referral.with_recommendation(
             ReferralRecommendation.ACKNOWLEDGE,
@@ -723,7 +751,9 @@ class TestReferralWithExpired:
 
         assert expired.status == ReferralStatus.EXPIRED
 
-    def test_with_expired_from_completed_rejected(self, base_referral: Referral) -> None:
+    def test_with_expired_from_completed_rejected(
+        self, base_referral: Referral
+    ) -> None:
         """Test with_expired rejects from COMPLETED."""
         assigned = base_referral.with_assignment(uuid4())
         in_review = assigned.with_in_review()

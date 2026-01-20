@@ -251,8 +251,6 @@ class TestAcknowledgmentSerialization:
 
     def test_to_dict_with_rationale_and_reference(self) -> None:
         """to_dict includes rationale and reference when present."""
-        reference_id = uuid4()
-
         # Note: DUPLICATE requires reference, not rationale
         # Use REFUSED for rationale test
         ack = Acknowledgment.create(

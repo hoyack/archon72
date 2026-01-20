@@ -55,9 +55,7 @@ class CoSignRepositoryStub:
     async def get_by_petition_id(self, petition_id: str) -> list[CoSign]:
         """Get all co-signs for a petition (NFR-6.4)."""
         return [
-            cs
-            for cs in self._co_signs.values()
-            if str(cs.petition_id) == petition_id
+            cs for cs in self._co_signs.values() if str(cs.petition_id) == petition_id
         ]
 
     async def count_by_petition_id(self, petition_id: str) -> int:
@@ -66,15 +64,9 @@ class CoSignRepositoryStub:
 
     async def get_by_signer_id(self, signer_id: str) -> list[CoSign]:
         """Get all co-signs by a signer (for SYBIL-1 rate limiting)."""
-        return [
-            cs
-            for cs in self._co_signs.values()
-            if str(cs.signer_id) == signer_id
-        ]
+        return [cs for cs in self._co_signs.values() if str(cs.signer_id) == signer_id]
 
-    async def count_by_signer_since(
-        self, signer_id: str, since: datetime
-    ) -> int:
+    async def count_by_signer_since(self, signer_id: str, since: datetime) -> int:
         """Count co-signs by signer since a timestamp (FR-6.6 rate limiting)."""
         return len(
             [
@@ -428,7 +420,9 @@ class TestCoSignVolumeOperations:
         duplicate_count = 0
         for _ in range(10):
             try:
-                co_sign_dup = _make_co_sign(petition_id=petition_id, signer_id=signer_id)
+                co_sign_dup = _make_co_sign(
+                    petition_id=petition_id, signer_id=signer_id
+                )
                 await co_sign_repo.save(co_sign_dup)
             except IntegrityError:
                 duplicate_count += 1

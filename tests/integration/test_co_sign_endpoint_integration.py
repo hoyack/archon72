@@ -276,7 +276,10 @@ class TestCoSignSystemHalt:
     """Integration tests for system halt behavior (CT-13)."""
 
     def test_co_sign_rejected_during_halt(
-        self, client: TestClient, active_petition: PetitionSubmission, halt_checker: HaltCheckerStub
+        self,
+        client: TestClient,
+        active_petition: PetitionSubmission,
+        halt_checker: HaltCheckerStub,
     ) -> None:
         """Co-sign is rejected during system halt (CT-13)."""
         # Enable halt
@@ -297,7 +300,10 @@ class TestCoSignSystemHalt:
         assert "Retry-After" in response.headers
 
     def test_co_sign_succeeds_after_halt_cleared(
-        self, client: TestClient, active_petition: PetitionSubmission, halt_checker: HaltCheckerStub
+        self,
+        client: TestClient,
+        active_petition: PetitionSubmission,
+        halt_checker: HaltCheckerStub,
     ) -> None:
         """Co-sign succeeds after halt is cleared."""
         # Enable then disable halt

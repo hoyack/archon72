@@ -181,7 +181,10 @@ class TestCrewAIApiDegradationScenario:
 
         report = await harness.run_chaos_test(config)
 
-        assert report.outcome in [ChaosTestOutcome.SUCCESS, ChaosTestOutcome.PARTIAL_RECOVERY]
+        assert report.outcome in [
+            ChaosTestOutcome.SUCCESS,
+            ChaosTestOutcome.PARTIAL_RECOVERY,
+        ]
 
 
 class TestWitnessWriteFailureScenario:
@@ -222,7 +225,10 @@ class TestWitnessWriteFailureScenario:
         # Audit log must capture the failure
         assert len(report.audit_log_entries) >= 3
         # Failure is visible, not silent
-        assert report.failure_details is not None or report.outcome == ChaosTestOutcome.PARTIAL_RECOVERY
+        assert (
+            report.failure_details is not None
+            or report.outcome == ChaosTestOutcome.PARTIAL_RECOVERY
+        )
 
 
 class TestNetworkPartitionScenario:
@@ -263,7 +269,9 @@ class TestConstitutionalTruthCompliance:
             report = await harness.run_chaos_test(config)
 
             # Every scenario must produce audit entries
-            assert len(report.audit_log_entries) >= 1, f"Scenario {scenario} produced no audit entries"
+            assert len(report.audit_log_entries) >= 1, (
+                f"Scenario {scenario} produced no audit entries"
+            )
 
     @pytest.mark.asyncio
     async def test_ct_12_witness_chain_integrity(self) -> None:
@@ -373,9 +381,9 @@ class TestFaultInjectionLifecycle:
         harness = ChaosTestHarnessStub()
 
         # Inject multiple faults
-        handle1 = await harness.inject_fault(ChaosScenario.ARCHON_TIMEOUT_MID_PHASE)
+        await harness.inject_fault(ChaosScenario.ARCHON_TIMEOUT_MID_PHASE)
         handle2 = await harness.inject_fault(ChaosScenario.CREWAI_API_DEGRADATION)
-        handle3 = await harness.inject_fault(ChaosScenario.NETWORK_PARTITION)
+        await harness.inject_fault(ChaosScenario.NETWORK_PARTITION)
 
         assert len(harness.get_active_faults()) == 3
 

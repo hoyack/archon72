@@ -24,12 +24,12 @@ from src.infrastructure.adapters.persistence.key_registry import InMemoryKeyRegi
 from src.infrastructure.adapters.persistence.rate_limit_store import (
     PostgresRateLimitStore,
 )
-from src.infrastructure.adapters.persistence.transcript_store import (
-    PostgresTranscriptStore,
-)
 from src.infrastructure.adapters.persistence.terminal_event_detector import (
     InMemoryTerminalEventDetector,
     TerminalEventDetector,
+)
+from src.infrastructure.adapters.persistence.transcript_store import (
+    PostgresTranscriptStore,
 )
 from src.infrastructure.adapters.persistence.witness_pool import InMemoryWitnessPool
 

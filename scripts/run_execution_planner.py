@@ -21,8 +21,10 @@ Examples:
 import argparse
 import asyncio
 import glob
+import os
 import sys
 from pathlib import Path
+from uuid import UUID
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -43,6 +45,32 @@ def find_latest_review_pipeline_output() -> Path | None:
         return None
     # Return most recently modified
     return Path(max(dirs, key=lambda d: Path(d).stat().st_mtime))
+
+
+def resolve_role_llm_config(env_var: str):
+    """Resolve an LLM config from an Archon ID stored in env."""
+    archon_id_value = os.environ.get(env_var)
+    if not archon_id_value:
+        return None
+
+    try:
+        archon_id = UUID(archon_id_value)
+    except ValueError:
+        print(f"Warning: {env_var} is not a valid UUID: {archon_id_value}")
+        return None
+
+    from src.infrastructure.adapters.config.archon_profile_adapter import (
+        create_archon_profile_repository,
+    )
+
+    repo = create_archon_profile_repository()
+    profile = repo.get_by_id(archon_id)
+    if not profile:
+        print(f"Warning: {env_var} Archon not found: {archon_id_value}")
+        return None
+
+    print(f"Using {env_var}={archon_id_value} ({profile.name})")
+    return profile.llm_config
 
 
 def main():
@@ -109,7 +137,11 @@ def main():
         from src.infrastructure.adapters.external import create_planner_agent
 
         print("Initializing LLM-powered planner agent...")
-        planner_agent = create_planner_agent(verbose=args.verbose)
+        llm_config = resolve_role_llm_config("EXECUTION_PLANNER_ARCHON_ID")
+        planner_agent = create_planner_agent(
+            verbose=args.verbose,
+            llm_config=llm_config,
+        )
 
     service = ExecutionPlannerService(
         verbose=args.verbose,

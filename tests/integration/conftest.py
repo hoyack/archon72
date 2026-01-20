@@ -24,8 +24,8 @@ Note: Docker must be running for these fixtures to work.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from collections.abc import AsyncGenerator, Generator
+from pathlib import Path
 
 import pytest
 import redis.asyncio as aioredis
@@ -211,19 +211,19 @@ class TableQuery:
         self._limit: int | None = None
         self._insert_data: list[dict] | None = None
 
-    def select(self, columns: str) -> "TableQuery":
+    def select(self, columns: str) -> TableQuery:
         self._columns = columns
         return self
 
-    def eq(self, column: str, value: object) -> "TableQuery":
+    def eq(self, column: str, value: object) -> TableQuery:
         self._filters.append((column, value))
         return self
 
-    def limit(self, count: int) -> "TableQuery":
+    def limit(self, count: int) -> TableQuery:
         self._limit = count
         return self
 
-    def insert(self, data: dict | list[dict]) -> "TableQuery":
+    def insert(self, data: dict | list[dict]) -> TableQuery:
         self._insert_data = data if isinstance(data, list) else [data]
         return self
 

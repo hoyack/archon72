@@ -41,12 +41,6 @@ from src.application.ports.secretary_agent import (
     ValidationError,
 )
 from src.domain.models.llm_config import LLMConfig
-from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
-from src.infrastructure.adapters.external.crewai_json_utils import (
-    aggressive_clean,
-    sanitize_json_string,
-    strip_markdown_fence,
-)
 from src.domain.models.secretary import (
     ConsensusLevel,
     ExtractedRecommendation,
@@ -58,6 +52,12 @@ from src.domain.models.secretary import (
     SourceReference,
 )
 from src.domain.models.secretary_agent import SecretaryAgentProfile
+from src.infrastructure.adapters.external.crewai_json_utils import (
+    aggressive_clean,
+    sanitize_json_string,
+    strip_markdown_fence,
+)
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 logger = get_logger(__name__)
 

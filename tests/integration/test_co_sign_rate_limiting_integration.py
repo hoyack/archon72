@@ -183,7 +183,9 @@ class TestRateLimitSuccess:
 
         assert data["rate_limit_reset_at"] is not None
         # Should be parseable as ISO datetime
-        reset_at = datetime.fromisoformat(data["rate_limit_reset_at"].replace("Z", "+00:00"))
+        reset_at = datetime.fromisoformat(
+            data["rate_limit_reset_at"].replace("Z", "+00:00")
+        )
         assert reset_at > datetime.now(reset_at.tzinfo)
 
 
@@ -295,7 +297,9 @@ class TestRateLimitExceeded:
 
         assert "rate_limit_reset_at" in detail
         # Should be parseable as ISO datetime
-        reset_at = datetime.fromisoformat(detail["rate_limit_reset_at"].replace("Z", "+00:00"))
+        reset_at = datetime.fromisoformat(
+            detail["rate_limit_reset_at"].replace("Z", "+00:00")
+        )
         assert reset_at is not None
 
     def test_governance_extensions(

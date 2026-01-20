@@ -57,6 +57,7 @@ class HashServiceStub:
         self._counter += 1
         # Return deterministic hash based on content
         import hashlib
+
         hash_bytes = hashlib.sha256(content.encode()).hexdigest()[:32]
         return f"blake3:{hash_bytes}"
 

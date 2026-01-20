@@ -234,13 +234,11 @@ class DeliberationResult:
 
         if self.phase_results[0].phase != DeliberationPhase.ASSESS:
             raise ValueError(
-                "Phase 0 should be ASSESS, got "
-                f"{self.phase_results[0].phase.value}"
+                f"Phase 0 should be ASSESS, got {self.phase_results[0].phase.value}"
             )
         if self.phase_results[1].phase != DeliberationPhase.POSITION:
             raise ValueError(
-                "Phase 1 should be POSITION, got "
-                f"{self.phase_results[1].phase.value}"
+                f"Phase 1 should be POSITION, got {self.phase_results[1].phase.value}"
             )
 
         remaining = self.phase_results[2:]

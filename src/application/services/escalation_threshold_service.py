@@ -83,10 +83,14 @@ class EscalationThresholdService:
         """
         # Load from env vars with fallback to defaults
         self._cessation_threshold = cessation_threshold or int(
-            os.environ.get("CESSATION_ESCALATION_THRESHOLD", DEFAULT_CESSATION_THRESHOLD)
+            os.environ.get(
+                "CESSATION_ESCALATION_THRESHOLD", DEFAULT_CESSATION_THRESHOLD
+            )
         )
         self._grievance_threshold = grievance_threshold or int(
-            os.environ.get("GRIEVANCE_ESCALATION_THRESHOLD", DEFAULT_GRIEVANCE_THRESHOLD)
+            os.environ.get(
+                "GRIEVANCE_ESCALATION_THRESHOLD", DEFAULT_GRIEVANCE_THRESHOLD
+            )
         )
 
         logger.info(

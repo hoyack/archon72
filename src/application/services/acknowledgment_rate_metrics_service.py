@@ -18,10 +18,6 @@ import structlog
 from src.application.ports.acknowledgment_rate_metrics import (
     AcknowledgmentRateMetricsProtocol,
 )
-from src.infrastructure.monitoring.deliberation_metrics import (
-    DeliberationMetricsCollector,
-    get_deliberation_metrics_collector,
-)
 
 logger = structlog.get_logger(__name__)
 
@@ -39,7 +35,7 @@ class AcknowledgmentRateMetricsService(AcknowledgmentRateMetricsProtocol):
 
     def __init__(
         self,
-        metrics_collector: DeliberationMetricsCollector | None = None,
+        metrics_collector: AcknowledgmentRateMetricsProtocol | None = None,
     ) -> None:
         """Initialize the acknowledgment rate metrics service.
 
@@ -47,7 +43,9 @@ class AcknowledgmentRateMetricsService(AcknowledgmentRateMetricsProtocol):
             metrics_collector: Optional metrics collector. If not provided,
                 uses the singleton instance.
         """
-        self._metrics = metrics_collector or get_deliberation_metrics_collector()
+        if metrics_collector is None:
+            raise ValueError("metrics_collector is required")
+        self._metrics = metrics_collector
         self._log = logger.bind(component="acknowledgment_rate_metrics")
 
     def record_participation(self, archon_id: UUID) -> None:

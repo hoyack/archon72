@@ -10,8 +10,6 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
-
 
 class TestAcknowledgmentsTableIntegration:
     """Integration tests for acknowledgments table."""
@@ -487,7 +485,10 @@ class TestDwellTimeIntegration:
         )
 
         # Default config has standard dwell time
-        assert DEFAULT_DELIBERATION_CONFIG.min_dwell_seconds == DEFAULT_MIN_DWELL_TIME_SECONDS
+        assert (
+            DEFAULT_DELIBERATION_CONFIG.min_dwell_seconds
+            == DEFAULT_MIN_DWELL_TIME_SECONDS
+        )
 
         # Test config has zero dwell time
         assert TEST_DELIBERATION_CONFIG.min_dwell_seconds == 0
@@ -505,7 +506,10 @@ class TestDwellTimeIntegration:
         from src.domain.errors.acknowledgment import DwellTimeNotElapsedError
         from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
         from src.domain.models.deliberation_session import DeliberationSession
-        from src.domain.models.petition_submission import PetitionState, PetitionSubmission
+        from src.domain.models.petition_submission import (
+            PetitionState,
+            PetitionSubmission,
+        )
         from src.infrastructure.stubs.acknowledgment_execution_stub import (
             AcknowledgmentExecutionStub,
         )
@@ -533,7 +537,8 @@ class TestDwellTimeIntegration:
             id=uuid4(),
             petition_id=petition.id,
             archon_ids=(15, 42, 67),
-            created_at=datetime.now(timezone.utc) - timedelta(seconds=10),  # Only 10 seconds ago
+            created_at=datetime.now(timezone.utc)
+            - timedelta(seconds=10),  # Only 10 seconds ago
         )
 
         stub.add_petition(petition, session)
@@ -553,7 +558,8 @@ class TestDwellTimeIntegration:
             id=uuid4(),
             petition_id=petition.id,
             archon_ids=(15, 42, 67),
-            created_at=datetime.now(timezone.utc) - timedelta(seconds=120),  # 2 minutes ago
+            created_at=datetime.now(timezone.utc)
+            - timedelta(seconds=120),  # 2 minutes ago
         )
         stub.add_session(petition.id, old_session)
 

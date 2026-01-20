@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from src.api.middleware.logging_middleware import LoggingMiddleware
 from src.api.middleware.metrics_middleware import MetricsMiddleware
+from src.api.routes.co_sign import router as co_sign_router
 from src.api.routes.complexity_budget import router as complexity_budget_router
 from src.api.routes.configuration_health import router as configuration_health_router
 from src.api.routes.constitutional_health import router as constitutional_health_router
@@ -15,7 +16,6 @@ from src.api.routes.metrics import router as metrics_router
 from src.api.routes.observer import router as observer_router
 from src.api.routes.override import router as override_router
 from src.api.routes.petition_submission import router as petition_submission_router
-from src.api.routes.co_sign import router as co_sign_router
 from src.api.startup import (
     configure_logging,
     record_service_startup,

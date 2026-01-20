@@ -246,9 +246,6 @@ class TestAuthorizationEnforcement:
         """Should reject access when referral has no assigned Knight."""
         # Create a referral that's in ASSIGNED state but has None for knight
         # This is an invalid state but we need to test the error handling
-        now = datetime.now(timezone.utc)
-        deadline = now + timedelta(weeks=3)
-
         # We can't actually create this via Referral constructor due to validation
         # So we use a mock that returns a referral-like object
         mock_referral = AsyncMock()

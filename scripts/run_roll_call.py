@@ -137,7 +137,7 @@ async def test_archon(
         result["response"] = output.content
         result["duration_seconds"] = time.time() - start_time
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         result["error"] = f"Timeout after {timeout_seconds}s"
         result["duration_seconds"] = time.time() - start_time
     except Exception as e:
@@ -147,7 +147,7 @@ async def test_archon(
     return result
 
 
-async def run_roll_call(args: argparse.Namespace) -> None:
+async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
     """Run the roll call test.
 
     Args:

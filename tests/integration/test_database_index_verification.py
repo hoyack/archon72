@@ -27,8 +27,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 
 class TestIndexMigrationDocumentation:
     """Tests that verify index definitions exist in migrations."""
@@ -44,7 +42,9 @@ class TestIndexMigrationDocumentation:
         content = migration_path.read_text()
 
         # Verify index creation statement
-        assert "CREATE INDEX idx_co_signs_petition_id ON co_signs(petition_id)" in content
+        assert (
+            "CREATE INDEX idx_co_signs_petition_id ON co_signs(petition_id)" in content
+        )
 
     def test_idx_co_signs_signer_id_exists_in_migration_024(self) -> None:
         """Verify idx_co_signs_signer_id is defined in migration 024.
@@ -61,7 +61,9 @@ class TestIndexMigrationDocumentation:
 
         AC3: Counter column on petition_submissions table.
         """
-        migration_path = Path("migrations/025_add_cosigner_count_to_petition_submissions.sql")
+        migration_path = Path(
+            "migrations/025_add_cosigner_count_to_petition_submissions.sql"
+        )
         assert migration_path.exists(), f"Migration not found: {migration_path}"
 
         content = migration_path.read_text()

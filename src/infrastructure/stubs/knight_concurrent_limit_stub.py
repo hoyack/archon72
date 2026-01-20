@@ -25,7 +25,6 @@ from src.domain.errors.knight_concurrent_limit import (
 from src.domain.models.referral import ReferralStatus
 
 if TYPE_CHECKING:
-    from src.domain.models.referral import Referral
     from src.infrastructure.stubs.knight_registry_stub import KnightRegistryStub
     from src.infrastructure.stubs.realm_registry_stub import RealmRegistryStub
     from src.infrastructure.stubs.referral_repository_stub import ReferralRepositoryStub
@@ -200,7 +199,9 @@ class KnightConcurrentLimitStub:
         if selected_knight_id is None:
             all_knights = await self._knight_registry.get_knights_in_realm(realm_id)
             total_knights = len(all_knights)
-            reason = f"All {total_knights} Knights in realm at capacity ({max_allowed} max)"
+            reason = (
+                f"All {total_knights} Knights in realm at capacity ({max_allowed} max)"
+            )
             return AssignmentResult(
                 success=False,
                 deferred_reason=reason,

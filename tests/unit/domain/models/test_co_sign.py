@@ -16,12 +16,12 @@ Constitutional Constraints Verified:
 - CT-12: Content hash for witness integrity
 """
 
-import pytest
 from dataclasses import FrozenInstanceError
-from datetime import datetime, timezone, timedelta
-from uuid import UUID, uuid4
+from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 import blake3
+import pytest
 
 from src.domain.models.co_sign import CoSign
 
@@ -280,7 +280,7 @@ class TestCoSignComputeContentHash:
         result = CoSign.compute_content_hash(petition_id, signer_id, signed_at)
 
         # Compute manually using BLAKE3
-        content = f"{petition_id}|{signer_id}|{signed_at.isoformat()}".encode("utf-8")
+        content = f"{petition_id}|{signer_id}|{signed_at.isoformat()}".encode()
         expected = blake3.blake3(content).digest()
 
         assert result == expected

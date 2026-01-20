@@ -19,7 +19,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any, Protocol
 from uuid import UUID

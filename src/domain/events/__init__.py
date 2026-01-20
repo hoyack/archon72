@@ -104,12 +104,6 @@ from src.domain.events.cessation import (
     CessationDecision,
     CessationDecisionEventPayload,
 )
-from src.domain.events.co_sign import (
-    CO_SIGN_EVENT_SCHEMA_VERSION,
-    CO_SIGN_RECORDED_EVENT_TYPE,
-    CO_SIGN_SYSTEM_AGENT_ID,
-    CoSignRecordedEvent,
-)
 from src.domain.events.cessation_agenda import (
     CESSATION_AGENDA_PLACEMENT_EVENT_TYPE,
     AgendaTriggerType,
@@ -118,6 +112,12 @@ from src.domain.events.cessation_agenda import (
 from src.domain.events.cessation_executed import (
     CESSATION_EXECUTED_EVENT_TYPE,
     CessationExecutedEventPayload,
+)
+from src.domain.events.co_sign import (
+    CO_SIGN_EVENT_SCHEMA_VERSION,
+    CO_SIGN_RECORDED_EVENT_TYPE,
+    CO_SIGN_SYSTEM_AGENT_ID,
+    CoSignRecordedEvent,
 )
 from src.domain.events.collective_output import (
     COLLECTIVE_OUTPUT_EVENT_TYPE,
@@ -204,21 +204,6 @@ from src.domain.events.dissent import (
     DISSENT_RECORDED_EVENT_TYPE,
     DISSENT_RECORDED_SCHEMA_VERSION,
     DissentRecordedEvent,
-)
-from src.domain.events.referral import (
-    PETITION_REFERRED_EVENT_TYPE,
-    REFERRAL_ASSIGNED_EVENT_TYPE,
-    REFERRAL_COMPLETED_EVENT_TYPE,
-    REFERRAL_DEFERRED_EVENT_TYPE,
-    REFERRAL_EVENT_SCHEMA_VERSION,
-    REFERRAL_EXPIRED_EVENT_TYPE,
-    REFERRAL_EXTENDED_EVENT_TYPE,
-    PetitionReferredEvent,
-    ReferralAssignedEvent,
-    ReferralCompletedEvent,
-    ReferralDeferredEvent,
-    ReferralExpiredEvent,
-    ReferralExtendedEvent,
 )
 from src.domain.events.escalation import (
     BREACH_ACKNOWLEDGED_EVENT_TYPE,
@@ -372,6 +357,21 @@ from src.domain.events.recovery_completed import (
 from src.domain.events.recovery_waiting_period_started import (
     RECOVERY_WAITING_PERIOD_STARTED_EVENT_TYPE,
     RecoveryWaitingPeriodStartedPayload,
+)
+from src.domain.events.referral import (
+    PETITION_REFERRED_EVENT_TYPE,
+    REFERRAL_ASSIGNED_EVENT_TYPE,
+    REFERRAL_COMPLETED_EVENT_TYPE,
+    REFERRAL_DEFERRED_EVENT_TYPE,
+    REFERRAL_EVENT_SCHEMA_VERSION,
+    REFERRAL_EXPIRED_EVENT_TYPE,
+    REFERRAL_EXTENDED_EVENT_TYPE,
+    PetitionReferredEvent,
+    ReferralAssignedEvent,
+    ReferralCompletedEvent,
+    ReferralDeferredEvent,
+    ReferralExpiredEvent,
+    ReferralExtendedEvent,
 )
 from src.domain.events.rollback_completed import (
     ROLLBACK_COMPLETED_EVENT_TYPE,

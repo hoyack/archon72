@@ -100,10 +100,12 @@ class ChaosTestHarnessStub:
         started_at = datetime.now(timezone.utc)
 
         # Record test run
-        self._test_history.append({
-            "config": config,
-            "timestamp": started_at,
-        })
+        self._test_history.append(
+            {
+                "config": config,
+                "timestamp": started_at,
+            }
+        )
 
         # Simulate fault injection timing
         injection_started_at = started_at
@@ -172,7 +174,9 @@ class ChaosTestHarnessStub:
             deliberations_failed=deliberations_failed,
             witness_chain_intact=witness_chain_intact,
             audit_log_entries=tuple(audit_entries),
-            failure_details=None if outcome == ChaosTestOutcome.SUCCESS else "Simulated failure",
+            failure_details=None
+            if outcome == ChaosTestOutcome.SUCCESS
+            else "Simulated failure",
         )
 
     async def inject_fault(
@@ -201,12 +205,14 @@ class ChaosTestHarnessStub:
         )
 
         self._active_faults[handle.handle_id] = handle
-        self._inject_calls.append({
-            "scenario": scenario,
-            "affected_components": components,
-            "handle_id": handle.handle_id,
-            "timestamp": datetime.now(timezone.utc),
-        })
+        self._inject_calls.append(
+            {
+                "scenario": scenario,
+                "affected_components": components,
+                "handle_id": handle.handle_id,
+                "timestamp": datetime.now(timezone.utc),
+            }
+        )
 
         return handle
 
@@ -222,10 +228,12 @@ class ChaosTestHarnessStub:
         Returns:
             True if fault was removed, False if not found.
         """
-        self._remove_calls.append({
-            "handle_id": handle.handle_id,
-            "timestamp": datetime.now(timezone.utc),
-        })
+        self._remove_calls.append(
+            {
+                "handle_id": handle.handle_id,
+                "timestamp": datetime.now(timezone.utc),
+            }
+        )
 
         if handle.handle_id in self._active_faults:
             del self._active_faults[handle.handle_id]
@@ -253,7 +261,9 @@ class ChaosTestHarnessStub:
         if self._forced_recovery_ms:
             return self._forced_recovery_ms
         base = self._base_recovery_ms
-        variance = random.uniform(-self._recovery_variance_ms, self._recovery_variance_ms)
+        variance = random.uniform(
+            -self._recovery_variance_ms, self._recovery_variance_ms
+        )
         return max(1.0, base + variance)
 
     def _generate_audit_entries(

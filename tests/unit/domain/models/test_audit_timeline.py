@@ -97,7 +97,9 @@ class TestTimelineEvent:
 
     def test_timeline_event_invalid_witness_hash_size_raises(self) -> None:
         """Test that wrong witness_hash size raises ValueError."""
-        with pytest.raises(ValueError, match=f"witness_hash must be {BLAKE3_HASH_SIZE} bytes"):
+        with pytest.raises(
+            ValueError, match=f"witness_hash must be {BLAKE3_HASH_SIZE} bytes"
+        ):
             TimelineEvent(
                 event_id=uuid7(),
                 event_type="test.event",
@@ -162,10 +164,12 @@ class TestTimelineEvent:
     def test_timeline_event_from_dict_missing_event_id_raises(self) -> None:
         """Test from_dict raises on missing event_id."""
         with pytest.raises(ValueError, match="event_id is required"):
-            TimelineEvent.from_dict({
-                "event_type": "test.event",
-                "occurred_at": datetime.now(timezone.utc).isoformat(),
-            })
+            TimelineEvent.from_dict(
+                {
+                    "event_type": "test.event",
+                    "occurred_at": datetime.now(timezone.utc).isoformat(),
+                }
+            )
 
     def test_timeline_event_is_frozen(self) -> None:
         """Test TimelineEvent is immutable."""
@@ -351,9 +355,7 @@ class TestAuditTimeline:
             "started_at": datetime.now(timezone.utc),
         }
 
-    def test_create_minimal_audit_timeline(
-        self, base_timeline_kwargs: dict
-    ) -> None:
+    def test_create_minimal_audit_timeline(self, base_timeline_kwargs: dict) -> None:
         """Test creating AuditTimeline with minimal fields."""
         timeline = AuditTimeline(**base_timeline_kwargs)
 
@@ -385,9 +387,7 @@ class TestAuditTimeline:
             ),
         )
 
-        timeline = AuditTimeline(
-            **{**base_timeline_kwargs, "events": events}
-        )
+        timeline = AuditTimeline(**{**base_timeline_kwargs, "events": events})
 
         assert timeline.event_count == 2
         assert timeline.events[0].event_type == "deliberation.session.created"
@@ -403,9 +403,7 @@ class TestAuditTimeline:
             "VOTE": "Final votes recorded",
         }
 
-        timeline = AuditTimeline(
-            **{**base_timeline_kwargs, "transcripts": transcripts}
-        )
+        timeline = AuditTimeline(**{**base_timeline_kwargs, "transcripts": transcripts})
 
         assert timeline.get_transcript("ASSESS") == "Archon-1: ...\nArchon-2: ..."
         assert timeline.get_transcript("CROSS_EXAMINE") is None
@@ -465,7 +463,10 @@ class TestAuditTimeline:
         archon = uuid7()
         with pytest.raises(ValueError, match="must be unique"):
             AuditTimeline(
-                **{**base_timeline_kwargs, "assigned_archons": (archon, archon, uuid7())}
+                **{
+                    **base_timeline_kwargs,
+                    "assigned_archons": (archon, archon, uuid7()),
+                }
             )
 
     def test_audit_timeline_invalid_outcome_raises(
@@ -473,13 +474,9 @@ class TestAuditTimeline:
     ) -> None:
         """Test that invalid outcome raises ValueError."""
         with pytest.raises(ValueError, match="outcome must be one of"):
-            AuditTimeline(
-                **{**base_timeline_kwargs, "outcome": "INVALID"}
-            )
+            AuditTimeline(**{**base_timeline_kwargs, "outcome": "INVALID"})
 
-    def test_audit_timeline_duration_seconds(
-        self, base_timeline_kwargs: dict
-    ) -> None:
+    def test_audit_timeline_duration_seconds(self, base_timeline_kwargs: dict) -> None:
         """Test duration_seconds calculation."""
         started_at = datetime.now(timezone.utc)
         completed_at = started_at + timedelta(seconds=300)  # 5 minutes
@@ -589,9 +586,7 @@ class TestAuditTimeline:
         missing_events = timeline.get_events_by_type("nonexistent")
         assert len(missing_events) == 0
 
-    def test_audit_timeline_to_dict(
-        self, base_timeline_kwargs: dict
-    ) -> None:
+    def test_audit_timeline_to_dict(self, base_timeline_kwargs: dict) -> None:
         """Test AuditTimeline serialization."""
         started_at = datetime.now(timezone.utc)
         completed_at = started_at + timedelta(seconds=300)
@@ -623,9 +618,7 @@ class TestAuditTimeline:
         assert d["was_forced_escalation"] is False
         assert d["schema_version"] == AUDIT_TIMELINE_SCHEMA_VERSION
 
-    def test_audit_timeline_is_frozen(
-        self, base_timeline_kwargs: dict
-    ) -> None:
+    def test_audit_timeline_is_frozen(self, base_timeline_kwargs: dict) -> None:
         """Test AuditTimeline is immutable."""
         timeline = AuditTimeline(**base_timeline_kwargs)
 

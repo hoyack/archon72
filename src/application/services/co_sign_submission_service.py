@@ -208,7 +208,9 @@ class CoSignSubmissionService:
 
             # Identity is valid
             identity_verified = verification_result.is_valid
-            log.debug("Identity verified successfully", identity_verified=identity_verified)
+            log.debug(
+                "Identity verified successfully", identity_verified=identity_verified
+            )
 
         # Step 3: RATE LIMIT CHECK (FR-6.6, SYBIL-1, CT-11)
         # Check rate limit AFTER identity verification, BEFORE petition check
@@ -272,7 +274,9 @@ class CoSignSubmissionService:
         # Note: Database constraint is the ultimate guard, but we check first
         # to provide better error messages and avoid unnecessary work
         # Story 5.7: Enhanced error with existing signature details
-        existing_signature = await self._co_sign_repo.get_existing(petition_id, signer_id)
+        existing_signature = await self._co_sign_repo.get_existing(
+            petition_id, signer_id
+        )
         if existing_signature is not None:
             existing_cosign_id, existing_signed_at = existing_signature
             # LEGIT-1: Log duplicate attempt with pattern data for fraud analysis
@@ -318,7 +322,9 @@ class CoSignSubmissionService:
                 petition_id=str(petition_id),
                 signer_id=str(signer_id),
                 detection_method="database_constraint",
-                existing_cosign_id=str(e.existing_cosign_id) if e.existing_cosign_id else None,
+                existing_cosign_id=str(e.existing_cosign_id)
+                if e.existing_cosign_id
+                else None,
                 existing_signed_at=e.signed_at.isoformat() if e.signed_at else None,
             )
             raise

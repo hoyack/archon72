@@ -224,8 +224,7 @@ class DeliberationAbortedEvent:
         """Validate reason is one of the expected values."""
         if self.reason not in self.VALID_ABORT_REASONS:
             raise ValueError(
-                f"reason must be one of {self.VALID_ABORT_REASONS}, "
-                f"got '{self.reason}'"
+                f"reason must be one of {self.VALID_ABORT_REASONS}, got '{self.reason}'"
             )
 
     def _validate_failed_archons(self) -> None:

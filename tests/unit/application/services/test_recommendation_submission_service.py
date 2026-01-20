@@ -346,7 +346,6 @@ class TestAuthorizationEnforcement:
         valid_rationale: str,
     ) -> None:
         """Should reject when referral has no assigned Knight."""
-        now = datetime.now(timezone.utc)
         # Create a mock referral in IN_REVIEW state but with no knight
         mock_referral = AsyncMock()
         mock_referral.referral_id = uuid4()

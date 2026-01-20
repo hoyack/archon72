@@ -8,12 +8,11 @@ Constitutional Context:
 - CT-14: ACKNOWLEDGED is a terminal fate with mandatory reason code
 """
 
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 from uuid import UUID
 
 
-class AcknowledgmentReasonCode(str, Enum):
+class AcknowledgmentReasonCode(StrEnum):
     """Enumeration of valid acknowledgment reason codes per FR-3.2.
 
     Codes are divided into three categories based on validation requirements:
@@ -143,8 +142,8 @@ class InvalidReasonCodeError(ValueError):
 
 def validate_acknowledgment_requirements(
     reason_code: AcknowledgmentReasonCode,
-    rationale: Optional[str] = None,
-    reference_petition_id: Optional[UUID] = None,
+    rationale: str | None = None,
+    reference_petition_id: UUID | None = None,
 ) -> None:
     """Validate that all requirements for the given reason code are met.
 

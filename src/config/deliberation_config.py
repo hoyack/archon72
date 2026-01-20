@@ -123,7 +123,11 @@ class DeliberationConfig:
 
     def __post_init__(self) -> None:
         """Validate configuration values."""
-        if not MIN_DWELL_TIME_FLOOR_SECONDS <= self.min_dwell_seconds <= MAX_DWELL_TIME_SECONDS:
+        if (
+            not MIN_DWELL_TIME_FLOOR_SECONDS
+            <= self.min_dwell_seconds
+            <= MAX_DWELL_TIME_SECONDS
+        ):
             raise ValueError(
                 f"min_dwell_seconds must be between {MIN_DWELL_TIME_FLOOR_SECONDS} "
                 f"and {MAX_DWELL_TIME_SECONDS}, got {self.min_dwell_seconds}"
@@ -203,7 +207,9 @@ class DeliberationConfig:
             min(max_rounds, MAX_DELIBERATION_ROUNDS),
         )
 
-        return cls(min_dwell_seconds=min_dwell, timeout_seconds=timeout, max_rounds=max_rounds)
+        return cls(
+            min_dwell_seconds=min_dwell, timeout_seconds=timeout, max_rounds=max_rounds
+        )
 
 
 # Pre-defined configurations for common use cases

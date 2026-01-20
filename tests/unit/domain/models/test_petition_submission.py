@@ -549,7 +549,9 @@ class TestInvalidStateTransitionError:
             petition.with_state(PetitionState.REFERRED)
 
         error = exc_info.value
-        assert len(error.allowed_transitions) == 3  # DELIBERATING, ACKNOWLEDGED, ESCALATED
+        assert (
+            len(error.allowed_transitions) == 3
+        )  # DELIBERATING, ACKNOWLEDGED, ESCALATED
         assert PetitionState.DELIBERATING in error.allowed_transitions
         assert PetitionState.ACKNOWLEDGED in error.allowed_transitions
         assert PetitionState.ESCALATED in error.allowed_transitions
@@ -705,7 +707,9 @@ class TestCompleteStateTransitionCoverage:
 
         assert escalated.state == PetitionState.ESCALATED
         assert escalated.state.is_terminal()
-        assert escalated.fate_reason == "Auto-escalated: co-signer threshold (100) reached"
+        assert (
+            escalated.fate_reason == "Auto-escalated: co-signer threshold (100) reached"
+        )
 
         # Cannot modify further
         with pytest.raises(PetitionAlreadyFatedError):

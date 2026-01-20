@@ -42,7 +42,6 @@ from src.domain.events.referral import (
 from src.domain.models.referral import (
     REFERRAL_DEFAULT_CYCLE_DURATION,
     REFERRAL_MAX_EXTENSIONS,
-    Referral,
     ReferralStatus,
 )
 
@@ -383,7 +382,7 @@ class ExtensionRequestService:
         self,
         referral_id: UUID,
         new_deadline: datetime,
-        log: "structlog.BoundLogger",  # type: ignore[name-defined]
+        log: structlog.BoundLogger,  # type: ignore[name-defined]
     ) -> None:
         """Reschedule the deadline timeout job (NFR-4.4).
 

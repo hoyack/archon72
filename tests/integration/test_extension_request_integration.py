@@ -19,8 +19,8 @@ import pytest
 from src.application.ports.extension_request import ExtensionRequest
 from src.application.services.extension_request_service import (
     EXTENSION_DURATION_CYCLES,
-    ExtensionRequestService,
     MIN_REASON_LENGTH,
+    ExtensionRequestService,
 )
 from src.domain.errors.referral import (
     ExtensionReasonRequiredError,
@@ -32,7 +32,6 @@ from src.domain.errors.referral import (
 from src.domain.events.referral import REFERRAL_EXTENDED_EVENT_TYPE
 from src.domain.models.referral import (
     REFERRAL_DEFAULT_CYCLE_DURATION,
-    REFERRAL_MAX_EXTENSIONS,
     Referral,
     ReferralStatus,
 )

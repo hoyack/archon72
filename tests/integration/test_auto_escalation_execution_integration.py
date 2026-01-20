@@ -291,7 +291,6 @@ class TestEscalationIdempotency:
         identity_store.add_valid_identity(signer1)
         result1 = await service.submit_co_sign(petition.id, signer1)
         assert result1.escalation_triggered is True
-        first_escalation_id = result1.escalation_id
 
         # Second co-sign: should not create new escalation
         signer2 = uuid4()

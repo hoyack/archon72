@@ -18,12 +18,11 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-import blake3
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
+import blake3
 
 # Note: No CoSignStatus enum needed for M1 - all co-signs are valid on creation.
 # Future extension point: May add PENDING, VERIFIED, REVOKED if withdrawal supported.
@@ -61,7 +60,7 @@ class CoSign:
 
     # Optional fields
     identity_verified: bool = field(default=False)
-    witness_event_id: Optional[UUID] = field(default=None)
+    witness_event_id: UUID | None = field(default=None)
 
     def __post_init__(self) -> None:
         """Validate co-sign fields after initialization.
@@ -91,7 +90,7 @@ class CoSign:
         # Canonical format: petition_id|signer_id|signed_at_iso
         return (
             f"{self.petition_id}|{self.signer_id}|{self.signed_at.isoformat()}"
-        ).encode("utf-8")
+        ).encode()
 
     @staticmethod
     def compute_content_hash(
@@ -109,7 +108,7 @@ class CoSign:
         Returns:
             32-byte BLAKE3 hash of the canonical content.
         """
-        content = f"{petition_id}|{signer_id}|{signed_at.isoformat()}".encode("utf-8")
+        content = f"{petition_id}|{signer_id}|{signed_at.isoformat()}".encode()
         return blake3.blake3(content).digest()
 
     def verify_content_hash(self) -> bool:

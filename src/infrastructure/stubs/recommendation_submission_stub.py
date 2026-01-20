@@ -120,7 +120,9 @@ class RecommendationSubmissionStub:
             RationaleRequiredError: Rationale is empty or too short.
             RecommendationAlreadySubmittedError: Referral already has recommendation.
         """
-        self._submit_calls.append((referral_id, requester_id, recommendation, rationale))
+        self._submit_calls.append(
+            (referral_id, requester_id, recommendation, rationale)
+        )
 
         # Validate rationale
         trimmed_rationale = rationale.strip() if rationale else ""
@@ -140,7 +142,9 @@ class RecommendationSubmissionStub:
         if referral.status == ReferralStatus.COMPLETED:
             raise RecommendationAlreadySubmittedError(
                 referral_id=referral_id,
-                existing_recommendation=referral.recommendation.value if referral.recommendation else None,
+                existing_recommendation=referral.recommendation.value
+                if referral.recommendation
+                else None,
             )
 
         # Check referral status

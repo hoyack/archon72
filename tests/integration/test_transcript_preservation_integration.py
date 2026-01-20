@@ -18,7 +18,6 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-import blake3
 import pytest
 
 from src.application.services.phase_witness_batching_service import (

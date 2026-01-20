@@ -113,7 +113,10 @@ def validate_cessation_service_imports(report: ValidationReport) -> None:
         report.add(
             "CessationExecutionService import",
             True,
-            "Service and error classes importable",
+            (
+                f"Service {CessationExecutionService.__name__} and "
+                f"{CessationExecutionError.__name__} importable"
+            ),
         )
     except ImportError as e:
         report.add(
@@ -134,7 +137,10 @@ def validate_deliberation_service_imports(report: ValidationReport) -> None:
         report.add(
             "FinalDeliberationService import",
             True,
-            "Service and error classes importable",
+            (
+                f"Service {FinalDeliberationService.__name__} and "
+                f"{DeliberationRecordingCompleteFailure.__name__} importable"
+            ),
         )
     except ImportError as e:
         report.add(

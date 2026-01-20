@@ -67,7 +67,9 @@ class RationaleRequiredError(RecommendationError):
         self.provided_length = provided_length
         self.min_length = min_length or self.MIN_RATIONALE_LENGTH
         if provided_length == 0:
-            msg = f"Rationale is required. Must be at least {self.min_length} characters."
+            msg = (
+                f"Rationale is required. Must be at least {self.min_length} characters."
+            )
         else:
             msg = (
                 f"Rationale too short: {provided_length} characters provided, "

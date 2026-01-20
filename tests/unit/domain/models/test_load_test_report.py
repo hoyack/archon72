@@ -35,7 +35,10 @@ def make_report(
     now = datetime.now(timezone.utc)
     return LoadTestReport(
         test_id=uuid4(),
-        config={"concurrent_sessions": concurrent_sessions, "total_petitions": total_petitions},
+        config={
+            "concurrent_sessions": concurrent_sessions,
+            "total_petitions": total_petitions,
+        },
         started_at=started_at or now - timedelta(seconds=60),
         completed_at=completed_at or now,
         total_petitions=total_petitions,
@@ -49,7 +52,9 @@ def make_report(
         throughput_per_second=1.5,
         resource_metrics={"memory_usage_mb": 256.0, "cpu_percent": 45.0},
         failure_breakdown={"ARCHON_ERROR": 5, "TIMEOUT": 3, "NETWORK_ERROR": 2},
-        witness_chain_valid_count=witness_valid if witness_valid is not None else successful,
+        witness_chain_valid_count=witness_valid
+        if witness_valid is not None
+        else successful,
     )
 
 

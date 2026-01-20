@@ -17,9 +17,7 @@ class TestAcknowledgmentReasonEnumPersistence:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_enum_type_exists_in_database(
-        self, db_connection
-    ) -> None:
+    async def test_enum_type_exists_in_database(self, db_connection) -> None:
         """Verify acknowledgment_reason_enum type exists in database.
 
         AC-4: Database enum type is created with migration.
@@ -31,13 +29,13 @@ class TestAcknowledgmentReasonEnumPersistence:
             )
         """
         result = await db_connection.fetchval(query)
-        assert result is True, "acknowledgment_reason_enum type should exist in database"
+        assert result is True, (
+            "acknowledgment_reason_enum type should exist in database"
+        )
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_all_enum_values_in_database(
-        self, db_connection
-    ) -> None:
+    async def test_all_enum_values_in_database(self, db_connection) -> None:
         """Verify all 8 enum values exist in database.
 
         AC-4: The enum contains all 8 reason codes.
@@ -61,9 +59,7 @@ class TestAcknowledgmentReasonEnumPersistence:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_enum_comment_exists(
-        self, db_connection
-    ) -> None:
+    async def test_enum_comment_exists(self, db_connection) -> None:
         """Verify enum type has documentation comment.
 
         The migration includes a COMMENT ON TYPE for documentation.
@@ -81,9 +77,7 @@ class TestAcknowledgmentReasonEnumPersistence:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_can_cast_string_to_enum(
-        self, db_connection
-    ) -> None:
+    async def test_can_cast_string_to_enum(self, db_connection) -> None:
         """Verify strings can be cast to the enum type.
 
         This ensures the enum can be used in INSERT/UPDATE operations.
@@ -95,9 +89,7 @@ class TestAcknowledgmentReasonEnumPersistence:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_invalid_string_cast_fails(
-        self, db_connection
-    ) -> None:
+    async def test_invalid_string_cast_fails(self, db_connection) -> None:
         """Verify invalid strings cannot be cast to the enum type.
 
         This ensures data integrity at the database level.
@@ -111,9 +103,7 @@ class TestAcknowledgmentReasonEnumPersistence:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_enum_values_order(
-        self, db_connection
-    ) -> None:
+    async def test_enum_values_order(self, db_connection) -> None:
         """Verify enum values are in expected order.
 
         PostgreSQL enum ordering is determined by creation order in the migration.
@@ -148,9 +138,7 @@ class TestMigrationRollback:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_migration_is_reversible(
-        self, db_connection
-    ) -> None:
+    async def test_migration_is_reversible(self, db_connection) -> None:
         """Verify migration can be rolled back.
 
         AC-4: The migration supports rollback.

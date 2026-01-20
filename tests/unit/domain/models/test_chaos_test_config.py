@@ -107,7 +107,9 @@ class TestChaosTestConfigValidation:
 
     def test_injection_duration_maximum(self) -> None:
         """Injection duration must be <= 300."""
-        with pytest.raises(ValueError, match="injection_duration_seconds must be <= 300"):
+        with pytest.raises(
+            ValueError, match="injection_duration_seconds must be <= 300"
+        ):
             ChaosTestConfig(
                 scenario=ChaosScenario.ARCHON_TIMEOUT_MID_PHASE,
                 injection_duration_seconds=301,
@@ -220,7 +222,9 @@ class TestChaosTestConfigSerialization:
         restored = ChaosTestConfig.from_dict(data)
 
         assert restored.scenario == original.scenario
-        assert restored.injection_duration_seconds == original.injection_duration_seconds
+        assert (
+            restored.injection_duration_seconds == original.injection_duration_seconds
+        )
         assert restored.injection_probability == original.injection_probability
 
     def test_from_dict_uses_defaults_for_missing_keys(self) -> None:

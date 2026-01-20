@@ -17,6 +17,7 @@ Examples:
 
 import argparse
 import asyncio
+import os
 import sys
 from pathlib import Path
 from uuid import uuid4
@@ -50,6 +51,34 @@ def parse_session_info_from_path(transcript_path: Path) -> tuple[str, str]:
     return session_id, session_name
 
 
+def resolve_archon_llm_config(env_var: str, role_label: str):
+    """Resolve an LLM config from an Archon ID stored in env."""
+    archon_id_value = os.environ.get(env_var)
+    if not archon_id_value:
+        return None
+
+    from uuid import UUID
+
+    try:
+        archon_id = UUID(archon_id_value)
+    except ValueError:
+        print(f"Warning: {env_var} is not a valid UUID: {archon_id_value}")
+        return None
+
+    from src.infrastructure.adapters.config.archon_profile_adapter import (
+        create_archon_profile_repository,
+    )
+
+    repo = create_archon_profile_repository()
+    profile = repo.get_by_id(archon_id)
+    if not profile:
+        print(f"Warning: {env_var} Archon not found: {archon_id_value}")
+        return None
+
+    print(f"{role_label} override: {env_var}={archon_id_value} ({profile.name})")
+    return profile.llm_config
+
+
 async def run_enhanced(
     transcript_path: Path,
     session_id: str,
@@ -61,9 +90,12 @@ async def run_enhanced(
 
     from src.domain.models.secretary_agent import (
         _CONFIG_FILE,
+        SecretaryAgentProfile,
         load_secretary_config_from_yaml,
     )
-    from src.infrastructure.adapters.external import create_secretary_agent
+    from src.infrastructure.adapters.external.secretary_crewai_adapter import (
+        SecretaryCrewAIAdapter,
+    )
 
     # Verify YAML config loading
     print(f"\n{'=' * 60}")
@@ -73,12 +105,28 @@ async def run_enhanced(
     print(f"Config exists: {_CONFIG_FILE.exists()}")
 
     text_config, json_config, checkpoints = load_secretary_config_from_yaml()
+    text_override = resolve_archon_llm_config(
+        "SECRETARY_TEXT_ARCHON_ID", "Text model"
+    )
+    if text_override:
+        text_config = text_override
+
+    json_override = resolve_archon_llm_config(
+        "SECRETARY_JSON_ARCHON_ID", "JSON model"
+    )
+    if json_override:
+        json_config = json_override
+
     print(f"\nText Model: {text_config.provider}/{text_config.model}")
     print(f"  Temperature: {text_config.temperature}")
     print(f"  Max tokens: {text_config.max_tokens}")
+    if text_config.base_url:
+        print(f"  Base URL: {text_config.base_url}")
     print(f"\nJSON Model: {json_config.provider}/{json_config.model}")
     print(f"  Temperature: {json_config.temperature}")
     print(f"  Max tokens: {json_config.max_tokens}")
+    if json_config.base_url:
+        print(f"  Base URL: {json_config.base_url}")
     print(f"\nCheckpoints: {'enabled' if checkpoints else 'disabled'}")
     print(f"{'=' * 60}")
 
@@ -91,7 +139,12 @@ async def run_enhanced(
     print(f"{'=' * 60}\n")
 
     # Create the agent
-    agent = create_secretary_agent(verbose=verbose)
+    profile = SecretaryAgentProfile(
+        text_llm_config=text_config,
+        json_llm_config=json_config,
+        checkpoints_enabled=checkpoints,
+    )
+    agent = SecretaryCrewAIAdapter(profile=profile, verbose=verbose)
 
     # Create service with agent
     config = SecretaryConfig()

@@ -17,8 +17,8 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.application.ports.referral_timeout import (
-    ReferralTimeoutAction,
     ReferralTimeoutAcknowledgeError,
+    ReferralTimeoutAction,
 )
 from src.application.services.referral_timeout_service import ReferralTimeoutService
 from src.domain.events.referral import REFERRAL_EXPIRED_EVENT_TYPE
@@ -38,7 +38,6 @@ from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
 from src.infrastructure.stubs.referral_repository_stub import ReferralRepositoryStub
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Mock Classes
@@ -83,11 +82,13 @@ class MockAcknowledgmentService:
         if self._should_fail:
             raise RuntimeError(self._fail_message)
 
-        self._calls.append({
-            "petition_id": petition_id,
-            "reason_code": reason_code,
-            "rationale": rationale,
-        })
+        self._calls.append(
+            {
+                "petition_id": petition_id,
+                "reason_code": reason_code,
+                "rationale": rationale,
+            }
+        )
 
         ack = MockAcknowledgment(
             id=uuid4(),

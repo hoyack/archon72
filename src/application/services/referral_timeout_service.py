@@ -25,8 +25,8 @@ from uuid import UUID, uuid4
 from structlog import get_logger
 
 from src.application.ports.referral_timeout import (
-    ReferralTimeoutAction,
     ReferralTimeoutAcknowledgeError,
+    ReferralTimeoutAction,
     ReferralTimeoutResult,
     ReferralTimeoutWitnessError,
 )
@@ -154,7 +154,9 @@ class ReferralTimeoutService:
         if referral.status == ReferralStatus.COMPLETED:
             log.info(
                 "Referral already completed, skipping timeout",
-                recommendation=referral.recommendation.value if referral.recommendation else None,
+                recommendation=referral.recommendation.value
+                if referral.recommendation
+                else None,
             )
             return ReferralTimeoutResult(
                 referral_id=referral_id,
@@ -221,10 +223,12 @@ class ReferralTimeoutService:
 
         # Step 9: Auto-acknowledge petition with EXPIRED reason
         try:
-            acknowledgment = await self._acknowledgment_service.execute_system_acknowledge(
-                petition_id=petition_id,
-                reason_code=AcknowledgmentReasonCode.EXPIRED,
-                rationale=rationale,
+            acknowledgment = (
+                await self._acknowledgment_service.execute_system_acknowledge(
+                    petition_id=petition_id,
+                    reason_code=AcknowledgmentReasonCode.EXPIRED,
+                    rationale=rationale,
+                )
             )
             acknowledgment_id = acknowledgment.id
             log.info(
@@ -257,7 +261,7 @@ class ReferralTimeoutService:
             expired_at=expired_at,
             witness_hash=witness_hash,
             rationale=rationale,
-            message=f"Referral expired and petition auto-acknowledged with reason EXPIRED",
+            message="Referral expired and petition auto-acknowledged with reason EXPIRED",
         )
 
     async def handle_expired_referral(

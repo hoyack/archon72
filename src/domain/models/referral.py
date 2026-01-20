@@ -23,7 +23,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 
@@ -76,7 +75,10 @@ class ReferralStatus(str, Enum):
         valid_transitions: dict[ReferralStatus, set[ReferralStatus]] = {
             ReferralStatus.PENDING: {ReferralStatus.ASSIGNED, ReferralStatus.EXPIRED},
             ReferralStatus.ASSIGNED: {ReferralStatus.IN_REVIEW, ReferralStatus.EXPIRED},
-            ReferralStatus.IN_REVIEW: {ReferralStatus.COMPLETED, ReferralStatus.EXPIRED},
+            ReferralStatus.IN_REVIEW: {
+                ReferralStatus.COMPLETED,
+                ReferralStatus.EXPIRED,
+            },
             ReferralStatus.COMPLETED: set(),  # Terminal
             ReferralStatus.EXPIRED: set(),  # Terminal
         }
@@ -145,17 +147,21 @@ class Referral:
     created_at: datetime
 
     # Optional/nullable fields
-    assigned_knight_id: Optional[UUID] = field(default=None)
+    assigned_knight_id: UUID | None = field(default=None)
     status: ReferralStatus = field(default=ReferralStatus.PENDING)
     extensions_granted: int = field(default=0)
-    recommendation: Optional[ReferralRecommendation] = field(default=None)
-    rationale: Optional[str] = field(default=None)
-    completed_at: Optional[datetime] = field(default=None)
+    recommendation: ReferralRecommendation | None = field(default=None)
+    rationale: str | None = field(default=None)
+    completed_at: datetime | None = field(default=None)
 
     # Class-level constants (for backwards compatibility)
     MAX_EXTENSIONS: int = field(default=REFERRAL_MAX_EXTENSIONS, init=False, repr=False)
-    DEFAULT_DEADLINE_CYCLES: int = field(default=REFERRAL_DEFAULT_DEADLINE_CYCLES, init=False, repr=False)
-    DEFAULT_CYCLE_DURATION: timedelta = field(default=REFERRAL_DEFAULT_CYCLE_DURATION, init=False, repr=False)
+    DEFAULT_DEADLINE_CYCLES: int = field(
+        default=REFERRAL_DEFAULT_DEADLINE_CYCLES, init=False, repr=False
+    )
+    DEFAULT_CYCLE_DURATION: timedelta = field(
+        default=REFERRAL_DEFAULT_CYCLE_DURATION, init=False, repr=False
+    )
 
     def __post_init__(self) -> None:
         """Validate referral fields after initialization.
@@ -184,9 +190,7 @@ class Referral:
 
         # Validate recommendation requires COMPLETED status
         if self.recommendation is not None and self.status != ReferralStatus.COMPLETED:
-            raise ValueError(
-                "recommendation can only be set when status is COMPLETED"
-            )
+            raise ValueError("recommendation can only be set when status is COMPLETED")
 
         # Validate recommendation requires rationale
         if self.recommendation is not None and not self.rationale:
@@ -337,9 +341,7 @@ class Referral:
                 raise ValueError(
                     f"Cannot extend: max extensions ({self.MAX_EXTENSIONS}) reached"
                 )
-            raise ValueError(
-                f"Cannot extend: invalid status {self.status.value}"
-            )
+            raise ValueError(f"Cannot extend: invalid status {self.status.value}")
 
         if new_deadline.tzinfo is None:
             raise ValueError("new_deadline must be timezone-aware (UTC)")
@@ -395,7 +397,7 @@ class Referral:
         self,
         recommendation: ReferralRecommendation,
         rationale: str,
-        completed_at: Optional[datetime] = None,
+        completed_at: datetime | None = None,
     ) -> Referral:
         """Create a new referral with Knight's recommendation.
 
@@ -418,9 +420,7 @@ class Referral:
                     f"Cannot submit recommendation: status must be IN_REVIEW, "
                     f"got {self.status.value}"
                 )
-            raise ValueError(
-                "Cannot submit recommendation: no Knight assigned"
-            )
+            raise ValueError("Cannot submit recommendation: no Knight assigned")
 
         if not rationale or not rationale.strip():
             raise ValueError("rationale is required and must not be empty")
@@ -477,8 +477,8 @@ class Referral:
     @classmethod
     def calculate_default_deadline(
         cls,
-        from_time: Optional[datetime] = None,
-        cycles: Optional[int] = None,
+        from_time: datetime | None = None,
+        cycles: int | None = None,
     ) -> datetime:
         """Calculate the default deadline for a new referral.
 

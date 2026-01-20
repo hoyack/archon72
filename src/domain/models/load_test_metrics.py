@@ -191,7 +191,9 @@ class LoadTestMetrics:
         Returns:
             Human-readable progress string.
         """
-        pct = (self.total_processed / total_petitions * 100) if total_petitions > 0 else 0
+        pct = (
+            (self.total_processed / total_petitions * 100) if total_petitions > 0 else 0
+        )
         return (
             f"Progress: {self.total_processed}/{total_petitions} ({pct:.1f}%) | "
             f"Active: {self.active_sessions} | "

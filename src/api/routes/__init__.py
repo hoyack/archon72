@@ -20,6 +20,7 @@ Available routers:
 - co_sign: Three Fates petition co-signing (Story 5.2, FR-6.1 - public)
 """
 
+from src.api.routes.co_sign import router as co_sign_router
 from src.api.routes.complexity_budget import router as complexity_budget_router
 from src.api.routes.compliance import router as compliance_router
 from src.api.routes.constitutional_health import router as constitutional_health_router
@@ -34,7 +35,6 @@ from src.api.routes.override import router as override_router
 from src.api.routes.petition import router as petition_router
 from src.api.routes.petition_submission import router as petition_submission_router
 from src.api.routes.waiver import router as waiver_router
-from src.api.routes.co_sign import router as co_sign_router
 
 __all__: list[str] = [
     "health_router",

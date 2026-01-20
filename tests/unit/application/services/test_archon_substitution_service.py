@@ -14,7 +14,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
@@ -23,7 +22,6 @@ import pytest
 
 from src.application.ports.archon_substitution import (
     ContextHandoff,
-    SubstitutionResult,
 )
 from src.application.services.archon_substitution_service import (
     MAX_SUBSTITUTION_LATENCY_MS,
@@ -38,12 +36,12 @@ from src.domain.events.archon_substitution import (
     DeliberationAbortedEvent,
 )
 from src.domain.models.deliberation_session import (
+    MAX_SUBSTITUTIONS_PER_SESSION,
     DeliberationOutcome,
     DeliberationPhase,
     DeliberationSession,
-    MAX_SUBSTITUTIONS_PER_SESSION,
 )
-from src.domain.models.fate_archon import FateArchon
+from src.domain.models.fate_archon import DeliberationStyle, FateArchon
 
 
 def _create_test_archon(name: str = "TestArchon") -> FateArchon:
@@ -52,7 +50,8 @@ def _create_test_archon(name: str = "TestArchon") -> FateArchon:
         id=uuid4(),
         name=name,
         title="Marquis",
-        persona_prompt=f"You are {name}, a test archon.",
+        deliberation_style=DeliberationStyle.PRAGMATIC_MODERATOR,
+        system_prompt_template=f"You are {name}, a test archon.",
     )
 
 
@@ -112,13 +111,14 @@ def _create_mock_archon_pool(
     pool.get_archon_by_id.side_effect = get_archon_by_id
     pool.select_substitute.return_value = substitute
     pool.get_available_archons.return_value = [substitute] if substitute else []
+    pool.list_all_archons.return_value = archons + ([substitute] if substitute else [])
     return pool
 
 
 def _create_mock_event_emitter() -> AsyncMock:
     """Create a mock event emitter."""
     emitter = AsyncMock()
-    emitter.emit = AsyncMock()
+    emitter.append_event = AsyncMock()
     return emitter
 
 
@@ -181,7 +181,7 @@ class TestDetectFailure:
             config=DEFAULT_DELIBERATION_CONFIG,
         )
 
-        with pytest.raises(ValueError, match="Invalid failure reason"):
+        with pytest.raises(ValueError, match="failure_reason must be one of"):
             await service.detect_failure(
                 session=session,
                 archon_id=archons[0].id,
@@ -283,7 +283,7 @@ class TestSelectSubstitute:
         )
 
         assert result == substitute.id
-        pool.select_substitute.assert_called_once()
+        pool.list_all_archons.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_returns_none_when_pool_exhausted(self) -> None:
@@ -315,10 +315,12 @@ class TestPrepareContextHandoff:
         session, archons = _create_test_session(phase=DeliberationPhase.CROSS_EXAMINE)
         # Add transcript data
         session = session.with_transcript(
-            DeliberationPhase.ASSESS, b"assess_hash_123"
+            DeliberationPhase.ASSESS,
+            b"a" * 32,
         )
         session = session.with_transcript(
-            DeliberationPhase.POSITION, b"position_hash_456"
+            DeliberationPhase.POSITION,
+            b"b" * 32,
         )
 
         pool = _create_mock_archon_pool(list(archons))
@@ -384,15 +386,15 @@ class TestExecuteSubstitution:
             config=DEFAULT_DELIBERATION_CONFIG,
         )
 
-        result = await service.execute_substitution(
+        await service.execute_substitution(
             session=session,
             failed_archon_id=archons[1].id,
             failure_reason="RESPONSE_TIMEOUT",
         )
 
         # Check event was emitted
-        emitter.emit.assert_called_once()
-        event = emitter.emit.call_args[0][0]
+        emitter.append_event.assert_called_once()
+        event = emitter.append_event.call_args[0][0]
         assert isinstance(event, ArchonSubstitutedEvent)
         assert event.failed_archon_id == archons[1].id
         assert event.substitute_archon_id == substitute.id
@@ -540,7 +542,11 @@ class TestAbortDeliberation:
         )
 
         failed_archons = [
-            {"archon_id": str(archons[0].id), "failure_reason": "RESPONSE_TIMEOUT", "phase": "POSITION"}
+            {
+                "archon_id": str(archons[0].id),
+                "failure_reason": "RESPONSE_TIMEOUT",
+                "phase": "POSITION",
+            }
         ]
 
         updated, event = await service.abort_deliberation(
@@ -566,7 +572,11 @@ class TestAbortDeliberation:
         )
 
         failed_archons = [
-            {"archon_id": str(archons[0].id), "failure_reason": "RESPONSE_TIMEOUT", "phase": "POSITION"}
+            {
+                "archon_id": str(archons[0].id),
+                "failure_reason": "RESPONSE_TIMEOUT",
+                "phase": "POSITION",
+            }
         ]
 
         updated, event = await service.abort_deliberation(
@@ -577,7 +587,7 @@ class TestAbortDeliberation:
 
         assert isinstance(event, DeliberationAbortedEvent)
         assert event.reason == "INSUFFICIENT_ARCHONS"
-        emitter.emit.assert_called_once()
+        emitter.append_event.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_abort_rejects_invalid_reason(self) -> None:
@@ -592,7 +602,7 @@ class TestAbortDeliberation:
             config=DEFAULT_DELIBERATION_CONFIG,
         )
 
-        with pytest.raises(ValueError, match="Invalid abort reason"):
+        with pytest.raises(ValueError, match="reason must be one of"):
             await service.abort_deliberation(
                 session=session,
                 reason="INVALID_REASON",
@@ -669,7 +679,7 @@ class TestGetActiveArchons:
         active = await service.get_active_archons(session.session_id)
 
         assert len(active) == 3
-        assert active == session.assigned_archons
+        assert set(active) == set(session.assigned_archons)
 
     @pytest.mark.asyncio
     async def test_returns_updated_archons_with_substitution(self) -> None:

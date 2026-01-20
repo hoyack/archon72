@@ -13,8 +13,6 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-import pytest
-
 from src.domain.models.chaos_test_report import (
     ARCHON_SUBSTITUTION_SLA_MS,
     CHAOS_REPORT_SCHEMA_VERSION,
@@ -35,7 +33,9 @@ def create_test_report(
     started_at = datetime.now(timezone.utc)
     injection_started_at = started_at + timedelta(milliseconds=100)
     injection_ended_at = injection_started_at + timedelta(seconds=30)
-    recovery_detected_at = injection_ended_at + timedelta(milliseconds=recovery_duration_ms)
+    recovery_detected_at = injection_ended_at + timedelta(
+        milliseconds=recovery_duration_ms
+    )
     completed_at = recovery_detected_at + timedelta(milliseconds=100)
 
     return ChaosTestReport(

@@ -106,7 +106,9 @@ class ChaosTestReport:
         """
         if self.recovery_detected_at is None:
             return None
-        return (self.recovery_detected_at - self.injection_ended_at).total_seconds() * 1000
+        return (
+            self.recovery_detected_at - self.injection_ended_at
+        ).total_seconds() * 1000
 
     @property
     def injection_duration_ms(self) -> float:
@@ -115,7 +117,9 @@ class ChaosTestReport:
         Returns:
             Duration of fault injection.
         """
-        return (self.injection_ended_at - self.injection_started_at).total_seconds() * 1000
+        return (
+            self.injection_ended_at - self.injection_started_at
+        ).total_seconds() * 1000
 
     @property
     def total_duration_seconds(self) -> float:

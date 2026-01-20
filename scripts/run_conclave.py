@@ -166,7 +166,7 @@ def load_blocker_agenda_items(summary_path: Path) -> list[str]:
     return items
 
 
-async def run_conclave(args: argparse.Namespace) -> None:
+async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     """Run the Conclave session.
 
     Args:

@@ -28,10 +28,8 @@ from src.application.ports.knight_concurrent_limit import (
     KnightEligibilityResult,
 )
 from src.domain.errors.knight_concurrent_limit import (
-    KnightAtCapacityError,
     KnightNotFoundError,
     KnightNotInRealmError,
-    NoEligibleKnightsError,
     ReferralAlreadyAssignedError,
 )
 from src.domain.events.referral import (
@@ -255,7 +253,9 @@ class KnightConcurrentLimitService:
         log = logger.bind(
             referral_id=str(referral_id),
             realm_id=str(realm_id),
-            preferred_knight_id=str(preferred_knight_id) if preferred_knight_id else None,
+            preferred_knight_id=str(preferred_knight_id)
+            if preferred_knight_id
+            else None,
         )
         log.info("Attempting referral assignment")
 
@@ -305,7 +305,9 @@ class KnightConcurrentLimitService:
                 if eligibility.is_eligible:
                     selected_knight_id = preferred_knight_id
                     workload_before = eligibility.current_count
-                    log.info("Using preferred Knight", knight_id=str(preferred_knight_id))
+                    log.info(
+                        "Using preferred Knight", knight_id=str(preferred_knight_id)
+                    )
             except (KnightNotFoundError, KnightNotInRealmError) as e:
                 log.warning("Preferred Knight not eligible", error=str(e))
 
@@ -317,7 +319,9 @@ class KnightConcurrentLimitService:
                 workload_before = await self._referral_repo.count_active_by_knight(
                     selected_knight_id
                 )
-                log.info("Selected least-loaded Knight", knight_id=str(selected_knight_id))
+                log.info(
+                    "Selected least-loaded Knight", knight_id=str(selected_knight_id)
+                )
 
         # If no eligible Knights, defer
         if selected_knight_id is None:
@@ -389,7 +393,7 @@ class KnightConcurrentLimitService:
 
     async def _execute_assignment(
         self,
-        referral: "Referral",
+        referral: Referral,
         knight_id: UUID,
         realm_id: UUID,
         workload_before: int,
@@ -409,7 +413,6 @@ class KnightConcurrentLimitService:
         Returns:
             Successful AssignmentResult.
         """
-        from src.domain.models.referral import Referral
 
         log = logger.bind(
             referral_id=str(referral.referral_id),
@@ -462,7 +465,7 @@ class KnightConcurrentLimitService:
 
     async def _handle_deferral(
         self,
-        referral: "Referral",
+        referral: Referral,
         realm_id: UUID,
         max_allowed: int,
     ) -> AssignmentResult:
@@ -561,7 +564,7 @@ class KnightConcurrentLimitService:
             f"knight_id:{knight_id}",
             f"realm_id:{realm_id}",
             f"assigned_at:{assigned_at.isoformat()}",
-            f"action:assignment",
+            "action:assignment",
             f"schema_version:{REFERRAL_EVENT_SCHEMA_VERSION}",
         ]
         return "|".join(parts)
@@ -595,7 +598,7 @@ class KnightConcurrentLimitService:
             f"realm_id:{realm_id}",
             f"total_knights:{total_knights}",
             f"deferred_at:{deferred_at.isoformat()}",
-            f"action:deferral",
+            "action:deferral",
             f"schema_version:{REFERRAL_EVENT_SCHEMA_VERSION}",
         ]
         return "|".join(parts)

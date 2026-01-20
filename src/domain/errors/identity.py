@@ -18,7 +18,6 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from typing import Optional
 from uuid import UUID
 
 
@@ -92,7 +91,7 @@ class IdentityNotFoundError(IdentityVerificationError):
     def __init__(
         self,
         signer_id: UUID,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize identity not found error.
 
@@ -157,8 +156,8 @@ class IdentitySuspendedError(IdentityVerificationError):
     def __init__(
         self,
         signer_id: UUID,
-        reason: Optional[str] = None,
-        message: Optional[str] = None,
+        reason: str | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize identity suspended error.
 
@@ -232,7 +231,7 @@ class IdentityServiceUnavailableError(IdentityVerificationError):
         self,
         signer_id: UUID,
         retry_after: int = 30,
-        message: Optional[str] = None,
+        message: str | None = None,
     ) -> None:
         """Initialize identity service unavailable error.
 

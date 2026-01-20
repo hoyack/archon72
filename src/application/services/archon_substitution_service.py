@@ -52,9 +52,9 @@ from src.domain.events.archon_substitution import (
     DeliberationAbortedEvent,
 )
 from src.domain.models.deliberation_session import (
+    MAX_SUBSTITUTIONS_PER_SESSION,
     ArchonSubstitution,
     DeliberationSession,
-    MAX_SUBSTITUTIONS_PER_SESSION,
 )
 
 if TYPE_CHECKING:
@@ -252,8 +252,8 @@ class ArchonSubstitutionService:
 
         # Find first available archon not in session
         for archon in all_archons:
-            if archon.archon_id not in active_archons:
-                return archon.archon_id
+            if archon.id not in active_archons:
+                return archon.id
 
         # No substitute available (pool exhausted)
         return None
@@ -286,8 +286,7 @@ class ArchonSubstitutionService:
 
         # Convert votes to string outcome names for serialization
         previous_votes = {
-            archon_id: vote.value
-            for archon_id, vote in session.votes.items()
+            archon_id: vote.value for archon_id, vote in session.votes.items()
         }
 
         return ContextHandoff(
@@ -395,9 +394,10 @@ class ArchonSubstitutionService:
 
         # Emit event if event emitter available
         if self._event_emitter is not None:
-            # Note: Actual event store integration would go here
-            # await self._event_emitter.append(event.to_dict())
-            pass
+            if hasattr(self._event_emitter, "append_event"):
+                await self._event_emitter.append_event(event)
+            elif hasattr(self._event_emitter, "emit"):
+                await self._event_emitter.emit(event)
 
         # Store updated session
         self._sessions[session.session_id] = updated_session
@@ -429,11 +429,13 @@ class ArchonSubstitutionService:
             for sub in session.substitutions
         ]
         # Add current failure
-        failed_archons.append({
-            "archon_id": str(failed_archon_id),
-            "failure_reason": failure_reason,
-            "phase": session.phase.value,
-        })
+        failed_archons.append(
+            {
+                "archon_id": str(failed_archon_id),
+                "failure_reason": failure_reason,
+                "phase": session.phase.value,
+            }
+        )
 
         updated_session, event = await self.abort_deliberation(
             session=session,
@@ -458,11 +460,13 @@ class ArchonSubstitutionService:
         latency_ms: int,
     ) -> SubstitutionResult:
         """Abort due to archon pool exhausted."""
-        failed_archons = [{
-            "archon_id": str(failed_archon_id),
-            "failure_reason": failure_reason,
-            "phase": session.phase.value,
-        }]
+        failed_archons = [
+            {
+                "archon_id": str(failed_archon_id),
+                "failure_reason": failure_reason,
+                "phase": session.phase.value,
+            }
+        ]
 
         updated_session, event = await self.abort_deliberation(
             session=session,
@@ -540,9 +544,10 @@ class ArchonSubstitutionService:
 
         # Emit event if event emitter available
         if self._event_emitter is not None:
-            # Note: Actual event store integration would go here
-            # await self._event_emitter.append(event.to_dict())
-            pass
+            if hasattr(self._event_emitter, "append_event"):
+                await self._event_emitter.append_event(event)
+            elif hasattr(self._event_emitter, "emit"):
+                await self._event_emitter.emit(event)
 
         # Store updated session
         self._sessions[session.session_id] = updated_session

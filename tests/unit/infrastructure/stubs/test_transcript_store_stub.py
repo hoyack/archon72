@@ -15,8 +15,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 import blake3
 import pytest
 
@@ -325,8 +323,9 @@ class TestTranscriptStoreStubHelpers:
         retrieved = await stub.retrieve(ref.content_hash)
         assert retrieved == transcript
 
-        # Should not record as operation (it's a test helper)
-        assert stub.get_operations() == []
+        ops = stub.get_operations()
+        assert len(ops) == 1
+        assert ops[0][0] == TranscriptStoreOperation.RETRIEVE
 
     @pytest.mark.asyncio
     async def test_get_all_hashes(self) -> None:

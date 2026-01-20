@@ -173,11 +173,15 @@ class RecommendationSubmissionService:
         if referral.status == ReferralStatus.COMPLETED:
             log.warning(
                 "Recommendation already submitted",
-                existing_recommendation=referral.recommendation.value if referral.recommendation else None,
+                existing_recommendation=referral.recommendation.value
+                if referral.recommendation
+                else None,
             )
             raise RecommendationAlreadySubmittedError(
                 referral_id=referral_id,
-                existing_recommendation=referral.recommendation.value if referral.recommendation else None,
+                existing_recommendation=referral.recommendation.value
+                if referral.recommendation
+                else None,
             )
 
         # Step 4: Validate referral state
@@ -310,7 +314,7 @@ class RecommendationSubmissionService:
     async def _cancel_deadline_job(
         self,
         referral_id: UUID,
-        log: "structlog.BoundLogger",  # type: ignore[name-defined]
+        log: structlog.BoundLogger,  # type: ignore[name-defined]
     ) -> None:
         """Cancel the deadline timeout job (NFR-3.4).
 
@@ -339,7 +343,7 @@ class RecommendationSubmissionService:
         referral: Referral,
         recommendation: ReferralRecommendation,
         rationale: str,
-        log: "structlog.BoundLogger",  # type: ignore[name-defined]
+        log: structlog.BoundLogger,  # type: ignore[name-defined]
     ) -> None:
         """Route petition based on Knight's recommendation.
 
@@ -366,7 +370,7 @@ class RecommendationSubmissionService:
         self,
         referral: Referral,
         rationale: str,
-        log: "structlog.BoundLogger",  # type: ignore[name-defined]
+        log: structlog.BoundLogger,  # type: ignore[name-defined]
     ) -> None:
         """Route petition to acknowledgment execution (Epic 3).
 
@@ -418,7 +422,7 @@ class RecommendationSubmissionService:
         self,
         referral: Referral,
         rationale: str,
-        log: "structlog.BoundLogger",  # type: ignore[name-defined]
+        log: structlog.BoundLogger,  # type: ignore[name-defined]
     ) -> None:
         """Route petition to King escalation queue (Epic 6 stub).
 
@@ -433,7 +437,9 @@ class RecommendationSubmissionService:
         log.info(
             "Routing petition to escalation (Epic 6 stub)",
             petition_id=str(referral.petition_id),
-            knight_rationale=rationale[:50] + "..." if len(rationale) > 50 else rationale,
+            knight_rationale=rationale[:50] + "..."
+            if len(rationale) > 50
+            else rationale,
         )
 
         # TODO (Epic 6): Implement actual King escalation queue

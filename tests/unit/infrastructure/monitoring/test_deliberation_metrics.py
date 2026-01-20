@@ -129,25 +129,31 @@ class TestDeliberationMetricsCollector:
             assert sample == 1.0
 
         # Verify votes by outcome
-        assert registry.get_sample_value(
-            "deliberation_votes_total",
-            labels={
-                "archon_id": str(archon_1),
-                "outcome": "ACKNOWLEDGE",
-                "service": "archon72-api",
-                "environment": "development",
-            },
-        ) == 1.0
+        assert (
+            registry.get_sample_value(
+                "deliberation_votes_total",
+                labels={
+                    "archon_id": str(archon_1),
+                    "outcome": "ACKNOWLEDGE",
+                    "service": "archon72-api",
+                    "environment": "development",
+                },
+            )
+            == 1.0
+        )
 
-        assert registry.get_sample_value(
-            "deliberation_votes_total",
-            labels={
-                "archon_id": str(archon_3),
-                "outcome": "ESCALATE",
-                "service": "archon72-api",
-                "environment": "development",
-            },
-        ) == 1.0
+        assert (
+            registry.get_sample_value(
+                "deliberation_votes_total",
+                labels={
+                    "archon_id": str(archon_3),
+                    "outcome": "ESCALATE",
+                    "service": "archon72-api",
+                    "environment": "development",
+                },
+            )
+            == 1.0
+        )
 
     def test_counter_monotonically_increases(self) -> None:
         """Test counters only increase (Prometheus counter semantics)."""

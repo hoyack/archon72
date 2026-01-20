@@ -12,39 +12,12 @@ from src.domain.models.acknowledgment_reason import (
     ReferenceRequiredError,
     validate_acknowledgment_requirements,
 )
+from src.domain.models.agent_pool import MAX_CONCURRENT_AGENTS, AgentPool
+from src.domain.models.agent_status import AgentStatus
 from src.domain.models.archon_metrics import (
     ArchonDeliberationMetrics,
 )
-from src.domain.models.agent_pool import MAX_CONCURRENT_AGENTS, AgentPool
-from src.domain.models.agent_status import AgentStatus
 from src.domain.models.archon_status import ArchonFailureReason, ArchonStatus
-from src.domain.models.audit_timeline import (
-    AUDIT_TIMELINE_SCHEMA_VERSION,
-    BLAKE3_HASH_SIZE,
-    AuditTimeline,
-    TerminationReason,
-    TimelineEvent,
-    WitnessChainVerification,
-)
-from src.domain.models.chaos_test_config import (
-    CHAOS_CONFIG_SCHEMA_VERSION,
-    MAX_INJECTION_DURATION_SECONDS,
-    MIN_INJECTION_DURATION_SECONDS,
-    ChaosScenario,
-    ChaosTestConfig,
-)
-from src.domain.models.chaos_test_report import (
-    ARCHON_SUBSTITUTION_SLA_MS,
-    CHAOS_REPORT_SCHEMA_VERSION,
-    ChaosTestOutcome,
-    ChaosTestReport,
-)
-from src.domain.models.load_test_config import LoadTestConfig
-from src.domain.models.load_test_metrics import LoadTestMetrics
-from src.domain.models.load_test_report import (
-    NFR_10_1_THRESHOLD_MS,
-    LoadTestReport,
-)
 from src.domain.models.audit_event import (
     AUDIT_COMPLETED_EVENT_TYPE,
     AUDIT_EVENT_TYPE_PREFIX,
@@ -55,6 +28,14 @@ from src.domain.models.audit_event import (
     AuditEventType,
     AuditTrend,
     QuarterStats,
+)
+from src.domain.models.audit_timeline import (
+    AUDIT_TIMELINE_SCHEMA_VERSION,
+    BLAKE3_HASH_SIZE,
+    AuditTimeline,
+    TerminationReason,
+    TimelineEvent,
+    WitnessChainVerification,
 )
 from src.domain.models.breach_count_status import (
     CESSATION_THRESHOLD,
@@ -83,7 +64,21 @@ from src.domain.models.cessation_trigger_condition import (
     CessationTriggerCondition,
     CessationTriggerConditionSet,
 )
+from src.domain.models.chaos_test_config import (
+    CHAOS_CONFIG_SCHEMA_VERSION,
+    MAX_INJECTION_DURATION_SECONDS,
+    MIN_INJECTION_DURATION_SECONDS,
+    ChaosScenario,
+    ChaosTestConfig,
+)
+from src.domain.models.chaos_test_report import (
+    ARCHON_SUBSTITUTION_SLA_MS,
+    CHAOS_REPORT_SCHEMA_VERSION,
+    ChaosTestOutcome,
+    ChaosTestReport,
+)
 from src.domain.models.checkpoint import Checkpoint
+from src.domain.models.co_sign import CoSign
 from src.domain.models.complexity_budget import (
     ADR_LIMIT,
     CEREMONY_TYPE_LIMIT,
@@ -156,6 +151,9 @@ from src.domain.models.context_bundle import (
     create_content_ref,
     validate_content_ref,
 )
+from src.domain.models.decision_package import (
+    DecisionPackage,
+)
 from src.domain.models.deliberation_context_package import (
     CONTEXT_PACKAGE_SCHEMA_VERSION as DELIBERATION_CONTEXT_SCHEMA_VERSION,
 )
@@ -186,9 +184,6 @@ from src.domain.models.dissent_record import (
     DissentRecord,
 )
 from src.domain.models.event_type_registry import EventTypeRegistry
-from src.domain.models.transcript_reference import (
-    TranscriptReference,
-)
 from src.domain.models.failure_mode import (
     DEFAULT_FAILURE_MODES,
     EarlyWarning,
@@ -268,6 +263,12 @@ from src.domain.models.key_generation_ceremony import (
     CeremonyType,
     KeyGenerationCeremony,
 )
+from src.domain.models.load_test_config import LoadTestConfig
+from src.domain.models.load_test_metrics import LoadTestMetrics
+from src.domain.models.load_test_report import (
+    NFR_10_1_THRESHOLD_MS,
+    LoadTestReport,
+)
 from src.domain.models.material_audit import (
     AUDIT_ID_PREFIX,
     REMEDIATION_DEADLINE_DAYS,
@@ -317,10 +318,10 @@ from src.domain.models.realm import (
     RealmStatus,
     is_canonical_realm,
 )
-from src.domain.models.decision_package import (
-    DecisionPackage,
+from src.domain.models.recovery_waiting_period import (
+    WAITING_PERIOD_HOURS,
+    RecoveryWaitingPeriod,
 )
-from src.domain.models.co_sign import CoSign
 from src.domain.models.referral import (
     REFERRAL_DEFAULT_CYCLE_DURATION,
     REFERRAL_DEFAULT_DEADLINE_CYCLES,
@@ -328,10 +329,6 @@ from src.domain.models.referral import (
     Referral,
     ReferralRecommendation,
     ReferralStatus,
-)
-from src.domain.models.recovery_waiting_period import (
-    WAITING_PERIOD_HOURS,
-    RecoveryWaitingPeriod,
 )
 from src.domain.models.scheduled_job import (
     DeadLetterJob,
@@ -345,6 +342,9 @@ from src.domain.models.topic_origin import (
     TopicOrigin,
     TopicOriginMetadata,
     TopicOriginType,
+)
+from src.domain.models.transcript_reference import (
+    TranscriptReference,
 )
 from src.domain.models.unwitnessed_halt import UnwitnessedHaltRecord
 from src.domain.models.user_content import (

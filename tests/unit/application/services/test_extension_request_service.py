@@ -40,7 +40,6 @@ from src.domain.models.referral import (
     ReferralStatus,
 )
 
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Fixtures and Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -103,12 +102,14 @@ class MockJobScheduler:
         payload: dict[str, Any],
     ) -> None:
         """Record a scheduled job."""
-        self.scheduled.append({
-            "job_id": job_id,
-            "run_at": run_at,
-            "handler": handler,
-            "payload": payload,
-        })
+        self.scheduled.append(
+            {
+                "job_id": job_id,
+                "run_at": run_at,
+                "handler": handler,
+                "payload": payload,
+            }
+        )
 
     async def cancel(self, job_id: str) -> None:
         """Record a cancelled job."""
@@ -314,7 +315,9 @@ async def test_extension_deadline_calculation(
 
     result = await service.request_extension(request)
 
-    expected_deadline = original_deadline + (EXTENSION_DURATION_CYCLES * REFERRAL_DEFAULT_CYCLE_DURATION)
+    expected_deadline = original_deadline + (
+        EXTENSION_DURATION_CYCLES * REFERRAL_DEFAULT_CYCLE_DURATION
+    )
     assert result.new_deadline == expected_deadline
 
 
@@ -490,7 +493,10 @@ async def test_invalid_state_pending(
         await service.request_extension(request)
 
     assert exc_info.value.current_status == "pending"
-    assert "assigned" in exc_info.value.required_statuses or "in_review" in exc_info.value.required_statuses
+    assert (
+        "assigned" in exc_info.value.required_statuses
+        or "in_review" in exc_info.value.required_statuses
+    )
 
 
 @pytest.mark.asyncio

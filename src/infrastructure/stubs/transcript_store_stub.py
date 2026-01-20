@@ -20,7 +20,6 @@ import blake3
 from src.application.ports.transcript_store import TranscriptStoreProtocol
 from src.domain.models.transcript_reference import TranscriptReference
 
-
 # Blake3 hash length in bytes
 BLAKE3_HASH_LENGTH = 32
 

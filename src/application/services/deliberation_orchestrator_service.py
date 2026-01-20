@@ -390,8 +390,8 @@ class DeliberationOrchestratorService:
                 session,
                 package,
                 phase_name="CROSS_EXAMINE",
-                execute_fn=lambda s: self._executor.execute_cross_examine(
-                    s, package, previous_result
+                execute_fn=lambda s, previous=previous_result: (
+                    self._executor.execute_cross_examine(s, package, previous)
                 ),
             )
             if session.is_aborted:
@@ -407,8 +407,8 @@ class DeliberationOrchestratorService:
                 session,
                 package,
                 phase_name="VOTE",
-                execute_fn=lambda s: self._executor.execute_vote(
-                    s, package, cross_examine_result
+                execute_fn=lambda s, cross_result=cross_examine_result: (
+                    self._executor.execute_vote(s, package, cross_result)
                 ),
             )
             if session.is_aborted:

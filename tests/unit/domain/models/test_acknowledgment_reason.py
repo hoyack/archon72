@@ -7,7 +7,7 @@ FR-3.4: System SHALL require reference_petition_id for DUPLICATE
 """
 
 from enum import StrEnum
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -24,7 +24,7 @@ class TestAcknowledgmentReasonCodeEnum:
     """Tests for the AcknowledgmentReasonCode enumeration."""
 
     def test_all_reason_codes_exist(self) -> None:
-        """Verify all 8 required reason codes are defined per FR-3.2."""
+        """Verify all required reason codes are defined per FR-3.2."""
         expected_codes = {
             "ADDRESSED",
             "NOTED",
@@ -34,13 +34,14 @@ class TestAcknowledgmentReasonCodeEnum:
             "NO_ACTION_WARRANTED",
             "WITHDRAWN",
             "EXPIRED",
+            "KNIGHT_REFERRAL",
         }
         actual_codes = {code.value for code in AcknowledgmentReasonCode}
         assert actual_codes == expected_codes
 
     def test_enum_count(self) -> None:
-        """Verify exactly 8 reason codes exist."""
-        assert len(AcknowledgmentReasonCode) == 8
+        """Verify all reason codes are present."""
+        assert len(AcknowledgmentReasonCode) == 9
 
     def test_enum_is_strenum(self) -> None:
         """Verify enum extends StrEnum for database compatibility."""
@@ -77,6 +78,7 @@ class TestRequiresRationale:
             AcknowledgmentReasonCode.OUT_OF_SCOPE,
             AcknowledgmentReasonCode.WITHDRAWN,
             AcknowledgmentReasonCode.EXPIRED,
+            AcknowledgmentReasonCode.KNIGHT_REFERRAL,
         ],
     )
     def test_other_codes_do_not_require_rationale(
@@ -105,6 +107,7 @@ class TestRequiresReference:
             AcknowledgmentReasonCode.NO_ACTION_WARRANTED,
             AcknowledgmentReasonCode.WITHDRAWN,
             AcknowledgmentReasonCode.EXPIRED,
+            AcknowledgmentReasonCode.KNIGHT_REFERRAL,
         ],
     )
     def test_other_codes_do_not_require_reference(

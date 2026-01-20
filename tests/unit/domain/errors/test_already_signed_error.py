@@ -14,8 +14,6 @@ Constitutional Constraints:
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import pytest
-
 from src.domain.errors.co_sign import AlreadySignedError
 
 
@@ -109,7 +107,10 @@ class TestAlreadySignedErrorRFC7807:
         rfc7807 = error.to_rfc7807_dict()
 
         # None values should be omitted from the response
-        assert "existing_cosign_id" not in rfc7807 or rfc7807.get("existing_cosign_id") is None
+        assert (
+            "existing_cosign_id" not in rfc7807
+            or rfc7807.get("existing_cosign_id") is None
+        )
         assert "signed_at" not in rfc7807 or rfc7807.get("signed_at") is None
 
 

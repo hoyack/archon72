@@ -10,7 +10,6 @@ from uuid import uuid4
 import pytest
 
 from src.domain.errors.acknowledgment import (
-    AcknowledgmentAlreadyExistsError,
     InvalidArchonCountError,
     InvalidReferencePetitionError,
     PetitionNotFoundError,
@@ -35,32 +34,40 @@ def stub() -> AcknowledgmentExecutionStub:
 @pytest.fixture
 def deliberating_petition():
     """Create a petition in DELIBERATING state."""
-    from src.domain.models.petition_submission import PetitionState, PetitionSubmission
+    from src.domain.models.petition_submission import (
+        PetitionState,
+        PetitionSubmission,
+        PetitionType,
+    )
 
     return PetitionSubmission(
         id=uuid4(),
-        petition_type_id="STANDARD",
+        type=PetitionType.GENERAL,
+        text="Test petition",
         submitter_id=uuid4(),
-        content_hash="blake3:abc123",
-        realm_id="TECH",
+        content_hash=b"a" * 32,
+        realm="TECH",
         state=PetitionState.DELIBERATING,
-        submitted_at=datetime.now(timezone.utc),
     )
 
 
 @pytest.fixture
 def pending_petition():
-    """Create a petition in PENDING state (not ready for acknowledgment)."""
-    from src.domain.models.petition_submission import PetitionState, PetitionSubmission
+    """Create a petition in RECEIVED state (not ready for acknowledgment)."""
+    from src.domain.models.petition_submission import (
+        PetitionState,
+        PetitionSubmission,
+        PetitionType,
+    )
 
     return PetitionSubmission(
         id=uuid4(),
-        petition_type_id="STANDARD",
+        type=PetitionType.GENERAL,
+        text="Pending petition",
         submitter_id=uuid4(),
-        content_hash="blake3:def456",
-        realm_id="TECH",
-        state=PetitionState.PENDING,
-        submitted_at=datetime.now(timezone.utc),
+        content_hash=b"b" * 32,
+        realm="TECH",
+        state=PetitionState.RECEIVED,
     )
 
 
@@ -131,16 +138,17 @@ class TestExecuteHappyPath:
         from src.domain.models.petition_submission import (
             PetitionState,
             PetitionSubmission,
+            PetitionType,
         )
 
         new_petition = PetitionSubmission(
             id=uuid4(),
-            petition_type_id="STANDARD",
+            type=PetitionType.GENERAL,
+            text="Duplicate petition",
             submitter_id=uuid4(),
-            content_hash="blake3:dup123",
-            realm_id="TECH",
+            content_hash=b"c" * 32,
+            realm="TECH",
             state=PetitionState.DELIBERATING,
-            submitted_at=datetime.now(timezone.utc),
         )
         stub.add_petition(new_petition)
 
@@ -182,7 +190,7 @@ class TestValidationErrors:
                 reason_code=AcknowledgmentReasonCode.NOTED,
                 acknowledging_archon_ids=(15, 42),
             )
-        assert exc_info.value.current_state == "PENDING"
+        assert exc_info.value.current_state == "RECEIVED"
 
     @pytest.mark.asyncio
     async def test_insufficient_archons(
@@ -410,7 +418,7 @@ class TestStubHelpers:
         """get_acknowledgment_by_petition retrieves by petition ID."""
         stub.add_petition(deliberating_petition)
 
-        ack = await stub.execute(
+        await stub.execute(
             petition_id=deliberating_petition.id,
             reason_code=AcknowledgmentReasonCode.NOTED,
             acknowledging_archon_ids=(15, 42),
@@ -460,26 +468,33 @@ class TestDwellTimeEnforcement:
     @pytest.fixture
     def deliberating_petition_with_session(self):
         """Create a petition with an old enough session (dwell time elapsed)."""
+        from dataclasses import replace
         from datetime import timedelta
 
         from src.domain.models.deliberation_session import DeliberationSession
-        from src.domain.models.petition_submission import PetitionState, PetitionSubmission
+        from src.domain.models.petition_submission import (
+            PetitionState,
+            PetitionSubmission,
+            PetitionType,
+        )
 
         petition = PetitionSubmission(
             id=uuid4(),
-            petition_type_id="STANDARD",
+            type=PetitionType.GENERAL,
+            text="Dwell petition",
             submitter_id=uuid4(),
-            content_hash="blake3:abc123",
-            realm_id="TECH",
+            content_hash=b"d" * 32,
+            realm="TECH",
             state=PetitionState.DELIBERATING,
-            submitted_at=datetime.now(timezone.utc),
         )
 
         # Session started 60 seconds ago (dwell time has elapsed)
-        session = DeliberationSession(
-            id=uuid4(),
+        session = DeliberationSession.create(
             petition_id=petition.id,
             archon_ids=(15, 42, 67),
+        )
+        session = replace(
+            session,
             created_at=datetime.now(timezone.utc) - timedelta(seconds=60),
         )
 
@@ -488,26 +503,33 @@ class TestDwellTimeEnforcement:
     @pytest.fixture
     def recent_petition_with_session(self):
         """Create a petition with a recent session (dwell time NOT elapsed)."""
+        from dataclasses import replace
         from datetime import timedelta
 
         from src.domain.models.deliberation_session import DeliberationSession
-        from src.domain.models.petition_submission import PetitionState, PetitionSubmission
+        from src.domain.models.petition_submission import (
+            PetitionState,
+            PetitionSubmission,
+            PetitionType,
+        )
 
         petition = PetitionSubmission(
             id=uuid4(),
-            petition_type_id="STANDARD",
+            type=PetitionType.GENERAL,
+            text="Recent petition",
             submitter_id=uuid4(),
-            content_hash="blake3:recent123",
-            realm_id="TECH",
+            content_hash=b"e" * 32,
+            realm="TECH",
             state=PetitionState.DELIBERATING,
-            submitted_at=datetime.now(timezone.utc),
         )
 
         # Session started 5 seconds ago (dwell time has NOT elapsed)
-        session = DeliberationSession(
-            id=uuid4(),
+        session = DeliberationSession.create(
             petition_id=petition.id,
             archon_ids=(15, 42, 67),
+        )
+        session = replace(
+            session,
             created_at=datetime.now(timezone.utc) - timedelta(seconds=5),
         )
 
@@ -661,6 +683,7 @@ class TestDwellTimeEnforcement:
         self, dwell_config, deliberating_petition
     ) -> None:
         """Session can be added via add_session() after add_petition()."""
+        from dataclasses import replace
         from datetime import timedelta
 
         from src.domain.models.deliberation_session import DeliberationSession
@@ -674,10 +697,12 @@ class TestDwellTimeEnforcement:
         stub.add_petition(deliberating_petition)
 
         # Then add session (60 seconds old = dwell time elapsed)
-        session = DeliberationSession(
-            id=uuid4(),
+        session = DeliberationSession.create(
             petition_id=deliberating_petition.id,
             archon_ids=(15, 42, 67),
+        )
+        session = replace(
+            session,
             created_at=datetime.now(timezone.utc) - timedelta(seconds=60),
         )
         stub.add_session(deliberating_petition.id, session)

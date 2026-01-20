@@ -25,9 +25,6 @@ from src.infrastructure.stubs.acknowledgment_rate_metrics_stub import (
 )
 from src.infrastructure.stubs.agent_orchestrator_stub import AgentOrchestratorStub
 from src.infrastructure.stubs.amendment_repository_stub import AmendmentRepositoryStub
-from src.infrastructure.stubs.audit_trail_reconstructor_stub import (
-    AuditTrailReconstructorStub,
-)
 from src.infrastructure.stubs.amendment_visibility_validator_stub import (
     AmendmentVisibilityValidatorStub,
 )
@@ -52,13 +49,16 @@ from src.infrastructure.stubs.archon_pool_stub import (
 from src.infrastructure.stubs.archon_substitution_stub import (
     ArchonSubstitutionStub,
 )
-from src.infrastructure.stubs.auto_escalation_executor_stub import (
-    AutoEscalationExecutorStub,
-    EscalationHistoryEntry,
-)
 from src.infrastructure.stubs.audit_repository_stub import (
     AuditRepositoryStub,
     ConfigurableAuditRepositoryStub,
+)
+from src.infrastructure.stubs.audit_trail_reconstructor_stub import (
+    AuditTrailReconstructorStub,
+)
+from src.infrastructure.stubs.auto_escalation_executor_stub import (
+    AutoEscalationExecutorStub,
+    EscalationHistoryEntry,
 )
 from src.infrastructure.stubs.breach_repository_stub import BreachRepositoryStub
 from src.infrastructure.stubs.cessation_agenda_repository_stub import (
@@ -69,20 +69,15 @@ from src.infrastructure.stubs.cessation_flag_repository_stub import (
     FailureMode,
 )
 from src.infrastructure.stubs.cessation_repository_stub import CessationRepositoryStub
+from src.infrastructure.stubs.chaos_test_harness_stub import ChaosTestHarnessStub
+from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
+from src.infrastructure.stubs.co_sign_rate_limiter_stub import (
+    CoSignRateLimiterStub,
+)
 from src.infrastructure.stubs.co_sign_repository_stub import (
     CoSignRepositoryStub,
     StoredCoSign,
 )
-from src.infrastructure.stubs.identity_store_stub import (
-    IdentityStoreStub,
-    get_identity_store_stub,
-    reset_identity_store_stub,
-    set_identity_store_stub,
-)
-from src.infrastructure.stubs.co_sign_rate_limiter_stub import (
-    CoSignRateLimiterStub,
-)
-from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
 from src.infrastructure.stubs.collusion_investigator_stub import (
     CollusionInvestigatorStub,
 )
@@ -122,6 +117,9 @@ from src.infrastructure.stubs.context_package_builder_stub import (
 from src.infrastructure.stubs.deadlock_handler_stub import (
     DeadlockHandlerStub,
 )
+from src.infrastructure.stubs.decision_package_stub import (
+    DecisionPackageBuilderStub,
+)
 from src.infrastructure.stubs.deliberation_orchestrator_stub import (
     DeliberationOrchestratorStub,
     PhaseExecutorStub,
@@ -151,6 +149,10 @@ from src.infrastructure.stubs.event_query_stub import (
 )
 from src.infrastructure.stubs.event_replicator_stub import EventReplicatorStub
 from src.infrastructure.stubs.event_store_stub import EventStoreStub
+from src.infrastructure.stubs.extension_request_stub import (
+    ExtensionRecord,
+    ExtensionRequestStub,
+)
 from src.infrastructure.stubs.external_health_stub import ExternalHealthStub
 from src.infrastructure.stubs.failure_mode_registry_stub import (
     FailureModeRegistryStub,
@@ -165,6 +167,12 @@ from src.infrastructure.stubs.halt_guard_stub import HaltGuardStub
 from src.infrastructure.stubs.halt_state import HaltState
 from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
 from src.infrastructure.stubs.hash_verifier_stub import HashVerifierStub
+from src.infrastructure.stubs.identity_store_stub import (
+    IdentityStoreStub,
+    get_identity_store_stub,
+    reset_identity_store_stub,
+    set_identity_store_stub,
+)
 from src.infrastructure.stubs.incident_report_repository_stub import (
     IncidentReportRepositoryStub,
 )
@@ -181,12 +189,17 @@ from src.infrastructure.stubs.job_scheduler_stub import (
     JobSchedulerStub,
 )
 from src.infrastructure.stubs.keeper_availability_stub import KeeperAvailabilityStub
-from src.infrastructure.stubs.chaos_test_harness_stub import ChaosTestHarnessStub
-from src.infrastructure.stubs.load_test_harness_stub import LoadTestHarnessStub
 from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 from src.infrastructure.stubs.key_generation_ceremony_stub import (
     KeyGenerationCeremonyStub,
 )
+from src.infrastructure.stubs.knight_concurrent_limit_stub import (
+    KnightConcurrentLimitStub,
+)
+from src.infrastructure.stubs.knight_registry_stub import (
+    KnightRegistryStub,
+)
+from src.infrastructure.stubs.load_test_harness_stub import LoadTestHarnessStub
 from src.infrastructure.stubs.material_repository_stub import (
     ConfigurableMaterialRepositoryStub,
     MaterialRepositoryStub,
@@ -211,32 +224,11 @@ from src.infrastructure.stubs.petition_event_emitter_stub import (
     PetitionEventEmitterStub,
 )
 from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
-from src.infrastructure.stubs.decision_package_stub import (
-    DecisionPackageBuilderStub,
-)
-from src.infrastructure.stubs.recommendation_submission_stub import (
-    RecommendationSubmissionStub,
-)
-from src.infrastructure.stubs.extension_request_stub import (
-    ExtensionRecord,
-    ExtensionRequestStub,
-)
-from src.infrastructure.stubs.knight_registry_stub import (
-    KnightRegistryStub,
-)
-from src.infrastructure.stubs.knight_concurrent_limit_stub import (
-    KnightConcurrentLimitStub,
-)
-from src.infrastructure.stubs.referral_repository_stub import ReferralRepositoryStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
 from src.infrastructure.stubs.phase_witness_batching_stub import (
     PhaseWitnessBatchingStub,
-)
-from src.infrastructure.stubs.transcript_store_stub import (
-    TranscriptStoreOperation,
-    TranscriptStoreStub,
 )
 from src.infrastructure.stubs.prohibited_language_scanner_stub import (
     ConfigurableScannerStub,
@@ -256,9 +248,13 @@ from src.infrastructure.stubs.realm_registry_stub import (
     RealmOperation,
     RealmRegistryStub,
 )
+from src.infrastructure.stubs.recommendation_submission_stub import (
+    RecommendationSubmissionStub,
+)
 from src.infrastructure.stubs.recovery_waiting_period_stub import (
     RecoveryWaitingPeriodStub,
 )
+from src.infrastructure.stubs.referral_repository_stub import ReferralRepositoryStub
 from src.infrastructure.stubs.seed_validator_stub import SeedValidatorStub
 from src.infrastructure.stubs.semantic_scanner_stub import (
     CONFIDENCE_PER_PATTERN,
@@ -284,6 +280,10 @@ from src.infrastructure.stubs.topic_manipulation_detector_stub import (
 from src.infrastructure.stubs.topic_priority_stub import (
     QueuedTopic,
     TopicPriorityStub,
+)
+from src.infrastructure.stubs.transcript_store_stub import (
+    TranscriptStoreOperation,
+    TranscriptStoreStub,
 )
 from src.infrastructure.stubs.unwitnessed_halt_repository_stub import (
     UnwitnessedHaltRepositoryStub,

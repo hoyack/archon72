@@ -292,10 +292,17 @@ class TestStubAbortDeliberation:
         session = _create_test_session()
         stub.set_session(session)
 
+        failed_archons = [
+            {
+                "archon_id": str(session.assigned_archons[0]),
+                "failure_reason": "RESPONSE_TIMEOUT",
+                "phase": session.phase.value,
+            }
+        ]
         updated, event = await stub.abort_deliberation(
             session=session,
             reason="INSUFFICIENT_ARCHONS",
-            failed_archons=[],
+            failed_archons=failed_archons,
         )
 
         assert updated.outcome == DeliberationOutcome.ESCALATE
@@ -308,10 +315,17 @@ class TestStubAbortDeliberation:
         session = _create_test_session()
         stub.set_session(session)
 
+        failed_archons = [
+            {
+                "archon_id": str(session.assigned_archons[0]),
+                "failure_reason": "RESPONSE_TIMEOUT",
+                "phase": session.phase.value,
+            }
+        ]
         updated, event = await stub.abort_deliberation(
             session=session,
             reason="ARCHON_POOL_EXHAUSTED",
-            failed_archons=[],
+            failed_archons=failed_archons,
         )
 
         assert isinstance(event, DeliberationAbortedEvent)

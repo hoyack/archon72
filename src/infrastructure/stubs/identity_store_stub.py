@@ -16,7 +16,6 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.identity_verification import (
@@ -53,7 +52,7 @@ class IdentityStoreStub(IdentityStoreProtocol):
     def __init__(self) -> None:
         """Initialize empty identity store."""
         self._valid_identities: set[UUID] = set()
-        self._suspended_identities: dict[UUID, Optional[str]] = {}
+        self._suspended_identities: dict[UUID, str | None] = {}
         self._available: bool = True
 
     def verify(self, identity_id: UUID) -> IdentityVerificationResult:
@@ -88,7 +87,9 @@ class IdentityStoreStub(IdentityStoreProtocol):
                 status=IdentityStatus.SUSPENDED,
                 verified_at=now,
                 suspension_reason=reason,
-                details=f"Identity suspended: {reason}" if reason else "Identity suspended",
+                details=f"Identity suspended: {reason}"
+                if reason
+                else "Identity suspended",
             )
 
         # Check if valid
@@ -140,9 +141,7 @@ class IdentityStoreStub(IdentityStoreProtocol):
         """
         self._valid_identities.discard(identity_id)
 
-    def suspend_identity(
-        self, identity_id: UUID, reason: Optional[str] = None
-    ) -> None:
+    def suspend_identity(self, identity_id: UUID, reason: str | None = None) -> None:
         """Suspend an identity.
 
         Args:
@@ -213,7 +212,7 @@ class IdentityStoreStub(IdentityStoreProtocol):
 
 
 # Singleton instance for dependency injection
-_identity_store_stub: Optional[IdentityStoreStub] = None
+_identity_store_stub: IdentityStoreStub | None = None
 
 
 def get_identity_store_stub() -> IdentityStoreStub:

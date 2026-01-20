@@ -11,10 +11,10 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from src.application.ports.extension_request import (
     ExtensionRequest,

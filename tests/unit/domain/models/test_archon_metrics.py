@@ -152,7 +152,9 @@ class TestArchonDeliberationMetrics:
 
     def test_negative_participations_raises(self) -> None:
         """Test negative participations raises ValueError."""
-        with pytest.raises(ValueError, match="total_participations must be non-negative"):
+        with pytest.raises(
+            ValueError, match="total_participations must be non-negative"
+        ):
             ArchonDeliberationMetrics(
                 archon_id=uuid4(),
                 total_participations=-1,

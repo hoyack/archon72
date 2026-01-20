@@ -21,22 +21,16 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.ports.knight_concurrent_limit import (
-    AssignmentResult,
-    KnightEligibilityResult,
-)
 from src.application.services.knight_concurrent_limit_service import (
     KnightConcurrentLimitService,
 )
 from src.domain.errors.knight_concurrent_limit import (
-    KnightAtCapacityError,
     KnightNotFoundError,
     KnightNotInRealmError,
     ReferralAlreadyAssignedError,
 )
 from src.domain.models.realm import Realm, RealmStatus
 from src.domain.models.referral import Referral, ReferralStatus
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TEST FIXTURES
@@ -152,14 +146,23 @@ class TestCheckKnightEligibility:
     """Tests for check_knight_eligibility method."""
 
     async def test_eligible_when_below_capacity(
-        self, service, knight_id, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        knight_id,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Knight is eligible when current count < knight_capacity."""
         # Arrange
         mock_knight_registry.is_knight.return_value = True
         mock_knight_registry.get_knight_realm.return_value = realm_id
         mock_realm_registry.get_realm_by_id.return_value = realm
-        mock_referral_repo.count_active_by_knight.return_value = 1  # Below capacity of 3
+        mock_referral_repo.count_active_by_knight.return_value = (
+            1  # Below capacity of 3
+        )
 
         # Act
         result = await service.check_knight_eligibility(knight_id, realm_id)
@@ -171,7 +174,14 @@ class TestCheckKnightEligibility:
         assert result.reason is None
 
     async def test_not_eligible_at_capacity(
-        self, service, knight_id, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        knight_id,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Knight not eligible when current count >= knight_capacity."""
         # Arrange
@@ -228,7 +238,13 @@ class TestFindEligibleKnights:
     """Tests for find_eligible_knights method."""
 
     async def test_returns_eligible_knights_sorted_by_workload(
-        self, service, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Returns eligible Knights sorted by workload ascending."""
         # Arrange
@@ -237,11 +253,16 @@ class TestFindEligibleKnights:
         knight3 = uuid4()  # workload 1
 
         mock_realm_registry.get_realm_by_id.return_value = realm
-        mock_knight_registry.get_knights_in_realm.return_value = [knight1, knight2, knight3]
+        mock_knight_registry.get_knights_in_realm.return_value = [
+            knight1,
+            knight2,
+            knight3,
+        ]
 
         # Configure workloads
         async def get_count(kid):
             return {knight1: 2, knight2: 0, knight3: 1}[kid]
+
         mock_referral_repo.count_active_by_knight.side_effect = get_count
 
         # Act
@@ -254,7 +275,13 @@ class TestFindEligibleKnights:
         assert result[2] == knight1
 
     async def test_excludes_knights_at_capacity(
-        self, service, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Excludes Knights who have reached capacity."""
         # Arrange
@@ -266,6 +293,7 @@ class TestFindEligibleKnights:
 
         async def get_count(kid):
             return {knight1: 3, knight2: 1}[kid]
+
         mock_referral_repo.count_active_by_knight.side_effect = get_count
 
         # Act
@@ -276,7 +304,13 @@ class TestFindEligibleKnights:
         assert result[0] == knight2
 
     async def test_respects_limit_parameter(
-        self, service, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Respects the limit parameter."""
         # Arrange
@@ -293,7 +327,13 @@ class TestFindEligibleKnights:
         assert len(result) == 2
 
     async def test_returns_empty_when_no_eligible_knights(
-        self, service, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Returns empty list when all Knights are at capacity."""
         # Arrange
@@ -320,7 +360,15 @@ class TestAssignToEligibleKnight:
     """Tests for assign_to_eligible_knight method."""
 
     async def test_assigns_to_least_loaded_knight(
-        self, service, referral, realm, mock_referral_repo, mock_knight_registry, mock_realm_registry, mock_event_writer, mock_hash_service
+        self,
+        service,
+        referral,
+        realm,
+        mock_referral_repo,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_event_writer,
+        mock_hash_service,
     ):
         """Assigns referral to Knight with lowest workload."""
         # Arrange
@@ -334,6 +382,7 @@ class TestAssignToEligibleKnight:
 
         async def get_count(kid):
             return {knight1: 2, knight2: 0}[kid]
+
         mock_referral_repo.count_active_by_knight.side_effect = get_count
 
         # Act
@@ -350,7 +399,15 @@ class TestAssignToEligibleKnight:
         mock_event_writer.write.assert_called_once()
 
     async def test_uses_preferred_knight_when_eligible(
-        self, service, referral, realm, mock_referral_repo, mock_knight_registry, mock_realm_registry, mock_event_writer, mock_hash_service
+        self,
+        service,
+        referral,
+        realm,
+        mock_referral_repo,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_event_writer,
+        mock_hash_service,
     ):
         """Uses preferred Knight if eligible."""
         # Arrange
@@ -376,7 +433,15 @@ class TestAssignToEligibleKnight:
         assert result.assigned_knight_id == preferred
 
     async def test_falls_back_when_preferred_at_capacity(
-        self, service, referral, realm, mock_referral_repo, mock_knight_registry, mock_realm_registry, mock_event_writer, mock_hash_service
+        self,
+        service,
+        referral,
+        realm,
+        mock_referral_repo,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_event_writer,
+        mock_hash_service,
     ):
         """Falls back to other Knights when preferred is at capacity."""
         # Arrange
@@ -391,6 +456,7 @@ class TestAssignToEligibleKnight:
 
         async def get_count(kid):
             return {preferred: 3, other: 1}[kid]  # Preferred at capacity
+
         mock_referral_repo.count_active_by_knight.side_effect = get_count
 
         # Act
@@ -405,7 +471,15 @@ class TestAssignToEligibleKnight:
         assert result.assigned_knight_id == other
 
     async def test_defers_when_all_at_capacity(
-        self, service, referral, realm, mock_referral_repo, mock_knight_registry, mock_realm_registry, mock_event_writer, mock_hash_service
+        self,
+        service,
+        referral,
+        realm,
+        mock_referral_repo,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_event_writer,
+        mock_hash_service,
     ):
         """Defers assignment when all Knights at capacity."""
         # Arrange
@@ -457,7 +531,15 @@ class TestAssignToEligibleKnight:
         assert exc_info.value.assigned_knight_id == assigned_knight
 
     async def test_emits_assignment_event_with_witness_hash(
-        self, service, referral, realm, mock_referral_repo, mock_knight_registry, mock_realm_registry, mock_event_writer, mock_hash_service
+        self,
+        service,
+        referral,
+        realm,
+        mock_referral_repo,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_event_writer,
+        mock_hash_service,
     ):
         """Emits assignment event with witness hash (CT-12)."""
         # Arrange
@@ -482,7 +564,15 @@ class TestAssignToEligibleKnight:
         assert event_dict["event_type"] == "petition.referral.assigned"
 
     async def test_emits_deferral_event_with_witness_hash(
-        self, service, referral, realm, mock_referral_repo, mock_knight_registry, mock_realm_registry, mock_event_writer, mock_hash_service
+        self,
+        service,
+        referral,
+        realm,
+        mock_referral_repo,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_event_writer,
+        mock_hash_service,
     ):
         """Emits deferral event with witness hash (CT-12)."""
         # Arrange
@@ -538,7 +628,13 @@ class TestGetRealmWorkloadSummary:
     """Tests for get_realm_workload_summary method."""
 
     async def test_returns_workload_for_all_knights(
-        self, service, realm_id, realm, mock_knight_registry, mock_realm_registry, mock_referral_repo
+        self,
+        service,
+        realm_id,
+        realm,
+        mock_knight_registry,
+        mock_realm_registry,
+        mock_referral_repo,
     ):
         """Returns workload summary for all Knights in realm."""
         # Arrange
@@ -547,10 +643,15 @@ class TestGetRealmWorkloadSummary:
         knight3 = uuid4()
 
         mock_realm_registry.get_realm_by_id.return_value = realm
-        mock_knight_registry.get_knights_in_realm.return_value = [knight1, knight2, knight3]
+        mock_knight_registry.get_knights_in_realm.return_value = [
+            knight1,
+            knight2,
+            knight3,
+        ]
 
         async def get_count(kid):
             return {knight1: 1, knight2: 2, knight3: 0}[kid]
+
         mock_referral_repo.count_active_by_knight.side_effect = get_count
 
         # Act

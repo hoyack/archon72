@@ -40,14 +40,12 @@ from src.application.ports.archon_profile_repository import ArchonProfileReposit
 from src.application.ports.tool_registry import ToolRegistryProtocol
 from src.domain.errors.agent import AgentInvocationError, AgentNotFoundError
 from src.domain.models.archon_profile import ArchonProfile
-from src.domain.models.llm_config import LLMConfig
 from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 if TYPE_CHECKING:
     from crewai.tools import BaseTool
 
 logger = get_logger(__name__)
-
 
 
 class CrewAIAdapter(AgentOrchestratorProtocol):

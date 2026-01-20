@@ -13,7 +13,7 @@ Constitutional Constraints Tested:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -273,7 +273,9 @@ class TestRateLimitCounterIncrement:
 
         # Act: Should fail (petition not found)
         with pytest.raises(Exception):
-            await service.submit_co_sign(petition_id=nonexistent_petition, signer_id=signer_id)
+            await service.submit_co_sign(
+                petition_id=nonexistent_petition, signer_id=signer_id
+            )
 
         # Assert: Counter NOT incremented
         new_count = rate_limiter.get_count(signer_id)
@@ -309,7 +311,9 @@ class TestRateLimitInfoInResponse:
         )
 
         # Act
-        result = await service.submit_co_sign(petition_id=petition_id, signer_id=signer_id)
+        result = await service.submit_co_sign(
+            petition_id=petition_id, signer_id=signer_id
+        )
 
         # Assert: Rate limit info in response
         # After increment: count is 11, so remaining is 50 - 11 = 39
@@ -344,7 +348,9 @@ class TestBackwardsCompatibility:
         )
 
         # Act: Should succeed
-        result = await service.submit_co_sign(petition_id=petition_id, signer_id=signer_id)
+        result = await service.submit_co_sign(
+            petition_id=petition_id, signer_id=signer_id
+        )
 
         # Assert: Success, but no rate limit info
         assert result.cosign_id is not None
@@ -370,7 +376,9 @@ class TestBackwardsCompatibility:
         )
 
         # Act: Should succeed
-        result = await service.submit_co_sign(petition_id=petition_id, signer_id=signer_id)
+        result = await service.submit_co_sign(
+            petition_id=petition_id, signer_id=signer_id
+        )
 
         # Assert: Success
         assert result.cosign_id is not None

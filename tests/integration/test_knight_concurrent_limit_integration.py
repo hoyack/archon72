@@ -19,10 +19,6 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.ports.knight_concurrent_limit import (
-    AssignmentResult,
-    KnightEligibilityResult,
-)
 from src.domain.errors.knight_concurrent_limit import (
     KnightNotFoundError,
     KnightNotInRealmError,
@@ -36,7 +32,6 @@ from src.infrastructure.stubs.knight_concurrent_limit_stub import (
 from src.infrastructure.stubs.knight_registry_stub import KnightRegistryStub
 from src.infrastructure.stubs.realm_registry_stub import RealmRegistryStub
 from src.infrastructure.stubs.referral_repository_stub import ReferralRepositoryStub
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TEST FIXTURES
@@ -119,9 +114,7 @@ class TestEligibilityCheckIntegration:
         self, service, test_realm, test_knights
     ):
         """Knight with no active referrals is eligible."""
-        result = await service.check_knight_eligibility(
-            test_knights[0], test_realm.id
-        )
+        result = await service.check_knight_eligibility(test_knights[0], test_realm.id)
 
         assert result.is_eligible is True
         assert result.current_count == 0
@@ -136,9 +129,7 @@ class TestEligibilityCheckIntegration:
         referral = referral.with_assignment(test_knights[0])
         await referral_repo.save(referral)
 
-        result = await service.check_knight_eligibility(
-            test_knights[0], test_realm.id
-        )
+        result = await service.check_knight_eligibility(test_knights[0], test_realm.id)
 
         assert result.is_eligible is True
         assert result.current_count == 1
@@ -154,9 +145,7 @@ class TestEligibilityCheckIntegration:
             referral = referral.with_assignment(test_knights[0])
             await referral_repo.save(referral)
 
-        result = await service.check_knight_eligibility(
-            test_knights[0], test_realm.id
-        )
+        result = await service.check_knight_eligibility(test_knights[0], test_realm.id)
 
         assert result.is_eligible is False
         assert result.current_count == 2
@@ -439,22 +428,24 @@ class TestReEligibilityIntegration:
             refs.append(ref)
 
         # Verify at capacity
-        result = await service.check_knight_eligibility(
-            test_knights[0], test_realm.id
-        )
+        result = await service.check_knight_eligibility(test_knights[0], test_realm.id)
         assert result.is_eligible is False
 
         # Complete one referral (simulate by transitioning to COMPLETED)
-        completed = refs[0].with_in_review().with_recommendation(
-            recommendation=__import__("src.domain.models.referral", fromlist=["ReferralRecommendation"]).ReferralRecommendation.ACKNOWLEDGE,
-            rationale="Test completion",
+        completed = (
+            refs[0]
+            .with_in_review()
+            .with_recommendation(
+                recommendation=__import__(
+                    "src.domain.models.referral", fromlist=["ReferralRecommendation"]
+                ).ReferralRecommendation.ACKNOWLEDGE,
+                rationale="Test completion",
+            )
         )
         await referral_repo.update(completed)
 
         # Now Knight should be eligible again
-        result = await service.check_knight_eligibility(
-            test_knights[0], test_realm.id
-        )
+        result = await service.check_knight_eligibility(test_knights[0], test_realm.id)
         assert result.is_eligible is True
         assert result.current_count == 1
 

@@ -1076,9 +1076,7 @@ class DeliberationSession:
 
         valid_reasons = ("INSUFFICIENT_ARCHONS", "ARCHON_POOL_EXHAUSTED")
         if reason not in valid_reasons:
-            raise ValueError(
-                f"reason must be one of {valid_reasons}, got '{reason}'"
-            )
+            raise ValueError(f"reason must be one of {valid_reasons}, got '{reason}'")
 
         return DeliberationSession(
             session_id=self.session_id,

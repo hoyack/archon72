@@ -16,10 +16,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-import pytest
-
 from src.application.services.archon_substitution_service import (
-    ArchonSubstitutionService,
     MAX_SUBSTITUTION_LATENCY_MS,
 )
 from src.application.services.context_package_builder_service import (
@@ -29,7 +26,6 @@ from src.application.services.deliberation_orchestrator_service import (
     DeliberationOrchestratorService,
 )
 from src.config.deliberation_config import DEFAULT_DELIBERATION_CONFIG
-from src.domain.errors.deliberation import PhaseExecutionError
 from src.domain.events.archon_substitution import (
     ArchonSubstitutedEvent,
     DeliberationAbortedEvent,
@@ -87,6 +83,7 @@ class TestArchonSubstitutionIntegration:
 
         # Execute substitution
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -118,6 +115,7 @@ class TestArchonSubstitutionIntegration:
 
         # Execute substitution
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -158,6 +156,7 @@ class TestArchonSubstitutionIntegration:
         # Execute substitution for second failure
         second_failed = session.assigned_archons[1]
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -191,6 +190,7 @@ class TestArchonSubstitutionIntegration:
 
         # Get context handoff
         import asyncio
+
         handoff = asyncio.get_event_loop().run_until_complete(
             stub.prepare_context_handoff(
                 session=session,
@@ -217,6 +217,7 @@ class TestArchonSubstitutionIntegration:
 
         # Execute substitution
         import asyncio
+
         asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -298,6 +299,7 @@ class TestConstitutionalComplianceIntegration:
         stub.set_session(session)
 
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -329,6 +331,7 @@ class TestConstitutionalComplianceIntegration:
         stub.set_session(session)
 
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -355,6 +358,7 @@ class TestConstitutionalComplianceIntegration:
         stub.set_session(session)
 
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,
@@ -381,6 +385,7 @@ class TestConstitutionalComplianceIntegration:
         stub.set_session(session)
 
         import asyncio
+
         result = asyncio.get_event_loop().run_until_complete(
             stub.execute_substitution(
                 session=session,

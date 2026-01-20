@@ -6,7 +6,6 @@ through to Prometheus exposition.
 
 from uuid import uuid4
 
-import pytest
 from prometheus_client import CollectorRegistry, generate_latest
 
 from src.application.services.acknowledgment_rate_metrics_service import (
@@ -70,26 +69,32 @@ class TestConsensusResolverMetricsIntegration:
             assert sample == 1.0
 
         # Verify ACKNOWLEDGE votes
-        assert registry.get_sample_value(
-            "deliberation_votes_total",
-            labels={
-                "archon_id": str(archon_1),
-                "outcome": "ACKNOWLEDGE",
-                "service": "archon72-api",
-                "environment": "development",
-            },
-        ) == 1.0
+        assert (
+            registry.get_sample_value(
+                "deliberation_votes_total",
+                labels={
+                    "archon_id": str(archon_1),
+                    "outcome": "ACKNOWLEDGE",
+                    "service": "archon72-api",
+                    "environment": "development",
+                },
+            )
+            == 1.0
+        )
 
         # Verify REFER vote
-        assert registry.get_sample_value(
-            "deliberation_votes_total",
-            labels={
-                "archon_id": str(archon_3),
-                "outcome": "REFER",
-                "service": "archon72-api",
-                "environment": "development",
-            },
-        ) == 1.0
+        assert (
+            registry.get_sample_value(
+                "deliberation_votes_total",
+                labels={
+                    "archon_id": str(archon_3),
+                    "outcome": "REFER",
+                    "service": "archon72-api",
+                    "environment": "development",
+                },
+            )
+            == 1.0
+        )
 
     def test_resolve_consensus_without_metrics_collector(self) -> None:
         """Test consensus resolver works without metrics collector."""

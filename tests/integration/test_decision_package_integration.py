@@ -74,7 +74,7 @@ def referred_petition(
         id=uuid4(),
         type=PetitionType.GENERAL,
         text="This is a detailed petition about governance concerns. "
-             "The petitioner requests a review of current policies.",
+        "The petitioner requests a review of current policies.",
         submitter_id=uuid4(),
         realm="GOVERNANCE",
         state=PetitionState.REFERRED,

@@ -30,10 +30,10 @@ from src.domain.models.deliberation_session import (
     DeliberationOutcome,
     DeliberationPhase,
 )
-from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 from src.infrastructure.adapters.config.archon_profile_adapter import (
     create_archon_profile_repository,
 )
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 if TYPE_CHECKING:
     from src.domain.models.archon_profile import ArchonProfile

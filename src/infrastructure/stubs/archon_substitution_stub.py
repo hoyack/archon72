@@ -12,7 +12,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-import time
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -32,9 +31,9 @@ from src.domain.events.archon_substitution import (
     DeliberationAbortedEvent,
 )
 from src.domain.models.deliberation_session import (
+    MAX_SUBSTITUTIONS_PER_SESSION,
     ArchonSubstitution,
     DeliberationSession,
-    MAX_SUBSTITUTIONS_PER_SESSION,
 )
 
 
@@ -105,6 +104,7 @@ class ArchonSubstitutionStub(ArchonSubstitutionProtocol):
         self._events_emitted: list[
             ArchonSubstitutedEvent | DeliberationAbortedEvent
         ] = []
+        self._emitted_events = self._events_emitted
         self._simulated_latency_ms = simulated_latency_ms
 
     def register_session(self, session: DeliberationSession) -> None:
@@ -114,6 +114,10 @@ class ArchonSubstitutionStub(ArchonSubstitutionProtocol):
             session: The session to register.
         """
         self._sessions[session.session_id] = session
+
+    def set_session(self, session: DeliberationSession) -> None:
+        """Compatibility alias for register_session (test helper)."""
+        self.register_session(session)
 
     def add_available_substitute(self, archon_id: UUID) -> None:
         """Add an available substitute archon ID (test helper).
@@ -238,8 +242,7 @@ class ArchonSubstitutionStub(ArchonSubstitutionProtocol):
 
         # Convert votes to string outcome names
         previous_votes = {
-            archon_id: vote.value
-            for archon_id, vote in session.votes.items()
+            archon_id: vote.value for archon_id, vote in session.votes.items()
         }
 
         return ContextHandoff(
@@ -326,10 +329,12 @@ class ArchonSubstitutionStub(ArchonSubstitutionProtocol):
         )
 
         # Track substitution
-        self._substitutions.append((
-            session.session_id,
-            updated_session.substitutions[-1],
-        ))
+        self._substitutions.append(
+            (
+                session.session_id,
+                updated_session.substitutions[-1],
+            )
+        )
         self._events_emitted.append(event)
 
         # Store updated session
@@ -361,11 +366,13 @@ class ArchonSubstitutionStub(ArchonSubstitutionProtocol):
             for sub in session.substitutions
         ]
         # Add current failure
-        failed_archons.append({
-            "archon_id": str(failed_archon_id),
-            "failure_reason": failure_reason,
-            "phase": session.phase.value,
-        })
+        failed_archons.append(
+            {
+                "archon_id": str(failed_archon_id),
+                "failure_reason": failure_reason,
+                "phase": session.phase.value,
+            }
+        )
 
         updated_session, event = await self.abort_deliberation(
             session=session,
@@ -389,11 +396,13 @@ class ArchonSubstitutionStub(ArchonSubstitutionProtocol):
         failure_reason: str,
     ) -> SubstitutionResult:
         """Abort due to archon pool exhausted."""
-        failed_archons = [{
-            "archon_id": str(failed_archon_id),
-            "failure_reason": failure_reason,
-            "phase": session.phase.value,
-        }]
+        failed_archons = [
+            {
+                "archon_id": str(failed_archon_id),
+                "failure_reason": failure_reason,
+                "phase": session.phase.value,
+            }
+        ]
 
         updated_session, event = await self.abort_deliberation(
             session=session,

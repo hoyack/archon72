@@ -9,6 +9,11 @@ Constitutional Constraints:
 - FR52: Operational metrics ONLY (no constitutional metrics here)
 """
 
+from src.infrastructure.monitoring.deliberation_metrics import (
+    DeliberationMetricsCollector,
+    get_deliberation_metrics_collector,
+    reset_deliberation_metrics_collector,
+)
 from src.infrastructure.monitoring.external_monitor import (
     AlertSeverity,
     ExternalMonitorClient,
@@ -21,11 +26,6 @@ from src.infrastructure.monitoring.metrics import (
     generate_metrics,
     get_metrics_collector,
     reset_metrics_collector,
-)
-from src.infrastructure.monitoring.deliberation_metrics import (
-    DeliberationMetricsCollector,
-    get_deliberation_metrics_collector,
-    reset_deliberation_metrics_collector,
 )
 
 __all__ = [

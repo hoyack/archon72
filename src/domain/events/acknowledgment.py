@@ -94,9 +94,7 @@ class PetitionAcknowledgedEvent:
     def _validate_witness_hash(self) -> None:
         """Validate witness_hash is present (CT-12 requirement)."""
         if not self.witness_hash or not self.witness_hash.strip():
-            raise ValueError(
-                "witness_hash is required for CT-12 witnessing compliance"
-            )
+            raise ValueError("witness_hash is required for CT-12 witnessing compliance")
 
     def _validate_schema_version(self) -> None:
         """Validate schema version is current."""
@@ -120,8 +118,7 @@ class PetitionAcknowledgedEvent:
         if AcknowledgmentReasonCode.requires_reference(self.reason_code):
             if self.reference_petition_id is None:
                 raise ValueError(
-                    f"reference_petition_id is required for DUPLICATE reason "
-                    f"per FR-3.4"
+                    "reference_petition_id is required for DUPLICATE reason per FR-3.4"
                 )
 
     @property
@@ -155,9 +152,7 @@ class PetitionAcknowledgedEvent:
             "reason_code": self.reason_code.value,
             "rationale": self.rationale,
             "reference_petition_id": (
-                str(self.reference_petition_id)
-                if self.reference_petition_id
-                else None
+                str(self.reference_petition_id) if self.reference_petition_id else None
             ),
             "acknowledging_archon_ids": list(self.acknowledging_archon_ids),
             "acknowledged_at": self.acknowledged_at.isoformat(),

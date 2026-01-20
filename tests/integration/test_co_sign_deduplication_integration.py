@@ -22,7 +22,6 @@ from src.domain.errors.co_sign import AlreadySignedError
 from src.domain.models.co_sign import CoSign
 from src.infrastructure.stubs.co_sign_repository_stub import (
     CoSignRepositoryStub,
-    StoredCoSign,
 )
 
 

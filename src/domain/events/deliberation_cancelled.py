@@ -19,11 +19,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID
-
 
 # Event type constant
 DELIBERATION_CANCELLED_EVENT_TYPE: str = "deliberation.session.cancelled"

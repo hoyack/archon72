@@ -22,12 +22,6 @@ import time
 from crewai import Agent, Crew, Task
 from structlog import get_logger
 
-from src.domain.models.llm_config import LLMConfig
-from src.infrastructure.adapters.external.crewai_llm_factory import (
-    create_crewai_llm,
-    llm_config_from_model_string,
-)
-from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
 from src.application.ports.execution_planner import (
     BlockerDetection,
     BlockerDetectionError,
@@ -39,6 +33,12 @@ from src.application.ports.execution_planner import (
     PlanningError,
     PlanningResult,
     TaskInstantiation,
+)
+from src.domain.models.llm_config import LLMConfig
+from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
+from src.infrastructure.adapters.external.crewai_llm_factory import (
+    create_crewai_llm,
+    llm_config_from_model_string,
 )
 
 logger = get_logger(__name__)

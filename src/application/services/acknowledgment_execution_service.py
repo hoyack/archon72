@@ -28,7 +28,6 @@ from src.config.deliberation_config import (
     DeliberationConfig,
 )
 from src.domain.errors.acknowledgment import (
-    AcknowledgmentAlreadyExistsError,
     DeliberationSessionNotFoundError,
     DwellTimeNotElapsedError,
     InvalidArchonCountError,

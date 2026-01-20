@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Protocol
+from typing import Protocol
 from uuid import UUID
 
 
@@ -67,8 +67,8 @@ class IdentityVerificationResult:
     identity_id: UUID
     status: IdentityStatus
     verified_at: datetime = field(default_factory=lambda: datetime.now(tz=None))
-    suspension_reason: Optional[str] = field(default=None)
-    details: Optional[str] = field(default=None)
+    suspension_reason: str | None = field(default=None)
+    details: str | None = field(default=None)
 
     def __post_init__(self) -> None:
         """Validate result fields after initialization."""

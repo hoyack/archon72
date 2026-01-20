@@ -223,10 +223,7 @@ class ArchonPoolService:
         Returns:
             List of available FateArchon instances.
         """
-        return [
-            archon for archon in self._pool
-            if archon.id not in excluded_archon_ids
-        ]
+        return [archon for archon in self._pool if archon.id not in excluded_archon_ids]
 
 
 # Default singleton using canonical pool

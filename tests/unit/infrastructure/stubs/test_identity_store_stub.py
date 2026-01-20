@@ -11,8 +11,6 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-import pytest
-
 from src.application.ports.identity_verification import IdentityStatus
 from src.infrastructure.stubs.identity_store_stub import IdentityStoreStub
 

@@ -17,7 +17,6 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.application.ports.auto_escalation_executor import AutoEscalationResult
 from src.application.services.auto_escalation_executor_service import (
     AutoEscalationExecutorService,
 )

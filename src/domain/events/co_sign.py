@@ -27,7 +27,6 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-
 # Event type constant for co-sign recorded event
 CO_SIGN_RECORDED_EVENT_TYPE: str = "petition.co_sign.recorded"
 

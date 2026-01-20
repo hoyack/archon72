@@ -282,7 +282,10 @@ class TestThresholdCheckingIntegration:
         """COLLABORATION petition never triggers threshold (no auto-escalation)."""
         # Setup: Create COLLABORATION petition with high co-signer count
         petition = setup_petition(
-            petition_repo, co_sign_repo, PetitionType.COLLABORATION, co_signer_count=1000
+            petition_repo,
+            co_sign_repo,
+            PetitionType.COLLABORATION,
+            co_signer_count=1000,
         )
 
         signer_id = uuid4()

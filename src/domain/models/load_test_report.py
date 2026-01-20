@@ -17,7 +17,6 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-
 # 5 minutes in milliseconds - NFR-10.1 threshold
 NFR_10_1_THRESHOLD_MS = 300_000
 

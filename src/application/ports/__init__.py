@@ -29,10 +29,6 @@ from src.application.ports.agent_orchestrator import (
     AgentStatusInfo,
     ContextBundle,
 )
-from src.application.ports.audit_trail_reconstructor import (
-    AuditTrailReconstructorProtocol,
-    SessionNotFoundError,
-)
 from src.application.ports.amendment_repository import (
     AmendmentProposal,
     AmendmentRepositoryProtocol,
@@ -62,15 +58,6 @@ from src.application.ports.archon_assignment import (
 from src.application.ports.archon_pool import (
     ArchonPoolProtocol,
 )
-from src.application.ports.auto_escalation_executor import (
-    AutoEscalationExecutorProtocol,
-    AutoEscalationResult,
-)
-from src.application.ports.archon_substitution import (
-    ArchonSubstitutionProtocol,
-    ContextHandoff,
-    SubstitutionResult,
-)
 from src.application.ports.archon_profile_repository import (
     ArchonProfileRepository,
 )
@@ -84,8 +71,21 @@ from src.application.ports.archon_selector import (
     SelectionMode,
     TopicContext,
 )
+from src.application.ports.archon_substitution import (
+    ArchonSubstitutionProtocol,
+    ContextHandoff,
+    SubstitutionResult,
+)
 from src.application.ports.audit_repository import (
     AuditRepositoryProtocol,
+)
+from src.application.ports.audit_trail_reconstructor import (
+    AuditTrailReconstructorProtocol,
+    SessionNotFoundError,
+)
+from src.application.ports.auto_escalation_executor import (
+    AutoEscalationExecutorProtocol,
+    AutoEscalationResult,
 )
 from src.application.ports.breach_declaration import BreachDeclarationProtocol
 from src.application.ports.breach_repository import BreachRepositoryProtocol
@@ -97,28 +97,23 @@ from src.application.ports.cessation_flag_repository import (
     CessationFlagRepositoryProtocol,
 )
 from src.application.ports.cessation_repository import CessationRepositoryProtocol
+from src.application.ports.chaos_test_harness import (
+    ChaosTestHarnessProtocol,
+    FaultHandle,
+)
 from src.application.ports.checkpoint_repository import CheckpointRepository
-from src.application.ports.co_sign_submission import (
-    CoSignRepositoryProtocol,
-    CoSignSubmissionProtocol,
-    CoSignSubmissionResult,
-)
-from src.application.ports.identity_verification import (
-    IdentityStatus,
-    IdentityStoreProtocol,
-    IdentityVerificationResult,
-)
 from src.application.ports.co_sign_count_verification import (
     CoSignCountVerificationProtocol,
     CountVerificationResult,
 )
 from src.application.ports.co_sign_rate_limiter import (
-    CoSignRateLimitResult,
     CoSignRateLimiterProtocol,
+    CoSignRateLimitResult,
 )
-from src.application.ports.escalation_threshold import (
-    EscalationThresholdCheckerProtocol,
-    EscalationThresholdResult,
+from src.application.ports.co_sign_submission import (
+    CoSignRepositoryProtocol,
+    CoSignSubmissionProtocol,
+    CoSignSubmissionResult,
 )
 from src.application.ports.collective_output import (
     CollectiveOutputPort,
@@ -175,6 +170,9 @@ from src.application.ports.context_package_builder import (
 )
 from src.application.ports.deadlock_handler import (
     DeadlockHandlerProtocol,
+)
+from src.application.ports.decision_package import (
+    DecisionPackageBuilderProtocol,
 )
 from src.application.ports.deliberation_orchestrator import (
     DeliberationOrchestratorProtocol,
@@ -237,6 +235,10 @@ from src.application.ports.earl_service import (
 from src.application.ports.entropy_source import EntropySourceProtocol
 from src.application.ports.escalation import EscalationProtocol
 from src.application.ports.escalation_repository import EscalationRepositoryProtocol
+from src.application.ports.escalation_threshold import (
+    EscalationThresholdCheckerProtocol,
+    EscalationThresholdResult,
+)
 from src.application.ports.event_query import (
     EventQueryProtocol,
 )
@@ -249,6 +251,11 @@ from src.application.ports.event_replicator import (
 from src.application.ports.event_store import (
     EventStorePort,
     validate_sequence_continuity,
+)
+from src.application.ports.extension_request import (
+    ExtensionRequest,
+    ExtensionRequestProtocol,
+    ExtensionResult,
 )
 from src.application.ports.external_health import (
     ExternalHealthPort,
@@ -323,6 +330,11 @@ from src.application.ports.heartbeat_emitter import (
 )
 from src.application.ports.heartbeat_monitor import HeartbeatMonitorPort
 from src.application.ports.hsm import HSMMode, HSMProtocol, SignatureResult
+from src.application.ports.identity_verification import (
+    IdentityStatus,
+    IdentityStoreProtocol,
+    IdentityVerificationResult,
+)
 from src.application.ports.incident_report_repository import (
     IncidentReportRepositoryPort,
 )
@@ -339,18 +351,22 @@ from src.application.ports.integrity_failure_repository import (
 from src.application.ports.job_scheduler import (
     JobSchedulerProtocol,
 )
-from src.application.ports.chaos_test_harness import (
-    ChaosTestHarnessProtocol,
-    FaultHandle,
+from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
+from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
+from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
+from src.application.ports.key_registry import KeyRegistryProtocol
+from src.application.ports.knight_concurrent_limit import (
+    AssignmentResult as KnightAssignmentResult,
+)
+from src.application.ports.knight_concurrent_limit import (
+    KnightConcurrentLimitProtocol,
+    KnightEligibilityResult,
+    KnightRegistryProtocol,
 )
 from src.application.ports.load_test_harness import (
     LoadTestHarnessProtocol,
     TestPetition,
 )
-from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
-from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
-from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
-from src.application.ports.key_registry import KeyRegistryProtocol
 
 # Government PRD Phase 3 - Marquis Service (Epic 6, FR-GOV-17, FR-GOV-18)
 from src.application.ports.marquis_service import (
@@ -403,40 +419,8 @@ from src.application.ports.petition_repository import (
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
 )
-from src.application.ports.decision_package import (
-    DecisionPackageBuilderProtocol,
-)
-from src.application.ports.recommendation_submission import (
-    RecommendationSubmissionProtocol,
-)
-from src.application.ports.extension_request import (
-    ExtensionRequest,
-    ExtensionRequestProtocol,
-    ExtensionResult,
-)
-from src.application.ports.referral_execution import (
-    ReferralExecutionProtocol,
-    ReferralRepositoryProtocol,
-)
-from src.application.ports.referral_timeout import (
-    ReferralTimeoutAction,
-    ReferralTimeoutAcknowledgeError,
-    ReferralTimeoutError,
-    ReferralTimeoutProtocol,
-    ReferralTimeoutResult,
-    ReferralTimeoutWitnessError,
-)
-from src.application.ports.knight_concurrent_limit import (
-    AssignmentResult as KnightAssignmentResult,
-    KnightConcurrentLimitProtocol,
-    KnightEligibilityResult,
-    KnightRegistryProtocol,
-)
 from src.application.ports.phase_witness_batching import (
     PhaseWitnessBatchingProtocol,
-)
-from src.application.ports.transcript_store import (
-    TranscriptStoreProtocol,
 )
 from src.application.ports.procedural_record_generator import (
     ProceduralRecordData,
@@ -464,7 +448,22 @@ from src.application.ports.rate_limiter import (
 from src.application.ports.realm_registry import (
     RealmRegistryProtocol,
 )
+from src.application.ports.recommendation_submission import (
+    RecommendationSubmissionProtocol,
+)
 from src.application.ports.recovery_waiting_period import RecoveryWaitingPeriodPort
+from src.application.ports.referral_execution import (
+    ReferralExecutionProtocol,
+    ReferralRepositoryProtocol,
+)
+from src.application.ports.referral_timeout import (
+    ReferralTimeoutAcknowledgeError,
+    ReferralTimeoutAction,
+    ReferralTimeoutError,
+    ReferralTimeoutProtocol,
+    ReferralTimeoutResult,
+    ReferralTimeoutWitnessError,
+)
 from src.application.ports.result_certifier import (
     CertificationResult,
     ResultCertifierPort,
@@ -526,6 +525,9 @@ from src.application.ports.topic_rate_limiter import (
     RATE_LIMIT_PER_HOUR,
     RATE_LIMIT_WINDOW_SECONDS,
     TopicRateLimiterPort,
+)
+from src.application.ports.transcript_store import (
+    TranscriptStoreProtocol,
 )
 from src.application.ports.unanimous_vote import (
     StoredUnanimousVote,

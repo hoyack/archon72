@@ -30,7 +30,9 @@ class TestPetitionEscalationTriggeredEventConstants:
 
     def test_event_type_constant(self) -> None:
         """Event type constant is correctly defined."""
-        assert PETITION_ESCALATION_TRIGGERED_EVENT_TYPE == "petition.escalation.triggered"
+        assert (
+            PETITION_ESCALATION_TRIGGERED_EVENT_TYPE == "petition.escalation.triggered"
+        )
 
     def test_schema_version_constant(self) -> None:
         """Schema version is 1 per D2 compliance."""

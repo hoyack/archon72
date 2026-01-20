@@ -18,7 +18,7 @@ from uuid import UUID
 from src.domain.errors.constitutional import ConstitutionalViolationError
 
 if TYPE_CHECKING:
-    from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
+    pass
 
 
 class AcknowledgmentExecutionError(ConstitutionalViolationError):

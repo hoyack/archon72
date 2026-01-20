@@ -111,7 +111,10 @@ class DecisionPackage:
             )
 
         # Validate petition_created_at is timezone-aware if set
-        if self.petition_created_at is not None and self.petition_created_at.tzinfo is None:
+        if (
+            self.petition_created_at is not None
+            and self.petition_created_at.tzinfo is None
+        ):
             raise ValueError("petition_created_at must be timezone-aware (UTC)")
 
         # Validate built_at is timezone-aware if set

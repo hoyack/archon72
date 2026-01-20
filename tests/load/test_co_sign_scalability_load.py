@@ -169,7 +169,7 @@ class TestCoSignScalabilityLoad:
         # Note: Stub is O(1) by design, real DB test validates actual perf
         p99 = statistics.quantiles(query_times, n=100)[98]  # 99th percentile
         # Stub should be sub-millisecond
-        assert p99 < 0.001, f"Count query p99 {p99*1000:.2f}ms exceeds threshold"
+        assert p99 < 0.001, f"Count query p99 {p99 * 1000:.2f}ms exceeds threshold"
 
     async def test_concurrent_insertions(
         self,
@@ -187,9 +187,7 @@ class TestCoSignScalabilityLoad:
         petition_id = uuid4()
         repo.add_valid_petition(petition_id)
 
-        count = min(
-            load_test_config.co_signer_count, 1000
-        )  # Cap for concurrent test
+        count = min(load_test_config.co_signer_count, 1000)  # Cap for concurrent test
         concurrency = load_test_config.concurrency
 
         errors: list[Exception] = []
@@ -233,15 +231,15 @@ class TestCoSignScalabilityLoad:
 
         # Check for exceptions in results
         exceptions = [r for r in results if isinstance(r, Exception)]
-        assert (
-            len(exceptions) == 0
-        ), f"Got {len(exceptions)} exceptions: {exceptions[:5]}"
+        assert len(exceptions) == 0, (
+            f"Got {len(exceptions)} exceptions: {exceptions[:5]}"
+        )
 
         # Verify count matches successful inserts
         final_count = await repo.get_count(petition_id)
-        assert (
-            final_count == successful_inserts
-        ), f"Count {final_count} != inserts {successful_inserts}"
+        assert final_count == successful_inserts, (
+            f"Count {final_count} != inserts {successful_inserts}"
+        )
 
     async def test_duplicate_rejection_at_scale(
         self,
@@ -304,9 +302,9 @@ class TestCoSignScalabilityLoad:
         # Assert - Count unchanged, all duplicates rejected
         final_count = await repo.get_count(petition_id)
         assert final_count == initial_count, f"Count changed to {final_count}"
-        assert (
-            duplicate_rejections == initial_count
-        ), f"Expected {initial_count} rejections, got {duplicate_rejections}"
+        assert duplicate_rejections == initial_count, (
+            f"Expected {initial_count} rejections, got {duplicate_rejections}"
+        )
 
     def _report_latency_stats(
         self,

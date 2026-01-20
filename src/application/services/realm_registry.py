@@ -17,6 +17,7 @@ Usage:
 
 from __future__ import annotations
 
+from typing import Any
 from uuid import UUID
 
 from supabase import Client as SupabaseClient
@@ -47,6 +48,13 @@ class RealmRegistryService(LoggingMixin):
         """
         self._client = client
         self._init_logger(component="petition")
+
+    @staticmethod
+    def _coerce_rows(data: object) -> list[dict[str, Any]]:
+        """Normalize Supabase response payloads to a list of row dicts."""
+        if not isinstance(data, list):
+            return []
+        return [row for row in data if isinstance(row, dict)]
 
     def _row_to_realm(self, row: dict) -> Realm:
         """Convert database row to Realm domain object.
@@ -83,12 +91,13 @@ class RealmRegistryService(LoggingMixin):
             self._client.table("realms").select("*").eq("id", str(realm_id)).execute()
         )
 
-        if not result.data:
+        rows = self._coerce_rows(result.data)
+        if not rows:
             log.debug("realm_not_found")
             return None
 
-        log.debug("realm_found", name=result.data[0]["name"])
-        return self._row_to_realm(result.data[0])
+        log.debug("realm_found", name=rows[0]["name"])
+        return self._row_to_realm(rows[0])
 
     def get_realm_by_name(self, name: str) -> Realm | None:
         """Retrieve a realm by its canonical name.
@@ -105,12 +114,13 @@ class RealmRegistryService(LoggingMixin):
 
         result = self._client.table("realms").select("*").eq("name", name).execute()
 
-        if not result.data:
+        rows = self._coerce_rows(result.data)
+        if not rows:
             log.debug("realm_not_found")
             return None
 
-        log.debug("realm_found", realm_id=result.data[0]["id"])
-        return self._row_to_realm(result.data[0])
+        log.debug("realm_found", realm_id=rows[0]["id"])
+        return self._row_to_realm(rows[0])
 
     def list_active_realms(self) -> list[Realm]:
         """List all active realms in the registry.
@@ -130,7 +140,8 @@ class RealmRegistryService(LoggingMixin):
             .execute()
         )
 
-        realms = [self._row_to_realm(row) for row in result.data]
+        rows = self._coerce_rows(result.data)
+        realms = [self._row_to_realm(row) for row in rows]
         log.debug("active_realms_listed", count=len(realms))
         return realms
 
@@ -144,7 +155,8 @@ class RealmRegistryService(LoggingMixin):
 
         result = self._client.table("realms").select("*").order("name").execute()
 
-        realms = [self._row_to_realm(row) for row in result.data]
+        rows = self._coerce_rows(result.data)
+        realms = [self._row_to_realm(row) for row in rows]
         log.debug("all_realms_listed", count=len(realms))
         return realms
 
@@ -177,9 +189,11 @@ class RealmRegistryService(LoggingMixin):
         )
 
         realms: list[Realm] = []
-        for row in result.data:
+        for row in self._coerce_rows(result.data):
             realm_data = row.get("realms")
-            if realm_data and realm_data.get("status") == RealmStatus.ACTIVE.value:
+            if isinstance(realm_data, dict) and realm_data.get(
+                "status"
+            ) == RealmStatus.ACTIVE.value:
                 realms.append(self._row_to_realm(realm_data))
 
         log.debug("realms_for_sentinel", count=len(realms))
@@ -204,11 +218,12 @@ class RealmRegistryService(LoggingMixin):
             .execute()
         )
 
-        if not result.data:
+        rows = self._coerce_rows(result.data)
+        if not rows:
             log.warning("no_default_realm_available")
             return None
 
-        realm = self._row_to_realm(result.data[0])
+        realm = self._row_to_realm(rows[0])
         log.debug("default_realm_found", realm_name=realm.name)
         return realm
 
@@ -230,11 +245,12 @@ class RealmRegistryService(LoggingMixin):
             .execute()
         )
 
-        if not result.data:
+        rows = self._coerce_rows(result.data)
+        if not rows:
             log.debug("realm_not_found")
             return False
 
-        is_active = result.data[0]["status"] == RealmStatus.ACTIVE.value
+        is_active = rows[0]["status"] == RealmStatus.ACTIVE.value
         log.debug("realm_availability_checked", is_active=is_active)
         return is_active
 
@@ -258,10 +274,11 @@ class RealmRegistryService(LoggingMixin):
             .execute()
         )
 
-        if not result.data:
+        rows = self._coerce_rows(result.data)
+        if not rows:
             log.debug("realm_not_found")
             return None
 
-        capacity = result.data[0]["knight_capacity"]
+        capacity = rows[0]["knight_capacity"]
         log.debug("knight_capacity_retrieved", capacity=capacity)
         return capacity

@@ -22,6 +22,7 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
+import structlog
 from structlog import get_logger
 
 from src.application.ports.extension_request import (
@@ -382,7 +383,7 @@ class ExtensionRequestService:
         self,
         referral_id: UUID,
         new_deadline: datetime,
-        log: structlog.BoundLogger,  # type: ignore[name-defined]
+        log: structlog.BoundLogger,
     ) -> None:
         """Reschedule the deadline timeout job (NFR-4.4).
 

@@ -188,7 +188,7 @@ class DeliberationOrchestratorService:
                 phase_name="ASSESS",
                 execute_fn=lambda s: self._executor.execute_assess(s, package),
             )
-            if session.is_aborted:
+            if session.is_aborted or assess_result is None:
                 return self._build_aborted_result(session, phase_results, started_at)
             phase_results.append(assess_result)
             session = session.with_transcript(
@@ -205,7 +205,7 @@ class DeliberationOrchestratorService:
                     s, package, assess_result
                 ),
             )
-            if session.is_aborted:
+            if session.is_aborted or position_result is None:
                 return self._build_aborted_result(session, phase_results, started_at)
             phase_results.append(position_result)
             session = session.with_transcript(
@@ -394,7 +394,7 @@ class DeliberationOrchestratorService:
                     self._executor.execute_cross_examine(s, package, previous)
                 ),
             )
-            if session.is_aborted:
+            if session.is_aborted or cross_examine_result is None:
                 return session
             phase_results.append(cross_examine_result)
             session = session.with_transcript(
@@ -411,7 +411,7 @@ class DeliberationOrchestratorService:
                     self._executor.execute_vote(s, package, cross_result)
                 ),
             )
-            if session.is_aborted:
+            if session.is_aborted or vote_result is None:
                 return session
             phase_results.append(vote_result)
             session = session.with_transcript(

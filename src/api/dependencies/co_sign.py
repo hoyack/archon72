@@ -67,13 +67,13 @@ from src.infrastructure.stubs.petition_submission_repository_stub import (
 # Singleton instances for stubs
 # In production, these would be configured via environment-based factory
 
-_co_sign_repository: CoSignRepositoryStub | None = None
-_petition_repository: PetitionSubmissionRepositoryStub | None = None
-_halt_checker: HaltCheckerStub | None = None
-_identity_store: IdentityStoreStub | None = None
-_rate_limiter: CoSignRateLimiterStub | None = None
-_threshold_checker: EscalationThresholdService | None = None
-_auto_escalation_executor: AutoEscalationExecutorStub | None = None
+_co_sign_repository: CoSignRepositoryProtocol | None = None
+_petition_repository: PetitionSubmissionRepositoryProtocol | None = None
+_halt_checker: HaltChecker | None = None
+_identity_store: IdentityStoreProtocol | None = None
+_rate_limiter: CoSignRateLimiterProtocol | None = None
+_threshold_checker: EscalationThresholdCheckerProtocol | None = None
+_auto_escalation_executor: AutoEscalationExecutorProtocol | None = None
 _co_sign_submission_service: CoSignSubmissionService | None = None
 _co_sign_count_verification_service: CoSignCountVerificationService | None = None
 
@@ -286,7 +286,7 @@ def set_co_sign_repository(repo: CoSignRepositoryProtocol) -> None:
         repo: Custom repository implementation.
     """
     global _co_sign_repository, _co_sign_submission_service
-    _co_sign_repository = repo  # type: ignore[assignment]
+    _co_sign_repository = repo
     _co_sign_submission_service = None  # Force service recreation
 
 
@@ -297,7 +297,7 @@ def set_petition_repository(repo: PetitionSubmissionRepositoryProtocol) -> None:
         repo: Custom repository implementation.
     """
     global _petition_repository, _co_sign_submission_service
-    _petition_repository = repo  # type: ignore[assignment]
+    _petition_repository = repo
     _co_sign_submission_service = None  # Force service recreation
 
 
@@ -308,7 +308,7 @@ def set_halt_checker(checker: HaltChecker) -> None:
         checker: Custom halt checker implementation.
     """
     global _halt_checker, _co_sign_submission_service
-    _halt_checker = checker  # type: ignore[assignment]
+    _halt_checker = checker
     _co_sign_submission_service = None  # Force service recreation
 
 
@@ -319,7 +319,7 @@ def set_identity_store(store: IdentityStoreProtocol) -> None:
         store: Custom identity store implementation.
     """
     global _identity_store, _co_sign_submission_service
-    _identity_store = store  # type: ignore[assignment]
+    _identity_store = store
     _co_sign_submission_service = None  # Force service recreation
 
 
@@ -330,7 +330,7 @@ def set_co_sign_rate_limiter(limiter: CoSignRateLimiterProtocol) -> None:
         limiter: Custom rate limiter implementation.
     """
     global _rate_limiter, _co_sign_submission_service
-    _rate_limiter = limiter  # type: ignore[assignment]
+    _rate_limiter = limiter
     _co_sign_submission_service = None  # Force service recreation
 
 
@@ -343,7 +343,7 @@ def set_escalation_threshold_checker(
         checker: Custom threshold checker implementation.
     """
     global _threshold_checker, _co_sign_submission_service
-    _threshold_checker = checker  # type: ignore[assignment]
+    _threshold_checker = checker
     _co_sign_submission_service = None  # Force service recreation
 
 
@@ -356,7 +356,7 @@ def set_auto_escalation_executor(
         executor: Custom executor implementation.
     """
     global _auto_escalation_executor, _co_sign_submission_service
-    _auto_escalation_executor = executor  # type: ignore[assignment]
+    _auto_escalation_executor = executor
     _co_sign_submission_service = None  # Force service recreation
 
 

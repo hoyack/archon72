@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
+import structlog
 from structlog import get_logger
 
 from src.domain.errors.recommendation import (
@@ -314,7 +315,7 @@ class RecommendationSubmissionService:
     async def _cancel_deadline_job(
         self,
         referral_id: UUID,
-        log: structlog.BoundLogger,  # type: ignore[name-defined]
+        log: structlog.BoundLogger,
     ) -> None:
         """Cancel the deadline timeout job (NFR-3.4).
 
@@ -343,7 +344,7 @@ class RecommendationSubmissionService:
         referral: Referral,
         recommendation: ReferralRecommendation,
         rationale: str,
-        log: structlog.BoundLogger,  # type: ignore[name-defined]
+        log: structlog.BoundLogger,
     ) -> None:
         """Route petition based on Knight's recommendation.
 
@@ -370,7 +371,7 @@ class RecommendationSubmissionService:
         self,
         referral: Referral,
         rationale: str,
-        log: structlog.BoundLogger,  # type: ignore[name-defined]
+        log: structlog.BoundLogger,
     ) -> None:
         """Route petition to acknowledgment execution (Epic 3).
 
@@ -422,7 +423,7 @@ class RecommendationSubmissionService:
         self,
         referral: Referral,
         rationale: str,
-        log: structlog.BoundLogger,  # type: ignore[name-defined]
+        log: structlog.BoundLogger,
     ) -> None:
         """Route petition to King escalation queue (Epic 6 stub).
 

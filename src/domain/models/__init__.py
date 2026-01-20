@@ -7,6 +7,7 @@ contain no infrastructure dependencies.
 
 from src.domain.models.agent_pool import MAX_CONCURRENT_AGENTS, AgentPool
 from src.domain.models.agent_status import AgentStatus
+from src.domain.models.archon_status import ArchonFailureReason, ArchonStatus
 from src.domain.models.audit_event import (
     AUDIT_COMPLETED_EVENT_TYPE,
     AUDIT_EVENT_TYPE_PREFIX,
@@ -579,4 +580,7 @@ __all__: list[str] = [
     # Dissent record models (Story 2B.1, FR-11.8)
     "BLAKE3_HASH_LENGTH",
     "DissentRecord",
+    # Archon status models (Story 2B.4, NFR-10.6)
+    "ArchonFailureReason",
+    "ArchonStatus",
 ]

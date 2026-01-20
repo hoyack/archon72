@@ -98,14 +98,16 @@ class DissentRecorderStub(DissentRecorderProtocol):
         Returns:
             DissentRecord if dissent present (2-1 vote), None if unanimous.
         """
-        self._operations.append((
-            DissentRecorderOperation.RECORD_DISSENT,
-            {
-                "session_id": session.session_id,
-                "petition_id": session.petition_id,
-                "consensus_result": consensus_result,
-            },
-        ))
+        self._operations.append(
+            (
+                DissentRecorderOperation.RECORD_DISSENT,
+                {
+                    "session_id": session.session_id,
+                    "petition_id": session.petition_id,
+                    "consensus_result": consensus_result,
+                },
+            )
+        )
 
         # No dissent if unanimous
         if not consensus_result.has_dissent:
@@ -185,10 +187,12 @@ class DissentRecorderStub(DissentRecorderProtocol):
         Returns:
             DissentRecord if dissent was recorded, None otherwise.
         """
-        self._operations.append((
-            DissentRecorderOperation.GET_BY_PETITION,
-            {"petition_id": petition_id},
-        ))
+        self._operations.append(
+            (
+                DissentRecorderOperation.GET_BY_PETITION,
+                {"petition_id": petition_id},
+            )
+        )
         return self._dissents_by_petition.get(petition_id)
 
     async def get_dissents_by_archon(
@@ -207,10 +211,12 @@ class DissentRecorderStub(DissentRecorderProtocol):
         Returns:
             List of DissentRecord where archon dissented.
         """
-        self._operations.append((
-            DissentRecorderOperation.GET_BY_ARCHON,
-            {"archon_id": archon_id, "limit": limit, "offset": offset},
-        ))
+        self._operations.append(
+            (
+                DissentRecorderOperation.GET_BY_ARCHON,
+                {"archon_id": archon_id, "limit": limit, "offset": offset},
+            )
+        )
         all_dissents = self._dissents_by_archon.get(archon_id, [])
         sorted_dissents = sorted(
             all_dissents, key=lambda d: d.recorded_at, reverse=True
@@ -226,10 +232,12 @@ class DissentRecorderStub(DissentRecorderProtocol):
         Returns:
             True if dissent was recorded, False otherwise.
         """
-        self._operations.append((
-            DissentRecorderOperation.HAS_DISSENT,
-            {"session_id": session_id},
-        ))
+        self._operations.append(
+            (
+                DissentRecorderOperation.HAS_DISSENT,
+                {"session_id": session_id},
+            )
+        )
         return session_id in self._dissents_by_session
 
     async def get_dissent_by_session(
@@ -244,10 +252,12 @@ class DissentRecorderStub(DissentRecorderProtocol):
         Returns:
             DissentRecord if dissent was recorded, None otherwise.
         """
-        self._operations.append((
-            DissentRecorderOperation.GET_BY_SESSION,
-            {"session_id": session_id},
-        ))
+        self._operations.append(
+            (
+                DissentRecorderOperation.GET_BY_SESSION,
+                {"session_id": session_id},
+            )
+        )
         return self._dissents_by_session.get(session_id)
 
     # Test helper methods

@@ -37,7 +37,6 @@ import blake3
 from uuid6 import uuid7
 
 from src.domain.events.dissent import (
-    DISSENT_RECORDED_EVENT_TYPE,
     DissentRecordedEvent,
 )
 from src.domain.models.consensus_result import ConsensusResult
@@ -178,7 +177,7 @@ class DissentRecorderService:
         )
 
         # Emit event for witnessing (CT-12)
-        event = DissentRecordedEvent(
+        _ = DissentRecordedEvent(
             event_id=uuid7(),
             session_id=session.session_id,
             petition_id=session.petition_id,

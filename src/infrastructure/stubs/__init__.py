@@ -93,6 +93,9 @@ from src.infrastructure.stubs.content_hash_service_stub import (
 from src.infrastructure.stubs.context_package_builder_stub import (
     ContextPackageBuilderStub,
 )
+from src.infrastructure.stubs.deadlock_handler_stub import (
+    DeadlockHandlerStub,
+)
 from src.infrastructure.stubs.deliberation_orchestrator_stub import (
     DeliberationOrchestratorStub,
     PhaseExecutorStub,
@@ -351,6 +354,8 @@ __all__: list[str] = [
     "PhaseExecutorStub",
     # Deliberation Timeout (Story 2B.2, FR-11.9, HC-7)
     "DeliberationTimeoutStub",
+    # Deadlock Handler (Story 2B.3, FR-11.10)
+    "DeadlockHandlerStub",
     # Consensus Resolver (Story 2A.6, FR-11.5, FR-11.6)
     "ConsensusResolverOperation",
     "ConsensusResolverStub",

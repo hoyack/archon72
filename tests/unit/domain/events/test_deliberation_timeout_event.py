@@ -148,7 +148,11 @@ class TestDeliberationTimeoutEvent:
         assert result["started_at"] == started_at.isoformat()
         assert result["timeout_at"] == timeout_at.isoformat()
         assert result["configured_timeout_seconds"] == 300
-        assert result["participating_archons"] == [str(archon1), str(archon2), str(archon3)]
+        assert result["participating_archons"] == [
+            str(archon1),
+            str(archon2),
+            str(archon3),
+        ]
         assert result["schema_version"] == 1
         assert "elapsed_seconds" in result
         assert "created_at" in result

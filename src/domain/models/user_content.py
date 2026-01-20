@@ -17,10 +17,11 @@ CRITICAL DISTINCTION:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Final, Iterable, cast
+from typing import Final, cast
 
 # Constants
 USER_CONTENT_ID_PREFIX: Final[str] = "uc_"

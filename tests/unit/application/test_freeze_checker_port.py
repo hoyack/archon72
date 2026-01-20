@@ -169,9 +169,9 @@ class TestFreezeCheckerStubConvenience:
 
         assert stub.check_count == 0
 
-        asyncio.get_event_loop().run_until_complete(stub.is_frozen())
+        asyncio.run(stub.is_frozen())
         assert stub.check_count == 1
 
-        asyncio.get_event_loop().run_until_complete(stub.is_frozen())
-        asyncio.get_event_loop().run_until_complete(stub.is_frozen())
+        asyncio.run(stub.is_frozen())
+        asyncio.run(stub.is_frozen())
         assert stub.check_count == 3

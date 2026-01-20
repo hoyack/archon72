@@ -73,7 +73,7 @@ class TestThresholdRepositoryStub:
             await stub.save_threshold_override("t1", 10)
             await stub.save_threshold_override("t2", 20)
 
-        asyncio.get_event_loop().run_until_complete(setup())
+        asyncio.run(setup())
 
         stub.clear()
 
@@ -81,7 +81,7 @@ class TestThresholdRepositoryStub:
             assert await stub.get_threshold_override("t1") is None
             assert await stub.get_threshold_override("t2") is None
 
-        asyncio.get_event_loop().run_until_complete(check())
+        asyncio.run(check())
 
     @pytest.mark.asyncio
     async def test_override_count(self, stub: ThresholdRepositoryStub) -> None:

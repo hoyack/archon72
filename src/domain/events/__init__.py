@@ -70,6 +70,13 @@ from src.domain.events.anti_success_alert import (
 from src.domain.events.anti_success_alert import (
     AlertType as AntiSuccessAlertType,
 )
+from src.domain.events.archon_substitution import (
+    ARCHON_SUBSTITUTED_EVENT_TYPE,
+    ARCHON_SUBSTITUTION_SCHEMA_VERSION,
+    DELIBERATION_ABORTED_EVENT_TYPE,
+    ArchonSubstitutedEvent,
+    DeliberationAbortedEvent,
+)
 from src.domain.events.audit import (
     AUDIT_COMPLETED_EVENT_TYPE,
     AUDIT_STARTED_EVENT_TYPE,
@@ -162,10 +169,17 @@ from src.domain.events.context_bundle_created import (
     CONTEXT_BUNDLE_CREATED_EVENT_TYPE,
     ContextBundleCreatedPayload,
 )
-from src.domain.events.dissent import (
-    DISSENT_RECORDED_EVENT_TYPE,
-    DISSENT_RECORDED_SCHEMA_VERSION,
-    DissentRecordedEvent,
+from src.domain.events.deadlock import (
+    CROSS_EXAMINE_ROUND_TRIGGERED_EVENT_TYPE,
+    DEADLOCK_DETECTED_EVENT_TYPE,
+    DEADLOCK_EVENT_SCHEMA_VERSION,
+    CrossExamineRoundTriggeredEvent,
+    DeadlockDetectedEvent,
+)
+from src.domain.events.deliberation_timeout import (
+    DELIBERATION_TIMEOUT_EVENT_TYPE,
+    DELIBERATION_TIMEOUT_SCHEMA_VERSION,
+    DeliberationTimeoutEvent,
 )
 from src.domain.events.disposition import (
     DISPOSITION_EVENT_SCHEMA_VERSION,
@@ -173,6 +187,11 @@ from src.domain.events.disposition import (
     DispositionOutcome,
     PipelineRoutingEvent,
     PipelineType,
+)
+from src.domain.events.dissent import (
+    DISSENT_RECORDED_EVENT_TYPE,
+    DISSENT_RECORDED_SCHEMA_VERSION,
+    DissentRecordedEvent,
 )
 from src.domain.events.escalation import (
     BREACH_ACKNOWLEDGED_EVENT_TYPE,
@@ -281,11 +300,6 @@ from src.domain.events.petition import (
     PetitionCreatedEventPayload,
     PetitionStatus,
     PetitionThresholdMetEventPayload,
-)
-from src.domain.events.deliberation_timeout import (
-    DELIBERATION_TIMEOUT_EVENT_TYPE,
-    DELIBERATION_TIMEOUT_SCHEMA_VERSION,
-    DeliberationTimeoutEvent,
 )
 from src.domain.events.phase_witness import (
     BLAKE3_HASH_SIZE,
@@ -600,6 +614,12 @@ __all__: list[str] = [
     "DELIBERATION_TIMEOUT_EVENT_TYPE",
     "DELIBERATION_TIMEOUT_SCHEMA_VERSION",
     "DeliberationTimeoutEvent",
+    # Deadlock detection events (Story 2B.3, FR-11.10)
+    "CROSS_EXAMINE_ROUND_TRIGGERED_EVENT_TYPE",
+    "DEADLOCK_DETECTED_EVENT_TYPE",
+    "DEADLOCK_EVENT_SCHEMA_VERSION",
+    "CrossExamineRoundTriggeredEvent",
+    "DeadlockDetectedEvent",
     # Dissent recorded events (Story 2B.1, FR-11.8)
     "DISSENT_RECORDED_EVENT_TYPE",
     "DISSENT_RECORDED_SCHEMA_VERSION",
@@ -690,6 +710,12 @@ __all__: list[str] = [
     "ComplianceDocumentedEventPayload",
     "EventComplianceFramework",
     "EventComplianceStatus",
+    # Archon substitution events (Story 2B.4, NFR-10.6)
+    "ARCHON_SUBSTITUTED_EVENT_TYPE",
+    "ARCHON_SUBSTITUTION_SCHEMA_VERSION",
+    "DELIBERATION_ABORTED_EVENT_TYPE",
+    "ArchonSubstitutedEvent",
+    "DeliberationAbortedEvent",
 ]
 
 

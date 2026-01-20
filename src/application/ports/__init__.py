@@ -135,9 +135,15 @@ from src.application.ports.context_bundle_validator import (
 from src.application.ports.context_package_builder import (
     ContextPackageBuilderProtocol,
 )
+from src.application.ports.deadlock_handler import (
+    DeadlockHandlerProtocol,
+)
 from src.application.ports.deliberation_orchestrator import (
     DeliberationOrchestratorProtocol,
     PhaseExecutorProtocol,
+)
+from src.application.ports.deliberation_timeout import (
+    DeliberationTimeoutProtocol,
 )
 from src.application.ports.disposition_emission import (
     DispositionEmissionProtocol,
@@ -350,9 +356,6 @@ from src.application.ports.petition_repository import (
 )
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
-)
-from src.application.ports.deliberation_timeout import (
-    DeliberationTimeoutProtocol,
 )
 from src.application.ports.phase_witness_batching import (
     PhaseWitnessBatchingProtocol,
@@ -654,6 +657,8 @@ __all__: list[str] = [
     "PhaseWitnessBatchingProtocol",
     # Deliberation Timeout (Story 2B.2, FR-11.9, HC-7)
     "DeliberationTimeoutProtocol",
+    # Deadlock Handler (Story 2B.3, FR-11.10)
+    "DeadlockHandlerProtocol",
     # Dissent Recorder (Story 2B.1, FR-11.8)
     "DissentRecorderProtocol",
     # Disposition Emission (Story 2A.8, FR-11.11)

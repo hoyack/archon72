@@ -1,4 +1,4 @@
-"""Deliberation session domain model (Story 2A.1, FR-11.1, FR-11.4, Story 2B.2).
+"""Deliberation session domain model (Story 2A.1, FR-11.1, FR-11.4, Story 2B.2, 2B.3, 2B.4).
 
 This module defines the DeliberationSession aggregate for the Three Fates
 mini-Conclave deliberation system. A deliberation session tracks the
@@ -11,9 +11,12 @@ Constitutional Constraints:
 - FR-11.1: System SHALL assign exactly 3 Marquis-rank Archons
 - FR-11.4: Deliberation SHALL follow structured protocol
 - FR-11.9: System SHALL enforce deliberation timeout with auto-ESCALATE on expiry
+- FR-11.10: System SHALL auto-ESCALATE after 3 rounds without supermajority (deadlock)
 - NFR-10.3: Consensus determinism - 100% reproducible
 - NFR-10.4: Witness completeness - 100% utterances witnessed
 - HC-7: Deliberation timeout auto-ESCALATE - Prevent stuck petitions
+- CT-11: Silent failure destroys legitimacy - deadlock MUST terminate
+- NFR-10.6: Archon substitution latency < 10 seconds on failure (Story 2B.4)
 """
 
 from __future__ import annotations
@@ -102,6 +105,50 @@ CONSENSUS_THRESHOLD = 2
 # Required number of archons per deliberation (FR-11.1)
 REQUIRED_ARCHON_COUNT = 3
 
+# Maximum deliberation rounds before deadlock (FR-11.10)
+# Note: This is also in config, but kept here as a domain constant
+DEFAULT_MAX_ROUNDS = 3
+
+# Maximum substitutions allowed per session (NFR-10.6, Story 2B.4)
+MAX_SUBSTITUTIONS_PER_SESSION = 1
+
+
+@dataclass(frozen=True, eq=True)
+class ArchonSubstitution:
+    """Record of an Archon substitution within a session (Story 2B.4, AC-9).
+
+    Tracks substitution details for audit trail and context handoff.
+
+    Constitutional Constraints:
+    - CT-11: Silent failure destroys legitimacy - substitutions must be recorded
+    - NFR-10.6: Substitution latency < 10 seconds
+
+    Attributes:
+        failed_archon_id: Original Archon that failed.
+        substitute_archon_id: Replacement Archon.
+        phase_at_failure: Phase when failure occurred.
+        failure_reason: Why the original failed (RESPONSE_TIMEOUT, API_ERROR, INVALID_RESPONSE).
+        substituted_at: When substitution occurred (UTC).
+    """
+
+    failed_archon_id: UUID
+    substitute_archon_id: UUID
+    phase_at_failure: DeliberationPhase
+    failure_reason: str
+    substituted_at: datetime
+
+    def __post_init__(self) -> None:
+        """Validate substitution record invariants."""
+        if self.failed_archon_id == self.substitute_archon_id:
+            raise ValueError(
+                "failed_archon_id and substitute_archon_id must be different"
+            )
+        valid_reasons = ("RESPONSE_TIMEOUT", "API_ERROR", "INVALID_RESPONSE")
+        if self.failure_reason not in valid_reasons:
+            raise ValueError(
+                f"failure_reason must be one of {valid_reasons}, got '{self.failure_reason}'"
+            )
+
 
 def _utc_now() -> datetime:
     """Return current UTC time with timezone info."""
@@ -110,7 +157,7 @@ def _utc_now() -> datetime:
 
 @dataclass(frozen=True, eq=True)
 class DeliberationSession:
-    """A mini-Conclave deliberation session (Story 2A.1, FR-11.1, FR-11.4, 2B.2).
+    """A mini-Conclave deliberation session (Story 2A.1, FR-11.1, FR-11.4, 2B.2, 2B.3, 2B.4).
 
     This aggregate represents a Three Fates deliberation on a single petition.
     Exactly 3 Marquis-rank Archons are assigned to deliberate following a
@@ -121,8 +168,11 @@ class DeliberationSession:
     - FR-11.1: assigned_archons MUST contain exactly 3 unique archon IDs
     - FR-11.4: phase progression follows strict protocol sequence
     - FR-11.9: timeout_job_id tracks scheduled timeout for auto-ESCALATE
+    - FR-11.10: round_count tracks rounds for deadlock detection
     - AT-6: outcome requires 2-of-3 consensus (collective judgment)
     - HC-7: timed_out flag indicates timeout-triggered escalation
+    - CT-11: is_deadlocked flag indicates deadlock-triggered escalation
+    - NFR-10.6: Archon substitution tracking for failure recovery (Story 2B.4)
 
     Attributes:
         session_id: UUIDv7 unique identifier.
@@ -139,6 +189,13 @@ class DeliberationSession:
         timeout_job_id: UUID of scheduled timeout job (Story 2B.2, FR-11.9).
         timeout_at: Timestamp when timeout will fire (Story 2B.2, FR-11.9).
         timed_out: True if session terminated due to timeout (HC-7).
+        round_count: Current voting round (starts at 1) (Story 2B.3, FR-11.10).
+        votes_by_round: Vote distributions from each round (Story 2B.3, FR-11.10).
+        is_deadlocked: True if session terminated due to deadlock (Story 2B.3, CT-11).
+        deadlock_reason: Reason for deadlock (e.g., DEADLOCK_MAX_ROUNDS_EXCEEDED).
+        substitutions: Tuple of substitution records (Story 2B.4, AC-9).
+        is_aborted: True if session was aborted due to failures (Story 2B.4, AC-7).
+        abort_reason: Reason for abort (INSUFFICIENT_ARCHONS or ARCHON_POOL_EXHAUSTED).
     """
 
     session_id: UUID
@@ -156,6 +213,15 @@ class DeliberationSession:
     timeout_job_id: UUID | None = field(default=None)
     timeout_at: datetime | None = field(default=None)
     timed_out: bool = field(default=False)
+    # Round tracking for deadlock detection (Story 2B.3, FR-11.10, CT-11)
+    round_count: int = field(default=1)
+    votes_by_round: tuple[dict[str, int], ...] = field(default_factory=tuple)
+    is_deadlocked: bool = field(default=False)
+    deadlock_reason: str | None = field(default=None)
+    # Substitution tracking (Story 2B.4, NFR-10.6, AC-9)
+    substitutions: tuple[ArchonSubstitution, ...] = field(default_factory=tuple)
+    is_aborted: bool = field(default=False)
+    abort_reason: str | None = field(default=None)
 
     def __post_init__(self) -> None:
         """Validate deliberation session invariants."""
@@ -191,7 +257,8 @@ class DeliberationSession:
 
         # If outcome is set, validate consensus was achieved
         if self.outcome is not None:
-            if self.timed_out:
+            # Skip validation if outcome was forced by timeout, deadlock, or abort
+            if self.timed_out or self.is_deadlocked or self.is_aborted:
                 return
             if len(self.votes) != REQUIRED_ARCHON_COUNT:
                 raise ConsensusNotReachedError(
@@ -211,6 +278,10 @@ class DeliberationSession:
                     votes_received=vote_counts.get(self.outcome, 0),
                     votes_required=CONSENSUS_THRESHOLD,
                 )
+
+        # Validate round_count is within bounds
+        if self.round_count < 1:
+            raise ValueError(f"round_count must be >= 1, got {self.round_count}")
 
     @property
     def id(self) -> UUID:
@@ -316,6 +387,13 @@ class DeliberationSession:
             timeout_job_id=self.timeout_job_id,
             timeout_at=self.timeout_at,
             timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_transcript(
@@ -366,6 +444,13 @@ class DeliberationSession:
             timeout_job_id=self.timeout_job_id,
             timeout_at=self.timeout_at,
             timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_votes(self, votes: dict[UUID, DeliberationOutcome]) -> DeliberationSession:
@@ -425,6 +510,13 @@ class DeliberationSession:
             timeout_job_id=self.timeout_job_id,
             timeout_at=self.timeout_at,
             timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_outcome(self) -> DeliberationSession:
@@ -503,6 +595,13 @@ class DeliberationSession:
             timeout_job_id=self.timeout_job_id,
             timeout_at=self.timeout_at,
             timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_timeout_scheduled(
@@ -551,6 +650,13 @@ class DeliberationSession:
             timeout_job_id=job_id,
             timeout_at=timeout_at,
             timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_timeout_cancelled(self) -> DeliberationSession:
@@ -577,6 +683,10 @@ class DeliberationSession:
             timeout_job_id=None,
             timeout_at=None,
             timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
         )
 
     def with_timeout_triggered(self) -> DeliberationSession:
@@ -614,6 +724,122 @@ class DeliberationSession:
             timeout_job_id=self.timeout_job_id,
             timeout_at=self.timeout_at,
             timed_out=True,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+        )
+
+    # =========================================================================
+    # Round tracking methods for deadlock detection (Story 2B.3, FR-11.10)
+    # =========================================================================
+
+    def can_retry_cross_examine(self, max_rounds: int = DEFAULT_MAX_ROUNDS) -> bool:
+        """Check if another CROSS_EXAMINE round is allowed (FR-11.10).
+
+        Args:
+            max_rounds: Maximum allowed rounds before deadlock (default: 3).
+
+        Returns:
+            True if round_count < max_rounds, False otherwise.
+        """
+        return self.round_count < max_rounds
+
+    def with_new_round(
+        self,
+        previous_vote_distribution: dict[str, int],
+    ) -> DeliberationSession:
+        """Return session with incremented round and phase reset to CROSS_EXAMINE.
+
+        Called when VOTE phase results in 3-way split (no consensus).
+
+        Args:
+            previous_vote_distribution: Vote distribution from failed consensus.
+
+        Returns:
+            Session in CROSS_EXAMINE phase with incremented round_count.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            ValueError: If already at max rounds (should use with_deadlock_outcome instead).
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot start new round on completed session",
+            )
+
+        # Store vote distribution from this round
+        new_votes_by_round = self.votes_by_round + (previous_vote_distribution,)
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=DeliberationPhase.CROSS_EXAMINE,  # Return to CROSS_EXAMINE
+            phase_transcripts=dict(self.phase_transcripts),
+            votes={},  # Clear votes for new round
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=self.completed_at,
+            version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
+            round_count=self.round_count + 1,
+            votes_by_round=new_votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+        )
+
+    def with_deadlock_outcome(
+        self,
+        final_vote_distribution: dict[str, int],
+    ) -> DeliberationSession:
+        """Return session terminated due to deadlock (FR-11.10, CT-11).
+
+        Args:
+            final_vote_distribution: Vote distribution from final failed round.
+
+        Returns:
+            Session in COMPLETE phase with ESCALATE outcome and deadlock metadata.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot apply deadlock outcome to completed session",
+            )
+
+        # Include final vote distribution in history
+        new_votes_by_round = self.votes_by_round + (final_vote_distribution,)
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=DeliberationPhase.COMPLETE,  # Terminal
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),  # Keep any votes recorded
+            outcome=DeliberationOutcome.ESCALATE,  # FR-11.10: auto-ESCALATE on deadlock
+            dissent_archon_id=None,  # No dissent - deadlock forced outcome
+            created_at=self.created_at,
+            completed_at=_utc_now(),
+            version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=new_votes_by_round,
+            is_deadlocked=True,
+            deadlock_reason="DEADLOCK_MAX_ROUNDS_EXCEEDED",
         )
 
     @property

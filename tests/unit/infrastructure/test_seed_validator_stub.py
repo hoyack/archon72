@@ -232,9 +232,7 @@ class TestTestHelpers:
         # This is synchronous access, need to use asyncio
         import asyncio
 
-        result = asyncio.get_event_loop().run_until_complete(
-            stub.validate_seed_source("new-source", "purpose")
-        )
+        result = asyncio.run(stub.validate_seed_source("new-source", "purpose"))
         assert result.is_independent is False
 
     def test_clear_removes_all_data(self) -> None:

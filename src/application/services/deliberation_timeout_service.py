@@ -46,7 +46,6 @@ from src.config.deliberation_config import (
     DeliberationConfig,
 )
 from src.domain.events.deliberation_timeout import (
-    DELIBERATION_TIMEOUT_EVENT_TYPE,
     DeliberationTimeoutEvent,
 )
 from src.domain.models.deliberation_session import DeliberationSession

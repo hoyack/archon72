@@ -6,7 +6,9 @@ session state management, and consensus resolution.
 Constitutional Constraints:
 - FR-11.4: Deliberation SHALL follow structured protocol
 - FR-11.5: System SHALL require supermajority consensus (2-of-3)
+- FR-11.10: Auto-ESCALATE after 3 rounds without supermajority (Story 2B.3)
 - AT-6: Deliberation is collective judgment
+- CT-11: Deadlock MUST terminate (no silent failures)
 - NFR-10.3: Consensus determinism - 100% reproducible
 """
 
@@ -20,7 +22,14 @@ import pytest
 from src.application.services.deliberation_orchestrator_service import (
     DeliberationOrchestratorService,
 )
-from src.domain.errors.deliberation import PetitionSessionMismatchError
+from src.config.deliberation_config import (
+    SINGLE_ROUND_DELIBERATION_CONFIG,
+    DeliberationConfig,
+)
+from src.domain.errors.deliberation import (
+    ConsensusNotReachedError,
+    PetitionSessionMismatchError,
+)
 from src.domain.models.deliberation_context_package import (
     CONTEXT_PACKAGE_SCHEMA_VERSION,
     DeliberationContextPackage,
@@ -29,6 +38,9 @@ from src.domain.models.deliberation_session import (
     DeliberationOutcome,
     DeliberationPhase,
     DeliberationSession,
+)
+from src.infrastructure.stubs.deadlock_handler_stub import (
+    DeadlockHandlerStub,
 )
 from src.infrastructure.stubs.deliberation_orchestrator_stub import (
     PhaseExecutorStub,
@@ -480,3 +492,182 @@ class TestConsensusResolution:
         assert result.outcome == DeliberationOutcome.ACKNOWLEDGE
         assert result.is_unanimous is False
         assert result.dissent_archon_id == archon3
+
+
+class TestDeadlockIntegration:
+    """Tests for orchestrator deadlock handling integration (Story 2B.3, FR-11.10)."""
+
+    def test_1_1_1_without_handler_raises(self) -> None:
+        """1-1-1 vote without deadlock handler raises ConsensusNotReachedError."""
+        session = _create_test_session()
+        package = _create_test_package(
+            petition_id=session.petition_id,
+            session_id=session.session_id,
+            archons=session.assigned_archons,
+        )
+
+        archon1, archon2, archon3 = session.assigned_archons
+        votes = {
+            archon1: DeliberationOutcome.ACKNOWLEDGE,
+            archon2: DeliberationOutcome.REFER,
+            archon3: DeliberationOutcome.ESCALATE,  # 1-1-1 split
+        }
+
+        executor = PhaseExecutorStub.with_votes(votes)
+        # No deadlock handler configured
+        orchestrator = DeliberationOrchestratorService(executor)
+
+        with pytest.raises(ConsensusNotReachedError):
+            orchestrator.orchestrate(session, package)
+
+    def test_1_1_1_with_handler_triggers_retry_on_round_1(self) -> None:
+        """1-1-1 vote with handler on round 1 triggers retry and eventual deadlock."""
+        session = _create_test_session()
+        package = _create_test_package(
+            petition_id=session.petition_id,
+            session_id=session.session_id,
+            archons=session.assigned_archons,
+        )
+
+        archon1, archon2, archon3 = session.assigned_archons
+        # All rounds will be 1-1-1 splits
+        votes = {
+            archon1: DeliberationOutcome.ACKNOWLEDGE,
+            archon2: DeliberationOutcome.REFER,
+            archon3: DeliberationOutcome.ESCALATE,
+        }
+
+        executor = PhaseExecutorStub.with_votes(votes)
+        deadlock_handler = DeadlockHandlerStub()
+        config = DeliberationConfig(timeout_seconds=300, max_rounds=3)
+        orchestrator = DeliberationOrchestratorService(
+            executor,
+            deadlock_handler=deadlock_handler,
+            config=config,
+        )
+
+        result = orchestrator.orchestrate(session, package)
+
+        # Should eventually deadlock and auto-ESCALATE
+        assert result.outcome == DeliberationOutcome.ESCALATE
+
+    def test_single_round_config_immediate_deadlock(self) -> None:
+        """Single round config causes immediate deadlock on 1-1-1."""
+        session = _create_test_session()
+        package = _create_test_package(
+            petition_id=session.petition_id,
+            session_id=session.session_id,
+            archons=session.assigned_archons,
+        )
+
+        archon1, archon2, archon3 = session.assigned_archons
+        votes = {
+            archon1: DeliberationOutcome.ACKNOWLEDGE,
+            archon2: DeliberationOutcome.REFER,
+            archon3: DeliberationOutcome.ESCALATE,
+        }
+
+        executor = PhaseExecutorStub.with_votes(votes)
+        deadlock_handler = DeadlockHandlerStub(config=SINGLE_ROUND_DELIBERATION_CONFIG)
+        orchestrator = DeliberationOrchestratorService(
+            executor,
+            deadlock_handler=deadlock_handler,
+            config=SINGLE_ROUND_DELIBERATION_CONFIG,
+        )
+
+        result = orchestrator.orchestrate(session, package)
+
+        # Immediate deadlock on first 1-1-1
+        assert result.outcome == DeliberationOutcome.ESCALATE
+
+    def test_2_1_vote_with_handler_reaches_consensus(self) -> None:
+        """2-1 vote with handler reaches normal consensus (no deadlock)."""
+        session = _create_test_session()
+        package = _create_test_package(
+            petition_id=session.petition_id,
+            session_id=session.session_id,
+            archons=session.assigned_archons,
+        )
+
+        archon1, archon2, archon3 = session.assigned_archons
+        votes = {
+            archon1: DeliberationOutcome.REFER,
+            archon2: DeliberationOutcome.REFER,
+            archon3: DeliberationOutcome.ACKNOWLEDGE,  # 2-1, not deadlock
+        }
+
+        executor = PhaseExecutorStub.with_votes(votes)
+        deadlock_handler = DeadlockHandlerStub()
+        orchestrator = DeliberationOrchestratorService(
+            executor,
+            deadlock_handler=deadlock_handler,
+        )
+
+        result = orchestrator.orchestrate(session, package)
+
+        # 2-1 reaches consensus normally
+        assert result.outcome == DeliberationOutcome.REFER
+        assert result.dissent_archon_id == archon3
+
+    def test_fr_11_10_auto_escalate_after_max_rounds(self) -> None:
+        """FR-11.10: Auto-ESCALATE after max rounds without supermajority."""
+        session = _create_test_session()
+        package = _create_test_package(
+            petition_id=session.petition_id,
+            session_id=session.session_id,
+            archons=session.assigned_archons,
+        )
+
+        archon1, archon2, archon3 = session.assigned_archons
+        votes = {
+            archon1: DeliberationOutcome.ACKNOWLEDGE,
+            archon2: DeliberationOutcome.REFER,
+            archon3: DeliberationOutcome.ESCALATE,
+        }
+
+        config = DeliberationConfig(timeout_seconds=300, max_rounds=3)
+        executor = PhaseExecutorStub.with_votes(votes)
+        deadlock_handler = DeadlockHandlerStub(config=config)
+        orchestrator = DeliberationOrchestratorService(
+            executor,
+            deadlock_handler=deadlock_handler,
+            config=config,
+        )
+
+        result = orchestrator.orchestrate(session, package)
+
+        # FR-11.10: Must auto-ESCALATE
+        assert result.outcome == DeliberationOutcome.ESCALATE
+
+    def test_ct_11_deadlock_terminates(self) -> None:
+        """CT-11: Deadlock MUST terminate (no silent failure)."""
+        session = _create_test_session()
+        package = _create_test_package(
+            petition_id=session.petition_id,
+            session_id=session.session_id,
+            archons=session.assigned_archons,
+        )
+
+        archon1, archon2, archon3 = session.assigned_archons
+        votes = {
+            archon1: DeliberationOutcome.ACKNOWLEDGE,
+            archon2: DeliberationOutcome.REFER,
+            archon3: DeliberationOutcome.ESCALATE,
+        }
+
+        executor = PhaseExecutorStub.with_votes(votes)
+        deadlock_handler = DeadlockHandlerStub()
+        orchestrator = DeliberationOrchestratorService(
+            executor,
+            deadlock_handler=deadlock_handler,
+        )
+
+        result = orchestrator.orchestrate(session, package)
+
+        # CT-11: Session must have completed with a valid outcome
+        assert result.outcome is not None
+        assert result.outcome in (
+            DeliberationOutcome.ACKNOWLEDGE,
+            DeliberationOutcome.REFER,
+            DeliberationOutcome.ESCALATE,
+        )

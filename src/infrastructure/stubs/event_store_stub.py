@@ -282,8 +282,7 @@ class EventStoreStub(EventStorePort):
         matching = [
             e
             for e in events
-            if e.authority_timestamp is not None
-            and e.authority_timestamp <= timestamp
+            if e.authority_timestamp is not None and e.authority_timestamp <= timestamp
         ]
 
         if not matching:

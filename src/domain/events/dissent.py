@@ -18,7 +18,6 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
-
 # Event type constant
 DISSENT_RECORDED_EVENT_TYPE: str = "deliberation.dissent.recorded"
 

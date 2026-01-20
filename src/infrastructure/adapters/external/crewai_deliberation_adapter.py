@@ -186,8 +186,9 @@ class CrewAIDeliberationAdapter(PhaseExecutorProtocol):
         profile = self._get_archon_profile(archon_id)
 
         try:
+
             def _run_crew() -> str:
-                from crewai import Agent, Crew, LLM, Task
+                from crewai import LLM, Agent, Crew, Task
 
                 # Create LLM from profile config
                 llm_config = profile.llm_config

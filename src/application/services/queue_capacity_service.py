@@ -87,7 +87,6 @@ class QueueCapacityService(LoggingMixin):
         # Initialize logging
         self._init_logger(component="petition")
 
-
     async def is_accepting_submissions(self) -> bool:
         """Check if queue has capacity for new submissions.
 

@@ -162,26 +162,62 @@ class DeliberationResult:
         if len(self.votes) != 3:
             raise ValueError(f"Exactly 3 votes required, got {len(self.votes)}")
 
-        # Validate outcome has consensus
+        vote_counts = self._count_votes()
+        is_deadlock_escalation = self._is_deadlock_escalation(vote_counts)
+        self._validate_outcome_consensus(vote_counts, is_deadlock_escalation)
+        self._validate_dissent(vote_counts, is_deadlock_escalation)
+
+        # Validate timestamps
+        if self.completed_at < self.started_at:
+            raise ValueError("completed_at cannot be before started_at")
+
+        self._validate_phase_results()
+
+    def _count_votes(self) -> dict[DeliberationOutcome, int]:
         vote_counts: dict[DeliberationOutcome, int] = {}
         for vote in self.votes.values():
             vote_counts[vote] = vote_counts.get(vote, 0) + 1
+        return vote_counts
 
+    def _is_deadlock_escalation(
+        self, vote_counts: dict[DeliberationOutcome, int]
+    ) -> bool:
+        return (
+            self.outcome == DeliberationOutcome.ESCALATE
+            and len(vote_counts) == 3
+            and all(count == 1 for count in vote_counts.values())
+        )
+
+    def _validate_outcome_consensus(
+        self,
+        vote_counts: dict[DeliberationOutcome, int],
+        is_deadlock_escalation: bool,
+    ) -> None:
         outcome_votes = vote_counts.get(self.outcome, 0)
-        if outcome_votes < 2:
+        if outcome_votes < 2 and not is_deadlock_escalation:
             raise ValueError(
                 f"Outcome {self.outcome.value} does not have 2-of-3 consensus "
                 f"(got {outcome_votes} votes)"
             )
 
-        # Validate dissent_archon_id consistency
+    def _validate_dissent(
+        self,
+        vote_counts: dict[DeliberationOutcome, int],
+        is_deadlock_escalation: bool,
+    ) -> None:
+        if is_deadlock_escalation and self.dissent_archon_id is not None:
+            raise ValueError("dissent_archon_id must be None for deadlock escalation")
+
         if self.is_unanimous and self.dissent_archon_id is not None:
             raise ValueError("dissent_archon_id must be None for unanimous vote")
 
-        if not self.is_unanimous and self.dissent_archon_id is None:
+        if (
+            not self.is_unanimous
+            and self.dissent_archon_id is None
+            and not is_deadlock_escalation
+        ):
             raise ValueError("dissent_archon_id required for 2-1 vote")
 
-        # Validate dissenting archon actually voted differently
         if self.dissent_archon_id is not None:
             dissent_vote = self.votes.get(self.dissent_archon_id)
             if dissent_vote == self.outcome:
@@ -189,28 +225,41 @@ class DeliberationResult:
                     f"Dissenting archon {self.dissent_archon_id} voted for outcome"
                 )
 
-        # Validate timestamps
-        if self.completed_at < self.started_at:
-            raise ValueError("completed_at cannot be before started_at")
-
-        # Validate phase results (must have exactly 4 phases in order)
-        expected_phases = [
-            DeliberationPhase.ASSESS,
-            DeliberationPhase.POSITION,
-            DeliberationPhase.CROSS_EXAMINE,
-            DeliberationPhase.VOTE,
-        ]
-        if len(self.phase_results) != 4:
+    def _validate_phase_results(self) -> None:
+        if len(self.phase_results) < 4:
             raise ValueError(
-                f"Exactly 4 phase results required, got {len(self.phase_results)}"
+                "Phase results must include ASSESS, POSITION, and at least one "
+                f"CROSS_EXAMINE/VOTE pair, got {len(self.phase_results)}"
             )
 
-        for i, (expected, actual) in enumerate(
-            zip(expected_phases, self.phase_results, strict=True)
-        ):
+        if self.phase_results[0].phase != DeliberationPhase.ASSESS:
+            raise ValueError(
+                "Phase 0 should be ASSESS, got "
+                f"{self.phase_results[0].phase.value}"
+            )
+        if self.phase_results[1].phase != DeliberationPhase.POSITION:
+            raise ValueError(
+                "Phase 1 should be POSITION, got "
+                f"{self.phase_results[1].phase.value}"
+            )
+
+        remaining = self.phase_results[2:]
+        if len(remaining) % 2 != 0:
+            raise ValueError(
+                "Phase results must include CROSS_EXAMINE/VOTE pairs after POSITION, got "
+                f"{len(self.phase_results)}"
+            )
+
+        for offset, actual in enumerate(remaining):
+            expected = (
+                DeliberationPhase.CROSS_EXAMINE
+                if offset % 2 == 0
+                else DeliberationPhase.VOTE
+            )
             if actual.phase != expected:
+                phase_index = offset + 2
                 raise ValueError(
-                    f"Phase {i} should be {expected.value}, got {actual.phase.value}"
+                    f"Phase {phase_index} should be {expected.value}, got {actual.phase.value}"
                 )
 
     @property

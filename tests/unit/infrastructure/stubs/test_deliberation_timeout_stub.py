@@ -297,7 +297,7 @@ class TestDeliberationTimeoutStubHelpers:
         stub = DeliberationTimeoutStub()
         session = _create_test_session()
 
-        scheduled = await stub.schedule_timeout(session)
+        await stub.schedule_timeout(session)
         stub.simulate_timeout_fire(session.session_id)
 
         updated = stub.get_session(session.session_id)

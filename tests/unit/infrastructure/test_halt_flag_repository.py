@@ -247,7 +247,7 @@ class TestClearForTesting:
         import asyncio
 
         # Set halt
-        asyncio.get_event_loop().run_until_complete(
+        asyncio.run(
             repo.set_halt_flag(
                 halted=True,
                 reason="Test halt",
@@ -258,7 +258,7 @@ class TestClearForTesting:
         # Bypass ceremony with test helper
         repo.clear_for_testing()
 
-        state = asyncio.get_event_loop().run_until_complete(repo.get_halt_flag())
+        state = asyncio.run(repo.get_halt_flag())
         assert state.is_halted is False
         assert state.reason is None
         assert state.crisis_event_id is None

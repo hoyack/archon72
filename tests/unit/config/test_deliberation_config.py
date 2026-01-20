@@ -131,8 +131,13 @@ class TestPredefinedConfigs:
 
     def test_test_config_has_minimum_timeout(self) -> None:
         """TEST_DELIBERATION_CONFIG should have minimum timeout."""
-        assert TEST_DELIBERATION_CONFIG.timeout_seconds == MIN_DELIBERATION_TIMEOUT_SECONDS
+        assert (
+            TEST_DELIBERATION_CONFIG.timeout_seconds == MIN_DELIBERATION_TIMEOUT_SECONDS
+        )
 
     def test_extended_config_has_maximum_timeout(self) -> None:
         """EXTENDED_DELIBERATION_CONFIG should have maximum timeout."""
-        assert EXTENDED_DELIBERATION_CONFIG.timeout_seconds == MAX_DELIBERATION_TIMEOUT_SECONDS
+        assert (
+            EXTENDED_DELIBERATION_CONFIG.timeout_seconds
+            == MAX_DELIBERATION_TIMEOUT_SECONDS
+        )

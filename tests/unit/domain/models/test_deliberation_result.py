@@ -383,14 +383,17 @@ class TestDeliberationResult:
             )
 
     def test_wrong_phase_count_raises(self) -> None:
-        """Creating with != 4 phase results raises ValueError."""
+        """Creating with too few phase results raises ValueError."""
         archon1, archon2, archon3 = uuid4(), uuid4(), uuid4()
         archons = (archon1, archon2, archon3)
 
         # Only 2 phase results
         partial_results = self._make_phase_results(archons)[:2]
 
-        with pytest.raises(ValueError, match="Exactly 4 phase results required"):
+        with pytest.raises(
+            ValueError,
+            match="Phase results must include ASSESS, POSITION, and at least one",
+        ):
             DeliberationResult(
                 session_id=uuid4(),
                 petition_id=uuid4(),

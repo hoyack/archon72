@@ -58,7 +58,7 @@ class TestDeliberationTimeoutServiceSchedule:
         service = DeliberationTimeoutService(scheduler)
         session = _create_test_session()
 
-        updated_session = await service.schedule_timeout(session)
+        await service.schedule_timeout(session)
 
         # Verify job was scheduled
         assert scheduler.get_scheduled_count() == 1
@@ -208,7 +208,7 @@ class TestDeliberationTimeoutServiceHandle:
         session = _create_test_session()
 
         # Register and schedule
-        scheduled_session = await service.schedule_timeout(session)
+        await service.schedule_timeout(session)
 
         # Handle timeout
         updated_session, event = await service.handle_timeout(session.session_id)
@@ -241,7 +241,10 @@ class TestDeliberationTimeoutServiceHandle:
         assert event.session_id == session.session_id
         assert event.petition_id == session.petition_id
         assert event.phase_at_timeout == session.phase
-        assert event.configured_timeout_seconds == DEFAULT_DELIBERATION_CONFIG.timeout_seconds
+        assert (
+            event.configured_timeout_seconds
+            == DEFAULT_DELIBERATION_CONFIG.timeout_seconds
+        )
 
     @pytest.mark.asyncio
     async def test_handle_timeout_raises_for_unknown_session(self) -> None:

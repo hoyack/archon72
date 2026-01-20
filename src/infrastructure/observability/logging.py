@@ -33,9 +33,9 @@ Usage:
 
 import logging
 import os
+from typing import cast
 
 import structlog
-from typing import cast
 from structlog.typing import Processor
 
 from src.infrastructure.observability.correlation import correlation_id_processor

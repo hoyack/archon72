@@ -186,6 +186,7 @@ class TestCrewaiLlmFactory:
 
     def test_local_provider_maps_to_ollama(self) -> None:
         """Test local provider maps to ollama."""
+        pytest.importorskip("litellm")
         config = LLMConfig(
             provider="local",
             model="llama2",

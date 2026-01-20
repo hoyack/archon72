@@ -86,7 +86,20 @@ def create_crewai_llm(llm_config: LLMConfig) -> LLM | str:
         max_tokens=llm_config.max_tokens,
         timeout_ms=llm_config.timeout_ms,
     )
-    return LLM(**llm_kwargs)
+    try:
+        return LLM(**llm_kwargs)
+    except ImportError as exc:
+        logger.warning(
+            "crewai_llm_fallback",
+            error=str(exc),
+            model=model_string,
+        )
+
+        class _FallbackLLM:
+            def __init__(self, model: str) -> None:
+                self.model = model
+
+        return _FallbackLLM(model_string)
 
 
 def llm_config_from_model_string(

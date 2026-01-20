@@ -41,6 +41,9 @@ def test_llm_config_from_model_string_openai() -> None:
 
 def test_create_crewai_llm_returns_model_string() -> None:
     """Ensure CrewAI LLM object is created with normalized model string."""
+    import pytest
+
+    pytest.importorskip("litellm")
     config = llm_config_from_model_string(
         "ollama/llama3.2:latest",
         temperature=0.5,

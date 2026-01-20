@@ -97,6 +97,11 @@ from src.api.models.waiver import (
     WaiverResponse,
     WaiversListResponse,
 )
+from src.api.models.co_sign import (
+    CoSignErrorResponse,
+    CoSignRequest,
+    CoSignResponse,
+)
 
 __all__: list[str] = [
     "ChainVerificationResult",
@@ -178,4 +183,8 @@ __all__: list[str] = [
     "RestorationHistoryResponse",
     "RestorationRequest",
     "RestorationResponse",
+    # Co-Sign models (Story 5.2, FR-6.1, FR-6.2, FR-6.3, FR-6.4)
+    "CoSignErrorResponse",
+    "CoSignRequest",
+    "CoSignResponse",
 ]

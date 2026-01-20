@@ -687,6 +687,9 @@ class DeliberationSession:
             votes_by_round=self.votes_by_round,
             is_deadlocked=self.is_deadlocked,
             deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_timeout_triggered(self) -> DeliberationSession:
@@ -728,6 +731,9 @@ class DeliberationSession:
             votes_by_round=self.votes_by_round,
             is_deadlocked=self.is_deadlocked,
             deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     # =========================================================================
@@ -793,6 +799,9 @@ class DeliberationSession:
             votes_by_round=new_votes_by_round,
             is_deadlocked=self.is_deadlocked,
             deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     def with_deadlock_outcome(
@@ -840,6 +849,9 @@ class DeliberationSession:
             votes_by_round=new_votes_by_round,
             is_deadlocked=True,
             deadlock_reason="DEADLOCK_MAX_ROUNDS_EXCEEDED",
+            substitutions=self.substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
         )
 
     @property
@@ -892,3 +904,202 @@ class DeliberationSession:
             True if transcript hash is recorded, False otherwise.
         """
         return phase in self.phase_transcripts
+
+    # =========================================================================
+    # Archon substitution methods (Story 2B.4, NFR-10.6)
+    # =========================================================================
+
+    @property
+    def substitution_count(self) -> int:
+        """Get count of substitutions performed in this session.
+
+        Returns:
+            Number of substitutions (0 or 1 per NFR-10.6).
+        """
+        return len(self.substitutions)
+
+    @property
+    def has_substitution(self) -> bool:
+        """Check if any substitution has occurred in this session.
+
+        Returns:
+            True if at least one substitution has been made.
+        """
+        return len(self.substitutions) > 0
+
+    @property
+    def can_substitute(self) -> bool:
+        """Check if another substitution is allowed (NFR-10.6: max 1).
+
+        Returns:
+            True if substitution_count < MAX_SUBSTITUTIONS_PER_SESSION.
+        """
+        return self.substitution_count < MAX_SUBSTITUTIONS_PER_SESSION
+
+    @property
+    def current_active_archons(self) -> tuple[UUID, ...]:
+        """Get currently active archon IDs (excluding failed, including substitutes).
+
+        Returns:
+            Tuple of active archon UUIDs.
+        """
+        # Start with original assigned archons
+        active = set(self.assigned_archons)
+
+        # Apply substitutions: remove failed, add substitutes
+        for sub in self.substitutions:
+            active.discard(sub.failed_archon_id)
+            active.add(sub.substitute_archon_id)
+
+        return tuple(sorted(active, key=lambda x: str(x)))
+
+    @property
+    def failed_archon_ids(self) -> tuple[UUID, ...]:
+        """Get IDs of all archons that failed in this session.
+
+        Returns:
+            Tuple of failed archon UUIDs.
+        """
+        return tuple(sub.failed_archon_id for sub in self.substitutions)
+
+    def with_substitution(
+        self,
+        failed_archon_id: UUID,
+        substitute_archon_id: UUID,
+        failure_reason: str,
+    ) -> DeliberationSession:
+        """Create new session with an Archon substitution recorded (Story 2B.4, AC-9).
+
+        Records a substitution when an Archon fails mid-deliberation and is replaced.
+        Validates the substitution limit (NFR-10.6: max 1 per session).
+
+        Args:
+            failed_archon_id: UUID of the Archon that failed.
+            substitute_archon_id: UUID of the replacement Archon.
+            failure_reason: Why the original failed (RESPONSE_TIMEOUT, API_ERROR, INVALID_RESPONSE).
+
+        Returns:
+            New DeliberationSession with substitution recorded.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            ValueError: If substitution limit exceeded or archon not assigned.
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot substitute archon in completed session",
+            )
+
+        # Check substitution limit (NFR-10.6: max 1)
+        if not self.can_substitute:
+            raise ValueError(
+                f"Substitution limit exceeded: max {MAX_SUBSTITUTIONS_PER_SESSION} "
+                f"substitution(s) per session (NFR-10.6)"
+            )
+
+        # Validate failed archon is currently active
+        if failed_archon_id not in self.current_active_archons:
+            raise ValueError(
+                f"Archon {failed_archon_id} is not currently active in this session"
+            )
+
+        # Validate substitute is not already in session
+        if substitute_archon_id in self.current_active_archons:
+            raise ValueError(
+                f"Archon {substitute_archon_id} is already active in this session"
+            )
+
+        # Create substitution record
+        substitution = ArchonSubstitution(
+            failed_archon_id=failed_archon_id,
+            substitute_archon_id=substitute_archon_id,
+            phase_at_failure=self.phase,
+            failure_reason=failure_reason,
+            substituted_at=_utc_now(),
+        )
+
+        new_substitutions = self.substitutions + (substitution,)
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,  # Keep original assignment for audit
+            phase=self.phase,
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=self.completed_at,
+            version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=new_substitutions,
+            is_aborted=self.is_aborted,
+            abort_reason=self.abort_reason,
+        )
+
+    def with_abort(
+        self,
+        reason: str,
+    ) -> DeliberationSession:
+        """Create new session marked as aborted due to failures (Story 2B.4, AC-7, AC-8).
+
+        Aborts the session when recovery is not possible (2+ Archons failed
+        or pool exhausted). The outcome is set to ESCALATE per CT-11.
+
+        Args:
+            reason: Why abort occurred (INSUFFICIENT_ARCHONS or ARCHON_POOL_EXHAUSTED).
+
+        Returns:
+            New DeliberationSession with is_aborted=True, outcome=ESCALATE, phase=COMPLETE.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            ValueError: If reason is not a valid abort reason.
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot abort already completed session",
+            )
+
+        valid_reasons = ("INSUFFICIENT_ARCHONS", "ARCHON_POOL_EXHAUSTED")
+        if reason not in valid_reasons:
+            raise ValueError(
+                f"reason must be one of {valid_reasons}, got '{reason}'"
+            )
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=DeliberationPhase.COMPLETE,  # Terminal
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),  # Keep any votes recorded
+            outcome=DeliberationOutcome.ESCALATE,  # CT-11: must terminate
+            dissent_archon_id=None,  # No dissent - abort forced outcome
+            created_at=self.created_at,
+            completed_at=_utc_now(),
+            version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
+            round_count=self.round_count,
+            votes_by_round=self.votes_by_round,
+            is_deadlocked=self.is_deadlocked,
+            deadlock_reason=self.deadlock_reason,
+            substitutions=self.substitutions,
+            is_aborted=True,
+            abort_reason=reason,
+        )

@@ -104,6 +104,12 @@ from src.domain.events.cessation import (
     CessationDecision,
     CessationDecisionEventPayload,
 )
+from src.domain.events.co_sign import (
+    CO_SIGN_EVENT_SCHEMA_VERSION,
+    CO_SIGN_RECORDED_EVENT_TYPE,
+    CO_SIGN_SYSTEM_AGENT_ID,
+    CoSignRecordedEvent,
+)
 from src.domain.events.cessation_agenda import (
     CESSATION_AGENDA_PLACEMENT_EVENT_TYPE,
     AgendaTriggerType,
@@ -176,6 +182,12 @@ from src.domain.events.deadlock import (
     CrossExamineRoundTriggeredEvent,
     DeadlockDetectedEvent,
 )
+from src.domain.events.deliberation_cancelled import (
+    DELIBERATION_CANCELLED_EVENT_TYPE,
+    DELIBERATION_CANCELLED_SCHEMA_VERSION,
+    CancelReason,
+    DeliberationCancelledEvent,
+)
 from src.domain.events.deliberation_timeout import (
     DELIBERATION_TIMEOUT_EVENT_TYPE,
     DELIBERATION_TIMEOUT_SCHEMA_VERSION,
@@ -192,6 +204,21 @@ from src.domain.events.dissent import (
     DISSENT_RECORDED_EVENT_TYPE,
     DISSENT_RECORDED_SCHEMA_VERSION,
     DissentRecordedEvent,
+)
+from src.domain.events.referral import (
+    PETITION_REFERRED_EVENT_TYPE,
+    REFERRAL_ASSIGNED_EVENT_TYPE,
+    REFERRAL_COMPLETED_EVENT_TYPE,
+    REFERRAL_DEFERRED_EVENT_TYPE,
+    REFERRAL_EVENT_SCHEMA_VERSION,
+    REFERRAL_EXPIRED_EVENT_TYPE,
+    REFERRAL_EXTENDED_EVENT_TYPE,
+    PetitionReferredEvent,
+    ReferralAssignedEvent,
+    ReferralCompletedEvent,
+    ReferralDeferredEvent,
+    ReferralExpiredEvent,
+    ReferralExtendedEvent,
 )
 from src.domain.events.escalation import (
     BREACH_ACKNOWLEDGED_EVENT_TYPE,
@@ -300,6 +327,11 @@ from src.domain.events.petition import (
     PetitionCreatedEventPayload,
     PetitionStatus,
     PetitionThresholdMetEventPayload,
+)
+from src.domain.events.petition_escalation import (
+    PETITION_ESCALATION_SCHEMA_VERSION,
+    PETITION_ESCALATION_TRIGGERED_EVENT_TYPE,
+    PetitionEscalationTriggeredEvent,
 )
 from src.domain.events.phase_witness import (
     BLAKE3_HASH_SIZE,
@@ -716,6 +748,35 @@ __all__: list[str] = [
     "DELIBERATION_ABORTED_EVENT_TYPE",
     "ArchonSubstitutedEvent",
     "DeliberationAbortedEvent",
+    # Referral events (Story 4.2, FR-4.1, FR-4.2)
+    "PETITION_REFERRED_EVENT_TYPE",
+    "REFERRAL_COMPLETED_EVENT_TYPE",
+    "REFERRAL_EVENT_SCHEMA_VERSION",
+    "REFERRAL_EXPIRED_EVENT_TYPE",
+    "REFERRAL_EXTENDED_EVENT_TYPE",
+    "PetitionReferredEvent",
+    "ReferralCompletedEvent",
+    "ReferralExpiredEvent",
+    "ReferralExtendedEvent",
+    # Referral assignment events (Story 4.7, FR-4.7, NFR-7.3)
+    "REFERRAL_ASSIGNED_EVENT_TYPE",
+    "REFERRAL_DEFERRED_EVENT_TYPE",
+    "ReferralAssignedEvent",
+    "ReferralDeferredEvent",
+    # Co-sign events (Story 5.2, FR-6.1, FR-6.4, CT-12)
+    "CO_SIGN_EVENT_SCHEMA_VERSION",
+    "CO_SIGN_RECORDED_EVENT_TYPE",
+    "CO_SIGN_SYSTEM_AGENT_ID",
+    "CoSignRecordedEvent",
+    # Petition escalation events (Story 5.6, FR-5.1, FR-5.3, CT-12, CT-14)
+    "PETITION_ESCALATION_SCHEMA_VERSION",
+    "PETITION_ESCALATION_TRIGGERED_EVENT_TYPE",
+    "PetitionEscalationTriggeredEvent",
+    # Deliberation cancelled events (Story 5.6, AC4)
+    "DELIBERATION_CANCELLED_EVENT_TYPE",
+    "DELIBERATION_CANCELLED_SCHEMA_VERSION",
+    "CancelReason",
+    "DeliberationCancelledEvent",
 ]
 
 

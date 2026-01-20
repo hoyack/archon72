@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 CONSTITUTIONAL_CRISIS_EVENT_TYPE: str = "constitutional.crisis"
 
 
-class CrisisType(StrEnum):
+class CrisisType(str, Enum):
     """Types of constitutional crises that can trigger system halt.
 
     This enum is extensible for future crisis types while maintaining

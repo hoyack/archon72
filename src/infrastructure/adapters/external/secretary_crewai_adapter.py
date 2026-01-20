@@ -20,13 +20,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from crewai import LLM, Agent, Crew, Task
+from crewai import Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.secretary_agent import (
@@ -42,6 +41,12 @@ from src.application.ports.secretary_agent import (
     ValidationError,
 )
 from src.domain.models.llm_config import LLMConfig
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
+from src.infrastructure.adapters.external.crewai_json_utils import (
+    aggressive_clean,
+    sanitize_json_string,
+    strip_markdown_fence,
+)
 from src.domain.models.secretary import (
     ConsensusLevel,
     ExtractedRecommendation,
@@ -58,107 +63,6 @@ logger = get_logger(__name__)
 
 # Batch size for clustering to avoid overwhelming the model
 CLUSTERING_BATCH_SIZE = 50
-
-
-def _sanitize_json_string(text: str) -> str:
-    """Sanitize JSON string by escaping control characters.
-
-    LLMs often output literal newlines/tabs inside JSON strings instead of
-    escaped \\n or \\t. This function fixes that by replacing unescaped
-    control characters inside string values.
-    """
-    # Replace literal control characters that would break JSON parsing
-    # Only replace inside string values (between quotes)
-    result = []
-    in_string = False
-    escape_next = False
-    i = 0
-
-    while i < len(text):
-        char = text[i]
-
-        if escape_next:
-            result.append(char)
-            escape_next = False
-            i += 1
-            continue
-
-        if char == "\\":
-            result.append(char)
-            escape_next = True
-            i += 1
-            continue
-
-        if char == '"':
-            in_string = not in_string
-            result.append(char)
-            i += 1
-            continue
-
-        if in_string:
-            # Replace control characters with escaped versions
-            if char == "\n":
-                result.append("\\n")
-            elif char == "\r":
-                result.append("\\r")
-            elif char == "\t":
-                result.append("\\t")
-            elif ord(char) < 32:
-                # Other control characters - escape as unicode
-                result.append(f"\\u{ord(char):04x}")
-            else:
-                result.append(char)
-        else:
-            result.append(char)
-
-        i += 1
-
-    return "".join(result)
-
-
-def _aggressive_json_clean(text: str) -> str:
-    """Aggressively clean JSON string when normal sanitization fails.
-
-    This is a fallback that replaces ALL control characters, even outside
-    strings, and attempts to fix common LLM output issues.
-    """
-    import re
-
-    # Remove markdown code blocks
-    cleaned = text.strip()
-    if cleaned.startswith("```"):
-        lines = cleaned.split("\n")
-        # Remove first line (```json or ```) and last line (```)
-        if lines[-1].strip().startswith("```"):
-            cleaned = "\n".join(lines[1:-1])
-        else:
-            cleaned = "\n".join(lines[1:])
-
-    # Replace all control characters globally (not just in strings)
-    # This is more aggressive but safer for problematic outputs
-    def replace_control(match: re.Match[str]) -> str:
-        char = match.group(0)
-        if char == "\n":
-            return "\\n"
-        elif char == "\r":
-            return "\\r"
-        elif char == "\t":
-            return "\\t"
-        else:
-            return f"\\u{ord(char):04x}"
-
-    # Replace control chars except newlines outside of strings (structural)
-    # First, try to identify and fix control chars in string values
-    cleaned = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", replace_control, cleaned)
-
-    # Fix common issues: trailing commas before ] or }
-    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
-
-    # Fix missing quotes around keys (common LLM error)
-    cleaned = re.sub(r"{\s*(\w+):", r'{"\1":', cleaned)
-    cleaned = re.sub(r",\s*(\w+):", r',"\1":', cleaned)
-
-    return cleaned
 
 
 def _is_truncated_json(text: str) -> bool:
@@ -182,36 +86,6 @@ def _is_truncated_json(text: str) -> bool:
     ]
 
     return any(cleaned.rstrip().endswith(pattern) for pattern in truncation_patterns)
-
-
-def _get_crewai_llm_string(llm_config: LLMConfig) -> str:
-    """Convert LLMConfig to CrewAI LLM model string format."""
-    provider_map = {
-        "anthropic": "anthropic",
-        "openai": "openai",
-        "google": "google",
-        "local": "ollama",
-    }
-    provider = provider_map.get(llm_config.provider, llm_config.provider)
-    return f"{provider}/{llm_config.model}"
-
-
-def _create_crewai_llm(llm_config: LLMConfig) -> LLM | str:
-    """Create a CrewAI LLM instance from LLMConfig."""
-    model_string = _get_crewai_llm_string(llm_config)
-
-    if llm_config.provider == "local":
-        ollama_host = llm_config.base_url or os.environ.get(
-            "OLLAMA_HOST", "http://localhost:11434"
-        )
-        return LLM(
-            model=model_string,
-            base_url=ollama_host,
-            temperature=llm_config.temperature,
-            max_tokens=llm_config.max_tokens,
-        )
-
-    return model_string
 
 
 class SecretaryCrewAIAdapter(SecretaryAgentProtocol):
@@ -276,7 +150,7 @@ class SecretaryCrewAIAdapter(SecretaryAgentProtocol):
         Returns:
             Configured CrewAI Agent
         """
-        llm = _create_crewai_llm(llm_config)
+        llm = create_crewai_llm(llm_config)
 
         # Local models don't support tool calling
         use_tools = llm_config.provider != "local"
@@ -489,7 +363,7 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
                 data = json.loads(json_str)
             except json.JSONDecodeError:
                 # Fallback: aggressive cleaning
-                cleaned = _aggressive_json_clean(json_str)
+                cleaned = aggressive_clean(json_str)
                 data = json.loads(cleaned)
                 logger.debug("aggressive_clean_succeeded", archon=archon_name)
 
@@ -520,6 +394,8 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
         except json.JSONDecodeError as e:
             logger.warning(
                 "extraction_parse_failed",
+                adapter="secretary",
+                stage="extraction",
                 archon=archon_name,
                 error=str(e),
                 raw_result=result[:500],
@@ -530,15 +406,7 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
 
     def _extract_json_array(self, text: str) -> str | None:
         """Extract JSON array from text, handling extra content and control chars."""
-        # Remove markdown code blocks
-        cleaned = text.strip()
-        if cleaned.startswith("```"):
-            lines = cleaned.split("\n")
-            cleaned = (
-                "\n".join(lines[1:-1])
-                if lines[-1].startswith("```")
-                else "\n".join(lines[1:])
-            )
+        cleaned = strip_markdown_fence(text)
 
         # Find first [ and matching ]
         start = cleaned.find("[")
@@ -561,19 +429,11 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
 
         # Sanitize control characters before returning
         json_str = cleaned[start : end + 1]
-        return _sanitize_json_string(json_str)
+        return sanitize_json_string(json_str)
 
     def _extract_json_object(self, text: str) -> str | None:
         """Extract JSON object from text, handling extra content and control chars."""
-        # Remove markdown code blocks
-        cleaned = text.strip()
-        if cleaned.startswith("```"):
-            lines = cleaned.split("\n")
-            cleaned = (
-                "\n".join(lines[1:-1])
-                if lines[-1].startswith("```")
-                else "\n".join(lines[1:])
-            )
+        cleaned = strip_markdown_fence(text)
 
         # Find first { and matching }
         start = cleaned.find("{")
@@ -596,7 +456,7 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
 
         # Sanitize control characters before returning
         json_str = cleaned[start : end + 1]
-        return _sanitize_json_string(json_str)
+        return sanitize_json_string(json_str)
 
     def _parse_category(self, category: str) -> RecommendationCategory:
         """Parse category string to enum."""
@@ -814,7 +674,7 @@ CRITICAL: Output ONLY a valid JSON array. Example:
                 data = json.loads(json_str)
             except json.JSONDecodeError:
                 # Fallback: aggressive cleaning
-                cleaned = _aggressive_json_clean(json_str)
+                cleaned = aggressive_clean(json_str)
                 data = json.loads(cleaned)
                 logger.debug("aggressive_clean_succeeded_clustering")
 
@@ -851,6 +711,8 @@ CRITICAL: Output ONLY a valid JSON array. Example:
         except json.JSONDecodeError as e:
             logger.warning(
                 "clustering_parse_failed",
+                adapter="secretary",
+                stage="clustering",
                 error=str(e),
                 raw_result=result[:300],
             )
@@ -966,7 +828,7 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
                     data = json.loads(json_str)
                 except json.JSONDecodeError:
                     # Fallback: aggressive cleaning
-                    cleaned = _aggressive_json_clean(json_str)
+                    cleaned = aggressive_clean(json_str)
                     data = json.loads(cleaned)
                     logger.debug(
                         "aggressive_clean_succeeded_motion", theme=cluster.theme
@@ -1011,6 +873,8 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
             # JSON parsing failed even with aggressive cleaning
             logger.error(
                 "motion_generation_json_failed",
+                adapter="secretary",
+                stage="motion_generation",
                 error=str(e),
                 theme=cluster.theme,
             )

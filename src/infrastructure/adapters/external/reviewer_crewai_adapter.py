@@ -17,8 +17,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
-import re
 import time
 
 from crewai import LLM, Agent, Crew, Task
@@ -40,133 +38,11 @@ from src.application.ports.reviewer_agent import (
     ReviewError,
 )
 from src.domain.models.llm_config import LLMConfig
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
+from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
 
 logger = get_logger(__name__)
 
-
-def _create_llm_for_config(llm_config: LLMConfig) -> LLM:
-    """Create a CrewAI LLM instance from LLMConfig.
-
-    For local/Ollama, creates an LLM object with base_url.
-    Priority for base_url:
-      1. Per-archon base_url from LLMConfig (enables distributed inference)
-      2. OLLAMA_HOST environment variable (global fallback)
-      3. Default localhost:11434
-
-    Args:
-        llm_config: The LLM configuration
-
-    Returns:
-        CrewAI LLM instance
-    """
-    # Map provider to CrewAI format
-    provider_map = {
-        "anthropic": "anthropic",
-        "openai": "openai",
-        "google": "google",
-        "local": "ollama",
-    }
-    provider = provider_map.get(llm_config.provider, llm_config.provider)
-    model_string = f"{provider}/{llm_config.model}"
-
-    # For local/Ollama, include base_url
-    if llm_config.provider == "local":
-        if llm_config.base_url:
-            ollama_host = llm_config.base_url
-        else:
-            ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-
-        return LLM(
-            model=model_string,
-            base_url=ollama_host,
-            temperature=llm_config.temperature,
-            max_tokens=llm_config.max_tokens,
-        )
-
-    # For cloud providers
-    return LLM(
-        model=model_string,
-        temperature=llm_config.temperature,
-        max_tokens=llm_config.max_tokens,
-    )
-
-
-def _escape_control_chars_in_strings(text: str) -> str:
-    """Escape unescaped control characters inside JSON string values.
-
-    LLMs sometimes generate JSON with raw newlines/tabs inside strings.
-    This finds string values and escapes control characters properly.
-    """
-    result = []
-    in_string = False
-    escape_next = False
-    i = 0
-
-    while i < len(text):
-        char = text[i]
-
-        if escape_next:
-            result.append(char)
-            escape_next = False
-            i += 1
-            continue
-
-        if char == "\\" and in_string:
-            escape_next = True
-            result.append(char)
-            i += 1
-            continue
-
-        if char == '"':
-            in_string = not in_string
-            result.append(char)
-            i += 1
-            continue
-
-        # Inside a string, escape control characters
-        if in_string and ord(char) < 32:
-            if char == "\n":
-                result.append("\\n")
-            elif char == "\r":
-                result.append("\\r")
-            elif char == "\t":
-                result.append("\\t")
-            else:
-                # Other control chars: use unicode escape
-                result.append(f"\\u{ord(char):04x}")
-        else:
-            result.append(char)
-
-        i += 1
-
-    return "".join(result)
-
-
-def _parse_json_response(text: str) -> dict:
-    """Parse JSON from LLM response, handling common formatting issues."""
-    cleaned = text.strip()
-
-    # Remove markdown code blocks
-    if cleaned.startswith("```"):
-        lines = cleaned.split("\n")
-        if lines[-1].strip().startswith("```"):
-            cleaned = "\n".join(lines[1:-1])
-        else:
-            cleaned = "\n".join(lines[1:])
-
-    # Fix trailing commas
-    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
-
-    # Try to find JSON object
-    start = cleaned.find("{")
-    end = cleaned.rfind("}") + 1
-    if start >= 0 and end > start:
-        cleaned = cleaned[start:end]
-
-    # Escape control characters inside string values (common LLM issue)
-    cleaned = _escape_control_chars_in_strings(cleaned)
-
-    return json.loads(cleaned)
 
 
 class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
@@ -198,11 +74,14 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
         # Default LLM config for utility agents (conflict analysis, synthesis)
         # These are not character-specific, so use a default local model
         # Uses qwen3:latest which is consistent with archon-llm-bindings.yaml defaults
-        self._default_llm = LLM(
-            model="ollama/qwen3:latest",
-            base_url=os.environ.get("OLLAMA_HOST", "http://localhost:11434"),
-            temperature=0.3,
-            max_tokens=2048,
+        self._default_llm = create_crewai_llm(
+            LLMConfig(
+                provider="local",
+                model="qwen3:latest",
+                temperature=0.3,
+                max_tokens=2048,
+                timeout_ms=60000,
+            )
         )
 
         if profile_repository:
@@ -233,7 +112,7 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
             try:
                 profile = self._profile_repository.get_by_name(archon_name)
                 if profile:
-                    llm = _create_llm_for_config(profile.llm_config)
+                    llm = create_crewai_llm(profile.llm_config)
                     logger.debug(
                         "archon_llm_loaded",
                         archon=archon_name,
@@ -352,7 +231,7 @@ Analyze this motion through the lens of your expertise and values. Consider:
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             decision = ReviewDecision(
                 stance=parsed.get("stance", "abstain"),
@@ -377,10 +256,13 @@ Analyze this motion through the lens of your expertise and values. Consider:
 
         except json.JSONDecodeError as e:
             logger.error(
-                "review_parse_failed",
+                "json_parse_failed",
+                adapter="reviewer",
+                stage="review",
                 archon=archon.archon_name,
                 motion_id=motion.mega_motion_id,
                 error=str(e),
+                raw_output=raw_output[:500],
             )
             # Return abstain on parse failure
             return ReviewDecision(
@@ -472,7 +354,7 @@ Text: {motion.mega_motion_text[:2000]}
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             analysis = ConflictAnalysis(
                 has_conflict=parsed.get("has_conflict", False),
@@ -493,8 +375,24 @@ Text: {motion.mega_motion_text[:2000]}
 
             return analysis
 
+        except json.JSONDecodeError as e:
+            logger.error(
+                "json_parse_failed",
+                adapter="reviewer",
+                stage="conflict_detection",
+                archon=archon.archon_name,
+                motion_id=motion.mega_motion_id,
+                error=str(e),
+                raw_output=raw_output[:500],
+            )
+            raise ConflictDetectionError(f"Conflict detection failed: {e}") from e
         except Exception as e:
-            logger.error("conflict_detection_failed", error=str(e))
+            logger.error(
+                "conflict_detection_failed",
+                archon=archon.archon_name,
+                motion_id=motion.mega_motion_id,
+                error=str(e),
+            )
             raise ConflictDetectionError(f"Conflict detection failed: {e}") from e
 
     async def run_panel_deliberation(
@@ -630,7 +528,7 @@ Respond with your argument text only (no JSON).
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             deliberation_result = PanelDeliberationResult(
                 panel_id=context.panel_id,
@@ -656,8 +554,24 @@ Respond with your argument text only (no JSON).
 
             return deliberation_result
 
+        except json.JSONDecodeError as e:
+            logger.error(
+                "json_parse_failed",
+                adapter="reviewer",
+                stage="panel_deliberation",
+                panel_id=context.panel_id,
+                motion_id=context.mega_motion_id,
+                error=str(e),
+                raw_output=raw_output[:500],
+            )
+            raise DeliberationError(f"Panel deliberation failed: {e}") from e
         except Exception as e:
-            logger.error("panel_deliberation_failed", error=str(e))
+            logger.error(
+                "panel_deliberation_failed",
+                panel_id=context.panel_id,
+                motion_id=context.mega_motion_id,
+                error=str(e),
+            )
             raise DeliberationError(f"Panel deliberation failed: {e}") from e
 
     async def synthesize_amendments(
@@ -729,7 +643,7 @@ Respond with your argument text only (no JSON).
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             synthesis = AmendmentSynthesis(
                 original_motion_text=motion_text,
@@ -748,6 +662,15 @@ Respond with your argument text only (no JSON).
 
             return synthesis
 
+        except json.JSONDecodeError as e:
+            logger.error(
+                "json_parse_failed",
+                adapter="reviewer",
+                stage="amendment_synthesis",
+                error=str(e),
+                raw_output=raw_output[:500],
+            )
+            raise AmendmentSynthesisError(f"Amendment synthesis failed: {e}") from e
         except Exception as e:
             logger.error("amendment_synthesis_failed", error=str(e))
             raise AmendmentSynthesisError(f"Amendment synthesis failed: {e}") from e

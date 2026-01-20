@@ -17,13 +17,17 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
-import re
 import time
 
-from crewai import LLM, Agent, Crew, Task
+from crewai import Agent, Crew, Task
 from structlog import get_logger
 
+from src.domain.models.llm_config import LLMConfig
+from src.infrastructure.adapters.external.crewai_llm_factory import (
+    create_crewai_llm,
+    llm_config_from_model_string,
+)
+from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
 from src.application.ports.execution_planner import (
     BlockerDetection,
     BlockerDetectionError,
@@ -40,78 +44,6 @@ from src.application.ports.execution_planner import (
 logger = get_logger(__name__)
 
 
-def _escape_control_chars_in_strings(text: str) -> str:
-    """Escape unescaped control characters inside JSON string values."""
-    result = []
-    in_string = False
-    escape_next = False
-    i = 0
-
-    while i < len(text):
-        char = text[i]
-
-        if escape_next:
-            result.append(char)
-            escape_next = False
-            i += 1
-            continue
-
-        if char == "\\" and in_string:
-            escape_next = True
-            result.append(char)
-            i += 1
-            continue
-
-        if char == '"':
-            in_string = not in_string
-            result.append(char)
-            i += 1
-            continue
-
-        if in_string and ord(char) < 32:
-            if char == "\n":
-                result.append("\\n")
-            elif char == "\r":
-                result.append("\\r")
-            elif char == "\t":
-                result.append("\\t")
-            else:
-                result.append(f"\\u{ord(char):04x}")
-        else:
-            result.append(char)
-
-        i += 1
-
-    return "".join(result)
-
-
-def _parse_json_response(text: str) -> dict:
-    """Parse JSON from LLM response, handling common formatting issues."""
-    cleaned = text.strip()
-
-    # Remove markdown code blocks
-    if cleaned.startswith("```"):
-        lines = cleaned.split("\n")
-        if lines[-1].strip().startswith("```"):
-            cleaned = "\n".join(lines[1:-1])
-        else:
-            cleaned = "\n".join(lines[1:])
-
-    # Fix trailing commas
-    cleaned = re.sub(r",\s*([\]}])", r"\1", cleaned)
-
-    # Try to find JSON object
-    start = cleaned.find("{")
-    end = cleaned.rfind("}") + 1
-    if start >= 0 and end > start:
-        cleaned = cleaned[start:end]
-
-    # Escape control characters inside string values
-    cleaned = _escape_control_chars_in_strings(cleaned)
-
-    return json.loads(cleaned)
-
-
 class PlannerCrewAIAdapter(ExecutionPlannerProtocol):
     """CrewAI implementation of ExecutionPlannerProtocol.
 
@@ -122,6 +54,7 @@ class PlannerCrewAIAdapter(ExecutionPlannerProtocol):
     def __init__(
         self,
         verbose: bool = False,
+        llm_config: LLMConfig | None = None,
         model: str | None = None,
         base_url: str | None = None,
     ) -> None:
@@ -129,30 +62,38 @@ class PlannerCrewAIAdapter(ExecutionPlannerProtocol):
 
         Args:
             verbose: Enable verbose LLM logging
-            model: Optional model override (default: ollama/qwen3:latest)
-            base_url: Optional base URL for Ollama (default: from OLLAMA_HOST)
+            llm_config: Optional LLM config (preferred over model/base_url)
+            model: Optional model override (fallback when llm_config is None)
+            base_url: Optional base URL for Ollama (fallback when llm_config is None)
         """
         self.verbose = verbose
 
-        # Configure LLM
-        ollama_host = base_url or os.environ.get(
-            "OLLAMA_HOST", "http://localhost:11434"
-        )
-        model_string = model or "ollama/qwen3:latest"
-
-        self._llm = LLM(
-            model=model_string,
-            base_url=ollama_host,
-            temperature=0.3,
-            max_tokens=4096,
-        )
-
-        logger.info(
-            "planner_adapter_initialized",
-            model=model_string,
-            base_url=ollama_host,
-            verbose=verbose,
-        )
+        if llm_config:
+            self._llm = create_crewai_llm(llm_config)
+            logger.info(
+                "planner_adapter_initialized",
+                model=llm_config.model,
+                provider=llm_config.provider,
+                base_url=llm_config.base_url,
+                verbose=verbose,
+            )
+        else:
+            model_string = model or "ollama/qwen3:latest"
+            resolved_config = llm_config_from_model_string(
+                model_string,
+                temperature=0.3,
+                max_tokens=4096,
+                timeout_ms=60000,
+                base_url=base_url,
+            )
+            self._llm = create_crewai_llm(resolved_config)
+            logger.info(
+                "planner_adapter_initialized",
+                model=resolved_config.model,
+                provider=resolved_config.provider,
+                base_url=resolved_config.base_url,
+                verbose=verbose,
+            )
 
     def _create_classifier_agent(self) -> Agent:
         """Create the classification agent."""
@@ -268,7 +209,7 @@ Vote: {motion.yeas} Yeas, {motion.nays} Nays, {motion.abstentions} Abstentions
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             classification = ClassificationResult(
                 motion_id=motion.motion_id,
@@ -297,9 +238,12 @@ Vote: {motion.yeas} Yeas, {motion.nays} Nays, {motion.abstentions} Abstentions
 
         except json.JSONDecodeError as e:
             logger.error(
-                "classify_motion_parse_failed",
+                "json_parse_failed",
+                adapter="planner",
+                stage="classification",
                 motion_id=motion.motion_id,
                 error=str(e),
+                raw_output=raw_output[:500],
             )
             raise ClassificationError(f"Failed to parse classification: {e}") from e
         except Exception as e:
@@ -376,7 +320,7 @@ For each template, create a concrete task with:
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             tasks = [
                 TaskInstantiation(
@@ -402,9 +346,12 @@ For each template, create a concrete task with:
 
         except json.JSONDecodeError as e:
             logger.error(
-                "instantiate_tasks_parse_failed",
+                "json_parse_failed",
+                adapter="planner",
+                stage="instantiation",
                 motion_id=motion.motion_id,
                 error=str(e),
+                raw_output=raw_output[:500],
             )
             raise InstantiationError(f"Failed to parse tasks: {e}") from e
         except Exception as e:
@@ -504,7 +451,7 @@ If no blockers are detected, return: {{"blockers": []}}
             result = await asyncio.to_thread(crew.kickoff)
             raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            parsed = _parse_json_response(raw_output)
+            parsed = parse_json_response(raw_output)
 
             blockers = [
                 BlockerDetection(
@@ -532,9 +479,12 @@ If no blockers are detected, return: {{"blockers": []}}
 
         except json.JSONDecodeError as e:
             logger.error(
-                "detect_blockers_parse_failed",
+                "json_parse_failed",
+                adapter="planner",
+                stage="blocker_detection",
                 motion_id=motion.motion_id,
                 error=str(e),
+                raw_output=raw_output[:500],
             )
             raise BlockerDetectionError(f"Failed to parse blockers: {e}") from e
         except Exception as e:
@@ -657,6 +607,8 @@ If no blockers are detected, return: {{"blockers": []}}
 
 def create_planner_agent(
     verbose: bool = False,
+    archon_name: str | None = None,
+    llm_config: LLMConfig | None = None,
     model: str | None = None,
     base_url: str | None = None,
 ) -> ExecutionPlannerProtocol:
@@ -664,14 +616,42 @@ def create_planner_agent(
 
     Args:
         verbose: Enable verbose LLM logging
-        model: Optional model string (default: ollama/qwen3:latest)
-        base_url: Optional Ollama base URL (default: from OLLAMA_HOST env)
+        archon_name: Optional Archon name to source LLM config from archons-base.json
+        llm_config: Optional LLM config override
+        model: Optional model string (fallback when llm_config is None)
+        base_url: Optional Ollama base URL (fallback when llm_config is None)
 
     Returns:
         ExecutionPlannerProtocol implementation
     """
+    resolved_config = llm_config
+    if resolved_config is None:
+        resolved_config = _resolve_planner_llm_config(archon_name=archon_name)
+
     return PlannerCrewAIAdapter(
         verbose=verbose,
+        llm_config=resolved_config,
         model=model,
         base_url=base_url,
     )
+
+
+def _resolve_planner_llm_config(archon_name: str | None = None) -> LLMConfig | None:
+    """Resolve planner LLM config from archons-base.json, if available."""
+    from src.infrastructure.adapters.config.archon_profile_adapter import (
+        create_archon_profile_repository,
+    )
+
+    repo = create_archon_profile_repository()
+    if archon_name:
+        profile = repo.get_by_name(archon_name)
+        if profile:
+            return profile.llm_config
+        logger.warning("planner_archon_not_found", archon_name=archon_name)
+
+    witness = repo.get_witness()
+    if witness:
+        return witness.llm_config
+
+    profiles = repo.get_all()
+    return profiles[0].llm_config if profiles else None

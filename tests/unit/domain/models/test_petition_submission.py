@@ -299,7 +299,7 @@ class TestPetitionSubmission:
             assert petition.type == petition_type
 
     def test_valid_state_transitions_from_received(self) -> None:
-        """FR-2.1: RECEIVED can transition to DELIBERATING or ACKNOWLEDGED."""
+        """FR-2.1, FR-5.1: RECEIVED can transition to DELIBERATING, ACKNOWLEDGED, or ESCALATED."""
         petition = PetitionSubmission(
             id=uuid4(),
             type=PetitionType.GENERAL,
@@ -314,6 +314,10 @@ class TestPetitionSubmission:
         # Valid: RECEIVED -> ACKNOWLEDGED (withdrawal)
         acknowledged = petition.with_state(PetitionState.ACKNOWLEDGED)
         assert acknowledged.state == PetitionState.ACKNOWLEDGED
+
+        # Valid: RECEIVED -> ESCALATED (auto-escalation, FR-5.1)
+        escalated = petition.with_state(PetitionState.ESCALATED)
+        assert escalated.state == PetitionState.ESCALATED
 
     def test_valid_state_transitions_from_deliberating(self) -> None:
         """FR-2.1: DELIBERATING can transition to any Three Fates."""
@@ -358,12 +362,12 @@ class TestPetitionStateMachine:
         assert PetitionState.DELIBERATING.is_terminal() is False
 
     def test_valid_transitions_from_received(self) -> None:
-        """FR-2.3: RECEIVED has defined valid transitions."""
+        """FR-2.3, FR-5.1: RECEIVED has defined valid transitions."""
         valid = PetitionState.RECEIVED.valid_transitions()
         assert PetitionState.DELIBERATING in valid
         assert PetitionState.ACKNOWLEDGED in valid
+        assert PetitionState.ESCALATED in valid  # FR-5.1: auto-escalation path
         assert PetitionState.REFERRED not in valid
-        assert PetitionState.ESCALATED not in valid
         assert PetitionState.RECEIVED not in valid
 
     def test_valid_transitions_from_deliberating(self) -> None:
@@ -402,8 +406,13 @@ class TestPetitionStateMachine:
         assert PetitionState.DELIBERATING in exc_info.value.allowed_transitions
         assert PetitionState.ACKNOWLEDGED in exc_info.value.allowed_transitions
 
-    def test_invalid_transition_received_to_escalated_raises(self) -> None:
-        """FR-2.3: RECEIVED -> ESCALATED is invalid."""
+    def test_valid_transition_received_to_escalated_for_auto_escalation(self) -> None:
+        """FR-5.1: RECEIVED -> ESCALATED is valid for auto-escalation.
+
+        Constitutional: CT-14 "Silence must be expensive" - petitions with
+        sufficient collective support (co-signer threshold) bypass deliberation
+        to reach King attention directly.
+        """
         petition = PetitionSubmission(
             id=uuid4(),
             type=PetitionType.GENERAL,
@@ -411,11 +420,10 @@ class TestPetitionStateMachine:
             state=PetitionState.RECEIVED,
         )
 
-        with pytest.raises(InvalidStateTransitionError) as exc_info:
-            petition.with_state(PetitionState.ESCALATED)
+        escalated = petition.with_state(PetitionState.ESCALATED)
 
-        assert exc_info.value.from_state == PetitionState.RECEIVED
-        assert exc_info.value.to_state == PetitionState.ESCALATED
+        assert escalated.state == PetitionState.ESCALATED
+        assert escalated.state.is_terminal()
 
     def test_invalid_transition_received_to_received_raises(self) -> None:
         """FR-2.3: RECEIVED -> RECEIVED (self-loop) is invalid."""
@@ -541,9 +549,10 @@ class TestInvalidStateTransitionError:
             petition.with_state(PetitionState.REFERRED)
 
         error = exc_info.value
-        assert len(error.allowed_transitions) == 2
+        assert len(error.allowed_transitions) == 3  # DELIBERATING, ACKNOWLEDGED, ESCALATED
         assert PetitionState.DELIBERATING in error.allowed_transitions
         assert PetitionState.ACKNOWLEDGED in error.allowed_transitions
+        assert PetitionState.ESCALATED in error.allowed_transitions
 
     def test_error_message_format(self) -> None:
         """InvalidStateTransitionError has descriptive message."""
@@ -554,12 +563,13 @@ class TestInvalidStateTransitionError:
             state=PetitionState.RECEIVED,
         )
 
+        # RECEIVED -> REFERRED is invalid (REFERRED only from DELIBERATING)
         with pytest.raises(InvalidStateTransitionError) as exc_info:
-            petition.with_state(PetitionState.ESCALATED)
+            petition.with_state(PetitionState.REFERRED)
 
         error_msg = str(exc_info.value)
         assert "RECEIVED" in error_msg
-        assert "ESCALATED" in error_msg
+        assert "REFERRED" in error_msg
         assert "Invalid state transition" in error_msg
 
 
@@ -672,3 +682,31 @@ class TestCompleteStateTransitionCoverage:
 
         assert acknowledged.state == PetitionState.ACKNOWLEDGED
         assert acknowledged.state.is_terminal()
+
+    def test_auto_escalation_path_received_to_escalated(self) -> None:
+        """Auto-escalation path: petition escalated directly from RECEIVED (FR-5.1).
+
+        Constitutional: CT-14 "Silence must be expensive" - petitions with
+        sufficient collective support (co-signer threshold reached) bypass
+        deliberation to reach King attention directly.
+        """
+        petition = PetitionSubmission(
+            id=uuid4(),
+            type=PetitionType.CESSATION,
+            text="Test petition for auto-escalation",
+            state=PetitionState.RECEIVED,
+        )
+
+        # Direct escalation bypasses deliberation (when threshold reached)
+        escalated = petition.with_state(
+            PetitionState.ESCALATED,
+            reason="Auto-escalated: co-signer threshold (100) reached",
+        )
+
+        assert escalated.state == PetitionState.ESCALATED
+        assert escalated.state.is_terminal()
+        assert escalated.fate_reason == "Auto-escalated: co-signer threshold (100) reached"
+
+        # Cannot modify further
+        with pytest.raises(PetitionAlreadyFatedError):
+            escalated.with_state(PetitionState.ACKNOWLEDGED)

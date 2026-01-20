@@ -17,6 +17,9 @@ Available services:
 - IncidentReportingService: Incident reports for halt/fork/override (FR54, FR145, FR147, Story 8.4)
 """
 
+from src.application.services.acknowledgment_rate_metrics_service import (
+    AcknowledgmentRateMetricsService,
+)
 from src.application.services.amendment_visibility_service import (
     AMENDMENT_VISIBILITY_SYSTEM_AGENT_ID,
     AmendmentProposalRequest,
@@ -127,6 +130,14 @@ from src.application.services.emergence_violation_orchestrator import (
 from src.application.services.escalation_service import (
     ESCALATION_SYSTEM_AGENT_ID,
     EscalationService,
+)
+from src.application.services.escalation_threshold_service import (
+    DEFAULT_CESSATION_THRESHOLD,
+    DEFAULT_GRIEVANCE_THRESHOLD,
+    EscalationThresholdService,
+)
+from src.application.services.auto_escalation_executor_service import (
+    AutoEscalationExecutorService,
 )
 from src.application.services.event_writer_service import EventWriterService
 from src.application.services.failure_prevention_service import (
@@ -256,6 +267,34 @@ from src.application.services.rate_limit_cleanup_service import (
 from src.application.services.rate_limit_service import (
     RateLimitService,
 )
+from src.application.services.decision_package_service import (
+    DecisionPackageBuilderService,
+)
+from src.application.services.recommendation_submission_service import (
+    MIN_RATIONALE_LENGTH,
+    RecommendationSubmissionService,
+)
+from src.application.services.extension_request_service import (
+    EXTENSION_DURATION_CYCLES,
+    MIN_REASON_LENGTH,
+    ExtensionRequestService,
+)
+from src.application.services.referral_execution_service import (
+    JOB_TYPE_REFERRAL_TIMEOUT,
+    ReferralExecutionService,
+)
+from src.application.services.referral_timeout_service import (
+    ReferralTimeoutService,
+)
+from src.application.services.knight_concurrent_limit_service import (
+    KnightConcurrentLimitService,
+)
+from src.application.services.co_sign_count_verification_service import (
+    CoSignCountVerificationService,
+)
+from src.application.services.co_sign_submission_service import (
+    CoSignSubmissionService,
+)
 from src.application.services.realm_registry import (
     RealmRegistryService,
 )
@@ -322,6 +361,7 @@ from src.application.services.witness_pool_monitoring_service import (
 from src.application.services.witness_service import WitnessService
 
 __all__: list[str] = [
+    "AcknowledgmentRateMetricsService",
     "AtomicEventWriter",
     # Content Hash Service (Story 0.5, HP-2, HC-5)
     "Blake3ContentHashService",
@@ -396,6 +436,10 @@ __all__: list[str] = [
     "BreachDeclarationService",
     "ESCALATION_SYSTEM_AGENT_ID",
     "EscalationService",
+    # Escalation Threshold Service (Story 5.5, FR-5.1, FR-5.2, FR-6.5)
+    "DEFAULT_CESSATION_THRESHOLD",
+    "DEFAULT_GRIEVANCE_THRESHOLD",
+    "EscalationThresholdService",
     "CESSATION_SYSTEM_AGENT_ID",
     "CessationConsiderationService",
     "ThresholdConfigurationService",
@@ -537,4 +581,26 @@ __all__: list[str] = [
     # Compliance documentation service (Story 9.9, NFR31-34)
     "COMPLIANCE_DOCUMENTATION_SYSTEM_AGENT_ID",
     "ComplianceDocumentationService",
+    # Referral Execution Service (Story 4.2, FR-4.1, FR-4.2)
+    "JOB_TYPE_REFERRAL_TIMEOUT",
+    "ReferralExecutionService",
+    # Decision Package Builder Service (Story 4.3, FR-4.3, NFR-5.2)
+    "DecisionPackageBuilderService",
+    # Recommendation Submission Service (Story 4.4, FR-4.6, NFR-5.2)
+    "MIN_RATIONALE_LENGTH",
+    "RecommendationSubmissionService",
+    # Extension Request Service (Story 4.5, FR-4.4)
+    "EXTENSION_DURATION_CYCLES",
+    "MIN_REASON_LENGTH",
+    "ExtensionRequestService",
+    # Referral Timeout Service (Story 4.6, FR-4.5, NFR-3.4)
+    "ReferralTimeoutService",
+    # Knight Concurrent Limit Service (Story 4.7, FR-4.7, NFR-7.3)
+    "KnightConcurrentLimitService",
+    # Co-Sign Submission Service (Story 5.2, FR-6.1, FR-6.2, FR-6.3, FR-6.4)
+    "CoSignSubmissionService",
+    # Co-Sign Count Verification Service (Story 5.8, NFR-2.2, AC5)
+    "CoSignCountVerificationService",
+    # Auto-Escalation Executor Service (Story 5.6, FR-5.1, FR-5.3, CT-12, CT-14)
+    "AutoEscalationExecutorService",
 ]

@@ -135,18 +135,28 @@ workflow_status:
       completed: "2026-01-17"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CURRENT WORK IN PROGRESS (2026-01-19)
+# CURRENT WORK IN PROGRESS (2026-01-20)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "Petition Epic 2B: Deliberation Edge Cases & Guarantees"
-  status: backlog
+  epic: "Petition Epic 6: King Escalation & Adoption Bridge"
+  status: in-progress
 
-  completed_epic: "Petition Epic 2A: Core Deliberation Protocol (8/8 stories DONE)"
+  completed_epic: "Petition Epic 5: Co-signing & Auto-Escalation (8/8 stories DONE)"
 
-  current_story: petition-2b-1-dissent-recording-service
-  current_story_status: backlog
+  current_story: petition-6-1-king-escalation-queue
+  current_story_status: ready-for-dev
+  story_file: "_bmad-output/implementation-artifacts/stories/petition-6-1-king-escalation-queue.md"
 
-  backlog:
+  completed:
+    - petition-5-1-co-sign-domain-model-schema
+    - petition-5-2-co-sign-submission-endpoint
+    - petition-5-3-identity-verification-for-co-sign
+    - petition-5-4-sybil-1-rate-limiting
+    - petition-5-5-escalation-threshold-checking
+    - petition-5-6-auto-escalation-execution
+    - petition-5-7-co-signer-deduplication-enforcement
+    - petition-5-8-co-signer-count-scalability
+    - petition-2b-1-dissent-recording-service
     - petition-2b-2-deliberation-timeout-enforcement
     - petition-2b-3-deadlock-detection-auto-escalation
     - petition-2b-4-archon-substitution-on-failure
@@ -154,8 +164,28 @@ current_work:
     - petition-2b-6-audit-trail-reconstruction
     - petition-2b-7-deliberation-load-testing-harness
     - petition-2b-8-deliberation-chaos-testing
+    - petition-3-1-acknowledgment-reason-code-enumeration
+    - petition-3-2-acknowledgment-execution-service
+    - petition-3-3-rationale-requirement-enforcement
+    - petition-3-4-duplicate-petition-reference
+    - petition-3-5-minimum-dwell-time-enforcement
+    - petition-3-6-acknowledgment-rate-metrics
+    - petition-4-1-referral-domain-model-schema
+    - petition-4-2-referral-execution-service
+    - petition-4-3-knight-decision-package
+    - petition-4-4-knight-recommendation-submission
+    - petition-4-5-extension-request-handling
+    - petition-4-6-referral-timeout-auto-acknowledge
+    - petition-4-7-knight-concurrent-referral-limit
 
-  note: "Epic 2A complete (8/8). Ready for Epic 2B (edge cases and guarantees)."
+  backlog:
+    - petition-6-2-escalation-decision-package
+    - petition-6-3-petition-adoption-creates-motion
+    - petition-6-4-adoption-budget-consumption
+    - petition-6-5-escalation-acknowledgment-by-king
+    - petition-6-6-adoption-provenance-immutability
+
+  note: "Epic 6 IN PROGRESS. Story 6.1 ready for dev."
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PETITION SYSTEM EPICS (from petition-system-epics.md)
@@ -342,32 +372,57 @@ petition_system:
   petition-epic-2b:
     name: "Deliberation Edge Cases & Guarantees"
     priority: P0
-    status: backlog
+    status: done
+    completed: "2026-01-19"
     stories:
       - id: petition-2b-1-dissent-recording-service
         name: "Dissent Recording Service"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-1-dissent-recording-service.md"
+        note: "FR-11.8 - Dissent recording for 2-1 votes, Blake3 hash, event emission, query support"
       - id: petition-2b-2-deliberation-timeout-enforcement
         name: "Deliberation Timeout Enforcement"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-2-deliberation-timeout-enforcement.md"
+        note: "FR-11.9, HC-7 - 5-min timeout with auto-ESCALATE, orchestrator integration verified"
       - id: petition-2b-3-deadlock-detection-auto-escalation
         name: "Deadlock Detection & Auto-Escalation"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-3-deadlock-detection-auto-escalation.md"
+        note: "FR-11.10, NFR-10.2 - MAX_DELIBERATION_ROUNDS=3, vote pattern analysis, round tracking, auto-ESCALATE"
       - id: petition-2b-4-archon-substitution-on-failure
         name: "Archon Substitution on Failure"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-4-archon-substitution-on-failure.md"
+        note: "FR-11.12, NFR-10.6, CT-11, AT-1, AT-6 - ArchonSubstitutionProtocol, 10s SLA, context handoff, abort handling"
       - id: petition-2b-5-transcript-preservation-hash-referencing
         name: "Transcript Preservation & Hash Referencing"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-5-transcript-preservation-hash-referencing.md"
+        note: "CT-12, FR-11.7, NFR-6.5, NFR-4.2 - Content-addressed storage, Blake3 hashing, append-only PostgreSQL"
       - id: petition-2b-6-audit-trail-reconstruction
         name: "Audit Trail Reconstruction"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-6-audit-trail-reconstruction.md"
+        note: "FR-11.12, NFR-6.5, CT-12 - AuditTimeline model, AuditTrailReconstructorProtocol, stub, full reconstruction"
       - id: petition-2b-7-deliberation-load-testing-harness
         name: "Deliberation Load Testing Harness"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-7-deliberation-load-testing-harness.md"
+        note: "NFR-9.4, NFR-10.1, NFR-10.5, CT-11, CT-14 - LoadTestHarnessProtocol, stub, 100+ concurrent sessions verified"
       - id: petition-2b-8-deliberation-chaos-testing
         name: "Deliberation Chaos Testing"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2b-8-deliberation-chaos-testing.md"
+        note: "NFR-9.5, CT-11, CT-12, CT-14 - ChaosTestHarnessProtocol, 6 scenarios, fault injection lifecycle, NFR-10.6 SLA compliance"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 3: Acknowledgment Execution (P1)
@@ -377,26 +432,45 @@ petition_system:
   petition-epic-3:
     name: "Acknowledgment Execution"
     priority: P1
-    status: backlog
+    status: done
+    completed: "2026-01-19"
     stories:
       - id: petition-3-1-acknowledgment-reason-code-enumeration
         name: "Acknowledgment Reason Code Enumeration"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-3-1-acknowledgment-reason-code-enumeration.md"
+        note: "FR-3.2 - AcknowledgmentReasonCode enum (8 values), validation helpers, migration 021, unit+integration tests"
       - id: petition-3-2-acknowledgment-execution-service
         name: "Acknowledgment Execution Service"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-3-2-acknowledgment-execution-service.md"
+        note: "FR-3.1, CT-12 - Acknowledgment domain model, protocol, service, events, errors, migration 022, 70+ unit tests"
       - id: petition-3-3-rationale-requirement-enforcement
         name: "Rationale Requirement Enforcement"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-3-3-rationale-requirement-enforcement.md"
+        note: "FR-3.3 - Already implemented in Stories 3.1/3.2; validation, errors, events, 25+ tests"
       - id: petition-3-4-duplicate-petition-reference
         name: "Duplicate Petition Reference"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-3-4-duplicate-petition-reference.md"
+        note: "FR-3.4 - Already implemented in Stories 3.1/3.2; requires_reference(), InvalidReferencePetitionError, 17+ tests"
       - id: petition-3-5-minimum-dwell-time-enforcement
         name: "Minimum Dwell Time Enforcement"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-3-5-minimum-dwell-time-enforcement.md"
+        note: "FR-3.5 - Dwell time enforcement in AcknowledgmentExecutionService, config/env support, errors, 15+ tests"
       - id: petition-3-6-acknowledgment-rate-metrics
         name: "Acknowledgment Rate Metrics"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-3-6-acknowledgment-rate-metrics.md"
+        note: "FR-3.6, FM-3.2 - Per-archon metrics, Prometheus counters, PromQL queries, 62 tests passing"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 4: Knight Referral Workflow (P1)
@@ -406,29 +480,51 @@ petition_system:
   petition-epic-4:
     name: "Knight Referral Workflow"
     priority: P1
-    status: backlog
+    status: done
+    completed: "2026-01-20"
     stories:
       - id: petition-4-1-referral-domain-model-schema
         name: "Referral Domain Model & Schema"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-1-referral-domain-model-schema.md"
+        note: "FR-4.1, FR-4.2 - ReferralStatus enum (5 states), Referral dataclass, migration 023, 65 tests passing"
       - id: petition-4-2-referral-execution-service
         name: "Referral Execution Service"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-2-referral-execution-service.md"
+        note: "FR-4.1, FR-4.2, CT-12, NFR-3.4, NFR-4.4 - ReferralExecutionService, protocol, events, errors, 25 tests passing"
       - id: petition-4-3-knight-decision-package
         name: "Knight Decision Package"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-3-knight-decision-package.md"
+        note: "FR-4.3, NFR-5.2, CT-13 - DecisionPackage domain model, protocol, service, stub, 25 tests passing"
       - id: petition-4-4-knight-recommendation-submission
         name: "Knight Recommendation Submission"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-4-knight-recommendation-submission.md"
+        note: "FR-4.4, FR-4.6 - RecommendationSubmissionService, rationale validation, ACKNOWLEDGE/ESCALATE routing, 37 tests passing"
       - id: petition-4-5-extension-request-handling
         name: "Extension Request Handling"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-5-extension-request-handling.md"
+        note: "FR-4.4, NFR-4.4 - ExtensionRequestService, max 2 extensions, deadline rescheduling, 45 tests passing"
       - id: petition-4-6-referral-timeout-auto-acknowledge
         name: "Referral Timeout Auto-Acknowledge"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-6-referral-timeout-auto-acknowledge.md"
+        note: "FR-4.5, NFR-3.4, CT-12 - ReferralTimeoutService, auto-ACKNOWLEDGE with EXPIRED reason, 36 tests passing"
       - id: petition-4-7-knight-concurrent-referral-limit
         name: "Knight Concurrent Referral Limit"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-4-7-knight-concurrent-referral-limit.md"
+        note: "FR-4.7, NFR-7.3, CT-12 - KnightConcurrentLimitService, workload-based fair distribution, 36 tests passing"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 5: Co-signing & Auto-Escalation (P0)
@@ -438,32 +534,56 @@ petition_system:
   petition-epic-5:
     name: "Co-signing & Auto-Escalation"
     priority: P0
-    status: backlog
+    status: done
+    completed: "2026-01-20"
     stories:
       - id: petition-5-1-co-sign-domain-model-schema
         name: "Co-Sign Domain Model & Schema"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-1-co-sign-domain-model-schema.md"
+        note: "FR-6.2, NFR-3.5, NFR-6.4 - CoSign model, unique constraint (petition_id, signer_id), BLAKE3 hashing, 48 tests passing"
       - id: petition-5-2-co-sign-submission-endpoint
         name: "Co-Sign Submission Endpoint"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-2-co-sign-submission-endpoint.md"
+        note: "FR-6.1, FR-6.3, FR-6.4, CT-12, CT-13 - POST /v1/petitions/{petition_id}/co-sign endpoint, 16 tests passing"
       - id: petition-5-3-identity-verification-for-co-sign
         name: "Identity Verification for Co-Sign"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-3-identity-verification-for-co-sign.md"
+        note: "NFR-5.2, LEGIT-1, CT-12, D7 - Identity verification before co-sign, 39 tests passing"
       - id: petition-5-4-sybil-1-rate-limiting
         name: "SYBIL-1 Rate Limiting"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-4-sybil-1-rate-limiting.md"
+        note: "FR-6.6, NFR-5.1, CT-11, SYBIL-1 - Rate limiting per signer (50/hour), 47 tests passing"
       - id: petition-5-5-escalation-threshold-checking
         name: "Escalation Threshold Checking"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-5-escalation-threshold-checking.md"
+        note: "FR-5.1, FR-5.2, FR-6.5, CON-5 - Threshold detection (CESSATION=100, GRIEVANCE=50), 38 tests passing"
       - id: petition-5-6-auto-escalation-execution
         name: "Auto-Escalation Execution"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-6-auto-escalation-execution.md"
+        note: "FR-5.1, FR-5.3, CT-12, CT-13, CT-14 - State transition bypass, EscalationTriggered event, 104 tests passing"
       - id: petition-5-7-co-signer-deduplication-enforcement
         name: "Co-Signer Deduplication Enforcement"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-7-co-signer-deduplication-enforcement.md"
       - id: petition-5-8-co-signer-count-scalability
         name: "Co-Signer Count Scalability"
-        status: backlog
+        status: done
+        completed: "2026-01-20"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-5-8-co-signer-count-scalability.md"
+        note: "NFR-2.2, FR-6.4, CT-12 - Counter column, load test 100k co-signers, verification service, all tests passing"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 6: King Escalation & Adoption Bridge (P0)

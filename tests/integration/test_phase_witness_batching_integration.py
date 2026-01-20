@@ -1,10 +1,12 @@
-"""Integration tests for Phase Witness Batching (Story 2A.7, FR-11.7).
+"""Integration tests for Phase Witness Batching (Story 2A.7, FR-11.7, Story 2B.5).
 
 Tests end-to-end phase witness batching including:
 - Full deliberation witness flow
-- Content-addressed artifact retrieval
+- Content-addressed artifact retrieval via TranscriptStoreProtocol
 - Audit trail reconstruction
 - Integration with DeliberationSession
+
+Updated for Story 2B.5: Service now uses TranscriptStoreProtocol dependency.
 """
 
 from __future__ import annotations
@@ -23,6 +25,13 @@ from src.domain.models.deliberation_session import (
     DeliberationPhase,
     DeliberationSession,
 )
+from src.infrastructure.stubs.transcript_store_stub import TranscriptStoreStub
+
+
+def _create_service() -> PhaseWitnessBatchingService:
+    """Create a PhaseWitnessBatchingService with TranscriptStoreStub (Story 2B.5)."""
+    transcript_store = TranscriptStoreStub()
+    return PhaseWitnessBatchingService(transcript_store=transcript_store)
 
 
 class TestFullDeliberationWitnessing:
@@ -31,7 +40,7 @@ class TestFullDeliberationWitnessing:
     @pytest.mark.asyncio
     async def test_full_deliberation_produces_four_witness_events(self) -> None:
         """Test that a full deliberation produces exactly 4 witness events."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -77,7 +86,7 @@ class TestFullDeliberationWitnessing:
     @pytest.mark.asyncio
     async def test_witness_chain_integrity_after_full_deliberation(self) -> None:
         """Test that witness chain is valid after full deliberation."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -115,7 +124,7 @@ class TestContentAddressedArtifactRetrieval:
     @pytest.mark.asyncio
     async def test_transcript_retrievable_by_hash(self) -> None:
         """Test transcripts can be retrieved by their Blake3 hash."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -147,7 +156,7 @@ class TestContentAddressedArtifactRetrieval:
     @pytest.mark.asyncio
     async def test_multiple_transcripts_independently_retrievable(self) -> None:
         """Test multiple phase transcripts are independently retrievable."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -194,7 +203,7 @@ class TestAuditTrailReconstruction:
     @pytest.mark.asyncio
     async def test_audit_trail_reconstruction_from_events(self) -> None:
         """Test complete audit trail can be reconstructed from witness events."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -241,7 +250,7 @@ class TestAuditTrailReconstruction:
     @pytest.mark.asyncio
     async def test_partial_audit_trail_reconstruction(self) -> None:
         """Test partial audit trail for incomplete deliberation."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -290,7 +299,7 @@ class TestDeliberationSessionIntegration:
     @pytest.mark.asyncio
     async def test_witness_uses_session_archons(self) -> None:
         """Test witness event uses session's assigned archons."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         archon1, archon2, archon3 = uuid4(), uuid4(), uuid4()
 
         session = DeliberationSession.create(
@@ -315,7 +324,7 @@ class TestDeliberationSessionIntegration:
     @pytest.mark.asyncio
     async def test_multiple_sessions_independent_witnessing(self) -> None:
         """Test multiple sessions have independent witness chains."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
 
         session1 = DeliberationSession.create(
             session_id=uuid4(),
@@ -366,7 +375,7 @@ class TestPhaseMetadataPreservation:
     @pytest.mark.asyncio
     async def test_metadata_preserved_across_phases(self) -> None:
         """Test phase-specific metadata is preserved in witness events."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -408,9 +417,12 @@ class TestEdgeCases:
     """Integration tests for edge cases."""
 
     @pytest.mark.asyncio
-    async def test_empty_transcript_still_witnesses(self) -> None:
-        """Test empty transcript still creates valid witness event."""
-        service = PhaseWitnessBatchingService()
+    async def test_empty_transcript_raises_error(self) -> None:
+        """Test empty transcript raises ValueError per TranscriptStoreProtocol.
+
+        Story 2B.5: Empty transcripts are not allowed per NFR-4.2 (content integrity).
+        """
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -418,26 +430,21 @@ class TestEdgeCases:
         )
 
         start = datetime.now(timezone.utc)
-        event = await service.witness_phase(
-            session=session,
-            phase=DeliberationPhase.ASSESS,
-            transcript="",
-            metadata={},
-            start_timestamp=start,
-            end_timestamp=start + timedelta(minutes=1),
-        )
 
-        assert event is not None
-        assert len(event.transcript_hash) == BLAKE3_HASH_SIZE
-
-        # Empty string still has a hash
-        retrieved = await service.get_transcript_by_hash(event.transcript_hash)
-        assert retrieved == ""
+        with pytest.raises(ValueError, match="Transcript cannot be empty"):
+            await service.witness_phase(
+                session=session,
+                phase=DeliberationPhase.ASSESS,
+                transcript="",
+                metadata={},
+                start_timestamp=start,
+                end_timestamp=start + timedelta(minutes=1),
+            )
 
     @pytest.mark.asyncio
     async def test_large_transcript_handling(self) -> None:
         """Test handling of large transcripts."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
@@ -467,7 +474,7 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_unicode_transcript_handling(self) -> None:
         """Test handling of unicode in transcripts."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),

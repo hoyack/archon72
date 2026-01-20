@@ -181,6 +181,53 @@ class ArchonPoolService:
         """
         return archon_id in self._by_id
 
+    def select_substitute(
+        self,
+        excluded_archon_ids: set[UUID],
+    ) -> FateArchon | None:
+        """Select a substitute Archon not in the excluded set (Story 2B.4, AC-2).
+
+        Used for Archon substitution when one fails during deliberation.
+        Selects the first available Archon not in the excluded set.
+
+        Args:
+            excluded_archon_ids: Set of Archon IDs to exclude from selection.
+
+        Returns:
+            FateArchon if one is available, None if pool exhausted.
+        """
+        for archon in self._pool:
+            if archon.id not in excluded_archon_ids:
+                logger.debug(
+                    "Selected substitute Archon: %s (excluded %d archons)",
+                    archon.name,
+                    len(excluded_archon_ids),
+                )
+                return archon
+
+        logger.warning(
+            "No substitute available: all %d archons excluded",
+            len(self._pool),
+        )
+        return None
+
+    def get_available_archons(
+        self,
+        excluded_archon_ids: set[UUID],
+    ) -> list[FateArchon]:
+        """Get all Archons not in the excluded set (Story 2B.4, AC-2).
+
+        Args:
+            excluded_archon_ids: Set of Archon IDs to exclude.
+
+        Returns:
+            List of available FateArchon instances.
+        """
+        return [
+            archon for archon in self._pool
+            if archon.id not in excluded_archon_ids
+        ]
+
 
 # Default singleton using canonical pool
 _default_archon_pool: ArchonPoolService | None = None

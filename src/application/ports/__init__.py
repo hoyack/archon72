@@ -18,6 +18,9 @@ Helper functions:
 """
 
 # Time Authority Protocol (HARDENING-1, AC4)
+from src.application.ports.acknowledgment_rate_metrics import (
+    AcknowledgmentRateMetricsProtocol,
+)
 from src.application.ports.agent_orchestrator import (
     AgentOrchestratorProtocol,
     AgentOutput,
@@ -25,6 +28,10 @@ from src.application.ports.agent_orchestrator import (
     AgentStatus,
     AgentStatusInfo,
     ContextBundle,
+)
+from src.application.ports.audit_trail_reconstructor import (
+    AuditTrailReconstructorProtocol,
+    SessionNotFoundError,
 )
 from src.application.ports.amendment_repository import (
     AmendmentProposal,
@@ -55,6 +62,15 @@ from src.application.ports.archon_assignment import (
 from src.application.ports.archon_pool import (
     ArchonPoolProtocol,
 )
+from src.application.ports.auto_escalation_executor import (
+    AutoEscalationExecutorProtocol,
+    AutoEscalationResult,
+)
+from src.application.ports.archon_substitution import (
+    ArchonSubstitutionProtocol,
+    ContextHandoff,
+    SubstitutionResult,
+)
 from src.application.ports.archon_profile_repository import (
     ArchonProfileRepository,
 )
@@ -82,6 +98,28 @@ from src.application.ports.cessation_flag_repository import (
 )
 from src.application.ports.cessation_repository import CessationRepositoryProtocol
 from src.application.ports.checkpoint_repository import CheckpointRepository
+from src.application.ports.co_sign_submission import (
+    CoSignRepositoryProtocol,
+    CoSignSubmissionProtocol,
+    CoSignSubmissionResult,
+)
+from src.application.ports.identity_verification import (
+    IdentityStatus,
+    IdentityStoreProtocol,
+    IdentityVerificationResult,
+)
+from src.application.ports.co_sign_count_verification import (
+    CoSignCountVerificationProtocol,
+    CountVerificationResult,
+)
+from src.application.ports.co_sign_rate_limiter import (
+    CoSignRateLimitResult,
+    CoSignRateLimiterProtocol,
+)
+from src.application.ports.escalation_threshold import (
+    EscalationThresholdCheckerProtocol,
+    EscalationThresholdResult,
+)
 from src.application.ports.collective_output import (
     CollectiveOutputPort,
     StoredCollectiveOutput,
@@ -301,6 +339,14 @@ from src.application.ports.integrity_failure_repository import (
 from src.application.ports.job_scheduler import (
     JobSchedulerProtocol,
 )
+from src.application.ports.chaos_test_harness import (
+    ChaosTestHarnessProtocol,
+    FaultHandle,
+)
+from src.application.ports.load_test_harness import (
+    LoadTestHarnessProtocol,
+    TestPetition,
+)
 from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
 from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
 from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
@@ -357,8 +403,40 @@ from src.application.ports.petition_repository import (
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
 )
+from src.application.ports.decision_package import (
+    DecisionPackageBuilderProtocol,
+)
+from src.application.ports.recommendation_submission import (
+    RecommendationSubmissionProtocol,
+)
+from src.application.ports.extension_request import (
+    ExtensionRequest,
+    ExtensionRequestProtocol,
+    ExtensionResult,
+)
+from src.application.ports.referral_execution import (
+    ReferralExecutionProtocol,
+    ReferralRepositoryProtocol,
+)
+from src.application.ports.referral_timeout import (
+    ReferralTimeoutAction,
+    ReferralTimeoutAcknowledgeError,
+    ReferralTimeoutError,
+    ReferralTimeoutProtocol,
+    ReferralTimeoutResult,
+    ReferralTimeoutWitnessError,
+)
+from src.application.ports.knight_concurrent_limit import (
+    AssignmentResult as KnightAssignmentResult,
+    KnightConcurrentLimitProtocol,
+    KnightEligibilityResult,
+    KnightRegistryProtocol,
+)
 from src.application.ports.phase_witness_batching import (
     PhaseWitnessBatchingProtocol,
+)
+from src.application.ports.transcript_store import (
+    TranscriptStoreProtocol,
 )
 from src.application.ports.procedural_record_generator import (
     ProceduralRecordData,
@@ -640,6 +718,10 @@ __all__: list[str] = [
     "RealmRegistryProtocol",
     # Archon Pool (Story 0.7, HP-11, FR-11.1)
     "ArchonPoolProtocol",
+    # Archon Substitution (Story 2B.4, NFR-10.6)
+    "ArchonSubstitutionProtocol",
+    "ContextHandoff",
+    "SubstitutionResult",
     # Archon Assignment Service (Story 2A.2, FR-11.1, FR-11.2)
     "ARCHONS_ASSIGNED_EVENT_TYPE",
     "ARCHONS_ASSIGNED_SCHEMA_VERSION",
@@ -655,6 +737,8 @@ __all__: list[str] = [
     "ConsensusResolverProtocol",
     # Phase Witness Batching (Story 2A.7, FR-11.7)
     "PhaseWitnessBatchingProtocol",
+    # Transcript Store (Story 2B.5, FR-11.7)
+    "TranscriptStoreProtocol",
     # Deliberation Timeout (Story 2B.2, FR-11.9, HC-7)
     "DeliberationTimeoutProtocol",
     # Deadlock Handler (Story 2B.3, FR-11.10)
@@ -815,4 +899,58 @@ __all__: list[str] = [
     "get_service_for_state",
     "is_blocking_error",
     "is_retryable_error",
+    # Audit Trail Reconstructor (Story 2B.6, FR-11.12, NFR-6.5)
+    "AuditTrailReconstructorProtocol",
+    "SessionNotFoundError",
+    # Load Test Harness (Story 2B.7, NFR-10.5)
+    "LoadTestHarnessProtocol",
+    "TestPetition",
+    # Chaos Test Harness (Story 2B.8, NFR-9.5)
+    "ChaosTestHarnessProtocol",
+    "FaultHandle",
+    # Acknowledgment Rate Metrics (Story 3.6, FR-3.6)
+    "AcknowledgmentRateMetricsProtocol",
+    # Referral Execution (Story 4.2, FR-4.1, FR-4.2)
+    "ReferralExecutionProtocol",
+    "ReferralRepositoryProtocol",
+    # Decision Package Builder (Story 4.3, FR-4.3, NFR-5.2)
+    "DecisionPackageBuilderProtocol",
+    # Recommendation Submission (Story 4.4, FR-4.6, NFR-5.2)
+    "RecommendationSubmissionProtocol",
+    # Extension Request (Story 4.5, FR-4.4)
+    "ExtensionRequest",
+    "ExtensionRequestProtocol",
+    "ExtensionResult",
+    # Referral Timeout (Story 4.6, FR-4.5, NFR-3.4)
+    "ReferralTimeoutAction",
+    "ReferralTimeoutAcknowledgeError",
+    "ReferralTimeoutError",
+    "ReferralTimeoutProtocol",
+    "ReferralTimeoutResult",
+    "ReferralTimeoutWitnessError",
+    # Knight Concurrent Limit (Story 4.7, FR-4.7, NFR-7.3)
+    "KnightAssignmentResult",
+    "KnightConcurrentLimitProtocol",
+    "KnightEligibilityResult",
+    "KnightRegistryProtocol",
+    # Co-sign Submission (Story 5.2, FR-6.1, FR-6.4)
+    "CoSignRepositoryProtocol",
+    "CoSignSubmissionProtocol",
+    "CoSignSubmissionResult",
+    # Identity Verification (Story 5.3, NFR-5.2, LEGIT-1)
+    "IdentityStatus",
+    "IdentityStoreProtocol",
+    "IdentityVerificationResult",
+    # Co-sign Rate Limiter (Story 5.4, FR-6.6, SYBIL-1)
+    "CoSignRateLimitResult",
+    "CoSignRateLimiterProtocol",
+    # Escalation Threshold Checker (Story 5.5, FR-5.1, FR-5.2, FR-6.5)
+    "EscalationThresholdCheckerProtocol",
+    "EscalationThresholdResult",
+    # Auto-Escalation Executor (Story 5.6, FR-5.1, FR-5.3, CT-12, CT-14)
+    "AutoEscalationExecutorProtocol",
+    "AutoEscalationResult",
+    # Co-sign Count Verification (Story 5.8, NFR-2.2, AC5)
+    "CoSignCountVerificationProtocol",
+    "CountVerificationResult",
 ]

@@ -1,4 +1,4 @@
-"""Consensus resolver service implementation (Story 2A.6, FR-11.5, FR-11.6).
+"""Consensus resolver service implementation (Story 2A.6, FR-11.5, FR-11.6, Story 3.6).
 
 This module implements the 2-of-3 supermajority consensus resolution
 algorithm for the Three Fates deliberation system.
@@ -7,6 +7,7 @@ Constitutional Constraints:
 - AT-6: Deliberation is collective judgment, not unilateral decision
 - NFR-10.3: Consensus determinism - 100% reproducible
 - CT-12: Witnessing creates accountability
+- FR-3.6: System SHALL track acknowledgment rate metrics per Marquis
 """
 
 from __future__ import annotations
@@ -15,6 +16,9 @@ from uuid import UUID
 
 import structlog
 
+from src.application.ports.acknowledgment_rate_metrics import (
+    AcknowledgmentRateMetricsProtocol,
+)
 from src.application.ports.consensus_resolver import ConsensusResolverProtocol
 from src.domain.errors.deliberation import ConsensusNotReachedError
 from src.domain.models.consensus_result import (
@@ -34,21 +38,33 @@ logger = structlog.get_logger(__name__)
 
 
 class ConsensusResolverService(ConsensusResolverProtocol):
-    """Implementation of 2-of-3 supermajority consensus resolution (FR-11.5, FR-11.6).
+    """Implementation of 2-of-3 supermajority consensus resolution (FR-11.5, FR-11.6, FR-3.6).
 
     This service implements a deterministic algorithm for resolving
     consensus from archon votes. The algorithm is stateless and pure -
     given the same inputs, it always produces the same outputs (NFR-10.3).
 
+    Optionally records acknowledgment rate metrics per FR-3.6.
+
     Constitutional Constraints:
     - AT-6: Requires 2-of-3 agreement for any outcome
     - NFR-10.3: Deterministic, reproducible results
     - CT-12: Complete attribution for witnessing
+    - FR-3.6: System SHALL track acknowledgment rate metrics per Marquis
     """
 
-    def __init__(self) -> None:
-        """Initialize the consensus resolver service."""
+    def __init__(
+        self,
+        metrics_collector: AcknowledgmentRateMetricsProtocol | None = None,
+    ) -> None:
+        """Initialize the consensus resolver service.
+
+        Args:
+            metrics_collector: Optional metrics collector for tracking
+                acknowledgment rate metrics per FR-3.6.
+        """
         self._log = logger.bind(component="consensus_resolver")
+        self._metrics_collector = metrics_collector
 
     def validate_votes(
         self,
@@ -219,7 +235,7 @@ class ConsensusResolverService(ConsensusResolverProtocol):
                 dissent_archon_id=str(dissent_archon_id) if dissent_archon_id else None,
             )
 
-        return ConsensusResult(
+        result = ConsensusResult(
             session_id=session.session_id,
             petition_id=session.petition_id,
             status=status,
@@ -229,6 +245,19 @@ class ConsensusResolverService(ConsensusResolverProtocol):
             dissent_archon_id=dissent_archon_id,
             algorithm_version=CONSENSUS_ALGORITHM_VERSION,
         )
+
+        # Record acknowledgment rate metrics (FR-3.6)
+        if self._metrics_collector is not None:
+            archon_votes = {
+                archon_id: outcome.value for archon_id, outcome in votes.items()
+            }
+            self._metrics_collector.record_deliberation_completion(archon_votes)
+            log.debug(
+                "recorded_acknowledgment_rate_metrics",
+                archon_count=len(archon_votes),
+            )
+
+        return result
 
     def can_reach_consensus(
         self,

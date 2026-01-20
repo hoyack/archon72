@@ -30,6 +30,7 @@ from src.domain.models.deliberation_session import (
     DeliberationOutcome,
     DeliberationPhase,
 )
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 from src.infrastructure.adapters.config.archon_profile_adapter import (
     create_archon_profile_repository,
 )
@@ -188,15 +189,9 @@ class CrewAIDeliberationAdapter(PhaseExecutorProtocol):
         try:
 
             def _run_crew() -> str:
-                from crewai import LLM, Agent, Crew, Task
+                from crewai import Agent, Crew, Task
 
-                # Create LLM from profile config
-                llm_config = profile.llm_config
-                llm = LLM(
-                    model=f"{llm_config.provider}/{llm_config.model}",
-                    temperature=llm_config.temperature,
-                    max_tokens=llm_config.max_tokens,
-                )
+                llm = create_crewai_llm(profile.llm_config)
 
                 # Create agent with archon's personality
                 agent = Agent(

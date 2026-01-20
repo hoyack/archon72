@@ -31,9 +31,11 @@ from src.domain.models.archon_profile import ArchonProfile
 from src.domain.models.llm_config import DEFAULT_LLM_CONFIG, LLMConfig
 from src.infrastructure.adapters.external.crewai_adapter import (
     CrewAIAdapter,
-    _ensure_api_key,
-    _get_crewai_llm_string,
     create_crewai_adapter,
+)
+from src.infrastructure.adapters.external.crewai_llm_factory import (
+    create_crewai_llm,
+    ensure_api_key,
 )
 
 # ===========================================================================
@@ -152,8 +154,8 @@ def adapter(mock_profile_repository: MagicMock) -> CrewAIAdapter:
 # ===========================================================================
 
 
-class TestGetCrewaiLlmString:
-    """Tests for _get_crewai_llm_string helper."""
+class TestCrewaiLlmFactory:
+    """Tests for shared CrewAI LLM factory."""
 
     def test_anthropic_provider(self) -> None:
         """Test Anthropic provider string generation."""
@@ -161,8 +163,8 @@ class TestGetCrewaiLlmString:
             provider="anthropic",
             model="claude-3-opus-20240229",
         )
-        result = _get_crewai_llm_string(config)
-        assert result == "anthropic/claude-3-opus-20240229"
+        llm = create_crewai_llm(config)
+        assert llm == "anthropic/claude-3-opus-20240229"
 
     def test_openai_provider(self) -> None:
         """Test OpenAI provider string generation."""
@@ -170,8 +172,8 @@ class TestGetCrewaiLlmString:
             provider="openai",
             model="gpt-4o",
         )
-        result = _get_crewai_llm_string(config)
-        assert result == "openai/gpt-4o"
+        llm = create_crewai_llm(config)
+        assert llm == "openai/gpt-4o"
 
     def test_google_provider(self) -> None:
         """Test Google provider string generation."""
@@ -179,8 +181,8 @@ class TestGetCrewaiLlmString:
             provider="google",
             model="gemini-pro",
         )
-        result = _get_crewai_llm_string(config)
-        assert result == "google/gemini-pro"
+        llm = create_crewai_llm(config)
+        assert llm == "google/gemini-pro"
 
     def test_local_provider_maps_to_ollama(self) -> None:
         """Test local provider maps to ollama."""
@@ -189,8 +191,8 @@ class TestGetCrewaiLlmString:
             model="llama2",
             timeout_ms=10000,
         )
-        result = _get_crewai_llm_string(config)
-        assert result == "ollama/llama2"
+        llm = create_crewai_llm(config)
+        assert llm.model == "ollama/llama2"
 
 
 # ===========================================================================
@@ -199,7 +201,7 @@ class TestGetCrewaiLlmString:
 
 
 class TestEnsureApiKey:
-    """Tests for _ensure_api_key helper."""
+    """Tests for ensure_api_key helper."""
 
     def test_warns_when_api_key_missing(
         self,
@@ -209,7 +211,7 @@ class TestEnsureApiKey:
         """Test warning logged when API key is not set."""
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         # Should not raise, just warn
-        _ensure_api_key(sample_archon_profile.llm_config)
+        ensure_api_key(sample_archon_profile.llm_config)
 
     def test_no_warning_for_local_provider(
         self,
@@ -223,7 +225,7 @@ class TestEnsureApiKey:
             timeout_ms=10000,
         )
         # Should not warn for local provider
-        _ensure_api_key(config)
+        ensure_api_key(config)
 
 
 # ===========================================================================

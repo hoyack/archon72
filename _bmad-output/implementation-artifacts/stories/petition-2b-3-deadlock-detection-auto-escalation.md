@@ -7,7 +7,7 @@
 | **Story ID** | petition-2b-3 |
 | **Epic** | Epic 2B: Deliberation Edge Cases & Guarantees |
 | **Priority** | P0 |
-| **Status** | ready-for-dev |
+| **Status** | done |
 | **Created** | 2026-01-19 |
 
 ## User Story

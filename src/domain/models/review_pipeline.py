@@ -554,6 +554,7 @@ class MotionReviewPipelineResult:
             "reviews": {
                 "response_count": len(self.review_responses),
                 "response_rate": self.response_rate,
+                "responses": [r.to_dict() for r in self.review_responses],
                 "aggregations": [a.to_dict() for a in self.aggregations],
             },
             "deliberation": {

@@ -22,6 +22,11 @@ from src.infrastructure.monitoring.metrics import (
     get_metrics_collector,
     reset_metrics_collector,
 )
+from src.infrastructure.monitoring.deliberation_metrics import (
+    DeliberationMetricsCollector,
+    get_deliberation_metrics_collector,
+    reset_deliberation_metrics_collector,
+)
 
 __all__ = [
     # External monitoring (Story 4.9)
@@ -35,4 +40,8 @@ __all__ = [
     "generate_metrics",
     "get_metrics_collector",
     "reset_metrics_collector",
+    # Deliberation metrics (Story 3.6, FR-3.6)
+    "DeliberationMetricsCollector",
+    "get_deliberation_metrics_collector",
+    "reset_deliberation_metrics_collector",
 ]

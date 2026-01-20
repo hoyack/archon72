@@ -53,6 +53,19 @@ from src.domain.errors.cessation import (
     CessationError,
     InvalidCessationDecisionError,
 )
+from src.domain.errors.co_sign import (
+    AlreadySignedError,
+    CoSignError,
+    CoSignPetitionFatedError,
+    CoSignPetitionNotFoundError,
+)
+from src.domain.errors.co_sign_rate_limit import CoSignRateLimitExceededError
+from src.domain.errors.identity import (
+    IdentityNotFoundError,
+    IdentityServiceUnavailableError,
+    IdentitySuspendedError,
+    IdentityVerificationError,
+)
 from src.domain.errors.collective import FR11ViolationError
 from src.domain.errors.collusion import (
     CollusionDefenseError,
@@ -103,6 +116,40 @@ from src.domain.errors.deliberation import (
     SessionAlreadyCompleteError,
     SessionAlreadyExistsError,
     SessionNotFoundError,
+)
+from src.domain.errors.decision_package import (
+    DecisionPackageError,
+    DecisionPackageNotFoundError,
+    ReferralNotAssignedError,
+    UnauthorizedPackageAccessError,
+)
+from src.domain.errors.recommendation import (
+    InvalidRecommendationError,
+    RationaleRequiredError as RecommendationRationaleRequiredError,
+    RecommendationAlreadySubmittedError,
+    RecommendationError,
+    ReferralNotInReviewError,
+    UnauthorizedRecommendationError,
+)
+from src.domain.errors.referral import (
+    ExtensionReasonRequiredError,
+    InvalidRealmError,
+    InvalidReferralStateError,
+    MaxExtensionsReachedError,
+    NotAssignedKnightError,
+    PetitionNotReferrableError,
+    ReferralAlreadyExistsError,
+    ReferralError,
+    ReferralJobSchedulingError,
+    ReferralNotFoundError,
+    ReferralWitnessHashError,
+)
+from src.domain.errors.knight_concurrent_limit import (
+    KnightAtCapacityError,
+    KnightNotFoundError,
+    KnightNotInRealmError,
+    NoEligibleKnightsError,
+    ReferralAlreadyAssignedError,
 )
 from src.domain.errors.escalation import (
     BreachAlreadyAcknowledgedError,
@@ -556,4 +603,47 @@ __all__: list[str] = [
     "SessionAlreadyCompleteError",
     "SessionAlreadyExistsError",
     "SessionNotFoundError",
+    # Referral errors (Story 4.2, FR-4.1, FR-4.2)
+    "InvalidRealmError",
+    "PetitionNotReferrableError",
+    "ReferralAlreadyExistsError",
+    "ReferralError",
+    "ReferralJobSchedulingError",
+    "ReferralNotFoundError",
+    "ReferralWitnessHashError",
+    # Extension errors (Story 4.5, FR-4.4)
+    "ExtensionReasonRequiredError",
+    "InvalidReferralStateError",
+    "MaxExtensionsReachedError",
+    "NotAssignedKnightError",
+    # Decision package errors (Story 4.3, FR-4.3, NFR-5.2)
+    "DecisionPackageError",
+    "DecisionPackageNotFoundError",
+    "ReferralNotAssignedError",
+    "UnauthorizedPackageAccessError",
+    # Recommendation errors (Story 4.4, FR-4.6, NFR-5.2)
+    "InvalidRecommendationError",
+    "RecommendationAlreadySubmittedError",
+    "RecommendationError",
+    "RecommendationRationaleRequiredError",
+    "ReferralNotInReviewError",
+    "UnauthorizedRecommendationError",
+    # Knight concurrent limit errors (Story 4.7, FR-4.7, NFR-7.3)
+    "KnightAtCapacityError",
+    "KnightNotFoundError",
+    "KnightNotInRealmError",
+    "NoEligibleKnightsError",
+    "ReferralAlreadyAssignedError",
+    # Co-sign errors (Story 5.2, FR-6.1, FR-6.2, FR-6.3, NFR-3.5)
+    "AlreadySignedError",
+    "CoSignError",
+    "CoSignPetitionFatedError",
+    "CoSignPetitionNotFoundError",
+    # Identity verification errors (Story 5.3, NFR-5.2, LEGIT-1)
+    "IdentityNotFoundError",
+    "IdentityServiceUnavailableError",
+    "IdentitySuspendedError",
+    "IdentityVerificationError",
+    # Co-sign rate limit errors (Story 5.4, FR-6.6, SYBIL-1)
+    "CoSignRateLimitExceededError",
 ]

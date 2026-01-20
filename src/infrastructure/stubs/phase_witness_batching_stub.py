@@ -1,15 +1,20 @@
-"""Phase witness batching stub for testing (Story 2A.7).
+"""Phase witness batching stub for testing (Story 2A.7, Story 2B.5).
 
 This module provides a test stub for PhaseWitnessBatchingProtocol
 that allows for controlled test scenarios without full service
 dependencies.
 
+Updated for Story 2B.5: Now uses TranscriptStoreProtocol for
+content-addressed transcript storage.
+
 Usage:
     from src.infrastructure.stubs.phase_witness_batching_stub import (
         PhaseWitnessBatchingStub,
     )
+    from src.infrastructure.stubs.transcript_store_stub import TranscriptStoreStub
 
-    stub = PhaseWitnessBatchingStub()
+    transcript_store = TranscriptStoreStub()
+    stub = PhaseWitnessBatchingStub(transcript_store=transcript_store)
     stub.set_force_error(True)  # Force errors for testing
 
     # In tests
@@ -24,6 +29,7 @@ from uuid import UUID, uuid4
 
 import blake3
 
+from src.application.ports.transcript_store import TranscriptStoreProtocol
 from src.domain.events.phase_witness import PhaseWitnessEvent
 from src.domain.models.deliberation_session import (
     DeliberationPhase,
@@ -42,6 +48,9 @@ PHASE_ORDER: list[DeliberationPhase] = [
 class PhaseWitnessBatchingStub:
     """Stub implementation of PhaseWitnessBatchingProtocol for testing.
 
+    Updated for Story 2B.5: Uses TranscriptStoreProtocol for content-addressed
+    transcript storage instead of in-memory dictionary.
+
     Provides configurable witness event generation for unit tests
     without requiring full service dependencies.
 
@@ -49,10 +58,18 @@ class PhaseWitnessBatchingStub:
     - Tracks all method calls for assertions
     - Configurable error forcing for error path testing
     - Proper hash chain generation for integration tests
+    - Uses TranscriptStoreProtocol for transcript storage
     """
 
-    def __init__(self) -> None:
-        """Initialize the stub."""
+    def __init__(self, transcript_store: TranscriptStoreProtocol) -> None:
+        """Initialize the stub.
+
+        Args:
+            transcript_store: Content-addressed transcript storage protocol.
+                Typically use TranscriptStoreStub for testing.
+        """
+        self._transcript_store = transcript_store
+
         self.witness_phase_calls: list[
             tuple[DeliberationSession, DeliberationPhase, str, dict[str, Any]]
         ] = []
@@ -62,7 +79,6 @@ class PhaseWitnessBatchingStub:
         self.verify_witness_chain_calls: list[UUID] = []
 
         self._events: dict[UUID, dict[DeliberationPhase, PhaseWitnessEvent]] = {}
-        self._transcripts: dict[bytes, str] = {}
         self._force_error: bool = False
         self._force_chain_invalid: bool = False
 
@@ -134,8 +150,9 @@ class PhaseWitnessBatchingStub:
         if self._force_error:
             raise RuntimeError("Forced error for testing")
 
-        transcript_hash = self._compute_hash(transcript)
-        self._transcripts[transcript_hash] = transcript
+        # Store transcript via content-addressed store (Story 2B.5)
+        transcript_ref = await self._transcript_store.store(transcript)
+        transcript_hash = transcript_ref.content_hash
 
         # Get previous hash for chaining
         previous_hash = self._get_previous_witness_hash(session.session_id, phase)
@@ -197,6 +214,8 @@ class PhaseWitnessBatchingStub:
     ) -> str | None:
         """Get transcript by hash.
 
+        Story 2B.5: Delegates to TranscriptStoreProtocol for retrieval.
+
         Args:
             transcript_hash: Blake3 hash (32 bytes).
 
@@ -204,7 +223,7 @@ class PhaseWitnessBatchingStub:
             Transcript text if found, None otherwise.
         """
         self.get_transcript_by_hash_calls.append(transcript_hash)
-        return self._transcripts.get(transcript_hash)
+        return await self._transcript_store.retrieve(transcript_hash)
 
     async def verify_witness_chain(
         self,
@@ -239,14 +258,17 @@ class PhaseWitnessBatchingStub:
         return True
 
     def reset(self) -> None:
-        """Reset all recorded calls and state."""
+        """Reset all recorded calls and state.
+
+        Note: Does not clear transcript store - call transcript_store.clear()
+        separately if needed.
+        """
         self.witness_phase_calls.clear()
         self.get_phase_witness_calls.clear()
         self.get_all_witnesses_calls.clear()
         self.get_transcript_by_hash_calls.clear()
         self.verify_witness_chain_calls.clear()
         self._events.clear()
-        self._transcripts.clear()
         self._force_error = False
         self._force_chain_invalid = False
 

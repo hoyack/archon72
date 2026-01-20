@@ -20,8 +20,14 @@ WARNING: These stubs are NOT for production use.
 Production implementations are in src/infrastructure/adapters/.
 """
 
+from src.infrastructure.stubs.acknowledgment_rate_metrics_stub import (
+    AcknowledgmentRateMetricsStub,
+)
 from src.infrastructure.stubs.agent_orchestrator_stub import AgentOrchestratorStub
 from src.infrastructure.stubs.amendment_repository_stub import AmendmentRepositoryStub
+from src.infrastructure.stubs.audit_trail_reconstructor_stub import (
+    AuditTrailReconstructorStub,
+)
 from src.infrastructure.stubs.amendment_visibility_validator_stub import (
     AmendmentVisibilityValidatorStub,
 )
@@ -43,6 +49,13 @@ from src.infrastructure.stubs.archon_pool_stub import (
     ArchonPoolStub,
     create_test_archon,
 )
+from src.infrastructure.stubs.archon_substitution_stub import (
+    ArchonSubstitutionStub,
+)
+from src.infrastructure.stubs.auto_escalation_executor_stub import (
+    AutoEscalationExecutorStub,
+    EscalationHistoryEntry,
+)
 from src.infrastructure.stubs.audit_repository_stub import (
     AuditRepositoryStub,
     ConfigurableAuditRepositoryStub,
@@ -56,6 +69,19 @@ from src.infrastructure.stubs.cessation_flag_repository_stub import (
     FailureMode,
 )
 from src.infrastructure.stubs.cessation_repository_stub import CessationRepositoryStub
+from src.infrastructure.stubs.co_sign_repository_stub import (
+    CoSignRepositoryStub,
+    StoredCoSign,
+)
+from src.infrastructure.stubs.identity_store_stub import (
+    IdentityStoreStub,
+    get_identity_store_stub,
+    reset_identity_store_stub,
+    set_identity_store_stub,
+)
+from src.infrastructure.stubs.co_sign_rate_limiter_stub import (
+    CoSignRateLimiterStub,
+)
 from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
 from src.infrastructure.stubs.collusion_investigator_stub import (
     CollusionInvestigatorStub,
@@ -155,6 +181,8 @@ from src.infrastructure.stubs.job_scheduler_stub import (
     JobSchedulerStub,
 )
 from src.infrastructure.stubs.keeper_availability_stub import KeeperAvailabilityStub
+from src.infrastructure.stubs.chaos_test_harness_stub import ChaosTestHarnessStub
+from src.infrastructure.stubs.load_test_harness_stub import LoadTestHarnessStub
 from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 from src.infrastructure.stubs.key_generation_ceremony_stub import (
     KeyGenerationCeremonyStub,
@@ -183,11 +211,32 @@ from src.infrastructure.stubs.petition_event_emitter_stub import (
     PetitionEventEmitterStub,
 )
 from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
+from src.infrastructure.stubs.decision_package_stub import (
+    DecisionPackageBuilderStub,
+)
+from src.infrastructure.stubs.recommendation_submission_stub import (
+    RecommendationSubmissionStub,
+)
+from src.infrastructure.stubs.extension_request_stub import (
+    ExtensionRecord,
+    ExtensionRequestStub,
+)
+from src.infrastructure.stubs.knight_registry_stub import (
+    KnightRegistryStub,
+)
+from src.infrastructure.stubs.knight_concurrent_limit_stub import (
+    KnightConcurrentLimitStub,
+)
+from src.infrastructure.stubs.referral_repository_stub import ReferralRepositoryStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
 from src.infrastructure.stubs.phase_witness_batching_stub import (
     PhaseWitnessBatchingStub,
+)
+from src.infrastructure.stubs.transcript_store_stub import (
+    TranscriptStoreOperation,
+    TranscriptStoreStub,
 )
 from src.infrastructure.stubs.prohibited_language_scanner_stub import (
     ConfigurableScannerStub,
@@ -260,6 +309,7 @@ from src.infrastructure.stubs.writer_lock_stub import (
 )
 
 __all__: list[str] = [
+    "AcknowledgmentRateMetricsStub",
     "AgentOrchestratorStub",
     "CheckpointRepositoryStub",
     "DualChannelHaltTransportStub",
@@ -343,6 +393,8 @@ __all__: list[str] = [
     "ArchonPoolOperation",
     "ArchonPoolStub",
     "create_test_archon",
+    # Archon Substitution (Story 2B.4, NFR-10.6)
+    "ArchonSubstitutionStub",
     # Archon Assignment Service (Story 2A.2, FR-11.1, FR-11.2)
     "ArchonAssignmentOperation",
     "ArchonAssignmentServiceStub",
@@ -362,6 +414,9 @@ __all__: list[str] = [
     "ResolverCall",
     # Phase Witness Batching (Story 2A.7, FR-11.7)
     "PhaseWitnessBatchingStub",
+    # Transcript Store (Story 2B.5, FR-11.7)
+    "TranscriptStoreOperation",
+    "TranscriptStoreStub",
     # Disposition Emission (Story 2A.8, FR-11.11)
     "DispositionEmissionStub",
     # Dissent Recorder (Story 2B.1, FR-11.8)
@@ -424,4 +479,35 @@ __all__: list[str] = [
     "WaiverRepositoryStub",
     # Compliance Repository (Story 9.9, NFR31-34)
     "ComplianceRepositoryStub",
+    # Audit Trail Reconstructor (Story 2B.6, FR-11.12, NFR-6.5)
+    "AuditTrailReconstructorStub",
+    # Load Test Harness (Story 2B.7, NFR-10.5)
+    "LoadTestHarnessStub",
+    # Chaos Test Harness (Story 2B.8, NFR-9.5)
+    "ChaosTestHarnessStub",
+    # Referral Repository (Story 4.2, FR-4.1, FR-4.2)
+    "ReferralRepositoryStub",
+    # Decision Package Builder (Story 4.3, FR-4.3, NFR-5.2)
+    "DecisionPackageBuilderStub",
+    # Recommendation Submission (Story 4.4, FR-4.6, NFR-5.2)
+    "RecommendationSubmissionStub",
+    # Extension Request (Story 4.5, FR-4.4)
+    "ExtensionRecord",
+    "ExtensionRequestStub",
+    # Knight Concurrent Limit (Story 4.7, FR-4.7, NFR-7.3)
+    "KnightConcurrentLimitStub",
+    "KnightRegistryStub",
+    # Co-sign Repository (Story 5.2, FR-6.1, FR-6.4)
+    "CoSignRepositoryStub",
+    "StoredCoSign",
+    # Identity Store (Story 5.3, NFR-5.2, LEGIT-1)
+    "IdentityStoreStub",
+    "get_identity_store_stub",
+    "reset_identity_store_stub",
+    "set_identity_store_stub",
+    # Co-sign Rate Limiter (Story 5.4, FR-6.6, SYBIL-1)
+    "CoSignRateLimiterStub",
+    # Auto-Escalation Executor (Story 5.6, FR-5.1, FR-5.3, CT-12, CT-14)
+    "AutoEscalationExecutorStub",
+    "EscalationHistoryEntry",
 ]

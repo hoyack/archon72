@@ -1,10 +1,12 @@
-"""Unit tests for PhaseWitnessBatchingService (Story 2A.7, FR-11.7).
+"""Unit tests for PhaseWitnessBatchingService (Story 2A.7, FR-11.7, Story 2B.5).
 
 Tests the phase witness batching service for:
 - Phase witnessing
 - Hash chain integrity
-- Content-addressed storage
+- Content-addressed storage via TranscriptStoreProtocol
 - Validation
+
+Updated for Story 2B.5: Service now requires TranscriptStoreProtocol dependency.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ from src.domain.models.deliberation_session import (
     DeliberationPhase,
     DeliberationSession,
 )
+from src.infrastructure.stubs.transcript_store_stub import TranscriptStoreStub
 
 
 def _create_session() -> DeliberationSession:
@@ -42,13 +45,19 @@ def _create_timestamps() -> tuple[datetime, datetime]:
     return start, end
 
 
+def _create_service() -> PhaseWitnessBatchingService:
+    """Create a PhaseWitnessBatchingService with TranscriptStoreStub (Story 2B.5)."""
+    transcript_store = TranscriptStoreStub()
+    return PhaseWitnessBatchingService(transcript_store=transcript_store)
+
+
 class TestPhaseWitnessBatchingServiceWitnessPhase:
     """Tests for witness_phase method."""
 
     @pytest.mark.asyncio
     async def test_witness_assess_phase(self) -> None:
         """Test witnessing ASSESS phase (first phase)."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
         transcript = "Archon 1: Assessment...\nArchon 2: I observe..."
@@ -74,7 +83,7 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
     @pytest.mark.asyncio
     async def test_witness_position_phase_after_assess(self) -> None:
         """Test witnessing POSITION phase after ASSESS."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -107,7 +116,7 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
     @pytest.mark.asyncio
     async def test_witness_all_four_phases(self) -> None:
         """Test witnessing all 4 phases in order."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         current_time = datetime.now(timezone.utc)
 
@@ -138,7 +147,7 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
     @pytest.mark.asyncio
     async def test_witness_out_of_order_raises_error(self) -> None:
         """Test witnessing out of order raises ValueError."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -158,7 +167,7 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
     @pytest.mark.asyncio
     async def test_witness_cross_examine_without_position_raises(self) -> None:
         """Test witnessing CROSS_EXAMINE without POSITION raises error."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -188,7 +197,7 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
     @pytest.mark.asyncio
     async def test_transcript_hash_is_blake3(self) -> None:
         """Test transcript hash is computed using Blake3."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
         transcript = "Test transcript content for hashing"
@@ -214,7 +223,7 @@ class TestPhaseWitnessBatchingServiceRetrieval:
     @pytest.mark.asyncio
     async def test_get_phase_witness(self) -> None:
         """Test retrieving a specific phase witness."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -238,7 +247,7 @@ class TestPhaseWitnessBatchingServiceRetrieval:
     @pytest.mark.asyncio
     async def test_get_phase_witness_not_found(self) -> None:
         """Test retrieving non-existent phase witness returns None."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
 
         event = await service.get_phase_witness(uuid4(), DeliberationPhase.ASSESS)
 
@@ -247,7 +256,7 @@ class TestPhaseWitnessBatchingServiceRetrieval:
     @pytest.mark.asyncio
     async def test_get_all_witnesses_empty(self) -> None:
         """Test get_all_witnesses returns empty list for new session."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
 
         events = await service.get_all_witnesses(uuid4())
 
@@ -256,7 +265,7 @@ class TestPhaseWitnessBatchingServiceRetrieval:
     @pytest.mark.asyncio
     async def test_get_all_witnesses_in_order(self) -> None:
         """Test get_all_witnesses returns events in phase order."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         current_time = datetime.now(timezone.utc)
 
@@ -283,7 +292,7 @@ class TestPhaseWitnessBatchingServiceRetrieval:
     @pytest.mark.asyncio
     async def test_get_transcript_by_hash(self) -> None:
         """Test retrieving transcript by hash."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
         transcript = "Original transcript content for retrieval test"
@@ -304,7 +313,7 @@ class TestPhaseWitnessBatchingServiceRetrieval:
     @pytest.mark.asyncio
     async def test_get_transcript_by_hash_not_found(self) -> None:
         """Test retrieving non-existent transcript returns None."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         fake_hash = blake3.blake3(b"nonexistent").digest()
 
         retrieved = await service.get_transcript_by_hash(fake_hash)
@@ -318,7 +327,7 @@ class TestPhaseWitnessBatchingServiceVerification:
     @pytest.mark.asyncio
     async def test_verify_witness_chain_empty(self) -> None:
         """Test verifying empty chain returns True."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
 
         is_valid = await service.verify_witness_chain(uuid4())
 
@@ -327,7 +336,7 @@ class TestPhaseWitnessBatchingServiceVerification:
     @pytest.mark.asyncio
     async def test_verify_witness_chain_valid(self) -> None:
         """Test verifying valid chain returns True."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         current_time = datetime.now(timezone.utc)
 
@@ -350,7 +359,7 @@ class TestPhaseWitnessBatchingServiceVerification:
     @pytest.mark.asyncio
     async def test_verify_transcript_integrity_valid(self) -> None:
         """Test verifying valid transcript integrity returns True."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -370,7 +379,7 @@ class TestPhaseWitnessBatchingServiceVerification:
     @pytest.mark.asyncio
     async def test_verify_transcript_integrity_empty(self) -> None:
         """Test verifying empty session returns True."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
 
         is_valid = await service.verify_transcript_integrity(uuid4())
 
@@ -383,7 +392,7 @@ class TestPhaseWitnessBatchingServiceHelpers:
     @pytest.mark.asyncio
     async def test_get_witness_count_zero(self) -> None:
         """Test witness count is 0 for new session."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
 
         count = service.get_witness_count(uuid4())
 
@@ -392,7 +401,7 @@ class TestPhaseWitnessBatchingServiceHelpers:
     @pytest.mark.asyncio
     async def test_get_witness_count_increments(self) -> None:
         """Test witness count increments with each witness."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -424,7 +433,7 @@ class TestPhaseWitnessBatchingServiceHelpers:
     @pytest.mark.asyncio
     async def test_has_complete_witnessing_false(self) -> None:
         """Test has_complete_witnessing is False with incomplete witnessing."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         start, end = _create_timestamps()
 
@@ -443,7 +452,7 @@ class TestPhaseWitnessBatchingServiceHelpers:
     @pytest.mark.asyncio
     async def test_has_complete_witnessing_true(self) -> None:
         """Test has_complete_witnessing is True with all 4 phases."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session = _create_session()
         current_time = datetime.now(timezone.utc)
 
@@ -467,7 +476,7 @@ class TestPhaseWitnessBatchingServiceIsolation:
     @pytest.mark.asyncio
     async def test_sessions_are_isolated(self) -> None:
         """Test different sessions are isolated."""
-        service = PhaseWitnessBatchingService()
+        service = _create_service()
         session1 = _create_session()
         session2 = _create_session()
         start, end = _create_timestamps()

@@ -48,11 +48,13 @@ from src.domain.models.secretary_agent import (
     SecretaryAgentProfile,
     create_default_secretary_profile,
 )
+from src.infrastructure.adapters.external.crewai_json_utils import (
+    aggressive_clean,
+    sanitize_json_string,
+)
 from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     SecretaryCrewAIAdapter,
-    _aggressive_json_clean,
     _is_truncated_json,
-    _sanitize_json_string,
 )
 
 # Module path for patching CrewAI classes
@@ -280,34 +282,34 @@ class TestJSONParsing:
         """Test sanitize_json_string escapes literal newlines in strings."""
         # Simulate LLM output with literal newline in string value
         raw = '{"text": "Line 1\nLine 2"}'
-        sanitized = _sanitize_json_string(raw)
+        sanitized = sanitize_json_string(raw)
         # Should escape the newline
         assert "\\n" in sanitized
 
     def test_sanitize_json_string_escapes_tabs(self) -> None:
         """Test sanitize_json_string escapes literal tabs."""
         raw = '{"text": "Col1\tCol2"}'
-        sanitized = _sanitize_json_string(raw)
+        sanitized = sanitize_json_string(raw)
         assert "\\t" in sanitized
 
     def test_sanitize_json_string_preserves_escaped(self) -> None:
         """Test sanitize_json_string doesn't double-escape."""
         raw = '{"text": "Already\\nescaped"}'
-        sanitized = _sanitize_json_string(raw)
+        sanitized = sanitize_json_string(raw)
         # Should not have double escaping
         assert "\\\\n" not in sanitized
 
     def test_aggressive_json_clean_removes_markdown(self) -> None:
         """Test aggressive_json_clean removes markdown code blocks."""
         raw = '```json\n[{"key": "value"}]\n```'
-        cleaned = _aggressive_json_clean(raw)
+        cleaned = aggressive_clean(raw)
         assert "```" not in cleaned
         assert "[" in cleaned
 
     def test_aggressive_json_clean_fixes_trailing_commas(self) -> None:
         """Test aggressive_json_clean removes trailing commas."""
         raw = '{"items": [1, 2, 3,]}'
-        cleaned = _aggressive_json_clean(raw)
+        cleaned = aggressive_clean(raw)
         # Should parse without error after cleaning
         data = json.loads(cleaned)
         assert data["items"] == [1, 2, 3]
@@ -315,7 +317,7 @@ class TestJSONParsing:
     def test_aggressive_json_clean_fixes_unquoted_keys(self) -> None:
         """Test aggressive_json_clean adds quotes to unquoted keys."""
         raw = '{key: "value", other: 123}'
-        cleaned = _aggressive_json_clean(raw)
+        cleaned = aggressive_clean(raw)
         # Should have quoted keys
         assert '"key"' in cleaned
         assert '"other"' in cleaned

@@ -5,9 +5,46 @@ core business concepts. These models are immutable and
 contain no infrastructure dependencies.
 """
 
+from src.domain.models.acknowledgment_reason import (
+    AcknowledgmentReasonCode,
+    InvalidReasonCodeError,
+    RationaleRequiredError,
+    ReferenceRequiredError,
+    validate_acknowledgment_requirements,
+)
+from src.domain.models.archon_metrics import (
+    ArchonDeliberationMetrics,
+)
 from src.domain.models.agent_pool import MAX_CONCURRENT_AGENTS, AgentPool
 from src.domain.models.agent_status import AgentStatus
 from src.domain.models.archon_status import ArchonFailureReason, ArchonStatus
+from src.domain.models.audit_timeline import (
+    AUDIT_TIMELINE_SCHEMA_VERSION,
+    BLAKE3_HASH_SIZE,
+    AuditTimeline,
+    TerminationReason,
+    TimelineEvent,
+    WitnessChainVerification,
+)
+from src.domain.models.chaos_test_config import (
+    CHAOS_CONFIG_SCHEMA_VERSION,
+    MAX_INJECTION_DURATION_SECONDS,
+    MIN_INJECTION_DURATION_SECONDS,
+    ChaosScenario,
+    ChaosTestConfig,
+)
+from src.domain.models.chaos_test_report import (
+    ARCHON_SUBSTITUTION_SLA_MS,
+    CHAOS_REPORT_SCHEMA_VERSION,
+    ChaosTestOutcome,
+    ChaosTestReport,
+)
+from src.domain.models.load_test_config import LoadTestConfig
+from src.domain.models.load_test_metrics import LoadTestMetrics
+from src.domain.models.load_test_report import (
+    NFR_10_1_THRESHOLD_MS,
+    LoadTestReport,
+)
 from src.domain.models.audit_event import (
     AUDIT_COMPLETED_EVENT_TYPE,
     AUDIT_EVENT_TYPE_PREFIX,
@@ -149,6 +186,9 @@ from src.domain.models.dissent_record import (
     DissentRecord,
 )
 from src.domain.models.event_type_registry import EventTypeRegistry
+from src.domain.models.transcript_reference import (
+    TranscriptReference,
+)
 from src.domain.models.failure_mode import (
     DEFAULT_FAILURE_MODES,
     EarlyWarning,
@@ -277,6 +317,18 @@ from src.domain.models.realm import (
     RealmStatus,
     is_canonical_realm,
 )
+from src.domain.models.decision_package import (
+    DecisionPackage,
+)
+from src.domain.models.co_sign import CoSign
+from src.domain.models.referral import (
+    REFERRAL_DEFAULT_CYCLE_DURATION,
+    REFERRAL_DEFAULT_DEADLINE_CYCLES,
+    REFERRAL_MAX_EXTENSIONS,
+    Referral,
+    ReferralRecommendation,
+    ReferralStatus,
+)
 from src.domain.models.recovery_waiting_period import (
     WAITING_PERIOD_HOURS,
     RecoveryWaitingPeriod,
@@ -325,6 +377,7 @@ from src.domain.models.witness_selection import (
 __all__: list[str] = [
     "AgentPool",
     "AgentStatus",
+    "ArchonDeliberationMetrics",
     "BUNDLE_ID_PREFIX",
     "CONTENT_REF_LENGTH",
     "CONTENT_REF_PATTERN",
@@ -583,4 +636,45 @@ __all__: list[str] = [
     # Archon status models (Story 2B.4, NFR-10.6)
     "ArchonFailureReason",
     "ArchonStatus",
+    # Transcript reference models (Story 2B.5, FR-11.7)
+    "TranscriptReference",
+    # Audit timeline models (Story 2B.6, FR-11.12, NFR-6.5)
+    "AUDIT_TIMELINE_SCHEMA_VERSION",
+    "BLAKE3_HASH_SIZE",
+    "AuditTimeline",
+    "TerminationReason",
+    "TimelineEvent",
+    "WitnessChainVerification",
+    # Load test models (Story 2B.7, NFR-10.5)
+    "LoadTestConfig",
+    "LoadTestMetrics",
+    "LoadTestReport",
+    "NFR_10_1_THRESHOLD_MS",
+    # Chaos test models (Story 2B.8, NFR-9.5)
+    "ARCHON_SUBSTITUTION_SLA_MS",
+    "CHAOS_CONFIG_SCHEMA_VERSION",
+    "CHAOS_REPORT_SCHEMA_VERSION",
+    "ChaosScenario",
+    "ChaosTestConfig",
+    "ChaosTestOutcome",
+    "ChaosTestReport",
+    "MAX_INJECTION_DURATION_SECONDS",
+    "MIN_INJECTION_DURATION_SECONDS",
+    # Acknowledgment reason code models (Story 3.1, FR-3.2)
+    "AcknowledgmentReasonCode",
+    "InvalidReasonCodeError",
+    "RationaleRequiredError",
+    "ReferenceRequiredError",
+    "validate_acknowledgment_requirements",
+    # Referral models (Story 4.1, FR-4.1, FR-4.2)
+    "REFERRAL_DEFAULT_CYCLE_DURATION",
+    "REFERRAL_DEFAULT_DEADLINE_CYCLES",
+    "REFERRAL_MAX_EXTENSIONS",
+    "Referral",
+    "ReferralRecommendation",
+    "ReferralStatus",
+    # Decision package models (Story 4.3, FR-4.3)
+    "DecisionPackage",
+    # Co-sign models (Story 5.1, FR-6.2, NFR-3.5)
+    "CoSign",
 ]

@@ -4,19 +4,25 @@ This module implements phase-level witness batching for the deliberation
 system. Per Ruling-1, witnessing occurs at phase boundaries to avoid
 witness volume explosion while maintaining 100% auditability.
 
+Updated for Story 2B.5: Now uses TranscriptStoreProtocol for content-addressed
+transcript storage instead of in-memory storage.
+
 Constitutional Constraints:
 - CT-12: Every action must be witnessed
 - CT-14: Every claim terminates in witnessed fate
 - FR-11.7: Hash-referenced ledger witnessing at phase boundaries
 - NFR-10.4: 100% witness completeness
+- NFR-4.2: Hash guarantees immutability (append-only semantic)
 - Ruling-1: Phase-level batching
 
 Usage:
     from src.application.services.phase_witness_batching_service import (
         PhaseWitnessBatchingService,
     )
+    from src.infrastructure.stubs.transcript_store_stub import TranscriptStoreStub
 
-    service = PhaseWitnessBatchingService()
+    transcript_store = TranscriptStoreStub()
+    service = PhaseWitnessBatchingService(transcript_store=transcript_store)
 
     event = await service.witness_phase(
         session=session,
@@ -36,6 +42,7 @@ from uuid import UUID, uuid4
 
 import blake3
 
+from src.application.ports.transcript_store import TranscriptStoreProtocol
 from src.domain.events.phase_witness import PhaseWitnessEvent
 from src.domain.models.deliberation_session import (
     DeliberationPhase,
@@ -52,40 +59,46 @@ PHASE_ORDER: list[DeliberationPhase] = [
 
 
 class PhaseWitnessBatchingService:
-    """Service for phase-level witness batching (Story 2A.7, FR-11.7).
+    """Service for phase-level witness batching (Story 2A.7, FR-11.7, Story 2B.5).
 
     Batches all utterances in a deliberation phase and emits a single
     witness event at the phase boundary. Maintains hash chain between
     phases for audit trail integrity.
 
+    Updated for Story 2B.5: Uses TranscriptStoreProtocol for content-addressed
+    transcript storage, enabling persistent storage and audit trail reconstruction.
+
     Constitutional Constraints:
     - CT-12: Every action witnessed
     - FR-11.7: Phase boundary witnessing
     - NFR-10.4: 100% witness completeness
+    - NFR-4.2: Hash guarantees immutability (append-only semantic)
     - Ruling-1: Phase-level batching
 
     The service:
     1. Computes Blake3 hash of full phase transcript
-    2. Stores transcript as content-addressed artifact
+    2. Stores transcript via TranscriptStoreProtocol (content-addressed)
     3. Links to previous phase's witness (hash chain)
     4. Emits PhaseWitnessEvent with all metadata
 
     Attributes:
+        _transcript_store: Content-addressed transcript storage.
         _witness_events: In-memory storage for witness events (by session).
-        _transcripts: In-memory storage for raw transcripts (by hash).
     """
 
-    def __init__(self) -> None:
+    def __init__(self, transcript_store: TranscriptStoreProtocol) -> None:
         """Initialize the phase witness batching service.
 
-        Uses in-memory storage for development. Production implementations
-        should use persistent storage via a repository.
+        Args:
+            transcript_store: Content-addressed transcript storage protocol.
+                Use TranscriptStoreStub for testing, PostgresTranscriptStore
+                for production.
         """
-        # In-memory storage - replace with repository in production
+        self._transcript_store = transcript_store
+        # In-memory witness events - could be moved to repository in future
         self._witness_events: dict[
             UUID, dict[DeliberationPhase, PhaseWitnessEvent]
         ] = {}
-        self._transcripts: dict[bytes, str] = {}
 
     def _compute_hash(self, content: str) -> bytes:
         """Compute Blake3 hash of content.
@@ -145,12 +158,13 @@ class PhaseWitnessBatchingService:
 
         Creates a witness event with:
         - Blake3 hash of the full transcript
-        - Content-addressed storage of raw transcript
+        - Content-addressed storage via TranscriptStoreProtocol
         - Chain link to previous phase's witness
 
         Constitutional Constraints:
         - FR-11.7: Hash-referenced witnessing at phase boundaries
         - NFR-10.4: 100% witness completeness
+        - NFR-4.2: Hash guarantees immutability
 
         Args:
             session: The deliberation session.
@@ -170,11 +184,10 @@ class PhaseWitnessBatchingService:
         if phase not in PHASE_ORDER:
             raise ValueError(f"Invalid phase for witnessing: {phase}")
 
-        # Compute transcript hash (Blake3, 32 bytes)
-        transcript_hash = self._compute_hash(transcript)
-
-        # Store transcript as content-addressed artifact
-        self._transcripts[transcript_hash] = transcript
+        # Store transcript via content-addressed store (Story 2B.5)
+        # Returns TranscriptReference with content_hash
+        transcript_ref = await self._transcript_store.store(transcript)
+        transcript_hash = transcript_ref.content_hash
 
         # Get previous witness hash for chaining (validates order)
         previous_hash = self._get_previous_witness_hash(session.session_id, phase)
@@ -246,13 +259,15 @@ class PhaseWitnessBatchingService:
         Constitutional Constraint (CT-12):
         Enables accountability verification through audit.
 
+        Story 2B.5: Delegates to TranscriptStoreProtocol for retrieval.
+
         Args:
             transcript_hash: Blake3 hash of the transcript (32 bytes).
 
         Returns:
             Raw transcript text if found, None otherwise.
         """
-        return self._transcripts.get(transcript_hash)
+        return await self._transcript_store.retrieve(transcript_hash)
 
     async def verify_witness_chain(
         self,
@@ -302,6 +317,8 @@ class PhaseWitnessBatchingService:
         Ensures content-addressed integrity - that stored transcripts
         when re-hashed produce the same hash as recorded.
 
+        Story 2B.5: Uses TranscriptStoreProtocol.verify() for verification.
+
         Args:
             session_id: UUID of the deliberation session.
 
@@ -316,9 +333,11 @@ class PhaseWitnessBatchingService:
             if transcript is None:
                 return False  # Transcript missing
 
-            # Recompute hash and verify
-            recomputed_hash = self._compute_hash(transcript)
-            if recomputed_hash != witness.transcript_hash:
+            # Use transcript store's verify method for integrity check
+            is_valid = await self._transcript_store.verify(
+                witness.transcript_hash, transcript
+            )
+            if not is_valid:
                 return False  # Hash mismatch
 
         return True

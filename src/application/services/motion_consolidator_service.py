@@ -32,6 +32,7 @@ from crewai import LLM, Agent, Crew, Task
 from structlog import get_logger
 
 from src.domain.models.secretary_agent import load_secretary_config_from_yaml
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 logger = get_logger(__name__)
 
@@ -259,17 +260,7 @@ class MotionConsolidatorService:
 
     def _create_llm(self, llm_config) -> LLM:
         """Create CrewAI LLM from config."""
-        import os
-
-        if llm_config.provider == "local":
-            ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-            return LLM(
-                model=f"ollama/{llm_config.model}",
-                base_url=ollama_host,
-                temperature=llm_config.temperature,
-                max_tokens=llm_config.max_tokens,
-            )
-        return LLM(model=f"{llm_config.provider}/{llm_config.model}")
+        return create_crewai_llm(llm_config)
 
     def load_motions_from_checkpoint(self, checkpoint_path: Path) -> list[SourceMotion]:
         """Load motions from Secretary checkpoint file.

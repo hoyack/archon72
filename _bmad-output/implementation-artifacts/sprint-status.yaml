@@ -502,44 +502,44 @@ development_status:
   # Dissent, timeouts, deadlock, archon substitution, audit trail
   # NFR-10.1 to NFR-10.6
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-2b: in-progress
-  petition-2b-1-dissent-recording-service: ready-for-dev
+  petition-epic-2b: done
+  petition-2b-1-dissent-recording-service: done
   petition-2b-2-deliberation-timeout-enforcement: done
-  petition-2b-3-deadlock-detection-auto-escalation: ready-for-dev
-  petition-2b-4-archon-substitution-on-failure: ready-for-dev
-  petition-2b-5-transcript-preservation-hash-referencing: ready-for-dev
-  petition-2b-6-audit-trail-reconstruction: backlog
-  petition-2b-7-deliberation-load-testing-harness: backlog
-  petition-2b-8-deliberation-chaos-testing: backlog
+  petition-2b-3-deadlock-detection-auto-escalation: done
+  petition-2b-4-archon-substitution-on-failure: done
+  petition-2b-5-transcript-preservation-hash-referencing: done
+  petition-2b-6-audit-trail-reconstruction: done
+  petition-2b-7-deliberation-load-testing-harness: done
+  petition-2b-8-deliberation-chaos-testing: done
   petition-epic-2b-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # Petition Epic 3: Acknowledgment Execution (P1)
+  # Petition Epic 3: Acknowledgment Execution (P1) - COMPLETED
   # Reason codes, rationale requirements, dwell time, metrics
   # FR-3.1 to FR-3.6
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-3: backlog
-  petition-3-1-acknowledgment-reason-code-enumeration: backlog
-  petition-3-2-acknowledgment-execution-service: backlog
-  petition-3-3-rationale-requirement-enforcement: backlog
-  petition-3-4-duplicate-petition-reference: backlog
-  petition-3-5-minimum-dwell-time-enforcement: backlog
-  petition-3-6-acknowledgment-rate-metrics: backlog
+  petition-epic-3: done
+  petition-3-1-acknowledgment-reason-code-enumeration: done
+  petition-3-2-acknowledgment-execution-service: done
+  petition-3-3-rationale-requirement-enforcement: done
+  petition-3-4-duplicate-petition-reference: done
+  petition-3-5-minimum-dwell-time-enforcement: done
+  petition-3-6-acknowledgment-rate-metrics: done
   petition-epic-3-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # Petition Epic 4: Knight Referral Workflow (P1)
+  # Petition Epic 4: Knight Referral Workflow (P1) - COMPLETED
   # Referral domain, decision packages, extensions, timeouts
   # FR-4.1 to FR-4.7
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-4: backlog
-  petition-4-1-referral-domain-model-schema: backlog
-  petition-4-2-referral-execution-service: backlog
-  petition-4-3-knight-decision-package: backlog
-  petition-4-4-knight-recommendation-submission: backlog
-  petition-4-5-extension-request-handling: backlog
-  petition-4-6-referral-timeout-auto-acknowledge: backlog
-  petition-4-7-knight-concurrent-referral-limit: backlog
+  petition-epic-4: done
+  petition-4-1-referral-domain-model-schema: done
+  petition-4-2-referral-execution-service: done
+  petition-4-3-knight-decision-package: done
+  petition-4-4-knight-recommendation-submission: done
+  petition-4-5-extension-request-handling: done
+  petition-4-6-referral-timeout-auto-acknowledge: done
+  petition-4-7-knight-concurrent-referral-limit: done
   petition-epic-4-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -547,24 +547,24 @@ development_status:
   # Co-sign domain, identity verification, SYBIL-1, threshold checking
   # FR-6.1 to FR-6.6, FR-5.1 to FR-5.3
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-5: backlog
-  petition-5-1-co-sign-domain-model-schema: backlog
-  petition-5-2-co-sign-submission-endpoint: backlog
-  petition-5-3-identity-verification-for-co-sign: backlog
-  petition-5-4-sybil-1-rate-limiting: backlog
-  petition-5-5-escalation-threshold-checking: backlog
-  petition-5-6-auto-escalation-execution: backlog
-  petition-5-7-co-signer-deduplication-enforcement: backlog
-  petition-5-8-co-signer-count-scalability: backlog
-  petition-epic-5-retrospective: optional
+  petition-epic-5: done
+  petition-5-1-co-sign-domain-model-schema: done
+  petition-5-2-co-sign-submission-endpoint: done
+  petition-5-3-identity-verification-for-co-sign: done
+  petition-5-4-sybil-1-rate-limiting: done
+  petition-5-5-escalation-threshold-checking: done
+  petition-5-6-auto-escalation-execution: done
+  petition-5-7-co-signer-deduplication-enforcement: done
+  petition-5-8-co-signer-count-scalability: done
+  petition-epic-5-retrospective: done
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 6: King Escalation & Adoption Bridge (P0)
   # Escalation queue, adoption, budget consumption, provenance
   # FR-5.4 to FR-5.8
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-6: backlog
-  petition-6-1-king-escalation-queue: backlog
+  petition-epic-6: in-progress
+  petition-6-1-king-escalation-queue: ready-for-dev
   petition-6-2-escalation-decision-package: backlog
   petition-6-3-petition-adoption-creates-motion: backlog
   petition-6-4-adoption-budget-consumption: backlog

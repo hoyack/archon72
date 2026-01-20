@@ -17,6 +17,7 @@ Available routers:
 - halt: Halt trigger API (FR22-23, Story 4-2 - requires auth)
 - legitimacy: Legitimacy restoration API (FR30-32, Story 5-3 - auth for restore)
 - petition_submission: Three Fates petition submission (Story 1.1, FR-1.1 - public)
+- co_sign: Three Fates petition co-signing (Story 5.2, FR-6.1 - public)
 """
 
 from src.api.routes.complexity_budget import router as complexity_budget_router
@@ -33,6 +34,7 @@ from src.api.routes.override import router as override_router
 from src.api.routes.petition import router as petition_router
 from src.api.routes.petition_submission import router as petition_submission_router
 from src.api.routes.waiver import router as waiver_router
+from src.api.routes.co_sign import router as co_sign_router
 
 __all__: list[str] = [
     "health_router",
@@ -49,4 +51,6 @@ __all__: list[str] = [
     "compliance_router",
     "halt_router",
     "legitimacy_router",
+    # Co-Sign router (Story 5.2, FR-6.1)
+    "co_sign_router",
 ]

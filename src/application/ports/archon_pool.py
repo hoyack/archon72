@@ -109,3 +109,34 @@ class ArchonPoolProtocol(Protocol):
             True if ID is in the pool, False otherwise.
         """
         ...
+
+    def select_substitute(
+        self,
+        excluded_archon_ids: set[UUID],
+    ) -> FateArchon | None:
+        """Select a substitute Archon not in the excluded set (Story 2B.4, AC-2).
+
+        Used for Archon substitution when one fails during deliberation.
+        Selects the first available Archon not in the excluded set.
+
+        Args:
+            excluded_archon_ids: Set of Archon IDs to exclude from selection.
+
+        Returns:
+            FateArchon if one is available, None if pool exhausted.
+        """
+        ...
+
+    def get_available_archons(
+        self,
+        excluded_archon_ids: set[UUID],
+    ) -> list[FateArchon]:
+        """Get all Archons not in the excluded set (Story 2B.4, AC-2).
+
+        Args:
+            excluded_archon_ids: Set of Archon IDs to exclude.
+
+        Returns:
+            List of available FateArchon instances.
+        """
+        ...

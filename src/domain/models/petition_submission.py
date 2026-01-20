@@ -38,11 +38,12 @@ class PetitionType(Enum):
 
 
 class PetitionState(Enum):
-    """State in the petition lifecycle (FR-2.2, Story 1.5).
+    """State in the petition lifecycle (FR-2.2, Story 1.5, FR-5.1).
 
-    State Machine (FR-2.1, FR-2.3):
+    State Machine (FR-2.1, FR-2.3, FR-5.1):
         RECEIVED -> DELIBERATING (fate assignment begins)
         RECEIVED -> ACKNOWLEDGED (withdrawn before deliberation)
+        RECEIVED -> ESCALATED (auto-escalation when co-signer threshold reached, FR-5.1)
         DELIBERATING -> ACKNOWLEDGED (Three Fates acknowledge)
         DELIBERATING -> REFERRED (referred to Knight)
         DELIBERATING -> ESCALATED (escalated to King)
@@ -97,14 +98,20 @@ TERMINAL_STATES: frozenset[PetitionState] = frozenset(
     }
 )
 
-# State transition matrix (FR-2.1, FR-2.3)
+# State transition matrix (FR-2.1, FR-2.3, FR-5.1)
 # Maps each state to its valid target states
 STATE_TRANSITION_MATRIX: dict[PetitionState, frozenset[PetitionState]] = {
-    # RECEIVED can go to DELIBERATING (normal flow) or ACKNOWLEDGED (withdrawal)
+    # RECEIVED can go to:
+    # - DELIBERATING (normal flow)
+    # - ACKNOWLEDGED (withdrawal)
+    # - ESCALATED (auto-escalation when co-signer threshold reached, FR-5.1)
+    #   Constitutional: CT-14 "Silence must be expensive" - petitions with
+    #   sufficient collective support bypass deliberation to reach King attention
     PetitionState.RECEIVED: frozenset(
         {
             PetitionState.DELIBERATING,
             PetitionState.ACKNOWLEDGED,
+            PetitionState.ESCALATED,
         }
     ),
     # DELIBERATING can reach any of the Three Fates

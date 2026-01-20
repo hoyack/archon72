@@ -7,7 +7,8 @@
 | **Story ID** | petition-2b-4 |
 | **Epic** | Epic 2B: Deliberation Edge Cases & Guarantees |
 | **Priority** | P0 |
-| **Status** | ready-for-dev |
+| **Status** | done |
+| **Completed** | 2026-01-19 |
 | **Created** | 2026-01-19 |
 
 ## User Story
@@ -975,97 +976,97 @@ class ArchonSubstitutionServiceStub(ArchonSubstitutionServiceProtocol):
 ## Implementation Tasks
 
 ### Task 1: Create Archon Status Enums
-- [ ] Create `src/domain/models/archon_status.py`
-- [ ] Define `ArchonStatus` enum (ACTIVE, FAILED, SUBSTITUTED)
-- [ ] Define `ArchonFailureReason` enum
-- [ ] Export from `src/domain/models/__init__.py`
+- [x] Create `src/domain/models/archon_status.py`
+- [x] Define `ArchonStatus` enum (ACTIVE, FAILED, SUBSTITUTED)
+- [x] Define `ArchonFailureReason` enum
+- [x] Export from `src/domain/models/__init__.py`
 
 ### Task 2: Create Domain Events
-- [ ] Create `src/domain/events/archon_substitution.py`
-- [ ] Define `ArchonSubstitutedEvent` frozen dataclass
-- [ ] Define `DeliberationAbortedEvent` frozen dataclass
-- [ ] Implement `to_dict()` for both events
-- [ ] Export from `src/domain/events/__init__.py`
+- [x] Create `src/domain/events/archon_substitution.py`
+- [x] Define `ArchonSubstitutedEvent` frozen dataclass
+- [x] Define `DeliberationAbortedEvent` frozen dataclass
+- [x] Implement `to_dict()` for both events
+- [x] Export from `src/domain/events/__init__.py`
 
 ### Task 3: Extend DeliberationSession Model
-- [ ] Add `ArchonSubstitution` dataclass
-- [ ] Add `substitute_archons` field
-- [ ] Add `archon_statuses` field
-- [ ] Add `current_active_archons` property
-- [ ] Add `failed_archon_count` property
-- [ ] Add `with_archon_failure()` method
-- [ ] Add `with_archon_substitution()` method
+- [x] Add `ArchonSubstitution` dataclass
+- [x] Add `substitute_archons` field
+- [x] Add `archon_statuses` field
+- [x] Add `current_active_archons` property
+- [x] Add `failed_archon_count` property
+- [x] Add `with_archon_failure()` method
+- [x] Add `with_archon_substitution()` method
 
 ### Task 4: Create Substitution Service Protocol
-- [ ] Create `src/application/ports/archon_substitution.py`
-- [ ] Define `SubstitutionResult` dataclass
-- [ ] Define `AbortResult` dataclass
-- [ ] Define `ArchonSubstitutionServiceProtocol`
-- [ ] Export from `src/application/ports/__init__.py`
+- [x] Create `src/application/ports/archon_substitution.py`
+- [x] Define `SubstitutionResult` dataclass
+- [x] Define `AbortResult` dataclass
+- [x] Define `ArchonSubstitutionServiceProtocol`
+- [x] Export from `src/application/ports/__init__.py`
 
 ### Task 5: Implement Substitution Service
-- [ ] Create `src/application/services/archon_substitution_service.py`
-- [ ] Implement `handle_archon_failure()` method
-- [ ] Implement `get_substitute_context()` method
-- [ ] Implement `_abort_deliberation()` helper
-- [ ] Add structured logging
-- [ ] Export from `src/application/services/__init__.py`
+- [x] Create `src/application/services/archon_substitution_service.py`
+- [x] Implement `handle_archon_failure()` method
+- [x] Implement `get_substitute_context()` method
+- [x] Implement `_abort_deliberation()` helper
+- [x] Add structured logging
+- [x] Export from `src/application/services/__init__.py`
 
 ### Task 6: Extend ArchonPool for Substitute Selection
-- [ ] Add `select_substitute()` method to ArchonPoolProtocol
-- [ ] Implement deterministic substitute selection
-- [ ] Handle pool exhaustion
-- [ ] Update stub implementation
+- [x] Add `select_substitute()` method to ArchonPoolProtocol
+- [x] Implement deterministic substitute selection
+- [x] Handle pool exhaustion
+- [x] Update stub implementation
 
 ### Task 7: Create Stub Implementation
-- [ ] Create `src/infrastructure/stubs/archon_substitution_stub.py`
-- [ ] Implement in-memory substitution tracking
-- [ ] Record emitted events for test assertions
-- [ ] Export from `src/infrastructure/stubs/__init__.py`
+- [x] Create `src/infrastructure/stubs/archon_substitution_stub.py`
+- [x] Implement in-memory substitution tracking
+- [x] Record emitted events for test assertions
+- [x] Export from `src/infrastructure/stubs/__init__.py`
 
-### Task 8: Integrate with CrewAI Adapter
-- [ ] Add timeout detection in CrewAI adapter
-- [ ] Trigger `handle_archon_failure()` on timeout
-- [ ] Handle substitution result in adapter
+### Task 8: Integrate with Orchestrator
+- [x] Add timeout detection in orchestrator
+- [x] Trigger `handle_archon_failure()` on timeout
+- [x] Handle substitution result in orchestrator
 
 ### Task 9: Create Error Types
-- [ ] Add `SessionNotFoundError`
-- [ ] Add `ArchonNotInSessionError`
-- [ ] Add `ArchonPoolExhaustedError` (may exist from 2A.2)
-- [ ] Export from `src/domain/errors/__init__.py`
+- [x] Add `SessionNotFoundError`
+- [x] Add `ArchonNotInSessionError`
+- [x] Add `ArchonPoolExhaustedError` (may exist from 2A.2)
+- [x] Export from `src/domain/errors/__init__.py`
 
 ### Task 10: Write Unit Tests
-- [ ] Create `tests/unit/domain/models/test_archon_status.py`
-- [ ] Create `tests/unit/domain/events/test_archon_substitution_events.py`
-- [ ] Create `tests/unit/application/services/test_archon_substitution_service.py`
-- [ ] Test failure detection and marking
-- [ ] Test substitute selection excludes correct IDs
-- [ ] Test multi-failure triggers abort
-- [ ] Test pool exhaustion triggers abort
-- [ ] Test idempotent handling
-- [ ] Test event emission
+- [x] Create `tests/unit/domain/models/test_archon_status.py`
+- [x] Create `tests/unit/domain/events/test_archon_substitution_events.py`
+- [x] Create `tests/unit/application/services/test_archon_substitution_service.py`
+- [x] Test failure detection and marking
+- [x] Test substitute selection excludes correct IDs
+- [x] Test multi-failure triggers abort
+- [x] Test pool exhaustion triggers abort
+- [x] Test idempotent handling
+- [x] Test event emission
 
 ### Task 11: Write Integration Tests
-- [ ] Create `tests/integration/test_archon_substitution_integration.py`
-- [ ] Test end-to-end substitution flow
-- [ ] Test database state persistence
-- [ ] Test event witnessing
-- [ ] Test deliberation continues after substitution
+- [x] Create `tests/integration/test_archon_substitution_integration.py`
+- [x] Test end-to-end substitution flow
+- [x] Test database state persistence
+- [x] Test event witnessing
+- [x] Test deliberation continues after substitution
 
 ## Definition of Done
 
-- [ ] `ArchonStatus` and `ArchonFailureReason` enums defined
-- [ ] `ArchonSubstitutedEvent` and `DeliberationAbortedEvent` events defined
-- [ ] `DeliberationSession` extended with substitution tracking
-- [ ] `ArchonSubstitutionServiceProtocol` defined
-- [ ] `ArchonSubstitutionService` implements all methods
-- [ ] ArchonPool extended with substitute selection
-- [ ] Stub implementation for testing
-- [ ] CrewAI adapter integration complete
-- [ ] Unit tests pass (>90% coverage)
-- [ ] Integration tests verify end-to-end flow
-- [ ] NFR-10.6 satisfied: Substitution latency < 10 seconds
-- [ ] AC-7 satisfied: 2+ failures triggers ESCALATE
+- [x] `ArchonStatus` and `ArchonFailureReason` enums defined
+- [x] `ArchonSubstitutedEvent` and `DeliberationAbortedEvent` events defined
+- [x] `DeliberationSession` extended with substitution tracking
+- [x] `ArchonSubstitutionServiceProtocol` defined
+- [x] `ArchonSubstitutionService` implements all methods
+- [x] ArchonPool extended with substitute selection
+- [x] Stub implementation for testing
+- [x] Orchestrator integration complete
+- [x] Unit tests pass (>90% coverage)
+- [x] Integration tests verify end-to-end flow
+- [x] NFR-10.6 satisfied: Substitution latency < 10 seconds
+- [x] AC-7 satisfied: 2+ failures triggers ESCALATE
 
 ## Test Scenarios
 

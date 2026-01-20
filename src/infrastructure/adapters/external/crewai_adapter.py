@@ -20,7 +20,6 @@ Uses ToolRegistryProtocol to resolve tool names to CrewAI Tool instances.
 from __future__ import annotations
 
 import asyncio
-import os
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -42,99 +41,13 @@ from src.application.ports.tool_registry import ToolRegistryProtocol
 from src.domain.errors.agent import AgentInvocationError, AgentNotFoundError
 from src.domain.models.archon_profile import ArchonProfile
 from src.domain.models.llm_config import LLMConfig
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 if TYPE_CHECKING:
     from crewai.tools import BaseTool
 
 logger = get_logger(__name__)
 
-
-def _get_crewai_llm_string(llm_config: LLMConfig) -> str:
-    """Convert LLMConfig to CrewAI LLM model string format.
-
-    CrewAI accepts LLM specification as strings like:
-    - "anthropic/claude-3-opus-20240229"
-    - "openai/gpt-4o"
-    - "ollama/llama2" (for local)
-    - "google/gemini-pro"
-
-    Args:
-        llm_config: The LLM configuration
-
-    Returns:
-        CrewAI-compatible LLM model string
-    """
-    provider_map = {
-        "anthropic": "anthropic",
-        "openai": "openai",
-        "google": "google",
-        "local": "ollama",  # Local models typically via Ollama
-    }
-    provider = provider_map.get(llm_config.provider, llm_config.provider)
-    return f"{provider}/{llm_config.model}"
-
-
-def _create_crewai_llm(llm_config: LLMConfig) -> LLM | str:
-    """Create a CrewAI LLM instance from LLMConfig.
-
-    For Ollama (local provider), creates an LLM object with base_url.
-    Priority for base_url:
-      1. Per-archon base_url from LLMConfig (enables distributed inference)
-      2. OLLAMA_HOST environment variable (global fallback)
-      3. Default localhost:11434
-
-    For cloud providers, returns a simple string identifier.
-
-    Args:
-        llm_config: The LLM configuration
-
-    Returns:
-        LLM object for Ollama, or string for cloud providers
-    """
-    model_string = _get_crewai_llm_string(llm_config)
-
-    # For local/Ollama, create LLM object with base_url
-    if llm_config.provider == "local":
-        # Priority: per-archon base_url > OLLAMA_HOST env > default
-        if llm_config.base_url:
-            ollama_host = llm_config.base_url
-        else:
-            ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-
-        logger.info(
-            "creating_ollama_llm",
-            model=model_string,
-            base_url=ollama_host,
-            temperature=llm_config.temperature,
-            max_tokens=llm_config.max_tokens,
-            per_archon_url=llm_config.base_url is not None,
-        )
-        return LLM(
-            model=model_string,
-            base_url=ollama_host,
-            temperature=llm_config.temperature,
-            max_tokens=llm_config.max_tokens,
-        )
-
-    # For cloud providers, return string (CrewAI handles the rest)
-    return model_string
-
-
-def _ensure_api_key(llm_config: LLMConfig) -> None:
-    """Ensure the required API key environment variable is set.
-
-    Raises:
-        AgentInvocationError: If required API key is not set
-    """
-    env_var = llm_config.default_api_key_env
-    if not os.environ.get(env_var):
-        # Local models may not require API keys
-        if llm_config.provider != "local":
-            logger.warning(
-                "api_key_not_set",
-                env_var=env_var,
-                provider=llm_config.provider,
-            )
 
 
 class CrewAIAdapter(AgentOrchestratorProtocol):
@@ -234,13 +147,7 @@ class CrewAIAdapter(AgentOrchestratorProtocol):
         # Get base CrewAI config from profile
         crewai_config = profile.get_crewai_config()
 
-        # Create LLM instance or string from profile's LLM config
-        # For local/Ollama, this creates an LLM object with base_url
-        # For cloud providers, this returns a string
-        llm = _create_crewai_llm(profile.llm_config)
-
-        # Ensure API key is available (not needed for local)
-        _ensure_api_key(profile.llm_config)
+        llm = create_crewai_llm(profile.llm_config)
 
         # Inject context into backstory if provided
         backstory = profile.backstory
@@ -268,7 +175,7 @@ class CrewAIAdapter(AgentOrchestratorProtocol):
             backstory=backstory,
             verbose=self._verbose,
             allow_delegation=crewai_config["allow_delegation"],
-            llm=llm,  # LLM object for Ollama, string for cloud providers
+            llm=llm,
             max_iter=5,  # Limit iterations to prevent runaway
             tools=tools if tools else None,
         )

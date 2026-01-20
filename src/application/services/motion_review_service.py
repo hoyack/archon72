@@ -1268,6 +1268,79 @@ class MotionReviewService:
         logger.info("ratification_complete", ratified=ratified, rejected=rejected)
         return votes
 
+    def derive_ratification_from_reviews(
+        self,
+        aggregations: list[ReviewAggregation],
+        responses: list[ReviewResponse],
+    ) -> list[RatificationVote]:
+        """Derive ratification votes from actual Archon review responses."""
+        logger.info(
+            "ratification_start",
+            motion_count=len(aggregations),
+            response_count=len(responses),
+        )
+
+        responses_by_motion: dict[str, list[ReviewResponse]] = {}
+        for response in responses:
+            responses_by_motion.setdefault(response.mega_motion_id, []).append(response)
+
+        votes: list[RatificationVote] = []
+        for agg in aggregations:
+            motion_responses = responses_by_motion.get(agg.mega_motion_id, [])
+            yeas = 0
+            nays = 0
+            abstentions = 0
+            votes_by_archon: dict[str, str] = {}
+
+            for response in motion_responses:
+                if response.stance == ReviewStance.ENDORSE:
+                    yeas += 1
+                    votes_by_archon[response.archon_name] = "yea"
+                elif response.stance == ReviewStance.OPPOSE:
+                    nays += 1
+                    votes_by_archon[response.archon_name] = "nay"
+                else:
+                    # AMEND and ABSTAIN both count as abstentions for ratification.
+                    abstentions += 1
+                    votes_by_archon[response.archon_name] = "abstain"
+
+            # Determine threshold
+            is_constitutional = "constitutional" in agg.mega_motion_title.lower()
+            threshold_type = "supermajority" if is_constitutional else "simple_majority"
+            threshold_required = SUPERMAJORITY if is_constitutional else SIMPLE_MAJORITY
+            threshold_met = yeas >= threshold_required
+
+            outcome = (
+                RatificationOutcome.RATIFIED
+                if threshold_met
+                else RatificationOutcome.REJECTED
+            )
+
+            votes.append(
+                RatificationVote(
+                    vote_id=str(uuid4()),
+                    mega_motion_id=agg.mega_motion_id,
+                    mega_motion_title=agg.mega_motion_title,
+                    yeas=yeas,
+                    nays=nays,
+                    abstentions=abstentions,
+                    threshold_type=threshold_type,
+                    threshold_required=threshold_required,
+                    threshold_met=threshold_met,
+                    votes_by_archon=votes_by_archon,
+                    outcome=outcome,
+                    ratified_at=datetime.now(timezone.utc)
+                    if outcome == RatificationOutcome.RATIFIED
+                    else None,
+                )
+            )
+
+        ratified = sum(1 for v in votes if v.outcome == RatificationOutcome.RATIFIED)
+        rejected = sum(1 for v in votes if v.outcome == RatificationOutcome.REJECTED)
+
+        logger.info("ratification_complete", ratified=ratified, rejected=rejected)
+        return votes
+
     # =========================================================================
     # Full Pipeline
     # =========================================================================
@@ -1533,8 +1606,11 @@ class MotionReviewService:
             },
         )
 
-        # Phase 6: Ratification (still simulated - needs actual voting mechanism)
-        votes = self.simulate_ratification(aggregations, panels)
+        # Phase 6: Ratification
+        if use_real_agent:
+            votes = self.derive_ratification_from_reviews(aggregations, responses)
+        else:
+            votes = self.simulate_ratification(aggregations, panels)
         result.ratification_votes = votes
         result.motions_ratified = sum(
             1 for v in votes if v.outcome == RatificationOutcome.RATIFIED

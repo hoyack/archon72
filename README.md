@@ -479,6 +479,7 @@ archon72/
 │   ├── run_review_pipeline.py   # Run Motion Review Pipeline
 │   ├── run_execution_planner.py # Transform ratified motions into execution plans
 │   ├── run_full_deliberation.py # Run 72-agent sequential deliberation
+│   ├── run_roll_call.py         # Test each Archon's LLM configuration
 │   ├── test_ollama_connection.py # Smoke test for Ollama integration
 │   ├── check_imports.py         # Validate hexagonal architecture boundaries
 │   └── validate_cessation_path.py # Validate cessation code paths
@@ -588,6 +589,7 @@ archon72/
 | `scripts/run_conclave.py` | CLI to run formal Conclave with motions and voting |
 | `scripts/run_review_pipeline.py` | CLI to run motion review pipeline with real or simulated agents |
 | `scripts/run_execution_planner.py` | CLI to transform ratified motions into execution plans |
+| `scripts/run_roll_call.py` | CLI to test each Archon's LLM configuration and diagnose failures |
 | `config/execution-patterns.yaml` | Defines 8 implementation patterns with task templates |
 | `migrations/*.sql` | Database schema for event store, hash chains, witnesses |
 
@@ -1760,6 +1762,67 @@ pip install apscheduler
 **Mitigation:** Use `--verbose` flag to see retry attempts:
 ```bash
 python scripts/run_secretary.py --verbose
+```
+
+### Archon LLM Roll Call
+
+Use the roll call script to diagnose which Archons have broken LLM configurations:
+
+```bash
+# Test all 72 Archons sequentially (2s delay between each)
+python scripts/run_roll_call.py
+
+# Test specific Archon
+python scripts/run_roll_call.py --archon Paimon
+
+# Test first 10 Archons with longer delay
+python scripts/run_roll_call.py --limit 10 --delay 5
+
+# No delay between tests (faster but may overwhelm Ollama)
+python scripts/run_roll_call.py --delay 0
+
+# Longer timeout for slow models
+python scripts/run_roll_call.py --timeout 120
+```
+
+**Command Line Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--archon NAME` | Test specific Archon by name | All |
+| `--limit N` | Test only first N Archons | All |
+| `--timeout SEC` | Timeout per Archon in seconds | 60 |
+| `--delay SEC` | Delay between tests (rate limiting) | 2 |
+| `--parallel` | Run tests in parallel | Sequential |
+| `--verbose` | Show additional debug info | Off |
+
+**Output Example:**
+
+```
+======================================================================
+  [1/72] Testing Paimon (executive_director)
+  Model: local/gpt-oss:120b-cloud
+  Base URL: http://192.168.1.104:11434
+
+  [PRESENT] Paimon responded in 12.3s
+
+  RESPONSE:
+    I am Paimon, Executive Director of the Conclave...
+
+  Waiting 2.0s before next test...
+```
+
+**Summary Output:**
+
+```
+ROLL CALL SUMMARY
+  Status: PARTIAL
+  Present: 68/72 (94.4%)
+  Failed: 4/72
+
+Failed Archons:
+  - Beleth (senior_director): local/qwen3:latest
+    Error: Agent Beleth timed out after 60000ms
 ```
 
 ### Ollama Connection Issues

@@ -155,10 +155,33 @@ from src.infrastructure.stubs.realm_registry_stub import (
     RealmOperation,
     RealmRegistryStub,
 )
+from src.infrastructure.stubs.archon_assignment_stub import (
+    ArchonAssignmentOperation,
+    ArchonAssignmentServiceStub,
+    AssignmentRecord,
+)
 from src.infrastructure.stubs.archon_pool_stub import (
     ArchonPoolOperation,
     ArchonPoolStub,
     create_test_archon,
+)
+from src.infrastructure.stubs.context_package_builder_stub import (
+    ContextPackageBuilderStub,
+)
+from src.infrastructure.stubs.deliberation_orchestrator_stub import (
+    DeliberationOrchestratorStub,
+    PhaseExecutorStub,
+)
+from src.infrastructure.stubs.consensus_resolver_stub import (
+    ConsensusResolverOperation,
+    ConsensusResolverStub,
+    ResolverCall,
+)
+from src.infrastructure.stubs.phase_witness_batching_stub import (
+    PhaseWitnessBatchingStub,
+)
+from src.infrastructure.stubs.disposition_emission_stub import (
+    DispositionEmissionStub,
 )
 from src.infrastructure.stubs.queue_capacity_stub import (
     QueueCapacityStub,
@@ -310,6 +333,23 @@ __all__: list[str] = [
     "ArchonPoolOperation",
     "ArchonPoolStub",
     "create_test_archon",
+    # Archon Assignment Service (Story 2A.2, FR-11.1, FR-11.2)
+    "ArchonAssignmentOperation",
+    "ArchonAssignmentServiceStub",
+    "AssignmentRecord",
+    # Context Package Builder (Story 2A.3, FR-11.3)
+    "ContextPackageBuilderStub",
+    # Deliberation Orchestrator (Story 2A.4, FR-11.4)
+    "DeliberationOrchestratorStub",
+    "PhaseExecutorStub",
+    # Consensus Resolver (Story 2A.6, FR-11.5, FR-11.6)
+    "ConsensusResolverOperation",
+    "ConsensusResolverStub",
+    "ResolverCall",
+    # Phase Witness Batching (Story 2A.7, FR-11.7)
+    "PhaseWitnessBatchingStub",
+    # Disposition Emission (Story 2A.8, FR-11.11)
+    "DispositionEmissionStub",
     # Queue Capacity (Story 1.3, FR-1.4)
     "QueueCapacityStub",
     # Rate Limiter (Story 1.4, FR-1.5, HC-4)

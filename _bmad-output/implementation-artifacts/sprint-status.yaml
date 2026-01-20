@@ -486,15 +486,15 @@ development_status:
   # Three Fates mini-Conclave, structured protocol, supermajority consensus
   # FR-11.1 to FR-11.12 (ALL P0)
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-2a: backlog
-  petition-2a-1-deliberation-session-domain-model: backlog
-  petition-2a-2-archon-assignment-service: backlog
-  petition-2a-3-deliberation-context-package-builder: backlog
-  petition-2a-4-deliberation-protocol-orchestrator: backlog
-  petition-2a-5-crewai-deliberation-adapter: backlog
-  petition-2a-6-supermajority-consensus-resolution: backlog
-  petition-2a-7-phase-level-witness-batching: backlog
-  petition-2a-8-disposition-emission-pipeline-routing: backlog
+  petition-epic-2a: done
+  petition-2a-1-deliberation-session-domain-model: done
+  petition-2a-2-archon-assignment-service: done
+  petition-2a-3-deliberation-context-package-builder: done
+  petition-2a-4-deliberation-protocol-orchestrator: done
+  petition-2a-5-crewai-deliberation-adapter: done
+  petition-2a-6-supermajority-consensus-resolution: done
+  petition-2a-7-phase-level-witness-batching: done
+  petition-2a-8-disposition-emission-pipeline-routing: done
   petition-epic-2a-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -502,8 +502,8 @@ development_status:
   # Dissent, timeouts, deadlock, archon substitution, audit trail
   # NFR-10.1 to NFR-10.6
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-2b: backlog
-  petition-2b-1-dissent-recording-service: backlog
+  petition-epic-2b: in-progress
+  petition-2b-1-dissent-recording-service: ready-for-dev
   petition-2b-2-deliberation-timeout-enforcement: backlog
   petition-2b-3-deadlock-detection-auto-escalation: backlog
   petition-2b-4-archon-substitution-on-failure: backlog

@@ -270,6 +270,18 @@ from src.domain.events.petition import (
     PetitionStatus,
     PetitionThresholdMetEventPayload,
 )
+from src.domain.events.phase_witness import (
+    BLAKE3_HASH_SIZE,
+    PHASE_WITNESS_EVENT_TYPE,
+    PhaseWitnessEvent,
+)
+from src.domain.events.disposition import (
+    DISPOSITION_EVENT_SCHEMA_VERSION,
+    DeliberationCompleteEvent,
+    DispositionOutcome,
+    PipelineRoutingEvent,
+    PipelineType,
+)
 from src.domain.events.pre_operational_verification import (
     POST_HALT_VERIFICATION_STARTED_EVENT_TYPE,
     VERIFICATION_BYPASSED_EVENT_TYPE,
@@ -570,6 +582,16 @@ __all__: list[str] = [
     "PetitionCoSignedEventPayload",
     "PetitionThresholdMetEventPayload",
     "PetitionStatus",
+    # Phase witness events (Story 2A.7, FR-11.7)
+    "BLAKE3_HASH_SIZE",
+    "PHASE_WITNESS_EVENT_TYPE",
+    "PhaseWitnessEvent",
+    # Disposition events (Story 2A.8, FR-11.11)
+    "DISPOSITION_EVENT_SCHEMA_VERSION",
+    "DeliberationCompleteEvent",
+    "DispositionOutcome",
+    "PipelineRoutingEvent",
+    "PipelineType",
     # Cessation executed event (Story 7.3, FR40, NFR40)
     "CESSATION_EXECUTED_EVENT_TYPE",
     "CessationExecutedEventPayload",

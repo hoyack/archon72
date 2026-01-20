@@ -138,25 +138,24 @@ workflow_status:
 # CURRENT WORK IN PROGRESS (2026-01-19)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "Petition Epic 2A: Core Deliberation Protocol"
-  status: in-progress
+  epic: "Petition Epic 2B: Deliberation Edge Cases & Guarantees"
+  status: backlog
 
-  completed_epic: "Petition Epic 1: Petition Intake & State Machine (8/8 stories DONE)"
+  completed_epic: "Petition Epic 2A: Core Deliberation Protocol (8/8 stories DONE)"
 
-  current_story: petition-2a-1-deliberation-session-domain-model
-  current_story_status: ready
+  current_story: petition-2b-1-dissent-recording-service
+  current_story_status: backlog
 
   backlog:
-    - petition-2a-1-deliberation-session-domain-model
-    - petition-2a-2-archon-assignment-service
-    - petition-2a-3-deliberation-context-package-builder
-    - petition-2a-4-deliberation-protocol-orchestrator
-    - petition-2a-5-crewai-deliberation-adapter
-    - petition-2a-6-supermajority-consensus-resolution
-    - petition-2a-7-phase-level-witness-batching
-    - petition-2a-8-disposition-emission-pipeline-routing
+    - petition-2b-2-deliberation-timeout-enforcement
+    - petition-2b-3-deadlock-detection-auto-escalation
+    - petition-2b-4-archon-substitution-on-failure
+    - petition-2b-5-transcript-preservation-hash-referencing
+    - petition-2b-6-audit-trail-reconstruction
+    - petition-2b-7-deliberation-load-testing-harness
+    - petition-2b-8-deliberation-chaos-testing
 
-  note: "Petition Epic 1 COMPLETE (2026-01-19). Epic 2A is CRITICAL PATH for Three Fates mini-Conclave."
+  note: "Epic 2A complete (8/8). Ready for Epic 2B (edge cases and guarantees)."
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PETITION SYSTEM EPICS (from petition-system-epics.md)
@@ -283,36 +282,57 @@ petition_system:
   petition-epic-2a:
     name: "Core Deliberation Protocol"
     priority: P0-CRITICAL
-    status: in-progress
+    status: done
+    completed: "2026-01-19"
     stories:
       - id: petition-2a-1-deliberation-session-domain-model
         name: "Deliberation Session Domain Model"
-        status: ready
+        status: done
+        completed: "2026-01-19"
         story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-1-deliberation-session-domain-model.md"
         note: "FR-11.1, FR-11.4 - DeliberationSession aggregate, phase transitions, consensus invariants"
       - id: petition-2a-2-archon-assignment-service
         name: "Archon Assignment Service"
-        status: ready
+        status: done
+        completed: "2026-01-19"
         story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-2-archon-assignment-service.md"
         note: "FR-11.1, FR-11.2 - Deterministic 3-archon selection, idempotent assignment, session creation"
       - id: petition-2a-3-deliberation-context-package-builder
         name: "Deliberation Context Package Builder"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-3-deliberation-context-package-builder.md"
+        note: "FR-11.3 - Context package builder with SHA-256 hash, Ruling-3 deferred, 45 tests"
       - id: petition-2a-4-deliberation-protocol-orchestrator
         name: "Deliberation Protocol Orchestrator"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-4-deliberation-protocol-orchestrator.md"
+        note: "FR-11.4, FR-11.5 - 4-phase protocol orchestrator, PhaseExecutorProtocol, stub implementation"
       - id: petition-2a-5-crewai-deliberation-adapter
         name: "CrewAI Deliberation Adapter"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-5-crewai-deliberation-adapter.md"
+        note: "FR-11.4, HP-10 - CrewAI adapter implementing PhaseExecutorProtocol with 4-phase deliberation"
       - id: petition-2a-6-supermajority-consensus-resolution
         name: "Supermajority Consensus Resolution"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-6-supermajority-consensus-resolution.md"
+        note: "FR-11.5, FR-11.6, NFR-10.3, AT-6 - ConsensusResolverService with 2-of-3 supermajority algorithm"
       - id: petition-2a-7-phase-level-witness-batching
         name: "Phase-Level Witness Batching"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-7-phase-level-witness-batching.md"
+        note: "FR-11.7, NFR-10.4, Ruling-1 - Phase witness batching with Blake3 hash chaining"
       - id: petition-2a-8-disposition-emission-pipeline-routing
         name: "Disposition Emission & Pipeline Routing"
-        status: backlog
+        status: done
+        completed: "2026-01-19"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-2a-8-disposition-emission-pipeline-routing.md"
+        note: "FR-11.11, FR-11.12 - Disposition emission, pipeline routing (ACKNOWLEDGE/REFER/ESCALATE)"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 2B: Deliberation Edge Cases & Guarantees (P0)

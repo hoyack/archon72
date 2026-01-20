@@ -56,11 +56,18 @@ from src.domain.errors.cessation import (
 from src.domain.errors.collective import FR11ViolationError
 from src.domain.errors.concurrent_modification import ConcurrentModificationError
 from src.domain.errors.deliberation import (
+    ArchonPoolExhaustedError,
     ConsensusNotReachedError,
     DeliberationError,
+    IncompleteWitnessChainError,
     InvalidArchonAssignmentError,
+    InvalidPetitionStateError,
     InvalidPhaseTransitionError,
+    PetitionSessionMismatchError,
+    PhaseExecutionError,
+    PipelineRoutingError,
     SessionAlreadyCompleteError,
+    SessionAlreadyExistsError,
 )
 from src.domain.errors.event_emission import FateEventEmissionError
 from src.domain.errors.collusion import (
@@ -534,10 +541,17 @@ __all__: list[str] = [
     "ConcurrentModificationError",
     # Event emission error (Story 1.7, FR-2.5, HC-1)
     "FateEventEmissionError",
-    # Deliberation errors (Story 2A.1, FR-11.1, FR-11.4)
+    # Deliberation errors (Story 2A.1, FR-11.1, FR-11.4, Story 2A.5, Story 2A.8)
+    "ArchonPoolExhaustedError",
     "ConsensusNotReachedError",
     "DeliberationError",
+    "IncompleteWitnessChainError",
     "InvalidArchonAssignmentError",
+    "InvalidPetitionStateError",
     "InvalidPhaseTransitionError",
+    "PetitionSessionMismatchError",
+    "PhaseExecutionError",
+    "PipelineRoutingError",
     "SessionAlreadyCompleteError",
+    "SessionAlreadyExistsError",
 ]

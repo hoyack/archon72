@@ -104,8 +104,31 @@ from src.application.ports.content_hash_service import (
 from src.application.ports.realm_registry import (
     RealmRegistryProtocol,
 )
+from src.application.ports.archon_assignment import (
+    ARCHONS_ASSIGNED_EVENT_TYPE,
+    ARCHONS_ASSIGNED_SCHEMA_VERSION,
+    ArchonAssignmentServiceProtocol,
+    ArchonsAssignedEventPayload,
+    AssignmentResult,
+)
 from src.application.ports.archon_pool import (
     ArchonPoolProtocol,
+)
+from src.application.ports.context_package_builder import (
+    ContextPackageBuilderProtocol,
+)
+from src.application.ports.deliberation_orchestrator import (
+    DeliberationOrchestratorProtocol,
+    PhaseExecutorProtocol,
+)
+from src.application.ports.consensus_resolver import (
+    ConsensusResolverProtocol,
+)
+from src.application.ports.phase_witness_batching import (
+    PhaseWitnessBatchingProtocol,
+)
+from src.application.ports.disposition_emission import (
+    DispositionEmissionProtocol,
 )
 from src.application.ports.constitution_validator import ConstitutionValidatorProtocol
 from src.application.ports.constitutional_health import (
@@ -608,6 +631,23 @@ __all__: list[str] = [
     "RealmRegistryProtocol",
     # Archon Pool (Story 0.7, HP-11, FR-11.1)
     "ArchonPoolProtocol",
+    # Archon Assignment Service (Story 2A.2, FR-11.1, FR-11.2)
+    "ARCHONS_ASSIGNED_EVENT_TYPE",
+    "ARCHONS_ASSIGNED_SCHEMA_VERSION",
+    "ArchonAssignmentServiceProtocol",
+    "ArchonsAssignedEventPayload",
+    "AssignmentResult",
+    # Context Package Builder (Story 2A.3, FR-11.3)
+    "ContextPackageBuilderProtocol",
+    # Deliberation Orchestrator (Story 2A.4, FR-11.4)
+    "DeliberationOrchestratorProtocol",
+    "PhaseExecutorProtocol",
+    # Consensus Resolver (Story 2A.6, FR-11.5, FR-11.6)
+    "ConsensusResolverProtocol",
+    # Phase Witness Batching (Story 2A.7, FR-11.7)
+    "PhaseWitnessBatchingProtocol",
+    # Disposition Emission (Story 2A.8, FR-11.11)
+    "DispositionEmissionProtocol",
     # Signature verifier (Story 7.2, FR39, AC4)
     "SignatureVerifierProtocol",
     # Terminal event detection (Story 7.3, FR40, NFR40)

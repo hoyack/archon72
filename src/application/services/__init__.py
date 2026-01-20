@@ -87,9 +87,31 @@ from src.application.services.content_hash_service import (
 from src.application.services.realm_registry import (
     RealmRegistryService,
 )
+from src.application.services.archon_assignment_service import (
+    ARCHON_ASSIGNMENT_SYSTEM_AGENT_ID,
+    ArchonAssignmentService,
+)
 from src.application.services.archon_pool import (
     ArchonPoolService,
     get_archon_pool_service,
+)
+from src.application.services.context_package_builder_service import (
+    ContextPackageBuilderService,
+)
+from src.application.services.deliberation_orchestrator_service import (
+    DeliberationOrchestratorService,
+)
+from src.application.services.consensus_resolver_service import (
+    ConsensusResolverService,
+)
+from src.application.services.phase_witness_batching_service import (
+    PHASE_ORDER,
+    PhaseWitnessBatchingService,
+)
+from src.application.services.disposition_emission_service import (
+    DispositionEmissionService,
+    OUTCOME_TO_PIPELINE,
+    REQUIRED_WITNESS_PHASES,
 )
 from src.application.services.context_bundle_service import (
     ContextBundleService,
@@ -304,6 +326,22 @@ __all__: list[str] = [
     # Archon Pool Service (Story 0.7, HP-11, FR-11.1)
     "ArchonPoolService",
     "get_archon_pool_service",
+    # Archon Assignment Service (Story 2A.2, FR-11.1, FR-11.2)
+    "ARCHON_ASSIGNMENT_SYSTEM_AGENT_ID",
+    "ArchonAssignmentService",
+    # Context Package Builder Service (Story 2A.3, FR-11.3)
+    "ContextPackageBuilderService",
+    # Deliberation Orchestrator Service (Story 2A.4, FR-11.4)
+    "DeliberationOrchestratorService",
+    # Consensus Resolver Service (Story 2A.6, FR-11.5, FR-11.6)
+    "ConsensusResolverService",
+    # Phase Witness Batching Service (Story 2A.7, FR-11.7)
+    "PHASE_ORDER",
+    "PhaseWitnessBatchingService",
+    # Disposition Emission Service (Story 2A.8, FR-11.11)
+    "DispositionEmissionService",
+    "OUTCOME_TO_PIPELINE",
+    "REQUIRED_WITNESS_PHASES",
     "ConcurrentDeliberationService",
     "ConcurrentResult",
     "ContextBundleService",

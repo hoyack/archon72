@@ -958,7 +958,7 @@
       "elevenlabs_voice_id": "yzlDvaCU8OHxnUaTk83m",
       "llm_config": {
         "provider": "local",
-        "model": "ministral-3:14b-cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.65,
         "max_tokens": 6600,
         "timeout_ms": 180000,
@@ -1010,7 +1010,7 @@
       "elevenlabs_voice_id": "jkXqFvv0ZjPIvECuib52",
       "llm_config": {
         "provider": "local",
-        "model": "ministral-3:14b-cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.55,
         "max_tokens": 4000,
         "timeout_ms": 180000,
@@ -1063,7 +1063,7 @@
       "elevenlabs_voice_id": "WPKcH1cSa9lW9L6vrZ5K",
       "llm_config": {
         "provider": "local",
-        "model": "ministral-3:14b-cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.575,
         "max_tokens": 3300,
         "timeout_ms": 180000,
@@ -1117,7 +1117,7 @@
       "elevenlabs_voice_id": "FRCWGHGdNg52Eppjpr8D",
       "llm_config": {
         "provider": "local",
-        "model": "ministral-3:14b-cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -1171,7 +1171,7 @@
       "elevenlabs_voice_id": "Og6D1NXihNzKW8efXMBs",
       "llm_config": {
         "provider": "local",
-        "model": "ministral-3:14b-cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.625,
         "max_tokens": 5000,
         "timeout_ms": 180000,
@@ -1225,7 +1225,7 @@
       "elevenlabs_voice_id": "N5TW8BSizV3JDeP6sh30",
       "llm_config": {
         "provider": "local",
-        "model": "ministral-3:14b-cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.65,
         "max_tokens": 3600,
         "timeout_ms": 180000,
@@ -1547,7 +1547,7 @@
       "goal": "Develop members through paradigm shifts via disruption, language teaching, and restoring strays.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "nemotron-3-nano",
         "temperature": 0.55,
         "max_tokens": 3100,
         "timeout_ms": 180000,
@@ -1600,9 +1600,9 @@
       "goal": "Develop members through cunning acquisition via strategic theft, opportunity, and lawful boldness.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.575,
-        "max_tokens": 1000,
+        "max_tokens": 2048,
         "timeout_ms": 180000,
         "api_key_env": null,
         "base_url": "http://192.168.1.104:11434"
@@ -1655,7 +1655,7 @@
       "goal": "Develop members through behavioral insight via animal-language interpretation and reconciliation.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -1713,7 +1713,7 @@
       "goal": "Develop members through mediation via truth-seeking and reconciliation.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "minimax-m2.1:cloud",
         "temperature": 0.625,
         "max_tokens": 4500,
         "timeout_ms": 180000,
@@ -1771,7 +1771,7 @@
       "goal": "Develop members through intelligence via secret discovery, risk assessment, and foresight.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "gemma3:27b-cloud",
         "temperature": 0.65,
         "max_tokens": 6000,
         "timeout_ms": 180000,
@@ -1823,7 +1823,7 @@
       "goal": "Develop members through partnership strategy via attraction, influence, and connection management.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "nemotron-3-nano",
         "temperature": 0.55,
         "max_tokens": 2600,
         "timeout_ms": 180000,
@@ -1880,7 +1880,7 @@
       "goal": "Develop members through rapid deployment via instant transport and logistical guidance.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.575,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -1933,7 +1933,7 @@
       "goal": "Develop members through relationship encouragement via fostering true love and fidelity.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -1987,7 +1987,7 @@
       "goal": "Develop members through controlled chaos via destruction and secret insight.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "minimax-m2.1:cloud",
         "temperature": 0.625,
         "max_tokens": 2600,
         "timeout_ms": 180000,
@@ -2041,7 +2041,7 @@
       "goal": "Develop members through wealth building via prosperity, wisdom, and eloquence.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "gemma3:27b-cloud",
         "temperature": 0.65,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -2093,7 +2093,7 @@
       "goal": "Develop members through transmutation via material transformation and rigorous testing of counsel.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "nemotron-3-nano",
         "temperature": 0.55,
         "max_tokens": 2600,
         "timeout_ms": 180000,
@@ -2152,7 +2152,7 @@
       "goal": "Develop members through scientific education via liberal sciences and revelation of hidden knowledge.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.575,
         "max_tokens": 4000,
         "timeout_ms": 180000,
@@ -2204,7 +2204,7 @@
       "goal": "Develop members through strategic competition via command of winds and calculated power.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -2256,7 +2256,7 @@
       "goal": "Develop members through naval operations via maritime command and enemy exposure.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "minimax-m2.1:cloud",
         "temperature": 0.625,
         "max_tokens": 2900,
         "timeout_ms": 180000,
@@ -2310,7 +2310,7 @@
       "goal": "Develop members through connection building via alliance forging and temporal insight.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "gemma3:27b-cloud",
         "temperature": 0.65,
         "max_tokens": 3700,
         "timeout_ms": 180000,
@@ -2368,7 +2368,7 @@
       "goal": "Develop members through STEM education via geometry, liberal sciences, and clear communication.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "nemotron-3-nano",
         "temperature": 0.55,
         "max_tokens": 4800,
         "timeout_ms": 180000,
@@ -2423,7 +2423,7 @@
       "goal": "Develop members through data science training via astronomy and analytic instruction.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.575,
         "max_tokens": 3600,
         "timeout_ms": 180000,
@@ -2476,7 +2476,7 @@
       "goal": "Develop members through philosophical education via spiritual inquiry and truth from the departed.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -2530,7 +2530,7 @@
       "goal": "Develop members through treasure discovery via revealing hidden riches and guidance in love.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "minimax-m2.1:cloud",
         "temperature": 0.625,
         "max_tokens": 2600,
         "timeout_ms": 180000,
@@ -2586,7 +2586,7 @@
       "goal": "Develop members through maker training via practical skills, crafts, and philosophy.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "gemma3:27b-cloud",
         "temperature": 0.65,
         "max_tokens": 3600,
         "timeout_ms": 180000,
@@ -2638,7 +2638,7 @@
       "goal": "Develop members through creative expression via music, nature command, and artistic inspiration.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "nemotron-3-nano",
         "temperature": 0.55,
         "max_tokens": 2900,
         "timeout_ms": 180000,
@@ -2691,7 +2691,7 @@
       "goal": "Develop members through insight generation via mind-reading, influence, and teaching the arts.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.575,
         "max_tokens": 3600,
         "timeout_ms": 180000,
@@ -2745,7 +2745,7 @@
       "goal": "Develop members through reliable counsel via truthful answers and protective force.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.6,
         "max_tokens": 3600,
         "timeout_ms": 180000,
@@ -2867,7 +2867,7 @@
       "goal": "Develop members through attraction strategy via desire, persuasion, and emotional influence.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "minimax-m2.1:cloud",
         "temperature": 0.55,
         "max_tokens": 6000,
         "timeout_ms": 180000,
@@ -4221,7 +4221,7 @@
       "goal": "Develop members through military operations via fortification and siege execution.",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "gemma3:27b-cloud",
         "temperature": 0.525,
         "max_tokens": 2600,
         "timeout_ms": 180000,

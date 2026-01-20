@@ -96,6 +96,28 @@ from src.domain.models.constitutional_threshold import (
     ConstitutionalThreshold,
     ConstitutionalThresholdRegistry,
 )
+from src.domain.models.deliberation_context_package import (
+    CONTEXT_PACKAGE_SCHEMA_VERSION as DELIBERATION_CONTEXT_SCHEMA_VERSION,
+    DeliberationContextPackage,
+    compute_content_hash,
+)
+from src.domain.models.deliberation_result import (
+    DeliberationResult,
+    PhaseResult,
+)
+from src.domain.models.consensus_result import (
+    CONSENSUS_ALGORITHM_VERSION,
+    REQUIRED_VOTE_COUNT,
+    SUPERMAJORITY_THRESHOLD,
+    ConsensusResult,
+    ConsensusStatus,
+    VoteValidationResult,
+    VoteValidationStatus,
+)
+from src.domain.models.disposition_result import (
+    DispositionResult,
+    PendingDisposition,
+)
 from src.domain.models.deliberation_session import (
     CONSENSUS_THRESHOLD,
     PHASE_TRANSITION_MATRIX as DELIBERATION_PHASE_TRANSITION_MATRIX,
@@ -528,4 +550,22 @@ __all__: list[str] = [
     "DeliberationOutcome",
     "DeliberationPhase",
     "DeliberationSession",
+    # Deliberation context package models (Story 2A.3, FR-11.3)
+    "DELIBERATION_CONTEXT_SCHEMA_VERSION",
+    "DeliberationContextPackage",
+    "compute_content_hash",
+    # Deliberation result models (Story 2A.4, FR-11.4)
+    "DeliberationResult",
+    "PhaseResult",
+    # Consensus result models (Story 2A.6, FR-11.5, FR-11.6)
+    "CONSENSUS_ALGORITHM_VERSION",
+    "REQUIRED_VOTE_COUNT",
+    "SUPERMAJORITY_THRESHOLD",
+    "ConsensusResult",
+    "ConsensusStatus",
+    "VoteValidationResult",
+    "VoteValidationStatus",
+    # Disposition result models (Story 2A.8, FR-11.11)
+    "DispositionResult",
+    "PendingDisposition",
 ]

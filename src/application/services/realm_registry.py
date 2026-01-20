@@ -191,9 +191,10 @@ class RealmRegistryService(LoggingMixin):
         realms: list[Realm] = []
         for row in self._coerce_rows(result.data):
             realm_data = row.get("realms")
-            if isinstance(realm_data, dict) and realm_data.get(
-                "status"
-            ) == RealmStatus.ACTIVE.value:
+            if (
+                isinstance(realm_data, dict)
+                and realm_data.get("status") == RealmStatus.ACTIVE.value
+            ):
                 realms.append(self._row_to_realm(realm_data))
 
         log.debug("realms_for_sentinel", count=len(realms))

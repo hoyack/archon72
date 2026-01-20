@@ -4,7 +4,6 @@ Tests the job worker service with stub implementations.
 """
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 

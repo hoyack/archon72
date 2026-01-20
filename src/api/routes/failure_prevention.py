@@ -457,7 +457,7 @@ async def get_query_performance(
     Returns:
         QueryPerformanceResponse with compliance stats.
     """
-    stats = service.get_compliance_stats()
+    stats = await service.get_compliance_stats()
 
     return QueryPerformanceResponse(
         total_queries=stats["total_queries"],
@@ -485,8 +485,8 @@ async def get_load_shedding(
     Returns:
         LoadSheddingResponse with load status.
     """
-    stats = service.get_shedding_stats()
-    load_status = service.get_load_status()
+    stats = await service.get_shedding_stats()
+    load_status = await service.get_load_status()
 
     return LoadSheddingResponse(
         current_load_level=load_status.level.value,

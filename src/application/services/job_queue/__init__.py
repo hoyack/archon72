@@ -6,6 +6,7 @@ deadline monitoring in the Three Fates petition system.
 Available services:
 - JobWorkerService: Polls and executes scheduled jobs (AC5)
 - DLQAlertService: Dead letter queue monitoring and alerting (AC6, HC-6)
+- DeliberationTimeoutHandler: Handles deliberation timeout jobs (Story 2B.2)
 
 Constitutional Constraints:
 - HP-1: Job queue for reliable deadline execution
@@ -14,6 +15,9 @@ Constitutional Constraints:
 - FM-7.1: Persistent job queue prevents "timeout never fires" failure mode
 """
 
+from src.application.services.job_queue.deliberation_timeout_handler import (
+    DeliberationTimeoutHandler,
+)
 from src.application.services.job_queue.dlq_alert_service import (
     ALERT_SEVERITY_CRITICAL,
     ALERT_SEVERITY_WARNING,
@@ -42,4 +46,6 @@ __all__ = [
     "AlertCallback",
     "DLQAlertService",
     "create_log_alert_callback",
+    # Deliberation Timeout Handler (Story 2B.2, FR-11.9, HC-7)
+    "DeliberationTimeoutHandler",
 ]

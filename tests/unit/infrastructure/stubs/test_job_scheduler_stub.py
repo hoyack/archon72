@@ -40,7 +40,9 @@ class TestJobSchedulerStub:
         assert job.status == JobStatus.PENDING
 
     @pytest.mark.asyncio
-    async def test_schedule_requires_timezone_aware(self, stub: JobSchedulerStub) -> None:
+    async def test_schedule_requires_timezone_aware(
+        self, stub: JobSchedulerStub
+    ) -> None:
         """Test that schedule rejects naive datetime."""
         naive_datetime = datetime.now()  # No timezone
 

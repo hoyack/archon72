@@ -17,13 +17,13 @@ from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
 from src.domain.errors import FateEventEmissionError, SystemHaltedError
-from src.domain.models.petition_submission import PetitionState, PetitionSubmission, PetitionType
+from src.domain.models.petition_submission import (
+    PetitionState,
+    PetitionSubmission,
+    PetitionType,
+)
 from src.infrastructure.stubs import (
-    ContentHashServiceStub,
-    HaltCheckerStub,
     PetitionEventEmitterStub,
-    PetitionSubmissionRepositoryStub,
-    RealmRegistryStub,
 )
 
 
@@ -107,7 +107,7 @@ class TestAssignFateTransactional:
             text="Test petition text",
             state=PetitionState.ACKNOWLEDGED,  # After CAS update
             submitter_id=None,
-            content_hash=b"hash",
+            content_hash=b"x" * 32,
             realm="default",
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
@@ -151,7 +151,11 @@ class TestAssignFateTransactional:
         mock_halt_checker: AsyncMock,
     ) -> None:
         """Test fate assignment works for all three terminal states."""
-        for state in [PetitionState.ACKNOWLEDGED, PetitionState.REFERRED, PetitionState.ESCALATED]:
+        for state in [
+            PetitionState.ACKNOWLEDGED,
+            PetitionState.REFERRED,
+            PetitionState.ESCALATED,
+        ]:
             emitter = PetitionEventEmitterStub()
             service = PetitionSubmissionService(
                 repository=mock_repository,
@@ -167,7 +171,7 @@ class TestAssignFateTransactional:
                 text="Test",
                 state=state,
                 submitter_id=None,
-                content_hash=b"hash",
+                content_hash=b"x" * 32,
                 realm="default",
                 created_at=datetime.now(timezone.utc),
                 updated_at=datetime.now(timezone.utc),
@@ -391,7 +395,8 @@ class TestAssignFateTransactionalCASPropagation:
         from src.domain.errors import ConcurrentModificationError
 
         mock_repository.assign_fate_cas.side_effect = ConcurrentModificationError(
-            "State mismatch"
+            petition_id=uuid4(),
+            expected_state=PetitionState.RECEIVED,
         )
 
         service = PetitionSubmissionService(

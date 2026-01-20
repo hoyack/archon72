@@ -13,7 +13,6 @@ Constitutional Compliance:
 """
 
 import base64
-from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient

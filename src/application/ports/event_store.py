@@ -542,7 +542,8 @@ class EventStorePort(ABC):
             memory usage vs DB round trips.
         """
         ...
-        yield  # type: ignore[misc]
+        if False:  # pragma: no cover
+            yield
 
     @abstractmethod
     async def count_events_in_range(

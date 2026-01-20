@@ -23,7 +23,6 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-
 # Current schema version for disposition events (D2 compliance)
 DISPOSITION_EVENT_SCHEMA_VERSION: int = 1
 
@@ -126,26 +125,16 @@ class DeliberationCompleteEvent:
         """Validate dissent consistency."""
         if self.dissent_present:
             if self.dissent_archon_id is None:
-                raise ValueError(
-                    "dissent_present=True requires dissent_archon_id"
-                )
+                raise ValueError("dissent_present=True requires dissent_archon_id")
             if self.dissent_disposition is None:
-                raise ValueError(
-                    "dissent_present=True requires dissent_disposition"
-                )
+                raise ValueError("dissent_present=True requires dissent_disposition")
             if self.dissent_archon_id not in self.vote_breakdown:
-                raise ValueError(
-                    "dissent_archon_id must be in vote_breakdown"
-                )
+                raise ValueError("dissent_archon_id must be in vote_breakdown")
         else:
             if self.dissent_archon_id is not None:
-                raise ValueError(
-                    "dissent_present=False but dissent_archon_id is set"
-                )
+                raise ValueError("dissent_present=False but dissent_archon_id is set")
             if self.dissent_disposition is not None:
-                raise ValueError(
-                    "dissent_present=False but dissent_disposition is set"
-                )
+                raise ValueError("dissent_present=False but dissent_disposition is set")
 
     def signable_content(self) -> bytes:
         """Return canonical content for witnessing (CT-12).
@@ -164,8 +153,12 @@ class DeliberationCompleteEvent:
 
         content: dict[str, Any] = {
             "completed_at": self.completed_at.isoformat(),
-            "dissent_archon_id": str(self.dissent_archon_id) if self.dissent_archon_id else None,
-            "dissent_disposition": self.dissent_disposition.value if self.dissent_disposition else None,
+            "dissent_archon_id": str(self.dissent_archon_id)
+            if self.dissent_archon_id
+            else None,
+            "dissent_disposition": self.dissent_disposition.value
+            if self.dissent_disposition
+            else None,
             "dissent_present": self.dissent_present,
             "event_id": str(self.event_id),
             "final_witness_hash": self.final_witness_hash.hex(),
@@ -200,8 +193,12 @@ class DeliberationCompleteEvent:
             "outcome": self.outcome.value,
             "vote_breakdown": vote_breakdown_serializable,
             "dissent_present": self.dissent_present,
-            "dissent_archon_id": str(self.dissent_archon_id) if self.dissent_archon_id else None,
-            "dissent_disposition": self.dissent_disposition.value if self.dissent_disposition else None,
+            "dissent_archon_id": str(self.dissent_archon_id)
+            if self.dissent_archon_id
+            else None,
+            "dissent_disposition": self.dissent_disposition.value
+            if self.dissent_disposition
+            else None,
             "final_witness_hash": self.final_witness_hash.hex(),
             "completed_at": self.completed_at.isoformat(),
             "schema_version": DISPOSITION_EVENT_SCHEMA_VERSION,

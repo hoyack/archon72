@@ -138,9 +138,7 @@ class TestRetryAfterHeader:
         assert "Retry-After" in response.headers
         assert response.headers["Retry-After"] == "45"
 
-    def test_retry_after_uses_configured_value(
-        self, client: TestClient
-    ) -> None:
+    def test_retry_after_uses_configured_value(self, client: TestClient) -> None:
         """Retry-After should use configured retry_after_seconds value."""
         config = PetitionQueueConfig(
             threshold=5,

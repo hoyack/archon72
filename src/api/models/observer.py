@@ -35,7 +35,7 @@ import json
 import socket
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Annotated, Any, Literal, Optional
+from typing import Annotated, Any, Callable, Generator, Literal, Optional
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 
@@ -1063,7 +1063,7 @@ class WebhookSubscription(BaseModel):
         return url
 
     @classmethod
-    def __get_validators__(cls):  # type: ignore[no-untyped-def]
+    def __get_validators__(cls) -> Generator[Callable[[Any], "WebhookSubscription"], None, None]:
         """Pydantic v1 compatibility."""
         yield cls._validate
 

@@ -31,17 +31,17 @@ from typing import Any
 from uuid import UUID
 
 # Event type constants for petition events
-PETITION_RECEIVED_EVENT_TYPE: str = "petition.received"
-PETITION_CREATED_EVENT_TYPE: str = "petition.created"
-PETITION_COSIGNED_EVENT_TYPE: str = "petition.cosigned"
-PETITION_THRESHOLD_MET_EVENT_TYPE: str = "petition.threshold_met"
+PETITION_RECEIVED_EVENT_TYPE: str = "petition.submission.received"
+PETITION_CREATED_EVENT_TYPE: str = "petition.submission.created"
+PETITION_COSIGNED_EVENT_TYPE: str = "petition.submission.cosigned"
+PETITION_THRESHOLD_MET_EVENT_TYPE: str = "petition.submission.threshold_met"
 
 # Fate event type constants (Story 1.7, FR-2.5)
 # These events are emitted when a petition reaches a terminal fate state.
 # Constitutional constraint: HC-1 - Fate transition requires witness event.
-PETITION_ACKNOWLEDGED_EVENT_TYPE: str = "petition.acknowledged"
-PETITION_REFERRED_EVENT_TYPE: str = "petition.referred"
-PETITION_ESCALATED_EVENT_TYPE: str = "petition.escalated"
+PETITION_ACKNOWLEDGED_EVENT_TYPE: str = "petition.submission.acknowledged"
+PETITION_REFERRED_EVENT_TYPE: str = "petition.submission.referred"
+PETITION_ESCALATED_EVENT_TYPE: str = "petition.submission.escalated"
 
 # Petition system agent ID for event attribution
 PETITION_SYSTEM_AGENT_ID: str = "petition-system"

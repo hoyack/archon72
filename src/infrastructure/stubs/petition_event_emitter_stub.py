@@ -237,9 +237,7 @@ class PetitionEventEmitterStub(PetitionEventEmitterPort):
                 "petition_type": event.petition_type,
                 "realm": event.realm,
                 "content_hash": event.content_hash,
-                "submitter_id": str(event.submitter_id)
-                if event.submitter_id
-                else None,
+                "submitter_id": str(event.submitter_id) if event.submitter_id else None,
                 "emitted_at": event.emitted_at.isoformat(),
             }
             for event in self.emitted_events

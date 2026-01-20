@@ -18,7 +18,10 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from src.domain.events.phase_witness import PhaseWitnessEvent
-from src.domain.models.deliberation_session import DeliberationPhase, DeliberationSession
+from src.domain.models.deliberation_session import (
+    DeliberationPhase,
+    DeliberationSession,
+)
 
 
 class PhaseWitnessBatchingProtocol(Protocol):

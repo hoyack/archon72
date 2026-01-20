@@ -89,7 +89,9 @@ class DispositionEmissionStub:
     def __init__(self) -> None:
         """Initialize the stub with default behavior."""
         # Call tracking
-        self.emit_calls: list[tuple[DeliberationSession, ConsensusResult, PetitionSubmission]] = []
+        self.emit_calls: list[
+            tuple[DeliberationSession, ConsensusResult, PetitionSubmission]
+        ] = []
         self.route_calls: list[tuple[PetitionSubmission, DispositionOutcome, UUID]] = []
         self.pending_queries: list[tuple[PipelineType, int]] = []
         self.ack_calls: list[tuple[UUID, PipelineType]] = []
@@ -101,7 +103,9 @@ class DispositionEmissionStub:
         self.custom_result: DispositionResult | None = None
 
         # In-memory queues for pending dispositions
-        self._pending_queues: dict[PipelineType, list[PendingDisposition]] = defaultdict(list)
+        self._pending_queues: dict[PipelineType, list[PendingDisposition]] = (
+            defaultdict(list)
+        )
         self._emitted_sessions: dict[UUID, DispositionResult] = {}
 
     def reset(self) -> None:

@@ -91,9 +91,7 @@ class TestBuildPackageHappyPath:
         assert len(package.content_hash) == 64
         assert package.verify_hash() is True
 
-    def test_package_has_schema_version(
-        self, builder, sample_petition, sample_session
-    ):
+    def test_package_has_schema_version(self, builder, sample_petition, sample_session):
         """Test that built package has schema version."""
         package = builder.build_package(sample_petition, sample_session)
 
@@ -113,9 +111,7 @@ class TestBuildPackageHappyPath:
 class TestRuling3Compliance:
     """Tests for Ruling-3 compliance."""
 
-    def test_similar_petitions_is_empty(
-        self, builder, sample_petition, sample_session
-    ):
+    def test_similar_petitions_is_empty(self, builder, sample_petition, sample_session):
         """Test that similar_petitions is explicitly empty (Ruling-3)."""
         package = builder.build_package(sample_petition, sample_session)
 
@@ -181,11 +177,14 @@ class TestPetitionTypes:
 
     @pytest.mark.parametrize(
         "petition_type",
-        [PetitionType.GENERAL, PetitionType.CESSATION, PetitionType.GRIEVANCE, PetitionType.COLLABORATION],
+        [
+            PetitionType.GENERAL,
+            PetitionType.CESSATION,
+            PetitionType.GRIEVANCE,
+            PetitionType.COLLABORATION,
+        ],
     )
-    def test_handles_all_petition_types(
-        self, builder, petition_type, sample_archons
-    ):
+    def test_handles_all_petition_types(self, builder, petition_type, sample_archons):
         """Test that all petition types are handled correctly."""
         petition = PetitionSubmission(
             id=uuid4(),
@@ -253,9 +252,7 @@ class TestCoSignerCount:
     """Tests for co-signer count handling."""
 
     @pytest.mark.parametrize("co_signer_count", [0, 1, 5, 100, 1000])
-    def test_preserves_co_signer_count(
-        self, builder, co_signer_count, sample_archons
-    ):
+    def test_preserves_co_signer_count(self, builder, co_signer_count, sample_archons):
         """Test that co-signer count is preserved in package."""
         petition = PetitionSubmission(
             id=uuid4(),

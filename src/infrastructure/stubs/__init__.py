@@ -33,6 +33,16 @@ from src.infrastructure.stubs.anomaly_detector_stub import (
 from src.infrastructure.stubs.anti_success_alert_repository_stub import (
     AntiSuccessAlertRepositoryStub,
 )
+from src.infrastructure.stubs.archon_assignment_stub import (
+    ArchonAssignmentOperation,
+    ArchonAssignmentServiceStub,
+    AssignmentRecord,
+)
+from src.infrastructure.stubs.archon_pool_stub import (
+    ArchonPoolOperation,
+    ArchonPoolStub,
+    create_test_archon,
+)
 from src.infrastructure.stubs.audit_repository_stub import (
     AuditRepositoryStub,
     ConfigurableAuditRepositoryStub,
@@ -65,11 +75,37 @@ from src.infrastructure.stubs.compliance_repository_stub import (
 from src.infrastructure.stubs.configuration_floor_validator_stub import (
     ConfigurationFloorValidatorStub,
 )
+from src.infrastructure.stubs.consensus_resolver_stub import (
+    ConsensusResolverOperation,
+    ConsensusResolverStub,
+    ResolverCall,
+)
 from src.infrastructure.stubs.constitution_validator_stub import (
     ConstitutionValidatorStub,
 )
 from src.infrastructure.stubs.constitutional_health_stub import (
     ConstitutionalHealthStub,
+)
+from src.infrastructure.stubs.content_hash_service_stub import (
+    ContentHashServiceStub,
+    HashOperation,
+)
+from src.infrastructure.stubs.context_package_builder_stub import (
+    ContextPackageBuilderStub,
+)
+from src.infrastructure.stubs.deliberation_orchestrator_stub import (
+    DeliberationOrchestratorStub,
+    PhaseExecutorStub,
+)
+from src.infrastructure.stubs.deliberation_timeout_stub import (
+    DeliberationTimeoutStub,
+)
+from src.infrastructure.stubs.disposition_emission_stub import (
+    DispositionEmissionStub,
+)
+from src.infrastructure.stubs.dissent_recorder_stub import (
+    DissentRecorderOperation,
+    DissentRecorderStub,
 )
 from src.infrastructure.stubs.dual_channel_halt_stub import DualChannelHaltTransportStub
 from src.infrastructure.stubs.emergence_violation_breach_service_stub import (
@@ -112,6 +148,9 @@ from src.infrastructure.stubs.integrity_case_repository_stub import (
 from src.infrastructure.stubs.integrity_failure_repository_stub import (
     IntegrityFailureRepositoryStub,
 )
+from src.infrastructure.stubs.job_scheduler_stub import (
+    JobSchedulerStub,
+)
 from src.infrastructure.stubs.keeper_availability_stub import KeeperAvailabilityStub
 from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
 from src.infrastructure.stubs.key_generation_ceremony_stub import (
@@ -135,59 +174,17 @@ from src.infrastructure.stubs.override_registry_stub import OverrideRegistryStub
 from src.infrastructure.stubs.override_trend_repository_stub import (
     OverrideTrendRepositoryStub,
 )
-from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
-from src.infrastructure.stubs.petition_submission_repository_stub import (
-    PetitionSubmissionRepositoryStub,
-)
 from src.infrastructure.stubs.petition_event_emitter_stub import (
     EmittedEvent,
     EmittedFateEvent,
     PetitionEventEmitterStub,
 )
-from src.infrastructure.stubs.job_scheduler_stub import (
-    JobSchedulerStub,
-)
-from src.infrastructure.stubs.content_hash_service_stub import (
-    ContentHashServiceStub,
-    HashOperation,
-)
-from src.infrastructure.stubs.realm_registry_stub import (
-    RealmOperation,
-    RealmRegistryStub,
-)
-from src.infrastructure.stubs.archon_assignment_stub import (
-    ArchonAssignmentOperation,
-    ArchonAssignmentServiceStub,
-    AssignmentRecord,
-)
-from src.infrastructure.stubs.archon_pool_stub import (
-    ArchonPoolOperation,
-    ArchonPoolStub,
-    create_test_archon,
-)
-from src.infrastructure.stubs.context_package_builder_stub import (
-    ContextPackageBuilderStub,
-)
-from src.infrastructure.stubs.deliberation_orchestrator_stub import (
-    DeliberationOrchestratorStub,
-    PhaseExecutorStub,
-)
-from src.infrastructure.stubs.consensus_resolver_stub import (
-    ConsensusResolverOperation,
-    ConsensusResolverStub,
-    ResolverCall,
+from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
+from src.infrastructure.stubs.petition_submission_repository_stub import (
+    PetitionSubmissionRepositoryStub,
 )
 from src.infrastructure.stubs.phase_witness_batching_stub import (
     PhaseWitnessBatchingStub,
-)
-from src.infrastructure.stubs.disposition_emission_stub import (
-    DispositionEmissionStub,
-)
-from src.infrastructure.stubs.queue_capacity_stub import (
-    QueueCapacityStub,
-)
-from src.infrastructure.stubs.rate_limiter_stub import (
-    RateLimiterStub,
 )
 from src.infrastructure.stubs.prohibited_language_scanner_stub import (
     ConfigurableScannerStub,
@@ -196,6 +193,16 @@ from src.infrastructure.stubs.prohibited_language_scanner_stub import (
 from src.infrastructure.stubs.publication_scanner_stub import (
     ConfigurablePublicationScannerStub,
     PublicationScannerStub,
+)
+from src.infrastructure.stubs.queue_capacity_stub import (
+    QueueCapacityStub,
+)
+from src.infrastructure.stubs.rate_limiter_stub import (
+    RateLimiterStub,
+)
+from src.infrastructure.stubs.realm_registry_stub import (
+    RealmOperation,
+    RealmRegistryStub,
 )
 from src.infrastructure.stubs.recovery_waiting_period_stub import (
     RecoveryWaitingPeriodStub,
@@ -342,6 +349,8 @@ __all__: list[str] = [
     # Deliberation Orchestrator (Story 2A.4, FR-11.4)
     "DeliberationOrchestratorStub",
     "PhaseExecutorStub",
+    # Deliberation Timeout (Story 2B.2, FR-11.9, HC-7)
+    "DeliberationTimeoutStub",
     # Consensus Resolver (Story 2A.6, FR-11.5, FR-11.6)
     "ConsensusResolverOperation",
     "ConsensusResolverStub",
@@ -350,6 +359,9 @@ __all__: list[str] = [
     "PhaseWitnessBatchingStub",
     # Disposition Emission (Story 2A.8, FR-11.11)
     "DispositionEmissionStub",
+    # Dissent Recorder (Story 2B.1, FR-11.8)
+    "DissentRecorderOperation",
+    "DissentRecorderStub",
     # Queue Capacity (Story 1.3, FR-1.4)
     "QueueCapacityStub",
     # Rate Limiter (Story 1.4, FR-1.5, HC-4)

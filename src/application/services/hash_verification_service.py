@@ -508,7 +508,7 @@ class HashVerificationService(HashVerifierProtocol):
 
         # Write event if writer available
         if self._event_writer is not None:
-            await self._event_writer.write_event(breach_event)  # type: ignore
+            await self._event_writer.write_event(breach_event)
 
         # Trigger halt (CT-13)
         await self._halt_trigger.trigger_halt(

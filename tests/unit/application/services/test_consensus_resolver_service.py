@@ -20,7 +20,6 @@ from src.domain.models.consensus_result import (
 )
 from src.domain.models.deliberation_session import (
     DeliberationOutcome,
-    DeliberationPhase,
     DeliberationSession,
 )
 

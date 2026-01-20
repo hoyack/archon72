@@ -67,7 +67,7 @@ def _create_test_package(
         ruling_3_deferred=True,
         schema_version=CONTEXT_PACKAGE_SCHEMA_VERSION,
         built_at=datetime.now(timezone.utc),
-        content_hash=b"x" * 32,
+        content_hash="a" * 64,
     )
 
 
@@ -331,11 +331,11 @@ class TestPhaseSequenceEnforcement:
         ]
 
         for i, (expected, actual) in enumerate(
-            zip(expected_order, result.phase_results)
+            zip(expected_order, result.phase_results, strict=True)
         ):
-            assert (
-                actual.phase == expected
-            ), f"Phase {i} should be {expected.value}, got {actual.phase.value}"
+            assert actual.phase == expected, (
+                f"Phase {i} should be {expected.value}, got {actual.phase.value}"
+            )
 
     def test_all_four_phases_complete(self) -> None:
         """All 4 required phases complete during orchestration."""

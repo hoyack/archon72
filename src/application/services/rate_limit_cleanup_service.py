@@ -37,7 +37,6 @@ from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
 
 from src.application.services.base import LoggingMixin
-from src.infrastructure.monitoring.metrics import get_metrics_collector
 
 if TYPE_CHECKING:
     from src.application.ports.rate_limit_store import RateLimitStorePort

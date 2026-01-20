@@ -11,8 +11,9 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-import structlog
 from uuid import UUID
+
+import structlog
 
 from src.application.ports.consensus_resolver import ConsensusResolverProtocol
 from src.domain.errors.deliberation import ConsensusNotReachedError
@@ -23,13 +24,11 @@ from src.domain.models.consensus_result import (
     ConsensusResult,
     ConsensusStatus,
     VoteValidationResult,
-    VoteValidationStatus,
 )
 from src.domain.models.deliberation_session import (
     DeliberationOutcome,
     DeliberationSession,
 )
-
 
 logger = structlog.get_logger(__name__)
 

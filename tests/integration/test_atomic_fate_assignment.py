@@ -318,7 +318,9 @@ class TestAtomicFateAssignmentIntegration:
                 return False, final.state if final else PetitionState.RECEIVED
 
         # First call assigns fate
-        success1, state1 = await safe_assign_fate(petition.id, PetitionState.ACKNOWLEDGED)
+        success1, state1 = await safe_assign_fate(
+            petition.id, PetitionState.ACKNOWLEDGED
+        )
         assert success1 is True
         assert state1 == PetitionState.ACKNOWLEDGED
 

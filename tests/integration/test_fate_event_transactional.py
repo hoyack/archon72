@@ -18,11 +18,12 @@ Test Strategy:
 import asyncio
 import uuid
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.application.services.petition_submission_service import PetitionSubmissionService
+from src.application.services.petition_submission_service import (
+    PetitionSubmissionService,
+)
 from src.domain.errors import ConcurrentModificationError, FateEventEmissionError
 from src.domain.models.petition_submission import (
     PetitionState,
@@ -110,7 +111,7 @@ class TestTransactionalFateAssignmentIntegration:
         await repository.save(petition)
 
         # Assign fate transactionally
-        result = await service.assign_fate_transactional(
+        await service.assign_fate_transactional(
             petition_id=petition.id,
             expected_state=PetitionState.RECEIVED,
             new_state=PetitionState.ACKNOWLEDGED,
@@ -188,7 +189,11 @@ class TestTransactionalFateAssignmentIntegration:
         )
 
         # Create petitions and assign all three fates
-        for fate in [PetitionState.ACKNOWLEDGED, PetitionState.REFERRED, PetitionState.ESCALATED]:
+        for fate in [
+            PetitionState.ACKNOWLEDGED,
+            PetitionState.REFERRED,
+            PetitionState.ESCALATED,
+        ]:
             petition = _make_received_petition()
             await repository.save(petition)
 
@@ -458,7 +463,7 @@ class TestTransactionalFateCorrelation:
             PetitionState.REFERRED,
         ]
 
-        for petition, fate in zip(petitions, fates):
+        for petition, fate in zip(petitions, fates, strict=True):
             await service.assign_fate_transactional(
                 petition_id=petition.id,
                 expected_state=PetitionState.RECEIVED,
@@ -467,7 +472,7 @@ class TestTransactionalFateCorrelation:
             )
 
         # Verify each petition has matching event
-        for petition, fate in zip(petitions, fates):
+        for petition, fate in zip(petitions, fates, strict=True):
             stored = await repository.get(petition.id)
             event = event_emitter.get_fate_event_by_petition_id(petition.id)
 

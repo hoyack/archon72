@@ -111,7 +111,7 @@ class PetitionQueueConfig:
             )
 
     @classmethod
-    def from_environment(cls) -> "PetitionQueueConfig":
+    def from_environment(cls) -> PetitionQueueConfig:
         """Create config from environment variables with defaults (AC2).
 
         Environment Variables:
@@ -193,7 +193,7 @@ class PetitionRateLimitConfig:
             )
 
     @classmethod
-    def from_environment(cls) -> "PetitionRateLimitConfig":
+    def from_environment(cls) -> PetitionRateLimitConfig:
         """Create config from environment variables with defaults (AC5).
 
         Environment Variables:

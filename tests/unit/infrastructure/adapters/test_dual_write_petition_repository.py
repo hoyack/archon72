@@ -14,7 +14,7 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import UUID
 
 import pytest
@@ -32,7 +32,6 @@ from src.domain.models.petition_submission import (
 )
 from src.infrastructure.adapters.petition_migration import (
     CESSATION_REALM,
-    CessationPetitionAdapter,
 )
 from src.infrastructure.adapters.petition_migration.dual_write_repository import (
     PETITION_DUAL_WRITE_ENABLED_DEFAULT,
@@ -291,9 +290,7 @@ class TestDualWriteUpdateStatus:
             "src.infrastructure.adapters.petition_migration.dual_write_repository.is_dual_write_enabled",
             return_value=True,
         ):
-            await dual_write_repo.update_status(
-                sample_petition_id, PetitionStatus.OPEN
-            )
+            await dual_write_repo.update_status(sample_petition_id, PetitionStatus.OPEN)
 
         mock_new_repo.update_state.assert_called_once_with(
             sample_petition_id, PetitionState.RECEIVED
@@ -407,9 +404,7 @@ class TestReadsFromLegacy:
 
         result = await dual_write_repo.list_open_petitions(limit=10, offset=0)
 
-        mock_legacy_repo.list_open_petitions.assert_called_once_with(
-            limit=10, offset=0
-        )
+        mock_legacy_repo.list_open_petitions.assert_called_once_with(limit=10, offset=0)
         mock_new_repo.list_by_state.assert_not_called()
         assert result == ([sample_petition], 1)
 

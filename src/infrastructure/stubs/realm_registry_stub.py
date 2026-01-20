@@ -107,9 +107,7 @@ class RealmRegistryStub(RealmRegistryProtocol):
             self._realms[realm.id] = realm
             self._realms_by_name[realm.name] = realm
 
-    def _record_operation(
-        self, operation: str, params: dict, result: object
-    ) -> None:
+    def _record_operation(self, operation: str, params: dict, result: object) -> None:
         """Record an operation for test assertions."""
         self._operations.append(
             RealmOperation(

@@ -133,9 +133,19 @@ class EventStoreStub(EventStorePort):
 
         # Apply date range filter on authority_timestamp
         if start_date:
-            filtered = [e for e in filtered if e.authority_timestamp >= start_date]
+            filtered = [
+                e
+                for e in filtered
+                if e.authority_timestamp is not None
+                and e.authority_timestamp >= start_date
+            ]
         if end_date:
-            filtered = [e for e in filtered if e.authority_timestamp <= end_date]
+            filtered = [
+                e
+                for e in filtered
+                if e.authority_timestamp is not None
+                and e.authority_timestamp <= end_date
+            ]
 
         # Apply event type filter (OR within types)
         if event_types:
@@ -269,7 +279,12 @@ class EventStoreStub(EventStorePort):
         events = self._get_non_orphaned_events()
 
         # Find all events with authority_timestamp <= timestamp
-        matching = [e for e in events if e.authority_timestamp <= timestamp]
+        matching = [
+            e
+            for e in events
+            if e.authority_timestamp is not None
+            and e.authority_timestamp <= timestamp
+        ]
 
         if not matching:
             return None
@@ -320,9 +335,19 @@ class EventStoreStub(EventStorePort):
 
         # Apply date filter
         if start_date is not None:
-            events = [e for e in events if e.authority_timestamp >= start_date]
+            events = [
+                e
+                for e in events
+                if e.authority_timestamp is not None
+                and e.authority_timestamp >= start_date
+            ]
         if end_date is not None:
-            events = [e for e in events if e.authority_timestamp <= end_date]
+            events = [
+                e
+                for e in events
+                if e.authority_timestamp is not None
+                and e.authority_timestamp <= end_date
+            ]
 
         # Apply event type filter
         if event_types is not None:

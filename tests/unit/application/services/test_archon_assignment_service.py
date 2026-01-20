@@ -16,7 +16,6 @@ Acceptance Criteria Coverage:
 """
 
 from datetime import datetime, timezone
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
@@ -30,7 +29,6 @@ from src.application.ports.archon_assignment import (
     AssignmentResult,
 )
 from src.application.services.archon_assignment_service import (
-    ARCHON_ASSIGNMENT_SYSTEM_AGENT_ID,
     ArchonAssignmentService,
 )
 from src.domain.errors.deliberation import (
@@ -43,11 +41,6 @@ from src.domain.models.deliberation_session import (
     DeliberationSession,
 )
 from src.domain.models.fate_archon import (
-    FATE_ARCHON_AMON,
-    FATE_ARCHON_LERAJE,
-    FATE_ARCHON_RONOVE,
-    THREE_FATES_POOL,
-    DeliberationStyle,
     FateArchon,
 )
 from src.domain.models.petition_submission import (
@@ -388,7 +381,7 @@ class TestAC5_EventEmission:
             event_emitter=emitter,
         )
 
-        result = await service.assign_archons(petition.id)
+        await service.assign_archons(petition.id)
 
         payload = emitter.emit.call_args.kwargs["payload"]
         assert "session_id" in payload

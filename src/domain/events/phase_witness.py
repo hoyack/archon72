@@ -109,9 +109,7 @@ class PhaseWitnessEvent:
         """
         if self.phase == DeliberationPhase.ASSESS:
             if self.previous_witness_hash is not None:
-                raise ValueError(
-                    "ASSESS phase should not have previous_witness_hash"
-                )
+                raise ValueError("ASSESS phase should not have previous_witness_hash")
         else:
             if self.previous_witness_hash is None:
                 raise ValueError(

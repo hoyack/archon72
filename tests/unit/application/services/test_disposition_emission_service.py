@@ -19,9 +19,9 @@ from uuid import uuid4
 import pytest
 
 from src.application.services.disposition_emission_service import (
-    DispositionEmissionService,
     OUTCOME_TO_PIPELINE,
     REQUIRED_WITNESS_PHASES,
+    DispositionEmissionService,
 )
 from src.domain.errors.deliberation import (
     IncompleteWitnessChainError,
@@ -324,7 +324,9 @@ class TestDispositionEmissionService:
         result2 = await self.service.emit_disposition(session, consensus, petition)
 
         # Assert
-        assert result1.deliberation_event.event_id == result2.deliberation_event.event_id
+        assert (
+            result1.deliberation_event.event_id == result2.deliberation_event.event_id
+        )
         assert result1.routing_event.event_id == result2.routing_event.event_id
 
     @pytest.mark.asyncio
@@ -551,15 +553,24 @@ class TestOutcomeToPipelineMapping:
 
     def test_acknowledge_maps_to_acknowledgment(self) -> None:
         """Test ACKNOWLEDGE -> ACKNOWLEDGMENT."""
-        assert OUTCOME_TO_PIPELINE[DispositionOutcome.ACKNOWLEDGE] == PipelineType.ACKNOWLEDGMENT
+        assert (
+            OUTCOME_TO_PIPELINE[DispositionOutcome.ACKNOWLEDGE]
+            == PipelineType.ACKNOWLEDGMENT
+        )
 
     def test_refer_maps_to_knight_referral(self) -> None:
         """Test REFER -> KNIGHT_REFERRAL."""
-        assert OUTCOME_TO_PIPELINE[DispositionOutcome.REFER] == PipelineType.KNIGHT_REFERRAL
+        assert (
+            OUTCOME_TO_PIPELINE[DispositionOutcome.REFER]
+            == PipelineType.KNIGHT_REFERRAL
+        )
 
     def test_escalate_maps_to_king_escalation(self) -> None:
         """Test ESCALATE -> KING_ESCALATION."""
-        assert OUTCOME_TO_PIPELINE[DispositionOutcome.ESCALATE] == PipelineType.KING_ESCALATION
+        assert (
+            OUTCOME_TO_PIPELINE[DispositionOutcome.ESCALATE]
+            == PipelineType.KING_ESCALATION
+        )
 
 
 class TestRequiredWitnessPhases:

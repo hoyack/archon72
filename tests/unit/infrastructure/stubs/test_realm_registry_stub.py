@@ -13,8 +13,6 @@ Tests:
 
 from uuid import uuid4
 
-import pytest
-
 from src.domain.models.realm import (
     CANONICAL_REALM_IDS,
     Realm,

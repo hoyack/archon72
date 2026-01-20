@@ -22,7 +22,6 @@ Database Table: petition_rate_limit_buckets (migration 016)
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import text
@@ -165,7 +164,7 @@ class PostgresRateLimitStore(RateLimitStorePort):
         self,
         submitter_id: UUID,
         since: datetime,
-    ) -> Optional[datetime]:
+    ) -> datetime | None:
         """Get expiry time of the oldest bucket in window.
 
         Used to calculate the reset_at time for rate limit responses.

@@ -22,9 +22,8 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import UUID
-
 
 # Schema version for D2 compliance
 CONTEXT_PACKAGE_SCHEMA_VERSION: Literal["1.0.0"] = "1.0.0"
@@ -79,7 +78,7 @@ class DeliberationContextPackage:
     assigned_archons: tuple[UUID, UUID, UUID]
 
     # M2 deferred (Ruling-3)
-    similar_petitions: tuple[(), ...] = field(default_factory=tuple)
+    similar_petitions: tuple[()] = field(default_factory=tuple)
     ruling_3_deferred: bool = field(default=True)
 
     # Metadata
@@ -115,9 +114,7 @@ class DeliberationContextPackage:
 
         # Validate Ruling-3 compliance
         if self.similar_petitions and not self.ruling_3_deferred:
-            raise ValueError(
-                "Cannot have similar_petitions in M1 (Ruling-3 deferred)"
-            )
+            raise ValueError("Cannot have similar_petitions in M1 (Ruling-3 deferred)")
 
     def to_hashable_dict(self) -> dict[str, Any]:
         """Convert to dictionary for hash computation.
@@ -181,17 +178,23 @@ class DeliberationContextPackage:
         Returns:
             DeliberationContextPackage instance.
         """
+        assigned_archons_raw = tuple(UUID(a) for a in data["assigned_archons"])
+        if len(assigned_archons_raw) != 3:
+            raise ValueError("assigned_archons must contain exactly 3 UUIDs")
+
         return cls(
             petition_id=UUID(data["petition_id"]),
             petition_text=data["petition_text"],
             petition_type=data["petition_type"],
             co_signer_count=data["co_signer_count"],
-            submitter_id=UUID(data["submitter_id"]) if data.get("submitter_id") else None,
+            submitter_id=UUID(data["submitter_id"])
+            if data.get("submitter_id")
+            else None,
             realm=data["realm"],
             submitted_at=datetime.fromisoformat(data["submitted_at"]),
             session_id=UUID(data["session_id"]),
-            assigned_archons=tuple(UUID(a) for a in data["assigned_archons"]),  # type: ignore[arg-type]
-            similar_petitions=tuple(data.get("similar_petitions", [])),
+            assigned_archons=cast(tuple[UUID, UUID, UUID], assigned_archons_raw),
+            similar_petitions=tuple(),
             ruling_3_deferred=data.get("ruling_3_deferred", True),
             schema_version=data.get("schema_version", CONTEXT_PACKAGE_SCHEMA_VERSION),
             built_at=datetime.fromisoformat(data["built_at"]),

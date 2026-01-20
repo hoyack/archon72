@@ -337,20 +337,25 @@ class PreOperationalVerificationService:
                 expected_hash=scan_result.expected_hash,
                 actual_hash=scan_result.actual_hash,
             )
+            expected_hash = scan_result.expected_hash
+            actual_hash = scan_result.actual_hash
+            expected_prefix = expected_hash[:16] if expected_hash else "None"
+            actual_prefix = actual_hash[:16] if actual_hash else "None"
+
             return VerificationCheck(
                 name="hash_chain",
                 passed=False,
                 details=(
                     f"Hash mismatch at event {scan_result.failed_event_id}: "
-                    f"expected {scan_result.expected_hash[:16]}..., "
-                    f"got {scan_result.actual_hash[:16] if scan_result.actual_hash else 'None'}..."
+                    f"expected {expected_prefix}..., "
+                    f"got {actual_prefix}..."
                 ),
                 duration_ms=duration_ms,
                 error_code="hash_chain_corrupted",
                 metadata={
                     "failed_event_id": scan_result.failed_event_id,
-                    "expected_hash": scan_result.expected_hash,
-                    "actual_hash": scan_result.actual_hash,
+                    "expected_hash": expected_hash,
+                    "actual_hash": actual_hash,
                 },
             )
 

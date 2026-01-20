@@ -304,7 +304,11 @@ class TestMultiplePipelineScenarios:
         """Test petitions routing to different pipelines simultaneously."""
         # Arrange - one petition per pipeline
         outcomes = [
-            (DeliberationOutcome.ACKNOWLEDGE, "ACKNOWLEDGE", PipelineType.ACKNOWLEDGMENT),
+            (
+                DeliberationOutcome.ACKNOWLEDGE,
+                "ACKNOWLEDGE",
+                PipelineType.ACKNOWLEDGMENT,
+            ),
             (DeliberationOutcome.REFER, "REFER", PipelineType.KNIGHT_REFERRAL),
             (DeliberationOutcome.ESCALATE, "ESCALATE", PipelineType.KING_ESCALATION),
         ]

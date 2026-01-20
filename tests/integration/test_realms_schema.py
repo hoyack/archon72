@@ -74,9 +74,7 @@ class TestRealmsSchema(IntegrationTestBase):
     async def test_canonical_realms_have_default_capacity(self) -> None:
         """AC2: Canonical realms have knight_capacity = 5."""
         result = (
-            await self.client.table("realms")
-            .select("name, knight_capacity")
-            .execute()
+            await self.client.table("realms").select("name, knight_capacity").execute()
         )
 
         for row in result.data:
@@ -86,39 +84,63 @@ class TestRealmsSchema(IntegrationTestBase):
         """AC3: Duplicate realm names are rejected."""
         # Try to insert duplicate name
         with pytest.raises(Exception):  # Will raise on conflict
-            await self.client.table("realms").insert({
-                "name": "realm_privacy_discretion_services",
-                "display_name": "Duplicate Realm",
-                "knight_capacity": 5,
-            }).execute()
+            await (
+                self.client.table("realms")
+                .insert(
+                    {
+                        "name": "realm_privacy_discretion_services",
+                        "display_name": "Duplicate Realm",
+                        "knight_capacity": 5,
+                    }
+                )
+                .execute()
+            )
 
     async def test_realm_status_constraint(self) -> None:
         """AC3: Invalid status values are rejected."""
         with pytest.raises(Exception):
-            await self.client.table("realms").insert({
-                "name": "test_invalid_status_realm",
-                "display_name": "Test Realm",
-                "knight_capacity": 5,
-                "status": "INVALID_STATUS",
-            }).execute()
+            await (
+                self.client.table("realms")
+                .insert(
+                    {
+                        "name": "test_invalid_status_realm",
+                        "display_name": "Test Realm",
+                        "knight_capacity": 5,
+                        "status": "INVALID_STATUS",
+                    }
+                )
+                .execute()
+            )
 
     async def test_realm_knight_capacity_min_constraint(self) -> None:
         """AC3: knight_capacity < 1 is rejected."""
         with pytest.raises(Exception):
-            await self.client.table("realms").insert({
-                "name": "test_min_capacity_realm",
-                "display_name": "Test Realm",
-                "knight_capacity": 0,
-            }).execute()
+            await (
+                self.client.table("realms")
+                .insert(
+                    {
+                        "name": "test_min_capacity_realm",
+                        "display_name": "Test Realm",
+                        "knight_capacity": 0,
+                    }
+                )
+                .execute()
+            )
 
     async def test_realm_knight_capacity_max_constraint(self) -> None:
         """AC3: knight_capacity > 100 is rejected."""
         with pytest.raises(Exception):
-            await self.client.table("realms").insert({
-                "name": "test_max_capacity_realm",
-                "display_name": "Test Realm",
-                "knight_capacity": 101,
-            }).execute()
+            await (
+                self.client.table("realms")
+                .insert(
+                    {
+                        "name": "test_max_capacity_realm",
+                        "display_name": "Test Realm",
+                        "knight_capacity": 101,
+                    }
+                )
+                .execute()
+            )
 
 
 @pytest.mark.integration
@@ -165,7 +187,14 @@ class TestSentinelRealmMappingsSchema(IntegrationTestBase):
         sentinel_types = {row["sentinel_type"] for row in result.data}
 
         # At least some default mappings should exist
-        expected_types = {"privacy", "security", "learning", "guidance", "team", "general"}
+        expected_types = {
+            "privacy",
+            "security",
+            "learning",
+            "guidance",
+            "team",
+            "general",
+        }
         assert expected_types.issubset(sentinel_types)
 
     async def test_sentinel_mapping_references_valid_realm(self) -> None:
@@ -199,11 +228,17 @@ class TestSentinelRealmMappingsSchema(IntegrationTestBase):
         if existing.data:
             mapping = existing.data[0]
             with pytest.raises(Exception):
-                await self.client.table("sentinel_realm_mappings").insert({
-                    "sentinel_type": mapping["sentinel_type"],
-                    "realm_id": mapping["realm_id"],
-                    "priority": 99,
-                }).execute()
+                await (
+                    self.client.table("sentinel_realm_mappings")
+                    .insert(
+                        {
+                            "sentinel_type": mapping["sentinel_type"],
+                            "realm_id": mapping["realm_id"],
+                            "priority": 99,
+                        }
+                    )
+                    .execute()
+                )
 
 
 @pytest.mark.integration

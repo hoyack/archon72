@@ -546,6 +546,8 @@ class ConclaveService:
             List of debate entries from this round
         """
         entries: list[DebateEntry] = []
+        if self._session is None:
+            raise RuntimeError("Conclave session not initialized")
 
         # Build context for debate
         debate_context = self._build_debate_context(motion, round_num, topic_prompt)

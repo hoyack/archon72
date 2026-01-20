@@ -176,6 +176,8 @@ class TaskResultService(TaskResultPort):
                 message="Task result submitted successfully",
             )
 
+        raise RuntimeError("Task result submission failed")
+
     async def submit_problem_report(
         self,
         task_id: UUID,
@@ -265,6 +267,8 @@ class TaskResultService(TaskResultPort):
                 new_status="in_progress",  # Unchanged per AC4
                 message="Problem report submitted successfully",
             )
+
+        raise RuntimeError("Problem report submission failed")
 
     # =========================================================================
     # Private Helper Methods

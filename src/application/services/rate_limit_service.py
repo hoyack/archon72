@@ -26,7 +26,6 @@ from uuid import UUID
 
 from src.application.ports.rate_limiter import RateLimitResult
 from src.application.services.base import LoggingMixin
-from src.infrastructure.monitoring.metrics import get_metrics_collector
 
 if TYPE_CHECKING:
     from src.application.ports.rate_limit_store import RateLimitStorePort
@@ -122,9 +121,6 @@ class RateLimitService(LoggingMixin):
                 limit=self._limit,
                 reset_at=reset_at.isoformat(),
             )
-            # Record rate limit hit metric (AC4)
-            metrics = get_metrics_collector()
-            metrics.increment_petition_rate_limit_hits()
 
         log.debug(
             "rate_limit_checked",

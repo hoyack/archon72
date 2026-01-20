@@ -18,7 +18,7 @@ from src.application.services.phase_witness_batching_service import (
     PHASE_ORDER,
     PhaseWitnessBatchingService,
 )
-from src.domain.events.phase_witness import BLAKE3_HASH_SIZE, PhaseWitnessEvent
+from src.domain.events.phase_witness import BLAKE3_HASH_SIZE
 from src.domain.models.deliberation_session import (
     DeliberationPhase,
     DeliberationSession,
@@ -176,11 +176,16 @@ class TestContentAddressedArtifactRetrieval:
 
         # Retrieve each transcript independently
         for phase, original in transcripts.items():
-            retrieved = await service.get_transcript_by_hash(events[phase].transcript_hash)
+            retrieved = await service.get_transcript_by_hash(
+                events[phase].transcript_hash
+            )
             assert retrieved == original
 
         # Verify hashes are different
-        assert events[DeliberationPhase.ASSESS].transcript_hash != events[DeliberationPhase.POSITION].transcript_hash
+        assert (
+            events[DeliberationPhase.ASSESS].transcript_hash
+            != events[DeliberationPhase.POSITION].transcript_hash
+        )
 
 
 class TestAuditTrailReconstruction:
@@ -369,8 +374,13 @@ class TestPhaseMetadataPreservation:
         )
 
         metadata_by_phase = {
-            DeliberationPhase.ASSESS: {"assessments_complete": True, "motion_gate": "P2"},
-            DeliberationPhase.POSITION: {"positions": ["APPROVE", "APPROVE", "APPROVE"]},
+            DeliberationPhase.ASSESS: {
+                "assessments_complete": True,
+                "motion_gate": "P2",
+            },
+            DeliberationPhase.POSITION: {
+                "positions": ["APPROVE", "APPROVE", "APPROVE"]
+            },
             DeliberationPhase.CROSS_EXAMINE: {"questions_asked": 5, "rebuttals": 2},
             DeliberationPhase.VOTE: {"final_votes": {"approve": 3, "reject": 0}},
         }
@@ -465,9 +475,7 @@ class TestEdgeCases:
         )
 
         unicode_transcript = (
-            "Archon-1: 测试内容 🎯\n"
-            "Archon-2: Тест контент 🔥\n"
-            "Archon-3: テスト内容 ✅"
+            "Archon-1: 测试内容 🎯\nArchon-2: Тест контент 🔥\nArchon-3: テスト内容 ✅"
         )
 
         start = datetime.now(timezone.utc)

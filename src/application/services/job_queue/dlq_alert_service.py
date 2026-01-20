@@ -17,8 +17,8 @@ Architecture:
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Callable
 
 from structlog import get_logger
 
@@ -147,7 +147,7 @@ class DLQAlertService:
         if self._monitor_task:
             try:
                 await asyncio.wait_for(self._monitor_task, timeout=30.0)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.warning("dlq_monitor_stop_timeout")
                 self._monitor_task.cancel()
             finally:

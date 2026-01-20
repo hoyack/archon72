@@ -89,26 +89,32 @@ class PetitionState(Enum):
 
 
 # Terminal states - the Three Fates (FR-2.6, AT-1)
-TERMINAL_STATES: frozenset[PetitionState] = frozenset({
-    PetitionState.ACKNOWLEDGED,
-    PetitionState.REFERRED,
-    PetitionState.ESCALATED,
-})
+TERMINAL_STATES: frozenset[PetitionState] = frozenset(
+    {
+        PetitionState.ACKNOWLEDGED,
+        PetitionState.REFERRED,
+        PetitionState.ESCALATED,
+    }
+)
 
 # State transition matrix (FR-2.1, FR-2.3)
 # Maps each state to its valid target states
 STATE_TRANSITION_MATRIX: dict[PetitionState, frozenset[PetitionState]] = {
     # RECEIVED can go to DELIBERATING (normal flow) or ACKNOWLEDGED (withdrawal)
-    PetitionState.RECEIVED: frozenset({
-        PetitionState.DELIBERATING,
-        PetitionState.ACKNOWLEDGED,
-    }),
+    PetitionState.RECEIVED: frozenset(
+        {
+            PetitionState.DELIBERATING,
+            PetitionState.ACKNOWLEDGED,
+        }
+    ),
     # DELIBERATING can reach any of the Three Fates
-    PetitionState.DELIBERATING: frozenset({
-        PetitionState.ACKNOWLEDGED,
-        PetitionState.REFERRED,
-        PetitionState.ESCALATED,
-    }),
+    PetitionState.DELIBERATING: frozenset(
+        {
+            PetitionState.ACKNOWLEDGED,
+            PetitionState.REFERRED,
+            PetitionState.ESCALATED,
+        }
+    ),
     # Terminal states have no valid transitions
     PetitionState.ACKNOWLEDGED: frozenset(),
     PetitionState.REFERRED: frozenset(),

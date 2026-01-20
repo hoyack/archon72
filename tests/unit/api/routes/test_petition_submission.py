@@ -13,8 +13,6 @@ Constitutional Compliance:
 """
 
 import base64
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
 import pytest
@@ -28,11 +26,8 @@ from src.api.dependencies.petition_submission import (
     set_realm_registry,
 )
 from src.api.routes.petition_submission import router
-from src.domain.errors import SystemHaltedError
 from src.domain.models.petition_submission import (
     PetitionState,
-    PetitionSubmission,
-    PetitionType,
 )
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (

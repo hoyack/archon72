@@ -95,7 +95,9 @@ class DispositionEmissionService:
     def __init__(self) -> None:
         """Initialize disposition emission service."""
         # In-memory queue for pending dispositions (keyed by pipeline)
-        self._pending_queues: dict[PipelineType, list[PendingDisposition]] = defaultdict(list)
+        self._pending_queues: dict[PipelineType, list[PendingDisposition]] = (
+            defaultdict(list)
+        )
         # Track emitted dispositions for idempotency
         self._emitted_sessions: dict[UUID, DispositionResult] = {}
 

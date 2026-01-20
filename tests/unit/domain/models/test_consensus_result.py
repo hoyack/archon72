@@ -8,8 +8,8 @@ Constitutional Constraints Verified:
 - NFR-10.3: Consensus determinism - 100% reproducible
 """
 
-from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from datetime import datetime
+from uuid import uuid4
 
 import pytest
 
@@ -22,7 +22,6 @@ from src.domain.models.consensus_result import (
     VoteValidationResult,
     VoteValidationStatus,
 )
-
 
 # Test constants
 ARCHON_1 = uuid4()

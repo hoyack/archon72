@@ -209,7 +209,7 @@ class SeedPoolService(LoggingMixin):
                 source_cycle=source_cycle,
                 source_event="secretary-extraction",
             )
-            seed.source_references.append(str(rec.recommendation_id))
+            seed.add_source_reference(str(rec.recommendation_id))
             seed.metadata["recommendation_category"] = rec.category.value
             seed.metadata["recommendation_type"] = rec.recommendation_type.value
             seed.metadata["cluster_id"] = str(cluster.cluster_id)

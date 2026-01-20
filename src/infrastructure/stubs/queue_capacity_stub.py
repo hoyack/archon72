@@ -26,8 +26,10 @@ class QueueCapacityStub:
         _threshold: Configured threshold (default: 10,000).
         _hysteresis: Buffer below threshold to resume (default: 500).
         _retry_after: Seconds for Retry-After header (default: 60).
-        _current_depth: Simulated queue depth.
-        _is_rejecting: Simulated hysteresis state.
+        _depth: Simulated queue depth.
+        _accepting: Whether submissions are accepted.
+        _current_depth: Alias for depth (legacy).
+        _is_rejecting: Alias for rejection state (legacy).
     """
 
     def __init__(
@@ -37,6 +39,10 @@ class QueueCapacityStub:
         retry_after_seconds: int = 60,
         initial_depth: int = 0,
         is_rejecting: bool = False,
+        *,
+        accepting: bool | None = None,
+        depth: int | None = None,
+        retry_after: int | None = None,
     ) -> None:
         """Initialize queue capacity stub.
 
@@ -46,34 +52,27 @@ class QueueCapacityStub:
             retry_after_seconds: Value for Retry-After header (default: 60).
             initial_depth: Starting queue depth (default: 0).
             is_rejecting: Initial rejection state for hysteresis (default: False).
+            accepting: Optional explicit accepting state (overrides is_rejecting).
+            depth: Optional explicit depth (overrides initial_depth).
+            retry_after: Optional retry-after override (overrides retry_after_seconds).
         """
         self._threshold = threshold
         self._hysteresis = hysteresis
-        self._retry_after = retry_after_seconds
-        self._current_depth = initial_depth
-        self._is_rejecting = is_rejecting
+        self._retry_after = (
+            retry_after if retry_after is not None else retry_after_seconds
+        )
+        self._depth = depth if depth is not None else initial_depth
+        self._accepting = accepting if accepting is not None else not is_rejecting
+        self._current_depth = self._depth
+        self._is_rejecting = not self._accepting
 
     async def is_accepting_submissions(self) -> bool:
         """Check if queue has capacity for new submissions.
 
-        Implements hysteresis logic matching QueueCapacityService behavior.
-
         Returns:
-            True if queue has capacity, False if at or above threshold.
+            True if queue accepts submissions, False otherwise.
         """
-        if self._is_rejecting:
-            # Currently rejecting - only resume if below threshold minus hysteresis
-            resume_threshold = self._threshold - self._hysteresis
-            if self._current_depth < resume_threshold:
-                self._is_rejecting = False
-                return True
-            return False
-        else:
-            # Currently accepting - reject if at or above threshold
-            if self._current_depth >= self._threshold:
-                self._is_rejecting = True
-                return False
-            return True
+        return self._accepting
 
     async def get_queue_depth(self) -> int:
         """Get current simulated queue depth.
@@ -81,7 +80,7 @@ class QueueCapacityStub:
         Returns:
             Configured queue depth value.
         """
-        return self._current_depth
+        return self._depth
 
     def get_threshold(self) -> int:
         """Get configured queue threshold.
@@ -107,6 +106,7 @@ class QueueCapacityStub:
         Args:
             depth: Queue depth to simulate.
         """
+        self._depth = depth
         self._current_depth = depth
 
     def set_rejecting(self, is_rejecting: bool) -> None:
@@ -116,6 +116,16 @@ class QueueCapacityStub:
             is_rejecting: Whether currently in rejection state.
         """
         self._is_rejecting = is_rejecting
+        self._accepting = not is_rejecting
+
+    def set_accepting(self, accepting: bool) -> None:
+        """Set accepting state for testing.
+
+        Args:
+            accepting: Whether submissions are accepted.
+        """
+        self._accepting = accepting
+        self._is_rejecting = not accepting
 
     def set_threshold(self, threshold: int) -> None:
         """Set threshold for testing.
@@ -182,7 +192,7 @@ class QueueCapacityStub:
         cls,
         depth: int = 0,
         threshold: int = 10_000,
-    ) -> "QueueCapacityStub":
+    ) -> QueueCapacityStub:
         """Factory for stub that accepts submissions.
 
         Args:
@@ -194,8 +204,8 @@ class QueueCapacityStub:
         """
         return cls(
             threshold=threshold,
-            initial_depth=depth,
-            is_rejecting=False,
+            depth=depth,
+            accepting=True,
         )
 
     @classmethod
@@ -204,7 +214,7 @@ class QueueCapacityStub:
         depth: int = 10_000,
         threshold: int = 10_000,
         retry_after: int = 60,
-    ) -> "QueueCapacityStub":
+    ) -> QueueCapacityStub:
         """Factory for stub that rejects submissions due to capacity.
 
         Args:
@@ -217,7 +227,7 @@ class QueueCapacityStub:
         """
         return cls(
             threshold=threshold,
-            initial_depth=depth,
-            is_rejecting=True,
-            retry_after_seconds=retry_after,
+            depth=depth,
+            accepting=False,
+            retry_after=retry_after,
         )

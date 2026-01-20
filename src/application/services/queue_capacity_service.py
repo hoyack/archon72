@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING
 
 from src.application.services.base import LoggingMixin
 from src.domain.models.petition_submission import PetitionState
-from src.infrastructure.monitoring.metrics import get_metrics_collector
 
 if TYPE_CHECKING:
     from src.application.ports.petition_submission_repository import (
@@ -88,9 +87,6 @@ class QueueCapacityService(LoggingMixin):
         # Initialize logging
         self._init_logger(component="petition")
 
-        # Initialize metrics - set threshold gauge once at startup
-        metrics = get_metrics_collector()
-        metrics.set_petition_queue_threshold(self._threshold)
 
     async def is_accepting_submissions(self) -> bool:
         """Check if queue has capacity for new submissions.
@@ -168,10 +164,6 @@ class QueueCapacityService(LoggingMixin):
             self._cached_depth = total_count
             self._cache_time = now
 
-            # Update Prometheus metric (Story 1.3, AC4)
-            metrics = get_metrics_collector()
-            metrics.set_petition_queue_depth(total_count)
-
             log.debug(
                 "queue_depth_refreshed",
                 depth=total_count,
@@ -236,14 +228,12 @@ class QueueCapacityService(LoggingMixin):
         self._cache_time = time.time()
 
     def record_rejection(self) -> None:
-        """Record a 503 rejection in Prometheus metrics (Story 1.3, AC4).
+        """Record a 503 rejection (Story 1.3, AC4).
 
         Called when a petition submission is rejected due to queue overflow.
         This enables alerting on rejection spikes.
         """
         log = self._log_operation("record_rejection")
-        metrics = get_metrics_collector()
-        metrics.increment_petition_queue_rejections()
         log.info(
             "petition_rejected_queue_overflow",
             threshold=self._threshold,

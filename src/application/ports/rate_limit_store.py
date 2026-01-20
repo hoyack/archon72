@@ -12,7 +12,7 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 
@@ -74,7 +74,7 @@ class RateLimitStorePort(Protocol):
         self,
         submitter_id: UUID,
         since: datetime,
-    ) -> Optional[datetime]:
+    ) -> datetime | None:
         """Get expiry time of the oldest bucket in window.
 
         Used to calculate the reset_at time for rate limit responses.

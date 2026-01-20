@@ -182,7 +182,7 @@ class DualChannelHaltTransportImpl(DualChannelHaltTransport):
             )
 
             # Handle exceptions
-            if isinstance(db_state, Exception):
+            if isinstance(db_state, BaseException):
                 log.error("db_halt_check_failed", error=str(db_state))
                 # DB failure is serious - can't determine canonical state
                 # Still check Redis, but this is a degraded state
@@ -190,7 +190,7 @@ class DualChannelHaltTransportImpl(DualChannelHaltTransport):
             else:
                 db_halted = db_state.is_halted
 
-            if isinstance(redis_halted, Exception):
+            if isinstance(redis_halted, BaseException):
                 log.warning("redis_halt_check_failed", error=str(redis_halted))
                 # Redis failure is expected in some scenarios (AC3)
                 redis_halted = False

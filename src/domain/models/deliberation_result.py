@@ -176,14 +176,10 @@ class DeliberationResult:
 
         # Validate dissent_archon_id consistency
         if self.is_unanimous and self.dissent_archon_id is not None:
-            raise ValueError(
-                "dissent_archon_id must be None for unanimous vote"
-            )
+            raise ValueError("dissent_archon_id must be None for unanimous vote")
 
         if not self.is_unanimous and self.dissent_archon_id is None:
-            raise ValueError(
-                "dissent_archon_id required for 2-1 vote"
-            )
+            raise ValueError("dissent_archon_id required for 2-1 vote")
 
         # Validate dissenting archon actually voted differently
         if self.dissent_archon_id is not None:
@@ -205,9 +201,13 @@ class DeliberationResult:
             DeliberationPhase.VOTE,
         ]
         if len(self.phase_results) != 4:
-            raise ValueError(f"Exactly 4 phase results required, got {len(self.phase_results)}")
+            raise ValueError(
+                f"Exactly 4 phase results required, got {len(self.phase_results)}"
+            )
 
-        for i, (expected, actual) in enumerate(zip(expected_phases, self.phase_results)):
+        for i, (expected, actual) in enumerate(
+            zip(expected_phases, self.phase_results, strict=True)
+        ):
             if actual.phase != expected:
                 raise ValueError(
                     f"Phase {i} should be {expected.value}, got {actual.phase.value}"
@@ -265,7 +265,5 @@ class DeliberationResult:
             Tuple of archon UUIDs who voted for the winning outcome.
         """
         return tuple(
-            archon_id
-            for archon_id, vote in self.votes.items()
-            if vote == self.outcome
+            archon_id for archon_id, vote in self.votes.items() if vote == self.outcome
         )

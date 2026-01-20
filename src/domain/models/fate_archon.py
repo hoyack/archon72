@@ -355,10 +355,14 @@ THREE_FATES_POOL: tuple[FateArchon, ...] = (
 )
 
 # Quick lookup by ID
-FATE_ARCHON_BY_ID: dict[UUID, FateArchon] = {archon.id: archon for archon in THREE_FATES_POOL}
+FATE_ARCHON_BY_ID: dict[UUID, FateArchon] = {
+    archon.id: archon for archon in THREE_FATES_POOL
+}
 
 # Quick lookup by name
-FATE_ARCHON_BY_NAME: dict[str, FateArchon] = {archon.name: archon for archon in THREE_FATES_POOL}
+FATE_ARCHON_BY_NAME: dict[str, FateArchon] = {
+    archon.name: archon for archon in THREE_FATES_POOL
+}
 
 # Canonical IDs for validation
 FATE_ARCHON_IDS: tuple[UUID, ...] = tuple(archon.id for archon in THREE_FATES_POOL)

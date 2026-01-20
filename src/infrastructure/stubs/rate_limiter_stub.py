@@ -175,7 +175,7 @@ class RateLimiterStub:
         self._reset_at.pop(submitter_id, None)
 
     @classmethod
-    def allowing(cls, limit: int = 10) -> "RateLimiterStub":
+    def allowing(cls, limit: int = 10) -> RateLimiterStub:
         """Factory for stub that allows submissions.
 
         Args:
@@ -192,7 +192,7 @@ class RateLimiterStub:
         submitter_id: UUID,
         limit: int = 10,
         reset_in_seconds: int = 1800,
-    ) -> "RateLimiterStub":
+    ) -> RateLimiterStub:
         """Factory for stub at rate limit for a submitter.
 
         Args:
@@ -217,7 +217,7 @@ class RateLimiterStub:
         limit: int = 10,
         current_count: int = 15,
         reset_in_seconds: int = 1800,
-    ) -> "RateLimiterStub":
+    ) -> RateLimiterStub:
         """Factory for stub over rate limit for a submitter.
 
         Args:

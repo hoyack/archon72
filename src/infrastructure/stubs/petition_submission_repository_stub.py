@@ -26,9 +26,9 @@ from src.domain.errors.state_transition import (
     PetitionAlreadyFatedError,
 )
 from src.domain.models.petition_submission import (
+    TERMINAL_STATES,
     PetitionState,
     PetitionSubmission,
-    TERMINAL_STATES,
 )
 
 
@@ -135,7 +135,9 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
             realm=submission.realm,
             created_at=submission.created_at,
             updated_at=datetime.now(timezone.utc),
-            fate_reason=fate_reason if fate_reason is not None else submission.fate_reason,
+            fate_reason=fate_reason
+            if fate_reason is not None
+            else submission.fate_reason,
             co_signer_count=submission.co_signer_count,
         )
         self._submissions[submission_id] = updated

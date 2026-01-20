@@ -340,7 +340,7 @@ class ExecutionPlannerService:
         - Ambiguous scope keywords
         - Resource-related language without allocation
         """
-        blockers = []
+        blockers: list[Blocker] = []
         pattern = self._taxonomy.patterns.get(classification.primary_pattern)
 
         if not pattern:

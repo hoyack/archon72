@@ -9,9 +9,8 @@ Production implementation is in src/application/services/consensus_resolver_serv
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 from src.application.ports.consensus_resolver import ConsensusResolverProtocol
@@ -82,10 +81,12 @@ class ConsensusResolverStub(ConsensusResolverProtocol):
         self._calls: list[ResolverCall] = []
         self._force_unanimous: bool = False
         self._force_split: bool = False
-        self._forced_outcome: Optional[DeliberationOutcome] = None
+        self._forced_outcome: DeliberationOutcome | None = None
         self._forced_dissenter_index: int = 2  # Default to third archon
         self._force_invalid: bool = False
-        self._force_invalid_status: VoteValidationStatus = VoteValidationStatus.MISSING_VOTES
+        self._force_invalid_status: VoteValidationStatus = (
+            VoteValidationStatus.MISSING_VOTES
+        )
         self._force_no_consensus: bool = False
 
     @classmethod
@@ -290,9 +291,7 @@ class ConsensusResolverStub(ConsensusResolverProtocol):
                 vote_counts[vote_outcome] = []
             vote_counts[vote_outcome].append(archon_id)
 
-        vote_distribution = {
-            o.value: len(v) for o, v in vote_counts.items()
-        }
+        vote_distribution = {o.value: len(v) for o, v in vote_counts.items()}
 
         # Find winner
         for outcome_key, voters in vote_counts.items():

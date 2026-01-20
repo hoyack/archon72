@@ -171,7 +171,9 @@ class TestPhaseWitnessEventValidation:
         start = datetime.now(timezone.utc)
         end = start - timedelta(minutes=1)  # Before start
 
-        with pytest.raises(ValueError, match="end_timestamp must be >= start_timestamp"):
+        with pytest.raises(
+            ValueError, match="end_timestamp must be >= start_timestamp"
+        ):
             PhaseWitnessEvent(
                 event_id=uuid4(),
                 session_id=uuid4(),

@@ -9,12 +9,10 @@ Reference: petition-system-prd.md Section 13A
 """
 
 from dataclasses import dataclass
-from typing import Any
 
 from crewai import Agent, Task
 
 from .agents import Disposition, MockFateAgent
-
 
 # =============================================================================
 # Task Templates

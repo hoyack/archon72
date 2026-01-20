@@ -20,8 +20,16 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Path to migration files
-PETITION_MIGRATION_FILE = Path(__file__).parent.parent.parent / "migrations" / "012_create_petition_submissions.sql"
-DELIBERATION_MIGRATION_FILE = Path(__file__).parent.parent.parent / "migrations" / "017_create_deliberation_sessions.sql"
+PETITION_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "012_create_petition_submissions.sql"
+)
+DELIBERATION_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "017_create_deliberation_sessions.sql"
+)
 
 
 @pytest.fixture
@@ -103,8 +111,10 @@ class TestDeliberationSessionsTable:
                 ORDER BY ordinal_position
             """)
         )
-        columns = {row[0]: {"type": row[1], "nullable": row[2], "default": row[3]}
-                   for row in result.fetchall()}
+        columns = {
+            row[0]: {"type": row[1], "nullable": row[2], "default": row[3]}
+            for row in result.fetchall()
+        }
 
         # Verify expected columns
         assert "session_id" in columns
@@ -158,7 +168,9 @@ class TestDeliberationSessionsTable:
 class TestDeliberationEnums:
     """Test deliberation enum types."""
 
-    async def test_deliberation_phase_enum_values(self, deliberation_schema: AsyncSession) -> None:
+    async def test_deliberation_phase_enum_values(
+        self, deliberation_schema: AsyncSession
+    ) -> None:
         """FR-11.4: Verify deliberation_phase enum has all expected values."""
         result = await deliberation_schema.execute(
             text("""
@@ -174,7 +186,9 @@ class TestDeliberationEnums:
         assert "COMPLETE" in values
         assert len(values) == 5
 
-    async def test_deliberation_outcome_enum_values(self, deliberation_schema: AsyncSession) -> None:
+    async def test_deliberation_outcome_enum_values(
+        self, deliberation_schema: AsyncSession
+    ) -> None:
         """AT-1: Verify deliberation_outcome enum has Three Fates values."""
         result = await deliberation_schema.execute(
             text("""
@@ -225,7 +239,10 @@ class TestDeliberationConstraints:
             await deliberation_schema.flush()
 
         # Should fail with constraint violation
-        assert "check_exactly_3_archons" in str(exc_info.value).lower() or "check" in str(exc_info.value).lower()
+        assert (
+            "check_exactly_3_archons" in str(exc_info.value).lower()
+            or "check" in str(exc_info.value).lower()
+        )
 
     async def test_exactly_3_archons_constraint_rejects_4(
         self, deliberation_schema: AsyncSession, inserted_petition: str
@@ -282,7 +299,10 @@ class TestDeliberationConstraints:
             await deliberation_schema.flush()
 
         # Should fail with constraint violation
-        assert "check_unique_archons" in str(exc_info.value).lower() or "check" in str(exc_info.value).lower()
+        assert (
+            "check_unique_archons" in str(exc_info.value).lower()
+            or "check" in str(exc_info.value).lower()
+        )
 
     async def test_completed_has_outcome_constraint(
         self, deliberation_schema: AsyncSession, inserted_petition: str
@@ -310,7 +330,10 @@ class TestDeliberationConstraints:
             await deliberation_schema.flush()
 
         # Should fail with constraint violation
-        assert "check_completed_has_outcome" in str(exc_info.value).lower() or "check" in str(exc_info.value).lower()
+        assert (
+            "check_completed_has_outcome" in str(exc_info.value).lower()
+            or "check" in str(exc_info.value).lower()
+        )
 
     async def test_completed_has_timestamp_constraint(
         self, deliberation_schema: AsyncSession, inserted_petition: str
@@ -367,7 +390,10 @@ class TestDeliberationConstraints:
             await deliberation_schema.flush()
 
         # Should fail with constraint violation
-        assert "check_version_positive" in str(exc_info.value).lower() or "check" in str(exc_info.value).lower()
+        assert (
+            "check_version_positive" in str(exc_info.value).lower()
+            or "check" in str(exc_info.value).lower()
+        )
 
     async def test_one_session_per_petition_constraint(
         self, deliberation_schema: AsyncSession, inserted_petition: str
@@ -415,7 +441,10 @@ class TestDeliberationConstraints:
             await deliberation_schema.flush()
 
         # Should fail with unique constraint violation
-        assert "unique" in str(exc_info.value).lower() or "duplicate" in str(exc_info.value).lower()
+        assert (
+            "unique" in str(exc_info.value).lower()
+            or "duplicate" in str(exc_info.value).lower()
+        )
 
 
 # =============================================================================
@@ -494,7 +523,11 @@ class TestDeliberationForeignKey:
             await deliberation_schema.flush()
 
         # Should fail with FK violation
-        assert "foreign key" in str(exc_info.value).lower() or "fk" in str(exc_info.value).lower() or "reference" in str(exc_info.value).lower()
+        assert (
+            "foreign key" in str(exc_info.value).lower()
+            or "fk" in str(exc_info.value).lower()
+            or "reference" in str(exc_info.value).lower()
+        )
 
 
 # =============================================================================
@@ -583,7 +616,9 @@ class TestDeliberationCRUD:
         await deliberation_schema.flush()
 
         result = await deliberation_schema.execute(
-            text("SELECT phase, version FROM deliberation_sessions WHERE session_id = :session_id"),
+            text(
+                "SELECT phase, version FROM deliberation_sessions WHERE session_id = :session_id"
+            ),
             {"session_id": session_id},
         )
         row = result.fetchone()
@@ -597,7 +632,11 @@ class TestDeliberationCRUD:
         """Can complete a session with outcome, votes, and completed_at."""
         session_id = str(uuid4())
         archons = [str(uuid4()) for _ in range(3)]
-        votes_json = {archons[0]: "ACKNOWLEDGE", archons[1]: "ACKNOWLEDGE", archons[2]: "REFER"}
+        votes_json = {
+            archons[0]: "ACKNOWLEDGE",
+            archons[1]: "ACKNOWLEDGE",
+            archons[2]: "REFER",
+        }
 
         await deliberation_schema.execute(
             text("""

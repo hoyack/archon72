@@ -12,10 +12,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from uuid import uuid4
-
-import pytest
 
 from src.application.services.context_package_builder_service import (
     ContextPackageBuilderService,
@@ -100,6 +97,7 @@ class TestDeliberationOrchestratorIntegration:
                     DeliberationPhase.CROSS_EXAMINE,
                     DeliberationPhase.VOTE,
                 ],
+                strict=True,
             )
         )
 

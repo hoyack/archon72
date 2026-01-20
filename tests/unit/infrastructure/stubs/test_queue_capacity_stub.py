@@ -5,8 +5,6 @@ Tests for the stub implementation of queue capacity checking.
 
 from __future__ import annotations
 
-import pytest
-
 from src.infrastructure.stubs.queue_capacity_stub import QueueCapacityStub
 
 

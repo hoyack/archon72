@@ -31,7 +31,6 @@ from src.domain.models.deliberation_session import (
     DeliberationSession,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -108,7 +107,9 @@ class TestDeliberationPhase:
 
     def test_next_phase_position(self):
         """Test POSITION -> CROSS_EXAMINE transition."""
-        assert DeliberationPhase.POSITION.next_phase() == DeliberationPhase.CROSS_EXAMINE
+        assert (
+            DeliberationPhase.POSITION.next_phase() == DeliberationPhase.CROSS_EXAMINE
+        )
 
     def test_next_phase_cross_examine(self):
         """Test CROSS_EXAMINE -> VOTE transition."""
@@ -133,10 +134,22 @@ class TestPhaseTransitionMatrix:
 
     def test_matrix_valid_transitions(self):
         """Test matrix defines valid transitions."""
-        assert PHASE_TRANSITION_MATRIX[DeliberationPhase.ASSESS] == DeliberationPhase.POSITION
-        assert PHASE_TRANSITION_MATRIX[DeliberationPhase.POSITION] == DeliberationPhase.CROSS_EXAMINE
-        assert PHASE_TRANSITION_MATRIX[DeliberationPhase.CROSS_EXAMINE] == DeliberationPhase.VOTE
-        assert PHASE_TRANSITION_MATRIX[DeliberationPhase.VOTE] == DeliberationPhase.COMPLETE
+        assert (
+            PHASE_TRANSITION_MATRIX[DeliberationPhase.ASSESS]
+            == DeliberationPhase.POSITION
+        )
+        assert (
+            PHASE_TRANSITION_MATRIX[DeliberationPhase.POSITION]
+            == DeliberationPhase.CROSS_EXAMINE
+        )
+        assert (
+            PHASE_TRANSITION_MATRIX[DeliberationPhase.CROSS_EXAMINE]
+            == DeliberationPhase.VOTE
+        )
+        assert (
+            PHASE_TRANSITION_MATRIX[DeliberationPhase.VOTE]
+            == DeliberationPhase.COMPLETE
+        )
         assert PHASE_TRANSITION_MATRIX[DeliberationPhase.COMPLETE] is None
 
 
@@ -184,7 +197,9 @@ class TestConstants:
 class TestDeliberationSessionCreation:
     """Tests for DeliberationSession creation (FR-11.1)."""
 
-    def test_create_valid_session(self, sample_session_id, sample_petition_id, sample_archons):
+    def test_create_valid_session(
+        self, sample_session_id, sample_petition_id, sample_archons
+    ):
         """Test creating a valid session with 3 archons."""
         session = DeliberationSession.create(
             session_id=sample_session_id,
@@ -203,7 +218,9 @@ class TestDeliberationSessionCreation:
         assert session.completed_at is None
         assert session.version == 1
 
-    def test_create_sets_created_at(self, sample_session_id, sample_petition_id, sample_archons):
+    def test_create_sets_created_at(
+        self, sample_session_id, sample_petition_id, sample_archons
+    ):
         """Test that created_at is set automatically."""
         before = datetime.now(timezone.utc)
         session = DeliberationSession.create(
@@ -229,7 +246,9 @@ class TestDeliberationSessionCreation:
         assert "Exactly 3 archons required" in str(exc_info.value)
         assert exc_info.value.archon_count == 2
 
-    def test_create_fails_with_four_archons(self, sample_session_id, sample_petition_id):
+    def test_create_fails_with_four_archons(
+        self, sample_session_id, sample_petition_id
+    ):
         """Test creation fails with more than 3 archons."""
         archons = (uuid4(), uuid4(), uuid4(), uuid4())
 
@@ -243,7 +262,9 @@ class TestDeliberationSessionCreation:
         assert "Exactly 3 archons required" in str(exc_info.value)
         assert exc_info.value.archon_count == 4
 
-    def test_create_fails_with_duplicate_archons(self, sample_session_id, sample_petition_id):
+    def test_create_fails_with_duplicate_archons(
+        self, sample_session_id, sample_petition_id
+    ):
         """Test creation fails with duplicate archon IDs."""
         archon1 = uuid4()
         archon2 = uuid4()
@@ -353,7 +374,9 @@ class TestPhaseTransitions:
         with pytest.raises(InvalidPhaseTransitionError):
             sample_session.with_phase(DeliberationPhase.ASSESS)
 
-    def test_transition_preserves_other_fields(self, sample_session, sample_transcript_hash):
+    def test_transition_preserves_other_fields(
+        self, sample_session, sample_transcript_hash
+    ):
         """Test that phase transition preserves other session data."""
         session_with_transcript = sample_session.with_transcript(
             DeliberationPhase.ASSESS, sample_transcript_hash
@@ -363,7 +386,9 @@ class TestPhaseTransitions:
         assert new_session.session_id == sample_session.session_id
         assert new_session.petition_id == sample_session.petition_id
         assert new_session.assigned_archons == sample_session.assigned_archons
-        assert new_session.phase_transcripts == {DeliberationPhase.ASSESS: sample_transcript_hash}
+        assert new_session.phase_transcripts == {
+            DeliberationPhase.ASSESS: sample_transcript_hash
+        }
         assert new_session.created_at == sample_session.created_at
 
 
@@ -382,12 +407,17 @@ class TestTranscripts:
         )
 
         assert new_session.has_transcript(DeliberationPhase.ASSESS)
-        assert new_session.phase_transcripts[DeliberationPhase.ASSESS] == sample_transcript_hash
+        assert (
+            new_session.phase_transcripts[DeliberationPhase.ASSESS]
+            == sample_transcript_hash
+        )
         assert new_session.version == sample_session.version + 1
 
     def test_add_multiple_transcripts(self, sample_session, sample_transcript_hash):
         """Test adding transcripts for multiple phases."""
-        session = sample_session.with_transcript(DeliberationPhase.ASSESS, sample_transcript_hash)
+        session = sample_session.with_transcript(
+            DeliberationPhase.ASSESS, sample_transcript_hash
+        )
         session = session.with_phase(DeliberationPhase.POSITION)
 
         position_hash = b"\x01" * 32
@@ -622,10 +652,14 @@ class TestCompletedSession:
         assert str(completed_session.session_id) in str(exc_info.value)
         assert "immutable" in str(exc_info.value)
 
-    def test_completed_session_cannot_add_transcript(self, completed_session, sample_transcript_hash):
+    def test_completed_session_cannot_add_transcript(
+        self, completed_session, sample_transcript_hash
+    ):
         """Test that completed session cannot add transcript."""
         with pytest.raises(SessionAlreadyCompleteError):
-            completed_session.with_transcript(DeliberationPhase.VOTE, sample_transcript_hash)
+            completed_session.with_transcript(
+                DeliberationPhase.VOTE, sample_transcript_hash
+            )
 
     def test_completed_session_cannot_add_votes(self, completed_session):
         """Test that completed session cannot modify votes."""
@@ -682,7 +716,9 @@ class TestArchonAssignment:
 class TestEdgeCases:
     """Tests for edge cases and error conditions."""
 
-    def test_session_equality(self, sample_session_id, sample_petition_id, sample_archons):
+    def test_session_equality(
+        self, sample_session_id, sample_petition_id, sample_archons
+    ):
         """Test that sessions with same data are equal."""
         session1 = DeliberationSession.create(
             session_id=sample_session_id,
@@ -707,7 +743,9 @@ class TestEdgeCases:
 
         assert session1 == session2
 
-    def test_session_not_hashable_due_to_mutable_fields(self, sample_session_id, sample_petition_id, sample_archons):
+    def test_session_not_hashable_due_to_mutable_fields(
+        self, sample_session_id, sample_petition_id, sample_archons
+    ):
         """Test that sessions cannot be used in sets (dict fields aren't hashable).
 
         Note: Even though the dataclass is frozen, it contains dict fields which
@@ -727,17 +765,23 @@ class TestEdgeCases:
         """Test that version starts at 1."""
         assert sample_session.version == 1
 
-    def test_version_increments_with_each_mutation(self, sample_session, sample_transcript_hash):
+    def test_version_increments_with_each_mutation(
+        self, sample_session, sample_transcript_hash
+    ):
         """Test that version increments with each mutation."""
         assert sample_session.version == 1
 
-        session = sample_session.with_transcript(DeliberationPhase.ASSESS, sample_transcript_hash)
+        session = sample_session.with_transcript(
+            DeliberationPhase.ASSESS, sample_transcript_hash
+        )
         assert session.version == 2
 
         session = session.with_phase(DeliberationPhase.POSITION)
         assert session.version == 3
 
-    def test_invalid_outcome_without_consensus(self, sample_session_id, sample_petition_id, sample_archons):
+    def test_invalid_outcome_without_consensus(
+        self, sample_session_id, sample_petition_id, sample_archons
+    ):
         """Test that creating session with mismatched outcome/votes raises error."""
         archon1, archon2, archon3 = sample_archons
         votes = {
@@ -758,7 +802,9 @@ class TestEdgeCases:
                 completed_at=datetime.now(timezone.utc),
             )
 
-    def test_outcome_without_all_votes_raises_error(self, sample_session_id, sample_petition_id, sample_archons):
+    def test_outcome_without_all_votes_raises_error(
+        self, sample_session_id, sample_petition_id, sample_archons
+    ):
         """Test that setting outcome without 3 votes raises error."""
         archon1, archon2, _ = sample_archons
         votes = {

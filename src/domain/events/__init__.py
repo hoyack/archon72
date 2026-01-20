@@ -162,6 +162,18 @@ from src.domain.events.context_bundle_created import (
     CONTEXT_BUNDLE_CREATED_EVENT_TYPE,
     ContextBundleCreatedPayload,
 )
+from src.domain.events.dissent import (
+    DISSENT_RECORDED_EVENT_TYPE,
+    DISSENT_RECORDED_SCHEMA_VERSION,
+    DissentRecordedEvent,
+)
+from src.domain.events.disposition import (
+    DISPOSITION_EVENT_SCHEMA_VERSION,
+    DeliberationCompleteEvent,
+    DispositionOutcome,
+    PipelineRoutingEvent,
+    PipelineType,
+)
 from src.domain.events.escalation import (
     BREACH_ACKNOWLEDGED_EVENT_TYPE,
     ESCALATION_EVENT_TYPE,
@@ -270,17 +282,15 @@ from src.domain.events.petition import (
     PetitionStatus,
     PetitionThresholdMetEventPayload,
 )
+from src.domain.events.deliberation_timeout import (
+    DELIBERATION_TIMEOUT_EVENT_TYPE,
+    DELIBERATION_TIMEOUT_SCHEMA_VERSION,
+    DeliberationTimeoutEvent,
+)
 from src.domain.events.phase_witness import (
     BLAKE3_HASH_SIZE,
     PHASE_WITNESS_EVENT_TYPE,
     PhaseWitnessEvent,
-)
-from src.domain.events.disposition import (
-    DISPOSITION_EVENT_SCHEMA_VERSION,
-    DeliberationCompleteEvent,
-    DispositionOutcome,
-    PipelineRoutingEvent,
-    PipelineType,
 )
 from src.domain.events.pre_operational_verification import (
     POST_HALT_VERIFICATION_STARTED_EVENT_TYPE,
@@ -586,6 +596,14 @@ __all__: list[str] = [
     "BLAKE3_HASH_SIZE",
     "PHASE_WITNESS_EVENT_TYPE",
     "PhaseWitnessEvent",
+    # Deliberation timeout events (Story 2B.2, FR-11.9, HC-7)
+    "DELIBERATION_TIMEOUT_EVENT_TYPE",
+    "DELIBERATION_TIMEOUT_SCHEMA_VERSION",
+    "DeliberationTimeoutEvent",
+    # Dissent recorded events (Story 2B.1, FR-11.8)
+    "DISSENT_RECORDED_EVENT_TYPE",
+    "DISSENT_RECORDED_SCHEMA_VERSION",
+    "DissentRecordedEvent",
     # Disposition events (Story 2A.8, FR-11.11)
     "DISPOSITION_EVENT_SCHEMA_VERSION",
     "DeliberationCompleteEvent",

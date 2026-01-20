@@ -49,19 +49,19 @@ class TestEventTypeConstants:
 
     def test_petition_received_event_type(self) -> None:
         """Test petition received event type constant (FR-1.7)."""
-        assert PETITION_RECEIVED_EVENT_TYPE == "petition.received"
+        assert PETITION_RECEIVED_EVENT_TYPE == "petition.submission.received"
 
     def test_petition_created_event_type(self) -> None:
         """Test petition created event type constant."""
-        assert PETITION_CREATED_EVENT_TYPE == "petition.created"
+        assert PETITION_CREATED_EVENT_TYPE == "petition.submission.created"
 
     def test_petition_cosigned_event_type(self) -> None:
         """Test petition co-signed event type constant."""
-        assert PETITION_COSIGNED_EVENT_TYPE == "petition.cosigned"
+        assert PETITION_COSIGNED_EVENT_TYPE == "petition.submission.cosigned"
 
     def test_petition_threshold_met_event_type(self) -> None:
         """Test petition threshold met event type constant."""
-        assert PETITION_THRESHOLD_MET_EVENT_TYPE == "petition.threshold_met"
+        assert PETITION_THRESHOLD_MET_EVENT_TYPE == "petition.submission.threshold_met"
 
     def test_petition_system_agent_id(self) -> None:
         """Test petition system agent ID constant."""
@@ -452,19 +452,19 @@ class TestFateEventTypeConstants:
         """Test petition acknowledged event type constant (FR-2.5)."""
         from src.domain.events.petition import PETITION_ACKNOWLEDGED_EVENT_TYPE
 
-        assert PETITION_ACKNOWLEDGED_EVENT_TYPE == "petition.acknowledged"
+        assert PETITION_ACKNOWLEDGED_EVENT_TYPE == "petition.submission.acknowledged"
 
     def test_petition_referred_event_type(self) -> None:
         """Test petition referred event type constant (FR-2.5)."""
         from src.domain.events.petition import PETITION_REFERRED_EVENT_TYPE
 
-        assert PETITION_REFERRED_EVENT_TYPE == "petition.referred"
+        assert PETITION_REFERRED_EVENT_TYPE == "petition.submission.referred"
 
     def test_petition_escalated_event_type(self) -> None:
         """Test petition escalated event type constant (FR-2.5)."""
         from src.domain.events.petition import PETITION_ESCALATED_EVENT_TYPE
 
-        assert PETITION_ESCALATED_EVENT_TYPE == "petition.escalated"
+        assert PETITION_ESCALATED_EVENT_TYPE == "petition.submission.escalated"
 
 
 class TestPetitionFateEventPayload:

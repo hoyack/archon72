@@ -211,6 +211,8 @@ class TaskConsentService(TaskConsentPort):
                 message="Task accepted successfully",
             )
 
+        raise RuntimeError("Task acceptance failed")
+
     async def decline_task(
         self,
         task_id: UUID,
@@ -292,6 +294,8 @@ class TaskConsentService(TaskConsentPort):
                 message="Task declined successfully",
             )
 
+        raise RuntimeError("Task decline failed")
+
     async def halt_task(
         self,
         task_id: UUID,
@@ -372,6 +376,8 @@ class TaskConsentService(TaskConsentPort):
                 operation="halted",
                 message="Task halted successfully",
             )
+
+        raise RuntimeError("Task halt failed")
 
     # =========================================================================
     # Private Helper Methods

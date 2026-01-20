@@ -21,11 +21,11 @@ from src.domain.errors.state_transition import (
     PetitionAlreadyFatedError,
 )
 from src.domain.models.petition_submission import (
+    STATE_TRANSITION_MATRIX,
+    TERMINAL_STATES,
     PetitionState,
     PetitionSubmission,
     PetitionType,
-    STATE_TRANSITION_MATRIX,
-    TERMINAL_STATES,
 )
 
 

@@ -16,7 +16,6 @@ import pytest
 from src.application.services.consensus_resolver_service import ConsensusResolverService
 from src.domain.errors.deliberation import ConsensusNotReachedError
 from src.domain.models.consensus_result import (
-    CONSENSUS_ALGORITHM_VERSION,
     ConsensusStatus,
     VoteValidationStatus,
 )

@@ -22,8 +22,6 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from src.domain.models.fate_archon import (
-    FATE_ARCHON_BY_ID,
-    FATE_ARCHON_BY_NAME,
     THREE_FATES_POOL,
     FateArchon,
 )

@@ -40,7 +40,6 @@ from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
 from src.application.services.queue_capacity_service import QueueCapacityService
-from src.application.services.rate_limit_service import RateLimitService
 from src.config.petition_config import PetitionQueueConfig, PetitionRateLimitConfig
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
@@ -263,7 +262,7 @@ def set_petition_submission_repository(
         repo: Custom repository implementation.
     """
     global _petition_submission_repository, _petition_submission_service
-    _petition_submission_repository = repo  # type: ignore[assignment]
+    _petition_submission_repository = repo
     _petition_submission_service = None  # Force service recreation
 
 
@@ -274,7 +273,7 @@ def set_halt_checker(checker: HaltChecker) -> None:
         checker: Custom halt checker implementation.
     """
     global _halt_checker, _petition_submission_service
-    _halt_checker = checker  # type: ignore[assignment]
+    _halt_checker = checker
     _petition_submission_service = None  # Force service recreation
 
 
@@ -285,7 +284,7 @@ def set_realm_registry(registry: RealmRegistryProtocol) -> None:
         registry: Custom realm registry implementation.
     """
     global _realm_registry, _petition_submission_service
-    _realm_registry = registry  # type: ignore[assignment]
+    _realm_registry = registry
     _petition_submission_service = None  # Force service recreation
 
 
@@ -317,7 +316,7 @@ def set_rate_limiter(limiter: RateLimiterPort) -> None:
         limiter: Custom rate limiter implementation.
     """
     global _rate_limiter
-    _rate_limiter = limiter  # type: ignore[assignment]
+    _rate_limiter = limiter
 
 
 def set_rate_limit_config(config: PetitionRateLimitConfig) -> None:

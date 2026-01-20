@@ -219,10 +219,10 @@ class MotionQueueService:
             if m.status in (QueuedMotionStatus.PENDING, QueuedMotionStatus.ENDORSED)
         ]
 
-    def get_queue_summary(self) -> dict:
+    def get_queue_summary(self) -> dict[str, object]:
         """Get summary statistics for the queue."""
-        by_status = {}
-        by_consensus = {}
+        by_status: dict[str, int] = {}
+        by_consensus: dict[str, int] = {}
 
         for motion in self._queue:
             status = motion.status.value

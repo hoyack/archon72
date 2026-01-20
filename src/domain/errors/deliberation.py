@@ -164,8 +164,7 @@ class InvalidArchonAssignmentError(DeliberationError):
         self.archon_count = archon_count
 
         full_message = (
-            f"{message}. "
-            "FR-11.1: System SHALL assign exactly 3 Marquis-rank Archons."
+            f"{message}. FR-11.1: System SHALL assign exactly 3 Marquis-rank Archons."
         )
         super().__init__(full_message)
 
@@ -241,6 +240,42 @@ class SessionAlreadyExistsError(DeliberationError):
         super().__init__(message)
 
 
+class SessionNotFoundError(DeliberationError):
+    """Raised when a session cannot be found (Story 2B.2, FR-11.9).
+
+    This error is raised when attempting to operate on a session that
+    does not exist, such as during timeout handling when the session
+    has been deleted or was never created.
+
+    Constitutional Constraints:
+    - CT-11: Silent failure destroys legitimacy - missing session must error
+    - FR-11.9: Timeout handling requires valid session reference
+
+    Attributes:
+        session_id: ID of the session that was not found.
+        message: Descriptive error message.
+    """
+
+    def __init__(
+        self,
+        session_id: str,
+        message: str,
+    ) -> None:
+        """Initialize SessionNotFoundError.
+
+        Args:
+            session_id: ID of the session that was not found.
+            message: Descriptive error message.
+        """
+        self.session_id = session_id
+
+        full_message = (
+            f"Session {session_id}: {message}. "
+            "CT-11: Silent failure destroys legitimacy."
+        )
+        super().__init__(full_message)
+
+
 class ArchonPoolExhaustedError(DeliberationError):
     """Raised when archon pool has fewer than required archons.
 
@@ -290,9 +325,9 @@ class PhaseExecutionError(DeliberationError):
 
     def __init__(
         self,
-        phase: "DeliberationPhase",
+        phase: DeliberationPhase,
         reason: str,
-        archon_id: "UUID | None" = None,
+        archon_id: UUID | None = None,
     ) -> None:
         """Initialize PhaseExecutionError.
 
@@ -327,8 +362,8 @@ class PetitionSessionMismatchError(DeliberationError):
 
     def __init__(
         self,
-        petition_id: "UUID",
-        session_petition_id: "UUID",
+        petition_id: UUID,
+        session_petition_id: UUID,
     ) -> None:
         """Initialize PetitionSessionMismatchError.
 
@@ -365,8 +400,8 @@ class IncompleteWitnessChainError(DeliberationError):
 
     def __init__(
         self,
-        session_id: "UUID",
-        missing_phases: list["DeliberationPhase"],
+        session_id: UUID,
+        missing_phases: list[DeliberationPhase],
     ) -> None:
         """Initialize IncompleteWitnessChainError.
 
@@ -407,7 +442,7 @@ class PipelineRoutingError(DeliberationError):
 
     def __init__(
         self,
-        petition_id: "UUID",
+        petition_id: UUID,
         pipeline: str,
         reason: str,
     ) -> None:

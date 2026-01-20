@@ -36,8 +36,11 @@ from uuid import UUID, uuid4
 
 import blake3
 
-from src.domain.events.phase_witness import BLAKE3_HASH_SIZE, PhaseWitnessEvent
-from src.domain.models.deliberation_session import DeliberationPhase, DeliberationSession
+from src.domain.events.phase_witness import PhaseWitnessEvent
+from src.domain.models.deliberation_session import (
+    DeliberationPhase,
+    DeliberationSession,
+)
 
 # Ordered list of deliberation phases
 PHASE_ORDER: list[DeliberationPhase] = [
@@ -79,7 +82,9 @@ class PhaseWitnessBatchingService:
         should use persistent storage via a repository.
         """
         # In-memory storage - replace with repository in production
-        self._witness_events: dict[UUID, dict[DeliberationPhase, PhaseWitnessEvent]] = {}
+        self._witness_events: dict[
+            UUID, dict[DeliberationPhase, PhaseWitnessEvent]
+        ] = {}
         self._transcripts: dict[bytes, str] = {}
 
     def _compute_hash(self, content: str) -> bytes:
@@ -226,9 +231,7 @@ class PhaseWitnessBatchingService:
         session_events = self._witness_events.get(session_id, {})
 
         return [
-            session_events[phase]
-            for phase in PHASE_ORDER
-            if phase in session_events
+            session_events[phase] for phase in PHASE_ORDER if phase in session_events
         ]
 
     async def get_transcript_by_hash(

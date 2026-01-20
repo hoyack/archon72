@@ -11,9 +11,8 @@ Reference: petition-system-prd.md Section 13A
 """
 
 from dataclasses import dataclass
-from typing import Any
 
-from crewai import Agent, LLM
+from crewai import LLM, Agent
 
 
 @dataclass(frozen=True)
@@ -200,7 +199,9 @@ class MockFateAgent:
         return f"[{self.persona.name}] Default response for {task_type}"
 
 
-def create_mock_three_fates(verbose: bool = False) -> tuple[MockFateAgent, MockFateAgent, MockFateAgent]:
+def create_mock_three_fates(
+    verbose: bool = False,
+) -> tuple[MockFateAgent, MockFateAgent, MockFateAgent]:
     """Create mock Fate agents for testing.
 
     Returns:

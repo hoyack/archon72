@@ -10,7 +10,7 @@ Tests cover:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -193,9 +193,7 @@ class TestPetitionEventEmitterEmitReceived:
         assert payload["submitter_id"] is None
 
     @pytest.mark.asyncio
-    async def test_emit_uses_time_authority(
-        self, mock_ledger: AsyncMock
-    ) -> None:
+    async def test_emit_uses_time_authority(self, mock_ledger: AsyncMock) -> None:
         """Test emission uses injected time authority (HARDENING-1)."""
         fixed_time = datetime(2026, 6, 15, 10, 30, 0, tzinfo=timezone.utc)
         time_authority = FakeTimeAuthority(fixed_time)

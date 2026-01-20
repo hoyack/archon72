@@ -40,7 +40,6 @@ from src.domain.errors.deliberation import (
 )
 from src.domain.errors.petition import PetitionNotFoundError
 from src.domain.models.deliberation_session import (
-    DeliberationPhase,
     DeliberationSession,
 )
 from src.domain.models.petition_submission import PetitionState
@@ -143,7 +142,7 @@ class ArchonAssignmentService:
         if existing_session is not None:
             logger.info(
                 "Returning existing session %s for petition %s",
-                existing_session.id,
+                existing_session.session_id,
                 petition_id,
             )
             archons = self._archon_pool.select_archons(petition_id, seed)
@@ -188,8 +187,9 @@ class ArchonAssignmentService:
         # Create deliberation session with UUIDv7 (AC-4)
         now = _utc_now()
         session = DeliberationSession.create(
+            session_id=uuid7(),
             petition_id=petition_id,
-            archon_ids=archon_ids,
+            assigned_archons=archon_ids,
         )
 
         # Store session
@@ -205,7 +205,7 @@ class ArchonAssignmentService:
         # Emit ArchonsAssignedEvent (AC-5)
         if self._event_emitter is not None:
             event_payload = ArchonsAssignedEventPayload(
-                session_id=session.id,
+                session_id=session.session_id,
                 petition_id=petition_id,
                 archon_ids=archon_ids,
                 archon_names=tuple(a.name for a in archons),
@@ -217,12 +217,12 @@ class ArchonAssignmentService:
             )
             logger.debug(
                 "Emitted ArchonsAssignedEvent for session %s",
-                session.id,
+                session.session_id,
             )
 
         logger.info(
             "Created deliberation session %s for petition %s with archons %s",
-            session.id,
+            session.session_id,
             petition_id,
             [a.name for a in archons],
         )

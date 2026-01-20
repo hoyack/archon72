@@ -27,7 +27,9 @@ from pydantic import BaseModel, Field, PlainSerializer, field_validator
 # Custom datetime serializer for ISO 8601 with Z suffix (Pydantic v2)
 DateTimeWithZ = Annotated[
     datetime,
-    PlainSerializer(lambda v: v.isoformat().replace("+00:00", "Z") if v else None, return_type=str),
+    PlainSerializer(
+        lambda v: v.isoformat().replace("+00:00", "Z") if v else None, return_type=str
+    ),
 ]
 
 
@@ -58,6 +60,7 @@ class SubmitPetitionSubmissionRequest(BaseModel):
         type: Petition type (GENERAL, CESSATION, GRIEVANCE, COLLABORATION).
         text: Petition content (1-10,000 characters).
         realm: Optional routing realm identifier.
+        submitter_id: Optional submitter identity (UUID).
     """
 
     type: PetitionTypeEnum = Field(
@@ -74,6 +77,10 @@ class SubmitPetitionSubmissionRequest(BaseModel):
         default=None,
         max_length=100,
         description="Optional routing realm identifier",
+    )
+    submitter_id: UUID | None = Field(
+        default=None,
+        description="Optional submitter identity (UUID)",
     )
 
     @field_validator("text")

@@ -80,9 +80,7 @@ class TestContentHashServiceStub:
 
     # Operation tracking
 
-    def test_tracks_hash_content_operations(
-        self, stub: ContentHashServiceStub
-    ) -> None:
+    def test_tracks_hash_content_operations(self, stub: ContentHashServiceStub) -> None:
         """Verify hash_content operations are tracked."""
         stub.hash_content(b"content one")
         stub.hash_content(b"content two")
@@ -179,9 +177,7 @@ class TestContentHashServiceStub:
 
         assert result == custom_hash
 
-    def test_override_requires_32_byte_hash(
-        self, stub: ContentHashServiceStub
-    ) -> None:
+    def test_override_requires_32_byte_hash(self, stub: ContentHashServiceStub) -> None:
         """Verify set_override raises for invalid hash length."""
         with pytest.raises(ValueError, match="32 bytes"):
             stub.set_override(b"content", b"too short")

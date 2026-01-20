@@ -56,9 +56,7 @@ class TestEndToEndPackageBuilding:
             assigned_archons=(uuid4(), uuid4(), uuid4()),
         )
 
-    def test_build_serialize_deserialize_verify(
-        self, full_petition, full_session
-    ):
+    def test_build_serialize_deserialize_verify(self, full_petition, full_session):
         """Test complete workflow: build -> serialize -> deserialize -> verify."""
         builder = ContextPackageBuilderService()
 
@@ -91,9 +89,7 @@ class TestEndToEndPackageBuilding:
         assert package.content_hash == restored1.content_hash == restored2.content_hash
         assert restored2.verify_hash() is True
 
-    def test_package_contains_all_petition_data(
-        self, full_petition, full_session
-    ):
+    def test_package_contains_all_petition_data(self, full_petition, full_session):
         """Test that package contains all petition information."""
         builder = ContextPackageBuilderService()
         package = builder.build_package(full_petition, full_session)
@@ -107,9 +103,7 @@ class TestEndToEndPackageBuilding:
         assert package.realm == full_petition.realm
         assert package.submitted_at == full_petition.created_at
 
-    def test_package_contains_all_session_data(
-        self, full_petition, full_session
-    ):
+    def test_package_contains_all_session_data(self, full_petition, full_session):
         """Test that package contains all session information."""
         builder = ContextPackageBuilderService()
         package = builder.build_package(full_petition, full_session)

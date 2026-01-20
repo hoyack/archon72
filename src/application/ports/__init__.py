@@ -45,6 +45,16 @@ from src.application.ports.anti_success_alert_repository import (
     AntiSuccessAlertRepositoryProtocol,
     SustainedAlertInfo,
 )
+from src.application.ports.archon_assignment import (
+    ARCHONS_ASSIGNED_EVENT_TYPE,
+    ARCHONS_ASSIGNED_SCHEMA_VERSION,
+    ArchonAssignmentServiceProtocol,
+    ArchonsAssignedEventPayload,
+    AssignmentResult,
+)
+from src.application.ports.archon_pool import (
+    ArchonPoolProtocol,
+)
 from src.application.ports.archon_profile_repository import (
     ArchonProfileRepository,
 )
@@ -98,41 +108,15 @@ from src.application.ports.configuration_floor_validator import (
     ThresholdStatus,
     ThresholdViolation,
 )
-from src.application.ports.content_hash_service import (
-    ContentHashServiceProtocol,
-)
-from src.application.ports.realm_registry import (
-    RealmRegistryProtocol,
-)
-from src.application.ports.archon_assignment import (
-    ARCHONS_ASSIGNED_EVENT_TYPE,
-    ARCHONS_ASSIGNED_SCHEMA_VERSION,
-    ArchonAssignmentServiceProtocol,
-    ArchonsAssignedEventPayload,
-    AssignmentResult,
-)
-from src.application.ports.archon_pool import (
-    ArchonPoolProtocol,
-)
-from src.application.ports.context_package_builder import (
-    ContextPackageBuilderProtocol,
-)
-from src.application.ports.deliberation_orchestrator import (
-    DeliberationOrchestratorProtocol,
-    PhaseExecutorProtocol,
-)
 from src.application.ports.consensus_resolver import (
     ConsensusResolverProtocol,
-)
-from src.application.ports.phase_witness_batching import (
-    PhaseWitnessBatchingProtocol,
-)
-from src.application.ports.disposition_emission import (
-    DispositionEmissionProtocol,
 )
 from src.application.ports.constitution_validator import ConstitutionValidatorProtocol
 from src.application.ports.constitutional_health import (
     ConstitutionalHealthPort,
+)
+from src.application.ports.content_hash_service import (
+    ContentHashServiceProtocol,
 )
 from src.application.ports.content_verification import (
     ContentVerificationPort,
@@ -148,9 +132,22 @@ from src.application.ports.context_bundle_validator import (
     ContextBundleValidatorPort,
     FreshnessCheckResult,
 )
+from src.application.ports.context_package_builder import (
+    ContextPackageBuilderProtocol,
+)
+from src.application.ports.deliberation_orchestrator import (
+    DeliberationOrchestratorProtocol,
+    PhaseExecutorProtocol,
+)
+from src.application.ports.disposition_emission import (
+    DispositionEmissionProtocol,
+)
 from src.application.ports.dissent_metrics import (
     DissentMetricsPort,
     DissentRecord,
+)
+from src.application.ports.dissent_recorder import (
+    DissentRecorderProtocol,
 )
 from src.application.ports.dual_channel_halt import (
     CONFIRMATION_TIMEOUT_SECONDS,
@@ -295,6 +292,9 @@ from src.application.ports.integrity_failure_repository import (
     IntegrityFailure,
     IntegrityFailureRepositoryProtocol,
 )
+from src.application.ports.job_scheduler import (
+    JobSchedulerProtocol,
+)
 from src.application.ports.keeper_availability import KeeperAvailabilityProtocol
 from src.application.ports.keeper_key_registry import KeeperKeyRegistryProtocol
 from src.application.ports.key_generation_ceremony import KeyGenerationCeremonyProtocol
@@ -342,27 +342,20 @@ from src.application.ports.override_trend_repository import (
     OverrideTrendData,
     OverrideTrendRepositoryProtocol,
 )
+from src.application.ports.petition_event_emitter import (
+    PetitionEventEmitterPort,
+)
 from src.application.ports.petition_repository import (
     PetitionRepositoryProtocol,
 )
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
 )
-from src.application.ports.petition_event_emitter import (
-    PetitionEventEmitterPort,
+from src.application.ports.deliberation_timeout import (
+    DeliberationTimeoutProtocol,
 )
-from src.application.ports.job_scheduler import (
-    JobSchedulerProtocol,
-)
-from src.application.ports.queue_capacity import (
-    QueueCapacityPort,
-)
-from src.application.ports.rate_limiter import (
-    RateLimitResult,
-    RateLimiterPort,
-)
-from src.application.ports.rate_limit_store import (
-    RateLimitStorePort,
+from src.application.ports.phase_witness_batching import (
+    PhaseWitnessBatchingProtocol,
 )
 from src.application.ports.procedural_record_generator import (
     ProceduralRecordData,
@@ -376,6 +369,19 @@ from src.application.ports.publication_scanner import (
     PublicationScannerProtocol,
     PublicationScanResult,
     PublicationScanResultStatus,
+)
+from src.application.ports.queue_capacity import (
+    QueueCapacityPort,
+)
+from src.application.ports.rate_limit_store import (
+    RateLimitStorePort,
+)
+from src.application.ports.rate_limiter import (
+    RateLimiterPort,
+    RateLimitResult,
+)
+from src.application.ports.realm_registry import (
+    RealmRegistryProtocol,
 )
 from src.application.ports.recovery_waiting_period import RecoveryWaitingPeriodPort
 from src.application.ports.result_certifier import (
@@ -646,6 +652,10 @@ __all__: list[str] = [
     "ConsensusResolverProtocol",
     # Phase Witness Batching (Story 2A.7, FR-11.7)
     "PhaseWitnessBatchingProtocol",
+    # Deliberation Timeout (Story 2B.2, FR-11.9, HC-7)
+    "DeliberationTimeoutProtocol",
+    # Dissent Recorder (Story 2B.1, FR-11.8)
+    "DissentRecorderProtocol",
     # Disposition Emission (Story 2A.8, FR-11.11)
     "DispositionEmissionProtocol",
     # Signature verifier (Story 7.2, FR39, AC4)

@@ -63,9 +63,7 @@ class TestBlake3ContentHashService:
         hash2 = service.hash_content(content)
         assert hash1 == hash2
 
-    def test_hash_text_is_consistent(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_text_is_consistent(self, service: Blake3ContentHashService) -> None:
         """Verify same text always produces same hash (determinism)."""
         text = "identical text content"
         hash1 = service.hash_text(text)
@@ -110,18 +108,14 @@ class TestBlake3ContentHashService:
 
     # AC6: Empty content handling
 
-    def test_hash_empty_content(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_empty_content(self, service: Blake3ContentHashService) -> None:
         """Verify empty bytes can be hashed."""
         result = service.hash_content(b"")
         assert len(result) == 32
         # Empty content should produce a consistent hash
         assert result == service.hash_content(b"")
 
-    def test_hash_empty_text(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_empty_text(self, service: Blake3ContentHashService) -> None:
         """Verify empty string can be hashed."""
         result = service.hash_text("")
         assert len(result) == 32
@@ -130,16 +124,12 @@ class TestBlake3ContentHashService:
 
     # AC6: Unicode content handling
 
-    def test_hash_unicode_text(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_unicode_text(self, service: Blake3ContentHashService) -> None:
         """Verify Unicode text is properly hashed."""
         result = service.hash_text("Hello, 世界! 🌍")
         assert len(result) == 32
 
-    def test_unicode_consistency(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_unicode_consistency(self, service: Blake3ContentHashService) -> None:
         """Verify Unicode text produces consistent hashes."""
         text = "Привет мир! 你好世界! مرحبا بالعالم!"
         hash1 = service.hash_text(text)
@@ -262,32 +252,24 @@ class TestBlake3ContentHashService:
 
     # Service attributes
 
-    def test_hash_size_constant(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_size_constant(self, service: Blake3ContentHashService) -> None:
         """Verify HASH_SIZE constant is 32."""
         assert service.HASH_SIZE == 32
 
-    def test_service_has_logging_mixin(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_service_has_logging_mixin(self, service: Blake3ContentHashService) -> None:
         """Verify service has logging mixin attributes."""
         assert hasattr(service, "_log")
 
     # Large content handling
 
-    def test_hash_large_content(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_large_content(self, service: Blake3ContentHashService) -> None:
         """Verify large content can be hashed."""
         # Create 10KB of content
         large_content = b"x" * 10_000
         result = service.hash_content(large_content)
         assert len(result) == 32
 
-    def test_hash_max_petition_content(
-        self, service: Blake3ContentHashService
-    ) -> None:
+    def test_hash_max_petition_content(self, service: Blake3ContentHashService) -> None:
         """Verify maximum petition content (10,000 chars) can be hashed."""
         max_text = "a" * 10_000  # Maximum petition length
         result = service.hash_text(max_text)

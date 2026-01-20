@@ -143,7 +143,9 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
         start, end = _create_timestamps()
 
         # Try to witness POSITION without ASSESS
-        with pytest.raises(ValueError, match="Cannot witness POSITION without prior ASSESS"):
+        with pytest.raises(
+            ValueError, match="Cannot witness POSITION without prior ASSESS"
+        ):
             await service.witness_phase(
                 session=session,
                 phase=DeliberationPhase.POSITION,
@@ -171,7 +173,9 @@ class TestPhaseWitnessBatchingServiceWitnessPhase:
         )
 
         # Try to witness CROSS_EXAMINE without POSITION
-        with pytest.raises(ValueError, match="Cannot witness CROSS_EXAMINE without prior POSITION"):
+        with pytest.raises(
+            ValueError, match="Cannot witness CROSS_EXAMINE without prior POSITION"
+        ):
             await service.witness_phase(
                 session=session,
                 phase=DeliberationPhase.CROSS_EXAMINE,
@@ -223,7 +227,9 @@ class TestPhaseWitnessBatchingServiceRetrieval:
             end_timestamp=end,
         )
 
-        event = await service.get_phase_witness(session.session_id, DeliberationPhase.ASSESS)
+        event = await service.get_phase_witness(
+            session.session_id, DeliberationPhase.ASSESS
+        )
 
         assert event is not None
         assert event.phase == DeliberationPhase.ASSESS
@@ -495,8 +501,12 @@ class TestPhaseWitnessBatchingServiceIsolation:
         assert service.get_witness_count(session2.session_id) == 1
 
         # Retrieval should be separate
-        retrieved1 = await service.get_phase_witness(session1.session_id, DeliberationPhase.ASSESS)
-        retrieved2 = await service.get_phase_witness(session2.session_id, DeliberationPhase.ASSESS)
+        retrieved1 = await service.get_phase_witness(
+            session1.session_id, DeliberationPhase.ASSESS
+        )
+        retrieved2 = await service.get_phase_witness(
+            session2.session_id, DeliberationPhase.ASSESS
+        )
 
         assert retrieved1.phase_metadata == {"session": 1}
         assert retrieved2.phase_metadata == {"session": 2}

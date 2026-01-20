@@ -20,10 +20,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import asyncio
 import os
 import sys
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from statistics import mean, stdev
@@ -32,9 +30,6 @@ from typing import Any
 from structlog import get_logger
 
 from .agents import (
-    ATROPOS_PERSONA,
-    CLOTHO_PERSONA,
-    LACHESIS_PERSONA,
     Disposition,
     create_mock_three_fates,
 )
@@ -170,7 +165,9 @@ def run_mock_deliberation(petition_content: str) -> MockDeliberationResult:
     return execute_mock_deliberation(clotho, lachesis, atropos, petition_content)
 
 
-def run_real_deliberation(petition_content: str, verbose: bool = True) -> DeliberationResult:
+def run_real_deliberation(
+    petition_content: str, verbose: bool = True
+) -> DeliberationResult:
     """Run a real deliberation with LLM calls.
 
     Args:
@@ -228,7 +225,11 @@ def test_basic_deliberation(mock: bool = True) -> tuple[bool, str]:
             disposition = result.disposition
             time_ms = result.total_execution_time_ms
 
-        valid_dispositions = [Disposition.ACKNOWLEDGE, Disposition.REFER, Disposition.ESCALATE]
+        valid_dispositions = [
+            Disposition.ACKNOWLEDGE,
+            Disposition.REFER,
+            Disposition.ESCALATE,
+        ]
 
         if disposition in valid_dispositions:
             logger.info(
@@ -396,7 +397,9 @@ def run_full_spike(mock: bool = True) -> dict[str, Any]:
         "variance_notes": det_metrics.variance_notes,
         "dispositions": det_metrics.disposition_counts,
     }
-    print(f"Result: {'PASS' if is_deterministic else 'WARN'} - {det_metrics.variance_notes}\n")
+    print(
+        f"Result: {'PASS' if is_deterministic else 'WARN'} - {det_metrics.variance_notes}\n"
+    )
 
     # Test 3: Performance
     print("Test 3: Performance (5 runs)")
@@ -415,7 +418,9 @@ def run_full_spike(mock: bool = True) -> dict[str, Any]:
     print(f"Mean: {perf_metrics.mean_time_ms:.2f}ms")
     print(f"P95: {perf_metrics.p95_time_ms:.2f}ms")
     print(f"Max: {perf_metrics.max_time_ms:.2f}ms")
-    print(f"Result: {'PASS' if within_threshold else 'FAIL'} - P95 {'<' if within_threshold else '>'} 5 minutes\n")
+    print(
+        f"Result: {'PASS' if within_threshold else 'FAIL'} - P95 {'<' if within_threshold else '>'} 5 minutes\n"
+    )
 
     # Summary
     print("=" * 60)
@@ -429,7 +434,9 @@ def run_full_spike(mock: bool = True) -> dict[str, Any]:
     determinism_ok = results["tests"]["determinism"]["is_deterministic"]
 
     results["recommendation"] = "GO" if all_pass else "NO-GO"
-    results["determinism_status"] = "PASS" if determinism_ok else "ACCEPTABLE (variance noted)"
+    results["determinism_status"] = (
+        "PASS" if determinism_ok else "ACCEPTABLE (variance noted)"
+    )
 
     print(f"Basic Flow: {'PASS' if results['tests']['basic']['success'] else 'FAIL'}")
     print(f"Determinism: {results['determinism_status']}")
@@ -438,7 +445,9 @@ def run_full_spike(mock: bool = True) -> dict[str, Any]:
     print(f"RECOMMENDATION: {results['recommendation']}")
 
     if mock:
-        print("\nNote: Tests ran in MOCK mode. Run with --no-mock for real LLM testing.")
+        print(
+            "\nNote: Tests ran in MOCK mode. Run with --no-mock for real LLM testing."
+        )
 
     return results
 
@@ -502,7 +511,9 @@ Examples:
 
     # Check for API key if not mock
     if not mock and not os.environ.get("OPENAI_API_KEY"):
-        print("ERROR: OPENAI_API_KEY not set. Use --mock or set the environment variable.")
+        print(
+            "ERROR: OPENAI_API_KEY not set. Use --mock or set the environment variable."
+        )
         return 1
 
     # Run specific tests or full spike

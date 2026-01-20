@@ -18,14 +18,17 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 import blake3
 
 from src.domain.events.phase_witness import PhaseWitnessEvent
-from src.domain.models.deliberation_session import DeliberationPhase, DeliberationSession
+from src.domain.models.deliberation_session import (
+    DeliberationPhase,
+    DeliberationSession,
+)
 
 # Ordered list of deliberation phases
 PHASE_ORDER: list[DeliberationPhase] = [

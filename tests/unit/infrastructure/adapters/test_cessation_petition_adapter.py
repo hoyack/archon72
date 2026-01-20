@@ -8,8 +8,6 @@ and ID preservation (FR-9.4).
 import uuid
 from datetime import datetime, timezone
 
-import pytest
-
 from src.domain.events.petition import PetitionStatus
 from src.domain.models.petition import CoSigner, Petition
 from src.domain.models.petition_submission import (
@@ -19,8 +17,8 @@ from src.domain.models.petition_submission import (
 )
 from src.infrastructure.adapters.petition_migration.cessation_adapter import (
     CESSATION_REALM,
-    STATUS_TO_STATE_MAP,
     STATE_TO_STATUS_MAP,
+    STATUS_TO_STATE_MAP,
     CessationPetitionAdapter,
 )
 
@@ -81,7 +79,9 @@ class TestStatusMapping:
 
     def test_threshold_met_maps_to_escalated(self) -> None:
         """Verify THRESHOLD_MET status maps to ESCALATED state."""
-        assert STATUS_TO_STATE_MAP[PetitionStatus.THRESHOLD_MET] == PetitionState.ESCALATED
+        assert (
+            STATUS_TO_STATE_MAP[PetitionStatus.THRESHOLD_MET] == PetitionState.ESCALATED
+        )
 
     def test_closed_maps_to_acknowledged(self) -> None:
         """Verify CLOSED status maps to ACKNOWLEDGED state."""
@@ -93,7 +93,9 @@ class TestStatusMapping:
 
     def test_reverse_mapping_escalated_to_threshold_met(self) -> None:
         """Verify ESCALATED state maps back to THRESHOLD_MET status."""
-        assert STATE_TO_STATUS_MAP[PetitionState.ESCALATED] == PetitionStatus.THRESHOLD_MET
+        assert (
+            STATE_TO_STATUS_MAP[PetitionState.ESCALATED] == PetitionStatus.THRESHOLD_MET
+        )
 
     def test_reverse_mapping_acknowledged_to_closed(self) -> None:
         """Verify ACKNOWLEDGED state maps back to CLOSED status."""
@@ -165,7 +167,10 @@ class TestFromSubmission:
         submission = _make_submission(text="Restored petition content")
         cosigners = ()
         petition = CessationPetitionAdapter.from_submission(
-            submission, cosigners, submitter_public_key="a" * 64, submitter_signature="b" * 128
+            submission,
+            cosigners,
+            submitter_public_key="a" * 64,
+            submitter_signature="b" * 128,
         )
         assert petition.petition_content == "Restored petition content"
 
@@ -183,7 +188,10 @@ class TestFromSubmission:
         submission = _make_submission()
         cosigners = (_make_cosigner(1), _make_cosigner(2))
         petition = CessationPetitionAdapter.from_submission(
-            submission, cosigners, submitter_public_key="a" * 64, submitter_signature="b" * 128
+            submission,
+            cosigners,
+            submitter_public_key="a" * 64,
+            submitter_signature="b" * 128,
         )
         assert petition.cosigners == cosigners
         assert petition.cosigner_count == 2
@@ -243,7 +251,11 @@ class TestRoundTrip:
 
     def test_petition_roundtrip_preserves_status(self) -> None:
         """Verify petition status survives round-trip conversion."""
-        for status in [PetitionStatus.OPEN, PetitionStatus.THRESHOLD_MET, PetitionStatus.CLOSED]:
+        for status in [
+            PetitionStatus.OPEN,
+            PetitionStatus.THRESHOLD_MET,
+            PetitionStatus.CLOSED,
+        ]:
             original = _make_petition(status=status)
             if status == PetitionStatus.THRESHOLD_MET:
                 original = _make_petition(

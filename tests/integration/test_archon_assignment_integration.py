@@ -11,7 +11,6 @@ Requires Docker for testcontainers PostgreSQL.
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 from uuid import uuid4
 
@@ -21,26 +20,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.ports.archon_assignment import (
     ARCHONS_ASSIGNED_EVENT_TYPE,
-    ArchonsAssignedEventPayload,
-    AssignmentResult,
 )
 from src.application.services.archon_assignment_service import (
-    ARCHON_ASSIGNMENT_SYSTEM_AGENT_ID,
     ArchonAssignmentService,
 )
-from src.application.services.archon_pool import ArchonPoolService, get_archon_pool_service
+from src.application.services.archon_pool import (
+    ArchonPoolService,
+    get_archon_pool_service,
+)
 from src.domain.errors.deliberation import (
-    ArchonPoolExhaustedError,
     InvalidPetitionStateError,
 )
 from src.domain.errors.petition import PetitionNotFoundError
-from src.domain.models.deliberation_session import DeliberationPhase, DeliberationSession
+from src.domain.models.deliberation_session import (
+    DeliberationPhase,
+)
 from src.domain.models.petition_submission import PetitionState
 
-
 # Path to migration files
-PETITION_MIGRATION_FILE = Path(__file__).parent.parent.parent / "migrations" / "012_create_petition_submissions.sql"
-DELIBERATION_MIGRATION_FILE = Path(__file__).parent.parent.parent / "migrations" / "017_create_deliberation_sessions.sql"
+PETITION_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "012_create_petition_submissions.sql"
+)
+DELIBERATION_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "017_create_deliberation_sessions.sql"
+)
 
 
 # =============================================================================
@@ -119,10 +126,15 @@ class MockPetitionRepository:
         """Get petition by ID from database."""
         from uuid import UUID as UUIDType
 
-        from src.domain.models.petition_submission import PetitionSubmission, PetitionType
+        from src.domain.models.petition_submission import (
+            PetitionSubmission,
+            PetitionType,
+        )
 
         result = await self._session.execute(
-            text("SELECT id, type, text, state, realm FROM petition_submissions WHERE id = :id"),
+            text(
+                "SELECT id, type, text, state, realm FROM petition_submissions WHERE id = :id"
+            ),
             {"id": str(petition_id)},
         )
         row = result.fetchone()
@@ -237,7 +249,9 @@ class TestArchonAssignmentServiceIntegration:
         # Not all selections are identical (statistical check)
         unique_selections = set(selections)
         # With 7 archons choose 3 = 35 combinations, 20 draws should have some variety
-        assert len(unique_selections) > 1, "All 20 petition selections were identical - suspect non-random"
+        assert len(unique_selections) > 1, (
+            "All 20 petition selections were identical - suspect non-random"
+        )
 
 
 # =============================================================================

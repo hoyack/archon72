@@ -35,6 +35,7 @@ import logging
 import os
 
 import structlog
+from typing import cast
 from structlog.typing import Processor
 
 from src.infrastructure.observability.correlation import correlation_id_processor
@@ -84,7 +85,7 @@ def configure_structlog(environment: str = "production") -> None:
         # Add ISO 8601 timestamp
         structlog.processors.TimeStamper(fmt="iso"),
         # Add correlation ID from context
-        correlation_id_processor,
+        cast(Processor, correlation_id_processor),
         # Handle stack traces nicely
         structlog.processors.StackInfoRenderer(),
         # Handle Unicode properly

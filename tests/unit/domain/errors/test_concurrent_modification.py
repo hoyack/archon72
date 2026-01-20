@@ -114,4 +114,5 @@ class TestConcurrentModificationError:
     def test_error_is_importable_from_domain_errors(self) -> None:
         """ConcurrentModificationError can be imported from domain errors."""
         from src.domain.errors import ConcurrentModificationError as ImportedError
+
         assert ImportedError is ConcurrentModificationError

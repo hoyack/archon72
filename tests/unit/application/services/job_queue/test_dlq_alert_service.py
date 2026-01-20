@@ -24,7 +24,9 @@ from src.domain.models.scheduled_job import DeadLetterJob
 from src.infrastructure.stubs.job_scheduler_stub import JobSchedulerStub
 
 
-def _create_dlq_job(job_type: str = "test_job", failure_reason: str = "Test failure") -> DeadLetterJob:
+def _create_dlq_job(
+    job_type: str = "test_job", failure_reason: str = "Test failure"
+) -> DeadLetterJob:
     """Create a DeadLetterJob for testing."""
     return DeadLetterJob(
         id=uuid4(),

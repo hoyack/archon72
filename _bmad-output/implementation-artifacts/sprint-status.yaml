@@ -504,10 +504,10 @@ development_status:
   # ═══════════════════════════════════════════════════════════════════════════
   petition-epic-2b: in-progress
   petition-2b-1-dissent-recording-service: ready-for-dev
-  petition-2b-2-deliberation-timeout-enforcement: backlog
-  petition-2b-3-deadlock-detection-auto-escalation: backlog
-  petition-2b-4-archon-substitution-on-failure: backlog
-  petition-2b-5-transcript-preservation-hash-referencing: backlog
+  petition-2b-2-deliberation-timeout-enforcement: done
+  petition-2b-3-deadlock-detection-auto-escalation: ready-for-dev
+  petition-2b-4-archon-substitution-on-failure: ready-for-dev
+  petition-2b-5-transcript-preservation-hash-referencing: ready-for-dev
   petition-2b-6-audit-trail-reconstruction: backlog
   petition-2b-7-deliberation-load-testing-harness: backlog
   petition-2b-8-deliberation-chaos-testing: backlog

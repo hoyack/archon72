@@ -20,7 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Final
+from typing import Final, Iterable, cast
 
 # Constants
 USER_CONTENT_ID_PREFIX: Final[str] = "uc_"
@@ -108,15 +108,26 @@ class UserContentProhibitionFlag:
         Returns:
             UserContentProhibitionFlag instance.
         """
-        flagged_at = data["flagged_at"]
-        if isinstance(flagged_at, str):
-            flagged_at = datetime.fromisoformat(flagged_at)
+        flagged_at_raw = data.get("flagged_at")
+        if isinstance(flagged_at_raw, str):
+            flagged_at = datetime.fromisoformat(flagged_at_raw)
+        elif isinstance(flagged_at_raw, datetime):
+            flagged_at = flagged_at_raw
+        else:
+            raise ValueError("flagged_at must be a datetime or ISO string")
+
+        matched_terms_raw = data.get("matched_terms", ())
+        matched_terms = tuple(cast(Iterable[str], matched_terms_raw))
+
+        reviewed_by_raw = data.get("reviewed_by")
+        if reviewed_by_raw is not None and not isinstance(reviewed_by_raw, str):
+            raise ValueError("reviewed_by must be a string or None")
 
         return cls(
             flagged_at=flagged_at,
-            matched_terms=tuple(data["matched_terms"]),  # type: ignore[arg-type]
-            can_be_featured=data.get("can_be_featured", False),  # type: ignore[arg-type]
-            reviewed_by=data.get("reviewed_by"),  # type: ignore[arg-type]
+            matched_terms=matched_terms,
+            can_be_featured=bool(data.get("can_be_featured", False)),
+            reviewed_by=reviewed_by_raw,
         )
 
 

@@ -8,8 +8,6 @@ Constitutional Constraints:
 - CT-11: Fail loud, not silent
 """
 
-import pytest
-
 from src.application.ports.queue_capacity import QueueCapacityPort
 
 

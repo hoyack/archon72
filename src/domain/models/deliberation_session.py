@@ -1,4 +1,4 @@
-"""Deliberation session domain model (Story 2A.1, FR-11.1, FR-11.4).
+"""Deliberation session domain model (Story 2A.1, FR-11.1, FR-11.4, Story 2B.2).
 
 This module defines the DeliberationSession aggregate for the Three Fates
 mini-Conclave deliberation system. A deliberation session tracks the
@@ -10,8 +10,10 @@ Constitutional Constraints:
 - AT-6: Deliberation is collective judgment, not unilateral decision
 - FR-11.1: System SHALL assign exactly 3 Marquis-rank Archons
 - FR-11.4: Deliberation SHALL follow structured protocol
+- FR-11.9: System SHALL enforce deliberation timeout with auto-ESCALATE on expiry
 - NFR-10.3: Consensus determinism - 100% reproducible
 - NFR-10.4: Witness completeness - 100% utterances witnessed
+- HC-7: Deliberation timeout auto-ESCALATE - Prevent stuck petitions
 """
 
 from __future__ import annotations
@@ -21,6 +23,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING
 from uuid import UUID
+
+from uuid6 import uuid7
 
 if TYPE_CHECKING:
     pass
@@ -106,7 +110,7 @@ def _utc_now() -> datetime:
 
 @dataclass(frozen=True, eq=True)
 class DeliberationSession:
-    """A mini-Conclave deliberation session (Story 2A.1, FR-11.1, FR-11.4).
+    """A mini-Conclave deliberation session (Story 2A.1, FR-11.1, FR-11.4, 2B.2).
 
     This aggregate represents a Three Fates deliberation on a single petition.
     Exactly 3 Marquis-rank Archons are assigned to deliberate following a
@@ -116,7 +120,9 @@ class DeliberationSession:
     - CT-12: Frozen dataclass ensures immutability
     - FR-11.1: assigned_archons MUST contain exactly 3 unique archon IDs
     - FR-11.4: phase progression follows strict protocol sequence
+    - FR-11.9: timeout_job_id tracks scheduled timeout for auto-ESCALATE
     - AT-6: outcome requires 2-of-3 consensus (collective judgment)
+    - HC-7: timed_out flag indicates timeout-triggered escalation
 
     Attributes:
         session_id: UUIDv7 unique identifier.
@@ -130,6 +136,9 @@ class DeliberationSession:
         created_at: Session creation timestamp (UTC).
         completed_at: Completion timestamp (None until complete).
         version: Optimistic locking version for concurrent access.
+        timeout_job_id: UUID of scheduled timeout job (Story 2B.2, FR-11.9).
+        timeout_at: Timestamp when timeout will fire (Story 2B.2, FR-11.9).
+        timed_out: True if session terminated due to timeout (HC-7).
     """
 
     session_id: UUID
@@ -143,6 +152,10 @@ class DeliberationSession:
     created_at: datetime = field(default_factory=_utc_now)
     completed_at: datetime | None = field(default=None)
     version: int = field(default=1)
+    # Timeout tracking (Story 2B.2, FR-11.9, HC-7)
+    timeout_job_id: UUID | None = field(default=None)
+    timeout_at: datetime | None = field(default=None)
+    timed_out: bool = field(default=False)
 
     def __post_init__(self) -> None:
         """Validate deliberation session invariants."""
@@ -178,6 +191,8 @@ class DeliberationSession:
 
         # If outcome is set, validate consensus was achieved
         if self.outcome is not None:
+            if self.timed_out:
+                return
             if len(self.votes) != REQUIRED_ARCHON_COUNT:
                 raise ConsensusNotReachedError(
                     message=f"Outcome set without all {REQUIRED_ARCHON_COUNT} votes recorded",
@@ -197,21 +212,33 @@ class DeliberationSession:
                     votes_required=CONSENSUS_THRESHOLD,
                 )
 
+    @property
+    def id(self) -> UUID:
+        """Backward-compatible alias for session_id."""
+        return self.session_id
+
+    @property
+    def archon_ids(self) -> tuple[UUID, UUID, UUID]:
+        """Backward-compatible alias for assigned_archons."""
+        return self.assigned_archons
+
     @classmethod
     def create(
         cls,
-        session_id: UUID,
         petition_id: UUID,
-        assigned_archons: tuple[UUID, UUID, UUID],
+        assigned_archons: tuple[UUID, UUID, UUID] | None = None,
+        archon_ids: tuple[UUID, UUID, UUID] | None = None,
+        session_id: UUID | None = None,
     ) -> DeliberationSession:
         """Create a new deliberation session.
 
         Factory method for creating a new session with validated archons.
 
         Args:
-            session_id: UUIDv7 for the session.
             petition_id: UUID of the petition being deliberated.
             assigned_archons: Tuple of exactly 3 archon UUIDs.
+            archon_ids: Backward-compatible alias for assigned_archons.
+            session_id: UUIDv7 for the session.
 
         Returns:
             New DeliberationSession in ASSESS phase.
@@ -219,6 +246,14 @@ class DeliberationSession:
         Raises:
             InvalidArchonAssignmentError: If archon assignment violates invariants.
         """
+        if session_id is None:
+            session_id = uuid7()
+
+        if assigned_archons is None:
+            if archon_ids is None:
+                raise ValueError("assigned_archons is required")
+            assigned_archons = archon_ids
+
         return cls(
             session_id=session_id,
             petition_id=petition_id,
@@ -262,7 +297,9 @@ class DeliberationSession:
             )
 
         # If transitioning to COMPLETE, set completed_at
-        completed_at = _utc_now() if new_phase == DeliberationPhase.COMPLETE else self.completed_at
+        completed_at = (
+            _utc_now() if new_phase == DeliberationPhase.COMPLETE else self.completed_at
+        )
 
         return DeliberationSession(
             session_id=self.session_id,
@@ -276,6 +313,9 @@ class DeliberationSession:
             created_at=self.created_at,
             completed_at=completed_at,
             version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
         )
 
     def with_transcript(
@@ -323,11 +363,12 @@ class DeliberationSession:
             created_at=self.created_at,
             completed_at=self.completed_at,
             version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
         )
 
-    def with_votes(
-        self, votes: dict[UUID, DeliberationOutcome]
-    ) -> DeliberationSession:
+    def with_votes(self, votes: dict[UUID, DeliberationOutcome]) -> DeliberationSession:
         """Create new session with votes recorded.
 
         All 3 assigned archons must vote. Only assigned archons can vote.
@@ -381,6 +422,9 @@ class DeliberationSession:
             created_at=self.created_at,
             completed_at=self.completed_at,
             version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
         )
 
     def with_outcome(self) -> DeliberationSession:
@@ -456,7 +500,139 @@ class DeliberationSession:
             created_at=self.created_at,
             completed_at=_utc_now(),
             version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=self.timed_out,
         )
+
+    def with_timeout_scheduled(
+        self,
+        job_id: UUID,
+        timeout_at: datetime,
+    ) -> DeliberationSession:
+        """Create new session with timeout job scheduled (FR-11.9, HC-7).
+
+        Records the scheduled timeout job ID and expiry time.
+
+        Args:
+            job_id: UUID of the scheduled timeout job.
+            timeout_at: When the timeout will fire (UTC, timezone-aware).
+
+        Returns:
+            New DeliberationSession with timeout tracking.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+            ValueError: If timeout_at is not timezone-aware.
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot schedule timeout on completed session",
+            )
+
+        if timeout_at.tzinfo is None:
+            raise ValueError("timeout_at must be timezone-aware (UTC)")
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=self.phase,
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=self.completed_at,
+            version=self.version + 1,
+            timeout_job_id=job_id,
+            timeout_at=timeout_at,
+            timed_out=self.timed_out,
+        )
+
+    def with_timeout_cancelled(self) -> DeliberationSession:
+        """Create new session with timeout job cleared (completion path).
+
+        Clears timeout_job_id and timeout_at when deliberation completes
+        normally before the timeout fires.
+
+        Returns:
+            New DeliberationSession with timeout tracking cleared.
+        """
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=self.phase,
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),
+            outcome=self.outcome,
+            dissent_archon_id=self.dissent_archon_id,
+            created_at=self.created_at,
+            completed_at=self.completed_at,
+            version=self.version + 1,
+            timeout_job_id=None,
+            timeout_at=None,
+            timed_out=self.timed_out,
+        )
+
+    def with_timeout_triggered(self) -> DeliberationSession:
+        """Create new session marked as timed out with auto-ESCALATE (FR-11.9, HC-7).
+
+        Marks the session as terminated due to timeout. The outcome is set
+        to ESCALATE per constitutional constraint HC-7.
+
+        Returns:
+            New DeliberationSession with timed_out=True, outcome=ESCALATE, phase=COMPLETE.
+
+        Raises:
+            SessionAlreadyCompleteError: If session is already complete.
+        """
+        from src.domain.errors.deliberation import SessionAlreadyCompleteError
+
+        if self.phase.is_terminal():
+            raise SessionAlreadyCompleteError(
+                session_id=str(self.session_id),
+                message="Cannot timeout already completed session",
+            )
+
+        return DeliberationSession(
+            session_id=self.session_id,
+            petition_id=self.petition_id,
+            assigned_archons=self.assigned_archons,
+            phase=DeliberationPhase.COMPLETE,  # Terminal
+            phase_transcripts=dict(self.phase_transcripts),
+            votes=dict(self.votes),  # Keep any votes recorded so far
+            outcome=DeliberationOutcome.ESCALATE,  # HC-7: auto-ESCALATE on timeout
+            dissent_archon_id=None,  # No dissent - timeout forced outcome
+            created_at=self.created_at,
+            completed_at=_utc_now(),
+            version=self.version + 1,
+            timeout_job_id=self.timeout_job_id,
+            timeout_at=self.timeout_at,
+            timed_out=True,
+        )
+
+    @property
+    def has_timeout_scheduled(self) -> bool:
+        """Check if a timeout job is currently scheduled.
+
+        Returns:
+            True if timeout_job_id is set, False otherwise.
+        """
+        return self.timeout_job_id is not None
+
+    @property
+    def is_timed_out(self) -> bool:
+        """Check if session was terminated due to timeout.
+
+        Returns:
+            True if timed_out flag is set, False otherwise.
+        """
+        return self.timed_out
 
     def is_archon_assigned(self, archon_id: UUID) -> bool:
         """Check if an archon is assigned to this session.

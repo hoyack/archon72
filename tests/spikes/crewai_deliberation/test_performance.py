@@ -15,7 +15,6 @@ import pytest
 from src.spikes.crewai_deliberation.agents import create_mock_three_fates
 from src.spikes.crewai_deliberation.tasks import execute_mock_deliberation
 
-
 # =============================================================================
 # Constants (from Story 0.1 Acceptance Criteria)
 # =============================================================================
@@ -42,7 +41,7 @@ class TestPerformanceBenchmarks:
         """
 
         start = time.perf_counter()
-        result = execute_mock_deliberation(clotho, lachesis, atropos, petition)
+        execute_mock_deliberation(clotho, lachesis, atropos, petition)
         elapsed_ms = (time.perf_counter() - start) * 1000
 
         assert elapsed_ms < ACCEPTABLE_EXECUTION_TIME_MS, (
@@ -70,14 +69,15 @@ class TestPerformanceBenchmarks:
 
         # No run should be more than 10x the mean (would indicate issue)
         for t in times_ms:
-            assert t < mean_time * 10, f"Outlier timing: {t:.1f}ms vs mean {mean_time:.1f}ms"
+            assert t < mean_time * 10, (
+                f"Outlier timing: {t:.1f}ms vs mean {mean_time:.1f}ms"
+            )
 
     @pytest.mark.slow
     def test_deliberation_memory_usage(self) -> None:
         """Verify memory usage is acceptable."""
         gc.collect()
         tracemalloc.start()
-        memory_before = tracemalloc.get_traced_memory()[0] / (1024 * 1024)
 
         # Run multiple deliberations
         for _ in range(10):
@@ -85,11 +85,8 @@ class TestPerformanceBenchmarks:
             execute_mock_deliberation(clotho, lachesis, atropos, "Test")
 
         gc.collect()
-        memory_after = tracemalloc.get_traced_memory()[0] / (1024 * 1024)
         peak_memory = tracemalloc.get_traced_memory()[1] / (1024 * 1024)
         tracemalloc.stop()
-
-        memory_used = memory_after - memory_before
 
         assert peak_memory < ACCEPTABLE_MEMORY_MB, (
             f"Peak memory {peak_memory:.1f}MB exceeds {ACCEPTABLE_MEMORY_MB}MB"
@@ -164,10 +161,7 @@ class TestScalability:
 
         async def run_concurrent() -> list[float]:
             """Run multiple deliberations concurrently."""
-            tasks = [
-                mock_async_deliberation(f"Petition {i}")
-                for i in range(10)
-            ]
+            tasks = [mock_async_deliberation(f"Petition {i}") for i in range(10)]
             return await asyncio.gather(*tasks)
 
         times = asyncio.run(run_concurrent())
@@ -178,7 +172,6 @@ class TestScalability:
 
         # Total time should be roughly the same as sequential
         # (since mock is CPU-bound, not I/O-bound)
-        total_time = sum(times)
         avg_time = mean(times)
 
         # No single run should be dramatically slower

@@ -231,7 +231,9 @@ class TestAssessPhase:
         """AC2: All archons are invoked during ASSESS."""
         invoked_archons: list[UUID] = []
 
-        async def track_invocation(archon_id: UUID, prompt: str, phase: DeliberationPhase) -> str:
+        async def track_invocation(
+            archon_id: UUID, prompt: str, phase: DeliberationPhase
+        ) -> str:
             invoked_archons.append(archon_id)
             return f"Assessment from {archon_id}"
 
@@ -326,7 +328,9 @@ class TestPositionPhase:
         """AC3: Archons are invoked sequentially."""
         invocation_order: list[UUID] = []
 
-        async def track_invocation(archon_id: UUID, prompt: str, phase: DeliberationPhase) -> str:
+        async def track_invocation(
+            archon_id: UUID, prompt: str, phase: DeliberationPhase
+        ) -> str:
             invocation_order.append(archon_id)
             return f"Position from {archon_id}"
 
@@ -389,7 +393,9 @@ class TestCrossExaminePhase:
 
         invocation_count = 0
 
-        async def count_invocations(archon_id: UUID, prompt: str, phase: DeliberationPhase) -> str:
+        async def count_invocations(
+            archon_id: UUID, prompt: str, phase: DeliberationPhase
+        ) -> str:
             nonlocal invocation_count
             invocation_count += 1
             # Always challenge to force max rounds
@@ -483,7 +489,9 @@ class TestVotePhase:
         ]
         response_idx = 0
 
-        async def return_votes(archon_id: UUID, prompt: str, phase: DeliberationPhase) -> str:
+        async def return_votes(
+            archon_id: UUID, prompt: str, phase: DeliberationPhase
+        ) -> str:
             nonlocal response_idx
             response = responses[response_idx]
             response_idx += 1
@@ -548,13 +556,22 @@ class TestVoteParsing:
         response = "VOTE: ESCALATE\nNeeds escalation."
         assert adapter._parse_vote(response) == DeliberationOutcome.ESCALATE
 
-    def test_parse_vote_flexible_format(self, adapter: CrewAIDeliberationAdapter) -> None:
+    def test_parse_vote_flexible_format(
+        self, adapter: CrewAIDeliberationAdapter
+    ) -> None:
         """Parse vote with flexible formatting."""
-        assert adapter._parse_vote("VOTE:ACKNOWLEDGE") == DeliberationOutcome.ACKNOWLEDGE
+        assert (
+            adapter._parse_vote("VOTE:ACKNOWLEDGE") == DeliberationOutcome.ACKNOWLEDGE
+        )
         assert adapter._parse_vote("vote: refer") == DeliberationOutcome.REFER
-        assert adapter._parse_vote("My VOTE is to ESCALATE") == DeliberationOutcome.ESCALATE
+        assert (
+            adapter._parse_vote("My VOTE is to ESCALATE")
+            == DeliberationOutcome.ESCALATE
+        )
 
-    def test_parse_vote_invalid_returns_none(self, adapter: CrewAIDeliberationAdapter) -> None:
+    def test_parse_vote_invalid_returns_none(
+        self, adapter: CrewAIDeliberationAdapter
+    ) -> None:
         """Invalid vote format returns None."""
         assert adapter._parse_vote("I think we should do something") is None
         assert adapter._parse_vote("") is None

@@ -14,8 +14,9 @@ Constitutional Constraints:
 from __future__ import annotations
 
 import asyncio
+import threading
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import blake3
@@ -28,6 +29,9 @@ from src.domain.models.deliberation_result import PhaseResult
 from src.domain.models.deliberation_session import (
     DeliberationOutcome,
     DeliberationPhase,
+)
+from src.infrastructure.adapters.config.archon_profile_adapter import (
+    create_archon_profile_repository,
 )
 
 if TYPE_CHECKING:
@@ -110,6 +114,32 @@ class CrewAIDeliberationAdapter(PhaseExecutorProtocol):
             verbose=verbose,
         )
 
+    @staticmethod
+    def _run_async(coro: Any) -> Any:
+        """Run a coroutine in sync context, even if an event loop is running."""
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(coro)
+
+        result: Any = None
+        error: BaseException | None = None
+
+        def _runner() -> None:
+            nonlocal result, error
+            try:
+                result = asyncio.run(coro)
+            except BaseException as exc:  # pragma: no cover - passthrough
+                error = exc
+
+        thread = threading.Thread(target=_runner, daemon=True)
+        thread.start()
+        thread.join()
+
+        if error is not None:
+            raise error
+        return result
+
     def _get_archon_profile(self, archon_id: UUID) -> ArchonProfile:
         """Get archon profile by ID.
 
@@ -153,49 +183,51 @@ class CrewAIDeliberationAdapter(PhaseExecutorProtocol):
         Raises:
             PhaseExecutionError: If invocation fails or times out.
         """
-        from crewai import LLM, Agent, Crew, Task
-
         profile = self._get_archon_profile(archon_id)
 
         try:
-            # Create LLM from profile config
-            llm_config = profile.llm_config
-            llm = LLM(
-                model=f"{llm_config.provider}/{llm_config.model}",
-                temperature=llm_config.temperature,
-                max_tokens=llm_config.max_tokens,
-            )
+            def _run_crew() -> str:
+                from crewai import Agent, Crew, LLM, Task
 
-            # Create agent with archon's personality
-            agent = Agent(
-                role=profile.role,
-                goal=profile.goal,
-                backstory=profile.backstory,
-                verbose=self._verbose,
-                allow_delegation=False,  # No delegation in deliberation
-                llm=llm,
-            )
+                # Create LLM from profile config
+                llm_config = profile.llm_config
+                llm = LLM(
+                    model=f"{llm_config.provider}/{llm_config.model}",
+                    temperature=llm_config.temperature,
+                    max_tokens=llm_config.max_tokens,
+                )
 
-            # Create task
-            task = Task(
-                description=prompt,
-                expected_output="A structured response to the deliberation prompt",
-                agent=agent,
-            )
+                # Create agent with archon's personality
+                agent = Agent(
+                    role=profile.role,
+                    goal=profile.goal,
+                    backstory=profile.backstory,
+                    verbose=self._verbose,
+                    allow_delegation=False,  # No delegation in deliberation
+                    llm=llm,
+                )
 
-            # Create single-agent crew
-            crew = Crew(
-                agents=[agent],
-                tasks=[task],
-                verbose=self._verbose,
-            )
+                # Create task
+                task = Task(
+                    description=prompt,
+                    expected_output="A structured response to the deliberation prompt",
+                    agent=agent,
+                )
+
+                # Create single-agent crew
+                crew = Crew(
+                    agents=[agent],
+                    tasks=[task],
+                    verbose=self._verbose,
+                )
+
+                return str(crew.kickoff())
 
             # Execute with timeout (NFR-10.2: 30s)
             result = await asyncio.wait_for(
-                asyncio.to_thread(crew.kickoff),
+                asyncio.to_thread(_run_crew),
                 timeout=self._timeout_seconds,
             )
-
             response = str(result)
 
             logger.debug(
@@ -453,10 +485,10 @@ Then briefly explain your final reasoning."""
                 for archon_id in session.assigned_archons
             ]
             results = await asyncio.gather(*tasks)
-            return list(zip(session.assigned_archons, results))
+            return list(zip(session.assigned_archons, results, strict=True))
 
         # Run concurrent execution
-        assessments = asyncio.get_event_loop().run_until_complete(execute_concurrent())
+        assessments = self._run_async(execute_concurrent())
 
         # Build transcript
         transcript_parts = [
@@ -469,11 +501,13 @@ Then briefly explain your final reasoning."""
 
         for archon_id, assessment in assessments:
             profile = self._get_archon_profile(archon_id)
-            transcript_parts.extend([
-                f"--- Assessment from {profile.name} ({archon_id}) ---",
-                assessment,
-                "",
-            ])
+            transcript_parts.extend(
+                [
+                    f"--- Assessment from {profile.name} ({archon_id}) ---",
+                    assessment,
+                    "",
+                ]
+            )
 
         transcript = "\n".join(transcript_parts)
         transcript_hash = _compute_blake3_hash(transcript)
@@ -540,7 +574,7 @@ Then briefly explain your final reasoning."""
                 positions.append((archon_id, response))
             return positions
 
-        positions = asyncio.get_event_loop().run_until_complete(execute_sequential())
+        positions = self._run_async(execute_sequential())
 
         # Build transcript
         transcript_parts = [
@@ -552,11 +586,13 @@ Then briefly explain your final reasoning."""
 
         for archon_id, position in positions:
             profile = self._get_archon_profile(archon_id)
-            transcript_parts.extend([
-                f"--- Position from {profile.name} ({archon_id}) ---",
-                position,
-                "",
-            ])
+            transcript_parts.extend(
+                [
+                    f"--- Position from {profile.name} ({archon_id}) ---",
+                    position,
+                    "",
+                ]
+            )
 
         transcript = "\n".join(transcript_parts)
         transcript_hash = _compute_blake3_hash(transcript)
@@ -649,7 +685,7 @@ Then briefly explain your final reasoning."""
                     break
             return rounds_completed
 
-        asyncio.get_event_loop().run_until_complete(run_rounds())
+        self._run_async(run_rounds())
 
         # Build transcript
         transcript_parts = [
@@ -715,7 +751,9 @@ Then briefly explain your final reasoning."""
         )
 
         started_at = _utc_now()
-        cross_examine_summary = cross_examine_result.transcript[:2000]  # Truncate for prompt
+        cross_examine_summary = cross_examine_result.transcript[
+            :2000
+        ]  # Truncate for prompt
 
         async def execute_concurrent() -> list[tuple[UUID, str]]:
             """Execute all archon votes concurrently."""
@@ -728,9 +766,9 @@ Then briefly explain your final reasoning."""
                 for archon_id in session.assigned_archons
             ]
             results = await asyncio.gather(*tasks)
-            return list(zip(session.assigned_archons, results))
+            return list(zip(session.assigned_archons, results, strict=True))
 
-        vote_responses = asyncio.get_event_loop().run_until_complete(execute_concurrent())
+        vote_responses = self._run_async(execute_concurrent())
 
         # Parse votes from responses
         votes: dict[UUID, DeliberationOutcome] = {}
@@ -756,11 +794,13 @@ Then briefly explain your final reasoning."""
 
         for archon_id, response in vote_responses:
             profile = self._get_archon_profile(archon_id)
-            transcript_parts.extend([
-                f"--- Vote from {profile.name} ({archon_id}) ---",
-                response,
-                "",
-            ])
+            transcript_parts.extend(
+                [
+                    f"--- Vote from {profile.name} ({archon_id}) ---",
+                    response,
+                    "",
+                ]
+            )
 
         # Add vote summary
         vote_counts: dict[DeliberationOutcome, int] = {}
@@ -812,7 +852,10 @@ Then briefly explain your final reasoning."""
             return DeliberationOutcome.ESCALATE
         if "VOTE: REFER" in response_upper or "VOTE:REFER" in response_upper:
             return DeliberationOutcome.REFER
-        if "VOTE: ACKNOWLEDGE" in response_upper or "VOTE:ACKNOWLEDGE" in response_upper:
+        if (
+            "VOTE: ACKNOWLEDGE" in response_upper
+            or "VOTE:ACKNOWLEDGE" in response_upper
+        ):
             return DeliberationOutcome.ACKNOWLEDGE
 
         # Try to find the outcome in a more flexible way
@@ -843,10 +886,6 @@ def create_crewai_deliberation_adapter(
         Configured CrewAIDeliberationAdapter instance.
     """
     if profile_repository is None:
-        from src.infrastructure.adapters.config.archon_profile_adapter import (
-            create_archon_profile_repository,
-        )
-
         profile_repository = create_archon_profile_repository()
 
     return CrewAIDeliberationAdapter(

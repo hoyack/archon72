@@ -234,7 +234,7 @@ class QuarterlyAuditService:
                     violations_found=len(violations),
                     started_at=audit.started_at,
                     completed_at=completed_at,
-                    remediation_deadline=remediation_deadline,  # type: ignore
+                    remediation_deadline=remediation_deadline,
                 )
             else:
                 completed_payload = AuditCompletedEventPayload.clean_audit(

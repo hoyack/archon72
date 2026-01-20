@@ -92,7 +92,9 @@ class TestPetitionQueueConfig:
 
         def test_retry_after_must_be_at_least_one(self) -> None:
             """Retry-After must be >= 1."""
-            with pytest.raises(ValueError, match="retry_after_seconds must be at least 1"):
+            with pytest.raises(
+                ValueError, match="retry_after_seconds must be at least 1"
+            ):
                 PetitionQueueConfig(retry_after_seconds=0)
 
         def test_valid_custom_config(self) -> None:
@@ -262,7 +264,9 @@ class TestPetitionRateLimitConfig:
 
         def test_bucket_ttl_must_be_greater_than_window(self) -> None:
             """Bucket TTL must be > window_minutes."""
-            with pytest.raises(ValueError, match="bucket_ttl_hours.*must be greater than"):
+            with pytest.raises(
+                ValueError, match="bucket_ttl_hours.*must be greater than"
+            ):
                 # 1 hour = 60 min, window = 60 min -> TTL not greater
                 PetitionRateLimitConfig(window_minutes=60, bucket_ttl_hours=1)
 
@@ -317,7 +321,9 @@ class TestPetitionRateLimitConfig:
 
         def test_invalid_env_var_uses_default(self) -> None:
             """Invalid environment variable values should use defaults."""
-            with patch.dict(os.environ, {"PETITION_RATE_LIMIT_PER_HOUR": "not_a_number"}):
+            with patch.dict(
+                os.environ, {"PETITION_RATE_LIMIT_PER_HOUR": "not_a_number"}
+            ):
                 config = PetitionRateLimitConfig.from_environment()
                 assert config.limit_per_hour == 10  # Default
 

@@ -78,6 +78,15 @@ from src.domain.models.conclave import (
     VoteChoice,
     get_rank_priority,
 )
+from src.domain.models.consensus_result import (
+    CONSENSUS_ALGORITHM_VERSION,
+    REQUIRED_VOTE_COUNT,
+    SUPERMAJORITY_THRESHOLD,
+    ConsensusResult,
+    ConsensusStatus,
+    VoteValidationResult,
+    VoteValidationStatus,
+)
 from src.domain.models.constitutional_health import (
     BREACH_CRITICAL_THRESHOLD,
     BREACH_WARNING_THRESHOLD,
@@ -96,36 +105,6 @@ from src.domain.models.constitutional_threshold import (
     ConstitutionalThreshold,
     ConstitutionalThresholdRegistry,
 )
-from src.domain.models.deliberation_context_package import (
-    CONTEXT_PACKAGE_SCHEMA_VERSION as DELIBERATION_CONTEXT_SCHEMA_VERSION,
-    DeliberationContextPackage,
-    compute_content_hash,
-)
-from src.domain.models.deliberation_result import (
-    DeliberationResult,
-    PhaseResult,
-)
-from src.domain.models.consensus_result import (
-    CONSENSUS_ALGORITHM_VERSION,
-    REQUIRED_VOTE_COUNT,
-    SUPERMAJORITY_THRESHOLD,
-    ConsensusResult,
-    ConsensusStatus,
-    VoteValidationResult,
-    VoteValidationStatus,
-)
-from src.domain.models.disposition_result import (
-    DispositionResult,
-    PendingDisposition,
-)
-from src.domain.models.deliberation_session import (
-    CONSENSUS_THRESHOLD,
-    PHASE_TRANSITION_MATRIX as DELIBERATION_PHASE_TRANSITION_MATRIX,
-    REQUIRED_ARCHON_COUNT,
-    DeliberationOutcome,
-    DeliberationPhase,
-    DeliberationSession,
-)
 from src.domain.models.context_bundle import (
     BUNDLE_ID_PREFIX,
     CONTENT_REF_LENGTH,
@@ -139,7 +118,45 @@ from src.domain.models.context_bundle import (
     create_content_ref,
     validate_content_ref,
 )
+from src.domain.models.deliberation_context_package import (
+    CONTEXT_PACKAGE_SCHEMA_VERSION as DELIBERATION_CONTEXT_SCHEMA_VERSION,
+)
+from src.domain.models.deliberation_context_package import (
+    DeliberationContextPackage,
+    compute_content_hash,
+)
+from src.domain.models.deliberation_result import (
+    DeliberationResult,
+    PhaseResult,
+)
+from src.domain.models.deliberation_session import (
+    CONSENSUS_THRESHOLD,
+    REQUIRED_ARCHON_COUNT,
+    DeliberationOutcome,
+    DeliberationPhase,
+    DeliberationSession,
+)
+from src.domain.models.deliberation_session import (
+    PHASE_TRANSITION_MATRIX as DELIBERATION_PHASE_TRANSITION_MATRIX,
+)
+from src.domain.models.disposition_result import (
+    DispositionResult,
+    PendingDisposition,
+)
+from src.domain.models.dissent_record import (
+    BLAKE3_HASH_LENGTH,
+    DissentRecord,
+)
 from src.domain.models.event_type_registry import EventTypeRegistry
+from src.domain.models.failure_mode import (
+    DEFAULT_FAILURE_MODES,
+    EarlyWarning,
+    FailureMode,
+    FailureModeId,
+    FailureModeSeverity,
+    FailureModeStatus,
+    FailureModeThreshold,
+)
 from src.domain.models.fate_archon import (
     DELIBERATION_PROMPT_HEADER,
     FATE_ARCHON_AMON,
@@ -159,15 +176,6 @@ from src.domain.models.fate_archon import (
     get_fate_archon_by_name,
     is_valid_fate_archon_id,
     list_fate_archons,
-)
-from src.domain.models.failure_mode import (
-    DEFAULT_FAILURE_MODES,
-    EarlyWarning,
-    FailureMode,
-    FailureModeId,
-    FailureModeSeverity,
-    FailureModeStatus,
-    FailureModeThreshold,
 )
 from src.domain.models.halt_status_header import (
     SYSTEM_STATUS_HALTED,
@@ -244,23 +252,11 @@ from src.domain.models.petition import (
     Petition,
 )
 from src.domain.models.petition_submission import (
+    STATE_TRANSITION_MATRIX,
+    TERMINAL_STATES,
     PetitionState,
     PetitionSubmission,
     PetitionType,
-    STATE_TRANSITION_MATRIX,
-    TERMINAL_STATES,
-)
-from src.domain.models.realm import (
-    CANONICAL_REALM_IDS,
-    REALM_DISPLAY_NAMES,
-    Realm,
-    RealmStatus,
-    is_canonical_realm,
-)
-from src.domain.models.scheduled_job import (
-    DeadLetterJob,
-    JobStatus,
-    ScheduledJob,
 )
 from src.domain.models.prohibited_language import (
     DEFAULT_PROHIBITED_TERMS,
@@ -273,9 +269,21 @@ from src.domain.models.publication import (
     PublicationScanRequest,
     PublicationStatus,
 )
+from src.domain.models.realm import (
+    CANONICAL_REALM_IDS,
+    REALM_DISPLAY_NAMES,
+    Realm,
+    RealmStatus,
+    is_canonical_realm,
+)
 from src.domain.models.recovery_waiting_period import (
     WAITING_PERIOD_HOURS,
     RecoveryWaitingPeriod,
+)
+from src.domain.models.scheduled_job import (
+    DeadLetterJob,
+    JobStatus,
+    ScheduledJob,
 )
 from src.domain.models.signable import ParsedSignedContent, SignableContent
 from src.domain.models.signed_fork_signal import SignedForkSignal
@@ -568,4 +576,7 @@ __all__: list[str] = [
     # Disposition result models (Story 2A.8, FR-11.11)
     "DispositionResult",
     "PendingDisposition",
+    # Dissent record models (Story 2B.1, FR-11.8)
+    "BLAKE3_HASH_LENGTH",
+    "DissentRecord",
 ]

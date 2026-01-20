@@ -5,15 +5,11 @@ Tests the deliberation protocol without requiring real LLM calls.
 
 from __future__ import annotations
 
-import pytest
-
 from src.spikes.crewai_deliberation.agents import (
     ATROPOS_PERSONA,
     CLOTHO_PERSONA,
     LACHESIS_PERSONA,
     Disposition,
-    FatePersona,
-    MockFateAgent,
     create_mock_three_fates,
 )
 from src.spikes.crewai_deliberation.tasks import (

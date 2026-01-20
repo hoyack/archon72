@@ -54,22 +54,6 @@ from src.domain.errors.cessation import (
     InvalidCessationDecisionError,
 )
 from src.domain.errors.collective import FR11ViolationError
-from src.domain.errors.concurrent_modification import ConcurrentModificationError
-from src.domain.errors.deliberation import (
-    ArchonPoolExhaustedError,
-    ConsensusNotReachedError,
-    DeliberationError,
-    IncompleteWitnessChainError,
-    InvalidArchonAssignmentError,
-    InvalidPetitionStateError,
-    InvalidPhaseTransitionError,
-    PetitionSessionMismatchError,
-    PhaseExecutionError,
-    PipelineRoutingError,
-    SessionAlreadyCompleteError,
-    SessionAlreadyExistsError,
-)
-from src.domain.errors.event_emission import FateEventEmissionError
 from src.domain.errors.collusion import (
     CollusionDefenseError,
     CollusionInvestigationRequiredError,
@@ -83,6 +67,7 @@ from src.domain.errors.complexity_budget import (
     ComplexityBudgetBreachedError,
     ComplexityBudgetEscalationError,
 )
+from src.domain.errors.concurrent_modification import ConcurrentModificationError
 from src.domain.errors.configuration_floor import (
     ConfigurationFloorEnforcementError,
     FloorModificationAttemptedError,
@@ -104,6 +89,21 @@ from src.domain.errors.context_bundle import (
     InvalidBundleSignatureError,
     StaleBundleError,
 )
+from src.domain.errors.deliberation import (
+    ArchonPoolExhaustedError,
+    ConsensusNotReachedError,
+    DeliberationError,
+    IncompleteWitnessChainError,
+    InvalidArchonAssignmentError,
+    InvalidPetitionStateError,
+    InvalidPhaseTransitionError,
+    PetitionSessionMismatchError,
+    PhaseExecutionError,
+    PipelineRoutingError,
+    SessionAlreadyCompleteError,
+    SessionAlreadyExistsError,
+    SessionNotFoundError,
+)
 from src.domain.errors.escalation import (
     BreachAlreadyAcknowledgedError,
     BreachAlreadyEscalatedError,
@@ -112,6 +112,7 @@ from src.domain.errors.escalation import (
     EscalationTimerNotStartedError,
     InvalidAcknowledgmentError,
 )
+from src.domain.errors.event_emission import FateEventEmissionError
 from src.domain.errors.event_store import (
     EventNotFoundError,
     EventStoreConnectionError,
@@ -212,12 +213,6 @@ from src.domain.errors.prohibited_language import (
     ProhibitedLanguageScanError,
     ProhibitedTermsConfigurationError,
 )
-from src.domain.errors.queue_overflow import QueueOverflowError
-from src.domain.errors.rate_limit import RateLimitExceededError
-from src.domain.errors.state_transition import (
-    InvalidStateTransitionError,
-    PetitionAlreadyFatedError,
-)
 from src.domain.errors.publication import (
     PublicationBlockedError,
     PublicationError,
@@ -225,6 +220,8 @@ from src.domain.errors.publication import (
     PublicationScanError,
     PublicationValidationError,
 )
+from src.domain.errors.queue_overflow import QueueOverflowError
+from src.domain.errors.rate_limit import RateLimitExceededError
 from src.domain.errors.read_only import (
     ProvisionalBlockedDuringHaltError,
     WriteBlockedDuringHaltError,
@@ -262,6 +259,10 @@ from src.domain.errors.sequence_gap import (
     SequenceGapResolutionRequiredError,
 )
 from src.domain.errors.silent_edit import FR13ViolationError
+from src.domain.errors.state_transition import (
+    InvalidStateTransitionError,
+    PetitionAlreadyFatedError,
+)
 from src.domain.errors.threshold import (
     ConstitutionalFloorViolationError,
     CounterResetAttemptedError,
@@ -541,7 +542,7 @@ __all__: list[str] = [
     "ConcurrentModificationError",
     # Event emission error (Story 1.7, FR-2.5, HC-1)
     "FateEventEmissionError",
-    # Deliberation errors (Story 2A.1, FR-11.1, FR-11.4, Story 2A.5, Story 2A.8)
+    # Deliberation errors (Story 2A.1, FR-11.1, FR-11.4, Story 2A.5, Story 2A.8, Story 2B.2)
     "ArchonPoolExhaustedError",
     "ConsensusNotReachedError",
     "DeliberationError",
@@ -554,4 +555,5 @@ __all__: list[str] = [
     "PipelineRoutingError",
     "SessionAlreadyCompleteError",
     "SessionAlreadyExistsError",
+    "SessionNotFoundError",
 ]

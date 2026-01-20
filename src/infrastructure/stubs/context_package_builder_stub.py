@@ -88,7 +88,9 @@ class ContextPackageBuilderStub:
             "petition_text": petition.text,
             "petition_type": petition.type.value,
             "co_signer_count": petition.co_signer_count,
-            "submitter_id": str(petition.submitter_id) if petition.submitter_id else None,
+            "submitter_id": str(petition.submitter_id)
+            if petition.submitter_id
+            else None,
             "realm": petition.realm,
             "submitted_at": petition.created_at.isoformat(),
             "session_id": str(session.session_id),

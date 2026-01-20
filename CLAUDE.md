@@ -1,51 +1,44 @@
-# Archon 72 Conclave Backend - Project Context
+<!-- COMPACTION_META
+compacted_at: 2026-01-20T00:51:09.552Z
+previous_cache_growth: 410878
+compaction_number: 1
+session_id: 20541d88-c62d-41d7-b7af-b40c82c870e1
+-->
 
-## Current Focus: Petition System Implementation
+## Session Summary
+- Task/workflow: Implementation of story `petition-2b-2-deliberation-timeout-enforcement`
+- What has been accomplished: All 10 tasks completed including configuration, event models, service implementation, test stubs, job handlers, orchestrator integration, and comprehensive unit/integration tests
+- Current state: Story is complete (✓ done), ready for next story in Epic 2B
 
-**Priority**: Complete all Petition System stories before moving to other work.
+## Key Decisions Made
+- Architectural: Implemented `DeliberationTimeoutProtocol` port for dependency injection and testability
+- Configuration: Used `DeliberationConfig` with 5-minute default timeout per FR-11.9
+- Tradeoffs: Silent failure prevention (CT-11) prioritized over performance for 100% timeout reliability (NFR-3.4)
 
-When `/workflow-status` is invoked, check `_bmad-output/planning-artifacts/bmm-workflow-status.yaml` and focus on the `petition_system` section.
+## Files Modified
+**Source Files:**
+- `src/config/deliberation_config.py`
+- `src/domain/events/deliberation_timeout.py`
+- `src/domain/errors/deliberation.py`
+- `src/application/ports/deliberation_timeout.py`
+- `src/application/services/deliberation_timeout_service.py`
+- `src/infrastructure/stubs/deliberation_timeout_stub.py`
+- `src/application/services/job_queue/deliberation_timeout_handler.py`
+- `src/application/services/deliberation_orchestrator_service.py`
 
-### Petition System Progress (10 Epics, 71 Stories)
+**Test Files:**
+- `tests/unit/domain/events/test_deliberation_timeout_event.py`
+- `tests/unit/application/services/test_deliberation_timeout_service.py`
+- `tests/unit/application/services/job_queue/test_deliberation_timeout_handler.py`
+- `tests/unit/infrastructure/stubs/test_deliberation_timeout_stub.py`
+- `tests/integration/test_deliberation_timeout_integration.py`
 
-| Epic | Name | Priority | Status |
-|------|------|----------|--------|
-| 0 | Foundation & Migration | P0 | DONE (7/7) |
-| 1 | Petition Intake & State Machine | P0 | DONE (8/8) |
-| 2A | Core Deliberation Protocol | P0-CRITICAL | DONE (8/8) |
-| 2B | Deliberation Edge Cases & Guarantees | P0 | BACKLOG (0/8) |
-| 3 | Acknowledgment Execution | P1 | BACKLOG (0/6) |
-| 4 | Knight Referral Workflow | P1 | BACKLOG (0/7) |
-| 5 | Co-signing & Auto-Escalation | P0 | BACKLOG (0/8) |
-| 6 | King Escalation & Adoption Bridge | P0 | BACKLOG (0/6) |
-| 7 | Observer Engagement | P2 | BACKLOG (0/6) |
-| 8 | Legitimacy Metrics & Governance | P1 | BACKLOG (0/7) |
+## Next Steps
+- Begin next story in Epic 2B (3 stories remain in backlog)
+- Review `ready-for-dev` stories (5 available)
+- No pending items or blockers
 
-**Current**: 23/71 stories complete (32%)
-**Next Epic**: 2B - Deliberation Edge Cases & Guarantees
-**Next Story**: petition-2b-1-dissent-recording-service
-
-### Workflow Commands
-
-- `/workflow-status` - Check Petition System progress, identify next story
-- `/bmad:bmm:workflows:create-story` - Create next story from backlog
-- `/bmad:bmm:workflows:dev-story` - Implement a ready-for-dev story
-
-### Key Architecture
-
-- **Tech Stack**: Python 3.11+, FastAPI, Supabase (PostgreSQL 16), Redis, SQLAlchemy 2.0, CrewAI
-- **Pattern**: Hexagonal/Clean Architecture (`src/api`, `src/application`, `src/domain`, `src/infrastructure`)
-- **Three Fates**: Marquis-rank Archon AI agents deliberate via CrewAI multi-agent orchestration
-- **Dispositions**: ACKNOWLEDGE, REFER (to Knight), ESCALATE (to King)
-
-### Source Documents
-
-- PRD: `_bmad-output/planning-artifacts/petition-system-prd.md` (70 FRs, 53 NFRs)
-- Epics: `_bmad-output/planning-artifacts/petition-system-epics.md`
-- Architecture: `_bmad-output/planning-artifacts/architecture.md`
-- Sprint Status: `_bmad-output/implementation-artifacts/sprint-status.yaml`
-
-### Completed Systems (Do Not Revisit)
-
-- Consent-Gov System: 10 epics, 35 stories - COMPLETE
-- Core Governance: 11 epics, 83 stories - COMPLETE
+## Important Context
+- Constitutional constraints addressed: FR-11.9, HC-7, CT-11, CT-14, NFR-3.4, HP-1
+- Job queue integration ensures reliable deadline execution
+- All tests passing, no warnings encountered

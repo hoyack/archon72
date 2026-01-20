@@ -168,7 +168,9 @@ class TestDeliberationStyles:
         """All expected deliberation styles exist."""
         assert DeliberationStyle.CONSTITUTIONAL_PURIST.value == "constitutional_purist"
         assert DeliberationStyle.PRAGMATIC_MODERATOR.value == "pragmatic_moderator"
-        assert DeliberationStyle.ADVERSARIAL_CHALLENGER.value == "adversarial_challenger"
+        assert (
+            DeliberationStyle.ADVERSARIAL_CHALLENGER.value == "adversarial_challenger"
+        )
         assert DeliberationStyle.WISDOM_SEEKER.value == "wisdom_seeker"
         assert DeliberationStyle.RECONCILER.value == "reconciler"
 
@@ -202,7 +204,9 @@ class TestFateArchonProperties:
             system_prompt_template="Test prompt",
         )
 
-        assert archon.full_designation == "Marquis Leraje, Marquis of Conflict Resolution"
+        assert (
+            archon.full_designation == "Marquis Leraje, Marquis of Conflict Resolution"
+        )
 
 
 class TestSystemPromptBuilding:
@@ -232,10 +236,12 @@ class TestSystemPromptBuilding:
             system_prompt_template="You are {archon_name}. Petition: {petition_text}",
         )
 
-        result = archon.build_system_prompt({
-            "archon_name": "Amon",
-            "petition_text": "Test petition content",
-        })
+        result = archon.build_system_prompt(
+            {
+                "archon_name": "Amon",
+                "petition_text": "Test petition content",
+            }
+        )
 
         assert result == "You are Amon. Petition: Test petition content"
 
@@ -269,7 +275,10 @@ class TestCanonicalFateArchons:
     def test_leraje_is_adversarial_challenger(self) -> None:
         """Leraje has ADVERSARIAL_CHALLENGER style."""
         assert FATE_ARCHON_LERAJE.name == "Leraje"
-        assert FATE_ARCHON_LERAJE.deliberation_style == DeliberationStyle.ADVERSARIAL_CHALLENGER
+        assert (
+            FATE_ARCHON_LERAJE.deliberation_style
+            == DeliberationStyle.ADVERSARIAL_CHALLENGER
+        )
 
     def test_lookup_by_id_works(self) -> None:
         """FATE_ARCHON_BY_ID lookup works for all Archons."""

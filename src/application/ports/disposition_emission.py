@@ -54,10 +54,10 @@ class DispositionEmissionProtocol(Protocol):
 
     async def emit_disposition(
         self,
-        session: "DeliberationSession",
-        consensus: "ConsensusResult",
-        petition: "PetitionSubmission",
-    ) -> "DispositionResult":
+        session: DeliberationSession,
+        consensus: ConsensusResult,
+        petition: PetitionSubmission,
+    ) -> DispositionResult:
         """Emit disposition event and route to appropriate pipeline.
 
         This is the main entry point for completing a deliberation.
@@ -85,10 +85,10 @@ class DispositionEmissionProtocol(Protocol):
 
     async def route_to_pipeline(
         self,
-        petition: "PetitionSubmission",
-        outcome: "DispositionOutcome",
+        petition: PetitionSubmission,
+        outcome: DispositionOutcome,
         deliberation_event_id: UUID,
-    ) -> "PipelineRoutingEvent":
+    ) -> PipelineRoutingEvent:
         """Route a petition to its target pipeline.
 
         Called internally by emit_disposition, but also available
@@ -106,9 +106,9 @@ class DispositionEmissionProtocol(Protocol):
 
     async def get_pending_dispositions(
         self,
-        pipeline: "PipelineType",
+        pipeline: PipelineType,
         limit: int = 100,
-    ) -> list["PendingDisposition"]:
+    ) -> list[PendingDisposition]:
         """Get pending dispositions for a pipeline.
 
         Used by downstream pipelines to retrieve their queued work.
@@ -125,7 +125,7 @@ class DispositionEmissionProtocol(Protocol):
     async def acknowledge_routing(
         self,
         petition_id: UUID,
-        pipeline: "PipelineType",
+        pipeline: PipelineType,
     ) -> bool:
         """Acknowledge that a pipeline has picked up a petition.
 

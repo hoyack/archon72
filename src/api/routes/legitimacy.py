@@ -190,6 +190,11 @@ async def restore_legitimacy(
 
     # Success - return response
     ack = result.acknowledgment
+    if ack is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Restoration acknowledgment missing from result",
+        )
     return RestorationResponse(
         success=True,
         acknowledgment_id=str(ack.acknowledgment_id),

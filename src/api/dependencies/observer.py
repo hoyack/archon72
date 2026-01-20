@@ -137,7 +137,8 @@ class EventStoreStub(EventStorePort):
     ) -> AsyncIterator["Event"]:
         # Stub yields nothing
         return
-        yield  # type: ignore[misc]  # Required for async generator
+        if False:  # pragma: no cover
+            yield
 
     async def count_events_in_range(
         self,

@@ -143,6 +143,8 @@ class TaskActivationService(TaskActivationPort):
             ttl=effective_ttl,
         )
 
+        result: TaskActivationResult | None = None
+
         # Use two-phase execution for the activation workflow
         async with TwoPhaseExecution(
             emitter=self._emitter,
@@ -177,8 +179,9 @@ class TaskActivationService(TaskActivationPort):
                 filter_result=filter_result,
                 execution=execution,
             )
-
-            return result
+        if result is None:
+            raise RuntimeError("Task activation failed")
+        return result
 
     async def _transition_task(
         self,
@@ -305,6 +308,8 @@ class TaskActivationService(TaskActivationPort):
                 message="Content blocked due to violation.",
                 rejection_reason=violation_str,
             )
+
+        raise RuntimeError("Task activation failed")
 
     async def _route_to_cluster_internal(
         self,

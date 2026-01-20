@@ -20,7 +20,11 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Path to migration file
-MIGRATION_FILE = Path(__file__).parent.parent.parent / "migrations" / "012_create_petition_submissions.sql"
+MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "012_create_petition_submissions.sql"
+)
 
 
 @pytest.fixture
@@ -68,8 +72,10 @@ class TestPetitionSubmissionsTable:
                 ORDER BY ordinal_position
             """)
         )
-        columns = {row[0]: {"type": row[1], "nullable": row[2], "default": row[3]}
-                   for row in result.fetchall()}
+        columns = {
+            row[0]: {"type": row[1], "nullable": row[2], "default": row[3]}
+            for row in result.fetchall()
+        }
 
         # Verify expected columns
         assert "id" in columns
@@ -109,7 +115,9 @@ class TestPetitionSubmissionsTable:
 class TestPetitionEnums:
     """Test petition enum types."""
 
-    async def test_petition_type_enum_values(self, petition_schema: AsyncSession) -> None:
+    async def test_petition_type_enum_values(
+        self, petition_schema: AsyncSession
+    ) -> None:
         """AC2: Verify petition_type_enum has all expected values."""
         result = await petition_schema.execute(
             text("""
@@ -124,7 +132,9 @@ class TestPetitionEnums:
         assert "COLLABORATION" in values
         assert len(values) == 4
 
-    async def test_petition_state_enum_values(self, petition_schema: AsyncSession) -> None:
+    async def test_petition_state_enum_values(
+        self, petition_schema: AsyncSession
+    ) -> None:
         """AC3: Verify petition_state_enum has all expected values."""
         result = await petition_schema.execute(
             text("""
@@ -164,7 +174,10 @@ class TestPetitionConstraints:
             await petition_schema.flush()
 
         # Should fail with constraint violation
-        assert "petition_text_length" in str(exc_info.value).lower() or "check" in str(exc_info.value).lower()
+        assert (
+            "petition_text_length" in str(exc_info.value).lower()
+            or "check" in str(exc_info.value).lower()
+        )
 
     async def test_text_length_constraint_accepts_max(
         self, petition_schema: AsyncSession
@@ -217,7 +230,9 @@ class TestPetitionIndexes:
 class TestPetitionTrigger:
     """Test petition table triggers."""
 
-    async def test_updated_at_trigger_fires(self, petition_schema: AsyncSession) -> None:
+    async def test_updated_at_trigger_fires(
+        self, petition_schema: AsyncSession
+    ) -> None:
         """AC1: updated_at trigger fires on update."""
         petition_id = str(uuid4())
 
@@ -240,6 +255,7 @@ class TestPetitionTrigger:
 
         # Small delay to ensure timestamp difference
         import asyncio
+
         await asyncio.sleep(0.01)
 
         # Update

@@ -411,7 +411,7 @@ class PresidentServiceAdapter(PresidentServiceProtocol):
             word.lower() for word in re.findall(r"\b\w{4,}\b", original_intent)
         )
 
-        task_words = set()
+        task_words: set[str] = set()
         for task in derived_tasks:
             task_words.update(
                 word.lower() for word in re.findall(r"\b\w{4,}\b", task.description)

@@ -13,7 +13,7 @@ Developer Golden Rules:
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
@@ -282,9 +282,7 @@ class ArchonPoolStub:
             for op in self._operations
         )
 
-    def get_selection_for_petition(
-        self, petition_id: UUID
-    ) -> list[str] | None:
+    def get_selection_for_petition(self, petition_id: UUID) -> list[str] | None:
         """Get the names of Archons selected for a petition.
 
         Args:

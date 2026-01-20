@@ -56,7 +56,11 @@ from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
 from src.application.services.queue_capacity_service import QueueCapacityService
-from src.domain.errors import QueueOverflowError, RateLimitExceededError, SystemHaltedError
+from src.domain.errors import (
+    QueueOverflowError,
+    RateLimitExceededError,
+    SystemHaltedError,
+)
 from src.domain.models.petition_submission import PetitionType
 
 router = APIRouter(prefix="/v1/petition-submissions", tags=["petition-submissions"])
@@ -147,30 +151,33 @@ async def submit_petition_submission(
 
         # 2. RATE LIMIT CHECK SECOND (Story 1.4, FR-1.5, HC-4)
         # Check per-submitter rate limit after capacity check (more specific)
-        rate_result = await rate_limiter.check_rate_limit(request_data.submitter_id)
-        if not rate_result.allowed:
-            retry_seconds = int(
-                (rate_result.reset_at - datetime.now(timezone.utc)).total_seconds()
-            )
-            retry_seconds = max(1, retry_seconds)  # Minimum 1 second
-            raise RateLimitExceededError(
-                submitter_id=request_data.submitter_id,
-                current_count=rate_result.current_count,
-                limit=rate_result.limit,
-                reset_at=rate_result.reset_at,
-                retry_after_seconds=retry_seconds,
-            )
+        if request_data.submitter_id is not None:
+            rate_result = await rate_limiter.check_rate_limit(request_data.submitter_id)
+            if not rate_result.allowed:
+                retry_seconds = int(
+                    (rate_result.reset_at - datetime.now(timezone.utc)).total_seconds()
+                )
+                retry_seconds = max(1, retry_seconds)  # Minimum 1 second
+                raise RateLimitExceededError(
+                    submitter_id=request_data.submitter_id,
+                    current_count=rate_result.current_count,
+                    limit=rate_result.limit,
+                    reset_at=rate_result.reset_at,
+                    retry_after_seconds=retry_seconds,
+                )
 
         # 3. Submit petition
         result = await service.submit_petition(
             petition_type=_api_type_to_domain(request_data.type),
             text=request_data.text,
             realm=request_data.realm,
+            submitter_id=request_data.submitter_id,
         )
 
         # 4. RECORD RATE LIMIT AFTER SUCCESS (Story 1.4)
         # Only record submission after successful persist to avoid counting failures
-        await rate_limiter.record_submission(request_data.submitter_id)
+        if request_data.submitter_id is not None:
+            await rate_limiter.record_submission(request_data.submitter_id)
 
         return SubmitPetitionSubmissionResponse(
             petition_id=result.petition_id,

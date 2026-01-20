@@ -25,6 +25,14 @@ from src.application.services.amendment_visibility_service import (
     AmendmentWithStatus,
     VoteEligibilityResult,
 )
+from src.application.services.archon_assignment_service import (
+    ARCHON_ASSIGNMENT_SYSTEM_AGENT_ID,
+    ArchonAssignmentService,
+)
+from src.application.services.archon_pool import (
+    ArchonPoolService,
+    get_archon_pool_service,
+)
 from src.application.services.atomic_event_writer import AtomicEventWriter
 from src.application.services.audit_event_query_service import (
     AUDIT_EVENT_QUERY_SYSTEM_AGENT_ID,
@@ -75,6 +83,9 @@ from src.application.services.concurrent_deliberation_service import (
 from src.application.services.configuration_floor_enforcement_service import (
     ConfigurationFloorEnforcementService,
 )
+from src.application.services.consensus_resolver_service import (
+    ConsensusResolverService,
+)
 from src.application.services.constitution_supremacy_service import (
     ConstitutionSupremacyValidator,
 )
@@ -84,16 +95,11 @@ from src.application.services.constitutional_health_service import (
 from src.application.services.content_hash_service import (
     Blake3ContentHashService,
 )
-from src.application.services.realm_registry import (
-    RealmRegistryService,
-)
-from src.application.services.archon_assignment_service import (
-    ARCHON_ASSIGNMENT_SYSTEM_AGENT_ID,
-    ArchonAssignmentService,
-)
-from src.application.services.archon_pool import (
-    ArchonPoolService,
-    get_archon_pool_service,
+from src.application.services.context_bundle_service import (
+    ContextBundleService,
+    CreateBundleInput,
+    CreateBundleOutput,
+    ValidateBundleOutput,
 )
 from src.application.services.context_package_builder_service import (
     ContextPackageBuilderService,
@@ -101,23 +107,14 @@ from src.application.services.context_package_builder_service import (
 from src.application.services.deliberation_orchestrator_service import (
     DeliberationOrchestratorService,
 )
-from src.application.services.consensus_resolver_service import (
-    ConsensusResolverService,
-)
-from src.application.services.phase_witness_batching_service import (
-    PHASE_ORDER,
-    PhaseWitnessBatchingService,
-)
 from src.application.services.disposition_emission_service import (
-    DispositionEmissionService,
     OUTCOME_TO_PIPELINE,
     REQUIRED_WITNESS_PHASES,
+    DispositionEmissionService,
 )
-from src.application.services.context_bundle_service import (
-    ContextBundleService,
-    CreateBundleInput,
-    CreateBundleOutput,
-    ValidateBundleOutput,
+from src.application.services.dissent_recorder_service import (
+    DISSENT_RECORDER_SYSTEM_AGENT_ID,
+    DissentRecorderService,
 )
 from src.application.services.emergence_violation_breach_service import (
     EMERGENCE_VIOLATED_REQUIREMENT,
@@ -219,15 +216,9 @@ from src.application.services.petition_service import (
     PetitionService,
     SubmitPetitionResult,
 )
-from src.application.services.queue_capacity_service import (
-    QueueCapacityService,
-)
-from src.application.services.rate_limit_service import (
-    RateLimitService,
-)
-from src.application.services.rate_limit_cleanup_service import (
-    RateLimitCleanupJobHandler,
-    RateLimitCleanupService,
+from src.application.services.phase_witness_batching_service import (
+    PHASE_ORDER,
+    PhaseWitnessBatchingService,
 )
 from src.application.services.pre_operational_verification_service import (
     VERIFICATION_BYPASS_ENABLED,
@@ -254,6 +245,19 @@ from src.application.services.query_performance_service import (
     QUERY_SLA_THRESHOLD_EVENTS,
     QUERY_SLA_TIMEOUT_SECONDS,
     QueryPerformanceService,
+)
+from src.application.services.queue_capacity_service import (
+    QueueCapacityService,
+)
+from src.application.services.rate_limit_cleanup_service import (
+    RateLimitCleanupJobHandler,
+    RateLimitCleanupService,
+)
+from src.application.services.rate_limit_service import (
+    RateLimitService,
+)
+from src.application.services.realm_registry import (
+    RealmRegistryService,
 )
 from src.application.services.recovery_coordinator import RecoveryCoordinator
 from src.application.services.rollback_coordinator_service import (
@@ -342,6 +346,9 @@ __all__: list[str] = [
     "DispositionEmissionService",
     "OUTCOME_TO_PIPELINE",
     "REQUIRED_WITNESS_PHASES",
+    # Dissent Recorder Service (Story 2B.1, FR-11.8)
+    "DISSENT_RECORDER_SYSTEM_AGENT_ID",
+    "DissentRecorderService",
     "ConcurrentDeliberationService",
     "ConcurrentResult",
     "ContextBundleService",

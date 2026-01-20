@@ -17,16 +17,11 @@ Test Categories:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Final
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
 
-from src.application.ports.petition_repository import PetitionRepositoryProtocol
-from src.application.ports.petition_submission_repository import (
-    PetitionSubmissionRepositoryProtocol,
-)
 from src.domain.events.petition import (
     PETITION_THRESHOLD_COSIGNERS,
     PetitionStatus,
@@ -34,14 +29,12 @@ from src.domain.events.petition import (
 from src.domain.models.petition import CoSigner, Petition
 from src.domain.models.petition_submission import (
     PetitionState,
-    PetitionSubmission,
     PetitionType,
 )
 from src.infrastructure.adapters.petition_migration import (
     CESSATION_REALM,
     CessationPetitionAdapter,
     DualWritePetitionRepository,
-    is_dual_write_enabled,
 )
 from src.infrastructure.stubs.petition_repository_stub import PetitionRepositoryStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
@@ -298,9 +291,9 @@ class TestMigrationAdapterIntegration:
         for status, expected_state in mappings:
             petition = create_petition(status=status)
             submission = CessationPetitionAdapter.to_submission(petition)
-            assert (
-                submission.state == expected_state
-            ), f"{status} should map to {expected_state}"
+            assert submission.state == expected_state, (
+                f"{status} should map to {expected_state}"
+            )
 
 
 class TestReadPathDuringMigration:

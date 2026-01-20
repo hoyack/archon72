@@ -24,7 +24,7 @@ from __future__ import annotations
 import asyncio
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from structlog import get_logger
@@ -210,7 +210,7 @@ class JobWorkerService:
         if self._worker_task:
             try:
                 await asyncio.wait_for(self._worker_task, timeout=30.0)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.warning("worker_stop_timeout", timeout=30)
                 self._worker_task.cancel()
                 try:

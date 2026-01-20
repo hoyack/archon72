@@ -32,7 +32,7 @@ from uuid import UUID
 from src.application.services.deliberation_orchestrator_service import (
     DeliberationOrchestratorService,
 )
-from src.domain.models.deliberation_result import DeliberationResult, PhaseResult
+from src.domain.models.deliberation_result import PhaseResult
 from src.domain.models.deliberation_session import (
     DeliberationOutcome,
     DeliberationPhase,
@@ -163,20 +163,22 @@ class PhaseExecutorStub:
             PhaseResult for ASSESS phase.
         """
         transcript_parts = [
-            f"=== ASSESS PHASE ===",
+            "=== ASSESS PHASE ===",
             f"Petition ID: {package.petition_id}",
             f"Petition Type: {package.petition_type}",
             "",
         ]
 
         for i, archon_id in enumerate(session.assigned_archons):
-            transcript_parts.extend([
-                f"--- Archon {i + 1} ({archon_id}) Assessment ---",
-                f"I have reviewed the petition of type {package.petition_type}.",
-                f"The petition text discusses: {package.petition_text[:50]}...",
-                f"Co-signers: {package.co_signer_count}",
-                "",
-            ])
+            transcript_parts.extend(
+                [
+                    f"--- Archon {i + 1} ({archon_id}) Assessment ---",
+                    f"I have reviewed the petition of type {package.petition_type}.",
+                    f"The petition text discusses: {package.petition_text[:50]}...",
+                    f"Co-signers: {package.co_signer_count}",
+                    "",
+                ]
+            )
 
         transcript = "\n".join(transcript_parts)
         transcript_hash = _compute_transcript_hash(transcript)
@@ -213,19 +215,21 @@ class PhaseExecutorStub:
         votes = self._get_votes_for_session(session)
 
         transcript_parts = [
-            f"=== POSITION PHASE ===",
-            f"Building on assessments from previous phase.",
+            "=== POSITION PHASE ===",
+            "Building on assessments from previous phase.",
             "",
         ]
 
         for i, archon_id in enumerate(session.assigned_archons):
             position = votes[archon_id]
-            transcript_parts.extend([
-                f"--- Archon {i + 1} ({archon_id}) Position ---",
-                f"My preferred disposition: {position.value}",
-                f"Rationale: Based on my assessment, I believe {position.value} is appropriate.",
-                "",
-            ])
+            transcript_parts.extend(
+                [
+                    f"--- Archon {i + 1} ({archon_id}) Position ---",
+                    f"My preferred disposition: {position.value}",
+                    f"Rationale: Based on my assessment, I believe {position.value} is appropriate.",
+                    "",
+                ]
+            )
 
         transcript = "\n".join(transcript_parts)
         transcript_hash = _compute_transcript_hash(transcript)
@@ -260,8 +264,8 @@ class PhaseExecutorStub:
             PhaseResult for CROSS_EXAMINE phase.
         """
         transcript_parts = [
-            f"=== CROSS_EXAMINE PHASE ===",
-            f"Examining positions for consensus building.",
+            "=== CROSS_EXAMINE PHASE ===",
+            "Examining positions for consensus building.",
             "",
         ]
 
@@ -269,11 +273,13 @@ class PhaseExecutorStub:
             transcript_parts.append(f"--- Round {round_num + 1} ---")
             for i, archon_id in enumerate(session.assigned_archons):
                 if i < self._cross_examine_challenges:
-                    transcript_parts.extend([
-                        f"Archon {i + 1} ({archon_id}): I challenge the reasoning.",
-                        f"Response: I maintain my position based on constitutional principles.",
-                        "",
-                    ])
+                    transcript_parts.extend(
+                        [
+                            f"Archon {i + 1} ({archon_id}): I challenge the reasoning.",
+                            "Response: I maintain my position based on constitutional principles.",
+                            "",
+                        ]
+                    )
 
         transcript_parts.append("No further challenges raised. Proceeding to vote.")
 
@@ -313,18 +319,20 @@ class PhaseExecutorStub:
         votes = self._get_votes_for_session(session)
 
         transcript_parts = [
-            f"=== VOTE PHASE ===",
-            f"All Archons casting simultaneous votes.",
+            "=== VOTE PHASE ===",
+            "All Archons casting simultaneous votes.",
             "",
         ]
 
         for i, archon_id in enumerate(session.assigned_archons):
             vote = votes[archon_id]
-            transcript_parts.extend([
-                f"--- Archon {i + 1} ({archon_id}) Vote ---",
-                f"Final vote: {vote.value}",
-                "",
-            ])
+            transcript_parts.extend(
+                [
+                    f"--- Archon {i + 1} ({archon_id}) Vote ---",
+                    f"Final vote: {vote.value}",
+                    "",
+                ]
+            )
 
         # Summary
         vote_counts: dict[DeliberationOutcome, int] = {}

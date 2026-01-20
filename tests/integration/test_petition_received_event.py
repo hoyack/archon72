@@ -13,11 +13,9 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.services.petition_event_emitter import PetitionEventEmitter
 from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
-from src.domain.events.petition import PETITION_RECEIVED_EVENT_TYPE
 from src.domain.models.petition_submission import PetitionType
 from src.infrastructure.stubs import (
     ContentHashServiceStub,

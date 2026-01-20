@@ -80,10 +80,7 @@ class RealmRegistryService(LoggingMixin):
         log = self._log_operation("get_realm_by_id", realm_id=str(realm_id))
 
         result = (
-            self._client.table("realms")
-            .select("*")
-            .eq("id", str(realm_id))
-            .execute()
+            self._client.table("realms").select("*").eq("id", str(realm_id)).execute()
         )
 
         if not result.data:
@@ -106,12 +103,7 @@ class RealmRegistryService(LoggingMixin):
         """
         log = self._log_operation("get_realm_by_name", realm_name=name)
 
-        result = (
-            self._client.table("realms")
-            .select("*")
-            .eq("name", name)
-            .execute()
-        )
+        result = self._client.table("realms").select("*").eq("name", name).execute()
 
         if not result.data:
             log.debug("realm_not_found")
@@ -150,12 +142,7 @@ class RealmRegistryService(LoggingMixin):
         """
         log = self._log_operation("list_all_realms")
 
-        result = (
-            self._client.table("realms")
-            .select("*")
-            .order("name")
-            .execute()
-        )
+        result = self._client.table("realms").select("*").order("name").execute()
 
         realms = [self._row_to_realm(row) for row in result.data]
         log.debug("all_realms_listed", count=len(realms))
@@ -176,7 +163,9 @@ class RealmRegistryService(LoggingMixin):
             List of Realm objects mapped to this sentinel type, ordered by priority.
             Empty list if no mapping exists.
         """
-        log = self._log_operation("get_realms_for_sentinel", sentinel_type=sentinel_type)
+        log = self._log_operation(
+            "get_realms_for_sentinel", sentinel_type=sentinel_type
+        )
 
         # Query sentinel_realm_mappings joined with realms
         result = (

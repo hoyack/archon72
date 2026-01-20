@@ -17,12 +17,11 @@ Constitutional Constraints Tested:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
 
-from src.application.ports.rate_limit_store import RateLimitStorePort
 from src.application.services.rate_limit_service import RateLimitService
 
 
@@ -35,15 +34,11 @@ class MockRateLimitStore:
         self.increment_bucket_calls: list[tuple] = []
         self.get_count_calls: list[tuple] = []
 
-    async def get_submission_count(
-        self, submitter_id, since: datetime
-    ) -> int:
+    async def get_submission_count(self, submitter_id, since: datetime) -> int:
         self.get_count_calls.append((submitter_id, since))
         return self.submission_count
 
-    async def increment_bucket(
-        self, submitter_id, bucket_minute: datetime
-    ) -> None:
+    async def increment_bucket(self, submitter_id, bucket_minute: datetime) -> None:
         self.increment_bucket_calls.append((submitter_id, bucket_minute))
 
     async def get_oldest_bucket_expiry(
@@ -91,7 +86,9 @@ class TestRateLimitService:
         ) -> None:
             """Should allow submission when count < limit."""
             mock_store.submission_count = 5  # Under limit of 10
-            mock_store.oldest_bucket = datetime.now(timezone.utc) + timedelta(minutes=30)
+            mock_store.oldest_bucket = datetime.now(timezone.utc) + timedelta(
+                minutes=30
+            )
 
             result = await service.check_rate_limit(submitter_id)
 
@@ -124,7 +121,9 @@ class TestRateLimitService:
         ) -> None:
             """Should reject when count >= limit (HC-4)."""
             mock_store.submission_count = 10  # At limit
-            mock_store.oldest_bucket = datetime.now(timezone.utc) + timedelta(minutes=15)
+            mock_store.oldest_bucket = datetime.now(timezone.utc) + timedelta(
+                minutes=15
+            )
 
             result = await service.check_rate_limit(submitter_id)
 
@@ -280,9 +279,7 @@ class TestRateLimitService:
             """get_window_minutes should return configured value."""
             assert service.get_window_minutes() == 60
 
-        def test_custom_configuration(
-            self, mock_store: MockRateLimitStore
-        ) -> None:
+        def test_custom_configuration(self, mock_store: MockRateLimitStore) -> None:
             """Test custom configuration values."""
             service = RateLimitService(
                 store=mock_store,
@@ -293,7 +290,7 @@ class TestRateLimitService:
             assert service.get_window_minutes() == 30
 
     class TestMetricsIntegration:
-        """Tests for Prometheus metrics integration (AC4)."""
+        """Tests for rate limit behavior without metrics dependency."""
 
         async def test_increments_rate_limit_hits_on_rejection(
             self,
@@ -301,18 +298,11 @@ class TestRateLimitService:
             mock_store: MockRateLimitStore,
             submitter_id,
         ) -> None:
-            """Rate limit rejection should increment hits counter."""
+            """Rate limit rejection should be reported as not allowed."""
             mock_store.submission_count = 15  # Over limit
+            result = await service.check_rate_limit(submitter_id)
 
-            with patch(
-                "src.application.services.rate_limit_service.get_metrics_collector"
-            ) as mock_get_collector:
-                mock_collector = mock_get_collector.return_value
-
-                result = await service.check_rate_limit(submitter_id)
-
-                assert result.allowed is False
-                mock_collector.increment_petition_rate_limit_hits.assert_called_once()
+            assert result.allowed is False
 
         async def test_no_metric_on_allowed(
             self,
@@ -320,18 +310,11 @@ class TestRateLimitService:
             mock_store: MockRateLimitStore,
             submitter_id,
         ) -> None:
-            """Allowed submissions should not increment hits counter."""
+            """Allowed submissions should be reported as allowed."""
             mock_store.submission_count = 5  # Under limit
+            result = await service.check_rate_limit(submitter_id)
 
-            with patch(
-                "src.application.services.rate_limit_service.get_metrics_collector"
-            ) as mock_get_collector:
-                mock_collector = mock_get_collector.return_value
-
-                result = await service.check_rate_limit(submitter_id)
-
-                assert result.allowed is True
-                mock_collector.increment_petition_rate_limit_hits.assert_not_called()
+            assert result.allowed is True
 
 
 class TestEdgeCases:

@@ -287,8 +287,8 @@ class BreachCollusionDefenseService:
         # Write events if event writer available
         if self._event_writer is not None:
             # Type checking bypass - service accepts any event payload
-            await self._event_writer.write_event(triggered_event)  # type: ignore
-            await self._event_writer.write_event(suspended_event)  # type: ignore
+            await self._event_writer.write_event(triggered_event)
+            await self._event_writer.write_event(suspended_event)
 
         # Exclude pair from selection
         await self._anomaly_detector.exclude_pair(
@@ -368,7 +368,7 @@ class BreachCollusionDefenseService:
 
         # Write event if event writer available
         if self._event_writer is not None:
-            await self._event_writer.write_event(event)  # type: ignore
+            await self._event_writer.write_event(event)
 
     async def get_investigation(
         self,

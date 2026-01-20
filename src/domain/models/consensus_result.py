@@ -276,7 +276,9 @@ class ConsensusResult:
             "winning_outcome": self.winning_outcome,
             "vote_distribution": dict(self.vote_distribution),
             "majority_archon_ids": [str(aid) for aid in self.majority_archon_ids],
-            "dissent_archon_id": str(self.dissent_archon_id) if self.dissent_archon_id else None,
+            "dissent_archon_id": str(self.dissent_archon_id)
+            if self.dissent_archon_id
+            else None,
             "algorithm_version": self.algorithm_version,
             "resolved_at": self.resolved_at.isoformat(),
             "schema_version": 1,

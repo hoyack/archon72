@@ -12,12 +12,10 @@ Developer Golden Rules:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID
-
-from uuid6 import uuid7
 
 from src.application.ports.archon_assignment import (
     ArchonsAssignedEventPayload,
@@ -29,7 +27,6 @@ from src.domain.errors.deliberation import (
 )
 from src.domain.errors.petition import PetitionNotFoundError
 from src.domain.models.deliberation_session import (
-    DeliberationPhase,
     DeliberationSession,
 )
 

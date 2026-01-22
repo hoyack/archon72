@@ -24,6 +24,7 @@ Examples:
 import argparse
 import asyncio
 import glob
+import os
 import sys
 import time
 from pathlib import Path
@@ -33,12 +34,23 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
 
+# Disable CrewAI telemetry and force writable storage before CrewAI imports.
+os.environ.setdefault("CREWAI_DISABLE_TELEMETRY", "true")
+os.environ.setdefault("CREWAI_DISABLE_TRACKING", "true")
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
+os.environ.setdefault("CREWAI_TESTING", "true")
+os.environ.setdefault("CREWAI_STORAGE_DIR", "archon72")
+os.environ.setdefault("XDG_DATA_HOME", "/tmp/crewai-data")
+Path(os.environ["XDG_DATA_HOME"]).mkdir(parents=True, exist_ok=True)
+
 # Load environment variables from .env
 load_dotenv()
 
 from src.application.services.motion_consolidator_service import (
     MotionConsolidatorService,
 )
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 
 def find_latest_motions_checkpoint() -> Path | None:
@@ -90,6 +102,34 @@ def prepare_motions_checkpoint_from_report(
     return motions_path, output_recommendations_path
 
 
+def resolve_role_llm_config(env_var: str):
+    """Resolve an LLM config from an Archon ID stored in env."""
+    archon_id_value = os.environ.get(env_var)
+    if not archon_id_value:
+        return None
+
+    from uuid import UUID
+
+    try:
+        archon_id = UUID(archon_id_value)
+    except ValueError:
+        print(f"Warning: {env_var} is not a valid UUID: {archon_id_value}")
+        return None
+
+    from src.infrastructure.adapters.config.archon_profile_adapter import (
+        create_archon_profile_repository,
+    )
+
+    repo = create_archon_profile_repository()
+    profile = repo.get_by_id(archon_id)
+    if not profile:
+        print(f"Warning: {env_var} Archon not found: {archon_id_value}")
+        return None
+
+    print(f"Using {env_var}={archon_id_value} ({profile.name})")
+    return profile.llm_config
+
+
 async def run_consolidator(
     checkpoint_path: Path,
     target_count: int,
@@ -112,9 +152,13 @@ async def run_consolidator(
     print(f"{'=' * 60}\n")
 
     # Initialize consolidator
+    llm_config = resolve_role_llm_config("CONSOLIDATOR_ARCHON_ID")
+    llm = create_crewai_llm(llm_config) if llm_config else None
     consolidator = MotionConsolidatorService(
         verbose=verbose,
         target_count=target_count,
+        llm=llm,
+        llm_factory=create_crewai_llm,
     )
 
     # Run full consolidation

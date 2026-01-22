@@ -156,6 +156,7 @@ class ConsolidationResult:
     consolidation_ratio: float
     traceability_complete: bool
     orphaned_motions: list[str]  # Should be empty if successful
+    merge_audit: list[dict[str, object]] = field(default_factory=list)
 
 
 @dataclass
@@ -368,6 +369,10 @@ class MotionConsolidatorService:
             mega_motions.append(mega_motion)
             accounted_motion_ids.update(group["motion_ids"])
 
+        mega_motions, merge_audit = await self._merge_similar_mega_motions(
+            mega_motions, motions
+        )
+
         # Check for orphaned motions
         all_motion_ids = {m.motion_id for m in motions}
         orphaned = list(all_motion_ids - accounted_motion_ids)
@@ -381,6 +386,7 @@ class MotionConsolidatorService:
             consolidation_ratio=len(mega_motions) / len(motions) if motions else 0,
             traceability_complete=len(orphaned) == 0,
             orphaned_motions=orphaned,
+            merge_audit=merge_audit,
         )
 
         logger.info(
@@ -513,6 +519,169 @@ RULES:
                 data.append({"theme": "Other", "motion_ids": list(missing)})
 
         return data
+
+    async def _merge_similar_mega_motions(
+        self,
+        mega_motions: list[MegaMotion],
+        motions: list[SourceMotion],
+    ) -> tuple[list[MegaMotion], list[dict[str, object]]]:
+        """Merge overlapping mega-motions using deterministic similarity rules."""
+        if len(mega_motions) < 2:
+            return mega_motions, []
+
+        motion_lookup = {m.motion_id: m for m in motions}
+
+        def _tokenize(text: str) -> set[str]:
+            cleaned = re.sub(r"[^a-z0-9\\s]", " ", text.lower())
+            tokens = [t for t in cleaned.split() if t and len(t) > 2]
+            stopwords = {
+                "mega",
+                "motion",
+                "comprehensive",
+                "the",
+                "and",
+                "for",
+                "of",
+                "to",
+                "on",
+                "with",
+                "into",
+            }
+            return {t for t in tokens if t not in stopwords}
+
+        def _jaccard(a: set[str], b: set[str]) -> float:
+            if not a or not b:
+                return 0.0
+            return len(a & b) / len(a | b)
+
+        tokens_by_id = {
+            mm.mega_motion_id: _tokenize(f"{mm.title} {mm.theme}")
+            for mm in mega_motions
+        }
+        mm_by_id = {mm.mega_motion_id: mm for mm in mega_motions}
+
+        adjacency: dict[UUID, set[UUID]] = {
+            mm.mega_motion_id: set() for mm in mega_motions
+        }
+        pair_audit: list[dict[str, object]] = []
+
+        ids = list(tokens_by_id.keys())
+        for i in range(len(ids)):
+            for j in range(i + 1, len(ids)):
+                id_a = ids[i]
+                id_b = ids[j]
+                mm_a = mm_by_id[id_a]
+                mm_b = mm_by_id[id_b]
+                tokens_a = tokens_by_id[id_a]
+                tokens_b = tokens_by_id[id_b]
+                score = _jaccard(tokens_a, tokens_b)
+
+                reason = None
+                if mm_a.theme.lower() == mm_b.theme.lower():
+                    reason = "theme_match"
+                elif (
+                    {"framework", "governance"} <= tokens_a
+                    and {"framework", "governance"} <= tokens_b
+                    and score >= 0.3
+                ):
+                    reason = "framework_governance_overlap"
+                elif score >= 0.5:
+                    reason = "token_jaccard"
+
+                if reason:
+                    adjacency[id_a].add(id_b)
+                    adjacency[id_b].add(id_a)
+                    pair_audit.append(
+                        {
+                            "id_a": str(id_a),
+                            "id_b": str(id_b),
+                            "title_a": mm_a.title,
+                            "title_b": mm_b.title,
+                            "theme_a": mm_a.theme,
+                            "theme_b": mm_b.theme,
+                            "similarity": round(score, 3),
+                            "reason": reason,
+                        }
+                    )
+
+        if not pair_audit:
+            return mega_motions, []
+
+        visited: set[UUID] = set()
+        merged: list[MegaMotion] = []
+        merge_audit: list[dict[str, object]] = []
+
+        for mm_id in ids:
+            if mm_id in visited:
+                continue
+            stack = [mm_id]
+            component: set[UUID] = set()
+            while stack:
+                current = stack.pop()
+                if current in visited:
+                    continue
+                visited.add(current)
+                component.add(current)
+                stack.extend(adjacency[current] - visited)
+
+            if len(component) == 1:
+                merged.append(mm_by_id[mm_id])
+                continue
+
+            component_mms = [mm_by_id[cid] for cid in component]
+            primary = sorted(
+                component_mms,
+                key=lambda m: (m.unique_archon_count, len(m.source_motion_ids)),
+                reverse=True,
+            )[0]
+            source_ids = {
+                motion_id for mm in component_mms for motion_id in mm.source_motion_ids
+            }
+            source_motions = [
+                motion_lookup[motion_id]
+                for motion_id in source_ids
+                if motion_id in motion_lookup
+            ]
+            if not source_motions:
+                logger.warning(
+                    "mega_motion_merge_failed_no_sources",
+                    mega_motion_ids=[str(m.mega_motion_id) for m in component_mms],
+                )
+                merged.extend(component_mms)
+                continue
+
+            merged_mm = await self._synthesize_mega_motion(
+                theme=primary.theme,
+                motions=source_motions,
+            )
+            merged.append(merged_mm)
+
+            merge_audit.append(
+                {
+                    "merged_into_theme": primary.theme,
+                    "merged_mega_motion_ids": [
+                        str(m.mega_motion_id) for m in component_mms
+                    ],
+                    "merged_titles": [m.title for m in component_mms],
+                    "source_motion_ids": sorted(source_ids),
+                    "pairwise_matches": [
+                        p
+                        for p in pair_audit
+                        if p["id_a"] in {str(m.mega_motion_id) for m in component_mms}
+                        and p["id_b"] in {str(m.mega_motion_id) for m in component_mms}
+                    ],
+                }
+            )
+
+        if merge_audit:
+            logger.info(
+                "mega_motion_merge_completed",
+                original_count=len(mega_motions),
+                merged_count=len(merged),
+                merge_groups=len(merge_audit),
+            )
+
+        return merged, merge_audit
 
     async def _synthesize_mega_motion(
         self,
@@ -1208,6 +1377,12 @@ CRITICAL: Output ONLY valid JSON.""",
                 indent=2,
             )
 
+        # Save merge audit if available
+        if result.merge_audit:
+            merge_audit_path = output_dir / "merge-audit.json"
+            with open(merge_audit_path, "w") as f:
+                json.dump(result.merge_audit, f, indent=2)
+
         # Save mega-motions markdown
         mega_motions_md = output_dir / "mega-motions.md"
         with open(mega_motions_md, "w") as f:
@@ -1511,6 +1686,10 @@ CRITICAL: Output ONLY valid JSON.""",
             f.write(
                 "| [traceability-matrix.md](traceability-matrix.md) | Source Motion Seed mapping |\n"
             )
+            if result.consolidation.merge_audit:
+                f.write(
+                    "| [merge-audit.json](merge-audit.json) | Mega-motion merge audit trail |\n"
+                )
             if result.novel_proposals:
                 f.write(
                     "| [novel-proposals.md](novel-proposals.md) | Uniquely interesting proposals |\n"

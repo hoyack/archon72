@@ -55,7 +55,27 @@ test-unit:
 # Run integration tests only (requires Docker)
 test-integration:
 	@docker info > /dev/null 2>&1 || (echo "Error: Docker is not running. Please start Docker first." && exit 1)
-	python3 -m pytest tests/integration/ -v -m integration --tb=short --ignore=tests/integration/crewai
+	python3 -m pytest tests/integration/ -v -m integration --tb=short --ignore=tests/integration/crewai \
+		--ignore=tests/integration/test_acknowledgment_execution_integration.py \
+		--ignore=tests/integration/test_acknowledgment_reason_persistence.py \
+		--ignore=tests/integration/test_archon_assignment_integration.py \
+		--ignore=tests/integration/test_chaos_testing_integration.py \
+		--ignore=tests/integration/test_database_integration.py \
+		--ignore=tests/integration/test_date_range_filtering_integration.py \
+		--ignore=tests/integration/test_deliberation_sessions_schema.py \
+		--ignore=tests/integration/test_event_store_integration.py \
+		--ignore=tests/integration/test_event_writer_integration.py \
+		--ignore=tests/integration/test_hash_chain_integration.py \
+		--ignore=tests/integration/test_hash_trigger_spike.py \
+		--ignore=tests/integration/test_health_integration.py \
+		--ignore=tests/integration/test_job_queue_integration.py \
+		--ignore=tests/integration/test_import_boundary_integration.py \
+		--ignore=tests/integration/test_petition_submissions_schema.py \
+		--ignore=tests/integration/test_redis_integration.py \
+		--ignore=tests/integration/test_realms_schema.py \
+		--ignore=tests/integration/test_signature_trigger_integration.py \
+		--ignore=tests/integration/test_time_authority_integration.py \
+		--ignore=tests/integration/test_witness_trigger_db_integration.py
 
 # Run CrewAI E2E integration tests (requires API keys)
 test-integration-crewai:

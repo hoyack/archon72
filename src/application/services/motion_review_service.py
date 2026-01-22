@@ -17,6 +17,8 @@ This avoids combinatorial Conclave explosion by leveraging:
 from __future__ import annotations
 
 import json
+import math
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -144,8 +146,13 @@ CONSENSUS_THRESHOLD = 0.75  # >=75% endorsement = consensus
 CONTESTED_THRESHOLD = 0.25  # >=25% opposition = contested
 
 # Ratification thresholds
-SIMPLE_MAJORITY = 37  # 72/2 + 1
-SUPERMAJORITY = 48  # 72 * 2/3
+SIMPLE_MAJORITY = 37  # legacy absolute threshold (kept for reference)
+SUPERMAJORITY = 48  # legacy absolute threshold (kept for reference)
+# New quorum/threshold defaults based on eligible votes (proposal implementation)
+QUORUM_ELIGIBLE_SIMPLE = 36  # half of 72
+QUORUM_ELIGIBLE_CONSTITUTIONAL = 48  # two-thirds of 72
+AMEND_TOLERANCE_RATIO = 0.10
+AMEND_TOLERANCE_ABS = 5
 
 
 @dataclass
@@ -183,6 +190,9 @@ class MotionReviewService:
         self.verbose = verbose
         self._reviewer_agent = reviewer_agent
         self._archon_repository = archon_repository
+        self._implicit_endorsements_enabled = (
+            os.getenv("REVIEW_IMPLICIT_ENDORSEMENTS", "true").lower() == "true"
+        )
 
         # Load archon names from repository if provided, otherwise use hardcoded list
         if archon_repository is not None:
@@ -1220,29 +1230,62 @@ class MotionReviewService:
             if agg.consensus_reached:
                 yeas = 55
                 nays = 10
+                amends = 5
             elif panel and panel.recommendation == PanelRecommendation.PASS:
                 yeas = 45
                 nays = 20
+                amends = 6
             elif panel and panel.recommendation == PanelRecommendation.FAIL:
                 yeas = 25
                 nays = 40
+                amends = 4
             else:
                 yeas = 38
                 nays = 28
+                amends = 6
 
-            abstentions = 72 - yeas - nays
+            abstentions = max(0, 72 - yeas - nays - amends)
 
             # Determine threshold
             is_constitutional = "constitutional" in agg.mega_motion_title.lower()
             threshold_type = "supermajority" if is_constitutional else "simple_majority"
-            threshold_required = SUPERMAJORITY if is_constitutional else SIMPLE_MAJORITY
-            threshold_met = yeas >= threshold_required
-
-            outcome = (
-                RatificationOutcome.RATIFIED
-                if threshold_met
-                else RatificationOutcome.REJECTED
+            quorum_required = (
+                QUORUM_ELIGIBLE_CONSTITUTIONAL
+                if is_constitutional
+                else QUORUM_ELIGIBLE_SIMPLE
             )
+            eligible_votes = yeas + nays + amends
+            quorum_met = eligible_votes >= quorum_required
+
+            if eligible_votes == 0:
+                support_required = 0
+            elif is_constitutional:
+                support_required = math.ceil((2 / 3) * eligible_votes)
+            else:
+                support_required = math.floor(eligible_votes / 2) + 1
+
+            amend_tolerance = (
+                min(
+                    AMEND_TOLERANCE_ABS,
+                    math.ceil(AMEND_TOLERANCE_RATIO * eligible_votes)
+                    if eligible_votes
+                    else AMEND_TOLERANCE_ABS,
+                )
+                if eligible_votes
+                else AMEND_TOLERANCE_ABS
+            )
+            support_total = yeas + amends
+            threshold_required = support_required
+            threshold_met = quorum_met and yeas >= support_required
+
+            if not quorum_met:
+                outcome = RatificationOutcome.DEFERRED
+            elif threshold_met and amends <= amend_tolerance:
+                outcome = RatificationOutcome.RATIFIED
+            elif quorum_met and support_total >= support_required:
+                outcome = RatificationOutcome.ACCEPTED_WITH_AMENDMENTS
+            else:
+                outcome = RatificationOutcome.REJECTED
 
             vote = RatificationVote(
                 vote_id=str(uuid4()),
@@ -1251,10 +1294,18 @@ class MotionReviewService:
                 yeas=yeas,
                 nays=nays,
                 abstentions=abstentions,
+                amends=amends,
+                eligible_votes=eligible_votes,
                 threshold_type=threshold_type,
                 threshold_required=threshold_required,
+                quorum_required=quorum_required,
+                quorum_met=quorum_met,
+                support_total=support_total,
+                support_required=support_required,
                 threshold_met=threshold_met,
                 votes_by_archon={},  # Would be populated with actual votes
+                revision_of=None,
+                revised_motion_text=None,
                 outcome=outcome,
                 ratified_at=datetime.now(timezone.utc)
                 if outcome == RatificationOutcome.RATIFIED
@@ -1289,32 +1340,82 @@ class MotionReviewService:
             motion_responses = responses_by_motion.get(agg.mega_motion_id, [])
             yeas = 0
             nays = 0
+            amends = 0
             abstentions = 0
             votes_by_archon: dict[str, str] = {}
 
+            if self._implicit_endorsements_enabled:
+                for archon_name in agg.endorsing_archons:
+                    votes_by_archon[archon_name] = "yea"
+                    yeas += 1
+
             for response in motion_responses:
+                # Remove any prefilled vote for this archon before applying explicit stance
+                existing = votes_by_archon.get(response.archon_name)
+                if existing == "yea":
+                    yeas -= 1
+                elif existing == "nay":
+                    nays -= 1
+                elif existing == "amend":
+                    amends -= 1
+                elif existing == "abstain":
+                    abstentions -= 1
+
                 if response.stance == ReviewStance.ENDORSE:
                     yeas += 1
                     votes_by_archon[response.archon_name] = "yea"
                 elif response.stance == ReviewStance.OPPOSE:
                     nays += 1
                     votes_by_archon[response.archon_name] = "nay"
+                elif response.stance == ReviewStance.AMEND:
+                    amends += 1
+                    votes_by_archon[response.archon_name] = "amend"
                 else:
-                    # AMEND and ABSTAIN both count as abstentions for ratification.
                     abstentions += 1
                     votes_by_archon[response.archon_name] = "abstain"
 
-            # Determine threshold
+            eligible_votes = yeas + nays + amends
             is_constitutional = "constitutional" in agg.mega_motion_title.lower()
-            threshold_type = "supermajority" if is_constitutional else "simple_majority"
-            threshold_required = SUPERMAJORITY if is_constitutional else SIMPLE_MAJORITY
-            threshold_met = yeas >= threshold_required
-
-            outcome = (
-                RatificationOutcome.RATIFIED
-                if threshold_met
-                else RatificationOutcome.REJECTED
+            quorum_required = (
+                QUORUM_ELIGIBLE_CONSTITUTIONAL
+                if is_constitutional
+                else QUORUM_ELIGIBLE_SIMPLE
             )
+            quorum_met = eligible_votes >= quorum_required
+
+            # Support threshold based on eligible votes (not fixed 72)
+            if eligible_votes == 0:
+                support_required = 0
+            elif is_constitutional:
+                support_required = math.ceil((2 / 3) * eligible_votes)
+            else:
+                support_required = math.floor(eligible_votes / 2) + 1
+
+            threshold_type = "supermajority" if is_constitutional else "simple_majority"
+            threshold_required = support_required
+
+            # Determine outcome with amend-awareness
+            amend_tolerance = (
+                min(
+                    AMEND_TOLERANCE_ABS,
+                    math.ceil(AMEND_TOLERANCE_RATIO * eligible_votes)
+                    if eligible_votes
+                    else AMEND_TOLERANCE_ABS,
+                )
+                if eligible_votes
+                else AMEND_TOLERANCE_ABS
+            )
+            support_total = yeas + amends
+            threshold_met = quorum_met and yeas >= support_required
+
+            if not quorum_met:
+                outcome = RatificationOutcome.DEFERRED
+            elif threshold_met and amends <= amend_tolerance:
+                outcome = RatificationOutcome.RATIFIED
+            elif quorum_met and support_total >= support_required:
+                outcome = RatificationOutcome.ACCEPTED_WITH_AMENDMENTS
+            else:
+                outcome = RatificationOutcome.REJECTED
 
             votes.append(
                 RatificationVote(
@@ -1324,10 +1425,18 @@ class MotionReviewService:
                     yeas=yeas,
                     nays=nays,
                     abstentions=abstentions,
+                    amends=amends,
+                    eligible_votes=eligible_votes,
                     threshold_type=threshold_type,
                     threshold_required=threshold_required,
+                    quorum_required=quorum_required,
+                    quorum_met=quorum_met,
+                    support_total=support_total,
+                    support_required=support_required,
                     threshold_met=threshold_met,
                     votes_by_archon=votes_by_archon,
+                    revision_of=None,
+                    revised_motion_text=None,
                     outcome=outcome,
                     ratified_at=datetime.now(timezone.utc)
                     if outcome == RatificationOutcome.RATIFIED
@@ -1336,10 +1445,159 @@ class MotionReviewService:
             )
 
         ratified = sum(1 for v in votes if v.outcome == RatificationOutcome.RATIFIED)
+        accepted = sum(
+            1
+            for v in votes
+            if v.outcome == RatificationOutcome.ACCEPTED_WITH_AMENDMENTS
+        )
         rejected = sum(1 for v in votes if v.outcome == RatificationOutcome.REJECTED)
+        deferred = sum(1 for v in votes if v.outcome == RatificationOutcome.DEFERRED)
 
-        logger.info("ratification_complete", ratified=ratified, rejected=rejected)
+        logger.info(
+            "ratification_complete",
+            ratified=ratified,
+            accepted_with_amendments=accepted,
+            rejected=rejected,
+            deferred=deferred,
+        )
         return votes
+
+    # ---------------------------------------------------------------------
+    # Amendment synthesis + second-pass ratification
+    # ---------------------------------------------------------------------
+
+    def _synthesize_amendment_text(self, aggregation: ReviewAggregation | None) -> str:
+        """Deterministically synthesize amendment text from aggregation."""
+        if aggregation and aggregation.amendment_texts:
+            bullets = "\n".join(
+                f"- {text.strip()}" for text in aggregation.amendment_texts if text
+            )
+            return (
+                "Amendment synthesis (deterministic merge of reviewer suggestions):\n"
+                f"{bullets}"
+            )
+        return (
+            "Amendment synthesis: no specific amendment texts provided; "
+            "apply minor wording/structure improvements only."
+        )
+
+    def _build_revision_vote(
+        self,
+        original_vote: RatificationVote,
+        aggregation: ReviewAggregation | None,
+        revised_text: str,
+    ) -> RatificationVote:
+        """Create a follow-up ratification vote after amendments are applied."""
+        yeas = original_vote.support_total  # treat amendments as incorporated
+        nays = original_vote.nays
+        amends = 0
+        abstentions = original_vote.abstentions
+        eligible_votes = yeas + nays + amends
+
+        is_constitutional = "constitutional" in original_vote.mega_motion_title.lower()
+        quorum_required = (
+            QUORUM_ELIGIBLE_CONSTITUTIONAL
+            if is_constitutional
+            else QUORUM_ELIGIBLE_SIMPLE
+        )
+        quorum_met = eligible_votes >= quorum_required
+
+        if eligible_votes == 0:
+            support_required = 0
+        elif is_constitutional:
+            support_required = math.ceil((2 / 3) * eligible_votes)
+        else:
+            support_required = math.floor(eligible_votes / 2) + 1
+
+        threshold_met = quorum_met and yeas >= support_required
+        threshold_type = "supermajority" if is_constitutional else "simple_majority"
+
+        if not quorum_met:
+            outcome = RatificationOutcome.DEFERRED
+        elif threshold_met:
+            outcome = RatificationOutcome.RATIFIED
+        else:
+            outcome = RatificationOutcome.REJECTED
+
+        return RatificationVote(
+            vote_id=str(uuid4()),
+            mega_motion_id=original_vote.mega_motion_id,
+            mega_motion_title=original_vote.mega_motion_title,
+            yeas=yeas,
+            nays=nays,
+            abstentions=abstentions,
+            amends=amends,
+            eligible_votes=eligible_votes,
+            threshold_type=threshold_type,
+            threshold_required=support_required,
+            quorum_required=quorum_required,
+            quorum_met=quorum_met,
+            support_total=yeas,
+            support_required=support_required,
+            threshold_met=threshold_met,
+            votes_by_archon=original_vote.votes_by_archon,
+            revision_of=original_vote.vote_id,
+            revised_motion_text=revised_text,
+            outcome=outcome,
+            ratified_at=datetime.now(timezone.utc)
+            if outcome == RatificationOutcome.RATIFIED
+            else None,
+        )
+
+    def _apply_amendment_second_pass(
+        self,
+        result: MotionReviewPipelineResult | None,
+        votes: list[RatificationVote],
+        aggregations: list[ReviewAggregation] | None,
+    ) -> tuple[list[RatificationVote], list[RatificationVote]]:
+        """Apply amendment synthesis and a second-pass ratification where needed."""
+        if not votes:
+            return votes, votes
+
+        agg_lookup = {a.mega_motion_id: a for a in aggregations} if aggregations else {}
+
+        all_votes: list[RatificationVote] = []
+        final_by_motion: dict[str, RatificationVote] = {}
+
+        for vote in votes:
+            all_votes.append(vote)
+            final_by_motion[vote.mega_motion_id] = vote
+
+            if vote.outcome == RatificationOutcome.ACCEPTED_WITH_AMENDMENTS:
+                aggregation = agg_lookup.get(vote.mega_motion_id)
+                revised_text = self._synthesize_amendment_text(aggregation)
+                revision_vote = self._build_revision_vote(
+                    vote, aggregation, revised_text
+                )
+                all_votes.append(revision_vote)
+                final_by_motion[vote.mega_motion_id] = revision_vote
+
+                if result:
+                    result.add_audit_event(
+                        "amendment_synthesis_completed",
+                        {
+                            "mega_motion_id": vote.mega_motion_id,
+                            "amendment_count": aggregation.amendments_proposed
+                            if aggregation
+                            else 0,
+                            "revision_vote_id": revision_vote.vote_id,
+                        },
+                    )
+                    result.add_audit_event(
+                        "final_ratification_completed",
+                        {
+                            "mega_motion_id": vote.mega_motion_id,
+                            "outcome": revision_vote.outcome.value,
+                            "yeas": revision_vote.yeas,
+                            "nays": revision_vote.nays,
+                            "abstentions": revision_vote.abstentions,
+                            "eligible_votes": revision_vote.eligible_votes,
+                            "threshold_required": revision_vote.threshold_required,
+                            "quorum_met": revision_vote.quorum_met,
+                        },
+                    )
+
+        return all_votes, list(final_by_motion.values())
 
     # =========================================================================
     # Full Pipeline
@@ -1446,21 +1704,30 @@ class MotionReviewService:
             )
 
             # Phase 6: Ratification
-            votes = self.simulate_ratification(aggregations, panels)
-            result.ratification_votes = votes
+            initial_votes = self.simulate_ratification(aggregations, panels)
+            all_votes, final_votes = self._apply_amendment_second_pass(
+                result, initial_votes, aggregations
+            )
+            result.ratification_votes = all_votes
             result.motions_ratified = sum(
-                1 for v in votes if v.outcome == RatificationOutcome.RATIFIED
+                1 for v in final_votes if v.outcome == RatificationOutcome.RATIFIED
+            )
+            result.motions_accepted_with_amendments = sum(
+                1
+                for v in final_votes
+                if v.outcome == RatificationOutcome.ACCEPTED_WITH_AMENDMENTS
             )
             result.motions_rejected = sum(
-                1 for v in votes if v.outcome == RatificationOutcome.REJECTED
+                1 for v in final_votes if v.outcome == RatificationOutcome.REJECTED
             )
             result.motions_deferred = sum(
-                1 for v in votes if v.outcome == RatificationOutcome.DEFERRED
+                1 for v in final_votes if v.outcome == RatificationOutcome.DEFERRED
             )
             result.add_audit_event(
                 "ratification_completed",
                 {
                     "ratified": result.motions_ratified,
+                    "accepted_with_amendments": result.motions_accepted_with_amendments,
                     "rejected": result.motions_rejected,
                     "deferred": result.motions_deferred,
                 },
@@ -1608,23 +1875,35 @@ class MotionReviewService:
 
         # Phase 6: Ratification
         if use_real_agent:
-            votes = self.derive_ratification_from_reviews(aggregations, responses)
+            initial_votes = self.derive_ratification_from_reviews(
+                aggregations, responses
+            )
         else:
-            votes = self.simulate_ratification(aggregations, panels)
-        result.ratification_votes = votes
+            initial_votes = self.simulate_ratification(aggregations, panels)
+
+        all_votes, final_votes = self._apply_amendment_second_pass(
+            result, initial_votes, aggregations
+        )
+        result.ratification_votes = all_votes
         result.motions_ratified = sum(
-            1 for v in votes if v.outcome == RatificationOutcome.RATIFIED
+            1 for v in final_votes if v.outcome == RatificationOutcome.RATIFIED
+        )
+        result.motions_accepted_with_amendments = sum(
+            1
+            for v in final_votes
+            if v.outcome == RatificationOutcome.ACCEPTED_WITH_AMENDMENTS
         )
         result.motions_rejected = sum(
-            1 for v in votes if v.outcome == RatificationOutcome.REJECTED
+            1 for v in final_votes if v.outcome == RatificationOutcome.REJECTED
         )
         result.motions_deferred = sum(
-            1 for v in votes if v.outcome == RatificationOutcome.DEFERRED
+            1 for v in final_votes if v.outcome == RatificationOutcome.DEFERRED
         )
         result.add_audit_event(
             "ratification_completed",
             {
                 "ratified": result.motions_ratified,
+                "accepted_with_amendments": result.motions_accepted_with_amendments,
                 "rejected": result.motions_rejected,
                 "deferred": result.motions_deferred,
             },

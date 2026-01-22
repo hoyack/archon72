@@ -121,3 +121,5 @@ _tmp/
 *.md.bak*
 .claude/
 .codex/
+
+_bmad-output/

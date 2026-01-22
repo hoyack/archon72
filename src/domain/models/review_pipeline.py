@@ -77,6 +77,7 @@ class RatificationOutcome(Enum):
     """Final ratification vote outcome."""
 
     RATIFIED = "ratified"
+    ACCEPTED_WITH_AMENDMENTS = "accepted_with_amendments"
     REJECTED = "rejected"
     DEFERRED = "deferred"
 
@@ -394,10 +395,16 @@ class RatificationVote:
     yeas: int
     nays: int
     abstentions: int
+    amends: int
+    eligible_votes: int
 
     # Thresholds
     threshold_type: str  # "simple_majority" | "supermajority"
-    threshold_required: int  # 37 for simple, 48 for super
+    threshold_required: int  # based on eligible votes
+    quorum_required: int
+    quorum_met: bool
+    support_total: int
+    support_required: int
     threshold_met: bool
 
     # Attribution
@@ -407,10 +414,14 @@ class RatificationVote:
     outcome: RatificationOutcome
     ratified_at: datetime | None = None
 
+    # Revision tracking
+    revision_of: str | None = None
+    revised_motion_text: str | None = None
+
     @property
     def total_votes(self) -> int:
         """Total votes cast."""
-        return self.yeas + self.nays + self.abstentions
+        return self.yeas + self.nays + self.amends + self.abstentions
 
     @property
     def participation_rate(self) -> float:
@@ -426,11 +437,19 @@ class RatificationVote:
             "yeas": self.yeas,
             "nays": self.nays,
             "abstentions": self.abstentions,
+            "amends": self.amends,
+            "eligible_votes": self.eligible_votes,
             "total_votes": self.total_votes,
             "participation_rate": self.participation_rate,
             "threshold_type": self.threshold_type,
             "threshold_required": self.threshold_required,
+            "quorum_required": self.quorum_required,
+            "quorum_met": self.quorum_met,
+            "support_total": self.support_total,
+            "support_required": self.support_required,
             "threshold_met": self.threshold_met,
+            "revision_of": self.revision_of,
+            "revised_motion_text": self.revised_motion_text,
             "outcome": self.outcome.value,
             "ratified_at": self.ratified_at.isoformat() if self.ratified_at else None,
         }
@@ -509,6 +528,7 @@ class MotionReviewPipelineResult:
     # Phase 6: Ratification
     ratification_votes: list[RatificationVote] = field(default_factory=list)
     motions_ratified: int = 0
+    motions_accepted_with_amendments: int = 0
     motions_rejected: int = 0
     motions_deferred: int = 0
 
@@ -564,6 +584,7 @@ class MotionReviewPipelineResult:
             "ratification": {
                 "votes": [v.to_dict() for v in self.ratification_votes],
                 "ratified": self.motions_ratified,
+                "accepted_with_amendments": self.motions_accepted_with_amendments,
                 "rejected": self.motions_rejected,
                 "deferred": self.motions_deferred,
             },

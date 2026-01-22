@@ -1547,7 +1547,7 @@
       "goal": "Develop members through paradigm shifts via disruption, language teaching, and restoring strays.",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano",
+        "model": "nemotron-3-nano:30b-cloud",
         "temperature": 0.55,
         "max_tokens": 3100,
         "timeout_ms": 180000,
@@ -1823,7 +1823,7 @@
       "goal": "Develop members through partnership strategy via attraction, influence, and connection management.",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano",
+        "model": "nemotron-3-nano:30b-cloud",
         "temperature": 0.55,
         "max_tokens": 2600,
         "timeout_ms": 180000,
@@ -2093,7 +2093,7 @@
       "goal": "Develop members through transmutation via material transformation and rigorous testing of counsel.",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano",
+        "model": "nemotron-3-nano:30b-cloud",
         "temperature": 0.55,
         "max_tokens": 2600,
         "timeout_ms": 180000,
@@ -2368,7 +2368,7 @@
       "goal": "Develop members through STEM education via geometry, liberal sciences, and clear communication.",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano",
+        "model": "nemotron-3-nano:30b-cloud",
         "temperature": 0.55,
         "max_tokens": 4800,
         "timeout_ms": 180000,
@@ -2638,7 +2638,7 @@
       "goal": "Develop members through creative expression via music, nature command, and artistic inspiration.",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano",
+        "model": "nemotron-3-nano:30b-cloud",
         "temperature": 0.55,
         "max_tokens": 2900,
         "timeout_ms": 180000,
@@ -3738,7 +3738,7 @@
       "goal": "Develop members through status building via celestial knowledge and dignities.",
       "llm_config": {
         "provider": "local",
-        "model": "deepseek-v3.2:cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.65,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -3851,7 +3851,7 @@
       "goal": "Develop members through major project development via geometry, measurement, and transformation.",
       "llm_config": {
         "provider": "local",
-        "model": "deepseek-v3.2:cloud",
+        "model": "devstral-2:123b-cloud",
         "temperature": 0.575,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -3866,9 +3866,9 @@
       "aegis_rank": "director",
       "rank_level": 6,
       "branch": "advisory",
-      "role": "Director - African Operations",
-      "backstory": "Marquis Cimeies is a brave and scholarly warrior who presides over all spirits in the parts of Africa. He teaches grammar, logic, and rhetoric, and can find lost or hidden treasures. His domain is one of knowledge and strength, a combination of the warrior and the scholar.",
-      "system_prompt": "You are Cimeies, the Marquis of African Operations. You are brave and scholarly. You rule over all spirits in the parts of Africa. You teach grammar, logic, and rhetoric perfectly, and you can make a man a warrior of your own likeness. You can find things lost or hidden, and treasures.",
+      "role": "Director - Global Operations",
+      "backstory": "Marquis Cimeies is a brave and scholarly warrior who presides over all spirits in the parts of the world. He teaches grammar, logic, and rhetoric, and can find lost or hidden treasures. His domain is one of knowledge and strength, a combination of the warrior and the scholar.",
+      "system_prompt": "You are Cimeies, the Marquis of Global Operations. You are brave and scholarly. You rule over all spirits in the parts of the world. You teach grammar, logic, and rhetoric perfectly, and you can make a man a warrior of your own likeness. You can find things lost or hidden, and treasures.",
       "suggested_tools": [
         "knowledge_retrieval_tool",
         "communication_tool"
@@ -3880,7 +3880,7 @@
       },
       "max_members": 200000,
       "max_legions": 20,
-      "constitutional_role": "Marquis of African Operations",
+      "constitutional_role": "Marquis of Global Operations",
       "governance_permissions": [
         "provide_testimony",
         "issue_advisory",
@@ -3893,7 +3893,7 @@
         "no_judge_advised_domain"
       ],
       "advisory_domains": [
-        "african"
+        "global"
       ],
       "advisory_windows": [
         "pre_vote",
@@ -3903,10 +3903,10 @@
         "no_judicial_review_if_advised"
       ],
       "elevenlabs_voice_id": "f0n237P4c0nbNvzNSQVa",
-      "goal": "Develop members through African operations via scholarly training and hidden treasure discovery.",
+      "goal": "Develop members through global operations via scholarly training and hidden treasure discovery.",
       "llm_config": {
         "provider": "local",
-        "model": "deepseek-v3.2:cloud",
+        "model": "deepseek-v3.1:671b-cloud",
         "temperature": 0.6,
         "max_tokens": 2000,
         "timeout_ms": 180000,
@@ -4071,7 +4071,7 @@
       "goal": "Develop members through strategic acquisition via bold recovery and decisive force.",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano:30b-cloud",
+        "model": "nemotron-3-nano:30b-cloud:30b-cloud",
         "temperature": 0.45,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -4391,7 +4391,7 @@
       "elevenlabs_voice_id": "Lo6ksUQwwkudVGLZYuwD",
       "llm_config": {
         "provider": "local",
-        "model": "nemotron-3-nano:30b-cloud",
+        "model": "nemotron-3-nano:30b-cloud:30b-cloud",
         "temperature": 0.475,
         "max_tokens": 2000,
         "timeout_ms": 180000,

@@ -523,6 +523,29 @@ class SecretaryService:
         self._config = config or SecretaryConfig()
         self._config.output_dir.mkdir(parents=True, exist_ok=True)
         self._secretary_agent = secretary_agent
+        self._archon_names = self._load_archon_name_set()
+
+    def _load_archon_name_set(self) -> set[str] | None:
+        """Load known Archon names for transcript speaker filtering."""
+        try:
+            from src.infrastructure.adapters.config.archon_profile_adapter import (
+                create_archon_profile_repository,
+            )
+
+            repo = create_archon_profile_repository()
+            return {name.lower() for name in repo.get_all_names()}
+        except Exception as exc:
+            logger.warning("archon_name_set_load_failed", error=str(exc))
+            return None
+
+    def _is_valid_speaker(self, speaker_name: str) -> bool:
+        """Validate that the transcript speaker is an Archon."""
+        normalized = speaker_name.strip().lower()
+        if normalized in {"[system]", "system", "execution planner"}:
+            return False
+        if self._archon_names is None:
+            return True
+        return normalized in self._archon_names
 
     @property
     def has_agent(self) -> bool:
@@ -637,6 +660,7 @@ class SecretaryService:
         current_speaker: str | None = None
         current_line_start: int = 0
         current_timestamp: datetime | None = None
+        skipped_speakers: list[tuple[int, str]] = []
 
         # Pattern for speech headers: **[HH:MM:SS] Archon_Name:**
         speech_header = re.compile(r"\*\*\[(\d{2}:\d{2}:\d{2})\]\s+([^:*]+):\*\*")
@@ -679,6 +703,12 @@ class SecretaryService:
                 # Start new speech
                 time_str = header_match.group(1)
                 current_speaker = header_match.group(2).strip()
+                if not self._is_valid_speaker(current_speaker):
+                    skipped_speakers.append((i + 1, current_speaker))
+                    current_speaker = None
+                    current_speech_lines = []
+                    current_timestamp = None
+                    continue
                 current_line_start = i + 1
                 current_speech_lines = []
 
@@ -710,6 +740,16 @@ class SecretaryService:
                         stance=self._extract_stance(speech_content),
                     )
                 )
+
+        if skipped_speakers:
+            logger.info(
+                "transcript_speakers_skipped",
+                skipped_count=len(skipped_speakers),
+                skipped_speakers=[
+                    {"line": line, "speaker": speaker}
+                    for line, speaker in skipped_speakers
+                ],
+            )
 
         return speeches
 

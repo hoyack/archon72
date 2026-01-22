@@ -25,7 +25,7 @@ Usage:
 
 import structlog
 
-from src.infrastructure.observability.correlation import get_correlation_id
+from src.application.observability.correlation import get_correlation_id
 
 
 class LoggingMixin:

@@ -28,7 +28,7 @@ from src.application.ports.governance.filter_decision_log_port import (
     FilterDecisionLogPort,
 )
 from src.application.ports.governance.ledger_port import GovernanceLedgerPort
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 from src.domain.governance.filter import (

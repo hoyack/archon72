@@ -38,10 +38,8 @@ class TestTaskConstraintPort:
         assert ConstraintViolation is not None
 
     def test_task_operation_enum_can_be_imported(self) -> None:
-        """TaskOperation enum can be imported from governance ports."""
-        from src.application.ports.governance.task_constraint_port import (
-            TaskOperation,
-        )
+        """TaskOperation enum can be imported from domain."""
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         assert TaskOperation is not None
 
@@ -53,8 +51,8 @@ class TestConstraintViolation:
         """ConstraintViolation can be created with required fields."""
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         violation = ConstraintViolation(
             actor_id=uuid4(),
@@ -73,8 +71,8 @@ class TestConstraintViolation:
         """ConstraintViolation is immutable (frozen)."""
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         violation = ConstraintViolation(
             actor_id=uuid4(),
@@ -91,8 +89,8 @@ class TestConstraintViolation:
         """ConstraintViolation can include optional task_id."""
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         task_id = uuid4()
         violation = ConstraintViolation(
@@ -112,9 +110,7 @@ class TestTaskOperation:
 
     def test_earl_operations_exist(self) -> None:
         """Earl operations are defined in TaskOperation."""
-        from src.application.ports.governance.task_constraint_port import (
-            TaskOperation,
-        )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         # Earl can do these
         assert TaskOperation.CREATE_ACTIVATION is not None
@@ -123,9 +119,7 @@ class TestTaskOperation:
 
     def test_cluster_operations_exist(self) -> None:
         """Cluster operations are defined in TaskOperation."""
-        from src.application.ports.governance.task_constraint_port import (
-            TaskOperation,
-        )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         # Cluster can do these
         assert TaskOperation.ACCEPT is not None
@@ -136,9 +130,7 @@ class TestTaskOperation:
 
     def test_system_operations_exist(self) -> None:
         """System operations are defined in TaskOperation."""
-        from src.application.ports.governance.task_constraint_port import (
-            TaskOperation,
-        )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         # System can do these
         assert TaskOperation.AUTO_DECLINE is not None
@@ -148,9 +140,7 @@ class TestTaskOperation:
 
     def test_operations_have_string_values(self) -> None:
         """TaskOperation values are snake_case strings."""
-        from src.application.ports.governance.task_constraint_port import (
-            TaskOperation,
-        )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         assert TaskOperation.CREATE_ACTIVATION.value == "create_activation"
         assert TaskOperation.ACCEPT.value == "accept"
@@ -215,8 +205,8 @@ class TestConstraintViolationError:
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
             ConstraintViolationError,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         violation = ConstraintViolation(
             actor_id=uuid4(),

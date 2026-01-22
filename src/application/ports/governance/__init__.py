@@ -133,20 +133,22 @@ from src.application.ports.governance.task_consent_port import (
     UnauthorizedConsentError,
 )
 from src.application.ports.governance.task_constraint_port import (
-    ROLE_ALLOWED_OPERATIONS,
-    ROLE_PROHIBITED_OPERATIONS,
     ConstraintViolation,
     ConstraintViolationError,
     TaskConstraintPort,
-    TaskOperation,
 )
 from src.application.ports.governance.task_reminder_port import (
-    ReminderMilestone,
     ReminderProcessingResult,
     ReminderRecord,
     ReminderSendResult,
     ReminderTrackingPort,
     TaskReminderPort,
+)
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
+from src.domain.governance.task.task_constraint import (
+    ROLE_ALLOWED_OPERATIONS,
+    ROLE_PROHIBITED_OPERATIONS,
+    TaskOperation,
 )
 from src.application.ports.governance.task_result_port import (
     InvalidResultStateError,

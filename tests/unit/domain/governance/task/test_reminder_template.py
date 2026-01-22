@@ -12,7 +12,7 @@ from uuid import uuid4
 
 import pytest
 
-from src.application.ports.governance.task_reminder_port import ReminderMilestone
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 from src.domain.governance.task.reminder_template import (
     BANNED_WORDS,
     FINAL_TEMPLATE,

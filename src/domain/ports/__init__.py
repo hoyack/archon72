@@ -12,4 +12,6 @@ Future port types will include:
 - etc.
 """
 
-__all__: list[str] = []
+from src.domain.ports.time_authority import TimeAuthorityProtocol
+
+__all__: list[str] = ["TimeAuthorityProtocol"]

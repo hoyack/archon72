@@ -21,39 +21,13 @@ from typing import TYPE_CHECKING
 from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
+from src.bootstrap.cessation import get_freeze_checker, set_freeze_checker
 
 if TYPE_CHECKING:
     from src.application.ports.freeze_checker import FreezeCheckerProtocol
 
 
-# Global singleton for freeze checker (replaced in production)
-_freeze_checker: FreezeCheckerProtocol | None = None
-
-
-def get_freeze_checker() -> FreezeCheckerProtocol:
-    """Get the freeze checker instance.
-
-    This is a factory function that can be overridden in tests.
-    In production, this would return a real implementation.
-
-    Returns:
-        FreezeCheckerProtocol implementation.
-    """
-    global _freeze_checker
-    if _freeze_checker is None:
-        _freeze_checker = FreezeCheckerStub()
-    return _freeze_checker
-
-
-def set_freeze_checker(checker: FreezeCheckerProtocol) -> None:
-    """Set the freeze checker instance (for production use).
-
-    Args:
-        checker: FreezeCheckerProtocol implementation.
-    """
-    global _freeze_checker
-    _freeze_checker = checker
+# get_freeze_checker and set_freeze_checker are provided by bootstrap wiring.
 
 
 async def require_not_ceased(

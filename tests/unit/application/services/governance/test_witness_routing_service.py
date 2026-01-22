@@ -21,7 +21,7 @@ from src.application.ports.governance.panel_queue_port import PanelQueuePort
 from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEventEmitterPort,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.witness_routing_service import (
     HIGH_PRIORITY_KEYWORDS,
     ROUTING_RULES,

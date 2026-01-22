@@ -36,7 +36,7 @@ from src.application.ports.governance.cessation_port import (
 from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEventEmitterPort,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.cessation import (
     CessationAlreadyTriggeredError,
     CessationState,

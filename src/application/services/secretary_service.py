@@ -32,6 +32,7 @@ from uuid import UUID
 if TYPE_CHECKING:
     from src.application.ports.secretary_agent import SecretaryAgentProtocol
 
+from src.application.ports.archon_profile_repository import ArchonProfileRepository
 from src.domain.models.secretary import (
     ConflictingPosition,
     ExtractedRecommendation,
@@ -512,6 +513,7 @@ class SecretaryService:
         self,
         config: SecretaryConfig | None = None,
         secretary_agent: SecretaryAgentProtocol | None = None,
+        archon_profile_repository: ArchonProfileRepository | None = None,
     ):
         """Initialize the Secretary service.
 
@@ -519,21 +521,23 @@ class SecretaryService:
             config: Service configuration
             secretary_agent: Optional LLM-powered agent for enhanced extraction.
                 If provided, enables async process_transcript_enhanced().
+            archon_profile_repository: Optional repository for archon profiles.
         """
         self._config = config or SecretaryConfig()
         self._config.output_dir.mkdir(parents=True, exist_ok=True)
         self._secretary_agent = secretary_agent
+        self._archon_profile_repository = archon_profile_repository
         self._archon_names = self._load_archon_name_set()
 
     def _load_archon_name_set(self) -> set[str] | None:
         """Load known Archon names for transcript speaker filtering."""
+        if self._archon_profile_repository is None:
+            return None
         try:
-            from src.infrastructure.adapters.config.archon_profile_adapter import (
-                create_archon_profile_repository,
-            )
-
-            repo = create_archon_profile_repository()
-            return {name.lower() for name in repo.get_all_names()}
+            return {
+                name.lower()
+                for name in self._archon_profile_repository.get_all_names()
+            }
         except Exception as exc:
             logger.warning("archon_name_set_load_failed", error=str(exc))
             return None

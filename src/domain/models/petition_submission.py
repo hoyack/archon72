@@ -143,6 +143,7 @@ class PetitionSubmission:
     - FR-2.2: State field supports required lifecycle states
     - HP-2: content_hash field ready for Blake3 (Story 0.5)
     - FR-7.4: co_signer_count exposed in status response (Story 1.8)
+    - FR-5.4: Escalation tracking fields for King queue (Story 6.1)
 
     Attributes:
         id: UUIDv7 unique identifier.
@@ -156,6 +157,9 @@ class PetitionSubmission:
         updated_at: Last modification timestamp (UTC).
         fate_reason: Reason for fate assignment (for terminal states).
         co_signer_count: Number of co-signers (FR-7.4, placeholder until Epic 5).
+        escalation_source: What triggered escalation (Story 6.1, FR-5.4).
+        escalated_at: When petition was escalated (Story 6.1, FR-5.4).
+        escalated_to_realm: Target King's realm for escalation (Story 6.1, FR-5.4).
     """
 
     id: UUID
@@ -169,6 +173,9 @@ class PetitionSubmission:
     updated_at: datetime = field(default_factory=_utc_now)
     fate_reason: str | None = field(default=None)
     co_signer_count: int = field(default=0)
+    escalation_source: str | None = field(default=None)
+    escalated_at: datetime | None = field(default=None)
+    escalated_to_realm: str | None = field(default=None)
 
     MAX_TEXT_LENGTH: int = 10_000
 
@@ -241,6 +248,9 @@ class PetitionSubmission:
             updated_at=_utc_now(),
             fate_reason=effective_reason,
             co_signer_count=self.co_signer_count,
+            escalation_source=self.escalation_source,
+            escalated_at=self.escalated_at,
+            escalated_to_realm=self.escalated_to_realm,
         )
 
     def with_content_hash(self, content_hash: bytes) -> PetitionSubmission:
@@ -266,6 +276,46 @@ class PetitionSubmission:
             updated_at=_utc_now(),
             fate_reason=self.fate_reason,
             co_signer_count=self.co_signer_count,
+            escalation_source=self.escalation_source,
+            escalated_at=self.escalated_at,
+            escalated_to_realm=self.escalated_to_realm,
+        )
+
+    def with_escalation(
+        self,
+        escalation_source: str,
+        escalated_to_realm: str,
+        escalated_at: datetime | None = None,
+    ) -> PetitionSubmission:
+        """Create new petition with escalation tracking fields set (Story 6.1, FR-5.4).
+
+        Used when transitioning to ESCALATED state to populate escalation metadata.
+
+        Args:
+            escalation_source: What triggered escalation (DELIBERATION, CO_SIGNER_THRESHOLD, etc.).
+            escalated_to_realm: Target King's realm (e.g., "governance").
+            escalated_at: When escalation occurred (defaults to now).
+
+        Returns:
+            New PetitionSubmission with escalation fields populated.
+        """
+        effective_escalated_at = escalated_at if escalated_at is not None else _utc_now()
+
+        return PetitionSubmission(
+            id=self.id,
+            type=self.type,
+            text=self.text,
+            state=self.state,
+            submitter_id=self.submitter_id,
+            content_hash=self.content_hash,
+            realm=self.realm,
+            created_at=self.created_at,
+            updated_at=_utc_now(),
+            fate_reason=self.fate_reason,
+            co_signer_count=self.co_signer_count,
+            escalation_source=escalation_source,
+            escalated_at=effective_escalated_at,
+            escalated_to_realm=escalated_to_realm,
         )
 
     def canonical_content_bytes(self) -> bytes:

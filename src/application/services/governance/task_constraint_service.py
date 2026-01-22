@@ -29,14 +29,14 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from src.application.ports.governance.task_constraint_port import (
-    ROLE_ALLOWED_OPERATIONS,
-    ROLE_PROHIBITED_OPERATIONS,
     ConstraintViolation,
     ConstraintViolationError,
     TaskConstraintPort,
-    TaskOperation,
 )
 from src.domain.governance.task.task_constraint import (
+    ROLE_ALLOWED_OPERATIONS,
+    ROLE_PROHIBITED_OPERATIONS,
+    TaskOperation,
     get_constraint_violation_reason,
     is_operation_allowed,
     is_operation_prohibited,

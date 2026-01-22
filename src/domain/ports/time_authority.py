@@ -85,3 +85,6 @@ class TimeAuthorityProtocol(ABC):
             The reference point is arbitrary - only differences are meaningful.
         """
         ...
+
+
+__all__ = ["TimeAuthorityProtocol"]

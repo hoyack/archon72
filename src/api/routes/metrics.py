@@ -9,10 +9,7 @@ Constitutional Constraints:
 
 from fastapi import APIRouter, Response
 
-from src.infrastructure.monitoring.metrics import (
-    METRICS_CONTENT_TYPE,
-    generate_metrics,
-)
+from src.bootstrap.metrics import get_metrics_exporter
 
 router = APIRouter(prefix="/v1", tags=["metrics"])
 
@@ -46,8 +43,9 @@ async def get_metrics() -> Response:
         Constitutional metrics (breach_count, halt_state, etc.)
         are NOT exposed here and belong to Story 8.10.
     """
-    metrics_output = generate_metrics()
+    exporter = get_metrics_exporter()
+    metrics_output = exporter.generate_metrics()
     return Response(
         content=metrics_output,
-        media_type=METRICS_CONTENT_TYPE,
+        media_type=exporter.content_type,
     )

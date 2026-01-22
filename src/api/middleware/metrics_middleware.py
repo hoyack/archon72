@@ -13,7 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
-from src.infrastructure.monitoring.metrics import get_metrics_collector
+from src.bootstrap.metrics import get_metrics_collector
 
 
 def _classify_error_type(status_code: int) -> str:

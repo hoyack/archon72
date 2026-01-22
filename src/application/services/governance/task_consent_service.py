@@ -42,7 +42,7 @@ from src.application.ports.governance.task_consent_port import (
 from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEventEmitterPort,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.two_phase_execution import TwoPhaseExecution
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION

@@ -166,16 +166,3 @@ def reset_external_health_service() -> None:
     """
     global _external_health_service
     _external_health_service = None
-
-
-# Type assertion to verify protocol compliance
-def _check_protocol_compliance() -> None:
-    """Verify that ExternalHealthService implements ExternalHealthPort."""
-    from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
-    from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-
-    service: ExternalHealthPort = ExternalHealthService(
-        halt_checker=HaltCheckerStub(),
-        freeze_checker=FreezeCheckerStub(),
-    )
-    _ = service  # Silence unused variable warning

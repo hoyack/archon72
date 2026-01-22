@@ -29,7 +29,7 @@ from uuid import UUID, uuid4
 
 from src.application.ports.governance.ledger_port import GovernanceLedgerPort
 from src.application.ports.petition_event_emitter import PetitionEventEmitterPort
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.events.petition import (
     PETITION_ACKNOWLEDGED_EVENT_TYPE,
     PETITION_ESCALATED_EVENT_TYPE,

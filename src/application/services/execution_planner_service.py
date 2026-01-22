@@ -176,12 +176,16 @@ class ExecutionPlannerService:
 
             motion_id = vote["mega_motion_id"]
             motion_data = motion_lookup.get(motion_id, {})
+            # Prefer revised motion text from ratification (post-amendment) if present
+            motion_text = vote.get("revised_motion_text") or motion_data.get(
+                "text", ""
+            )
 
             motions.append(
                 MotionForPlanning(
                     motion_id=motion_id,
                     motion_title=vote["mega_motion_title"],
-                    motion_text=motion_data.get("text", ""),
+                    motion_text=motion_text,
                     ratified_at=vote["ratified_at"],
                     yeas=vote["yeas"],
                     nays=vote["nays"],

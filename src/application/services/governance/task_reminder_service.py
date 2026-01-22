@@ -44,17 +44,17 @@ from src.application.ports.governance.participant_message_port import (
 )
 from src.application.ports.governance.task_activation_port import TaskStatePort
 from src.application.ports.governance.task_reminder_port import (
-    ReminderMilestone,
     ReminderProcessingResult,
     ReminderSendResult,
     ReminderTrackingPort,
     TaskReminderPort,
 )
 from src.application.ports.governance.task_timeout_port import TaskTimeoutConfig
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 from src.domain.governance.filter import FilterDecision, FilterResult
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 from src.domain.governance.task.reminder_template import (
     get_template_for_milestone,
 )

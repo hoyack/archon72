@@ -24,7 +24,7 @@ from src.application.ports.branch_action_tracker import (
     RecordActionResult,
     get_branch_for_action,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = get_logger(__name__)
 

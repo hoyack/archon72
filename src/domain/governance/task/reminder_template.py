@@ -34,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar
 
-from src.application.ports.governance.task_reminder_port import ReminderMilestone
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 
 # Banned phrases that indicate coercive language in reminders
 # These MUST NOT appear in any reminder template (matched as phrases)

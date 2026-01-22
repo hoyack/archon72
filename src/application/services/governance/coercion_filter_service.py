@@ -62,7 +62,7 @@ from src.application.ports.governance.coercion_filter_port import (
     CoercionFilterPort,
     MessageType,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.filter import (
     FilteredContent,
     FilterResult,

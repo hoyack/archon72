@@ -234,6 +234,12 @@ from src.application.ports.earl_service import (
 )
 from src.application.ports.entropy_source import EntropySourceProtocol
 from src.application.ports.escalation import EscalationProtocol
+from src.application.ports.escalation_queue import (
+    EscalationQueueItem,
+    EscalationQueueProtocol,
+    EscalationQueueResult,
+    EscalationSource,
+)
 from src.application.ports.escalation_repository import EscalationRepositoryProtocol
 from src.application.ports.escalation_threshold import (
     EscalationThresholdCheckerProtocol,
@@ -264,6 +270,12 @@ from src.application.ports.external_health import (
 from src.application.ports.failure_mode_registry import (
     FailureModeRegistryPort,
     HealthSummary,
+)
+from src.application.ports.branch_conflict_rules_loader import (
+    BranchConflictRule,
+    BranchConflictRulesLoaderProtocol,
+    BranchConflictSeverity,
+    ConfigurationError,
 )
 
 # Government PRD Phase 3 - Flow Orchestrator (Epic 8, Story 8.2, FR-GOV-23)
@@ -498,7 +510,7 @@ from src.application.ports.threshold_configuration import (
     ThresholdConfigurationProtocol,
     ThresholdRepositoryProtocol,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.ports.tool_registry import (
     ToolRegistryProtocol,
 )
@@ -641,7 +653,11 @@ __all__: list[str] = [
     "BreachDeclarationProtocol",
     "BreachRepositoryProtocol",
     "EscalationProtocol",
+    "EscalationQueueItem",
+    "EscalationQueueProtocol",
+    "EscalationQueueResult",
     "EscalationRepositoryProtocol",
+    "EscalationSource",
     "CessationConsiderationProtocol",
     "CessationRepositoryProtocol",
     "ThresholdConfigurationProtocol",
@@ -764,6 +780,10 @@ __all__: list[str] = [
     # External Health (Story 8.3, FR54)
     "ExternalHealthPort",
     "ExternalHealthStatus",
+    "BranchConflictRule",
+    "BranchConflictRulesLoaderProtocol",
+    "BranchConflictSeverity",
+    "ConfigurationError",
     # Incident Report Repository (Story 8.4, FR54, FR145, FR147)
     "IncidentReportRepositoryPort",
     # Complexity Budget (Story 8.6, CT-14, RT-6, SC-3)

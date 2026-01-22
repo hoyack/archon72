@@ -43,7 +43,7 @@ from src.application.ports.permission_enforcer import (
     PermissionContext,
     PermissionEnforcerProtocol,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = get_logger(__name__)
 

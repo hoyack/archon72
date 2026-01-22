@@ -46,7 +46,7 @@ from src.application.ports.governance.halt_trigger_port import (
     UnauthorizedHaltError,
 )
 from src.application.ports.governance.ledger_port import GovernanceLedgerPort
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 from src.domain.governance.halt import HaltReason

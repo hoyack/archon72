@@ -38,7 +38,7 @@ from uuid import UUID
 from structlog import get_logger
 
 from src.application.ports.governance.halt_port import HaltPort
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.halt import HaltReason, HaltStatus
 
 if TYPE_CHECKING:

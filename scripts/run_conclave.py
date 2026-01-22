@@ -93,6 +93,10 @@ def format_progress(event: str, message: str, data: dict) -> None:
     """Format and print progress updates."""
     if event == "phase_change":
         print_phase(message)
+    elif event == "session_progress":
+        pct = data.get("percent_complete", 0)
+        phase = data.get("phase", "")
+        print(f"{Colors.DIM}[{pct:5.1f}%]{Colors.ENDC} {phase}")
     elif event == "motion_proposed":
         print(f"{Colors.GREEN}[MOTION]{Colors.ENDC} {message}")
         print(f"         Type: {data.get('type', 'unknown')}")

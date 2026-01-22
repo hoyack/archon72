@@ -35,7 +35,7 @@ from src.domain.models.motion_seed import (
     is_king,
     validate_king_realm_match,
 )
-from src.infrastructure.stubs.budget_store_stub import InMemoryBudgetStore
+from src.application.stubs.budget_store_stub import InMemoryBudgetStore
 
 
 @dataclass

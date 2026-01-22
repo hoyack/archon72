@@ -32,7 +32,7 @@ from datetime import datetime, timedelta, timezone
 
 from structlog import get_logger
 
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = get_logger()
 

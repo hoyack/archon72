@@ -139,6 +139,9 @@ from src.application.services.emergence_violation_orchestrator import (
     CombinedScanResult,
     EmergenceViolationOrchestrator,
 )
+from src.application.services.escalation_queue_service import (
+    EscalationQueueService,
+)
 from src.application.services.escalation_service import (
     ESCALATION_SYSTEM_AGENT_ID,
     EscalationService,
@@ -434,6 +437,8 @@ __all__: list[str] = [
     "SUSPENDED_CAPABILITIES",
     "BREACH_DECLARATION_SYSTEM_AGENT_ID",
     "BreachDeclarationService",
+    # Escalation Queue Service (Story 6.1, FR-5.4)
+    "EscalationQueueService",
     "ESCALATION_SYSTEM_AGENT_ID",
     "EscalationService",
     # Escalation Threshold Service (Story 5.5, FR-5.1, FR-5.2, FR-6.5)

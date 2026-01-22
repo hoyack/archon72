@@ -27,11 +27,10 @@ from src.application.ports.branch_action_tracker import (
     RecordActionRequest,
     get_branch_for_action,
 )
-from src.infrastructure.adapters.config.branch_conflict_rules_loader import (
+from src.application.ports.branch_conflict_rules_loader import (
     BranchConflictRule,
     BranchConflictRulesLoaderProtocol,
     BranchConflictSeverity,
-    YamlBranchConflictRulesLoader,
 )
 
 logger = get_logger(__name__)
@@ -336,7 +335,7 @@ class RoleCollapseDetectionService:
     def __init__(
         self,
         tracker: BranchActionTrackerProtocol,
-        rules_loader: BranchConflictRulesLoaderProtocol | None = None,
+        rules_loader: BranchConflictRulesLoaderProtocol,
     ) -> None:
         """Initialize the role collapse detection service.
 
@@ -344,15 +343,13 @@ class RoleCollapseDetectionService:
 
         Args:
             tracker: Branch action tracker for querying/recording actions
-            rules_loader: Loader for branch conflict rules (defaults to YAML loader)
+            rules_loader: Loader for branch conflict rules
         """
         self._tracker = tracker
         self._violations: list[RoleCollapseViolation] = []
         self._audit_entries: list[RoleCollapseAuditEntry] = []
 
-        # Per HARDENING-2 AC4: Load rules at runtime from YAML
-        if rules_loader is None:
-            rules_loader = YamlBranchConflictRulesLoader()
+        # Per HARDENING-2 AC4: Load rules at runtime from injected loader
         self._rules_loader = rules_loader
         self._rules = rules_loader.load_rules()
 

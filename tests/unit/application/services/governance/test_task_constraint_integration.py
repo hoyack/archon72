@@ -22,8 +22,8 @@ import pytest
 
 from src.application.ports.governance.task_constraint_port import (
     ConstraintViolationError,
-    TaskOperation,
 )
+from src.domain.governance.task.task_constraint import TaskOperation
 from src.application.services.governance.task_constraint_service import (
     TaskConstraintService,
 )

@@ -36,13 +36,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import Protocol
 from uuid import UUID
 
 from src.domain.governance.audit.errors import PartialExportError
 
-if TYPE_CHECKING:
-    from src.application.ports.governance.ledger_port import PersistedGovernanceEvent
+
+class LedgerExportEvent(Protocol):
+    """Protocol for ledger events used in export validation."""
+
+    sequence: int
 
 # Current export format version
 EXPORT_FORMAT_VERSION = "1.0.0"
@@ -128,7 +131,7 @@ class LedgerExport:
     """
 
     metadata: ExportMetadata
-    events: tuple[PersistedGovernanceEvent, ...]
+    events: tuple[LedgerExportEvent, ...]
     verification: VerificationInfo
 
     def validate_completeness(self) -> bool:
@@ -184,11 +187,11 @@ class LedgerExport:
         return len(self.events)
 
     @property
-    def first_event(self) -> PersistedGovernanceEvent | None:
+    def first_event(self) -> LedgerExportEvent | None:
         """Get the first (genesis) event, or None if empty."""
         return self.events[0] if self.events else None
 
     @property
-    def last_event(self) -> PersistedGovernanceEvent | None:
+    def last_event(self) -> LedgerExportEvent | None:
         """Get the last (most recent) event, or None if empty."""
         return self.events[-1] if self.events else None

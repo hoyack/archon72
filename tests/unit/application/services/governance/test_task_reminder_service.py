@@ -21,9 +21,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.application.ports.governance.task_reminder_port import (
-    ReminderMilestone,
-)
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 from src.application.ports.governance.task_timeout_port import TaskTimeoutConfig
 from src.application.services.governance.task_reminder_service import (
     TaskReminderScheduler,

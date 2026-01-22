@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from src.application.ports.governance.two_phase_emitter_port import (
         TwoPhaseEventEmitterPort,
     )
-    from src.application.ports.time_authority import TimeAuthorityProtocol
+    from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 @dataclass(frozen=True)

@@ -37,7 +37,7 @@ from src.application.ports.governance.anti_metrics_verification_port import (
     RouteInspectorPort,
     SchemaInspectorPort,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.anti_metrics_verification_service import (
     AntiMetricsVerificationService,
 )

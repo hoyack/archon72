@@ -29,7 +29,6 @@ from src.application.ports.separation_validator import (
     SeparationValidatorPort,
 )
 from src.domain.errors.separation import OperationalToEventStoreError
-from src.infrastructure.stubs.separation_validator_stub import SeparationValidatorStub
 
 
 class WriteTarget(Enum):
@@ -165,10 +164,6 @@ class SeparationEnforcementService:
         Returns:
             Set of operational metric type strings.
         """
-        # Access the stub's OPERATIONAL_TYPES constant
-        if isinstance(self._validator, SeparationValidatorStub):
-            return set(self._validator.OPERATIONAL_TYPES)
-        # For other implementations, return known operational types
         return {
             "uptime_recorded",
             "latency_measured",

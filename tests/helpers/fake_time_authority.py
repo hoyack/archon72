@@ -62,7 +62,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class FakeTimeAuthority(TimeAuthorityProtocol):

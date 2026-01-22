@@ -29,12 +29,50 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
-from src.application.ports.governance.task_constraint_port import (
-    ROLE_ALLOWED_OPERATIONS,
-    ROLE_PROHIBITED_OPERATIONS,
-    TaskOperation,
-)
+
+class TaskOperation(str, Enum):
+    """Operations that can be performed on tasks.
+
+    Per FR14 and Dev Notes, operations are categorized by actor role.
+
+    Earl operations:
+    - CREATE_ACTIVATION: Create a task activation request
+    - VIEW_TASK_STATE: View current task state
+    - VIEW_TASK_HISTORY: View task event history
+
+    Cluster operations:
+    - ACCEPT: Accept an activation request
+    - DECLINE: Decline an activation request
+    - HALT: Stop in-progress work
+    - SUBMIT_RESULT: Submit task result
+    - SUBMIT_PROBLEM: Report a problem with the task
+
+    System operations (automatic):
+    - AUTO_DECLINE: System declines on TTL expiry
+    - AUTO_START: System starts work after acceptance
+    - AUTO_QUARANTINE: System quarantines on halt
+    - SEND_REMINDER: System sends reminder notification
+    """
+
+    # Earl operations
+    CREATE_ACTIVATION = "create_activation"
+    VIEW_TASK_STATE = "view_task_state"
+    VIEW_TASK_HISTORY = "view_task_history"
+
+    # Cluster operations
+    ACCEPT = "accept"
+    DECLINE = "decline"
+    HALT = "halt"
+    SUBMIT_RESULT = "submit_result"
+    SUBMIT_PROBLEM = "submit_problem"
+
+    # System operations
+    AUTO_DECLINE = "auto_decline"
+    AUTO_START = "auto_start"
+    AUTO_QUARANTINE = "auto_quarantine"
+    SEND_REMINDER = "send_reminder"
 
 
 @dataclass(frozen=True)
@@ -157,6 +195,55 @@ ROLE_CONSTRAINTS: dict[str, dict] = {
     "Earl": EARL_CONSTRAINTS,
     "Cluster": CLUSTER_CONSTRAINTS,
     "system": SYSTEM_CONSTRAINTS,
+}
+
+
+# Role → Allowed Operations mapping (per Dev Notes)
+ROLE_ALLOWED_OPERATIONS: dict[str, frozenset[TaskOperation]] = {
+    "Earl": frozenset(
+        {
+            TaskOperation.CREATE_ACTIVATION,
+            TaskOperation.VIEW_TASK_STATE,
+            TaskOperation.VIEW_TASK_HISTORY,
+        }
+    ),
+    "Cluster": frozenset(
+        {
+            TaskOperation.ACCEPT,
+            TaskOperation.DECLINE,
+            TaskOperation.HALT,
+            TaskOperation.SUBMIT_RESULT,
+            TaskOperation.SUBMIT_PROBLEM,
+        }
+    ),
+    "system": frozenset(
+        {
+            TaskOperation.AUTO_DECLINE,
+            TaskOperation.AUTO_START,
+            TaskOperation.AUTO_QUARANTINE,
+            TaskOperation.SEND_REMINDER,
+        }
+    ),
+}
+
+# Role → Prohibited Operations mapping (per Dev Notes)
+# Explicitly prohibited operations (beyond just "not allowed")
+ROLE_PROHIBITED_OPERATIONS: dict[str, frozenset[TaskOperation]] = {
+    "Earl": frozenset(
+        {
+            TaskOperation.ACCEPT,  # Cannot accept on behalf of Cluster (AC1)
+            TaskOperation.DECLINE,  # Cannot decline on behalf of Cluster
+            TaskOperation.HALT,  # Cannot halt Cluster's work
+            TaskOperation.SUBMIT_RESULT,  # Cannot submit for Cluster
+            TaskOperation.SUBMIT_PROBLEM,  # Cannot submit for Cluster
+        }
+    ),
+    "Cluster": frozenset(
+        {
+            TaskOperation.CREATE_ACTIVATION,  # Cannot self-assign (AC2)
+        }
+    ),
+    "system": frozenset(),  # System has no prohibited operations
 }
 
 

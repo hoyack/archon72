@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from src.application.ports.governance.ledger_port import GovernanceLedgerPort
-    from src.application.ports.time_authority import TimeAuthorityProtocol
+    from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = get_logger(__name__)
 

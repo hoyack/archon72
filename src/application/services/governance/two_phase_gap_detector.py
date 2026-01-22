@@ -34,7 +34,7 @@ from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from src.application.ports.governance.ledger_port import GovernanceLedgerPort
-    from src.application.ports.time_authority import TimeAuthorityProtocol
+    from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class TwoPhaseViolationType(str, Enum):

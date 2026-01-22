@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from src.application.ports.governance.ledger_port import (
         GovernanceLedgerPort,
     )
-    from src.application.ports.time_authority import TimeAuthority
+    from src.domain.ports.time_authority import TimeAuthority
 
 
 @dataclass

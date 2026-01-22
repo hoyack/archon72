@@ -74,3 +74,22 @@ class MetricsCollectorProtocol(ABC):
             labels: Additional labels for the metric.
         """
         ...
+
+    @abstractmethod
+    def observe_request_duration(
+        self, method: str, endpoint: str, duration: float
+    ) -> None:
+        """Record an HTTP request duration observation."""
+        ...
+
+    @abstractmethod
+    def increment_requests(self, method: str, endpoint: str, status: str) -> None:
+        """Increment total HTTP requests counter."""
+        ...
+
+    @abstractmethod
+    def increment_failed_requests(
+        self, method: str, endpoint: str, status: str, error_type: str
+    ) -> None:
+        """Increment failed HTTP requests counter."""
+        ...

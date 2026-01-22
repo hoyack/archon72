@@ -101,7 +101,7 @@ class TestValidateOperation:
     @pytest.mark.asyncio
     async def test_earl_can_create_activation(self, service: Any) -> None:
         """Earl can create activation - returns None (AC3)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.validate_operation(
             actor_id=uuid4(),
@@ -116,8 +116,8 @@ class TestValidateOperation:
         """Earl cannot accept - returns ConstraintViolation (AC3, AC4)."""
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.validate_operation(
             actor_id=uuid4(),
@@ -133,7 +133,7 @@ class TestValidateOperation:
     @pytest.mark.asyncio
     async def test_cluster_can_accept(self, service: Any) -> None:
         """Cluster can accept - returns None (AC2)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.validate_operation(
             actor_id=uuid4(),
@@ -148,8 +148,8 @@ class TestValidateOperation:
         """Cluster cannot create activation - returns violation (AC2)."""
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolation,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.validate_operation(
             actor_id=uuid4(),
@@ -164,9 +164,7 @@ class TestValidateOperation:
     @pytest.mark.asyncio
     async def test_violation_includes_task_id(self, service: Any) -> None:
         """Violation includes task_id when provided."""
-        from src.application.ports.governance.task_constraint_port import (
-            TaskOperation,
-        )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         task_id = uuid4()
         result = await service.validate_operation(
@@ -202,7 +200,7 @@ class TestRequireValidOperation:
     @pytest.mark.asyncio
     async def test_allowed_operation_no_error(self, service: Any) -> None:
         """Allowed operation does not raise error."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         # Should not raise
         await service.require_valid_operation(
@@ -216,8 +214,8 @@ class TestRequireValidOperation:
         """Prohibited operation raises ConstraintViolationError (AC4)."""
         from src.application.ports.governance.task_constraint_port import (
             ConstraintViolationError,
-            TaskOperation,
         )
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         with pytest.raises(ConstraintViolationError) as exc_info:
             await service.require_valid_operation(
@@ -256,7 +254,7 @@ class TestViolationEvents:
         mock_event_emitter: AsyncMock,
     ) -> None:
         """Constraint violation emits event (AC8)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         await service.validate_operation(
             actor_id=uuid4(),
@@ -273,7 +271,7 @@ class TestViolationEvents:
         mock_event_emitter: AsyncMock,
     ) -> None:
         """Violation event has correct type (AC8)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         await service.validate_operation(
             actor_id=uuid4(),
@@ -294,7 +292,7 @@ class TestViolationEvents:
         mock_event_emitter: AsyncMock,
     ) -> None:
         """Violation event contains required payload fields (AC8)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         actor_id = uuid4()
         await service.validate_operation(
@@ -319,7 +317,7 @@ class TestViolationEvents:
         mock_event_emitter: AsyncMock,
     ) -> None:
         """Allowed operation does not emit event."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         await service.validate_operation(
             actor_id=uuid4(),
@@ -352,7 +350,7 @@ class TestErrorMessages:
     @pytest.mark.asyncio
     async def test_violation_message_includes_role(self, service: Any) -> None:
         """Violation message includes the role (AC9)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.validate_operation(
             actor_id=uuid4(),
@@ -366,7 +364,7 @@ class TestErrorMessages:
     @pytest.mark.asyncio
     async def test_violation_message_includes_operation(self, service: Any) -> None:
         """Violation message includes the operation (AC9)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.validate_operation(
             actor_id=uuid4(),
@@ -398,7 +396,7 @@ class TestGetAllowedOperations:
     @pytest.mark.asyncio
     async def test_earl_allowed_operations(self, service: Any) -> None:
         """Get allowed operations for Earl (AC7)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.get_allowed_operations("Earl")
 
@@ -410,7 +408,7 @@ class TestGetAllowedOperations:
     @pytest.mark.asyncio
     async def test_cluster_allowed_operations(self, service: Any) -> None:
         """Get allowed operations for Cluster (AC7)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.get_allowed_operations("Cluster")
 
@@ -440,7 +438,7 @@ class TestGetProhibitedOperations:
     @pytest.mark.asyncio
     async def test_earl_prohibited_operations(self, service: Any) -> None:
         """Get prohibited operations for Earl (AC7)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.get_prohibited_operations("Earl")
 
@@ -452,7 +450,7 @@ class TestGetProhibitedOperations:
     @pytest.mark.asyncio
     async def test_cluster_prohibited_operations(self, service: Any) -> None:
         """Get prohibited operations for Cluster (AC7)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
 
         result = await service.get_prohibited_operations("Cluster")
 

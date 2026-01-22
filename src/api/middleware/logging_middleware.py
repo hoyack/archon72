@@ -26,7 +26,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
-from src.infrastructure.observability.correlation import (
+from src.application.observability.correlation import (
     generate_correlation_id,
     set_correlation_id,
 )

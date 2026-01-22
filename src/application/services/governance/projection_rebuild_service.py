@@ -34,7 +34,7 @@ from src.application.ports.governance import (
 from src.domain.governance.events.event_envelope import GovernanceEvent
 
 if TYPE_CHECKING:
-    from src.application.ports.time_authority import TimeAuthority
+    from src.domain.ports.time_authority import TimeAuthority
 
 
 @dataclass(frozen=True)

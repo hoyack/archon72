@@ -23,21 +23,18 @@ from typing import TYPE_CHECKING
 from src.api.middleware.rate_limiter import ObserverRateLimiter
 from src.application.ports.checkpoint_repository import CheckpointRepository
 from src.application.ports.event_store import EventStorePort
-from src.application.ports.final_deliberation_recorder import FinalDeliberationRecorder
 from src.application.ports.halt_checker import HaltChecker
 from src.application.services.export_service import ExportService
 from src.application.services.integrity_case_service import IntegrityCaseService
 from src.application.services.merkle_tree_service import MerkleTreeService
 from src.application.services.notification_service import NotificationService
 from src.application.services.observer_service import ObserverService
-from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
-from src.infrastructure.stubs.final_deliberation_recorder_stub import (
-    FinalDeliberationRecorderStub,
-)
-from src.infrastructure.stubs.freeze_checker_stub import FreezeCheckerStub
-from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.integrity_case_repository_stub import (
-    IntegrityCaseRepositoryStub,
+from src.bootstrap.observer import (
+    get_checkpoint_repo,
+    get_deliberation_recorder,
+    get_freeze_checker,
+    get_halt_checker,
+    get_integrity_case_service,
 )
 
 if TYPE_CHECKING:
@@ -180,29 +177,7 @@ def get_event_store() -> EventStorePort:
     return EventStoreStub()
 
 
-def get_halt_checker() -> HaltChecker:
-    """Get halt checker instance.
-
-    Note: In production, this would return a real implementation.
-    For now, returns a stub that reports not halted.
-
-    Returns:
-        HaltChecker implementation.
-    """
-    return HaltCheckerStub()
-
-
-@lru_cache(maxsize=1)
-def get_checkpoint_repo() -> CheckpointRepository:
-    """Get checkpoint repository instance.
-
-    Note: In production, this would return a real implementation.
-    For now, returns a stub for development/testing.
-
-    Returns:
-        CheckpointRepository implementation.
-    """
-    return CheckpointRepositoryStub()
+"""Bootstrap wiring provides halt checker and checkpoint repo instances."""
 
 
 @lru_cache(maxsize=1)
@@ -217,16 +192,9 @@ def get_merkle_service() -> MerkleTreeService:
     return MerkleTreeService()
 
 
-def get_freeze_checker_for_observer() -> FreezeCheckerStub:
-    """Get freeze checker instance for observer service.
-
-    Returns the freeze checker used for cessation status (Story 7.5).
-    Note: In production, this would return a real implementation.
-
-    Returns:
-        FreezeCheckerStub implementation.
-    """
-    return FreezeCheckerStub()
+def get_freeze_checker_for_observer():
+    """Alias to bootstrap freeze checker for observer service."""
+    return get_freeze_checker()
 
 
 def get_observer_service() -> ObserverService:
@@ -293,48 +261,4 @@ def get_notification_service() -> NotificationService:
     return _notification_service
 
 
-# Singleton deliberation recorder for Observer API queries (Story 7.8, AC7)
-_deliberation_recorder: FinalDeliberationRecorder | None = None
-
-
-def get_deliberation_recorder() -> FinalDeliberationRecorder:
-    """Get deliberation recorder instance (singleton).
-
-    Creates the deliberation recorder for Observer API access to final
-    deliberation records.
-    Per FR135: Final deliberation SHALL be recorded and immutable.
-    Per AC7: Observer query access - vote counts, dissent, and reasoning available.
-
-    Uses singleton pattern to share state across requests.
-
-    Returns:
-        FinalDeliberationRecorder instance.
-    """
-    global _deliberation_recorder
-    if _deliberation_recorder is None:
-        _deliberation_recorder = FinalDeliberationRecorderStub()
-    return _deliberation_recorder
-
-
-# Singleton integrity case service for Observer API queries (Story 7.10, FR144)
-_integrity_case_service: IntegrityCaseService | None = None
-
-
-def get_integrity_case_service() -> IntegrityCaseService:
-    """Get integrity case service instance (singleton).
-
-    Creates the integrity case service for Observer API access to the
-    Integrity Case Artifact.
-    Per FR144: System SHALL maintain published Integrity Case Artifact.
-    Per CT-13: MUST remain available after cessation (read-only).
-
-    Uses singleton pattern to share state across requests.
-
-    Returns:
-        IntegrityCaseService instance.
-    """
-    global _integrity_case_service
-    if _integrity_case_service is None:
-        repository = IntegrityCaseRepositoryStub()
-        _integrity_case_service = IntegrityCaseService(repository=repository)
-    return _integrity_case_service
+"""Deliberation recorder and integrity case service provided by bootstrap."""

@@ -75,7 +75,7 @@ class TestRoleConstraints:
 
     def test_earl_can_create_activation(self) -> None:
         """Earl is allowed to create activation requests (AC1)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import EARL_CONSTRAINTS
 
         allowed = EARL_CONSTRAINTS.get("allowed_operations", frozenset())
@@ -83,7 +83,7 @@ class TestRoleConstraints:
 
     def test_earl_can_view_task_state(self) -> None:
         """Earl is allowed to view task state."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import EARL_CONSTRAINTS
 
         allowed = EARL_CONSTRAINTS.get("allowed_operations", frozenset())
@@ -91,7 +91,7 @@ class TestRoleConstraints:
 
     def test_earl_can_view_task_history(self) -> None:
         """Earl is allowed to view task history."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import EARL_CONSTRAINTS
 
         allowed = EARL_CONSTRAINTS.get("allowed_operations", frozenset())
@@ -99,7 +99,7 @@ class TestRoleConstraints:
 
     def test_earl_cannot_accept(self) -> None:
         """Earl is prohibited from accepting (cannot compel - AC1)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import EARL_CONSTRAINTS
 
         prohibited = EARL_CONSTRAINTS.get("prohibited_operations", frozenset())
@@ -107,7 +107,7 @@ class TestRoleConstraints:
 
     def test_earl_cannot_decline(self) -> None:
         """Earl is prohibited from declining on behalf of Cluster."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import EARL_CONSTRAINTS
 
         prohibited = EARL_CONSTRAINTS.get("prohibited_operations", frozenset())
@@ -115,7 +115,7 @@ class TestRoleConstraints:
 
     def test_cluster_can_accept(self) -> None:
         """Cluster is allowed to accept (AC2)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import CLUSTER_CONSTRAINTS
 
         allowed = CLUSTER_CONSTRAINTS.get("allowed_operations", frozenset())
@@ -123,7 +123,7 @@ class TestRoleConstraints:
 
     def test_cluster_can_decline(self) -> None:
         """Cluster is allowed to decline."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import CLUSTER_CONSTRAINTS
 
         allowed = CLUSTER_CONSTRAINTS.get("allowed_operations", frozenset())
@@ -131,7 +131,7 @@ class TestRoleConstraints:
 
     def test_cluster_can_halt(self) -> None:
         """Cluster is allowed to halt in-progress tasks."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import CLUSTER_CONSTRAINTS
 
         allowed = CLUSTER_CONSTRAINTS.get("allowed_operations", frozenset())
@@ -139,7 +139,7 @@ class TestRoleConstraints:
 
     def test_cluster_cannot_create_activation(self) -> None:
         """Cluster is prohibited from creating activations (cannot be commanded - AC2)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import CLUSTER_CONSTRAINTS
 
         prohibited = CLUSTER_CONSTRAINTS.get("prohibited_operations", frozenset())
@@ -157,7 +157,7 @@ class TestConstraintValidation:
 
     def test_is_operation_allowed_earl_create(self) -> None:
         """Earl can create activation (returns True)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import is_operation_allowed
 
         result = is_operation_allowed("Earl", TaskOperation.CREATE_ACTIVATION)
@@ -165,7 +165,7 @@ class TestConstraintValidation:
 
     def test_is_operation_allowed_earl_accept(self) -> None:
         """Earl cannot accept (returns False - AC1)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import is_operation_allowed
 
         result = is_operation_allowed("Earl", TaskOperation.ACCEPT)
@@ -173,7 +173,7 @@ class TestConstraintValidation:
 
     def test_is_operation_allowed_cluster_accept(self) -> None:
         """Cluster can accept (returns True - AC2)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import is_operation_allowed
 
         result = is_operation_allowed("Cluster", TaskOperation.ACCEPT)
@@ -181,7 +181,7 @@ class TestConstraintValidation:
 
     def test_is_operation_allowed_cluster_create(self) -> None:
         """Cluster cannot create activation (returns False - AC2)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import is_operation_allowed
 
         result = is_operation_allowed("Cluster", TaskOperation.CREATE_ACTIVATION)
@@ -195,7 +195,7 @@ class TestConstraintValidation:
 
     def test_is_operation_prohibited_earl_accept(self) -> None:
         """Earl is explicitly prohibited from accept."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import is_operation_prohibited
 
         result = is_operation_prohibited("Earl", TaskOperation.ACCEPT)
@@ -203,7 +203,7 @@ class TestConstraintValidation:
 
     def test_is_operation_prohibited_earl_create(self) -> None:
         """Earl is not prohibited from create (allowed)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import is_operation_prohibited
 
         result = is_operation_prohibited("Earl", TaskOperation.CREATE_ACTIVATION)
@@ -223,7 +223,7 @@ class TestGetConstraintViolationReason:
 
     def test_returns_none_for_allowed_operation(self) -> None:
         """Returns None when operation is allowed."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import (
             get_constraint_violation_reason,
         )
@@ -235,7 +235,7 @@ class TestGetConstraintViolationReason:
 
     def test_returns_reason_for_prohibited_operation(self) -> None:
         """Returns reason string when operation is prohibited (AC9)."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import (
             get_constraint_violation_reason,
         )
@@ -247,7 +247,7 @@ class TestGetConstraintViolationReason:
 
     def test_returns_reason_for_not_allowed_operation(self) -> None:
         """Returns reason for operation not in allowed set."""
-        from src.application.ports.governance.task_constraint_port import TaskOperation
+        from src.domain.governance.task.task_constraint import TaskOperation
         from src.domain.governance.task.task_constraint import (
             get_constraint_violation_reason,
         )

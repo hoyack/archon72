@@ -26,7 +26,7 @@ from src.application.ports.governance.ledger_port import (
     LedgerReadOptions,
     PersistedGovernanceEvent,
 )
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.filter_logging_service import (
     FILTER_DECISION_LOGGED_EVENT,
     FilterLoggingService,

@@ -60,6 +60,10 @@ from src.infrastructure.stubs.auto_escalation_executor_stub import (
     AutoEscalationExecutorStub,
     EscalationHistoryEntry,
 )
+from src.infrastructure.stubs.escalation_queue_stub import (
+    EscalationQueueStub,
+    QueueQueryEntry,
+)
 from src.infrastructure.stubs.breach_repository_stub import BreachRepositoryStub
 from src.infrastructure.stubs.cessation_agenda_repository_stub import (
     CessationAgendaRepositoryStub,
@@ -510,4 +514,7 @@ __all__: list[str] = [
     # Auto-Escalation Executor (Story 5.6, FR-5.1, FR-5.3, CT-12, CT-14)
     "AutoEscalationExecutorStub",
     "EscalationHistoryEntry",
+    # Escalation Queue (Story 6.1, FR-5.4, CT-13, D8)
+    "EscalationQueueStub",
+    "QueueQueryEntry",
 ]

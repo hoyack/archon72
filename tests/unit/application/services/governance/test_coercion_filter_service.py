@@ -24,7 +24,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from src.application.ports.governance.coercion_filter_port import MessageType
-from src.application.ports.time_authority import TimeAuthorityProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.coercion_filter_service import (
     CoercionFilterService,
     PatternLibraryPort,

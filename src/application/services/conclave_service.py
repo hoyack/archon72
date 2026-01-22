@@ -156,6 +156,27 @@ class ConclaveService:
         if self._progress_callback:
             self._progress_callback(event, message, data or {})
 
+    def _emit_percent_complete(
+        self,
+        phase: str,
+        current_index: int,
+        total_items: int,
+    ) -> None:
+        """Emit a coarse percent-complete update to the progress callback."""
+        if total_items <= 0:
+            return
+        percent = (current_index / total_items) * 100
+        self._emit_progress(
+            "session_progress",
+            f"{percent:.1f}% complete",
+            {
+                "percent_complete": percent,
+                "phase": phase,
+                "current": current_index,
+                "total": total_items,
+            },
+        )
+
     # =========================================================================
     # SESSION MANAGEMENT
     # =========================================================================
@@ -507,6 +528,11 @@ class ConclaveService:
                 f"Debate round {round_num} of {motion.max_debate_rounds}",
                 {"round": round_num, "max_rounds": motion.max_debate_rounds},
             )
+            self._emit_percent_complete(
+                phase="debate",
+                current_index=round_num - 1,
+                total_items=motion.max_debate_rounds + 1,  # keep <100% until done
+            )
 
             # Each Archon speaks in rank order
             round_entries = await self._conduct_debate_round(
@@ -525,6 +551,11 @@ class ConclaveService:
             "debate_complete",
             f"Debate concluded after {motion.current_debate_round} rounds",
             {"total_entries": len(all_entries)},
+        )
+        self._emit_percent_complete(
+            phase="debate",
+            current_index=motion.max_debate_rounds,
+            total_items=motion.max_debate_rounds,
         )
 
         return all_entries
@@ -814,6 +845,11 @@ Be concise but substantive. Your contribution will be recorded in the official t
                 continue
 
             current = idx + 1
+            self._emit_percent_complete(
+                phase="vote",
+                current_index=current,
+                total_items=total_voters,
+            )
             self._emit_progress(
                 "archon_voting",
                 f"Voting: {archon.name} ({current}/{total_voters})",

@@ -18,7 +18,7 @@ Usage:
 
 from fastapi import Header
 
-from src.infrastructure.observability.correlation import (
+from src.bootstrap.correlation import (
     generate_correlation_id,
     get_correlation_id,
     set_correlation_id,

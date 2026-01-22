@@ -25,33 +25,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-
-class ReminderMilestone(str, Enum):
-    """TTL milestone percentages for reminders.
-
-    These milestones define when reminders should be sent.
-    Values represent percentage of TTL elapsed.
-    """
-
-    HALFWAY = "50"
-    """50% of TTL elapsed - first reminder."""
-
-    FINAL = "90"
-    """90% of TTL elapsed - final reminder."""
-
-    @property
-    def percentage(self) -> int:
-        """Get the percentage value as an integer."""
-        return int(self.value)
-
-    @property
-    def threshold(self) -> float:
-        """Get the threshold as a decimal for calculations."""
-        return self.percentage / 100.0
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 
 
 @dataclass(frozen=True)

@@ -39,7 +39,7 @@ from src.domain.governance.projections import (
 )
 
 if TYPE_CHECKING:
-    from src.application.ports.time_authority import TimeAuthority
+    from src.domain.ports.time_authority import TimeAuthority
 
 
 # Known projection names

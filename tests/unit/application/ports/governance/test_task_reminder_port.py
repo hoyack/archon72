@@ -12,11 +12,11 @@ from uuid import uuid4
 import pytest
 
 from src.application.ports.governance.task_reminder_port import (
-    ReminderMilestone,
     ReminderProcessingResult,
     ReminderRecord,
     ReminderSendResult,
 )
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 
 
 class TestReminderMilestone:

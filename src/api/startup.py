@@ -43,11 +43,11 @@ import os
 
 from structlog import get_logger
 
-from src.application.services.configuration_floor_enforcement_service import (
-    ConfigurationFloorEnforcementService,
-)
-from src.application.services.pre_operational_verification_service import (
-    PreOperationalVerificationService,
+from src.bootstrap.logging import configure_structlog
+from src.bootstrap.metrics import get_metrics_collector
+from src.bootstrap.startup_services import (
+    get_configuration_floor_enforcement_service,
+    get_pre_operational_verification_service,
 )
 from src.domain.errors.configuration_floor import StartupFloorViolationError
 from src.domain.errors.pre_operational import PreOperationalVerificationError
@@ -57,15 +57,6 @@ from src.domain.models.signable import (
     validate_dev_mode_consistency,
 )
 from src.domain.models.verification_result import VerificationStatus
-from src.infrastructure.monitoring.metrics import get_metrics_collector
-from src.infrastructure.observability import configure_structlog
-from src.infrastructure.stubs.checkpoint_repository_stub import CheckpointRepositoryStub
-from src.infrastructure.stubs.event_replicator_stub import EventReplicatorStub
-from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
-from src.infrastructure.stubs.hash_verifier_stub import HashVerifierStub
-from src.infrastructure.stubs.keeper_key_registry_stub import KeeperKeyRegistryStub
-from src.infrastructure.stubs.witness_pool_monitor_stub import WitnessPoolMonitorStub
 
 # Environment variable for environment detection
 ENVIRONMENT_VAR = "ENVIRONMENT"
@@ -157,10 +148,7 @@ async def validate_configuration_floors_at_startup() -> None:
     log = logger.bind(component="startup_validation")
     log.info("configuration_floor_validation_started")
 
-    # Create service (using stub halt trigger since we're at startup)
-    # In production, the real halt trigger would be injected
-    halt_trigger = HaltTriggerStub()
-    service = ConfigurationFloorEnforcementService(halt_trigger=halt_trigger)
+    service = get_configuration_floor_enforcement_service()
 
     # Validate all configurations
     result = await service.validate_startup_configuration()
@@ -233,16 +221,7 @@ async def run_pre_operational_verification(is_post_halt: bool = False) -> None:
     )
     log.info("pre_operational_verification_started")
 
-    # Create service with stub dependencies
-    # In production, real implementations would be injected via dependency injection
-    service = PreOperationalVerificationService(
-        hash_verifier=HashVerifierStub(),
-        witness_pool_monitor=WitnessPoolMonitorStub(),
-        keeper_key_registry=KeeperKeyRegistryStub(),
-        checkpoint_repository=CheckpointRepositoryStub(),
-        halt_checker=HaltCheckerStub(),
-        event_replicator=EventReplicatorStub(),
-    )
+    service = get_pre_operational_verification_service()
 
     # Determine if bypass is allowed (Finding 5 security fix)
     # Bypass requires:

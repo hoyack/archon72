@@ -14,10 +14,9 @@ from src.api.models.configuration_health import (
     ConfigurationHealthResponse,
     ThresholdStatusResponse,
 )
-from src.application.services.configuration_floor_enforcement_service import (
-    ConfigurationFloorEnforcementService,
+from src.bootstrap.startup_services import (
+    get_configuration_floor_enforcement_service,
 )
-from src.infrastructure.stubs.halt_trigger_stub import HaltTriggerStub
 
 router = APIRouter(prefix="/v1/configuration", tags=["configuration"])
 
@@ -32,9 +31,7 @@ async def get_configuration_health() -> ConfigurationHealthResponse:
     Returns:
         ConfigurationHealthResponse with health status for all thresholds.
     """
-    # Create service (using stub halt trigger for read-only operation)
-    halt_trigger = HaltTriggerStub()
-    service = ConfigurationFloorEnforcementService(halt_trigger=halt_trigger)
+    service = get_configuration_floor_enforcement_service()
 
     # Get health status
     health = await service.get_configuration_health()

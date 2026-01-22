@@ -138,7 +138,7 @@ workflow_status:
 # CURRENT WORK IN PROGRESS (2026-01-22)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "Petition Epic 7: Observer Engagement (P2)"
+  epic: "Petition Epic 8: Legitimacy Metrics & Governance (P1)"
   status: ready
 
   completed_epic: "Petition Epic 6: King Escalation & Adoption Bridge (6/6 stories DONE)"
@@ -147,13 +147,25 @@ current_work:
   current_story_status: null
   story_file: null
 
-  completed:
-    - petition-6-1-king-escalation-queue
-    - petition-6-2-escalation-decision-package
-    - petition-6-3-petition-adoption-creates-motion
-    - petition-6-4-adoption-budget-consumption
-    - petition-6-5-escalation-acknowledgment-by-king
-    - petition-6-6-adoption-provenance-immutability
+  completed_epics:
+    - petition-epic-0
+    - petition-epic-1
+    - petition-epic-2a
+    - petition-epic-2b
+    - petition-epic-3
+    - petition-epic-4
+    - petition-epic-5
+    - petition-epic-6
+
+  available_next_epics:
+    - name: "Petition Epic 7: Observer Engagement (P2)"
+      priority: P2
+      stories: 6
+      note: "Lower priority - Status tokens, notifications, withdrawal, transcript access"
+    - name: "Petition Epic 8: Legitimacy Metrics & Governance (P1)"
+      priority: P1
+      stories: 7
+      note: "Higher priority - Decay metrics, alerting, orphan detection, dashboard, META routing"
     - petition-5-1-co-sign-domain-model-schema
     - petition-5-2-co-sign-submission-endpoint
     - petition-5-3-identity-verification-for-co-sign

@@ -1,39 +1,35 @@
 <!-- COMPACTION_META
-compacted_at: 2026-01-22T15:10:08.602Z
-previous_cache_growth: 181104
+compacted_at: 2026-01-22T16:10:34.290Z
+previous_cache_growth: 183838
 compaction_number: 1
-session_id: 367b30b9-6ba4-4a92-bbad-a75d69da3dcf
+session_id: bb622759-b4ff-4354-a0d6-80562c3b5745
 -->
 
 ## Session Summary
-- Task/workflow: Implementation of Story 6.6 - Adoption Provenance Immutability as part of Epic 6 (King Escalation & Adoption Bridge)
-- Accomplished: Successfully implemented database-level immutability for adoption provenance, updated domain models, created comprehensive tests, and completed all documentation
-- Current state: Epic 6 is complete (6/6 stories done). All files are syntactically correct and ready for next steps
+- Task/workflow: Implementation of Story 8.3 - Orphan Petition Detection system
+- Accomplished: Core functionality implemented including orphan detection service, manual reprocessing service, domain models, repository adapter, database migration, and comprehensive test suite (17/17 tests passing)
+- Current state: Story 8.3 is complete and ready for commit. Next steps involve committing the work and moving to Story 8.4
 
 ## Key Decisions Made
-- Architectural: Enforced immutability at database level using PostgreSQL triggers to protect critical adoption fields
-- Implementation: Added `source_petition_ref` field to Motion model to establish bidirectional provenance with Petition
-- Configuration: Created Migration 029 to enforce immutability constraints
-- Tradeoffs: Database-level enforcement adds complexity but provides strongest guarantee of immutability
+- Architectural: Implemented separate services for automatic detection and manual reprocessing to maintain separation of concerns
+- Configuration: Daily job schedule for orphan detection with 24-hour threshold
+- Tradeoffs: Manual reprocessing requires operator intervention but provides better control over high-stakes deliberation retries
 
 ## Files Modified
-**Created:**
-- `migrations/029_enforce_adoption_provenance_immutability.sql`
-- `tests/unit/domain/models/test_adoption_provenance_immutability.py`
-- `tests/integration/test_adoption_provenance_immutability.py`
-- `_bmad-output/implementation-artifacts/stories/petition-6-6-adoption-provenance-immutability.md`
-
-**Modified:**
-- `src/domain/models/conclave.py`
-- `_bmad-output/planning-artifacts/bmm-workflow-status.yaml`
+- Created 8 new files totaling 2,004 lines:
+  - Domain events: `OrphanPetitionsDetected`, `ReprocessingTriggered`
+  - Domain models: `OrphanPetitionInfo`, `OrphanPetitionDetectionResult`
+  - Services: Detection service (258 lines), Reprocessing service (282 lines)
+  - Infrastructure: Repository adapter (310 lines), Database migration (174 lines)
+  - Tests: Unit tests (340 lines), Integration tests (350 lines)
 
 ## Next Steps
-- Commit the changes to save the Epic 6 milestone
-- Decide whether to proceed with Epic 7 (Observer Engagement) or Epic 8 (Legitimacy Metrics & Governance)
-- Pending: No blockers, ready to start next epic after commit
+- Commit the current work
+- Begin Story 8.4: High Archon Legitimacy Dashboard integration
+- Configure deployment: Daily detection job and monitoring alerts
+- Pending: Menu selection between committing work or moving to Story 8.4
 
 ## Important Context
-- Dependencies: Migration 029 must be applied before running integration tests
-- Environment: PostgreSQL database required for migration
-- Constitutional compliance achieved for FR-5.7, NFR-6.2, CT-11, and CT-12
-- All tests are syntactically valid but not yet executed
+- Dependencies: Database migration creates 2 new tables with indexes
+- Environment: All constitutional requirements met (FR-8.5, NFR-7.1, CT-12, CT-11, AC6)
+- Warnings: Manual reprocessing requires operator intervention for high-stakes operations

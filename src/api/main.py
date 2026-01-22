@@ -11,6 +11,7 @@ from src.api.routes.co_sign import router as co_sign_router
 from src.api.routes.complexity_budget import router as complexity_budget_router
 from src.api.routes.configuration_health import router as configuration_health_router
 from src.api.routes.constitutional_health import router as constitutional_health_router
+from src.api.routes.escalation import router as escalation_router
 from src.api.routes.health import router as health_router
 from src.api.routes.metrics import router as metrics_router
 from src.api.routes.observer import router as observer_router
@@ -79,3 +80,4 @@ app.include_router(observer_router)
 app.include_router(override_router)
 app.include_router(petition_submission_router)
 app.include_router(co_sign_router)
+app.include_router(escalation_router)

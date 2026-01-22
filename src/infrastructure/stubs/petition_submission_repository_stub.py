@@ -148,8 +148,10 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
         expected_state: PetitionState,
         new_state: PetitionState,
         fate_reason: str | None = None,
+        escalation_source: str | None = None,
+        escalated_to_realm: str | None = None,
     ) -> PetitionSubmission:
-        """Atomic fate assignment using compare-and-swap (Story 1.6, FR-2.4, Story 1.8).
+        """Atomic fate assignment using compare-and-swap (Story 1.6, FR-2.4, Story 1.8, Story 6.1).
 
         This stub implementation simulates atomic CAS semantics using a lock.
         In production, PostgreSQL's UPDATE ... WHERE ... RETURNING provides
@@ -158,15 +160,18 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
         Constitutional Constraints:
         - FR-2.4: System SHALL use atomic CAS for fate assignment (no double-fate)
         - NFR-3.2: Fate assignment atomicity: 100% single-fate [CRITICAL]
+        - FR-5.4: Escalation metadata populated atomically (Story 6.1)
 
         Args:
             submission_id: The petition submission to update.
             expected_state: The state the petition must be in for update to succeed.
             new_state: The new terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED).
             fate_reason: Optional reason for fate assignment (Story 1.8).
+            escalation_source: What triggered escalation (Story 6.1, for ESCALATED state).
+            escalated_to_realm: Target King's realm (Story 6.1, for ESCALATED state).
 
         Returns:
-            The updated PetitionSubmission with new state.
+            The updated PetitionSubmission with new state and escalation fields (if provided).
 
         Raises:
             ConcurrentModificationError: If expected_state doesn't match current state.
@@ -204,6 +209,20 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
                     allowed_transitions=list(valid_transitions),
                 )
 
+            # Populate escalation fields if transitioning to ESCALATED (Story 6.1, FR-5.4)
+            effective_escalation_source = escalation_source
+            effective_escalated_to_realm = escalated_to_realm
+            escalated_at = None
+
+            if new_state == PetitionState.ESCALATED:
+                escalated_at = datetime.now(timezone.utc)
+                # Default escalation_source if not provided
+                if effective_escalation_source is None:
+                    effective_escalation_source = "DELIBERATION"
+                # Default escalated_to_realm if not provided (use petition's realm)
+                if effective_escalated_to_realm is None:
+                    effective_escalated_to_realm = submission.realm
+
             # Perform the atomic state update
             updated = PetitionSubmission(
                 id=submission.id,
@@ -217,6 +236,9 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
                 updated_at=datetime.now(timezone.utc),
                 fate_reason=fate_reason,
                 co_signer_count=submission.co_signer_count,
+                escalation_source=effective_escalation_source,
+                escalated_at=escalated_at,
+                escalated_to_realm=effective_escalated_to_realm,
             )
             self._submissions[submission_id] = updated
             return updated

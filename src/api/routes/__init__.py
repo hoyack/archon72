@@ -24,6 +24,7 @@ from src.api.routes.co_sign import router as co_sign_router
 from src.api.routes.complexity_budget import router as complexity_budget_router
 from src.api.routes.compliance import router as compliance_router
 from src.api.routes.constitutional_health import router as constitutional_health_router
+from src.api.routes.escalation import router as escalation_router
 from src.api.routes.external_health import router as external_health_router
 from src.api.routes.failure_prevention import router as failure_prevention_router
 from src.api.routes.halt import router as halt_router
@@ -53,4 +54,6 @@ __all__: list[str] = [
     "legitimacy_router",
     # Co-Sign router (Story 5.2, FR-6.1)
     "co_sign_router",
+    # Escalation router (Story 6.1, FR-5.4)
+    "escalation_router",
 ]

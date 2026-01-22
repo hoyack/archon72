@@ -219,17 +219,22 @@ class AutoEscalationExecutorService:
                 event_type=DELIBERATION_CANCELLED_EVENT_TYPE,
             )
 
-        # Step 7: Atomic state transition using CAS (FR-2.4)
+        # Step 7: Atomic state transition using CAS (FR-2.4, Story 6.1, FR-5.4)
         # RECEIVED → ESCALATED or DELIBERATING → ESCALATED
+        # Populate escalation tracking fields atomically
         try:
             _updated_petition = await self._petition_repo.assign_fate_cas(
                 submission_id=petition_id,
                 expected_state=petition.state,
                 new_state=PetitionState.ESCALATED,
+                escalation_source="CO_SIGNER_THRESHOLD",  # Story 6.1, FR-5.4
+                escalated_to_realm=petition.realm,  # Story 6.1, FR-5.4, RULING-3
             )
             log.info(
                 "Petition state transitioned to ESCALATED",
                 previous_state=petition.state.value,
+                escalation_source="CO_SIGNER_THRESHOLD",
+                escalated_to_realm=petition.realm,
             )
         except Exception as e:
             log.error(

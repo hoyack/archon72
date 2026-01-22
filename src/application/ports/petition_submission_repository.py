@@ -106,8 +106,10 @@ class PetitionSubmissionRepositoryProtocol(Protocol):
         submission_id: UUID,
         expected_state: PetitionState,
         new_state: PetitionState,
+        escalation_source: str | None = None,
+        escalated_to_realm: str | None = None,
     ) -> PetitionSubmission:
-        """Atomic fate assignment using compare-and-swap (Story 1.6, FR-2.4).
+        """Atomic fate assignment using compare-and-swap (Story 1.6, FR-2.4, Story 6.1).
 
         This method ensures exactly-once fate assignment using optimistic
         concurrency control. The state is only updated if the current state
@@ -116,6 +118,7 @@ class PetitionSubmissionRepositoryProtocol(Protocol):
         Constitutional Constraints:
         - FR-2.4: System SHALL use atomic CAS for fate assignment (no double-fate)
         - NFR-3.2: Fate assignment atomicity: 100% single-fate [CRITICAL]
+        - FR-5.4: Escalation metadata populated atomically (Story 6.1)
 
         Implementation Notes:
         - Use PostgreSQL: UPDATE ... WHERE state = expected_state RETURNING *
@@ -126,9 +129,11 @@ class PetitionSubmissionRepositoryProtocol(Protocol):
             submission_id: The petition submission to update.
             expected_state: The state the petition must be in for update to succeed.
             new_state: The new terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED).
+            escalation_source: What triggered escalation (Story 6.1, for ESCALATED state).
+            escalated_to_realm: Target King's realm (Story 6.1, for ESCALATED state).
 
         Returns:
-            The updated PetitionSubmission with new state.
+            The updated PetitionSubmission with new state and escalation fields (if provided).
 
         Raises:
             ConcurrentModificationError: If expected_state doesn't match current state.

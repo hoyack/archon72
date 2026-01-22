@@ -235,3 +235,128 @@ class LegitimacyErrorResponse(BaseModel):
         default=None,
         description="Additional error details",
     )
+
+
+# ============================================================================
+# Dashboard API Models (Story 8.4, FR-8.4)
+# ============================================================================
+
+
+class PetitionStateCountsResponse(BaseModel):
+    """Petition counts by state (FR-8.4).
+
+    Attributes:
+        received: Count of petitions in RECEIVED state.
+        deliberating: Count of petitions in DELIBERATING state.
+        acknowledged: Count of petitions in ACKNOWLEDGED state.
+        referred: Count of petitions in REFERRED state.
+        escalated: Count of petitions in ESCALATED state.
+        total: Total petition count across all states.
+    """
+
+    received: int = Field(..., description="Count in RECEIVED state")
+    deliberating: int = Field(..., description="Count in DELIBERATING state")
+    acknowledged: int = Field(..., description="Count in ACKNOWLEDGED state")
+    referred: int = Field(..., description="Count in REFERRED state")
+    escalated: int = Field(..., description="Count in ESCALATED state")
+    total: int = Field(..., description="Total count across all states")
+
+
+class DeliberationMetricsResponse(BaseModel):
+    """Deliberation performance metrics (FR-8.4).
+
+    Attributes:
+        total_deliberations: Total deliberations completed this cycle.
+        consensus_rate: Percentage reaching consensus (0.0-1.0).
+        timeout_rate: Percentage timing out (0.0-1.0).
+        deadlock_rate: Percentage deadlocking (0.0-1.0).
+    """
+
+    total_deliberations: int = Field(..., description="Total deliberations this cycle")
+    consensus_rate: float = Field(..., description="Consensus rate (0.0-1.0)")
+    timeout_rate: float = Field(..., description="Timeout rate (0.0-1.0)")
+    deadlock_rate: float = Field(..., description="Deadlock rate (0.0-1.0)")
+
+
+class ArchonAcknowledgmentRateResponse(BaseModel):
+    """Per-archon acknowledgment metrics (FR-8.4).
+
+    Attributes:
+        archon_id: Archon identifier.
+        archon_name: Archon display name.
+        acknowledgment_count: Number of acknowledgments this cycle.
+        rate: Acknowledgments per day.
+    """
+
+    archon_id: str = Field(..., description="Archon identifier")
+    archon_name: str = Field(..., description="Archon display name")
+    acknowledgment_count: int = Field(
+        ..., description="Acknowledgments this cycle"
+    )
+    rate: float = Field(..., description="Acknowledgments per day")
+
+
+class LegitimacyTrendPointResponse(BaseModel):
+    """Historical legitimacy trend data point (FR-8.4).
+
+    Attributes:
+        cycle_id: Governance cycle identifier.
+        legitimacy_score: Legitimacy score for this cycle (0.0-1.0).
+        computed_at: When this metric was computed.
+    """
+
+    cycle_id: str = Field(..., description="Cycle identifier (e.g., 2026-W04)")
+    legitimacy_score: float = Field(..., description="Score (0.0-1.0)")
+    computed_at: datetime = Field(..., description="Computation timestamp")
+
+
+class LegitimacyDashboardResponse(BaseModel):
+    """Complete legitimacy dashboard data (Story 8.4, FR-8.4).
+
+    High Archon dashboard aggregating petition system health metrics.
+
+    Attributes:
+        current_cycle_score: Current cycle legitimacy score (0.0-1.0).
+        current_cycle_id: Current governance cycle identifier.
+        health_status: Overall health (HEALTHY, WARNING, CRITICAL, NO_DATA).
+        historical_trend: Last 10 cycles' legitimacy scores.
+        petitions_by_state: Count of petitions in each state.
+        orphan_petition_count: Count of orphan petitions.
+        average_time_to_fate: Mean seconds from RECEIVED to terminal.
+        median_time_to_fate: Median seconds from RECEIVED to terminal.
+        deliberation_metrics: Deliberation performance metrics.
+        archon_acknowledgment_rates: Per-archon acknowledgment rates.
+        requires_attention: Whether dashboard indicates issues.
+        data_refreshed_at: When this data was computed.
+    """
+
+    current_cycle_score: float | None = Field(
+        ..., description="Current legitimacy score (0.0-1.0)"
+    )
+    current_cycle_id: str = Field(..., description="Current cycle ID")
+    health_status: str = Field(
+        ..., description="Health status (HEALTHY, WARNING, CRITICAL, NO_DATA)"
+    )
+    historical_trend: list[LegitimacyTrendPointResponse] = Field(
+        ..., description="Last 10 cycles"
+    )
+    petitions_by_state: PetitionStateCountsResponse = Field(
+        ..., description="Petition state distribution"
+    )
+    orphan_petition_count: int = Field(..., description="Orphan petition count")
+    average_time_to_fate: float | None = Field(
+        ..., description="Mean seconds to terminal state"
+    )
+    median_time_to_fate: float | None = Field(
+        ..., description="Median seconds to terminal state"
+    )
+    deliberation_metrics: DeliberationMetricsResponse = Field(
+        ..., description="Deliberation performance"
+    )
+    archon_acknowledgment_rates: list[ArchonAcknowledgmentRateResponse] = Field(
+        ..., description="Per-archon rates"
+    )
+    requires_attention: bool = Field(
+        ..., description="Whether issues require attention"
+    )
+    data_refreshed_at: datetime = Field(..., description="Data refresh timestamp")

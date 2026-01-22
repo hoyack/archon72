@@ -17,9 +17,15 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 
+from src.api.auth.high_archon_auth import get_high_archon_id
 from src.api.models.legitimacy import (
+    ArchonAcknowledgmentRateResponse,
+    DeliberationMetricsResponse,
+    LegitimacyDashboardResponse,
     LegitimacyErrorResponse,
     LegitimacyStatusResponse,
+    LegitimacyTrendPointResponse,
+    PetitionStateCountsResponse,
     RestorationHistoryItem,
     RestorationHistoryResponse,
     RestorationRequest,
@@ -27,6 +33,9 @@ from src.api.models.legitimacy import (
 )
 from src.application.services.governance.legitimacy_restoration_service import (
     LegitimacyRestorationService,
+)
+from src.application.services.legitimacy_dashboard_service import (
+    LegitimacyDashboardService,
 )
 from src.domain.governance.legitimacy.legitimacy_band import LegitimacyBand
 from src.domain.governance.legitimacy.restoration_acknowledgment import (
@@ -41,6 +50,7 @@ router = APIRouter(
 # Dependency injection placeholders
 # In production, these would be provided by the DI container
 _restoration_service: LegitimacyRestorationService | None = None
+_dashboard_service: LegitimacyDashboardService | None = None
 
 
 def set_restoration_service(service: LegitimacyRestorationService) -> None:
@@ -58,6 +68,23 @@ def get_restoration_service() -> LegitimacyRestorationService:
     if _restoration_service is None:
         raise RuntimeError("Restoration service not configured")
     return _restoration_service
+
+
+def set_dashboard_service(service: LegitimacyDashboardService) -> None:
+    """Set the dashboard service for dependency injection (Story 8.4)."""
+    global _dashboard_service
+    _dashboard_service = service
+
+
+def get_dashboard_service() -> LegitimacyDashboardService:
+    """Get the dashboard service.
+
+    Raises:
+        RuntimeError: If dashboard service not configured.
+    """
+    if _dashboard_service is None:
+        raise RuntimeError("Dashboard service not configured")
+    return _dashboard_service
 
 
 def get_operator_id(
@@ -368,4 +395,114 @@ async def get_acknowledgment(
         reason=acknowledgment.reason,
         evidence=acknowledgment.evidence,
         acknowledged_at=acknowledgment.acknowledged_at,
+    )
+
+
+@router.get(
+    "/dashboard",
+    response_model=LegitimacyDashboardResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        401: {"model": LegitimacyErrorResponse, "description": "Unauthorized"},
+        403: {"model": LegitimacyErrorResponse, "description": "Forbidden - High Archon role required"},
+    },
+    summary="Get legitimacy dashboard",
+    description="""
+Get the High Archon legitimacy dashboard with petition system health metrics.
+
+**Requires authentication via X-Archon-Id and X-Archon-Role headers.**
+**Requires HIGH_ARCHON role.**
+
+Dashboard includes:
+- Current cycle legitimacy score
+- Historical trend (last 10 cycles)
+- Petitions by state
+- Orphan petition count
+- Average/median time-to-fate
+- Deliberation metrics (consensus, timeout, deadlock rates)
+- Per-archon acknowledgment rates
+
+Per FR-8.4: High Archon SHALL have access to legitimacy dashboard.
+Per NFR-5.6: Dashboard data refreshes every 5 minutes (cached).
+""",
+)
+async def get_dashboard(
+    high_archon_id: Annotated[UUID, Depends(get_high_archon_id)],
+    dashboard_service: Annotated[
+        LegitimacyDashboardService, Depends(get_dashboard_service)
+    ],
+    current_cycle_id: Annotated[
+        str,
+        Query(
+            description="Current governance cycle ID (e.g., '2026-W04')",
+            example="2026-W04",
+        ),
+    ],
+) -> LegitimacyDashboardResponse:
+    """Get legitimacy dashboard data (Story 8.4, FR-8.4).
+
+    Restricted to High Archon role only.
+
+    Args:
+        high_archon_id: Authenticated High Archon ID from headers.
+        dashboard_service: Injected dashboard service.
+        current_cycle_id: Current governance cycle identifier.
+
+    Returns:
+        LegitimacyDashboardResponse with complete dashboard metrics.
+
+    Raises:
+        HTTPException 401: If authentication fails.
+        HTTPException 403: If not HIGH_ARCHON role.
+        HTTPException 400: If cycle_id is invalid.
+    """
+    try:
+        dashboard_data = dashboard_service.get_dashboard_data(current_cycle_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid cycle ID: {str(e)}",
+        )
+
+    # Convert domain model to API response
+    return LegitimacyDashboardResponse(
+        current_cycle_score=dashboard_data.current_cycle_score,
+        current_cycle_id=dashboard_data.current_cycle_id,
+        health_status=dashboard_data.health_status,
+        historical_trend=[
+            LegitimacyTrendPointResponse(
+                cycle_id=point.cycle_id,
+                legitimacy_score=point.legitimacy_score,
+                computed_at=point.computed_at,
+            )
+            for point in dashboard_data.historical_trend
+        ],
+        petitions_by_state=PetitionStateCountsResponse(
+            received=dashboard_data.petitions_by_state.received,
+            deliberating=dashboard_data.petitions_by_state.deliberating,
+            acknowledged=dashboard_data.petitions_by_state.acknowledged,
+            referred=dashboard_data.petitions_by_state.referred,
+            escalated=dashboard_data.petitions_by_state.escalated,
+            total=dashboard_data.petitions_by_state.total(),
+        ),
+        orphan_petition_count=dashboard_data.orphan_petition_count,
+        average_time_to_fate=dashboard_data.average_time_to_fate,
+        median_time_to_fate=dashboard_data.median_time_to_fate,
+        deliberation_metrics=DeliberationMetricsResponse(
+            total_deliberations=dashboard_data.deliberation_metrics.total_deliberations,
+            consensus_rate=dashboard_data.deliberation_metrics.consensus_rate,
+            timeout_rate=dashboard_data.deliberation_metrics.timeout_rate,
+            deadlock_rate=dashboard_data.deliberation_metrics.deadlock_rate,
+        ),
+        archon_acknowledgment_rates=[
+            ArchonAcknowledgmentRateResponse(
+                archon_id=str(rate.archon_id),
+                archon_name=rate.archon_name,
+                acknowledgment_count=rate.acknowledgment_count,
+                rate=rate.rate,
+            )
+            for rate in dashboard_data.archon_acknowledgment_rates
+        ],
+        requires_attention=dashboard_data.requires_attention(),
+        data_refreshed_at=dashboard_data.data_refreshed_at,
     )

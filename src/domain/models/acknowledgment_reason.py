@@ -8,7 +8,7 @@ Constitutional Context:
 - CT-14: ACKNOWLEDGED is a terminal fate with mandatory reason code
 """
 
-from enum import StrEnum
+from src.domain._compat import StrEnum
 from uuid import UUID
 
 

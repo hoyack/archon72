@@ -6,7 +6,7 @@ FR-3.3: System SHALL require rationale for REFUSED and NO_ACTION_WARRANTED
 FR-3.4: System SHALL require reference_petition_id for DUPLICATE
 """
 
-from enum import StrEnum
+from src.domain._compat import StrEnum
 from uuid import uuid4
 
 import pytest

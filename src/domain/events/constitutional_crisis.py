@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from enum import StrEnum
+from src.domain._compat import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 

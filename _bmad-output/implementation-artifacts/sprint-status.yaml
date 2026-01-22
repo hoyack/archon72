@@ -563,13 +563,13 @@ development_status:
   # Escalation queue, adoption, budget consumption, provenance
   # FR-5.4 to FR-5.8
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-6: in-progress
+  petition-epic-6: done
   petition-6-1-king-escalation-queue: done
   petition-6-2-escalation-decision-package: done
-  petition-6-3-petition-adoption-creates-motion: ready-for-dev
-  petition-6-4-adoption-budget-consumption: backlog
-  petition-6-5-escalation-acknowledgment-by-king: backlog
-  petition-6-6-adoption-provenance-immutability: backlog
+  petition-6-3-petition-adoption-creates-motion: done
+  petition-6-4-adoption-budget-consumption: done
+  petition-6-5-escalation-acknowledgment-by-king: done
+  petition-6-6-adoption-provenance-immutability: done
   petition-epic-6-retrospective: optional
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -591,9 +591,9 @@ development_status:
   # Decay metrics, alerting, orphan detection, dashboard, META routing
   # FR-8.1 to FR-8.5, FR-10.4
   # ═══════════════════════════════════════════════════════════════════════════
-  petition-epic-8: backlog
-  petition-8-1-legitimacy-decay-metric-computation: backlog
-  petition-8-2-legitimacy-decay-alerting: backlog
+  petition-epic-8: in-progress
+  petition-8-1-legitimacy-decay-metric-computation: done
+  petition-8-2-legitimacy-decay-alerting: in-progress
   petition-8-3-orphan-petition-detection: backlog
   petition-8-4-high-archon-legitimacy-dashboard: backlog
   petition-8-5-meta-petition-routing: backlog

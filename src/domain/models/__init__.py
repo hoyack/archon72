@@ -263,6 +263,9 @@ from src.domain.models.key_generation_ceremony import (
     CeremonyType,
     KeyGenerationCeremony,
 )
+from src.domain.models.legitimacy_metrics import (
+    LegitimacyMetrics,
+)
 from src.domain.models.load_test_config import LoadTestConfig
 from src.domain.models.load_test_metrics import LoadTestMetrics
 from src.domain.models.load_test_report import (
@@ -677,4 +680,6 @@ __all__: list[str] = [
     "DecisionPackage",
     # Co-sign models (Story 5.1, FR-6.2, NFR-3.5)
     "CoSign",
+    # Legitimacy metrics models (Story 8.1, FR-8.1, FR-8.2)
+    "LegitimacyMetrics",
 ]

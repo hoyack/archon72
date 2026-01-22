@@ -303,11 +303,14 @@ from src.domain.events.override_event import (
     OverrideExpiredEventPayload,
 )
 from src.domain.events.petition import (
+    ADOPTION_EVENT_SCHEMA_VERSION,
+    PETITION_ADOPTED_EVENT_TYPE,
     PETITION_COSIGNED_EVENT_TYPE,
     PETITION_CREATED_EVENT_TYPE,
     PETITION_SYSTEM_AGENT_ID,
     PETITION_THRESHOLD_COSIGNERS,
     PETITION_THRESHOLD_MET_EVENT_TYPE,
+    PetitionAdoptedEventPayload,
     PetitionCoSignedEventPayload,
     PetitionCreatedEventPayload,
     PetitionStatus,
@@ -628,16 +631,22 @@ __all__: list[str] = [
     "CESSATION_AGENDA_PLACEMENT_EVENT_TYPE",
     "AgendaTriggerType",
     "CessationAgendaPlacementEventPayload",
-    # Petition events (Story 7.2, FR39)
+    # Petition events (Story 7.2, FR39, Story 6.3)
+    "ADOPTION_EVENT_SCHEMA_VERSION",
+    "PETITION_ADOPTED_EVENT_TYPE",
     "PETITION_CREATED_EVENT_TYPE",
     "PETITION_COSIGNED_EVENT_TYPE",
     "PETITION_THRESHOLD_MET_EVENT_TYPE",
     "PETITION_SYSTEM_AGENT_ID",
     "PETITION_THRESHOLD_COSIGNERS",
+    "PetitionAdoptedEventPayload",
     "PetitionCreatedEventPayload",
     "PetitionCoSignedEventPayload",
     "PetitionThresholdMetEventPayload",
     "PetitionStatus",
+    "ADOPTION_EVENT_SCHEMA_VERSION",
+    "PETITION_ADOPTED_EVENT_TYPE",
+    "PetitionAdoptedEventPayload",
     # Phase witness events (Story 2A.7, FR-11.7)
     "BLAKE3_HASH_SIZE",
     "PHASE_WITNESS_EVENT_TYPE",

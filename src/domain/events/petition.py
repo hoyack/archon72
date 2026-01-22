@@ -431,3 +431,95 @@ class PetitionFateEventPayload:
             "reason": self.reason,
             "schema_version": FATE_EVENT_SCHEMA_VERSION,
         }
+
+
+# Story 6.3: Petition Adoption Event
+
+
+# Event type constant for petition adoption (Story 6.3, FR-5.5)
+PETITION_ADOPTED_EVENT_TYPE: str = "petition.adoption.adopted"
+
+# Schema version for adoption events (deterministic replay)
+ADOPTION_EVENT_SCHEMA_VERSION: str = "1.0.0"
+
+
+@dataclass(frozen=True, eq=True)
+class PetitionAdoptedEventPayload:
+    """Payload for petition adoption events (Story 6.3, FR-5.5, FR-5.7).
+
+    A PetitionAdoptedEventPayload is created when a King adopts an escalated
+    petition and creates a Motion. This event provides immutable provenance
+    linking the Motion to its source Petition.
+
+    This event MUST be witnessed (CT-12) and is immutable after creation.
+
+    Constitutional Constraints:
+    - FR-5.5: King SHALL be able to ADOPT petition (creates Motion) [P0]
+    - FR-5.7: Adopted Motion SHALL include source_petition_ref (immutable) [P0]
+    - NFR-6.2: Adoption provenance immutability
+    - CT-11: Silent failure destroys legitimacy -> Must be logged
+    - CT-12: Witnessing creates accountability -> Must be witnessed
+    - CT-13: No writes during halt -> Event emission blocked during halt
+
+    Attributes:
+        petition_id: UUID of the adopted petition (source)
+        motion_id: UUID of the created Motion (target)
+        sponsor_king_id: UUID of the King who adopted the petition
+        adoption_rationale: King's rationale for adoption (min 50 chars)
+        adopted_at: When the adoption occurred (UTC)
+        budget_consumed: Amount of promotion budget consumed (always 1)
+        realm_id: Realm where the adoption occurred (for provenance)
+    """
+
+    petition_id: UUID
+    motion_id: UUID
+    sponsor_king_id: UUID
+    adoption_rationale: str
+    adopted_at: datetime
+    budget_consumed: int = 1
+    realm_id: str = "default"
+
+    def signable_content(self) -> bytes:
+        """Return canonical content for witnessing (CT-12).
+
+        Constitutional Constraint (CT-12):
+        Witnessing creates accountability. This method provides
+        the canonical bytes to sign for witness verification.
+
+        The content is JSON-serialized with sorted keys to ensure
+        deterministic output regardless of Python dict ordering.
+
+        Returns:
+            UTF-8 encoded bytes of canonical JSON representation.
+        """
+        content: dict[str, Any] = {
+            "adopted_at": self.adopted_at.isoformat(),
+            "adoption_rationale": self.adoption_rationale,
+            "budget_consumed": self.budget_consumed,
+            "motion_id": str(self.motion_id),
+            "petition_id": str(self.petition_id),
+            "realm_id": self.realm_id,
+            "sponsor_king_id": str(self.sponsor_king_id),
+        }
+
+        return json.dumps(content, sort_keys=True).encode("utf-8")
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert payload to dict for event storage.
+
+        D2 Compliance: Includes schema_version for deterministic replay.
+        FR-5.7: Immutable provenance (petition_id → motion_id).
+
+        Returns:
+            Dict representation suitable for EventWriterService.write_event().
+        """
+        return {
+            "petition_id": str(self.petition_id),
+            "motion_id": str(self.motion_id),
+            "sponsor_king_id": str(self.sponsor_king_id),
+            "adoption_rationale": self.adoption_rationale,
+            "adopted_at": self.adopted_at.isoformat(),
+            "budget_consumed": self.budget_consumed,
+            "realm_id": self.realm_id,
+            "schema_version": ADOPTION_EVENT_SCHEMA_VERSION,
+        }

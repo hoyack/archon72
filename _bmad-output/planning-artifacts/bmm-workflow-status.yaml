@@ -135,7 +135,7 @@ workflow_status:
       completed: "2026-01-17"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CURRENT WORK IN PROGRESS (2026-01-20)
+# CURRENT WORK IN PROGRESS (2026-01-22)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
   epic: "Petition Epic 6: King Escalation & Adoption Bridge"
@@ -143,11 +143,13 @@ current_work:
 
   completed_epic: "Petition Epic 5: Co-signing & Auto-Escalation (8/8 stories DONE)"
 
-  current_story: petition-6-1-king-escalation-queue
-  current_story_status: ready-for-dev
-  story_file: "_bmad-output/implementation-artifacts/stories/petition-6-1-king-escalation-queue.md"
+  current_story: petition-6-3-petition-adoption-creates-motion
+  current_story_status: backlog
+  story_file: "_bmad-output/implementation-artifacts/stories/petition-6-3-petition-adoption-creates-motion.md"
 
   completed:
+    - petition-6-1-king-escalation-queue
+    - petition-6-2-escalation-decision-package
     - petition-5-1-co-sign-domain-model-schema
     - petition-5-2-co-sign-submission-endpoint
     - petition-5-3-identity-verification-for-co-sign
@@ -179,7 +181,6 @@ current_work:
     - petition-4-7-knight-concurrent-referral-limit
 
   backlog:
-    - petition-6-2-escalation-decision-package
     - petition-6-3-petition-adoption-creates-motion
     - petition-6-4-adoption-budget-consumption
     - petition-6-5-escalation-acknowledgment-by-king

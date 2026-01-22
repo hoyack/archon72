@@ -362,6 +362,11 @@ from src.application.services.witness_pool_monitoring_service import (
     WitnessPoolMonitoringService,
 )
 from src.application.services.witness_service import WitnessService
+from src.application.services.petition_adoption_service import (
+    MotionFromAdoption,
+    PetitionAdoptionService,
+    SystemHaltedException,
+)
 
 __all__: list[str] = [
     "AcknowledgmentRateMetricsService",
@@ -608,4 +613,12 @@ __all__: list[str] = [
     "CoSignCountVerificationService",
     # Auto-Escalation Executor Service (Story 5.6, FR-5.1, FR-5.3, CT-12, CT-14)
     "AutoEscalationExecutorService",
+    # Petition Adoption Service (Story 6.3, FR-5.5, FR-5.6, FR-5.7)
+    "MotionFromAdoption",
+    "PetitionAdoptionService",
+    "SystemHaltedException",
+    # Petition Adoption Service (Story 6.3, FR-5.5, FR-5.6, FR-5.7)
+    "MotionFromAdoption",
+    "PetitionAdoptionService",
+    "SystemHaltedException",
 ]

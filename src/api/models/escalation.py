@@ -500,3 +500,134 @@ class EscalationDecisionPackageResponse(BaseModel):
                 },
             }
         }
+
+
+# Story 6.3: Petition Adoption Models
+
+
+class PetitionAdoptionRequest(BaseModel):
+    """Request to adopt an escalated petition and create a Motion (Story 6.3, FR-5.5).
+
+    Constitutional Constraints:
+    - FR-5.5: King SHALL be able to ADOPT petition (creates Motion) [P0]
+    - FR-5.6: Adoption SHALL consume promotion budget (H1 compliance) [P0]
+    - FR-5.7: Adopted Motion SHALL include source_petition_ref (immutable) [P0]
+
+    Attributes:
+        motion_title: Title for the new Motion (3-200 chars)
+        motion_body: Intent/body text for the Motion (10-5000 chars)
+        adoption_rationale: King's rationale for adoption (50-2000 chars, required for governance)
+    """
+
+    motion_title: str = Field(
+        ...,
+        description="Title for the new Motion",
+        min_length=3,
+        max_length=200,
+    )
+    motion_body: str = Field(
+        ...,
+        description="Intent/body text for the Motion (becomes normative intent)",
+        min_length=10,
+        max_length=5000,
+    )
+    adoption_rationale: str = Field(
+        ...,
+        description="King's rationale for adopting this petition (required, min 50 chars)",
+        min_length=50,
+        max_length=2000,
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "motion_title": "Address Data Retention Policy Concerns",
+                "motion_body": "The petitioners have raised valid concerns about data retention policies. This motion directs the system to review and update retention policies to balance privacy and operational needs.",
+                "adoption_rationale": "The 150+ co-signers demonstrate strong community concern. The petition text aligns with governance priorities for data privacy and discretion. This issue merits formal governance consideration.",
+            }
+        }
+
+
+class ProvenanceResponse(BaseModel):
+    """Provenance information for adopted petition (Story 6.3, FR-5.7).
+
+    Attributes:
+        source_petition_ref: UUID of the source petition (immutable)
+        adoption_rationale: King's rationale for adoption
+        budget_consumed: Budget consumed for this adoption (always 1)
+    """
+
+    source_petition_ref: UUID = Field(
+        ...,
+        description="UUID of the source petition (immutable provenance)",
+    )
+    adoption_rationale: str = Field(
+        ...,
+        description="King's rationale for adoption",
+    )
+    budget_consumed: int = Field(
+        ...,
+        description="Budget consumed for this adoption",
+        ge=1,
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "source_petition_ref": "550e8400-e29b-41d4-a716-446655440000",
+                "adoption_rationale": "The 150+ co-signers demonstrate strong community concern...",
+                "budget_consumed": 1,
+            }
+        }
+
+
+class PetitionAdoptionResponse(BaseModel):
+    """Response for successful petition adoption (Story 6.3, FR-5.5).
+
+    Constitutional Constraints:
+    - FR-5.7: Motion includes immutable source_petition_ref
+    - NFR-6.2: Provenance immutability enforced at database level
+
+    Attributes:
+        motion_id: UUID of the created Motion
+        petition_id: UUID of the adopted petition
+        sponsor_id: UUID of the King who adopted
+        created_at: When the Motion was created (ISO 8601 UTC)
+        provenance: Immutable provenance information
+    """
+
+    motion_id: UUID = Field(
+        ...,
+        description="UUID of the created Motion",
+    )
+    petition_id: UUID = Field(
+        ...,
+        description="UUID of the adopted petition",
+    )
+    sponsor_id: UUID = Field(
+        ...,
+        description="UUID of the King who adopted (sponsor)",
+    )
+    created_at: datetime = Field(
+        ...,
+        description="When the Motion was created (ISO 8601 UTC)",
+    )
+    provenance: ProvenanceResponse = Field(
+        ...,
+        description="Immutable provenance information linking Motion to Petition",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "motion_id": "770e9600-f49d-63f6-c938-668877662222",
+                "petition_id": "550e8400-e29b-41d4-a716-446655440000",
+                "sponsor_id": "880ea700-g5ae-74g7-d049-779988773333",
+                "created_at": "2026-01-22T14:30:00Z",
+                "provenance": {
+                    "source_petition_ref": "550e8400-e29b-41d4-a716-446655440000",
+                    "adoption_rationale": "The 150+ co-signers demonstrate strong community concern...",
+                    "budget_consumed": 1,
+                },
+            }
+        }

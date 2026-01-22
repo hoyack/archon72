@@ -431,6 +431,14 @@ from src.application.ports.petition_repository import (
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
 )
+from src.application.ports.petition_adoption import (
+    AdoptionRequest,
+    AdoptionResult,
+    InsufficientBudgetException,
+    PetitionAdoptionProtocol,
+    PetitionNotEscalatedException,
+    RealmMismatchException,
+)
 from src.application.ports.phase_witness_batching import (
     PhaseWitnessBatchingProtocol,
 )
@@ -975,4 +983,11 @@ __all__: list[str] = [
     # Co-sign Count Verification (Story 5.8, NFR-2.2, AC5)
     "CoSignCountVerificationProtocol",
     "CountVerificationResult",
+    # Petition Adoption (Story 6.3, FR-5.5, FR-5.6, FR-5.7)
+    "AdoptionRequest",
+    "AdoptionResult",
+    "InsufficientBudgetException",
+    "PetitionAdoptionProtocol",
+    "PetitionNotEscalatedException",
+    "RealmMismatchException",
 ]

@@ -160,6 +160,9 @@ class PetitionSubmission:
         escalation_source: What triggered escalation (Story 6.1, FR-5.4).
         escalated_at: When petition was escalated (Story 6.1, FR-5.4).
         escalated_to_realm: Target King's realm for escalation (Story 6.1, FR-5.4).
+        adopted_as_motion_id: Motion ID if adopted by King (Story 6.3, FR-5.7, NFR-6.2).
+        adopted_at: When petition was adopted (Story 6.3, FR-5.5).
+        adopted_by_king_id: King who adopted the petition (Story 6.3, FR-5.5).
     """
 
     id: UUID
@@ -176,6 +179,9 @@ class PetitionSubmission:
     escalation_source: str | None = field(default=None)
     escalated_at: datetime | None = field(default=None)
     escalated_to_realm: str | None = field(default=None)
+    adopted_as_motion_id: UUID | None = field(default=None)
+    adopted_at: datetime | None = field(default=None)
+    adopted_by_king_id: UUID | None = field(default=None)
 
     MAX_TEXT_LENGTH: int = 10_000
 
@@ -251,6 +257,9 @@ class PetitionSubmission:
             escalation_source=self.escalation_source,
             escalated_at=self.escalated_at,
             escalated_to_realm=self.escalated_to_realm,
+            adopted_as_motion_id=self.adopted_as_motion_id,
+            adopted_at=self.adopted_at,
+            adopted_by_king_id=self.adopted_by_king_id,
         )
 
     def with_content_hash(self, content_hash: bytes) -> PetitionSubmission:
@@ -279,6 +288,9 @@ class PetitionSubmission:
             escalation_source=self.escalation_source,
             escalated_at=self.escalated_at,
             escalated_to_realm=self.escalated_to_realm,
+            adopted_as_motion_id=self.adopted_as_motion_id,
+            adopted_at=self.adopted_at,
+            adopted_by_king_id=self.adopted_by_king_id,
         )
 
     def with_escalation(
@@ -316,6 +328,59 @@ class PetitionSubmission:
             escalation_source=escalation_source,
             escalated_at=effective_escalated_at,
             escalated_to_realm=escalated_to_realm,
+            adopted_as_motion_id=self.adopted_as_motion_id,
+            adopted_at=self.adopted_at,
+            adopted_by_king_id=self.adopted_by_king_id,
+        )
+
+    def with_adoption(
+        self,
+        motion_id: UUID,
+        king_id: UUID,
+        adopted_at: datetime | None = None,
+    ) -> PetitionSubmission:
+        """Create new petition with adoption fields set (Story 6.3, FR-5.7, NFR-6.2).
+
+        Used when King adopts escalated petition and creates Motion.
+        Adoption fields are immutable once set (NFR-6.2).
+
+        Args:
+            motion_id: UUID of the created Motion (back-reference)
+            king_id: UUID of the King who adopted the petition
+            adopted_at: When adoption occurred (defaults to now)
+
+        Returns:
+            New PetitionSubmission with adoption fields populated.
+
+        Raises:
+            ValueError: If petition already has adoption fields set (immutability)
+        """
+        # Enforce immutability (NFR-6.2): adoption fields can only be set once
+        if self.adopted_as_motion_id is not None:
+            raise ValueError(
+                f"Petition {self.id} already adopted as motion {self.adopted_as_motion_id}"
+            )
+
+        effective_adopted_at = adopted_at if adopted_at is not None else _utc_now()
+
+        return PetitionSubmission(
+            id=self.id,
+            type=self.type,
+            text=self.text,
+            state=self.state,
+            submitter_id=self.submitter_id,
+            content_hash=self.content_hash,
+            realm=self.realm,
+            created_at=self.created_at,
+            updated_at=_utc_now(),
+            fate_reason=self.fate_reason,
+            co_signer_count=self.co_signer_count,
+            escalation_source=self.escalation_source,
+            escalated_at=self.escalated_at,
+            escalated_to_realm=self.escalated_to_realm,
+            adopted_as_motion_id=motion_id,
+            adopted_at=effective_adopted_at,
+            adopted_by_king_id=king_id,
         )
 
     def canonical_content_bytes(self) -> bytes:

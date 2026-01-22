@@ -142,3 +142,39 @@ class PetitionSubmissionRepositoryProtocol(Protocol):
             PetitionAlreadyFatedError: If petition is already in terminal state.
         """
         ...
+
+    async def mark_adopted(
+        self,
+        submission_id: UUID,
+        motion_id: UUID,
+        king_id: UUID,
+    ) -> PetitionSubmission:
+        """Mark petition as adopted by King with immutable provenance (Story 6.3, FR-5.7).
+
+        Sets adoption tracking fields (adopted_as_motion_id, adopted_at, adopted_by_king_id).
+        This operation is idempotent: calling it again with the same values is a no-op.
+
+        Constitutional Constraints:
+        - FR-5.7: Adopted Motion SHALL include source_petition_ref (immutable) [P0]
+        - NFR-6.2: Adoption provenance immutability
+        - NFR-4.5: Budget consumption durability (survives restart)
+
+        Implementation Notes:
+        - Check if petition already adopted (immutability)
+        - If already adopted with same motion_id, return existing (idempotent)
+        - If already adopted with different motion_id, raise error
+        - Otherwise, atomically set adoption fields
+
+        Args:
+            submission_id: UUID of the petition to mark as adopted
+            motion_id: UUID of the created Motion (back-reference)
+            king_id: UUID of the King who adopted the petition
+
+        Returns:
+            The updated PetitionSubmission with adoption fields set
+
+        Raises:
+            PetitionSubmissionNotFoundError: If submission doesn't exist
+            PetitionAlreadyAdoptedError: If petition already adopted by different motion
+        """
+        ...

@@ -28,8 +28,11 @@ from fastapi.responses import JSONResponse
 from src.api.dependencies.escalation import (
     get_escalation_queue_service,
     get_escalation_decision_package_service,
+    get_petition_adoption_service,
 )
 from src.api.models.escalation import (
+    PetitionAdoptionRequest,
+    PetitionAdoptionResponse,
     CoSignerListResponse,
     CoSignerResponse,
     DeliberationSummaryResponse,
@@ -44,6 +47,11 @@ from src.api.models.escalation import (
     SubmitterMetadataResponse,
 )
 from src.application.ports.escalation_queue import EscalationQueueItem, EscalationSource
+from src.application.ports.petition_adoption import (
+    InsufficientBudgetException,
+    PetitionNotEscalatedException,
+    RealmMismatchException,
+)
 from src.application.services.escalation_queue_service import EscalationQueueService
 from src.application.services.escalation_decision_package_service import (
     DecisionPackageData,
@@ -51,6 +59,7 @@ from src.application.services.escalation_decision_package_service import (
     EscalationNotFoundError,
     RealmMismatchError,
 )
+from src.application.services.petition_adoption_service import SystemHaltedException
 from src.domain.errors import SystemHaltedError
 from src.domain.errors.petition import PetitionSubmissionNotFoundError
 from src.domain.models.petition_submission import PetitionType
@@ -402,5 +411,151 @@ async def get_escalation_decision_package(
                 "status": 500,
                 "detail": f"Unexpected error: {str(e)}",
                 "instance": f"/api/v1/escalations/{petition_id}",
+            },
+        )
+
+
+# =============================================================================
+# Petition Adoption Endpoint (Story 6.3)
+# =============================================================================
+
+
+@router.post(
+    "/escalations/{petition_id}/adopt",
+    response_model=PetitionAdoptionResponse,
+    status_code=200,
+    responses={
+        200: {
+            "description": "Petition successfully adopted, Motion created",
+        },
+        400: {
+            "description": "Validation error, not escalated, or insufficient budget",
+        },
+        403: {
+            "description": "Realm mismatch - King can only adopt from their realm",
+        },
+        404: {
+            "description": "Petition not found",
+        },
+        503: {
+            "description": "System halted - adoption not permitted",
+        },
+    },
+    summary="Adopt escalated petition and create Motion",
+)
+async def adopt_petition(
+    petition_id: UUID,
+    request: PetitionAdoptionRequest,
+    king_id: UUID = Query(..., description="UUID of the King making the adoption"),
+    realm_id: str = Query(..., description="Realm ID of the King (for authorization)"),
+    adoption_service = Depends(get_petition_adoption_service),
+):
+    """Adopt an escalated petition and create a Motion (Story 6.3, FR-5.5)."""
+    try:
+        from src.application.ports.petition_adoption import AdoptionRequest
+        from src.api.models.escalation import ProvenanceResponse
+        from datetime import datetime, timezone
+
+        adoption_request = AdoptionRequest(
+            petition_id=petition_id,
+            king_id=king_id,
+            realm_id=realm_id,
+            motion_title=request.motion_title,
+            motion_body=request.motion_body,
+            adoption_rationale=request.adoption_rationale,
+        )
+
+        result = await adoption_service.adopt_petition(adoption_request)
+
+        if not result.success:
+            if "PETITION_NOT_FOUND" in result.errors:
+                return JSONResponse(
+                    status_code=404,
+                    content={
+                        "type": "https://archon.example.com/errors/not-found",
+                        "title": "Petition Not Found",
+                        "status": 404,
+                        "detail": f"Petition {petition_id} not found",
+                        "instance": f"/api/v1/escalations/{petition_id}/adopt",
+                    },
+                )
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "type": "https://archon.example.com/errors/validation-failed",
+                    "title": "Adoption Failed",
+                    "status": 400,
+                    "detail": f"Adoption failed: {', '.join(result.errors)}",
+                    "instance": f"/api/v1/escalations/{petition_id}/adopt",
+                },
+            )
+
+        provenance = ProvenanceResponse(
+            source_petition_ref=petition_id,
+            adoption_rationale=request.adoption_rationale,
+            budget_consumed=result.budget_consumed,
+        )
+
+        return PetitionAdoptionResponse(
+            motion_id=result.motion_id,
+            petition_id=petition_id,
+            sponsor_id=king_id,
+            created_at=datetime.now(timezone.utc),
+            provenance=provenance,
+        )
+
+    except PetitionNotEscalatedException as e:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "type": "https://archon.example.com/errors/petition-not-escalated",
+                "title": "Petition Not Escalated",
+                "status": 400,
+                "detail": f"Petition {petition_id} is not escalated (state: {e.current_state})",
+                "instance": f"/api/v1/escalations/{petition_id}/adopt",
+            },
+        )
+    except RealmMismatchException as e:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "type": "https://archon.example.com/errors/realm-mismatch",
+                "title": "Realm Authorization Failed",
+                "status": 403,
+                "detail": f"Realm mismatch: King realm={e.king_realm}, petition realm={e.petition_realm}",
+                "instance": f"/api/v1/escalations/{petition_id}/adopt",
+            },
+        )
+    except InsufficientBudgetException as e:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "type": "https://archon.example.com/errors/insufficient-budget",
+                "title": "Insufficient Promotion Budget",
+                "status": 400,
+                "detail": f"King {king_id} has exhausted promotion budget",
+                "instance": f"/api/v1/escalations/{petition_id}/adopt",
+            },
+        )
+    except SystemHaltedException as e:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "type": "https://archon.example.com/errors/system-halted",
+                "title": "System Halted",
+                "status": 503,
+                "detail": "Adoption not permitted during system halt",
+                "instance": f"/api/v1/escalations/{petition_id}/adopt",
+            },
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "type": "https://archon.example.com/errors/internal-server-error",
+                "title": "Internal Server Error",
+                "status": 500,
+                "detail": f"Unexpected error: {str(e)}",
+                "instance": f"/api/v1/escalations/{petition_id}/adopt",
             },
         )

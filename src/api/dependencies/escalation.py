@@ -1,11 +1,13 @@
-"""Escalation queue and decision package dependencies (Stories 6.1-6.2, FR-5.4).
+"""Escalation queue and decision package dependencies (Stories 6.1-6.3, FR-5.4).
 
 FastAPI dependency injection for escalation services:
 - Story 6.1: Escalation queue service
 - Story 6.2: Escalation decision package service
+- Story 6.3: Petition adoption service
 
 Constitutional Constraints:
 - FR-5.4: King SHALL receive escalation queue distinct from organic Motions [P0]
+- FR-5.5: King SHALL be able to ADOPT petition (creates Motion) [P0]
 - CT-13: Halt check first pattern
 """
 
@@ -13,10 +15,12 @@ from src.application.services.escalation_queue_service import EscalationQueueSer
 from src.application.services.escalation_decision_package_service import (
     EscalationDecisionPackageService,
 )
+from src.application.services.petition_adoption_service import PetitionAdoptionService
 
 # Singleton instances (initialized at startup)
 _escalation_queue_service: EscalationQueueService | None = None
 _escalation_decision_package_service: EscalationDecisionPackageService | None = None
+_petition_adoption_service: PetitionAdoptionService | None = None
 
 
 def get_escalation_queue_service() -> EscalationQueueService:
@@ -87,9 +91,44 @@ def set_escalation_decision_package_service(
     _escalation_decision_package_service = service
 
 
+def get_petition_adoption_service() -> PetitionAdoptionService:
+    """Get the petition adoption service singleton (Story 6.3, FR-5.5).
+
+    This is a FastAPI dependency that provides access to the petition
+    adoption service for adopting escalated petitions.
+
+    Returns:
+        PetitionAdoptionService singleton instance.
+
+    Raises:
+        RuntimeError: If service not initialized (startup error).
+    """
+    if _petition_adoption_service is None:
+        raise RuntimeError(
+            "PetitionAdoptionService not initialized. "
+            "Call set_petition_adoption_service() during startup."
+        )
+    return _petition_adoption_service
+
+
+def set_petition_adoption_service(service: PetitionAdoptionService) -> None:
+    """Set the petition adoption service singleton (Story 6.3, FR-5.5).
+
+    Called during application startup to inject the service.
+    Also used in tests to inject stub implementations.
+
+    Args:
+        service: The petition adoption service instance to use.
+    """
+    global _petition_adoption_service
+    _petition_adoption_service = service
+
+
 __all__ = [
     "get_escalation_queue_service",
     "set_escalation_queue_service",
     "get_escalation_decision_package_service",
     "set_escalation_decision_package_service",
+    "get_petition_adoption_service",
+    "set_petition_adoption_service",
 ]

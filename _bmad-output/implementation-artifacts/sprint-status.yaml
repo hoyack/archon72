@@ -564,9 +564,9 @@ development_status:
   # FR-5.4 to FR-5.8
   # ═══════════════════════════════════════════════════════════════════════════
   petition-epic-6: in-progress
-  petition-6-1-king-escalation-queue: ready-for-dev
-  petition-6-2-escalation-decision-package: backlog
-  petition-6-3-petition-adoption-creates-motion: backlog
+  petition-6-1-king-escalation-queue: done
+  petition-6-2-escalation-decision-package: done
+  petition-6-3-petition-adoption-creates-motion: ready-for-dev
   petition-6-4-adoption-budget-consumption: backlog
   petition-6-5-escalation-acknowledgment-by-king: backlog
   petition-6-6-adoption-provenance-immutability: backlog

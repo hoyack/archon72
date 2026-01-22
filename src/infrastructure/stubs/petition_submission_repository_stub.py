@@ -239,6 +239,75 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
                 escalation_source=effective_escalation_source,
                 escalated_at=escalated_at,
                 escalated_to_realm=effective_escalated_to_realm,
+                adopted_as_motion_id=submission.adopted_as_motion_id,
+                adopted_at=submission.adopted_at,
+                adopted_by_king_id=submission.adopted_by_king_id,
+            )
+            self._submissions[submission_id] = updated
+            return updated
+
+    async def mark_adopted(
+        self,
+        submission_id: UUID,
+        motion_id: UUID,
+        king_id: UUID,
+    ) -> PetitionSubmission:
+        """Mark petition as adopted by King with immutable provenance (Story 6.3, FR-5.7).
+
+        This stub implementation simulates atomic update semantics using a lock.
+
+        Constitutional Constraints:
+        - FR-5.7: Adopted Motion SHALL include source_petition_ref (immutable) [P0]
+        - NFR-6.2: Adoption provenance immutability
+        - NFR-4.5: Budget consumption durability (survives restart)
+
+        Args:
+            submission_id: UUID of the petition to mark as adopted
+            motion_id: UUID of the created Motion (back-reference)
+            king_id: UUID of the King who adopted the petition
+
+        Returns:
+            The updated PetitionSubmission with adoption fields set
+
+        Raises:
+            KeyError: If submission doesn't exist
+            ValueError: If petition already adopted by different motion
+        """
+        async with self._cas_lock:
+            submission = self._submissions.get(submission_id)
+            if submission is None:
+                raise KeyError(f"Submission not found: {submission_id}")
+
+            # Check if already adopted (immutability check)
+            if submission.adopted_as_motion_id is not None:
+                # Idempotent: if same motion_id, return existing
+                if submission.adopted_as_motion_id == motion_id:
+                    return submission
+                # Error: trying to adopt as different motion
+                raise ValueError(
+                    f"Petition {submission_id} already adopted as motion "
+                    f"{submission.adopted_as_motion_id}, cannot adopt as {motion_id}"
+                )
+
+            # Atomic update with adoption fields
+            updated = PetitionSubmission(
+                id=submission.id,
+                type=submission.type,
+                text=submission.text,
+                state=submission.state,
+                submitter_id=submission.submitter_id,
+                content_hash=submission.content_hash,
+                realm=submission.realm,
+                created_at=submission.created_at,
+                updated_at=datetime.now(timezone.utc),
+                fate_reason=submission.fate_reason,
+                co_signer_count=submission.co_signer_count,
+                escalation_source=submission.escalation_source,
+                escalated_at=submission.escalated_at,
+                escalated_to_realm=submission.escalated_to_realm,
+                adopted_as_motion_id=motion_id,
+                adopted_at=datetime.now(timezone.utc),
+                adopted_by_king_id=king_id,
             )
             self._submissions[submission_id] = updated
             return updated

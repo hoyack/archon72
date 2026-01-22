@@ -1,6 +1,8 @@
-"""Escalation queue dependencies (Story 6.1, FR-5.4).
+"""Escalation queue and decision package dependencies (Stories 6.1-6.2, FR-5.4).
 
-FastAPI dependency injection for escalation queue service.
+FastAPI dependency injection for escalation services:
+- Story 6.1: Escalation queue service
+- Story 6.2: Escalation decision package service
 
 Constitutional Constraints:
 - FR-5.4: King SHALL receive escalation queue distinct from organic Motions [P0]
@@ -8,9 +10,13 @@ Constitutional Constraints:
 """
 
 from src.application.services.escalation_queue_service import EscalationQueueService
+from src.application.services.escalation_decision_package_service import (
+    EscalationDecisionPackageService,
+)
 
-# Singleton instance (initialized at startup)
+# Singleton instances (initialized at startup)
 _escalation_queue_service: EscalationQueueService | None = None
+_escalation_decision_package_service: EscalationDecisionPackageService | None = None
 
 
 def get_escalation_queue_service() -> EscalationQueueService:
@@ -46,7 +52,44 @@ def set_escalation_queue_service(service: EscalationQueueService) -> None:
     _escalation_queue_service = service
 
 
+def get_escalation_decision_package_service() -> EscalationDecisionPackageService:
+    """Get the escalation decision package service singleton (Story 6.2, FR-5.4).
+
+    This is a FastAPI dependency that provides access to the escalation
+    decision package service for fetching complete escalation context.
+
+    Returns:
+        EscalationDecisionPackageService singleton instance.
+
+    Raises:
+        RuntimeError: If service not initialized (startup error).
+    """
+    if _escalation_decision_package_service is None:
+        raise RuntimeError(
+            "EscalationDecisionPackageService not initialized. "
+            "Call set_escalation_decision_package_service() during startup."
+        )
+    return _escalation_decision_package_service
+
+
+def set_escalation_decision_package_service(
+    service: EscalationDecisionPackageService,
+) -> None:
+    """Set the escalation decision package service singleton (Story 6.2, FR-5.4).
+
+    Called during application startup to inject the service.
+    Also used in tests to inject stub implementations.
+
+    Args:
+        service: The escalation decision package service instance to use.
+    """
+    global _escalation_decision_package_service
+    _escalation_decision_package_service = service
+
+
 __all__ = [
     "get_escalation_queue_service",
     "set_escalation_queue_service",
+    "get_escalation_decision_package_service",
+    "set_escalation_decision_package_service",
 ]

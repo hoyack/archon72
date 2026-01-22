@@ -1,11 +1,14 @@
-"""API models for escalation queue endpoints (Story 6.1, FR-5.4).
+"""API models for escalation queue and decision package endpoints (Stories 6.1-6.2, FR-5.4).
 
-Pydantic models for request/response payloads of the King escalation queue API.
+Pydantic models for request/response payloads of the King escalation API:
+- Story 6.1: Escalation queue listing
+- Story 6.2: Escalation decision package (full context for adoption/acknowledgment)
 
 Constitutional Constraints:
 - FR-5.4: King SHALL receive escalation queue distinct from organic Motions [P0]
 - D8: Keyset pagination compliance
 - RULING-3: Realm-scoped data access
+- RULING-2: Tiered transcript access (mediated summaries for Kings)
 """
 
 from datetime import datetime
@@ -174,5 +177,326 @@ class EscalationQueueErrorResponse(BaseModel):
                 "status": 503,
                 "detail": "Escalation queue access is not permitted during system halt",
                 "instance": "/api/v1/kings/550e8400-e29b-41d4-a716-446655440000/escalations",
+            }
+        }
+
+
+# Story 6.2: Escalation Decision Package Models
+
+
+class SubmitterMetadataResponse(BaseModel):
+    """Anonymized submitter metadata for decision package (Story 6.2).
+
+    Attributes:
+        public_key_hash: SHA-256 hash of submitter's public key (anonymized)
+        submitted_at: When the petition was originally submitted (ISO 8601 UTC)
+    """
+
+    public_key_hash: str = Field(
+        ...,
+        description="SHA-256 hash of submitter's public key (anonymized)",
+        min_length=64,
+        max_length=64,
+    )
+    submitted_at: datetime = Field(
+        ...,
+        description="When the petition was originally submitted (ISO 8601 UTC)",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "public_key_hash": "a3c4f7b2e1d9c8a5f6b3e2d1c9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1",
+                "submitted_at": "2026-01-15T08:30:00Z",
+            }
+        }
+
+
+class CoSignerResponse(BaseModel):
+    """Co-signer information for decision package (Story 6.2).
+
+    Attributes:
+        public_key_hash: SHA-256 hash of co-signer's public key (anonymized)
+        signed_at: When the co-signature was added (ISO 8601 UTC)
+        sequence: Order of this co-signer (1-based)
+    """
+
+    public_key_hash: str = Field(
+        ...,
+        description="SHA-256 hash of co-signer's public key (anonymized)",
+        min_length=64,
+        max_length=64,
+    )
+    signed_at: datetime = Field(
+        ...,
+        description="When the co-signature was added (ISO 8601 UTC)",
+    )
+    sequence: int = Field(
+        ...,
+        description="Order of this co-signer (1-based)",
+        ge=1,
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "public_key_hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4",
+                "signed_at": "2026-01-15T09:15:00Z",
+                "sequence": 1,
+            }
+        }
+
+
+class CoSignerListResponse(BaseModel):
+    """Paginated co-signer list for decision package (Story 6.2, D8).
+
+    Uses keyset pagination for efficient navigation with large co-signer counts.
+
+    Attributes:
+        items: List of co-signers in sequence order
+        total_count: Total number of co-signers (all pages)
+        next_cursor: Cursor for next page (null if no more items)
+        has_more: Whether there are more items after this page
+    """
+
+    items: list[CoSignerResponse] = Field(
+        ...,
+        description="List of co-signers in sequence order",
+    )
+    total_count: int = Field(
+        ...,
+        description="Total number of co-signers (all pages)",
+        ge=0,
+    )
+    next_cursor: str | None = Field(
+        None,
+        description="Cursor for next page (null if no more items)",
+    )
+    has_more: bool = Field(
+        ...,
+        description="Whether there are more items after this page",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "items": [
+                    {
+                        "public_key_hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4",
+                "signed_at": "2026-01-15T09:15:00Z",
+                        "sequence": 1,
+                    }
+                ],
+                "total_count": 150,
+                "next_cursor": "c2VxdWVuY2U6Mg==",
+                "has_more": True,
+            }
+        }
+
+
+class DeliberationSummaryResponse(BaseModel):
+    """Mediated deliberation summary for decision package (Story 6.2, RULING-2).
+
+    Per RULING-2: Kings receive mediated summaries, not raw transcripts.
+    Full transcripts are reserved for HIGH_ARCHON/AUDITOR roles only.
+
+    Attributes:
+        vote_breakdown: Vote distribution (e.g., "2-1 split", "unanimous")
+        has_dissent: Whether the decision was not unanimous
+        decision_outcome: Final deliberation outcome
+        transcript_hash: Hash reference to full transcript (for auditors)
+    """
+
+    vote_breakdown: str = Field(
+        ...,
+        description='Vote distribution (e.g., "2-1 split", "unanimous")',
+    )
+    has_dissent: bool = Field(
+        ...,
+        description="Whether the decision was not unanimous",
+    )
+    decision_outcome: str = Field(
+        ...,
+        description="Final deliberation outcome (e.g., ESCALATE, APPROVE, REJECT)",
+    )
+    transcript_hash: str = Field(
+        ...,
+        description="Hash reference to full transcript (for auditors)",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "vote_breakdown": "2-1 split",
+                "has_dissent": True,
+                "decision_outcome": "ESCALATE",
+                "transcript_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            }
+        }
+
+
+class KnightRecommendationResponse(BaseModel):
+    """Knight recommendation details for decision package (Story 6.2).
+
+    Included when escalation source is KNIGHT_RECOMMENDATION.
+
+    Attributes:
+        knight_id: UUID of the Knight who made the recommendation
+        recommendation_text: Knight's rationale for escalation
+        recommended_at: When the recommendation was made (ISO 8601 UTC)
+    """
+
+    knight_id: UUID = Field(
+        ...,
+        description="UUID of the Knight who made the recommendation",
+    )
+    recommendation_text: str = Field(
+        ...,
+        description="Knight's rationale for escalation",
+    )
+    recommended_at: datetime = Field(
+        ...,
+        description="When the recommendation was made (ISO 8601 UTC)",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "knight_id": "660e9500-f39c-52e5-b827-557766551111",
+                "recommendation_text": "This petition raises critical governance concerns requiring King's attention.",
+                "recommended_at": "2026-01-18T14:30:00Z",
+            }
+        }
+
+
+class EscalationHistoryResponse(BaseModel):
+    """Escalation history context for decision package (Story 6.2).
+
+    Provides context-dependent information based on escalation source:
+    - DELIBERATION: Includes deliberation summary
+    - KNIGHT_RECOMMENDATION: Includes Knight recommendation
+    - CO_SIGNER_THRESHOLD: Only includes co-signer count
+
+    Attributes:
+        escalation_source: What triggered the escalation
+        escalated_at: When the petition was escalated (ISO 8601 UTC)
+        co_signer_count_at_escalation: Number of co-signers when escalated
+        deliberation_summary: Mediated deliberation summary (if applicable)
+        knight_recommendation: Knight recommendation details (if applicable)
+    """
+
+    escalation_source: EscalationSourceEnum = Field(
+        ...,
+        description="What triggered the escalation",
+    )
+    escalated_at: datetime = Field(
+        ...,
+        description="When the petition was escalated (ISO 8601 UTC)",
+    )
+    co_signer_count_at_escalation: int = Field(
+        ...,
+        description="Number of co-signers when escalated",
+        ge=0,
+    )
+    deliberation_summary: DeliberationSummaryResponse | None = Field(
+        None,
+        description="Mediated deliberation summary (if escalation source is DELIBERATION)",
+    )
+    knight_recommendation: KnightRecommendationResponse | None = Field(
+        None,
+        description="Knight recommendation details (if escalation source is KNIGHT_RECOMMENDATION)",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "escalation_source": "DELIBERATION",
+                "escalated_at": "2026-01-20T12:00:00Z",
+                "co_signer_count_at_escalation": 85,
+                "deliberation_summary": {
+                    "vote_breakdown": "2-1 split",
+                    "has_dissent": True,
+                    "decision_outcome": "ESCALATE",
+                    "transcript_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                },
+                "knight_recommendation": None,
+            }
+        }
+
+
+class EscalationDecisionPackageResponse(BaseModel):
+    """Complete decision package for King adoption/acknowledgment decision (Story 6.2).
+
+    Provides comprehensive context for Kings to make informed decisions about
+    petition adoption or acknowledgment.
+
+    Constitutional Constraints:
+    - FR-5.4: King receives distinct escalation context
+    - RULING-2: Tiered transcript access (mediated summaries only)
+    - RULING-3: Realm-scoped data access
+
+    Attributes:
+        petition_id: UUID of the escalated petition
+        petition_type: Type of petition
+        petition_content: Full petition text
+        submitter_metadata: Anonymized submitter information
+        co_signers: Paginated co-signer list
+        escalation_history: Context about why/how petition was escalated
+    """
+
+    petition_id: UUID = Field(
+        ...,
+        description="UUID of the escalated petition",
+    )
+    petition_type: PetitionTypeEnum = Field(
+        ...,
+        description="Type of petition (CESSATION, GRIEVANCE, etc.)",
+    )
+    petition_content: str = Field(
+        ...,
+        description="Full petition text",
+    )
+    submitter_metadata: SubmitterMetadataResponse = Field(
+        ...,
+        description="Anonymized submitter information",
+    )
+    co_signers: CoSignerListResponse = Field(
+        ...,
+        description="Paginated co-signer list with total count",
+    )
+    escalation_history: EscalationHistoryResponse = Field(
+        ...,
+        description="Context about why/how petition was escalated",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "petition_id": "550e8400-e29b-41d4-a716-446655440000",
+                "petition_type": "CESSATION",
+                "petition_content": "Request for cessation review due to concerns about...",
+                "submitter_metadata": {
+                    "public_key_hash": "a3c4f7b2e1d9c8a5f6b3e2d1c9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1",
+                    "submitted_at": "2026-01-15T08:30:00Z",
+                },
+                "co_signers": {
+                    "items": [
+                        {
+                            "public_key_hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4",
+                            "signed_at": "2026-01-15T09:15:00Z",
+                            "sequence": 1,
+                        }
+                    ],
+                    "total_count": 150,
+                    "next_cursor": "c2VxdWVuY2U6Mg==",
+                    "has_more": True,
+                },
+                "escalation_history": {
+                    "escalation_source": "CO_SIGNER_THRESHOLD",
+                    "escalated_at": "2026-01-20T12:00:00Z",
+                    "co_signer_count_at_escalation": 150,
+                    "deliberation_summary": None,
+                    "knight_recommendation": None,
+                },
             }
         }

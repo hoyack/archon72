@@ -1,35 +1,39 @@
 <!-- COMPACTION_META
-compacted_at: 2026-01-22T14:17:47.148Z
-previous_cache_growth: 151988
+compacted_at: 2026-01-22T15:10:08.602Z
+previous_cache_growth: 181104
 compaction_number: 1
-session_id: bcadbe2a-9129-4a61-812a-1882921d65ce
+session_id: 367b30b9-6ba4-4a92-bbad-a75d69da3dcf
 -->
 
-```markdown
 ## Session Summary
-- Task/workflow: Creating comprehensive API models for escalation functionality in the governance system
-- Accomplished: Developed 14 models (2 enums + 12 Pydantic models) covering escalation queue, decision packages, and petition adoption
-- Current state: API models file (`src/api/models/escalation.py`) is complete with 634 lines, covering all three stories (6.1, 6.2, 6.3)
+- Task/workflow: Implementation of Story 6.6 - Adoption Provenance Immutability as part of Epic 6 (King Escalation & Adoption Bridge)
+- Accomplished: Successfully implemented database-level immutability for adoption provenance, updated domain models, created comprehensive tests, and completed all documentation
+- Current state: Epic 6 is complete (6/6 stories done). All files are syntactically correct and ready for next steps
 
 ## Key Decisions Made
-- Architectural: Used nested Pydantic models for complex response structures
-- Implementation: Implemented conditional fields based on escalation source type
-- Configuration: Enforced strict validation rules (min/max lengths, UUID types, datetime formats)
-- Tradeoffs: Tiered transcript access (mediated summaries only for Kings per RULING-2)
+- Architectural: Enforced immutability at database level using PostgreSQL triggers to protect critical adoption fields
+- Implementation: Added `source_petition_ref` field to Motion model to establish bidirectional provenance with Petition
+- Configuration: Created Migration 029 to enforce immutability constraints
+- Tradeoffs: Database-level enforcement adds complexity but provides strongest guarantee of immutability
 
 ## Files Modified
-- Created: `src/api/models/escalation.py` (634 lines)
-- Important paths: `src/api/models/` directory structure
+**Created:**
+- `migrations/029_enforce_adoption_provenance_immutability.sql`
+- `tests/unit/domain/models/test_adoption_provenance_immutability.py`
+- `tests/integration/test_adoption_provenance_immutability.py`
+- `_bmad-output/implementation-artifacts/stories/petition-6-6-adoption-provenance-immutability.md`
+
+**Modified:**
+- `src/domain/models/conclave.py`
+- `_bmad-output/planning-artifacts/bmm-workflow-status.yaml`
 
 ## Next Steps
-- Review API dependencies and service injection requirements
-- Implement Story 6.1 endpoint handlers
-- Create migration file for escalation tracking fields
-- Pending: No blockers identified
+- Commit the changes to save the Epic 6 milestone
+- Decide whether to proceed with Epic 7 (Observer Engagement) or Epic 8 (Legitimacy Metrics & Governance)
+- Pending: No blockers, ready to start next epic after commit
 
 ## Important Context
-- Dependencies: Pydantic for data validation and serialization
-- Environment: FastAPI framework for OpenAPI integration
-- Warnings: RULING-2 requires mediated transcript access only
-- Gotchas: Provenance immutability must be enforced in adoption workflow
-```
+- Dependencies: Migration 029 must be applied before running integration tests
+- Environment: PostgreSQL database required for migration
+- Constitutional compliance achieved for FR-5.7, NFR-6.2, CT-11, and CT-12
+- All tests are syntactically valid but not yet executed

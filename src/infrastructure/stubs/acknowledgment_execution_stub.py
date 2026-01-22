@@ -249,6 +249,129 @@ class AcknowledgmentExecutionStub:
 
         return acknowledgment
 
+    async def execute_king_acknowledge(
+        self,
+        petition_id: UUID,
+        king_id: UUID,
+        reason_code: AcknowledgmentReasonCode,
+        rationale: str,
+        realm_id: str,
+    ) -> Acknowledgment:
+        """Execute King acknowledgment of escalated petition (Story 6.5, FR-5.8).
+
+        Args:
+            petition_id: The escalated petition to acknowledge.
+            king_id: UUID of the King acknowledging.
+            reason_code: Reason from AcknowledgmentReasonCode enum.
+            rationale: King's explanation (min 100 chars).
+            realm_id: Realm ID for authorization.
+
+        Returns:
+            The created Acknowledgment record.
+
+        Raises:
+            PetitionNotFoundError: Petition doesn't exist.
+            PetitionNotEscalatedError: Petition not in ESCALATED state.
+            ValueError: Rationale too short (< 100 chars).
+            RealmMismatchError: King's realm doesn't match petition's realm.
+        """
+        from src.domain.models.petition_submission import PetitionState
+        from src.domain.errors.petition import PetitionNotEscalatedError, RealmMismatchError
+
+        self._execution_count += 1
+
+        # Validate rationale length (Story 6.5 AC2: min 100 chars)
+        MIN_KING_RATIONALE_LENGTH = 100
+        if not rationale or len(rationale.strip()) < MIN_KING_RATIONALE_LENGTH:
+            raise ValueError(
+                f"King acknowledgment requires rationale >= {MIN_KING_RATIONALE_LENGTH} chars, "
+                f"got {len(rationale.strip()) if rationale else 0} chars. "
+                f"Kings have a higher bar for explaining decisions to petitioners (FR-5.8)."
+            )
+
+        # Get petition and validate existence
+        petition = self._petitions.get(petition_id)
+        if petition is None:
+            raise PetitionNotFoundError(petition_id)
+
+        # Validate petition is in ESCALATED state (Story 6.5 AC3)
+        if petition.state != PetitionState.ESCALATED:
+            raise PetitionNotEscalatedError(
+                petition_id=petition_id,
+                current_state=petition.state.value,
+                message=f"King can only acknowledge ESCALATED petitions, "
+                        f"but petition {petition_id} is in {petition.state.value} state."
+            )
+
+        # Validate realm authorization (Story 6.5 AC4, RULING-3)
+        if petition.escalated_to_realm != realm_id:
+            raise RealmMismatchError(
+                expected_realm=petition.escalated_to_realm or "unknown",
+                actual_realm=realm_id,
+                message=f"King from realm '{realm_id}' cannot acknowledge petition "
+                        f"escalated to realm '{petition.escalated_to_realm}' (RULING-3)."
+            )
+
+        # Validate acknowledgment requirements (FR-3.3, FR-3.4)
+        validate_acknowledgment_requirements(
+            reason_code,
+            rationale,
+            None,  # reference_petition_id not used for King acknowledgments
+        )
+
+        # Check for existing acknowledgment (idempotency)
+        existing = self._acknowledgments_by_petition.get(petition_id)
+        if existing is not None:
+            raise AcknowledgmentAlreadyExistsError(
+                petition_id=petition_id,
+                existing_acknowledgment_id=existing.id,
+            )
+
+        # Generate hash
+        if self._fail_hash_generation:
+            from src.domain.errors.acknowledgment import WitnessHashGenerationError
+
+            raise WitnessHashGenerationError(
+                petition_id=petition_id,
+                reason=self._hash_generation_error_message,
+            )
+
+        acknowledgment_id = uuid4()
+        acknowledged_at = datetime.now(timezone.utc)
+        witness_hash = f"blake3:stub_king_{acknowledgment_id.hex[:16]}"
+
+        # Create acknowledgment (with King ID)
+        acknowledgment = Acknowledgment.create(
+            id=acknowledgment_id,
+            petition_id=petition_id,
+            reason_code=reason_code,
+            acknowledging_archon_ids=[],  # Empty for King acknowledgments
+            acknowledged_by_king_id=king_id,  # King ID recorded here
+            acknowledged_at=acknowledged_at,
+            witness_hash=witness_hash,
+            rationale=rationale,
+            reference_petition_id=None,
+        )
+
+        # Store
+        self._acknowledgments[acknowledgment.id] = acknowledgment
+        self._acknowledgments_by_petition[petition_id] = acknowledgment
+
+        # Emit KingAcknowledgedEscalation event (Story 6.5 AC7)
+        event = {
+            "event_type": "petition.escalation.acknowledged_by_king",
+            "petition_id": petition_id,
+            "king_id": king_id,
+            "reason_code": reason_code.value,
+            "rationale": rationale,
+            "acknowledged_at": acknowledged_at.isoformat(),
+            "realm_id": realm_id,
+            "witness_hash": witness_hash,
+        }
+        self._emitted_events.append(event)
+
+        return acknowledgment
+
     async def get_acknowledgment(
         self,
         acknowledgment_id: UUID,

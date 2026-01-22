@@ -147,3 +147,68 @@ class PetitionAlreadyExistsError(PetitionError):
         """
         self.petition_id = petition_id
         super().__init__(f"FR39: Petition already exists: {petition_id}")
+
+
+class PetitionNotEscalatedError(PetitionError):
+    """Raised when King tries to acknowledge non-escalated petition (Story 6.5, FR-5.8).
+
+    Constitutional Constraint (FR-5.8):
+    Kings can only acknowledge ESCALATED petitions. Attempting to acknowledge
+    a petition in any other state (RECEIVED, DELIBERATING, ACKNOWLEDGED, REFERRED)
+    is a violation.
+
+    Attributes:
+        petition_id: The petition that is not escalated.
+        current_state: The actual state of the petition.
+        message: Optional detailed error message.
+    """
+
+    def __init__(
+        self, petition_id: str, current_state: str, message: str | None = None
+    ) -> None:
+        """Initialize the error.
+
+        Args:
+            petition_id: The petition that is not escalated.
+            current_state: The actual state of the petition.
+            message: Optional detailed error message.
+        """
+        self.petition_id = petition_id
+        self.current_state = current_state
+        error_msg = (
+            message
+            or f"Petition {petition_id} is not in ESCALATED state (current: {current_state})"
+        )
+        super().__init__(f"FR-5.8: {error_msg}")
+
+
+class RealmMismatchError(PetitionError):
+    """Raised when King tries to act on petition from different realm (Story 6.5, RULING-3).
+
+    Constitutional Constraint (RULING-3):
+    Realm-scoped data access. Kings can only adopt or acknowledge petitions
+    escalated to their own realm.
+
+    Attributes:
+        expected_realm: The realm the petition is escalated to.
+        actual_realm: The realm the King belongs to.
+        message: Optional detailed error message.
+    """
+
+    def __init__(
+        self, expected_realm: str, actual_realm: str, message: str | None = None
+    ) -> None:
+        """Initialize the error.
+
+        Args:
+            expected_realm: The realm the petition is escalated to.
+            actual_realm: The realm the King belongs to.
+            message: Optional detailed error message.
+        """
+        self.expected_realm = expected_realm
+        self.actual_realm = actual_realm
+        error_msg = (
+            message
+            or f"Realm mismatch: petition realm={expected_realm}, king realm={actual_realm}"
+        )
+        super().__init__(f"RULING-3: {error_msg}")

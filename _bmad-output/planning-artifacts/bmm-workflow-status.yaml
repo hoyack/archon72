@@ -138,18 +138,22 @@ workflow_status:
 # CURRENT WORK IN PROGRESS (2026-01-22)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "Petition Epic 6: King Escalation & Adoption Bridge"
-  status: in-progress
+  epic: "Petition Epic 7: Observer Engagement (P2)"
+  status: ready
 
-  completed_epic: "Petition Epic 5: Co-signing & Auto-Escalation (8/8 stories DONE)"
+  completed_epic: "Petition Epic 6: King Escalation & Adoption Bridge (6/6 stories DONE)"
 
-  current_story: petition-6-3-petition-adoption-creates-motion
-  current_story_status: backlog
-  story_file: "_bmad-output/implementation-artifacts/stories/petition-6-3-petition-adoption-creates-motion.md"
+  current_story: null
+  current_story_status: null
+  story_file: null
 
   completed:
     - petition-6-1-king-escalation-queue
     - petition-6-2-escalation-decision-package
+    - petition-6-3-petition-adoption-creates-motion
+    - petition-6-4-adoption-budget-consumption
+    - petition-6-5-escalation-acknowledgment-by-king
+    - petition-6-6-adoption-provenance-immutability
     - petition-5-1-co-sign-domain-model-schema
     - petition-5-2-co-sign-submission-endpoint
     - petition-5-3-identity-verification-for-co-sign
@@ -180,13 +184,9 @@ current_work:
     - petition-4-6-referral-timeout-auto-acknowledge
     - petition-4-7-knight-concurrent-referral-limit
 
-  backlog:
-    - petition-6-3-petition-adoption-creates-motion
-    - petition-6-4-adoption-budget-consumption
-    - petition-6-5-escalation-acknowledgment-by-king
-    - petition-6-6-adoption-provenance-immutability
+  backlog: []
 
-  note: "Epic 6 IN PROGRESS. Story 6.1 ready for dev."
+  note: "Epic 6 COMPLETE (6/6 stories). All adoption & escalation features implemented. Migration 029 enforces immutability. Next: Epic 7 (Observer Engagement) or Epic 8 (Legitimacy Metrics)."
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PETITION SYSTEM EPICS (from petition-system-epics.md)
@@ -594,26 +594,45 @@ petition_system:
   petition-epic-6:
     name: "King Escalation & Adoption Bridge"
     priority: P0
-    status: backlog
+    status: done
+    completed: "2026-01-22"
     stories:
       - id: petition-6-1-king-escalation-queue
         name: "King Escalation Queue"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-6-1-king-escalation-queue.md"
+        note: "FR-5.4 - King escalation queue, decision package endpoints"
       - id: petition-6-2-escalation-decision-package
         name: "Escalation Decision Package"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-6-2-escalation-decision-package.md"
+        note: "FR-5.5 - Decision package generation, context assembly"
       - id: petition-6-3-petition-adoption-creates-motion
         name: "Petition Adoption Creates Motion"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-6-3-petition-adoption-creates-motion.md"
+        note: "FR-5.6, FR-5.7 - Adoption service, API, events, migration 027, 22 adoption tests (13 unit + 9 integration)"
       - id: petition-6-4-adoption-budget-consumption
         name: "Adoption Budget Consumption"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-6-4-adoption-budget-consumption.md"
+        note: "FR-5.6, NFR-4.5, NFR-8.3 - Budget consumption implemented in Story 6.3, documented separately"
       - id: petition-6-5-escalation-acknowledgment-by-king
         name: "Escalation Acknowledgment by King"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-6-5-escalation-acknowledgment-by-king.md"
+        note: "FR-5.8 - King acknowledgment endpoint, unit tests, integration tests, stub implementation"
       - id: petition-6-6-adoption-provenance-immutability
         name: "Adoption Provenance Immutability"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-6-6-adoption-provenance-immutability.md"
+        note: "FR-5.7, NFR-6.2 - Migration 029 (immutability trigger), Motion.source_petition_ref, 15 unit tests + 10 integration tests"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 7: Observer Engagement (P2)

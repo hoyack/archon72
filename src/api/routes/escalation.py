@@ -29,6 +29,7 @@ from src.api.dependencies.escalation import (
     get_escalation_queue_service,
     get_escalation_decision_package_service,
     get_petition_adoption_service,
+    get_acknowledgment_execution_service,
 )
 from src.api.models.escalation import (
     PetitionAdoptionRequest,
@@ -42,6 +43,8 @@ from src.api.models.escalation import (
     EscalationQueueItemResponse,
     EscalationQueueResponse,
     EscalationSourceEnum,
+    KingAcknowledgmentRequest,
+    KingAcknowledgmentResponse,
     KnightRecommendationResponse,
     PetitionTypeEnum,
     SubmitterMetadataResponse,
@@ -557,5 +560,184 @@ async def adopt_petition(
                 "status": 500,
                 "detail": f"Unexpected error: {str(e)}",
                 "instance": f"/api/v1/escalations/{petition_id}/adopt",
+            },
+        )
+
+
+# =============================================================================
+# King Acknowledgment Endpoint (Story 6.5)
+# =============================================================================
+
+
+@router.post(
+    "/escalations/{petition_id}/acknowledge",
+    response_model=KingAcknowledgmentResponse,
+    status_code=200,
+    responses={
+        200: {
+            "description": "Petition successfully acknowledged by King",
+        },
+        400: {
+            "description": "Validation error, not escalated, or rationale too short",
+        },
+        403: {
+            "description": "Realm mismatch - King can only acknowledge from their realm",
+        },
+        404: {
+            "description": "Petition not found",
+        },
+        503: {
+            "description": "System halted - acknowledgment not permitted",
+        },
+    },
+    summary="Acknowledge escalated petition as King",
+)
+async def acknowledge_escalation(
+    petition_id: UUID,
+    request: KingAcknowledgmentRequest,
+    king_id: UUID = Query(..., description="UUID of the King making the acknowledgment"),
+    realm_id: str = Query(..., description="Realm ID of the King (for authorization)"),
+    acknowledgment_service = Depends(get_acknowledgment_execution_service),
+):
+    """Acknowledge an escalated petition as King (Story 6.5, FR-5.8).
+
+    Allows a King to formally decline adoption of an escalated petition
+    while providing rationale to respect the petitioners.
+
+    Constitutional Constraints:
+    - FR-5.8: King SHALL be able to ACKNOWLEDGE escalation (with rationale) [P0]
+    - Story 6.5 AC2: Rationale must be >= 100 characters
+    - Story 6.5 AC3: Petition must be in ESCALATED state
+    - Story 6.5 AC4: Realm authorization (King's realm must match petition's realm)
+    - CT-13: Halt check first pattern (handled by service)
+
+    Args:
+        petition_id: UUID of the escalated petition to acknowledge
+        request: KingAcknowledgmentRequest with reason_code and rationale
+        king_id: UUID of the King making the acknowledgment
+        realm_id: Realm ID of the King (for authorization per RULING-3)
+        acknowledgment_service: Injected acknowledgment execution service
+
+    Returns:
+        KingAcknowledgmentResponse with acknowledgment details
+
+    Raises:
+        400: Validation error, petition not escalated, or rationale too short
+        403: Realm mismatch (King's realm doesn't match petition's realm)
+        404: Petition not found
+        503: System halted
+    """
+    try:
+        from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
+        from src.domain.errors.petition import PetitionNotEscalatedError, RealmMismatchError
+
+        # Parse reason code
+        try:
+            reason_code = AcknowledgmentReasonCode(request.reason_code)
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "type": "https://archon.example.com/errors/invalid-reason-code",
+                    "title": "Invalid Reason Code",
+                    "status": 400,
+                    "detail": f"Invalid reason code: {request.reason_code}. "
+                             f"Must be one of: {', '.join(rc.value for rc in AcknowledgmentReasonCode)}",
+                    "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
+                },
+            )
+
+        # Execute King acknowledgment
+        acknowledgment = await acknowledgment_service.execute_king_acknowledge(
+            petition_id=petition_id,
+            king_id=king_id,
+            reason_code=reason_code,
+            rationale=request.rationale,
+            realm_id=realm_id,
+        )
+
+        # Build response
+        return KingAcknowledgmentResponse(
+            acknowledgment_id=acknowledgment.id,
+            petition_id=petition_id,
+            king_id=king_id,
+            reason_code=reason_code.value,
+            acknowledged_at=acknowledgment.acknowledged_at,
+            realm_id=realm_id,
+        )
+
+    except PetitionNotFoundError:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "type": "https://archon.example.com/errors/not-found",
+                "title": "Petition Not Found",
+                "status": 404,
+                "detail": f"Petition {petition_id} not found",
+                "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
+            },
+        )
+
+    except PetitionNotEscalatedError as e:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "type": "https://archon.example.com/errors/petition-not-escalated",
+                "title": "Petition Not Escalated",
+                "status": 400,
+                "detail": f"Petition {petition_id} is not escalated (current state: {e.current_state}). "
+                         "King can only acknowledge ESCALATED petitions.",
+                "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
+            },
+        )
+
+    except RealmMismatchError as e:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "type": "https://archon.example.com/errors/realm-mismatch",
+                "title": "Realm Authorization Failed",
+                "status": 403,
+                "detail": f"Realm mismatch: {e.message}",
+                "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
+            },
+        )
+
+    except ValueError as e:
+        # Rationale too short or other validation error
+        return JSONResponse(
+            status_code=400,
+            content={
+                "type": "https://archon.example.com/errors/validation-failed",
+                "title": "Validation Failed",
+                "status": 400,
+                "detail": str(e),
+                "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
+            },
+        )
+
+    except SystemHaltedError as e:
+        # CT-13: Return 503 during halt
+        return JSONResponse(
+            status_code=503,
+            content={
+                "type": "https://archon.example.com/errors/system-halted",
+                "title": "System Halted",
+                "status": 503,
+                "detail": "Acknowledgment not permitted during system halt",
+                "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
+            },
+        )
+
+    except Exception as e:
+        # Unexpected error - fail loud (CT-11)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "type": "https://archon.example.com/errors/internal-server-error",
+                "title": "Internal Server Error",
+                "status": 500,
+                "detail": f"Unexpected error: {str(e)}",
+                "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
             },
         )

@@ -22,6 +22,33 @@ from typing import Any
 from uuid import UUID, uuid4
 
 
+# =============================================================================
+# Exceptions (Story 6.6, FR-5.7, NFR-6.2)
+# =============================================================================
+
+
+class MotionProvenanceImmutabilityError(Exception):
+    """Raised when attempting to modify immutable Motion provenance field.
+
+    Per Story 6.6, FR-5.7, NFR-6.2: Once a Motion is created with source_petition_ref,
+    that field is immutable and cannot be changed. This enforces the constitutional
+    requirement that the link between Motion and source petition cannot be altered.
+    """
+
+    def __init__(self, motion_id: UUID | str, field_name: str, message: str | None = None):
+        self.motion_id = str(motion_id)
+        self.field_name = field_name
+        self.message = (
+            message or f"Cannot modify {field_name} on Motion {motion_id} - provenance is immutable"
+        )
+        super().__init__(self.message)
+
+
+# =============================================================================
+# Enums
+# =============================================================================
+
+
 class ConclavePhase(Enum):
     """Phases of a formal Conclave meeting."""
 
@@ -131,6 +158,11 @@ class Motion:
     3. Debate proceeds in rank order, multiple rounds
     4. Question is called (ends debate)
     5. Vote is taken (2/3 supermajority required)
+
+    Provenance (Story 6.6, FR-5.7, NFR-6.2):
+    - source_petition_ref: Immutable reference to source petition (if adopted)
+    - This field CANNOT be modified after Motion creation
+    - Enforced at application layer and database level
     """
 
     motion_id: UUID
@@ -140,6 +172,10 @@ class Motion:
     proposer_id: str
     proposer_name: str
     proposed_at: datetime
+
+    # Provenance (Story 6.6, FR-5.7, NFR-6.2)
+    # Immutable reference to source petition if Motion was created via adoption
+    source_petition_ref: UUID | None = None
 
     # Seconding
     seconder_id: str | None = None

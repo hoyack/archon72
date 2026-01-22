@@ -631,3 +631,95 @@ class PetitionAdoptionResponse(BaseModel):
                 },
             }
         }
+
+
+
+# Story 6.5: King Escalation Acknowledgment Models
+
+
+class KingAcknowledgmentRequest(BaseModel):
+    """Request for King to acknowledge an escalated petition (Story 6.5, FR-5.8).
+
+    Constitutional Constraints:
+    - FR-5.8: King SHALL be able to ACKNOWLEDGE escalation (with rationale) [P0]
+    - Story 6.5: Rationale minimum 100 characters (higher bar for Kings)
+
+    Attributes:
+        reason_code: Reason from AcknowledgmentReasonCode enum
+        rationale: King's explanation (min 100 chars to respect petitioners)
+    """
+
+    reason_code: str = Field(
+        ...,
+        description="Reason code from AcknowledgmentReasonCode enum",
+        min_length=1,
+        max_length=50,
+    )
+    rationale: str = Field(
+        ...,
+        description="King's explanation for declining adoption (min 100 chars)",
+        min_length=100,
+        max_length=2000,
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "reason_code": "NOTED",
+                "rationale": "I have carefully reviewed this petition and the concerns raised by 150+ co-signers. While I appreciate their dedication to system governance, the specific concerns outlined have been addressed in recent policy updates. The new safeguards already provide the protections requested in this petition.",
+            }
+        }
+
+
+class KingAcknowledgmentResponse(BaseModel):
+    """Response for successful King acknowledgment (Story 6.5, FR-5.8).
+
+    Constitutional Constraints:
+    - FR-5.8: King acknowledgments provide formal response to petitioners
+    - CT-12: Acknowledgments are witnessed and immutable
+
+    Attributes:
+        acknowledgment_id: UUID of the created acknowledgment
+        petition_id: UUID of the acknowledged petition
+        king_id: UUID of the King who acknowledged
+        reason_code: Reason code for the acknowledgment
+        acknowledged_at: When the acknowledgment occurred (ISO 8601 UTC)
+        realm_id: Realm where acknowledgment occurred
+    """
+
+    acknowledgment_id: UUID = Field(
+        ...,
+        description="UUID of the created acknowledgment",
+    )
+    petition_id: UUID = Field(
+        ...,
+        description="UUID of the acknowledged escalated petition",
+    )
+    king_id: UUID = Field(
+        ...,
+        description="UUID of the King who acknowledged",
+    )
+    reason_code: str = Field(
+        ...,
+        description="Reason code for the acknowledgment",
+    )
+    acknowledged_at: datetime = Field(
+        ...,
+        description="When the acknowledgment occurred (ISO 8601 UTC)",
+    )
+    realm_id: str = Field(
+        ...,
+        description="Realm where acknowledgment occurred",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "acknowledgment_id": "990eb800-h6bf-85h8-e15a-880099884444",
+                "petition_id": "550e8400-e29b-41d4-a716-446655440000",
+                "king_id": "880ea700-g5ae-74g7-d049-779988773333",
+                "reason_code": "NOTED",
+                "acknowledged_at": "2026-01-22T14:30:00Z",
+                "realm_id": "governance",
+            }
+        }

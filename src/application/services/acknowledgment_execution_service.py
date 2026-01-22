@@ -352,6 +352,209 @@ class AcknowledgmentExecutionService:
             rationale=rationale,
         )
 
+    async def execute_king_acknowledge(
+        self,
+        petition_id: UUID,
+        king_id: UUID,
+        reason_code: AcknowledgmentReasonCode,
+        rationale: str,
+        realm_id: str,
+    ) -> Acknowledgment:
+        """Execute King acknowledgment of escalated petition (Story 6.5, FR-5.8).
+
+        King acknowledgments are distinct from Marquis acknowledgments:
+        - Petition must be in ESCALATED state (not DELIBERATING)
+        - Rationale must be >= 100 characters (higher bar for Kings)
+        - No archon IDs (King acts alone)
+        - Records acknowledged_by_king_id instead
+        - Emits KingAcknowledgedEscalation event
+
+        Args:
+            petition_id: The escalated petition to acknowledge.
+            king_id: UUID of the King acknowledging.
+            reason_code: Reason from AcknowledgmentReasonCode enum.
+            rationale: King's explanation (min 100 chars).
+            realm_id: Realm ID for authorization and provenance.
+
+        Returns:
+            The created Acknowledgment record.
+
+        Raises:
+            PetitionNotFoundError: Petition doesn't exist.
+            PetitionNotEscalatedError: Petition not in ESCALATED state.
+            ValueError: Rationale too short (< 100 chars).
+            RealmMismatchError: King's realm doesn't match petition's realm.
+        """
+        # Validate rationale length (Story 6.5 AC2: min 100 chars)
+        MIN_KING_RATIONALE_LENGTH = 100
+        if not rationale or len(rationale.strip()) < MIN_KING_RATIONALE_LENGTH:
+            raise ValueError(
+                f"King acknowledgment requires rationale >= {MIN_KING_RATIONALE_LENGTH} chars, "
+                f"got {len(rationale.strip()) if rationale else 0} chars. "
+                f"Kings have a higher bar for explaining decisions to petitioners (FR-5.8)."
+            )
+
+        # Get petition and validate existence
+        petition = await self._petition_repo.get(petition_id)
+        if petition is None:
+            raise PetitionNotFoundError(petition_id)
+
+        # Validate petition is in ESCALATED state (Story 6.5 AC3)
+        if petition.state != PetitionState.ESCALATED:
+            from src.domain.errors.petition import PetitionNotEscalatedError
+            raise PetitionNotEscalatedError(
+                petition_id=petition_id,
+                current_state=petition.state.value,
+                message=f"King can only acknowledge ESCALATED petitions, "
+                        f"but petition {petition_id} is in {petition.state.value} state."
+            )
+
+        # Validate realm authorization (Story 6.5 AC4, RULING-3)
+        if petition.escalated_to_realm != realm_id:
+            from src.domain.errors.petition import RealmMismatchError
+            raise RealmMismatchError(
+                expected_realm=petition.escalated_to_realm or "unknown",
+                actual_realm=realm_id,
+                message=f"King from realm '{realm_id}' cannot acknowledge petition "
+                        f"escalated to realm '{petition.escalated_to_realm}' (RULING-3)."
+            )
+
+        # Validate acknowledgment requirements (FR-3.3, FR-3.4)
+        validate_acknowledgment_requirements(
+            reason_code,
+            rationale,
+            None,  # reference_petition_id not used for King acknowledgments
+        )
+
+        # Check for existing acknowledgment (idempotency)
+        existing = await self._acknowledgment_repo.get_by_petition_id(petition_id)
+        if existing is not None:
+            from src.domain.errors.acknowledgment import AcknowledgmentAlreadyExistsError
+            raise AcknowledgmentAlreadyExistsError(
+                petition_id=petition_id,
+                existing_acknowledgment_id=existing.id,
+            )
+
+        # Create acknowledgment ID
+        acknowledgment_id = uuid4()
+        acknowledged_at = datetime.now(timezone.utc)
+
+        # Build witness content (CT-12)
+        witness_content = self._build_king_witness_content(
+            acknowledgment_id=acknowledgment_id,
+            petition_id=petition_id,
+            king_id=king_id,
+            reason_code=reason_code,
+            acknowledged_at=acknowledged_at,
+            rationale=rationale,
+            realm_id=realm_id,
+        )
+
+        # Generate witness hash
+        try:
+            witness_hash = self._hash_service.hash(witness_content.encode("utf-8"))
+        except Exception as e:
+            raise WitnessHashGenerationError(
+                f"Failed to generate witness hash for King acknowledgment: {e}"
+            ) from e
+
+        # Create Acknowledgment (with King ID)
+        acknowledgment = Acknowledgment.create(
+            id=acknowledgment_id,
+            petition_id=petition_id,
+            reason_code=reason_code,
+            rationale=rationale,
+            reference_petition_id=None,
+            acknowledging_archon_ids=[],  # Empty for King acknowledgments
+            acknowledged_by_king_id=king_id,  # King ID recorded here
+            acknowledged_at=acknowledged_at,
+            witness_hash=witness_hash,
+        )
+
+        # Persist acknowledgment
+        await self._acknowledgment_repo.save(acknowledgment)
+
+        # Update petition state to ACKNOWLEDGED
+        await self._petition_repo.mark_acknowledged(
+            submission_id=petition_id,
+            acknowledgment_id=acknowledgment_id,
+        )
+
+        # Emit KingAcknowledgedEscalation event (Story 6.5 AC7, CT-12)
+        from src.domain.events.petition import (
+            KING_ACKNOWLEDGED_ESCALATION_EVENT_TYPE,
+            KingAcknowledgedEscalationEventPayload,
+        )
+
+        event_payload = KingAcknowledgedEscalationEventPayload(
+            petition_id=petition_id,
+            king_id=king_id,
+            reason_code=reason_code.value,
+            rationale=rationale,
+            acknowledged_at=acknowledged_at,
+            realm_id=realm_id,
+        )
+
+        self._event_writer.write_event(
+            event_type=KING_ACKNOWLEDGED_ESCALATION_EVENT_TYPE,
+            event_payload=event_payload.to_dict(),
+            agent_id=str(king_id),
+        )
+
+        logger.info(
+            "king_acknowledged_escalation",
+            petition_id=str(petition_id),
+            king_id=str(king_id),
+            reason_code=reason_code.value,
+            realm_id=realm_id,
+            acknowledgment_id=str(acknowledgment.id),
+            witness_hash=witness_hash,
+        )
+
+        return acknowledgment
+
+    def _build_king_witness_content(
+        self,
+        acknowledgment_id: UUID,
+        petition_id: UUID,
+        king_id: UUID,
+        reason_code: AcknowledgmentReasonCode,
+        acknowledged_at: datetime,
+        rationale: str,
+        realm_id: str,
+    ) -> str:
+        """Build content string for King acknowledgment witness hash.
+
+        Creates a deterministic string representation of the King acknowledgment
+        for hashing per CT-12 witnessing requirements.
+
+        Args:
+            acknowledgment_id: UUID for the acknowledgment
+            petition_id: Petition being acknowledged
+            king_id: King UUID who acknowledged
+            reason_code: Reason for acknowledgment
+            acknowledged_at: Timestamp
+            rationale: King's explanation
+            realm_id: Realm where acknowledgment occurred
+
+        Returns:
+            Deterministic string for hashing
+        """
+        parts = [
+            f"acknowledgment_id:{acknowledgment_id}",
+            f"petition_id:{petition_id}",
+            f"king_id:{king_id}",
+            f"reason_code:{reason_code.value}",
+            f"acknowledged_at:{acknowledged_at.isoformat()}",
+            f"realm_id:{realm_id}",
+            f"schema_version:{ACKNOWLEDGMENT_SCHEMA_VERSION}",
+        ]
+
+        if rationale:
+            parts.append(f"rationale:{rationale}")
+
+        return "|".join(parts)
+
     def _build_witness_content(
         self,
         acknowledgment_id: UUID,

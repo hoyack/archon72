@@ -75,6 +75,7 @@ class Acknowledgment:
         rationale: Explanation text (required for REFUSED, NO_ACTION_WARRANTED per FR-3.3)
         reference_petition_id: For DUPLICATE, points to the canonical petition (FR-3.4)
         acknowledging_archon_ids: Archon IDs who voted ACKNOWLEDGE (min 2 for supermajority)
+        acknowledged_by_king_id: King UUID for King acknowledgments (Story 6.5, FR-5.8)
         acknowledged_at: UTC timestamp of acknowledgment
         witness_hash: Blake3 hash for CT-12 witnessing compliance
 
@@ -94,6 +95,7 @@ class Acknowledgment:
     rationale: str | None
     reference_petition_id: UUID | None
     acknowledging_archon_ids: tuple[int, ...]
+    acknowledged_by_king_id: UUID | None
     acknowledged_at: datetime
     witness_hash: str
 
@@ -108,7 +110,12 @@ class Acknowledgment:
 
         # Validate minimum archon count (FR-11.5 supermajority)
         # KNIGHT_REFERRAL is exempt - it comes from Knight's recommendation (Story 4.4)
-        if self.reason_code != AcknowledgmentReasonCode.KNIGHT_REFERRAL:
+        # King acknowledgments are exempt - King acts alone (Story 6.5, FR-5.8)
+        is_king_acknowledgment = self.acknowledged_by_king_id is not None
+        if (
+            self.reason_code != AcknowledgmentReasonCode.KNIGHT_REFERRAL
+            and not is_king_acknowledgment
+        ):
             if len(self.acknowledging_archon_ids) < MIN_ACKNOWLEDGING_ARCHONS:
                 raise InsufficientArchonsError(len(self.acknowledging_archon_ids))
 
@@ -125,6 +132,7 @@ class Acknowledgment:
         witness_hash: str,
         rationale: str | None = None,
         reference_petition_id: UUID | None = None,
+        acknowledged_by_king_id: UUID | None = None,
         acknowledged_at: datetime | None = None,
         id: UUID | None = None,
     ) -> Acknowledgment:
@@ -137,6 +145,7 @@ class Acknowledgment:
             witness_hash: Blake3 hash for witnessing
             rationale: Required for REFUSED/NO_ACTION_WARRANTED
             reference_petition_id: Required for DUPLICATE
+            acknowledged_by_king_id: King UUID for King acknowledgments (Story 6.5)
             acknowledged_at: Timestamp (defaults to now)
             id: Optional UUID (generated if not provided)
 
@@ -156,6 +165,7 @@ class Acknowledgment:
             rationale=rationale,
             reference_petition_id=reference_petition_id,
             acknowledging_archon_ids=tuple(acknowledging_archon_ids),
+            acknowledged_by_king_id=acknowledged_by_king_id,
             acknowledged_at=acknowledged_at or datetime.now(timezone.utc),
             witness_hash=witness_hash,
         )
@@ -191,6 +201,9 @@ class Acknowledgment:
                 str(self.reference_petition_id) if self.reference_petition_id else None
             ),
             "acknowledging_archon_ids": list(self.acknowledging_archon_ids),
+            "acknowledged_by_king_id": (
+                str(self.acknowledged_by_king_id) if self.acknowledged_by_king_id else None
+            ),
             "acknowledged_at": self.acknowledged_at.isoformat(),
             "witness_hash": self.witness_hash,
             "schema_version": ACKNOWLEDGMENT_SCHEMA_VERSION,

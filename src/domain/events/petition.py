@@ -523,3 +523,92 @@ class PetitionAdoptedEventPayload:
             "realm_id": self.realm_id,
             "schema_version": ADOPTION_EVENT_SCHEMA_VERSION,
         }
+
+
+# Story 6.5: King Escalation Acknowledgment Event
+
+
+# Event type constant for king acknowledgment (Story 6.5, FR-5.8)
+KING_ACKNOWLEDGED_ESCALATION_EVENT_TYPE: str = "petition.escalation.acknowledged_by_king"
+
+# Schema version for king acknowledgment events (deterministic replay)
+KING_ACKNOWLEDGMENT_EVENT_SCHEMA_VERSION: str = "1.0.0"
+
+
+@dataclass(frozen=True, eq=True)
+class KingAcknowledgedEscalationEventPayload:
+    """Payload for King escalation acknowledgment events (Story 6.5, FR-5.8).
+
+    A KingAcknowledgedEscalationEventPayload is created when a King formally
+    declines to adopt an escalated petition, providing a rationale to respect
+    the petitioners' concerns.
+
+    This event MUST be witnessed (CT-12) and is immutable after creation.
+
+    Constitutional Constraints:
+    - FR-5.8: King SHALL be able to ACKNOWLEDGE escalation (with rationale) [P0]
+    - FR-3.1: Marquis SHALL be able to ACKNOWLEDGE petition with reason code [P0]
+    - FR-3.2: System SHALL require reason_code from enumerated list [P0]
+    - CT-11: Silent failure destroys legitimacy -> Must be logged
+    - CT-12: Witnessing creates accountability -> Must be witnessed
+    - CT-13: No writes during halt -> Event emission blocked during halt
+    - RULING-3: Realm-scoped data access (King can only acknowledge their realm)
+
+    Attributes:
+        petition_id: UUID of the acknowledged escalated petition
+        king_id: UUID of the King who acknowledged
+        reason_code: Reason from AcknowledgmentReasonCode enum
+        rationale: King's explanation (min 100 chars per Story 6.5)
+        acknowledged_at: When the acknowledgment occurred (UTC)
+        realm_id: Realm where the acknowledgment occurred
+    """
+
+    petition_id: UUID
+    king_id: UUID
+    reason_code: str  # AcknowledgmentReasonCode.value
+    rationale: str
+    acknowledged_at: datetime
+    realm_id: str
+
+    def signable_content(self) -> bytes:
+        """Return canonical content for witnessing (CT-12).
+
+        Constitutional Constraint (CT-12):
+        Witnessing creates accountability. This method provides
+        the canonical bytes to sign for witness verification.
+
+        The content is JSON-serialized with sorted keys to ensure
+        deterministic output regardless of Python dict ordering.
+
+        Returns:
+            UTF-8 encoded bytes of canonical JSON representation.
+        """
+        content: dict[str, Any] = {
+            "acknowledged_at": self.acknowledged_at.isoformat(),
+            "king_id": str(self.king_id),
+            "petition_id": str(self.petition_id),
+            "rationale": self.rationale,
+            "reason_code": self.reason_code,
+            "realm_id": self.realm_id,
+        }
+
+        return json.dumps(content, sort_keys=True).encode("utf-8")
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert payload to dict for event storage.
+
+        D2 Compliance: Includes schema_version for deterministic replay.
+        FR-5.8: Immutable acknowledgment record with King provenance.
+
+        Returns:
+            Dict representation suitable for EventWriterService.write_event().
+        """
+        return {
+            "petition_id": str(self.petition_id),
+            "king_id": str(self.king_id),
+            "reason_code": self.reason_code,
+            "rationale": self.rationale,
+            "acknowledged_at": self.acknowledged_at.isoformat(),
+            "realm_id": self.realm_id,
+            "schema_version": KING_ACKNOWLEDGMENT_EVENT_SCHEMA_VERSION,
+        }

@@ -16,11 +16,15 @@ from src.application.services.escalation_decision_package_service import (
     EscalationDecisionPackageService,
 )
 from src.application.services.petition_adoption_service import PetitionAdoptionService
+from src.application.services.acknowledgment_execution_service import (
+    AcknowledgmentExecutionService,
+)
 
 # Singleton instances (initialized at startup)
 _escalation_queue_service: EscalationQueueService | None = None
 _escalation_decision_package_service: EscalationDecisionPackageService | None = None
 _petition_adoption_service: PetitionAdoptionService | None = None
+_acknowledgment_execution_service: AcknowledgmentExecutionService | None = None
 
 
 def get_escalation_queue_service() -> EscalationQueueService:
@@ -124,6 +128,39 @@ def set_petition_adoption_service(service: PetitionAdoptionService) -> None:
     _petition_adoption_service = service
 
 
+def get_acknowledgment_execution_service() -> AcknowledgmentExecutionService:
+    """Get the acknowledgment execution service singleton (Story 6.5, FR-5.8).
+
+    This is a FastAPI dependency that provides access to the acknowledgment
+    execution service for King acknowledgments.
+
+    Returns:
+        AcknowledgmentExecutionService singleton instance.
+
+    Raises:
+        RuntimeError: If service not initialized (startup error).
+    """
+    if _acknowledgment_execution_service is None:
+        raise RuntimeError(
+            "AcknowledgmentExecutionService not initialized. "
+            "Call set_acknowledgment_execution_service() during startup."
+        )
+    return _acknowledgment_execution_service
+
+
+def set_acknowledgment_execution_service(service: AcknowledgmentExecutionService) -> None:
+    """Set the acknowledgment execution service singleton (Story 6.5, FR-5.8).
+
+    Called during application startup to inject the service.
+    Also used in tests to inject stub implementations.
+
+    Args:
+        service: The acknowledgment execution service instance to use.
+    """
+    global _acknowledgment_execution_service
+    _acknowledgment_execution_service = service
+
+
 __all__ = [
     "get_escalation_queue_service",
     "set_escalation_queue_service",
@@ -131,4 +168,6 @@ __all__ = [
     "set_escalation_decision_package_service",
     "get_petition_adoption_service",
     "set_petition_adoption_service",
+    "get_acknowledgment_execution_service",
+    "set_acknowledgment_execution_service",
 ]

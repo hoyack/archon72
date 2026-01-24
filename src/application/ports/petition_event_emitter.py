@@ -1,4 +1,4 @@
-"""Petition Event Emitter Port (Story 1.2, FR-1.7, Story 1.7, FR-2.5).
+"""Petition Event Emitter Port (Story 1.2, FR-1.7, Story 1.7, FR-2.5, Story 7.3, FR-7.5).
 
 This module defines the protocol for emitting petition lifecycle events
 to the governance ledger.
@@ -6,6 +6,7 @@ to the governance ledger.
 Constitutional Constraints:
 - FR-1.7: System SHALL emit PetitionReceived event on successful intake
 - FR-2.5: System SHALL emit fate event in same transaction as state update
+- FR-7.5: System SHALL emit PetitionWithdrawn event when petitioner withdraws (Story 7.3)
 - CT-12: Witnessing creates accountability - events are witnessed via ledger
 - CT-13: No writes during halt - emission blocked during system halt
 - HC-1: Fate transition requires witness event - NO silent fate assignment
@@ -113,5 +114,36 @@ class PetitionEventEmitterPort(Protocol):
 
         Raises:
             Exception: If event emission fails - caller MUST handle rollback.
+        """
+        ...
+
+    async def emit_petition_withdrawn(
+        self,
+        petition_id: UUID,
+        withdrawn_by: UUID,
+        reason: str | None = None,
+    ) -> bool:
+        """Emit petition.withdrawn event when petitioner withdraws (Story 7.3, FR-7.5).
+
+        This method emits a petition.withdrawn event to notify observers
+        that a petition has been withdrawn by the original petitioner.
+
+        Note: This is a secondary event - the primary fate event (petition.acknowledged)
+        is emitted via emit_fate_event with WITHDRAWN reason code. This event provides
+        additional context specifically for withdrawals.
+
+        Constitutional Constraints:
+        - FR-7.5: Event SHALL be emitted when petitioner withdraws
+        - CT-12: Event is witnessed via GovernanceLedger
+        - CT-13: Emission blocked during halt
+
+        Args:
+            petition_id: The withdrawn petition identifier.
+            withdrawn_by: UUID of the petitioner who withdrew.
+            reason: Optional explanation for withdrawal.
+
+        Returns:
+            True if event was emitted successfully, False otherwise.
+            False does NOT indicate withdrawal failure - just event emission.
         """
         ...

@@ -89,11 +89,10 @@ def create_escalated_petition(
         state=PetitionState.ESCALATED,
         content_hash=b"a" * 32,
         co_signer_count=co_signer_count,
+        escalation_source=escalation_source,
+        escalated_at=escalated_at or datetime.now(timezone.utc),
+        escalated_to_realm=escalated_to_realm,
     )
-    # Add escalation tracking fields
-    petition.escalated_to_realm = escalated_to_realm
-    petition.escalation_source = escalation_source
-    petition.escalated_at = escalated_at or datetime.now(timezone.utc)
 
     # Store in repository
     petition_repo._submissions[petition.id] = petition
@@ -407,7 +406,7 @@ class TestEscalationQueuePagination:
         assert "status" in data
         assert data["status"] == 400
 
-    def test_limit_above_max_returns_400(
+    def test_limit_above_max_returns_422(
         self,
         client: TestClient,
     ) -> None:
@@ -415,9 +414,9 @@ class TestEscalationQueuePagination:
         king_id = uuid4()
         response = client.get(f"/v1/kings/{king_id}/escalations?limit=9999")
 
-        assert response.status_code == 400
+        assert response.status_code == 422
 
-    def test_limit_below_one_returns_400(
+    def test_limit_below_one_returns_422(
         self,
         client: TestClient,
     ) -> None:
@@ -425,7 +424,7 @@ class TestEscalationQueuePagination:
         king_id = uuid4()
         response = client.get(f"/v1/kings/{king_id}/escalations?limit=0")
 
-        assert response.status_code == 400
+        assert response.status_code == 422
 
 
 class TestEscalationQueueEscalationSources:

@@ -19,7 +19,7 @@ import asyncio
 import json
 import time
 
-from crewai import LLM, Agent, Crew, Task
+from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
 from src.application.ports.archon_profile_repository import ArchonProfileRepository

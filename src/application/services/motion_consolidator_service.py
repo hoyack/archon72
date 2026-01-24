@@ -30,10 +30,11 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from crewai import LLM, Agent, Crew, Task
+from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
 from src.domain.models.secretary_agent import load_secretary_config_from_yaml
+from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 logger = get_logger(__name__)
 
@@ -225,8 +226,8 @@ class MotionConsolidatorService:
         self,
         verbose: bool = False,
         target_count: int = TARGET_MEGA_MOTION_COUNT,
-        llm: LLM | None = None,
-        llm_factory: Callable[[Any], LLM] | None = None,
+        llm: LLM | object | None = None,
+        llm_factory: Callable[[Any], object] | None = None,
     ) -> None:
         """Initialize the consolidator.
 
@@ -239,7 +240,7 @@ class MotionConsolidatorService:
 
         if llm is None:
             if llm_factory is None:
-                raise ValueError("llm or llm_factory is required")
+                llm_factory = create_crewai_llm
             # Load LLM config from YAML (uses JSON model for structured output)
             _, json_config, _ = load_secretary_config_from_yaml()
             llm = llm_factory(json_config)

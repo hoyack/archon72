@@ -32,16 +32,29 @@ Note: This router is SEPARATE from the Story 7.2 petition router (/v1/petitions)
 which handles cessation co-signing. This router handles Three Fates submissions.
 """
 
+import asyncio
 import base64
+import time
 from datetime import datetime, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import Response
 
 from src.api.dependencies.petition_submission import (
     get_petition_submission_service,
     get_queue_capacity_service,
     get_rate_limiter,
+    get_transcript_access_service,
+)
+from src.api.models.deliberation_summary import (
+    DeliberationOutcomeEnum,
+    DeliberationPendingErrorResponse,
+    DeliberationPhaseEnum,
+    DeliberationSummaryResponse,
+    EscalationTriggerEnum,
+    PetitionNotFoundErrorResponse,
+    PhaseSummaryModel,
 )
 from src.api.models.petition_submission import (
     PetitionSubmissionErrorResponse,
@@ -49,6 +62,8 @@ from src.api.models.petition_submission import (
     PetitionTypeEnum,
     SubmitPetitionSubmissionRequest,
     SubmitPetitionSubmissionResponse,
+    WithdrawPetitionRequest,
+    WithdrawPetitionResponse,
 )
 from src.application.ports.rate_limiter import RateLimiterPort
 from src.application.services.petition_submission_service import (
@@ -56,12 +71,26 @@ from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
 from src.application.services.queue_capacity_service import QueueCapacityService
+from src.application.services.transcript_access_mediation_service import (
+    TranscriptAccessMediationService,
+)
+from src.bootstrap.metrics import get_metrics_collector
+from src.bootstrap.status_token_registry import get_status_token_registry
 from src.domain.errors import (
     QueueOverflowError,
     RateLimitExceededError,
     SystemHaltedError,
+    UnauthorizedWithdrawalError,
 )
+from src.domain.errors.deliberation import DeliberationPendingError
+from src.domain.errors.petition import PetitionNotFoundError
+from src.domain.errors.state_transition import PetitionAlreadyFatedError
 from src.domain.models.petition_submission import PetitionType
+from src.domain.models.status_token import (
+    ExpiredStatusTokenError,
+    InvalidStatusTokenError,
+    StatusToken,
+)
 
 router = APIRouter(prefix="/v1/petition-submissions", tags=["petition-submissions"])
 
@@ -276,7 +305,8 @@ async def submit_petition_submission(
     description=(
         "Get the current status of a petition submission. "
         "Public access - works during halt (read operation). "
-        "FR-7.1, FR-7.4, NFR-1.2, CT-13."
+        "Returns status_token for efficient long-polling. "
+        "FR-7.1, FR-7.2, FR-7.4, NFR-1.2, CT-13."
     ),
 )
 async def get_petition_submission(
@@ -284,10 +314,11 @@ async def get_petition_submission(
     request: Request,
     service: PetitionSubmissionService = Depends(get_petition_submission_service),
 ) -> PetitionSubmissionStatusResponse:
-    """Get petition submission status (FR-7.1, FR-7.4, Story 1.8).
+    """Get petition submission status (FR-7.1, FR-7.2, FR-7.4, Story 1.8, Story 7.1).
 
     Constitutional Constraints:
     - FR-7.1: Observers can query petition status
+    - FR-7.2: System returns status_token for efficient long-poll (Story 7.1)
     - FR-7.4: System exposes co_signer_count in response
     - NFR-1.2: Status query latency p99 < 100ms
     - CT-13: Reads allowed during halt
@@ -317,6 +348,16 @@ async def get_petition_submission(
     if submission.state.is_terminal():
         fate_reason = submission.fate_reason
 
+    # Generate status_token for long-polling (FR-7.2, Story 7.1)
+    # Version is computed from content hash and state for deterministic change detection
+    state_version = StatusToken.compute_version_from_hash(
+        submission.content_hash, submission.state.value
+    )
+    status_token = StatusToken.create(
+        petition_id=submission.id,
+        version=state_version,
+    )
+
     return PetitionSubmissionStatusResponse(
         petition_id=submission.id,
         state=submission.state.value,
@@ -327,4 +368,458 @@ async def get_petition_submission(
         created_at=submission.created_at,
         updated_at=submission.updated_at,
         fate_reason=fate_reason,
+        status_token=status_token.encode(),
     )
+
+
+# Long-poll timeout in seconds (AC2)
+LONGPOLL_TIMEOUT_SECONDS = 30.0
+
+
+@router.get(
+    "/{petition_id}/status",
+    response_model=PetitionSubmissionStatusResponse,
+    responses={
+        304: {
+            "description": "Not Modified - no state change within timeout",
+        },
+        400: {
+            "model": PetitionSubmissionErrorResponse,
+            "description": "Invalid or expired status token",
+        },
+        404: {
+            "model": PetitionSubmissionErrorResponse,
+            "description": "Petition not found",
+        },
+    },
+    summary="Long-poll petition status",
+    description=(
+        "Long-poll for petition status changes using a status_token. "
+        "Blocks until state changes or 30-second timeout (HTTP 304). "
+        "Public access - works during halt (read operation). "
+        "FR-7.2, NFR-1.2, CT-13, AC2."
+    ),
+)
+async def longpoll_petition_status(
+    petition_id: UUID,
+    request: Request,
+    token: str = Query(
+        ...,
+        description="Status token from previous status response",
+    ),
+    service: PetitionSubmissionService = Depends(get_petition_submission_service),
+) -> Response | PetitionSubmissionStatusResponse:
+    """Long-poll for petition status changes (Story 7.1, FR-7.2, AC2).
+
+    Constitutional Constraints:
+    - FR-7.2: System SHALL return status_token for efficient long-poll
+    - NFR-1.2: Response latency < 100ms p99 on state change
+    - CT-13: Reads allowed during halt
+    - AC2: 30-second timeout with HTTP 304
+    - AC3: Efficient connection management (no busy-wait)
+    - D7: RFC 7807 error responses
+
+    Flow:
+    1. Validate token (petition_id match, expiry)
+    2. Check if state already changed (return immediately)
+    3. Wait for state change (max 30 seconds)
+    4. On timeout: return HTTP 304 Not Modified
+    5. On change: return new status with new token
+    """
+    start_time = time.monotonic()
+    metrics = get_metrics_collector()
+    registry = await get_status_token_registry()
+
+    # 1. Validate token
+    try:
+        status_token = StatusToken.decode(token)
+        status_token.validate_petition_id(petition_id)
+        status_token.validate_not_expired()
+    except InvalidStatusTokenError as e:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "type": "https://archon72.io/errors/invalid-status-token",
+                "title": "Invalid Status Token",
+                "status": 400,
+                "detail": str(e),
+                "instance": str(request.url),
+            },
+        ) from None
+    except ExpiredStatusTokenError as e:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "type": "https://archon72.io/errors/expired-status-token",
+                "title": "Expired Status Token",
+                "status": 400,
+                "detail": str(e),
+                "instance": str(request.url),
+                "max_age_seconds": e.max_age_seconds,
+            },
+        ) from None
+
+    # 2. Get current petition state
+    submission = await service.get_petition(petition_id)
+    if submission is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "type": "https://archon72.io/errors/petition-not-found",
+                "title": "Petition Not Found",
+                "status": 404,
+                "detail": f"Petition {petition_id} not found",
+                "instance": str(request.url),
+            },
+        )
+
+    # Compute current version
+    current_version = StatusToken.compute_version_from_hash(
+        submission.content_hash, submission.state.value
+    )
+
+    # 3. Check if already changed (return immediately)
+    if status_token.has_changed(current_version):
+        duration = time.monotonic() - start_time
+        metrics.increment_longpoll_changed()
+        metrics.observe_longpoll_latency(duration, "immediate")
+        return _build_status_response(submission, current_version)
+
+    # 4. Wait for state change (with metrics tracking)
+    metrics.increment_longpoll_connections()
+    try:
+        # Register current version in registry
+        await registry.register_petition(petition_id, current_version)
+
+        # Wait for change
+        changed = await registry.wait_for_change(
+            petition_id=petition_id,
+            current_version=current_version,
+            timeout_seconds=LONGPOLL_TIMEOUT_SECONDS,
+        )
+
+        duration = time.monotonic() - start_time
+
+        if not changed:
+            # 5a. Timeout - return HTTP 304 Not Modified
+            metrics.increment_longpoll_timeout()
+            metrics.observe_longpoll_latency(duration, "timeout")
+            return Response(
+                status_code=304,
+                headers={
+                    "X-Status-Token": token,  # Return same token
+                    "Cache-Control": "no-cache",
+                },
+            )
+
+        # 5b. State changed - fetch new state and return
+        metrics.increment_longpoll_changed()
+        metrics.observe_longpoll_latency(duration, "changed")
+
+        # Re-fetch petition to get updated state
+        submission = await service.get_petition(petition_id)
+        if submission is None:
+            # Petition was deleted during wait
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "type": "https://archon72.io/errors/petition-not-found",
+                    "title": "Petition Not Found",
+                    "status": 404,
+                    "detail": f"Petition {petition_id} was deleted",
+                    "instance": str(request.url),
+                },
+            )
+
+        new_version = StatusToken.compute_version_from_hash(
+            submission.content_hash, submission.state.value
+        )
+        return _build_status_response(submission, new_version)
+
+    finally:
+        metrics.decrement_longpoll_connections()
+
+
+def _build_status_response(
+    submission: "PetitionSubmission", version: int  # noqa: F821
+) -> PetitionSubmissionStatusResponse:
+    """Build a status response with token for the given submission.
+
+    Args:
+        submission: The petition submission domain object.
+        version: Computed state version for the token.
+
+    Returns:
+        PetitionSubmissionStatusResponse with status_token.
+    """
+    # Encode content hash if present
+    content_hash_b64 = None
+    if submission.content_hash:
+        content_hash_b64 = base64.b64encode(submission.content_hash).decode("ascii")
+
+    # Only include fate_reason for terminal states
+    fate_reason = None
+    if submission.state.is_terminal():
+        fate_reason = submission.fate_reason
+
+    # Generate new token
+    new_token = StatusToken.create(
+        petition_id=submission.id,
+        version=version,
+    )
+
+    return PetitionSubmissionStatusResponse(
+        petition_id=submission.id,
+        state=submission.state.value,
+        type=_domain_type_to_api(submission.type),
+        content_hash=content_hash_b64,
+        realm=submission.realm,
+        co_signer_count=submission.co_signer_count,
+        created_at=submission.created_at,
+        updated_at=submission.updated_at,
+        fate_reason=fate_reason,
+        status_token=new_token.encode(),
+    )
+
+
+# =============================================================================
+# Petition Withdrawal Endpoint (Story 7.3, FR-7.5)
+# =============================================================================
+
+
+@router.post(
+    "/{petition_id}/withdraw",
+    response_model=WithdrawPetitionResponse,
+    status_code=200,
+    responses={
+        400: {
+            "model": PetitionSubmissionErrorResponse,
+            "description": "Petition already fated (cannot withdraw)",
+        },
+        403: {
+            "model": PetitionSubmissionErrorResponse,
+            "description": "Unauthorized withdrawal (not the original petitioner)",
+        },
+        404: {
+            "model": PetitionSubmissionErrorResponse,
+            "description": "Petition not found",
+        },
+        503: {
+            "model": PetitionSubmissionErrorResponse,
+            "description": "System halted",
+        },
+    },
+    summary="Withdraw a petition",
+    description=(
+        "Withdraw a petition before fate assignment. "
+        "Only the original petitioner can withdraw. "
+        "Anonymous petitions cannot be withdrawn. "
+        "FR-7.5, CT-13, D7."
+    ),
+)
+async def withdraw_petition(
+    petition_id: UUID,
+    request_data: WithdrawPetitionRequest,
+    request: Request,
+    service: PetitionSubmissionService = Depends(get_petition_submission_service),
+) -> WithdrawPetitionResponse:
+    """Withdraw a petition before fate assignment (Story 7.3, FR-7.5).
+
+    Constitutional Constraints:
+    - FR-7.5: Petitioner can withdraw before fate assignment
+    - CT-13: Rejected during halt (write operation)
+    - D7: RFC 7807 error responses with governance extensions
+    - AC1: Successful withdrawal transitions to ACKNOWLEDGED with WITHDRAWN reason
+    - AC2: Cannot withdraw already-fated petitions (400)
+    - AC3: Only original petitioner can withdraw (403)
+    - AC4: Petition must exist (404)
+    - AC5: System must not be halted (503)
+    """
+    try:
+        result = await service.withdraw_petition(
+            petition_id=petition_id,
+            requester_id=request_data.requester_id,
+            reason=request_data.reason,
+        )
+
+        return WithdrawPetitionResponse(
+            petition_id=result.id,
+            state=result.state.value,
+            fate_reason=result.fate_reason or "WITHDRAWN: Petitioner withdrew",
+            updated_at=result.updated_at,
+        )
+
+    except PetitionNotFoundError as e:
+        # AC4: Petition not found - 404
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "type": "urn:archon72:petition:not-found",
+                "title": "Petition Not Found",
+                "status": 404,
+                "detail": f"Petition {petition_id} not found",
+                "instance": str(request.url),
+                "petition_id": str(petition_id),
+            },
+        ) from None
+
+    except UnauthorizedWithdrawalError as e:
+        # AC3: Unauthorized - 403
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "type": "urn:archon72:petition:unauthorized-withdrawal",
+                "title": "Unauthorized Withdrawal",
+                "status": 403,
+                "detail": str(e),
+                "instance": str(request.url),
+                "petition_id": str(petition_id),
+                # Governance extension (D7)
+                "actor": f"submitter:{request_data.requester_id}",
+            },
+        ) from None
+
+    except PetitionAlreadyFatedError as e:
+        # AC2: Already fated - 400
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "type": "urn:archon72:petition:already-fated",
+                "title": "Petition Already Fated",
+                "status": 400,
+                "detail": f"Cannot withdraw petition {petition_id}: already fated as {e.terminal_state.value}",
+                "instance": str(request.url),
+                "petition_id": str(petition_id),
+                "current_state": e.terminal_state.value,
+            },
+        ) from None
+
+    except SystemHaltedError as e:
+        # AC5: System halted - 503
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "type": "urn:archon72:system:halted",
+                "title": "System Halted",
+                "status": 503,
+                "detail": str(e),
+                "instance": str(request.url),
+            },
+            headers={"Retry-After": "3600"},  # 1 hour default
+        ) from None
+
+
+# =============================================================================
+# Deliberation Summary Endpoint (Story 7.4, FR-7.4, Ruling-2)
+# =============================================================================
+
+
+@router.get(
+    "/{petition_id}/deliberation-summary",
+    response_model=DeliberationSummaryResponse,
+    responses={
+        400: {
+            "model": DeliberationPendingErrorResponse,
+            "description": "Deliberation not yet complete (AC-3)",
+        },
+        404: {
+            "model": PetitionNotFoundErrorResponse,
+            "description": "Petition not found (AC-4)",
+        },
+    },
+    summary="Get deliberation summary",
+    description=(
+        "Get mediated deliberation summary for a petition (Observer tier access). "
+        "Returns outcome, vote breakdown, phase metadata, and hash references. "
+        "Does NOT expose raw transcripts, Archon identities, or who voted for what. "
+        "FR-7.4, Ruling-2, CT-13 (reads allowed during halt). "
+        "AC-5: This is a read operation, permitted during halt."
+    ),
+)
+async def get_deliberation_summary(
+    petition_id: UUID,
+    request: Request,
+    service: TranscriptAccessMediationService = Depends(get_transcript_access_service),
+) -> DeliberationSummaryResponse:
+    """Get mediated deliberation summary (Story 7.4, FR-7.4, Ruling-2).
+
+    Constitutional Constraints:
+    - FR-7.4: System SHALL provide deliberation summary to Observer
+    - Ruling-2: Tiered transcript access - mediated view
+    - CT-13: Reads allowed during halt (AC-5)
+    - D7: RFC 7807 error responses
+    - PRD Section 13A.8: Observer tier access
+
+    MEDIATION GUARANTEES (Ruling-2):
+    - Vote breakdown is anonymous ("2-1", not who voted what)
+    - has_dissent is boolean only, not dissenter identity
+    - Phase summaries are metadata + hashes, not content
+    - No Archon UUIDs exposed anywhere
+
+    Acceptance Criteria:
+    - AC-1: Returns DeliberationSummary with mediated fields
+    - AC-2: Handles auto-escalation (no deliberation session)
+    - AC-3: Returns 400 if deliberation not complete
+    - AC-4: Returns 404 if petition not found
+    - AC-5: Read operation works during halt
+    - AC-6: Handles timeout-triggered escalation
+    - AC-7: Handles deadlock-triggered escalation
+    """
+    try:
+        summary = await service.get_deliberation_summary(petition_id)
+
+        # Convert domain model to API response
+        phase_summaries = [
+            PhaseSummaryModel(
+                phase=DeliberationPhaseEnum(ps.phase.value),
+                duration_seconds=ps.duration_seconds,
+                transcript_hash_hex=ps.transcript_hash_hex,
+                themes=list(ps.themes) if ps.themes else None,
+                convergence_reached=ps.convergence_reached,
+            )
+            for ps in summary.phase_summaries
+        ]
+
+        return DeliberationSummaryResponse(
+            petition_id=str(summary.petition_id),
+            outcome=DeliberationOutcomeEnum(summary.outcome.value),
+            vote_breakdown=summary.vote_breakdown,
+            has_dissent=summary.has_dissent,
+            phase_summaries=phase_summaries,
+            duration_seconds=summary.duration_seconds,
+            completed_at=summary.completed_at,
+            escalation_trigger=(
+                EscalationTriggerEnum(summary.escalation_trigger.value)
+                if summary.escalation_trigger
+                else None
+            ),
+            escalation_reason=summary.escalation_reason,
+            timed_out=summary.timed_out,
+            rounds_attempted=summary.rounds_attempted,
+        )
+
+    except PetitionNotFoundError:
+        # AC-4: Petition not found - 404
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "type": "urn:archon72:petition:not-found",
+                "title": "Petition Not Found",
+                "status": 404,
+                "detail": f"Petition {petition_id} not found",
+                "instance": str(request.url),
+            },
+        ) from None
+
+    except DeliberationPendingError as e:
+        # AC-3: Deliberation not complete - 400
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "type": "urn:archon72:petition:deliberation-pending",
+                "title": "Deliberation Pending",
+                "status": 400,
+                "detail": str(e),
+                "instance": str(request.url),
+            },
+        ) from None

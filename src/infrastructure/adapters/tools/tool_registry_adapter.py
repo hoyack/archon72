@@ -10,7 +10,7 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from crewai.tools import BaseTool
+from src.optional_deps.crewai import BaseTool
 from structlog import get_logger
 
 from src.application.ports.tool_registry import ToolRegistryProtocol

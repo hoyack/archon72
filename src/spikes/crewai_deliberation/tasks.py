@@ -10,7 +10,7 @@ Reference: petition-system-prd.md Section 13A
 
 from dataclasses import dataclass
 
-from crewai import Agent, Task
+from src.optional_deps.crewai import Agent, Task
 
 from .agents import Disposition, MockFateAgent
 

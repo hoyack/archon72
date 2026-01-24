@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 
-from crewai import LLM
+from src.optional_deps.crewai import LLM
 from structlog import get_logger
 
 from src.domain.models.llm_config import LLMConfig
@@ -32,11 +32,13 @@ def _crewai_model_string(llm_config: LLMConfig) -> str:
     return f"{provider}/{llm_config.model}"
 
 
-def _resolve_ollama_host(llm_config: LLMConfig) -> str:
-    """Resolve the Ollama base URL from config or environment."""
+def _resolve_base_url(llm_config: LLMConfig) -> str | None:
+    """Resolve base URL for providers that support custom endpoints."""
     if llm_config.base_url:
         return llm_config.base_url
-    return os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    if llm_config.provider == "local":
+        return os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    return None
 
 
 def ensure_api_key(llm_config: LLMConfig) -> None:
@@ -52,35 +54,24 @@ def ensure_api_key(llm_config: LLMConfig) -> None:
         )
 
 
-def create_crewai_llm(llm_config: LLMConfig) -> LLM | str:
+def create_crewai_llm(llm_config: LLMConfig) -> LLM | object:
     """Create a CrewAI LLM instance from LLMConfig."""
     ensure_api_key(llm_config)
     model_string = _crewai_model_string(llm_config)
-    if llm_config.provider != "local":
-        logger.info(
-            "crewai_llm_initialized",
-            provider=llm_config.provider,
-            model=model_string,
-            base_url=None,
-            per_archon_url=False,
-            temperature=llm_config.temperature,
-            max_tokens=llm_config.max_tokens,
-            timeout_ms=llm_config.timeout_ms,
-        )
-        return model_string
-
+    base_url = _resolve_base_url(llm_config)
     llm_kwargs: dict[str, object] = {
         "model": model_string,
         "temperature": llm_config.temperature,
         "max_tokens": llm_config.max_tokens,
-        "base_url": _resolve_ollama_host(llm_config),
     }
+    if base_url is not None:
+        llm_kwargs["base_url"] = base_url
 
     logger.info(
         "crewai_llm_initialized",
         provider=llm_config.provider,
         model=model_string,
-        base_url=llm_kwargs.get("base_url"),
+        base_url=base_url,
         per_archon_url=llm_config.base_url is not None,
         temperature=llm_config.temperature,
         max_tokens=llm_config.max_tokens,
@@ -96,10 +87,11 @@ def create_crewai_llm(llm_config: LLMConfig) -> LLM | str:
         )
 
         class _FallbackLLM:
-            def __init__(self, model: str) -> None:
+            def __init__(self, model: str, base_url: str | None) -> None:
                 self.model = model
+                self.base_url = base_url
 
-        return _FallbackLLM(model_string)
+        return _FallbackLLM(model_string, base_url)
 
 
 def llm_config_from_model_string(

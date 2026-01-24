@@ -189,6 +189,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     from src.infrastructure.adapters.external.crewai_adapter import (
         create_crewai_adapter,
     )
+    from src.infrastructure.adapters.witness import create_knight_witness
 
     print_banner()
     print_header("INITIALIZING CONCLAVE")
@@ -235,11 +236,25 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         config.max_debate_rounds = 1
         config.agent_timeout_seconds = 60
 
+    witness_archon_id = os.getenv("WITNESS_ARCHON_ID", "").strip()
+    secretary_text_archon_id = os.getenv("SECRETARY_TEXT_ARCHON_ID", "").strip()
+    if witness_archon_id and secretary_text_archon_id:
+        config.vote_validation_archon_ids = [
+            witness_archon_id,
+            secretary_text_archon_id,
+        ]
+        max_attempts = os.getenv("VOTE_VALIDATION_MAX_ATTEMPTS", "").strip()
+        if max_attempts.isdigit():
+            config.vote_validation_max_attempts = max(1, int(max_attempts))
+
+    knight_witness = create_knight_witness(verbose=False)
+
     # Create Conclave service
     conclave = ConclaveService(
         orchestrator=adapter,
         archon_profiles=archon_profiles,
         config=config,
+        knight_witness=knight_witness,
     )
     conclave.set_progress_callback(format_progress)
 
@@ -261,6 +276,15 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     print(f"  OLLAMA_HOST: {os.environ.get('OLLAMA_HOST', 'not set')}")
     print(f"  Max debate rounds: {config.max_debate_rounds}")
     print(f"  Supermajority threshold: {config.supermajority_threshold:.1%}")
+    if config.vote_validation_archon_ids:
+        print("  Vote validation: enabled")
+        print(
+            "    Validators: "
+            + ", ".join(config.vote_validation_archon_ids)
+        )
+        print(f"    Max attempts: {config.vote_validation_max_attempts}")
+    else:
+        print("  Vote validation: disabled (missing WITNESS_ARCHON_ID or SECRETARY_TEXT_ARCHON_ID)")
 
     # Build motion plans (queue + blockers unless custom motion specified)
     custom_motion_requested = bool(args.motion or args.motion_text or args.motion_file)

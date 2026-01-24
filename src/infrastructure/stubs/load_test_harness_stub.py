@@ -141,6 +141,7 @@ class LoadTestHarnessStub:
                 # Injected timeout - latency exceeds 5 minutes
                 latency = 300_001.0  # Just over NFR-10.1 threshold
                 latencies.append(latency)
+                failed += 1
                 timeouts += 1
                 failure_breakdown["TIMEOUT"] = failure_breakdown.get("TIMEOUT", 0) + 1
                 self._metrics.record_completion(latency, success=False, is_timeout=True)

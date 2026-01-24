@@ -162,6 +162,10 @@ class ArchonPoolService:
         """
         return list(self._pool)
 
+    def get_all_archons(self) -> list[FateArchon]:
+        """Backward-compatible alias for list_all_archons."""
+        return self.list_all_archons()
+
     def get_pool_size(self) -> int:
         """Get the number of Archons in the pool.
 

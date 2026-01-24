@@ -1,4 +1,4 @@
-"""Petition Submission API dependencies (Story 1.1, FR-1.1, Story 1.3, FR-1.4, Story 1.4, FR-1.5).
+"""Petition Submission API dependencies (Story 1.1, FR-1.1, Story 1.3, FR-1.4, Story 1.4, FR-1.5, Story 7.4).
 
 Dependency injection setup for petition submission components.
 Provides stub implementations for development and testing.
@@ -8,6 +8,7 @@ Constitutional Constraints:
 - FR-1.4: Return HTTP 503 on queue overflow (Story 1.3)
 - FR-1.5: Enforce rate limits per submitter_id (Story 1.4)
 - FR-1.6: Set initial state to RECEIVED
+- FR-7.4: System SHALL provide deliberation summary (Story 7.4)
 - HC-4: 10 petitions/user/hour (configurable)
 - D4: PostgreSQL time-bucket counters
 - CT-11: Silent failure destroys legitimacy
@@ -16,6 +17,7 @@ Constitutional Constraints:
 - HP-3: Realm registry for petition routing
 - NFR-3.1: No silent petition loss
 - NFR-5.1: Rate limiting per identity
+- Ruling-2: Tiered transcript access (Story 7.4)
 
 Note: These are stub implementations. Production would use:
 - Supabase-backed PetitionSubmissionRepository
@@ -24,9 +26,14 @@ Note: These are stub implementations. Production would use:
 - Real HaltChecker with dual-channel support
 - QueueCapacityService with real repository
 - RateLimitService with PostgresRateLimitStore
+- Supabase-backed DeliberationSummaryRepository
 """
 
+from src.application.ports.deliberation_summary import (
+    DeliberationSummaryRepositoryProtocol,
+)
 from src.application.ports.halt_checker import HaltChecker
+from src.application.ports.petition_event_emitter import PetitionEventEmitterPort
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
 )
@@ -36,8 +43,17 @@ from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
 from src.application.services.queue_capacity_service import QueueCapacityService
+from src.application.services.transcript_access_mediation_service import (
+    TranscriptAccessMediationService,
+)
+from src.bootstrap.deliberation_summary import (
+    get_deliberation_summary_repository as _get_deliberation_summary_repository,
+    reset_deliberation_summary_repository as _reset_deliberation_summary_repository,
+    set_deliberation_summary_repository as _set_deliberation_summary_repository,
+)
 from src.bootstrap.petition_submission import (
     get_content_hash_service,
+    get_event_emitter,
     get_petition_halt_checker,
     get_petition_queue_config,
     get_petition_submission_repository,
@@ -45,6 +61,7 @@ from src.bootstrap.petition_submission import (
     get_rate_limiter,
     get_realm_registry,
     reset_petition_submission_dependencies as _reset_petition_submission_dependencies,
+    set_event_emitter as _set_event_emitter,
     set_halt_checker as _set_halt_checker,
     set_petition_queue_config as _set_petition_queue_config,
     set_petition_submission_repository as _set_petition_submission_repository,
@@ -56,6 +73,8 @@ from src.config.petition_config import PetitionQueueConfig, PetitionRateLimitCon
 
 _petition_submission_service: PetitionSubmissionService | None = None
 _queue_capacity_service: QueueCapacityService | None = None
+_transcript_access_service: TranscriptAccessMediationService | None = None
+_deliberation_summary_repo: DeliberationSummaryRepositoryProtocol | None = None
 """Bootstrap wiring provides dependency instances for petition submissions."""
 
 
@@ -93,6 +112,7 @@ def get_petition_submission_service() -> PetitionSubmissionService:
     - ContentHashService (Blake3)
     - RealmRegistry (stub with canonical realms)
     - HaltChecker (stub)
+    - EventEmitter (stub for fate event emission)
 
     Returns:
         PetitionSubmissionService instance.
@@ -104,8 +124,44 @@ def get_petition_submission_service() -> PetitionSubmissionService:
             hash_service=get_content_hash_service(),
             realm_registry=get_realm_registry(),
             halt_checker=get_petition_halt_checker(),
+            event_emitter=get_event_emitter(),
         )
     return _petition_submission_service
+
+
+def get_deliberation_summary_repository() -> DeliberationSummaryRepositoryProtocol:
+    """Get deliberation summary repository instance (Story 7.4).
+
+    Returns:
+        DeliberationSummaryRepository instance.
+    """
+    global _deliberation_summary_repo
+    if _deliberation_summary_repo is None:
+        _deliberation_summary_repo = _get_deliberation_summary_repository()
+    return _deliberation_summary_repo
+
+
+def get_transcript_access_service() -> TranscriptAccessMediationService:
+    """Get transcript access mediation service instance (Story 7.4, FR-7.4).
+
+    Creates the service with proper dependencies:
+    - DeliberationSummaryRepository (stub)
+    - PetitionSubmissionRepository (stub)
+
+    Constitutional Constraints:
+    - FR-7.4: System SHALL provide deliberation summary
+    - Ruling-2: Tiered transcript access
+
+    Returns:
+        TranscriptAccessMediationService instance.
+    """
+    global _transcript_access_service
+    if _transcript_access_service is None:
+        _transcript_access_service = TranscriptAccessMediationService(
+            summary_repo=get_deliberation_summary_repository(),
+            petition_repo=get_petition_submission_repository(),
+        )
+    return _transcript_access_service
 
 
 # Testing helper functions
@@ -118,10 +174,15 @@ def reset_petition_submission_dependencies() -> None:
     """
     global _petition_submission_service
     global _queue_capacity_service
+    global _transcript_access_service
+    global _deliberation_summary_repo
 
     _reset_petition_submission_dependencies()
+    _reset_deliberation_summary_repository()
     _petition_submission_service = None
     _queue_capacity_service = None
+    _transcript_access_service = None
+    _deliberation_summary_repo = None
 
 
 def set_petition_submission_repository(
@@ -197,3 +258,40 @@ def set_rate_limit_config(config: PetitionRateLimitConfig) -> None:
         config: Custom rate limit configuration.
     """
     _set_rate_limit_config(config)
+
+
+def set_event_emitter(emitter: PetitionEventEmitterPort) -> None:
+    """Set custom event emitter for testing (Story 7.3).
+
+    Args:
+        emitter: Custom event emitter implementation.
+    """
+    global _petition_submission_service
+    _set_event_emitter(emitter)
+    _petition_submission_service = None
+
+
+def set_deliberation_summary_repository(
+    repo: DeliberationSummaryRepositoryProtocol,
+) -> None:
+    """Set custom deliberation summary repository for testing (Story 7.4).
+
+    Args:
+        repo: Custom repository implementation.
+    """
+    global _transcript_access_service, _deliberation_summary_repo
+    _set_deliberation_summary_repository(repo)
+    _deliberation_summary_repo = repo
+    _transcript_access_service = None
+
+
+def set_transcript_access_service(
+    service: TranscriptAccessMediationService,
+) -> None:
+    """Set custom transcript access service for testing (Story 7.4).
+
+    Args:
+        service: Custom service implementation.
+    """
+    global _transcript_access_service
+    _transcript_access_service = service

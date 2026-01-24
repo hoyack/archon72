@@ -18,13 +18,14 @@ from uuid import uuid4
 import pytest
 
 from src.api.models.observer import (
-    CheckpointAnchor,
+    CheckpointAnchor as ApiCheckpointAnchor,
     CheckpointFallback,
     DependencyHealth,
     ObserverHealthResponse,
     ObserverHealthStatus,
     ObserverReadyResponse,
 )
+from src.application.dtos.observer import CheckpointAnchor as CheckpointAnchorDTO
 from src.application.services.observer_service import ObserverService
 from src.application.services.uptime_service import (
     UptimeService,
@@ -128,7 +129,7 @@ class TestObserverFallbackEndpoint:
     @pytest.mark.asyncio
     async def test_fallback_returns_checkpoint_info(self) -> None:
         """Test fallback endpoint returns checkpoint information."""
-        checkpoint = CheckpointAnchor(
+        checkpoint = ApiCheckpointAnchor(
             checkpoint_id=uuid4(),
             sequence_start=1,
             sequence_end=1000,
@@ -428,7 +429,7 @@ class TestObserverServiceHealthMethods:
         result = await service.get_latest_checkpoint()
 
         assert result is not None
-        assert isinstance(result, CheckpointAnchor)
+        assert isinstance(result, CheckpointAnchorDTO)
         assert result.sequence_end == 1000
         assert result.merkle_root == "a" * 64
 

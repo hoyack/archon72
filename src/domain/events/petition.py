@@ -531,6 +531,9 @@ class PetitionAdoptedEventPayload:
 # Event type constant for king acknowledgment (Story 6.5, FR-5.8)
 KING_ACKNOWLEDGED_ESCALATION_EVENT_TYPE: str = "petition.escalation.acknowledged_by_king"
 
+# Story 7.3: Petition Withdrawal Event
+PETITION_WITHDRAWN_EVENT_TYPE: str = "petition.submission.withdrawn"
+
 # Schema version for king acknowledgment events (deterministic replay)
 KING_ACKNOWLEDGMENT_EVENT_SCHEMA_VERSION: str = "1.0.0"
 
@@ -611,4 +614,77 @@ class KingAcknowledgedEscalationEventPayload:
             "acknowledged_at": self.acknowledged_at.isoformat(),
             "realm_id": self.realm_id,
             "schema_version": KING_ACKNOWLEDGMENT_EVENT_SCHEMA_VERSION,
+        }
+
+
+# Story 7.3: Petition Withdrawal Event Payload
+
+# Schema version for withdrawal events (D2 compliance)
+WITHDRAWAL_EVENT_SCHEMA_VERSION: str = "1.0.0"
+
+
+@dataclass(frozen=True, eq=True)
+class PetitionWithdrawnEventPayload:
+    """Payload for petition withdrawal events (Story 7.3, FR-7.5).
+
+    A PetitionWithdrawnEventPayload is created when a petitioner withdraws
+    their petition before fate assignment. The petition transitions to
+    ACKNOWLEDGED state with WITHDRAWN reason code.
+
+    This event MUST be witnessed (CT-12) and is immutable after creation.
+
+    Constitutional Constraints:
+    - FR-7.5: Petitioner SHALL be able to withdraw petition before fate assignment
+    - CT-11: Silent failure destroys legitimacy -> Must be logged
+    - CT-12: Witnessing creates accountability -> Must be witnessed
+    - CT-13: No writes during halt -> Event emission blocked during halt
+
+    Attributes:
+        petition_id: UUID of the withdrawn petition
+        withdrawn_by: UUID of the petitioner who withdrew (submitter_id)
+        reason: Optional explanation for withdrawal
+        withdrawn_at: When the withdrawal occurred (UTC)
+    """
+
+    petition_id: UUID
+    withdrawn_by: UUID
+    reason: str | None
+    withdrawn_at: datetime
+
+    def signable_content(self) -> bytes:
+        """Return canonical content for witnessing (CT-12).
+
+        Constitutional Constraint (CT-12):
+        Witnessing creates accountability. This method provides
+        the canonical bytes to sign for witness verification.
+
+        The content is JSON-serialized with sorted keys to ensure
+        deterministic output regardless of Python dict ordering.
+
+        Returns:
+            UTF-8 encoded bytes of canonical JSON representation.
+        """
+        content: dict[str, Any] = {
+            "petition_id": str(self.petition_id),
+            "reason": self.reason,
+            "withdrawn_at": self.withdrawn_at.isoformat(),
+            "withdrawn_by": str(self.withdrawn_by),
+        }
+
+        return json.dumps(content, sort_keys=True).encode("utf-8")
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert payload to dict for event storage.
+
+        D2 Compliance: Includes schema_version for deterministic replay.
+
+        Returns:
+            Dict representation suitable for EventWriterService.write_event().
+        """
+        return {
+            "petition_id": str(self.petition_id),
+            "withdrawn_by": str(self.withdrawn_by),
+            "reason": self.reason,
+            "withdrawn_at": self.withdrawn_at.isoformat(),
+            "schema_version": WITHDRAWAL_EVENT_SCHEMA_VERSION,
         }

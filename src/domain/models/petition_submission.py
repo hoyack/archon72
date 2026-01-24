@@ -22,19 +22,26 @@ from uuid import UUID
 
 
 class PetitionType(Enum):
-    """Type of petition submitted to the system.
+    """Type of petition submitted to the system (FR-10.1, FR-10.4).
 
     Types:
         GENERAL: General governance petition
         CESSATION: Request for system cessation review
         GRIEVANCE: Complaint about system behavior
         COLLABORATION: Request for inter-realm collaboration
+        META: Petition about the petition system itself (FR-10.4)
+              Routes directly to High Archon, bypassing deliberation.
+
+    Constitutional Constraint (META-1):
+    META petitions prevent deadlock from system-about-system concerns
+    by routing directly to High Archon for expedited review.
     """
 
     GENERAL = "GENERAL"
     CESSATION = "CESSATION"
     GRIEVANCE = "GRIEVANCE"
     COLLABORATION = "COLLABORATION"
+    META = "META"
 
 
 class PetitionState(Enum):
@@ -193,6 +200,37 @@ class PetitionSubmission:
             )
         if self.content_hash is not None and len(self.content_hash) != 32:
             raise ValueError("Content hash must be 32 bytes (Blake3)")
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        id: UUID,
+        petition_type: PetitionType | None = None,
+        type: PetitionType | None = None,
+        text: str,
+        submitter_id: UUID | None = None,
+        state: PetitionState = PetitionState.RECEIVED,
+        content_hash: bytes | None = None,
+        realm: str = "default",
+        created_at: datetime | None = None,
+        updated_at: datetime | None = None,
+    ) -> PetitionSubmission:
+        """Backward-compatible constructor with petition_type alias."""
+        resolved_type = type or petition_type
+        if resolved_type is None:
+            raise ValueError("petition_type is required")
+        return cls(
+            id=id,
+            type=resolved_type,
+            text=text,
+            submitter_id=submitter_id,
+            state=state,
+            content_hash=content_hash,
+            realm=realm,
+            created_at=created_at or _utc_now(),
+            updated_at=updated_at or _utc_now(),
+        )
 
     def with_state(
         self,

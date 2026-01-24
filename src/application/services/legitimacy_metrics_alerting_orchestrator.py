@@ -17,6 +17,9 @@ from typing import Protocol
 
 import structlog
 
+from src.application.ports.legitimacy_alert_metrics import (
+    LegitimacyAlertMetricsProtocol,
+)
 from src.application.ports.legitimacy_metrics import LegitimacyMetricsProtocol
 from src.application.services.event_writer_service import EventWriterService
 from src.domain.events.legitimacy_alert import (
@@ -25,10 +28,6 @@ from src.domain.events.legitimacy_alert import (
 )
 from src.domain.models.legitimacy_alert_state import LegitimacyAlertState
 from src.domain.models.legitimacy_metrics import LegitimacyMetrics
-from src.infrastructure.monitoring.legitimacy_alert_metrics import (
-    LegitimacyAlertMetrics,
-    get_legitimacy_alert_metrics,
-)
 from src.services.legitimacy_alerting_service import LegitimacyAlertingService
 
 logger = structlog.get_logger(__name__)
@@ -100,6 +99,19 @@ class AlertDeliveryServiceProtocol(Protocol):
         ...
 
 
+class NullLegitimacyAlertMetrics(LegitimacyAlertMetricsProtocol):
+    """No-op metrics collector for alerting (testing/default)."""
+
+    def record_alert_triggered(self, severity: str) -> None:
+        return None
+
+    def record_alert_recovered(self, severity: str, duration_seconds: int) -> None:
+        return None
+
+    def record_delivery_failure(self, channel: str) -> None:
+        return None
+
+
 class LegitimacyMetricsAlertingOrchestrator:
     """Orchestrator for combined metrics computation and alerting (Story 8.1 + 8.2).
 
@@ -136,6 +148,7 @@ class LegitimacyMetricsAlertingOrchestrator:
         alert_history_repo: AlertHistoryRepositoryProtocol,
         alert_delivery: AlertDeliveryServiceProtocol,
         event_writer: EventWriterService,
+        alert_metrics: LegitimacyAlertMetricsProtocol | None = None,
     ):
         """Initialize the orchestrator with all required dependencies.
 
@@ -146,6 +159,7 @@ class LegitimacyMetricsAlertingOrchestrator:
             alert_history_repo: Repository for alert history persistence
             alert_delivery: Service for multi-channel alert delivery
             event_writer: Service for event emission (CT-12 witnessing)
+            alert_metrics: Metrics collector for alert observability (AC6)
         """
         self._metrics_service = metrics_service
         self._alerting_service = alerting_service
@@ -153,7 +167,7 @@ class LegitimacyMetricsAlertingOrchestrator:
         self._alert_history_repo = alert_history_repo
         self._alert_delivery = alert_delivery
         self._event_writer = event_writer
-        self._prom_metrics = get_legitimacy_alert_metrics()
+        self._prom_metrics = alert_metrics or NullLegitimacyAlertMetrics()
         self._log = logger.bind(component="legitimacy_metrics_alerting_orchestrator")
 
     async def compute_and_alert(

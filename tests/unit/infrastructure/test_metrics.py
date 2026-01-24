@@ -236,3 +236,105 @@ class TestMetricsExposition:
 
         expected = "text/plain; version=0.0.4; charset=utf-8"
         assert expected == METRICS_CONTENT_TYPE
+
+
+class TestFateNotificationMetrics:
+    """Tests for fate notification metrics (Story 7.2, FR-7.3)."""
+
+    def test_fate_notification_sent_counter_initialization(self) -> None:
+        """Test fate notification sent counter is initialized."""
+        collector = MetricsCollector()
+
+        assert collector.petition_fate_notification_sent_total is not None
+        assert "fate" in collector.petition_fate_notification_sent_total._labelnames
+        assert "channel" in collector.petition_fate_notification_sent_total._labelnames
+        assert "status" in collector.petition_fate_notification_sent_total._labelnames
+
+    def test_fate_notification_delivery_latency_initialization(self) -> None:
+        """Test fate notification delivery latency histogram is initialized."""
+        collector = MetricsCollector()
+
+        assert collector.petition_fate_notification_delivery_latency_seconds is not None
+        assert (
+            "channel"
+            in collector.petition_fate_notification_delivery_latency_seconds._labelnames
+        )
+
+    def test_fate_notification_retry_counter_initialization(self) -> None:
+        """Test fate notification retry counter is initialized."""
+        collector = MetricsCollector()
+
+        assert collector.petition_fate_notification_retry_total is not None
+        assert "channel" in collector.petition_fate_notification_retry_total._labelnames
+
+    def test_increment_fate_notification_sent(self) -> None:
+        """Test incrementing fate notification sent counter."""
+        from prometheus_client import generate_latest
+
+        collector = MetricsCollector()
+
+        # Increment counter with various label combinations
+        collector.increment_fate_notification_sent(
+            fate="ACKNOWLEDGED", channel="WEBHOOK", status="DELIVERED"
+        )
+        collector.increment_fate_notification_sent(
+            fate="REFERRED", channel="IN_APP", status="DELIVERED"
+        )
+        collector.increment_fate_notification_sent(
+            fate="ESCALATED", channel="WEBHOOK", status="FAILED"
+        )
+
+        # Verify counter was incremented
+        output = generate_latest(collector.get_registry()).decode("utf-8")
+        assert "petition_fate_notification_sent_total" in output
+        assert 'fate="ACKNOWLEDGED"' in output
+        assert 'channel="WEBHOOK"' in output
+        assert 'status="DELIVERED"' in output
+
+    def test_observe_fate_notification_latency(self) -> None:
+        """Test recording fate notification delivery latency."""
+        from prometheus_client import generate_latest
+
+        collector = MetricsCollector()
+
+        # Observe latency for different channels
+        collector.observe_fate_notification_latency(duration=0.05, channel="WEBHOOK")
+        collector.observe_fate_notification_latency(duration=0.01, channel="LONG_POLL")
+        collector.observe_fate_notification_latency(duration=0.15, channel="IN_APP")
+
+        # Verify histogram recorded values
+        output = generate_latest(collector.get_registry()).decode("utf-8")
+        assert "petition_fate_notification_delivery_latency_seconds" in output
+        assert "petition_fate_notification_delivery_latency_seconds_sum" in output
+        assert 'channel="WEBHOOK"' in output
+
+    def test_increment_fate_notification_retry(self) -> None:
+        """Test incrementing fate notification retry counter."""
+        from prometheus_client import generate_latest
+
+        collector = MetricsCollector()
+
+        # Increment retry counter
+        collector.increment_fate_notification_retry(channel="WEBHOOK")
+        collector.increment_fate_notification_retry(channel="WEBHOOK")
+        collector.increment_fate_notification_retry(channel="IN_APP")
+
+        # Verify counter was incremented
+        output = generate_latest(collector.get_registry()).decode("utf-8")
+        assert "petition_fate_notification_retry_total" in output
+        assert 'channel="WEBHOOK"' in output
+        assert 'channel="IN_APP"' in output
+
+    def test_fate_notification_latency_buckets_configured(self) -> None:
+        """Test fate notification latency histogram has appropriate buckets."""
+        collector = MetricsCollector()
+
+        # Should use the default histogram buckets
+        expected_buckets = (0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
+        histogram_buckets = (
+            collector.petition_fate_notification_delivery_latency_seconds._upper_bounds
+        )
+
+        # Histogram adds +Inf bucket, so compare all except the last
+        for i, bucket in enumerate(expected_buckets):
+            assert histogram_buckets[i] == bucket

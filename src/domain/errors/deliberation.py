@@ -463,3 +463,41 @@ class PipelineRoutingError(DeliberationError):
             "FR-11.11: System SHALL route to appropriate pipeline."
         )
         super().__init__(message)
+
+
+class DeliberationPendingError(DeliberationError):
+    """Raised when deliberation has not yet completed (Story 7.4, AC-3).
+
+    Deliberation summary is only available after deliberation has completed.
+    This error indicates the petition is still in RECEIVED state or deliberation
+    is actively in progress.
+
+    Constitutional Constraints:
+    - FR-7.4: System SHALL provide deliberation summary after completion
+    - CT-14: Every claim terminates in witnessed fate - but not yet for this one
+
+    Attributes:
+        petition_id: ID of the petition.
+        current_state: Current state of the petition.
+    """
+
+    def __init__(
+        self,
+        petition_id: str,
+        current_state: str,
+    ) -> None:
+        """Initialize DeliberationPendingError.
+
+        Args:
+            petition_id: ID of the petition.
+            current_state: Current state of the petition.
+        """
+        self.petition_id = petition_id
+        self.current_state = current_state
+
+        message = (
+            f"Petition {petition_id} has not yet completed deliberation "
+            f"(current state: {current_state}). "
+            "FR-7.4: Deliberation summary available only after fate assignment."
+        )
+        super().__init__(message)

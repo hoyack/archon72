@@ -13,6 +13,7 @@ from src.api.routes.configuration_health import router as configuration_health_r
 from src.api.routes.constitutional_health import router as constitutional_health_router
 from src.api.routes.escalation import router as escalation_router
 from src.api.routes.health import router as health_router
+from src.api.routes.legitimacy import router as legitimacy_router
 from src.api.routes.metrics import router as metrics_router
 from src.api.routes.observer import router as observer_router
 from src.api.routes.override import router as override_router
@@ -81,3 +82,4 @@ app.include_router(override_router)
 app.include_router(petition_submission_router)
 app.include_router(co_sign_router)
 app.include_router(escalation_router)
+app.include_router(legitimacy_router)

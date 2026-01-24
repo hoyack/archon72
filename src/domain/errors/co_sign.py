@@ -81,7 +81,7 @@ class AlreadySignedError(CoSignError):
             Dictionary conforming to RFC 7807 problem details with governance extensions.
         """
         result: dict = {
-            "type": "https://archon72.ai/errors/co-sign/already-signed",
+            "type": "urn:archon72:co-sign:already-signed",
             "title": "Already Signed",
             "status": 409,
             "detail": f"Signer {self.signer_id} has already co-signed petition {self.petition_id}",

@@ -16,7 +16,8 @@ CREATE TYPE acknowledgment_reason_enum AS ENUM (
     'REFUSED',             -- Petition violates policy or norms (requires rationale)
     'NO_ACTION_WARRANTED', -- After review, no action is appropriate (requires rationale)
     'WITHDRAWN',           -- Petitioner withdrew the petition
-    'EXPIRED'              -- Referral timeout with no Knight response
+    'EXPIRED',             -- Referral timeout with no Knight response
+    'KNIGHT_REFERRAL'      -- Knight recommended ACKNOWLEDGE (Story 4.4, FR-4.6)
 );
 
 -- Add comment for documentation and future maintainers

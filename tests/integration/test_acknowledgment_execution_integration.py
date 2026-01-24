@@ -509,6 +509,7 @@ class TestDwellTimeIntegration:
         from src.domain.models.petition_submission import (
             PetitionState,
             PetitionSubmission,
+            PetitionType,
         )
         from src.infrastructure.stubs.acknowledgment_execution_stub import (
             AcknowledgmentExecutionStub,
@@ -525,18 +526,17 @@ class TestDwellTimeIntegration:
         # Create petition with recent session (dwell time not elapsed)
         petition = PetitionSubmission(
             id=uuid4(),
-            petition_type_id="STANDARD",
+            type=PetitionType.GENERAL,
+            text="Integration test petition",
             submitter_id=uuid4(),
-            content_hash="blake3:integration_test",
-            realm_id="TECH",
             state=PetitionState.DELIBERATING,
-            submitted_at=datetime.now(timezone.utc),
+            realm="TECH",
         )
 
         session = DeliberationSession(
-            id=uuid4(),
+            session_id=uuid4(),
             petition_id=petition.id,
-            archon_ids=(15, 42, 67),
+            assigned_archons=(uuid4(), uuid4(), uuid4()),
             created_at=datetime.now(timezone.utc)
             - timedelta(seconds=10),  # Only 10 seconds ago
         )
@@ -555,9 +555,9 @@ class TestDwellTimeIntegration:
 
         # Now add old session
         old_session = DeliberationSession(
-            id=uuid4(),
+            session_id=uuid4(),
             petition_id=petition.id,
-            archon_ids=(15, 42, 67),
+            assigned_archons=(uuid4(), uuid4(), uuid4()),
             created_at=datetime.now(timezone.utc)
             - timedelta(seconds=120),  # 2 minutes ago
         )

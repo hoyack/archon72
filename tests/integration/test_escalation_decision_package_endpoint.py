@@ -1,6 +1,6 @@
 """Integration tests for Escalation Decision Package API endpoint (Story 6.2, FR-5.4).
 
-Tests the GET /api/v1/escalations/{petition_id} endpoint for fetching complete
+Tests the GET /v1/kings/escalations/{petition_id} endpoint for fetching complete
 escalation context for King adoption/acknowledgment decisions.
 
 Constitutional Constraints:
@@ -88,7 +88,7 @@ async def test_get_decision_package_success(
     petition_repository: PetitionSubmissionRepositoryStub,
     escalated_petition: PetitionSubmission,
 ) -> None:
-    """Test GET /api/v1/escalations/{petition_id} returns decision package (Story 6.2, AC1).
+    """Test GET /v1/kings/escalations/{petition_id} returns decision package (Story 6.2, AC1).
 
     Verifies:
     - Endpoint returns 200 OK
@@ -101,7 +101,7 @@ async def test_get_decision_package_success(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{escalated_petition.id}",
+        f"/v1/kings/escalations/{escalated_petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -117,7 +117,7 @@ async def test_get_decision_package_success(
     # Submitter metadata
     assert "submitter_metadata" in data
     assert len(data["submitter_metadata"]["public_key_hash"]) == 64
-    assert data["submitter_metadata"]["submitted_at"] == "2026-01-15T08:30:00+00:00"
+    assert data["submitter_metadata"]["submitted_at"] == "2026-01-15T08:30:00Z"
 
     # Co-signer information
     assert "co_signers" in data
@@ -148,7 +148,7 @@ async def test_get_decision_package_response_schema(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{escalated_petition.id}",
+        f"/v1/kings/escalations/{escalated_petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -228,7 +228,7 @@ async def test_get_decision_package_multiple_petition_types(
     # Act & Assert
     for petition, expected_type_str in petitions:
         response = client.get(
-            f"/api/v1/escalations/{petition.id}",
+            f"/v1/kings/escalations/{petition.id}",
             params={"king_realm": "governance"},
         )
         assert response.status_code == 200
@@ -254,7 +254,7 @@ def test_get_decision_package_petition_not_found(client: TestClient) -> None:
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{nonexistent_id}",
+        f"/v1/kings/escalations/{nonexistent_id}",
         params={"king_realm": "governance"},
     )
 
@@ -298,7 +298,7 @@ async def test_get_decision_package_petition_not_escalated(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{petition.id}",
+        f"/v1/kings/escalations/{petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -340,7 +340,7 @@ async def test_get_decision_package_realm_mismatch(
 
     # Act - Request from wrong realm
     response = client.get(
-        f"/api/v1/escalations/{petition.id}",
+        f"/v1/kings/escalations/{petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -363,7 +363,7 @@ def test_get_decision_package_missing_realm_parameter(client: TestClient) -> Non
     petition_id = uuid4()
 
     # Act - Missing king_realm query parameter
-    response = client.get(f"/api/v1/escalations/{petition_id}")
+    response = client.get(f"/v1/kings/escalations/{petition_id}")
 
     # Assert
     assert response.status_code == 422  # FastAPI validation error
@@ -407,7 +407,7 @@ async def test_get_decision_package_zero_cosigners(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{petition.id}",
+        f"/v1/kings/escalations/{petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -450,7 +450,7 @@ async def test_get_decision_package_high_cosigner_count(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{petition.id}",
+        f"/v1/kings/escalations/{petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -491,7 +491,7 @@ async def test_get_decision_package_anonymous_submitter(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{petition.id}",
+        f"/v1/kings/escalations/{petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -554,14 +554,14 @@ async def test_realm_scoped_access_enforcement(
 
     # Act & Assert - Governance King can access governance petition
     response = client.get(
-        f"/api/v1/escalations/{governance_petition.id}",
+        f"/v1/kings/escalations/{governance_petition.id}",
         params={"king_realm": "governance"},
     )
     assert response.status_code == 200
 
     # Act & Assert - Governance King CANNOT access security petition
     response = client.get(
-        f"/api/v1/escalations/{security_petition.id}",
+        f"/v1/kings/escalations/{security_petition.id}",
         params={"king_realm": "governance"},
     )
     assert response.status_code == 403
@@ -569,7 +569,7 @@ async def test_realm_scoped_access_enforcement(
 
     # Act & Assert - Security King can access security petition
     response = client.get(
-        f"/api/v1/escalations/{security_petition.id}",
+        f"/v1/kings/escalations/{security_petition.id}",
         params={"king_realm": "security"},
     )
     assert response.status_code == 200
@@ -594,7 +594,7 @@ async def test_fr_5_4_complete_escalation_context(
 
     # Act
     response = client.get(
-        f"/api/v1/escalations/{escalated_petition.id}",
+        f"/v1/kings/escalations/{escalated_petition.id}",
         params={"king_realm": "governance"},
     )
 
@@ -643,7 +643,7 @@ async def test_nfr_1_2_endpoint_latency(
     # Act - Multiple requests to check consistency
     for _ in range(10):
         response = client.get(
-            f"/api/v1/escalations/{escalated_petition.id}",
+            f"/v1/kings/escalations/{escalated_petition.id}",
             params={"king_realm": "governance"},
         )
         assert response.status_code == 200

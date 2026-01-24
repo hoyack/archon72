@@ -19,6 +19,7 @@ Architecture:
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
@@ -72,11 +73,31 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         """
         self._session_factory = session_factory
 
+    @asynccontextmanager
+    async def _session_scope(self) -> AsyncSession:
+        """Yield a session without closing externally managed sessions."""
+        session = self._session_factory()
+        if isinstance(session, AsyncSession) and session.in_transaction():
+            yield session
+            return
+        async with session as managed_session:
+            yield managed_session
+
+    @asynccontextmanager
+    async def _transaction_scope(self, session: AsyncSession):
+        """Begin a transaction only if one isn't already active."""
+        if session.in_transaction():
+            yield
+            return
+        async with session.begin():
+            yield
+
     async def schedule(
         self,
         job_type: str,
         payload: dict[str, Any],
-        run_at: datetime,
+        run_at: datetime | None = None,
+        scheduled_for: datetime | None = None,
     ) -> UUID:
         """Schedule a new job for future execution.
 
@@ -86,6 +107,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
             job_type: Type of job (referral_timeout, deliberation_timeout, etc.)
             payload: Job-specific data (petition_id, deadline details, etc.)
             run_at: Timestamp when job should be executed (UTC, timezone-aware)
+            scheduled_for: Alias for run_at (legacy/test callers)
 
         Returns:
             UUID of the newly scheduled job
@@ -93,14 +115,17 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         Raises:
             ValueError: If run_at is not timezone-aware
         """
-        if run_at.tzinfo is None:
+        effective_run_at = run_at if run_at is not None else scheduled_for
+        if effective_run_at is None:
+            raise ValueError("run_at or scheduled_for must be provided")
+        if effective_run_at.tzinfo is None:
             raise ValueError("run_at must be timezone-aware (UTC)")
 
         job_id = uuid4()
         log = logger.bind(job_id=str(job_id), job_type=job_type)
 
-        async with self._session_factory() as session:
-            async with session.begin():
+        async with self._session_scope() as session:
+            async with self._transaction_scope(session):
                 await session.execute(
                     text("""
                         INSERT INTO scheduled_jobs (
@@ -108,7 +133,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
                             attempts, last_attempt_at, status
                         )
                         VALUES (
-                            :id, :job_type, :payload::jsonb, :scheduled_for,
+                            :id, :job_type, CAST(:payload AS jsonb), :scheduled_for,
                             :created_at, 0, NULL, 'pending'
                         )
                     """),
@@ -116,14 +141,14 @@ class PostgresJobScheduler(JobSchedulerProtocol):
                         "id": job_id,
                         "job_type": job_type,
                         "payload": self._serialize_payload(payload),
-                        "scheduled_for": run_at,
+                        "scheduled_for": effective_run_at,
                         "created_at": _utc_now(),
                     },
                 )
 
         log.info(
             "job_scheduled",
-            scheduled_for=run_at.isoformat(),
+            scheduled_for=effective_run_at.isoformat(),
             message="HP-1: Job scheduled for future execution",
         )
         return job_id
@@ -141,8 +166,8 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         """
         log = logger.bind(job_id=str(job_id))
 
-        async with self._session_factory() as session:
-            async with session.begin():
+        async with self._session_scope() as session:
+            async with self._transaction_scope(session):
                 result = await session.execute(
                     text("""
                         DELETE FROM scheduled_jobs
@@ -172,7 +197,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         Returns:
             List of ScheduledJob instances due for execution
         """
-        async with self._session_factory() as session:
+        async with self._session_scope() as session:
             result = await session.execute(
                 text("""
                     SELECT id, job_type, payload, scheduled_for, created_at,
@@ -202,8 +227,8 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         """
         log = logger.bind(job_id=str(job_id))
 
-        async with self._session_factory() as session:
-            async with session.begin():
+        async with self._session_scope() as session:
+            async with self._transaction_scope(session):
                 # Claim job atomically
                 result = await session.execute(
                     text("""
@@ -237,8 +262,8 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         """
         log = logger.bind(job_id=str(job_id))
 
-        async with self._session_factory() as session:
-            async with session.begin():
+        async with self._session_scope() as session:
+            async with self._transaction_scope(session):
                 result = await session.execute(
                     text("""
                         UPDATE scheduled_jobs
@@ -279,8 +304,8 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         """
         log = logger.bind(job_id=str(job_id))
 
-        async with self._session_factory() as session:
-            async with session.begin():
+        async with self._session_scope() as session:
+            async with self._transaction_scope(session):
                 # First, increment attempts and get current state
                 result = await session.execute(
                     text("""
@@ -312,7 +337,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
                                 failure_reason, failed_at, attempts
                             )
                             VALUES (
-                                :id, :original_job_id, :job_type, :payload::jsonb,
+                                :id, :original_job_id, :job_type, CAST(:payload AS jsonb),
                                 :failure_reason, :failed_at, :attempts
                             )
                         """),
@@ -377,7 +402,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         Returns:
             Number of jobs in the dead letter queue
         """
-        async with self._session_factory() as session:
+        async with self._session_scope() as session:
             result = await session.execute(
                 text("SELECT COUNT(*) FROM dead_letter_queue")
             )
@@ -406,7 +431,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         Returns:
             Tuple of (list of DeadLetterJob, total count)
         """
-        async with self._session_factory() as session:
+        async with self._session_scope() as session:
             # Get total count
             count_result = await session.execute(
                 text("SELECT COUNT(*) FROM dead_letter_queue")
@@ -438,7 +463,7 @@ class PostgresJobScheduler(JobSchedulerProtocol):
         Returns:
             The ScheduledJob if found, None otherwise
         """
-        async with self._session_factory() as session:
+        async with self._session_scope() as session:
             result = await session.execute(
                 text("""
                     SELECT id, job_type, payload, scheduled_for, created_at,

@@ -23,10 +23,13 @@ Note: Docker must be running for these fixtures to work.
 
 from __future__ import annotations
 
+import asyncio
 import os
+import re
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
 
+import asyncpg
 import pytest
 import redis.asyncio as aioredis
 from sqlalchemy import text
@@ -41,6 +44,31 @@ from testcontainers.redis import RedisContainer
 REALMS_MIGRATION_FILE = (
     Path(__file__).parent.parent.parent / "migrations" / "015_create_realms_table.sql"
 )
+PETITION_SUBMISSIONS_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent / "migrations" / "012_create_petition_submissions.sql"
+)
+ACK_REASON_ENUM_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent / "migrations" / "021_create_acknowledgment_reason_enum.sql"
+)
+ACK_TABLE_MIGRATION_FILE = (
+    Path(__file__).parent.parent.parent / "migrations" / "022_create_acknowledgments_table.sql"
+)
+ACK_SCHEMA_NAME = "ack_test"
+
+
+def _redis_connection_url(redis_container: RedisContainer) -> str:
+    """Build Redis URL for testcontainers versions lacking get_connection_url."""
+    host = redis_container.get_container_host_ip()
+    port = redis_container.get_exposed_port(6379)
+    return f"redis://{host}:{port}/0"
+
+
+# Backfill missing method in older testcontainers versions.
+if not hasattr(RedisContainer, "get_connection_url"):
+    RedisContainer.get_connection_url = _redis_connection_url  # type: ignore[attr-defined]
+
+_ACK_SCHEMA_READY = False
+_ACK_SCHEMA_LOCK = asyncio.Lock()
 
 
 def _get_sql_echo() -> bool:
@@ -147,6 +175,97 @@ async def db_session(
         if session is not None:
             await session.close()
         await engine.dispose()
+
+
+@pytest.fixture
+async def db_connection(postgres_container: PostgresContainer) -> AsyncGenerator[asyncpg.Connection, None]:
+    """Asyncpg connection for tests expecting fetch/fetchval semantics."""
+    dsn = postgres_container.get_connection_url().replace(
+        "postgresql+psycopg2://", "postgresql://"
+    )
+    conn = await asyncpg.connect(dsn)
+    try:
+        await conn.execute(f"CREATE SCHEMA IF NOT EXISTS {ACK_SCHEMA_NAME}")
+        await conn.execute(f"SET search_path TO {ACK_SCHEMA_NAME}")
+        await _ensure_acknowledgment_schema(conn, ACK_SCHEMA_NAME)
+        yield conn
+    finally:
+        await conn.close()
+
+
+async def _ensure_acknowledgment_schema(
+    conn: asyncpg.Connection, schema_name: str
+) -> None:
+    """Apply migrations needed for acknowledgment integration tests once."""
+    global _ACK_SCHEMA_READY
+    if _ACK_SCHEMA_READY:
+        return
+    async with _ACK_SCHEMA_LOCK:
+        if _ACK_SCHEMA_READY:
+            return
+
+        petition_exists = await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = $1
+                AND table_name = 'petition_submissions'
+            )
+            """,
+            schema_name,
+        )
+        if not petition_exists:
+            await conn.execute(PETITION_SUBMISSIONS_MIGRATION_FILE.read_text())
+
+        enum_exists = await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM pg_type
+                JOIN pg_namespace ON pg_namespace.oid = pg_type.typnamespace
+                WHERE pg_type.typname = 'acknowledgment_reason_enum'
+                AND pg_namespace.nspname = $1
+            )
+            """,
+            schema_name,
+        )
+        if not enum_exists:
+            await conn.execute(ACK_REASON_ENUM_MIGRATION_FILE.read_text())
+        else:
+            value_exists = await conn.fetchval(
+                """
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM pg_enum
+                    JOIN pg_type ON pg_enum.enumtypid = pg_type.oid
+                    JOIN pg_namespace ON pg_namespace.oid = pg_type.typnamespace
+                    WHERE pg_type.typname = 'acknowledgment_reason_enum'
+                    AND pg_enum.enumlabel = 'KNIGHT_REFERRAL'
+                    AND pg_namespace.nspname = $1
+                )
+                """,
+                schema_name,
+            )
+            if not value_exists:
+                await conn.execute(
+                    f"ALTER TYPE {schema_name}.acknowledgment_reason_enum "
+                    "ADD VALUE IF NOT EXISTS 'KNIGHT_REFERRAL'"
+                )
+
+        ack_exists = await conn.fetchval(
+            """
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = $1
+                AND table_name = 'acknowledgments'
+            )
+            """,
+            schema_name,
+        )
+        if not ack_exists:
+            await conn.execute(ACK_TABLE_MIGRATION_FILE.read_text())
+
+        _ACK_SCHEMA_READY = True
 
 
 @pytest.fixture(scope="session")
@@ -298,3 +417,99 @@ class IntegrationTestBase:
                 await db_session.execute(text(cleaned))
         await db_session.flush()
         self.client = SupabaseClientStub(db_session)
+
+
+_PLACEHOLDER_RE = re.compile(r"%s")
+
+
+def _convert_placeholders(query: str) -> str:
+    """Convert psycopg-style %s placeholders to asyncpg $1 format."""
+    parts = _PLACEHOLDER_RE.split(query)
+    if len(parts) == 1:
+        return query
+    rebuilt: list[str] = []
+    for index, part in enumerate(parts[:-1], start=1):
+        rebuilt.append(part)
+        rebuilt.append(f"${index}")
+    rebuilt.append(parts[-1])
+    return "".join(rebuilt)
+
+
+def _is_select_query(query: str) -> bool:
+    stripped = query.lstrip().upper()
+    return stripped.startswith("SELECT") or stripped.startswith("WITH")
+
+
+class AsyncpgSyncCursor:
+    """Sync cursor facade over asyncpg for legacy-style tests."""
+
+    def __init__(self, connection: AsyncpgSyncConnection) -> None:
+        self._connection = connection
+        self._rows: list[tuple] = []
+
+    def __enter__(self) -> AsyncpgSyncCursor:
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self._rows = []
+
+    def execute(self, query: str, params: tuple | list | None = None) -> None:
+        sql = _convert_placeholders(query)
+        values = tuple(params) if params is not None else ()
+        if _is_select_query(sql):
+            rows = self._connection._run(self._connection._conn.fetch(sql, *values))
+            self._rows = [tuple(row) for row in rows]
+        else:
+            self._connection._run(self._connection._conn.execute(sql, *values))
+            self._rows = []
+
+    def fetchone(self) -> tuple | None:
+        if not self._rows:
+            return None
+        return self._rows.pop(0)
+
+    def fetchall(self) -> list[tuple]:
+        rows = list(self._rows)
+        self._rows = []
+        return rows
+
+
+class AsyncpgSyncConnection:
+    """Minimal sync connection wrapper backed by asyncpg."""
+
+    def __init__(self, dsn: str) -> None:
+        self._loop = asyncio.new_event_loop()
+        self._conn = self._loop.run_until_complete(asyncpg.connect(dsn))
+
+    def _run(self, coro):
+        return self._loop.run_until_complete(coro)
+
+    def cursor(self) -> AsyncpgSyncCursor:
+        return AsyncpgSyncCursor(self)
+
+    def commit(self) -> None:
+        # asyncpg autocommits outside explicit transactions
+        return None
+
+    def rollback(self) -> None:
+        # No explicit transaction scope in this sync wrapper
+        return None
+
+    def close(self) -> None:
+        self._loop.run_until_complete(self._conn.close())
+        self._loop.close()
+
+
+@pytest.fixture
+def test_database_connection(
+    postgres_container: PostgresContainer,
+) -> Generator[AsyncpgSyncConnection, None, None]:
+    """Sync-style database connection backed by asyncpg for legacy tests."""
+    dsn = postgres_container.get_connection_url().replace(
+        "postgresql+psycopg2://", "postgresql://"
+    )
+    conn = AsyncpgSyncConnection(dsn)
+    try:
+        yield conn
+    finally:
+        conn.close()

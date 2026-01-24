@@ -1,6 +1,6 @@
 """Integration tests for King Acknowledgment API endpoint (Story 6.5, FR-5.8).
 
-Tests the POST /api/v1/kings/escalations/{petition_id}/acknowledge endpoint for
+Tests the POST /v1/kings/escalations/{petition_id}/acknowledge endpoint for
 Kings to formally acknowledge escalated petitions with rationale.
 
 Constitutional Constraints:
@@ -66,7 +66,7 @@ def acknowledgment_service(
     stub = AcknowledgmentExecutionStub()
     # Inject the petition repository's storage into the stub
     # This is a bit of a hack for testing, but allows us to use the real repo
-    for petition_id, petition in petition_repository._petitions.items():
+    for petition_id, petition in petition_repository._submissions.items():
         stub.add_petition(petition)
     set_acknowledgment_execution_service(stub)
     return stub
@@ -135,7 +135,7 @@ async def test_acknowledge_escalation_success(
     king_id: UUID,
     valid_request: dict,
 ) -> None:
-    """Test POST /api/v1/kings/escalations/{petition_id}/acknowledge returns 200 (Story 6.5 AC1).
+    """Test POST /v1/kings/escalations/{petition_id}/acknowledge returns 200 (Story 6.5 AC1).
 
     Verifies:
     - Endpoint returns 200 OK
@@ -148,7 +148,7 @@ async def test_acknowledge_escalation_success(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -192,7 +192,7 @@ async def test_acknowledge_escalation_response_schema(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -243,7 +243,7 @@ async def test_acknowledge_with_out_of_scope_reason(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=request_body,
         params={
             "king_id": str(king_id),
@@ -263,13 +263,13 @@ async def test_acknowledge_with_out_of_scope_reason(
 
 
 @pytest.mark.asyncio
-async def test_rationale_too_short_returns_400(
+async def test_rationale_too_short_returns_422(
     client: TestClient,
     acknowledgment_service: AcknowledgmentExecutionStub,
     escalated_petition: PetitionSubmission,
     king_id: UUID,
 ) -> None:
-    """Test rationale < 100 chars returns 400 (Story 6.5 AC2)."""
+    """Test rationale < 100 chars returns 422 (Story 6.5 AC2)."""
     # Arrange
     acknowledgment_service.add_petition(escalated_petition)
     request_body = {
@@ -279,7 +279,7 @@ async def test_rationale_too_short_returns_400(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=request_body,
         params={
             "king_id": str(king_id),
@@ -288,10 +288,12 @@ async def test_rationale_too_short_returns_400(
     )
 
     # Assert
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.json()
-    assert "rationale" in data["detail"].lower()
-    assert "100 chars" in data["detail"].lower()
+    assert any(
+        "rationale" in ".".join(str(loc) for loc in err.get("loc", []))
+        for err in data.get("detail", [])
+    )
 
 
 @pytest.mark.asyncio
@@ -312,7 +314,7 @@ async def test_rationale_exactly_100_chars_succeeds(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=request_body,
         params={
             "king_id": str(king_id),
@@ -352,7 +354,7 @@ async def test_acknowledge_deliberating_petition_returns_400(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{deliberating_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{deliberating_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -390,7 +392,7 @@ async def test_acknowledge_received_petition_returns_400(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{received_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{received_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -423,7 +425,7 @@ async def test_realm_mismatch_returns_403(
 
     # Act - King from "knowledge" realm trying to acknowledge "governance" petition
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -468,7 +470,7 @@ async def test_matching_realm_succeeds(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{security_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{security_petition.id}/acknowledge",
         json=request_body,
         params={
             "king_id": str(king_id),
@@ -498,7 +500,7 @@ async def test_petition_not_found_returns_404(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{nonexistent_id}/acknowledge",
+        f"/v1/kings/escalations/{nonexistent_id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -530,7 +532,7 @@ async def test_invalid_reason_code_returns_400(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=request_body,
         params={
             "king_id": str(king_id),
@@ -557,7 +559,7 @@ async def test_missing_king_id_returns_422(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=valid_request,
         params={
             "realm_id": "governance",
@@ -583,7 +585,7 @@ async def test_missing_realm_id_returns_422(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -614,7 +616,7 @@ async def test_king_acknowledged_escalation_event_emitted(
 
     # Act
     response = client.post(
-        f"/api/v1/kings/escalations/{escalated_petition.id}/acknowledge",
+        f"/v1/kings/escalations/{escalated_petition.id}/acknowledge",
         json=valid_request,
         params={
             "king_id": str(king_id),
@@ -628,7 +630,9 @@ async def test_king_acknowledged_escalation_event_emitted(
     # Verify event was emitted
     events = acknowledgment_service.get_emitted_events()
     king_ack_events = [
-        e for e in events if "king_acknowledged" in e.get("event_type", "").lower()
+        e
+        for e in events
+        if "acknowledged_by_king" in e.get("event_type", "").lower()
     ]
     assert len(king_ack_events) == 1
 

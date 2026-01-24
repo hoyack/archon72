@@ -212,3 +212,58 @@ class RealmMismatchError(PetitionError):
             or f"Realm mismatch: petition realm={expected_realm}, king realm={actual_realm}"
         )
         super().__init__(f"RULING-3: {error_msg}")
+
+
+class PetitionSubmissionNotFoundError(PetitionError):
+    """Raised when a petition submission cannot be found (Story 6.2, FR-5.5).
+
+    Constitutional Constraint (FR-5.5):
+    Decision packages require petition submission data. This error indicates
+    that the petition submission record for an escalated petition is missing.
+
+    Attributes:
+        petition_id: The petition ID whose submission was not found.
+        message: Optional detailed error message.
+    """
+
+    def __init__(self, petition_id: str, message: str | None = None) -> None:
+        """Initialize the error.
+
+        Args:
+            petition_id: The petition ID whose submission was not found.
+            message: Optional detailed error message.
+        """
+        self.petition_id = petition_id
+        error_msg = message or f"Petition submission not found for petition: {petition_id}"
+        super().__init__(f"FR-5.5: {error_msg}")
+
+
+class UnauthorizedWithdrawalError(PetitionError):
+    """Raised when non-submitter attempts to withdraw a petition (Story 7.3, FR-7.5).
+
+    Constitutional Constraint (FR-7.5):
+    Only the original petitioner (submitter) can withdraw their petition.
+    Anonymous petitions cannot be withdrawn as there is no way to verify identity.
+
+    This error is raised when:
+    - The requester's ID does not match the petition's submitter_id
+    - The petition has no submitter_id (anonymous petition)
+
+    Attributes:
+        petition_id: The petition ID that was attempted to be withdrawn.
+        message: Optional detailed error message.
+    """
+
+    def __init__(self, petition_id: str, message: str | None = None) -> None:
+        """Initialize the error.
+
+        Args:
+            petition_id: The petition ID that was attempted to be withdrawn.
+            message: Optional detailed error message.
+        """
+        self.petition_id = petition_id
+        error_msg = (
+            message
+            or f"Only the original petitioner can withdraw petition {petition_id}"
+        )
+        super().__init__(f"FR-7.5: {error_msg}")

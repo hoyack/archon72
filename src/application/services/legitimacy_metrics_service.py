@@ -276,7 +276,7 @@ class LegitimacyMetricsService(LegitimacyMetricsProtocol):
 
         query = """
             SELECT
-                petition_id,
+                id,
                 state,
                 created_at,
                 updated_at,

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from src.application.ports.content_hash_service import ContentHashServiceProtocol
 from src.application.ports.halt_checker import HaltChecker
+from src.application.ports.petition_event_emitter import PetitionEventEmitterPort
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
 )
@@ -12,6 +13,7 @@ from src.application.ports.realm_registry import RealmRegistryProtocol
 from src.application.services.content_hash_service import Blake3ContentHashService
 from src.config.petition_config import PetitionQueueConfig, PetitionRateLimitConfig
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
+from src.infrastructure.stubs.petition_event_emitter_stub import PetitionEventEmitterStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
@@ -25,6 +27,7 @@ _halt_checker: HaltChecker | None = None
 _petition_queue_config: PetitionQueueConfig | None = None
 _rate_limiter: RateLimiterPort | None = None
 _rate_limit_config: PetitionRateLimitConfig | None = None
+_event_emitter: PetitionEventEmitterPort | None = None
 
 
 def get_petition_submission_repository() -> PetitionSubmissionRepositoryProtocol:
@@ -96,6 +99,7 @@ def reset_petition_submission_dependencies() -> None:
     global _petition_queue_config
     global _rate_limiter
     global _rate_limit_config
+    global _event_emitter
 
     _petition_submission_repository = None
     _content_hash_service = None
@@ -104,6 +108,7 @@ def reset_petition_submission_dependencies() -> None:
     _petition_queue_config = None
     _rate_limiter = None
     _rate_limit_config = None
+    _event_emitter = None
 
 
 def set_petition_submission_repository(
@@ -142,3 +147,17 @@ def set_rate_limit_config(config: PetitionRateLimitConfig) -> None:
     """Set custom rate limit config for testing."""
     global _rate_limit_config
     _rate_limit_config = config
+
+
+def get_event_emitter() -> PetitionEventEmitterPort:
+    """Get event emitter instance for petition lifecycle events."""
+    global _event_emitter
+    if _event_emitter is None:
+        _event_emitter = PetitionEventEmitterStub()
+    return _event_emitter
+
+
+def set_event_emitter(emitter: PetitionEventEmitterPort) -> None:
+    """Set custom event emitter for testing."""
+    global _event_emitter
+    _event_emitter = emitter

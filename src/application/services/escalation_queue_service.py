@@ -167,9 +167,11 @@ class EscalationQueueService:
         # This would use a new repository method: list_escalated_by_realm()
         # For now, we'll use list_by_state and filter in-memory
         # TODO: Add list_escalated_by_realm() to repository for efficiency
+        # Fetch a larger window to allow in-memory keyset pagination with stubbed repositories.
+        fetch_limit = max(limit + 1, MAX_LIMIT + 1)
         escalated_petitions, _ = await self._petition_repo.list_by_state(
             state=PetitionState.ESCALATED,
-            limit=limit + 1,  # Fetch one extra to determine has_more
+            limit=fetch_limit,
             offset=0,
         )
 
@@ -252,7 +254,7 @@ class EscalationQueueService:
         """
         try:
             decoded = base64.b64decode(cursor).decode("utf-8")
-            time_str, id_str = decoded.split(":", 1)
+            time_str, id_str = decoded.rsplit(":", 1)
             escalated_at = datetime.fromisoformat(time_str)
             petition_id = UUID(id_str)
             return escalated_at, petition_id

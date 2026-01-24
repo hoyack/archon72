@@ -96,7 +96,7 @@ class TestTimeoutServiceJobWorkerIntegration:
 
         # Schedule then cancel
         session = _create_test_session()
-        await timeout_service.schedule_timeout(session)
+        scheduled_session = await timeout_service.schedule_timeout(session)
         job_id = scheduled_session.timeout_job_id
         await timeout_service.cancel_timeout(scheduled_session)
 
@@ -123,7 +123,7 @@ class TestTimeoutEndToEndFlow:
         session = _create_test_session()
 
         # Schedule timeout at deliberation start
-        await timeout_service.schedule_timeout(session)
+        scheduled_session = await timeout_service.schedule_timeout(session)
         assert scheduled_session.has_timeout_scheduled
 
         # Verify job exists

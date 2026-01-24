@@ -45,9 +45,9 @@ class TestLegitimacyMetricsComputationIntegration:
                 cursor.execute(
                     """
                     INSERT INTO petition_submissions (
-                        petition_id,
-                        petition_type,
-                        petition_text,
+                        id,
+                        type,
+                        text,
                         submitter_id,
                         state,
                         content_hash,
@@ -76,9 +76,9 @@ class TestLegitimacyMetricsComputationIntegration:
                 cursor.execute(
                     """
                     INSERT INTO petition_submissions (
-                        petition_id,
-                        petition_type,
-                        petition_text,
+                        id,
+                        type,
+                        text,
                         submitter_id,
                         state,
                         content_hash,
@@ -142,9 +142,9 @@ class TestLegitimacyMetricsComputationIntegration:
                 cursor.execute(
                     """
                     INSERT INTO petition_submissions (
-                        petition_id,
-                        petition_type,
-                        petition_text,
+                        id,
+                        type,
+                        text,
                         submitter_id,
                         state,
                         content_hash,
@@ -245,9 +245,9 @@ class TestLegitimacyMetricsComputationIntegration:
                 cursor.execute(
                     """
                     INSERT INTO petition_submissions (
-                        petition_id,
-                        petition_type,
-                        petition_text,
+                        id,
+                        type,
+                        text,
                         submitter_id,
                         state,
                         content_hash,
@@ -305,18 +305,65 @@ def test_db(test_database_connection):
             """
         )
 
-        # Ensure petition_submissions table exists (from earlier migrations)
+        # Ensure petition_submissions enum types exist
+        cursor.execute(
+            """
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_type t
+                    JOIN pg_namespace n ON n.oid = t.typnamespace
+                    WHERE t.typname = 'petition_type_enum'
+                      AND n.nspname = current_schema()
+                ) THEN
+                    CREATE TYPE petition_type_enum AS ENUM (
+                        'GENERAL',
+                        'CESSATION',
+                        'GRIEVANCE',
+                        'COLLABORATION'
+                    );
+                END IF;
+            END $$;
+            """
+        )
+        cursor.execute(
+            """
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_type t
+                    JOIN pg_namespace n ON n.oid = t.typnamespace
+                    WHERE t.typname = 'petition_state_enum'
+                      AND n.nspname = current_schema()
+                ) THEN
+                    CREATE TYPE petition_state_enum AS ENUM (
+                        'RECEIVED',
+                        'DELIBERATING',
+                        'ACKNOWLEDGED',
+                        'REFERRED',
+                        'ESCALATED'
+                    );
+                END IF;
+            END $$;
+            """
+        )
+
+        # Ensure petition_submissions table exists (align with migration)
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS petition_submissions (
-                petition_id UUID PRIMARY KEY,
-                petition_type TEXT NOT NULL,
-                petition_text TEXT NOT NULL,
-                submitter_id UUID NOT NULL,
-                state TEXT NOT NULL,
-                content_hash BYTEA NOT NULL,
+                id UUID PRIMARY KEY,
+                type petition_type_enum NOT NULL,
+                text TEXT NOT NULL,
+                submitter_id UUID,
+                state petition_state_enum NOT NULL DEFAULT 'RECEIVED',
+                content_hash BYTEA,
+                realm TEXT NOT NULL DEFAULT 'default',
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                CONSTRAINT petition_text_length CHECK (char_length(text) <= 10000)
             )
             """
         )

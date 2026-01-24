@@ -97,11 +97,9 @@ async def _create_job_queue_schema(session: AsyncSession) -> None:
             original_job_id UUID NOT NULL,
             job_type VARCHAR(100) NOT NULL,
             payload JSONB NOT NULL DEFAULT '{}',
-            scheduled_for TIMESTAMPTZ NOT NULL,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-            moved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-            attempts INTEGER NOT NULL,
-            failure_reason TEXT NOT NULL
+            failure_reason TEXT NOT NULL,
+            failed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            attempts INTEGER NOT NULL
         )
         """)
     )
@@ -115,7 +113,7 @@ async def _create_job_queue_schema(session: AsyncSession) -> None:
         """)
     )
 
-    await session.commit()
+    await session.flush()
 
 
 @pytest.fixture

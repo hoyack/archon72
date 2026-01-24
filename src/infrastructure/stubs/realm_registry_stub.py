@@ -120,6 +120,16 @@ class RealmRegistryStub(RealmRegistryProtocol):
 
     # Protocol implementation
 
+    def register_realm(self, realm: Realm) -> None:
+        """Register a realm in the registry (test helper)."""
+        self._realms[realm.id] = realm
+        self._realms_by_name[realm.name] = realm
+        self._record_operation(
+            "register_realm",
+            {"realm_id": str(realm.id), "name": realm.name},
+            realm,
+        )
+
     def get_realm_by_id(self, realm_id: UUID) -> Realm | None:
         """Retrieve a realm by its UUID."""
         result = self._realms.get(realm_id)

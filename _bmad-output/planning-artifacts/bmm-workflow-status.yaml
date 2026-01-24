@@ -135,17 +135,12 @@ workflow_status:
       completed: "2026-01-17"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CURRENT WORK IN PROGRESS (2026-01-22)
+# MILESTONE: ALL PETITION SYSTEM EPICS COMPLETE (2026-01-22)
 # ═══════════════════════════════════════════════════════════════════════════════
 current_work:
-  epic: "Petition Epic 8: Legitimacy Metrics & Governance (P1)"
-  status: ready
-
-  completed_epic: "Petition Epic 6: King Escalation & Adoption Bridge (6/6 stories DONE)"
-
-  current_story: null
-  current_story_status: null
-  story_file: null
+  epic: null
+  status: complete
+  completed: "2026-01-22"
 
   completed_epics:
     - petition-epic-0
@@ -156,49 +151,13 @@ current_work:
     - petition-epic-4
     - petition-epic-5
     - petition-epic-6
+    - petition-epic-7
+    - petition-epic-8
 
-  available_next_epics:
-    - name: "Petition Epic 7: Observer Engagement (P2)"
-      priority: P2
-      stories: 6
-      note: "Lower priority - Status tokens, notifications, withdrawal, transcript access"
-    - name: "Petition Epic 8: Legitimacy Metrics & Governance (P1)"
-      priority: P1
-      stories: 7
-      note: "Higher priority - Decay metrics, alerting, orphan detection, dashboard, META routing"
-    - petition-5-1-co-sign-domain-model-schema
-    - petition-5-2-co-sign-submission-endpoint
-    - petition-5-3-identity-verification-for-co-sign
-    - petition-5-4-sybil-1-rate-limiting
-    - petition-5-5-escalation-threshold-checking
-    - petition-5-6-auto-escalation-execution
-    - petition-5-7-co-signer-deduplication-enforcement
-    - petition-5-8-co-signer-count-scalability
-    - petition-2b-1-dissent-recording-service
-    - petition-2b-2-deliberation-timeout-enforcement
-    - petition-2b-3-deadlock-detection-auto-escalation
-    - petition-2b-4-archon-substitution-on-failure
-    - petition-2b-5-transcript-preservation-hash-referencing
-    - petition-2b-6-audit-trail-reconstruction
-    - petition-2b-7-deliberation-load-testing-harness
-    - petition-2b-8-deliberation-chaos-testing
-    - petition-3-1-acknowledgment-reason-code-enumeration
-    - petition-3-2-acknowledgment-execution-service
-    - petition-3-3-rationale-requirement-enforcement
-    - petition-3-4-duplicate-petition-reference
-    - petition-3-5-minimum-dwell-time-enforcement
-    - petition-3-6-acknowledgment-rate-metrics
-    - petition-4-1-referral-domain-model-schema
-    - petition-4-2-referral-execution-service
-    - petition-4-3-knight-decision-package
-    - petition-4-4-knight-recommendation-submission
-    - petition-4-5-extension-request-handling
-    - petition-4-6-referral-timeout-auto-acknowledge
-    - petition-4-7-knight-concurrent-referral-limit
-
+  available_next_epics: []
   backlog: []
 
-  note: "Epic 6 COMPLETE (6/6 stories). All adoption & escalation features implemented. Migration 029 enforces immutability. Next: Epic 7 (Observer Engagement) or Epic 8 (Legitimacy Metrics)."
+  note: "ALL PETITION SYSTEM EPICS COMPLETE (0-8). 71 stories implemented. Full Three Fates deliberation system operational."
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PETITION SYSTEM EPICS (from petition-system-epics.md)
@@ -654,26 +613,44 @@ petition_system:
   petition-epic-7:
     name: "Observer Engagement"
     priority: P2
-    status: backlog
+    status: done
+    completed: "2026-01-22"
     stories:
       - id: petition-7-1-status-token-for-long-poll
         name: "Status Token for Long-Poll"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-7-1-status-token-for-long-poll.md"
+        note: "FR-7.2, NFR-1.3, CT-12 - Status token domain model, long-poll endpoint, 54 tests passing (11 unit + 12 integration + 31 domain)"
       - id: petition-7-2-fate-assignment-notification
         name: "Fate Assignment Notification"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-7-2-fate-assignment-notification.md"
+        note: "FR-7.3, CT-12, AC1-AC4 - NotificationPreference domain, FateNotificationService, webhook adapter, Prometheus metrics, 122 tests passing"
       - id: petition-7-3-petition-withdrawal
         name: "Petition Withdrawal"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-7-3-petition-withdrawal.md"
+        note: "FR-7.5, CT-12, CT-13 - Withdrawal endpoint, 86 tests passing"
       - id: petition-7-4-transcript-access-mediation-service
         name: "Transcript Access Mediation Service"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-7-4-transcript-access-mediation-service.md"
+        note: "Ruling-2, CT-12 - Mediated transcript access, 47 tests passing"
       - id: petition-7-5-phase-summary-generation
         name: "Phase Summary Generation"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-7-5-phase-summary-generation.md"
+        note: "FR-7.4, Ruling-2, AC-1 to AC-7 - PhaseSummaryGenerationService, protocol, stub, 50 unit + 6 integration tests passing"
       - id: petition-7-6-governance-transcript-access-elevated
         name: "Governance Transcript Access (Elevated)"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        note: "Ruling-2, CT-12 - Elevated transcript access for HIGH_ARCHON and AUDITOR roles, RFC 7807 compliant errors, 30 tests passing"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Petition Epic 8: Legitimacy Metrics & Governance (P1)
@@ -683,29 +660,43 @@ petition_system:
   petition-epic-8:
     name: "Legitimacy Metrics & Governance"
     priority: P1
-    status: backlog
+    status: done
+    completed: "2026-01-22"
     stories:
       - id: petition-8-1-legitimacy-decay-metric-computation
         name: "Legitimacy Decay Metric Computation"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
       - id: petition-8-2-legitimacy-decay-alerting
         name: "Legitimacy Decay Alerting"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
       - id: petition-8-3-orphan-petition-detection
         name: "Orphan Petition Detection"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
       - id: petition-8-4-high-archon-legitimacy-dashboard
         name: "High Archon Legitimacy Dashboard"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
       - id: petition-8-5-meta-petition-routing
         name: "META Petition Routing"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-8-5-meta-petition-routing.md"
+        note: "FR-10.4, META-1, CT-12, CT-13 - META petition type, High Archon queue, routing/resolution services, 97 tests passing"
       - id: petition-8-6-adoption-ratio-monitoring-prevent-7
         name: "Adoption Ratio Monitoring (Prevent §7)"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-8-6-adoption-ratio-monitoring.md"
+        note: "PREVENT-7, ASM-7, CT-11, CT-12, ADR-P4 - Domain models, services, API, migration 034, Prometheus metrics, 84 tests passing"
       - id: petition-8-7-realm-health-aggregate
         name: "Realm Health Aggregate"
-        status: backlog
+        status: done
+        completed: "2026-01-22"
+        story_file: "_bmad-output/implementation-artifacts/stories/petition-8-7-realm-health-aggregate.md"
+        note: "FR-8.1, HP-7, CT-11, CT-12 - RealmHealth domain model, compute service, API endpoints, migration 035, Prometheus metrics, 63 tests passing"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MILESTONE: ALL CONSENT-GOV EPICS COMPLETE (2026-01-17)

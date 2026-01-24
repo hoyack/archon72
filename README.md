@@ -51,6 +51,10 @@
 - [Integration Testing](#integration-testing)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
+- [Petition System](#petition-system)
+  - [How a Petition is Received](#how-a-petition-is-received)
+  - [Three Fates Deliberation](#three-fates-deliberation)
+  - [Co-Signing & Auto-Escalation](#co-signing--auto-escalation)
 
 ## Overview
 
@@ -1934,6 +1938,255 @@ A story is not "done" until all of the following are satisfied:
 - [ ] N/A - no documentation impact
 
 > **Team Agreement (Gov Epic 8 Retrospective):** Story not "done" until documentation reflects the change.
+
+## Petition System
+
+The Petition System enables external observers to submit grievances, proposals, and cessation requests that are deliberated by the **Three Fates** - a mini-Conclave of three Archons who determine the petition's fate through structured deliberation.
+
+### Petition System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PETITION SYSTEM ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  [External Submitter]                                                        │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                      PETITION INTAKE (Epic 1)                         │   │
+│  │  POST /v1/petitions → Validate → Hash → Rate Check → Queue Check     │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                    STATE MACHINE (Epic 1)                             │   │
+│  │  RECEIVED → PENDING_DELIBERATION → DELIBERATING → [FATE]             │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                 THREE FATES DELIBERATION (Epic 2A/2B)                 │   │
+│  │  3 Archons assigned → 4-phase protocol → Supermajority consensus     │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│         │                                                                    │
+│         ├─────────────────┬─────────────────┬─────────────────┐             │
+│         ▼                 ▼                 ▼                 ▼             │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐     │
+│  │ ACKNOWLEDGE │   │    REFER    │   │  ESCALATE   │   │   ADOPTED   │     │
+│  │  (Epic 3)   │   │  (Epic 4)   │   │  (Epic 5-6) │   │  (Epic 6)   │     │
+│  │             │   │             │   │             │   │             │     │
+│  │ Terminal    │   │ To Knight   │   │ To King     │   │ Creates     │     │
+│  │ with reason │   │ for review  │   │ queue       │   │ Motion      │     │
+│  └─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### How a Petition is Received
+
+The petition intake flow implements defense-in-depth with multiple validation gates:
+
+```
+POST /v1/petitions
+       │
+       ▼
+┌──────────────────┐
+│ 1. SCHEMA GATE   │  Pydantic validation (petition_type, content, submitter_id)
+│    400 Bad Req   │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 2. HALT GATE     │  HaltGuard check - is system in emergency halt?
+│    503 Halted    │  (FR-1.6, CT-11)
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 3. RATE LIMIT    │  Sliding window per submitter (FR-1.5)
+│    429 Too Many  │  Default: 10 petitions/hour
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 4. QUEUE CHECK   │  Is deliberation queue at capacity? (FR-1.4, NFR-3.1)
+│    503 + Retry   │  Returns Retry-After header with hysteresis
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 5. CONTENT HASH  │  BLAKE3 hash for duplicate detection (HP-2)
+│    Dedupe check  │  Story 0.5: Content Hashing Service
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 6. PERSIST       │  Atomic write to PostgreSQL
+│    State=RECEIVED│  Petition aggregate with state machine
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 7. EVENT EMIT    │  Two-phase: PetitionReceived.intent → .committed
+│    CT-12, CT-13  │  Graceful degradation if event bus fails
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 8. RESPONSE      │  Return petition_id for tracking
+│    201 Created   │  Client can poll /v1/petitions/{id}/status
+└──────────────────┘
+```
+
+### Petition Intake API
+
+**Submit Petition:**
+```bash
+curl -X POST http://localhost:8000/v1/petitions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "petition_type": "GRIEVANCE",
+    "content": "Request for review of decision...",
+    "submitter_id": "observer-123",
+    "realm": "ETHICS"
+  }'
+```
+
+**Response (201 Created):**
+```json
+{
+  "petition_id": "pet-uuid-here",
+  "status": "RECEIVED",
+  "content_hash": "blake3:abc123...",
+  "submitted_at": "2026-01-22T18:00:00Z"
+}
+```
+
+**Check Status:**
+```bash
+curl http://localhost:8000/v1/petitions/pet-uuid-here/status
+```
+
+**Response:**
+```json
+{
+  "petition_id": "pet-uuid-here",
+  "status": "DELIBERATING",
+  "co_signer_count": 47,
+  "assigned_archons": ["Archon-A", "Archon-B", "Archon-C"],
+  "fate_reason": null
+}
+```
+
+### Petition Types
+
+| Type | Description | Escalation Threshold |
+|------|-------------|---------------------|
+| `GRIEVANCE` | Complaint about system behavior | 50 co-signers |
+| `CESSATION` | Request to halt an Archon | 100 co-signers |
+| `PROPOSAL` | Suggestion for improvement | 50 co-signers |
+| `META` | Petition about the petition system | Routes to High Archon |
+
+### Petition States
+
+```
+RECEIVED ──────────────────────────────────────────────────────────────┐
+    │                                                                   │
+    ▼                                                                   │
+PENDING_DELIBERATION ─────────────────────────────────────────────────┐│
+    │                                                                  ││
+    ▼                                                                  ││
+DELIBERATING ─────────────────────────────────────────────────────────┐││
+    │                                                                 │││
+    ├──▶ ACKNOWLEDGED (terminal - with reason code)                   │││
+    │                                                                 │││
+    ├──▶ REFERRED (to Knight for review)                              │││
+    │         │                                                       │││
+    │         ▼                                                       │││
+    │    PENDING_KNIGHT_DECISION                                      │││
+    │         │                                                       │││
+    │         ├──▶ ACKNOWLEDGED (Knight decision)                     │││
+    │         └──▶ ESCALATED (Knight escalates to King)               │││
+    │                                                                 │││
+    ├──▶ ESCALATED (to King queue)                                    │││
+    │         │                                                       │││
+    │         ▼                                                       │││
+    │    PENDING_KING_DECISION                                        │││
+    │         │                                                       │││
+    │         ├──▶ ACKNOWLEDGED (King decision)                       │││
+    │         └──▶ ADOPTED (creates Motion in Conclave)               │││
+    │                                                                 │││
+    └──▶ WITHDRAWN (submitter withdrawal)                             │││
+                                                                      │││
+    ◄─────────────────── Auto-escalate if threshold met ──────────────┘││
+    ◄─────────────────── Timeout auto-acknowledge ─────────────────────┘│
+    ◄─────────────────── Halt state if system halted ───────────────────┘
+```
+
+### Three Fates Deliberation
+
+When a petition enters `DELIBERATING` state, three Archons are deterministically assigned to form a mini-Conclave:
+
+| Phase | Description | Output |
+|-------|-------------|--------|
+| **1. Context** | Build deliberation context package | SHA-256 hash |
+| **2. Discuss** | Archons analyze petition merit | Discussion transcript |
+| **3. Vote** | Each Archon votes on disposition | 3 votes |
+| **4. Resolve** | Supermajority (2/3) determines fate | ACKNOWLEDGE/REFER/ESCALATE |
+
+**Consensus Rules:**
+- 3-0 unanimous: Immediate disposition
+- 2-1 majority: Disposition with recorded dissent (FR-11.8)
+- Deadlock after 3 rounds: Auto-ESCALATE (FR-11.10)
+- Timeout (5 min): Auto-ESCALATE (FR-11.9)
+
+### Co-Signing & Auto-Escalation
+
+Petitions can gather co-signers to demonstrate community support:
+
+```bash
+# Co-sign a petition
+curl -X POST http://localhost:8000/v1/petitions/pet-uuid/co-sign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "signer_id": "observer-456",
+    "statement": "I support this petition"
+  }'
+```
+
+**Auto-Escalation:** When co-signer count reaches threshold, the petition bypasses normal deliberation and escalates directly to King queue (FR-5.1, FR-5.2).
+
+**SYBIL-1 Protection:** Rate limiting per signer (50 co-signs/hour) prevents Sybil attacks (FR-6.6).
+
+### Petition System Epics
+
+| Epic | Name | Priority | Stories | Key Capabilities |
+|------|------|----------|---------|------------------|
+| 0 | Foundation & Migration | P0 | 7 | Domain models, BLAKE3 hashing, realm routing |
+| 1 | Petition Intake & State Machine | P0 | 8 | REST API, rate limiting, queue protection, state machine |
+| 2A | Core Deliberation Protocol | P0-CRITICAL | 8 | Three Fates, 4-phase protocol, supermajority |
+| 2B | Deliberation Edge Cases | P0 | 8 | Timeouts, deadlock, substitution, audit trail |
+| 3 | Acknowledgment Execution | P1 | 6 | Reason codes, rationale, dwell time |
+| 4 | Knight Referral Workflow | P1 | 7 | Referral domain, decision packages, extensions |
+| 5 | Co-signing & Auto-Escalation | P0 | 8 | Co-sign, SYBIL-1, threshold detection |
+| 6 | King Escalation & Adoption | P0 | 6 | King queue, adoption creates Motion |
+| 7 | Observer Engagement | P2 | 6 | Status tokens, notifications, withdrawal |
+| 8 | Legitimacy Metrics | P1 | 7 | Decay metrics, orphan detection, realm health |
+| **Total** | | | **71** | |
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/api/routes/petition.py` | REST endpoints for petition submission |
+| `src/api/models/petition_submission.py` | Pydantic request/response models |
+| `src/application/services/petition_submission_service.py` | Intake orchestration |
+| `src/domain/models/petition_submission.py` | Petition aggregate with state machine |
+| `src/domain/models/deliberation_session.py` | Three Fates deliberation model |
+| `src/application/services/deliberation_protocol_orchestrator.py` | 4-phase protocol |
+| `src/application/services/co_sign_service.py` | Co-signing with SYBIL protection |
+| `src/application/services/escalation_threshold_service.py` | Auto-escalation detection |
 
 ## License
 

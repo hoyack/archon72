@@ -19,6 +19,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from tests.integration.sql_helpers import execute_sql_file
 # Path to migration file
 MIGRATION_FILE = (
     Path(__file__).parent.parent.parent
@@ -33,13 +34,7 @@ async def petition_schema(db_session: AsyncSession) -> AsyncSession:
 
     This fixture reads the migration SQL and applies it to the test database.
     """
-    migration_sql = MIGRATION_FILE.read_text()
-    # Split by semicolons and execute each statement
-    # (excluding empty statements)
-    for statement in migration_sql.split(";"):
-        cleaned = statement.strip()
-        if cleaned and not cleaned.startswith("--"):
-            await db_session.execute(text(cleaned))
+    await execute_sql_file(db_session, MIGRATION_FILE)
     await db_session.flush()
     return db_session
 

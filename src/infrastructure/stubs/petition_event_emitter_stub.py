@@ -77,6 +77,23 @@ class EmittedFateEvent:
     emitted_at: datetime
 
 
+@dataclass
+class EmittedWithdrawnEvent:
+    """Record of an emitted petition.withdrawn event for test assertions (Story 7.3).
+
+    Attributes:
+        petition_id: The petition identifier.
+        withdrawn_by: UUID of the petitioner who withdrew.
+        reason: Optional explanation for withdrawal.
+        emitted_at: When the event was emitted.
+    """
+
+    petition_id: UUID
+    withdrawn_by: UUID
+    reason: str | None
+    emitted_at: datetime
+
+
 class PetitionEventEmitterStub(PetitionEventEmitterPort):
     """Stub implementation for testing petition event emission.
 
@@ -86,10 +103,13 @@ class PetitionEventEmitterStub(PetitionEventEmitterPort):
     Attributes:
         emitted_events: List of all emitted petition.received events.
         emitted_fate_events: List of all emitted fate events (Story 1.7).
+        emitted_withdrawn_events: List of all emitted withdrawal events (Story 7.3).
         should_fail: If True, emit_petition_received returns False.
         fail_exception: If set, emit_petition_received raises this exception.
         fate_should_fail: If True, emit_fate_event raises an exception (HC-1).
         fate_fail_exception: If set, emit_fate_event raises this exception.
+        withdrawn_should_fail: If True, emit_petition_withdrawn returns False.
+        withdrawn_fail_exception: If set, emit_petition_withdrawn raises this exception.
 
     Example:
         stub = PetitionEventEmitterStub()
@@ -115,10 +135,13 @@ class PetitionEventEmitterStub(PetitionEventEmitterPort):
         """Initialize the stub with empty state."""
         self.emitted_events: list[EmittedEvent] = []
         self.emitted_fate_events: list[EmittedFateEvent] = []
+        self.emitted_withdrawn_events: list[EmittedWithdrawnEvent] = []
         self.should_fail: bool = False
         self.fail_exception: Exception | None = None
         self.fate_should_fail: bool = False
         self.fate_fail_exception: Exception | None = None
+        self.withdrawn_should_fail: bool = False
+        self.withdrawn_fail_exception: Exception | None = None
 
     async def emit_petition_received(
         self,
@@ -202,14 +225,51 @@ class PetitionEventEmitterStub(PetitionEventEmitterPort):
         )
         self.emitted_fate_events.append(fate_event)
 
+    async def emit_petition_withdrawn(
+        self,
+        petition_id: UUID,
+        withdrawn_by: UUID,
+        reason: str | None = None,
+    ) -> bool:
+        """Capture petition.withdrawn event for test assertions (Story 7.3).
+
+        Args:
+            petition_id: The withdrawn petition identifier.
+            withdrawn_by: UUID of the petitioner who withdrew.
+            reason: Optional explanation for withdrawal.
+
+        Returns:
+            True if not configured to fail, False if withdrawn_should_fail is True.
+
+        Raises:
+            Exception: If withdrawn_fail_exception is set.
+        """
+        if self.withdrawn_fail_exception is not None:
+            raise self.withdrawn_fail_exception
+
+        if self.withdrawn_should_fail:
+            return False
+
+        withdrawn_event = EmittedWithdrawnEvent(
+            petition_id=petition_id,
+            withdrawn_by=withdrawn_by,
+            reason=reason,
+            emitted_at=datetime.now(timezone.utc),
+        )
+        self.emitted_withdrawn_events.append(withdrawn_event)
+        return True
+
     def reset(self) -> None:
         """Reset stub state for reuse between tests."""
         self.emitted_events.clear()
         self.emitted_fate_events.clear()
+        self.emitted_withdrawn_events.clear()
         self.should_fail = False
         self.fail_exception = None
         self.fate_should_fail = False
         self.fate_fail_exception = None
+        self.withdrawn_should_fail = False
+        self.withdrawn_fail_exception = None
 
     def get_event_by_petition_id(self, petition_id: UUID) -> EmittedEvent | None:
         """Find an emitted event by petition ID.
@@ -275,4 +335,36 @@ class PetitionEventEmitterStub(PetitionEventEmitterPort):
                 "emitted_at": event.emitted_at.isoformat(),
             }
             for event in self.emitted_fate_events
+        ]
+
+    def get_withdrawn_event_by_petition_id(
+        self, petition_id: UUID
+    ) -> EmittedWithdrawnEvent | None:
+        """Find an emitted withdrawal event by petition ID (Story 7.3).
+
+        Args:
+            petition_id: The petition ID to search for.
+
+        Returns:
+            The matching EmittedWithdrawnEvent or None if not found.
+        """
+        for event in self.emitted_withdrawn_events:
+            if event.petition_id == petition_id:
+                return event
+        return None
+
+    def withdrawn_events_to_dict_list(self) -> list[dict[str, Any]]:
+        """Convert emitted withdrawal events to list of dicts for assertions (Story 7.3).
+
+        Returns:
+            List of withdrawal event dicts with all fields.
+        """
+        return [
+            {
+                "petition_id": str(event.petition_id),
+                "withdrawn_by": str(event.withdrawn_by),
+                "reason": event.reason,
+                "emitted_at": event.emitted_at.isoformat(),
+            }
+            for event in self.emitted_withdrawn_events
         ]

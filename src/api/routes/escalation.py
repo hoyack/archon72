@@ -629,6 +629,7 @@ async def acknowledge_escalation(
     """
     try:
         from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
+        from src.domain.errors.acknowledgment import PetitionNotFoundError
         from src.domain.errors.petition import PetitionNotEscalatedError, RealmMismatchError
 
         # Parse reason code
@@ -698,7 +699,7 @@ async def acknowledge_escalation(
                 "type": "https://archon.example.com/errors/realm-mismatch",
                 "title": "Realm Authorization Failed",
                 "status": 403,
-                "detail": f"Realm mismatch: {e.message}",
+                "detail": str(e),
                 "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
             },
         )

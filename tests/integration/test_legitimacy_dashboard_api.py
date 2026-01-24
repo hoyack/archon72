@@ -37,12 +37,12 @@ def mock_db_connection():
     cursor.fetchone.side_effect = [
         (0.85, 150.0, 120.0),  # Current cycle metrics
         (5,),  # Orphan count
+        (20, 18, 1, 1),  # Deliberation metrics
     ]
 
     cursor.fetchall.side_effect = [
         [("2026-W03", 0.88, datetime.now(timezone.utc))],  # Historical trend
         [("RECEIVED", 10), ("DELIBERATING", 5)],  # Petition counts
-        [(20, 18, 1, 1)],  # Deliberation metrics
         [],  # Archon rates
     ]
 

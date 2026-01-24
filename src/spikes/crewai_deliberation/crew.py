@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from crewai import LLM, Crew, Process, Task
+from src.optional_deps.crewai import Crew, LLM, Process, Task
 
 from .agents import (
     ATROPOS_PERSONA,

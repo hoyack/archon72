@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from crewai import Agent, Crew, Task
+from src.optional_deps.crewai import Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.secretary_agent import (
@@ -393,12 +393,12 @@ CRITICAL: Output ONLY a JSON array. No text before or after. Example:
 
         except json.JSONDecodeError as e:
             logger.warning(
-                "extraction_parse_failed",
+                "json_parse_failed",
                 adapter="secretary",
                 stage="extraction",
                 archon=archon_name,
                 error=str(e),
-                raw_result=result[:500],
+                raw_output=result[:500],
                 json_attempted=json_str[:300] if json_str else "N/A",
             )
 
@@ -710,11 +710,11 @@ CRITICAL: Output ONLY a valid JSON array. Example:
 
         except json.JSONDecodeError as e:
             logger.warning(
-                "clustering_parse_failed",
+                "json_parse_failed",
                 adapter="secretary",
                 stage="clustering",
                 error=str(e),
-                raw_result=result[:300],
+                raw_output=result[:300],
             )
 
         return clusters
@@ -872,7 +872,7 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
         except json.JSONDecodeError as e:
             # JSON parsing failed even with aggressive cleaning
             logger.error(
-                "motion_generation_json_failed",
+                "json_parse_failed",
                 adapter="secretary",
                 stage="motion_generation",
                 error=str(e),

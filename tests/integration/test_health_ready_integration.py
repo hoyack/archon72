@@ -66,16 +66,24 @@ class TestHealthEndpoint:
     ) -> None:
         """Test /v1/health returns positive uptime after startup recorded."""
         import time
+        from src.application.services.health_service import (
+            configure_health_service,
+            reset_health_service,
+        )
 
         collector = get_metrics_collector()
         collector.record_startup("api")
         time.sleep(0.1)
 
-        response = client.get("/v1/health")
+        configure_health_service(metrics_collector=collector)
+        try:
+            response = client.get("/v1/health")
 
-        assert response.status_code == 200
-        data = response.json()
-        assert data["uptime_seconds"] >= 0.1
+            assert response.status_code == 200
+            data = response.json()
+            assert data["uptime_seconds"] >= 0.1
+        finally:
+            reset_health_service()
 
     def test_health_is_fast_response(self, client: TestClient) -> None:
         """Test /v1/health responds quickly (no external calls)."""

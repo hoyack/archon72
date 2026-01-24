@@ -128,6 +128,7 @@ class TestAcknowledgmentReasonEnumPersistence:
             "NO_ACTION_WARRANTED",
             "WITHDRAWN",
             "EXPIRED",
+            "KNIGHT_REFERRAL",
         ]
 
         assert db_values == expected_order

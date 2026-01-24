@@ -11,20 +11,42 @@
 -- STEP 1: Create Enums
 -- ============================================================================
 
-CREATE TYPE petition_type_enum AS ENUM (
-    'GENERAL',      -- General governance petition
-    'CESSATION',    -- Request for system cessation review
-    'GRIEVANCE',    -- Complaint about system behavior
-    'COLLABORATION' -- Request for inter-realm collaboration
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE t.typname = 'petition_type_enum'
+          AND n.nspname = current_schema()
+    ) THEN
+        CREATE TYPE petition_type_enum AS ENUM (
+            'GENERAL',      -- General governance petition
+            'CESSATION',    -- Request for system cessation review
+            'GRIEVANCE',    -- Complaint about system behavior
+            'COLLABORATION' -- Request for inter-realm collaboration
+        );
+    END IF;
+END $$;
 
-CREATE TYPE petition_state_enum AS ENUM (
-    'RECEIVED',     -- Initial state after submission
-    'DELIBERATING', -- Three Fates deliberation in progress
-    'ACKNOWLEDGED', -- Petition acknowledged (no further action)
-    'REFERRED',     -- Referred to Knight for review
-    'ESCALATED'     -- Escalated to King for adoption
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE t.typname = 'petition_state_enum'
+          AND n.nspname = current_schema()
+    ) THEN
+        CREATE TYPE petition_state_enum AS ENUM (
+            'RECEIVED',     -- Initial state after submission
+            'DELIBERATING', -- Three Fates deliberation in progress
+            'ACKNOWLEDGED', -- Petition acknowledged (no further action)
+            'REFERRED',     -- Referred to Knight for review
+            'ESCALATED'     -- Escalated to King for adoption
+        );
+    END IF;
+END $$;
 
 -- ============================================================================
 -- STEP 2: Create Table
@@ -61,7 +83,7 @@ CREATE INDEX idx_petition_submissions_created_at ON petition_submissions(created
 CREATE OR REPLACE FUNCTION update_petition_submissions_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    NEW.updated_at = clock_timestamp();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

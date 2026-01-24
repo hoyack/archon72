@@ -90,6 +90,8 @@ class ConclaveConfig:
 
     # Voting
     supermajority_threshold: float = 2 / 3  # 2/3 for passage
+    vote_validation_archon_ids: list[str] = field(default_factory=list)
+    vote_validation_max_attempts: int = 3
 
     # Agent invocation
     agent_timeout_seconds: int = 180
@@ -857,19 +859,20 @@ Be concise but substantive. Your contribution will be recorded in the official t
             )
 
             try:
-                vote = await self._get_archon_vote(archon, motion)
+                vote, is_valid = await self._get_archon_vote(archon, motion)
                 motion.cast_vote(vote)
 
-                self._session.add_transcript_entry(
-                    entry_type="vote",
-                    content=f"Vote: {vote.choice.value.upper()}",
-                    speaker_id=archon_id,
-                    speaker_name=archon.name,
-                    metadata={
-                        "motion_id": str(motion.motion_id),
-                        "choice": vote.choice.value,
-                    },
-                )
+                if is_valid:
+                    self._session.add_transcript_entry(
+                        entry_type="vote",
+                        content=f"Vote: {vote.choice.value.upper()}",
+                        speaker_id=archon_id,
+                        speaker_name=archon.name,
+                        metadata={
+                            "motion_id": str(motion.motion_id),
+                            "choice": vote.choice.value,
+                        },
+                    )
 
             except Exception as e:
                 logger.error(f"Error getting vote from {archon.name}: {e}")
@@ -917,7 +920,9 @@ Be concise but substantive. Your contribution will be recorded in the official t
 
         return result
 
-    async def _get_archon_vote(self, archon: ArchonProfile, motion: Motion) -> Vote:
+    async def _get_archon_vote(
+        self, archon: ArchonProfile, motion: Motion
+    ) -> tuple[Vote, bool]:
         """Get a vote from an archon.
 
         Args:
@@ -956,17 +961,46 @@ You may briefly explain your reasoning.
 
         output = await self._orchestrator.invoke(archon.id, bundle)
 
-        # Parse the vote
+        # Parse the vote (fallback if validation not configured)
         choice = self._parse_vote(output.content)
 
-        return Vote(
+        # Optional dual validation
+        validated_choice = await self._validate_vote_consensus(
+            archon=archon,
+            motion=motion,
+            raw_vote=output.content,
+        )
+        is_validated = validated_choice is not None
+        if is_validated:
+            if validated_choice != choice:
+                logger.warning(
+                    "vote_validation_override archon_id=%s archon_name=%s "
+                    "motion_id=%s parsed=%s validated=%s",
+                    archon.id,
+                    archon.name,
+                    motion.motion_id,
+                    choice.value,
+                    validated_choice.value,
+                )
+            choice = validated_choice
+        elif self._config.vote_validation_archon_ids:
+            # Validation configured but no consensus reached -> abstain
+            choice = VoteChoice.ABSTAIN
+            self._record_vote_validation_failure(archon, motion)
+
+        vote = Vote(
             voter_id=archon.id,
             voter_name=archon.name,
             voter_rank=archon.aegis_rank,
             choice=choice,
             timestamp=datetime.now(timezone.utc),
-            reasoning=output.content[:500],  # Truncate reasoning
+            reasoning=(
+                output.content[:500]
+                if is_validated or not self._config.vote_validation_archon_ids
+                else "Vote validation failed: no consensus"
+            ),
         )
+        return vote, (is_validated or not self._config.vote_validation_archon_ids)
 
     def _parse_vote(self, content: str) -> VoteChoice:
         """Parse a vote from archon response.
@@ -977,17 +1011,219 @@ You may briefly explain your reasoning.
         Returns:
             VoteChoice
         """
-        content_lower = content.lower()
+        # NOTE: This parser intentionally accepts common LLM vote synonyms
+        # using deterministic string parsing (no regex).
+        #
+        # Upstream formats:
+        # - Conclave vote prompt: "I VOTE AYE|NAY|I ABSTAIN"
+        # - King system prompts: "Vote: FOR|NAY|ABSTAIN"
+        token_to_choice: dict[str, VoteChoice] = {
+            "aye": VoteChoice.AYE,
+            "for": VoteChoice.AYE,
+            "yes": VoteChoice.AYE,
+            "nay": VoteChoice.NAY,
+            "against": VoteChoice.NAY,
+            "no": VoteChoice.NAY,
+            "abstain": VoteChoice.ABSTAIN,
+        }
+        token_strip_chars = " .!?,;:\"'"
 
-        if "vote aye" in content_lower or "i vote aye" in content_lower:
-            return VoteChoice.AYE
-        elif "vote nay" in content_lower or "i vote nay" in content_lower:
-            return VoteChoice.NAY
-        elif "abstain" in content_lower or "i abstain" in content_lower:
-            return VoteChoice.ABSTAIN
-        else:
-            # Default to abstain if unclear
-            return VoteChoice.ABSTAIN
+        for raw_line in content.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+
+            # Strip common markdown/bullet prefixes that often appear in LLM output.
+            line = line.lstrip(">*-_` ").strip()
+            line = line.strip("*_` ").strip()
+            if not line:
+                continue
+
+            lower = line.lower()
+
+            if lower.startswith("i abstain"):
+                return VoteChoice.ABSTAIN
+
+            if lower.startswith("vote"):
+                rest = lower[4:].lstrip(" :-")
+                if rest.startswith("i abstain"):
+                    return VoteChoice.ABSTAIN
+                if rest.startswith("i vote "):
+                    rest = rest[7:].lstrip()
+                token = rest.split()[0] if rest else ""
+                token = token.strip(token_strip_chars)
+                parsed = token_to_choice.get(token)
+                if parsed:
+                    return parsed
+
+            if lower.startswith("i vote "):
+                rest = lower[7:].lstrip()
+                token = rest.split()[0] if rest else ""
+                token = token.strip(token_strip_chars)
+                parsed = token_to_choice.get(token)
+                if parsed:
+                    return parsed
+
+            stripped = lower.strip(" .!?,;:")
+            if stripped in token_to_choice:
+                return token_to_choice[stripped]
+
+        # Fallback: if nothing matches, default to abstain (conservative).
+        return VoteChoice.ABSTAIN
+
+    async def _validate_vote_consensus(
+        self,
+        archon: ArchonProfile,
+        motion: Motion,
+        raw_vote: str,
+    ) -> VoteChoice | None:
+        """Validate a vote via dual LLM consensus.
+
+        Returns:
+            VoteChoice if validators agree, otherwise None.
+        """
+        validator_ids = [vid for vid in self._config.vote_validation_archon_ids if vid]
+        if len(validator_ids) < 2:
+            return None
+
+        max_attempts = max(1, self._config.vote_validation_max_attempts)
+        for attempt in range(1, max_attempts + 1):
+            choices: list[VoteChoice | None] = []
+            for validator_id in validator_ids:
+                choice = await self._request_vote_validation(
+                    validator_id=validator_id,
+                    archon=archon,
+                    motion=motion,
+                    raw_vote=raw_vote,
+                    attempt=attempt,
+                )
+                choices.append(choice)
+
+            if all(choice is not None for choice in choices):
+                if len(set(choices)) == 1:
+                    return choices[0]
+
+        return None
+
+    async def _request_vote_validation(
+        self,
+        validator_id: str,
+        archon: ArchonProfile,
+        motion: Motion,
+        raw_vote: str,
+        attempt: int,
+    ) -> VoteChoice | None:
+        """Ask a validator Archon to normalize a vote into AYE/NAY/ABSTAIN."""
+        validator = self._profiles.get(validator_id)
+        validator_name = validator.name if validator else validator_id
+
+        prompt = f"""ARCHON 72 CONCLAVE - VOTE VALIDATION
+
+You are validating a vote cast by another Archon.
+
+TARGET ARCHON: {archon.name} ({archon.aegis_rank})
+MOTION: {motion.title}
+
+RAW VOTE RESPONSE:
+<<<
+{raw_vote[:2000]}
+>>>
+
+Return JSON only (no prose):
+{{\"choice\": \"AYE\"}} or {{\"choice\": \"NAY\"}} or {{\"choice\": \"ABSTAIN\"}}
+If unclear, choose ABSTAIN.
+"""
+
+        bundle = ContextBundle(
+            bundle_id=uuid4(),
+            topic_id=f"vote-validate-{motion.motion_id}-{archon.id}-{validator_id}-{attempt}",
+            topic_content=prompt,
+            metadata={
+                "motion_id": str(motion.motion_id),
+                "target_archon_id": archon.id,
+                "validator_archon_id": validator_id,
+                "validation_attempt": attempt,
+                "validation": "vote",
+            },
+            created_at=datetime.now(timezone.utc),
+        )
+
+        try:
+            output = await self._orchestrator.invoke(validator_id, bundle)
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.warning(
+                "vote_validation_error validator_id=%s validator_name=%s "
+                "target_archon_id=%s error=%s",
+                validator_id,
+                validator_name,
+                archon.id,
+                exc,
+            )
+            return None
+
+        return self._parse_validation_json(output.content)
+
+    def _parse_validation_json(self, content: str) -> VoteChoice | None:
+        """Parse validator JSON without regex (strict JSON)."""
+        start = content.find("{")
+        end = content.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            return None
+
+        try:
+            payload = json.loads(content[start : end + 1])
+        except json.JSONDecodeError:
+            return None
+
+        raw_choice = str(payload.get("choice", "")).strip().lower()
+        mapping = {
+            "aye": VoteChoice.AYE,
+            "for": VoteChoice.AYE,
+            "yes": VoteChoice.AYE,
+            "nay": VoteChoice.NAY,
+            "against": VoteChoice.NAY,
+            "no": VoteChoice.NAY,
+            "abstain": VoteChoice.ABSTAIN,
+        }
+        return mapping.get(raw_choice)
+
+    def _record_vote_validation_failure(self, archon: ArchonProfile, motion: Motion) -> None:
+        """Record a witnessed event when validators cannot reach consensus."""
+        if not self._session:
+            return
+
+        description = (
+            f"Vote validation failed for {archon.name} on motion "
+            f"'{motion.title}'. Validators could not reach consensus."
+        )
+
+        self._session.add_transcript_entry(
+            entry_type="procedural",
+            content=description,
+            speaker_id=archon.id,
+            speaker_name=archon.name,
+            metadata={
+                "motion_id": str(motion.motion_id),
+                "event": "vote_validation_non_consensus",
+            },
+        )
+
+        validator_names = []
+        for vid in self._config.vote_validation_archon_ids:
+            profile = self._profiles.get(vid)
+            validator_names.append(profile.name if profile else vid)
+
+        self._observe_event(
+            event_type="vote_validation_non_consensus",
+            description=description,
+            participants=[archon.name, *validator_names],
+            target_id=str(motion.motion_id),
+            target_type="motion",
+            metadata={
+                "archon_id": archon.id,
+                "validator_ids": list(self._config.vote_validation_archon_ids),
+            },
+        )
 
     # =========================================================================
     # PERMISSION HELPERS (Government PRD)

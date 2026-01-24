@@ -359,3 +359,214 @@ class TestPetitionStatusQueryIntegration:
         # Basic sanity check - should complete well under 1 second
         # Real p99 < 100ms testing needs load testing framework
         assert elapsed_ms < 1000, f"Response took {elapsed_ms}ms (expected < 1000ms)"
+
+
+class TestPetitionWithdrawalIntegration:
+    """Integration tests for petition withdrawal flow (Story 7.3, FR-7.5)."""
+
+    def test_full_submit_and_withdraw_flow(self, client: TestClient) -> None:
+        """Test complete submit -> withdraw flow (AC1)."""
+        from uuid import uuid4
+
+        submitter_id = str(uuid4())
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to be withdrawn in integration test.",
+                "submitter_id": submitter_id,
+            },
+        )
+
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+        assert submit_response.json()["state"] == "RECEIVED"
+
+        # Withdraw the petition
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": submitter_id,
+                "reason": "Changed my mind about this petition",
+            },
+        )
+
+        assert withdraw_response.status_code == 200
+        withdraw_data = withdraw_response.json()
+        assert withdraw_data["petition_id"] == petition_id
+        assert withdraw_data["state"] == "ACKNOWLEDGED"
+        assert "WITHDRAWN" in withdraw_data["fate_reason"]
+        assert "Changed my mind" in withdraw_data["fate_reason"]
+
+        # Verify the petition state persisted
+        get_response = client.get(f"/v1/petition-submissions/{petition_id}")
+        assert get_response.status_code == 200
+        get_data = get_response.json()
+        assert get_data["state"] == "ACKNOWLEDGED"
+        assert "WITHDRAWN" in get_data["fate_reason"]
+
+    def test_withdraw_prevents_further_state_changes(self, client: TestClient) -> None:
+        """Withdrawn petition cannot be modified further (AC2)."""
+        from uuid import uuid4
+
+        submitter_id = str(uuid4())
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to verify withdrawal finality.",
+                "submitter_id": submitter_id,
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Withdraw the petition
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": submitter_id,
+            },
+        )
+        assert withdraw_response.status_code == 200
+
+        # Try to withdraw again - should fail
+        second_withdraw = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": submitter_id,
+            },
+        )
+
+        assert second_withdraw.status_code == 400
+        detail = second_withdraw.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:already-fated"
+        assert "ACKNOWLEDGED" in detail["detail"]
+
+    def test_withdraw_without_reason_uses_default(self, client: TestClient) -> None:
+        """Withdrawal without reason uses default reason (AC1)."""
+        from uuid import uuid4
+
+        submitter_id = str(uuid4())
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "CESSATION",
+                "text": "Petition to test default withdrawal reason.",
+                "submitter_id": submitter_id,
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Withdraw without reason
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": submitter_id,
+            },
+        )
+
+        assert withdraw_response.status_code == 200
+        data = withdraw_response.json()
+        assert "WITHDRAWN" in data["fate_reason"]
+        assert "withdrew" in data["fate_reason"].lower()
+
+    def test_withdraw_unauthorized_different_submitter(
+        self, client: TestClient
+    ) -> None:
+        """Different user cannot withdraw another's petition (AC3)."""
+        from uuid import uuid4
+
+        original_submitter = str(uuid4())
+        attacker_id = str(uuid4())
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GRIEVANCE",
+                "text": "Petition that should not be withdrawable by others.",
+                "submitter_id": original_submitter,
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Attacker tries to withdraw
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": attacker_id,
+            },
+        )
+
+        assert withdraw_response.status_code == 403
+        detail = withdraw_response.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:unauthorized-withdrawal"
+
+        # Verify petition unchanged
+        get_response = client.get(f"/v1/petition-submissions/{petition_id}")
+        assert get_response.status_code == 200
+        assert get_response.json()["state"] == "RECEIVED"  # Still original state
+
+    def test_withdraw_anonymous_petition_rejected(self, client: TestClient) -> None:
+        """Anonymous petitions cannot be withdrawn (AC3)."""
+        from uuid import uuid4
+
+        # Submit an anonymous petition (no submitter_id)
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Anonymous petition that cannot be withdrawn.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Anyone trying to withdraw
+        any_user_id = str(uuid4())
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": any_user_id,
+            },
+        )
+
+        assert withdraw_response.status_code == 403
+        detail = withdraw_response.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:unauthorized-withdrawal"
+
+    def test_withdraw_rfc7807_error_format(self, client: TestClient) -> None:
+        """Withdrawal errors follow RFC 7807 format with governance extensions."""
+        from uuid import uuid4
+
+        nonexistent_id = str(uuid4())
+
+        response = client.post(
+            f"/v1/petition-submissions/{nonexistent_id}/withdraw",
+            json={
+                "requester_id": str(uuid4()),
+            },
+        )
+
+        assert response.status_code == 404
+        detail = response.json()["detail"]
+
+        # RFC 7807 required fields
+        assert "type" in detail
+        assert "title" in detail
+        assert "status" in detail
+        assert "detail" in detail
+        assert "instance" in detail
+
+        # Governance extension (D7)
+        assert "petition_id" in detail
+        assert detail["petition_id"] == nonexistent_id

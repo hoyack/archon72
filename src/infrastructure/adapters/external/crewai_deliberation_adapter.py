@@ -189,7 +189,7 @@ class CrewAIDeliberationAdapter(PhaseExecutorProtocol):
         try:
 
             def _run_crew() -> str:
-                from crewai import Agent, Crew, Task
+                from src.optional_deps.crewai import Agent, Crew, Task
 
                 llm = create_crewai_llm(profile.llm_config)
 

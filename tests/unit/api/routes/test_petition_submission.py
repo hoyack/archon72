@@ -716,3 +716,515 @@ class TestPetitionStatusQueryEndpoint:
         # GET should succeed during halt (AC6, CT-13)
         assert get_response.status_code == 200
         assert get_response.json()["petition_id"] == petition_id
+
+
+class TestPetitionStatusTokenResponse:
+    """Tests for status_token in petition status response (Story 7.1, FR-7.2)."""
+
+    def test_status_response_includes_status_token(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """Response includes status_token for long-polling (FR-7.2, AC1)."""
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to verify status token.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Query status
+        get_response = client.get(f"/v1/petition-submissions/{petition_id}")
+
+        assert get_response.status_code == 200
+        data = get_response.json()
+        # Verify status_token is present and non-empty (AC1)
+        assert "status_token" in data
+        assert data["status_token"] is not None
+        assert isinstance(data["status_token"], str)
+        assert len(data["status_token"]) > 0
+
+    def test_status_token_is_valid_base64url(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """status_token is valid base64url encoding (AC1)."""
+        import base64
+        import re
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition for base64url token test.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Query status
+        get_response = client.get(f"/v1/petition-submissions/{petition_id}")
+        assert get_response.status_code == 200
+
+        token = get_response.json()["status_token"]
+        # Should be URL-safe (no + or /)
+        assert "+" not in token
+        assert "/" not in token
+        # Should decode successfully
+        try:
+            decoded = base64.urlsafe_b64decode(token)
+            assert len(decoded) > 0
+        except Exception as e:
+            pytest.fail(f"Failed to decode status_token: {e}")
+
+    def test_status_token_encodes_petition_id(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """status_token encodes the petition_id for verification (AC1)."""
+        from src.domain.models.status_token import StatusToken
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition for token encoding test.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = UUID(submit_response.json()["petition_id"])
+
+        # Query status
+        get_response = client.get(f"/v1/petition-submissions/{petition_id}")
+        assert get_response.status_code == 200
+
+        token_str = get_response.json()["status_token"]
+        # Decode and verify petition_id
+        token = StatusToken.decode(token_str)
+        assert token.petition_id == petition_id
+
+    def test_status_token_encodes_state_version(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """status_token encodes state version for change detection (AC1)."""
+        from src.domain.models.status_token import StatusToken
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition for version encoding test.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = UUID(submit_response.json()["petition_id"])
+
+        # Query status
+        get_response = client.get(f"/v1/petition-submissions/{petition_id}")
+        assert get_response.status_code == 200
+
+        token_str = get_response.json()["status_token"]
+        # Decode and verify version is set
+        token = StatusToken.decode(token_str)
+        assert token.version is not None
+        assert isinstance(token.version, int)
+
+    def test_status_token_changes_on_state_change(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """status_token version changes when petition state changes (AC1)."""
+        import asyncio
+        from src.domain.models.status_token import StatusToken
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition for state change detection test.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = UUID(submit_response.json()["petition_id"])
+
+        # Get initial token
+        get_response1 = client.get(f"/v1/petition-submissions/{petition_id}")
+        token1 = StatusToken.decode(get_response1.json()["status_token"])
+        initial_version = token1.version
+
+        # Change state to DELIBERATING
+        asyncio.get_event_loop().run_until_complete(
+            mock_repository.update_state(
+                petition_id,
+                PetitionState.DELIBERATING,
+            )
+        )
+
+        # Get new token
+        get_response2 = client.get(f"/v1/petition-submissions/{petition_id}")
+        token2 = StatusToken.decode(get_response2.json()["status_token"])
+
+        # Version should change when state changes
+        assert token2.version != initial_version
+
+    def test_status_token_consistent_for_same_state(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """status_token has consistent version for same state (AC1)."""
+        from src.domain.models.status_token import StatusToken
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition for consistency test.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Get tokens from two requests without state change
+        get_response1 = client.get(f"/v1/petition-submissions/{petition_id}")
+        get_response2 = client.get(f"/v1/petition-submissions/{petition_id}")
+
+        token1 = StatusToken.decode(get_response1.json()["status_token"])
+        token2 = StatusToken.decode(get_response2.json()["status_token"])
+
+        # Version should be same (state hasn't changed)
+        assert token1.version == token2.version
+        # But timestamps will differ
+        assert token1.petition_id == token2.petition_id
+
+
+class TestWithdrawPetitionEndpoint:
+    """Tests for POST /v1/petition-submissions/{petition_id}/withdraw (Story 7.3, FR-7.5)."""
+
+    def test_withdraw_petition_success(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """Successful withdrawal returns 200 with ACKNOWLEDGED state (AC1)."""
+        submitter_id = uuid4()
+
+        # Submit a petition with submitter_id
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to withdraw.",
+                "submitter_id": str(submitter_id),
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Withdraw the petition
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": str(submitter_id),
+                "reason": "Changed my mind",
+            },
+        )
+
+        assert withdraw_response.status_code == 200
+        data = withdraw_response.json()
+        assert data["petition_id"] == petition_id
+        assert data["state"] == "ACKNOWLEDGED"
+        assert "WITHDRAWN" in data["fate_reason"]
+        assert "updated_at" in data
+
+    def test_withdraw_petition_without_reason(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """Withdrawal without reason uses default (AC1)."""
+        submitter_id = uuid4()
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to withdraw without reason.",
+                "submitter_id": str(submitter_id),
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Withdraw without reason
+        withdraw_response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": str(submitter_id),
+            },
+        )
+
+        assert withdraw_response.status_code == 200
+        data = withdraw_response.json()
+        assert "WITHDRAWN" in data["fate_reason"]
+
+    def test_withdraw_petition_not_found(
+        self,
+        client: TestClient,
+    ) -> None:
+        """Withdrawal of non-existent petition returns 404 (AC4)."""
+        fake_petition_id = str(uuid4())
+        requester_id = str(uuid4())
+
+        response = client.post(
+            f"/v1/petition-submissions/{fake_petition_id}/withdraw",
+            json={
+                "requester_id": requester_id,
+            },
+        )
+
+        assert response.status_code == 404
+        detail = response.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:not-found"
+        assert detail["title"] == "Petition Not Found"
+        assert fake_petition_id in detail["detail"]
+        assert detail["status"] == 404
+
+    def test_withdraw_petition_unauthorized(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """Withdrawal by different submitter returns 403 (AC3)."""
+        original_submitter = uuid4()
+        different_requester = uuid4()
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to test unauthorized withdrawal.",
+                "submitter_id": str(original_submitter),
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Try to withdraw with different requester
+        response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": str(different_requester),
+            },
+        )
+
+        assert response.status_code == 403
+        detail = response.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:unauthorized-withdrawal"
+        assert detail["title"] == "Unauthorized Withdrawal"
+        assert detail["status"] == 403
+        assert f"submitter:{different_requester}" in detail["actor"]
+
+    def test_withdraw_anonymous_petition_rejected(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """Withdrawal of anonymous petition returns 403 (AC3)."""
+        # Submit an anonymous petition (no submitter_id)
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Anonymous petition that cannot be withdrawn.",
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Try to withdraw
+        any_requester = uuid4()
+        response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": str(any_requester),
+            },
+        )
+
+        assert response.status_code == 403
+        detail = response.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:unauthorized-withdrawal"
+
+    def test_withdraw_already_fated_petition(
+        self,
+        client: TestClient,
+        mock_repository: PetitionSubmissionRepositoryStub,
+    ) -> None:
+        """Withdrawal of already-fated petition returns 400 (AC2)."""
+        import asyncio
+
+        submitter_id = uuid4()
+
+        # Submit a petition
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition that will be fated before withdrawal.",
+                "submitter_id": str(submitter_id),
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = UUID(submit_response.json()["petition_id"])
+
+        # Fate the petition (RECEIVED -> DELIBERATING -> ACKNOWLEDGED)
+        asyncio.get_event_loop().run_until_complete(
+            mock_repository.update_state(
+                petition_id,
+                PetitionState.DELIBERATING,
+            )
+        )
+        asyncio.get_event_loop().run_until_complete(
+            mock_repository.assign_fate_cas(
+                petition_id,
+                PetitionState.DELIBERATING,
+                PetitionState.ACKNOWLEDGED,
+                fate_reason="Already processed",
+            )
+        )
+
+        # Try to withdraw
+        response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": str(submitter_id),
+            },
+        )
+
+        assert response.status_code == 400
+        detail = response.json()["detail"]
+        assert detail["type"] == "urn:archon72:petition:already-fated"
+        assert detail["title"] == "Petition Already Fated"
+        assert "ACKNOWLEDGED" in detail["detail"]
+        assert detail["status"] == 400
+
+    def test_withdraw_petition_halted(
+        self,
+        app: FastAPI,
+        mock_repository: PetitionSubmissionRepositoryStub,
+        mock_realm_registry: RealmRegistryStub,
+    ) -> None:
+        """Withdrawal during system halt returns 503 (AC5, CT-13)."""
+        submitter_id = uuid4()
+
+        # First create petition while not halted
+        not_halted = HaltCheckerStub()
+        set_petition_submission_repository(mock_repository)
+        set_halt_checker(not_halted)
+        set_realm_registry(mock_realm_registry)
+
+        client = TestClient(app)
+        submit_response = client.post(
+            "/v1/petition-submissions",
+            json={
+                "type": "GENERAL",
+                "text": "Petition to withdraw during halt.",
+                "submitter_id": str(submitter_id),
+            },
+        )
+        assert submit_response.status_code == 201
+        petition_id = submit_response.json()["petition_id"]
+
+        # Now halt the system
+        halted_checker = HaltCheckerStub()
+        halted_checker.set_halted(True, "Emergency maintenance")
+        reset_petition_submission_dependencies()
+        set_petition_submission_repository(mock_repository)
+        set_halt_checker(halted_checker)
+        set_realm_registry(mock_realm_registry)
+
+        client = TestClient(app)
+        response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={
+                "requester_id": str(submitter_id),
+            },
+        )
+
+        assert response.status_code == 503
+        detail = response.json()["detail"]
+        assert detail["type"] == "urn:archon72:system:halted"
+        assert detail["title"] == "System Halted"
+        assert "Retry-After" in response.headers
+
+    def test_withdraw_petition_invalid_uuid(
+        self,
+        client: TestClient,
+    ) -> None:
+        """Invalid petition_id UUID returns 422."""
+        response = client.post(
+            "/v1/petition-submissions/not-a-uuid/withdraw",
+            json={
+                "requester_id": str(uuid4()),
+            },
+        )
+
+        assert response.status_code == 422
+
+    def test_withdraw_petition_missing_requester_id(
+        self,
+        client: TestClient,
+    ) -> None:
+        """Missing requester_id returns 422."""
+        petition_id = str(uuid4())
+
+        response = client.post(
+            f"/v1/petition-submissions/{petition_id}/withdraw",
+            json={},
+        )
+
+        assert response.status_code == 422
+
+    def test_withdraw_petition_rfc7807_format(
+        self,
+        client: TestClient,
+    ) -> None:
+        """Error responses follow RFC 7807 format with governance extensions (D7)."""
+        fake_petition_id = str(uuid4())
+
+        response = client.post(
+            f"/v1/petition-submissions/{fake_petition_id}/withdraw",
+            json={
+                "requester_id": str(uuid4()),
+            },
+        )
+
+        assert response.status_code == 404
+        detail = response.json()["detail"]
+
+        # RFC 7807 required fields
+        assert "type" in detail
+        assert "title" in detail
+        assert "status" in detail
+        assert "detail" in detail
+        assert "instance" in detail
+
+        # Governance extension
+        assert "petition_id" in detail

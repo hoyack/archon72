@@ -177,9 +177,9 @@ class TestArchonSubstitutionIntegration:
 
         # Add some transcript data
         session = session.with_phase(DeliberationPhase.POSITION)
-        session = session.with_transcript(DeliberationPhase.ASSESS, b"assess_hash")
+        session = session.with_transcript(DeliberationPhase.ASSESS, b"a" * 32)
         session = session.with_phase(DeliberationPhase.CROSS_EXAMINE)
-        session = session.with_transcript(DeliberationPhase.POSITION, b"position_hash")
+        session = session.with_transcript(DeliberationPhase.POSITION, b"b" * 32)
 
         substitute_id = uuid4()
         stub = ArchonSubstitutionStub(

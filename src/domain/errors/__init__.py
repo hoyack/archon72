@@ -226,6 +226,7 @@ from src.domain.errors.petition import (
     PetitionClosedError,
     PetitionError,
     PetitionNotFoundError,
+    UnauthorizedWithdrawalError,
 )
 from src.domain.errors.pre_operational import (
     BypassNotAllowedError,
@@ -515,6 +516,7 @@ __all__: list[str] = [
     "PetitionNotFoundError",
     "PetitionClosedError",
     "PetitionAlreadyExistsError",
+    "UnauthorizedWithdrawalError",
     # Schema irreversibility errors (Story 7.3, FR40, NFR40)
     "SchemaIrreversibilityError",
     "EventTypeProhibitedError",

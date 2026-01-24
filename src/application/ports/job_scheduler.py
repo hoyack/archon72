@@ -51,7 +51,8 @@ class JobSchedulerProtocol(Protocol):
         self,
         job_type: str,
         payload: dict[str, Any],
-        run_at: datetime,
+        run_at: datetime | None = None,
+        scheduled_for: datetime | None = None,
     ) -> UUID:
         """Schedule a new job for future execution.
 
@@ -61,6 +62,7 @@ class JobSchedulerProtocol(Protocol):
             job_type: Type of job (referral_timeout, deliberation_timeout, etc.)
             payload: Job-specific data (petition_id, deadline details, etc.)
             run_at: Timestamp when job should be executed (UTC, timezone-aware)
+            scheduled_for: Alias for run_at (legacy/test callers)
 
         Returns:
             UUID of the newly scheduled job

@@ -16,6 +16,8 @@ from __future__ import annotations
 
 from uuid import uuid4
 
+import pytest
+
 from src.application.services.context_package_builder_service import (
     ContextPackageBuilderService,
 )
@@ -310,78 +312,83 @@ class TestDeadlockConstitutionalCompliance:
         assert result1.outcome == result2.outcome
 
 
+@pytest.mark.asyncio
 class TestDeadlockServiceDirectIntegration:
     """Integration tests for DeadlockHandlerService directly."""
 
-    def test_service_round_progression(self) -> None:
+    async def test_service_round_progression(self) -> None:
         """Test service handles round progression correctly."""
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
             assigned_archons=(uuid4(), uuid4(), uuid4()),
         )
-        session = session.with_phase(DeliberationPhase.VOTE)
+        session = (
+            session.with_phase(DeliberationPhase.POSITION)
+            .with_phase(DeliberationPhase.CROSS_EXAMINE)
+            .with_phase(DeliberationPhase.VOTE)
+        )
 
         service = DeadlockHandlerService()
         vote_distribution = {"ACKNOWLEDGE": 1, "REFER": 1, "ESCALATE": 1}
 
         # Round 1 -> 2
-        import asyncio
-
-        updated1, event1 = asyncio.get_event_loop().run_until_complete(
-            service.handle_no_consensus(session, vote_distribution, max_rounds=3)
+        updated1, event1 = await service.handle_no_consensus(
+            session, vote_distribution, max_rounds=3
         )
         assert isinstance(event1, CrossExamineRoundTriggeredEvent)
         assert updated1.round_count == 2
 
         # Round 2 -> 3
         updated1_vote = updated1.with_phase(DeliberationPhase.VOTE)
-        updated2, event2 = asyncio.get_event_loop().run_until_complete(
-            service.handle_no_consensus(updated1_vote, vote_distribution, max_rounds=3)
+        updated2, event2 = await service.handle_no_consensus(
+            updated1_vote, vote_distribution, max_rounds=3
         )
         assert isinstance(event2, CrossExamineRoundTriggeredEvent)
         assert updated2.round_count == 3
 
         # Round 3 -> deadlock
         updated2_vote = updated2.with_phase(DeliberationPhase.VOTE)
-        updated3, event3 = asyncio.get_event_loop().run_until_complete(
-            service.handle_no_consensus(updated2_vote, vote_distribution, max_rounds=3)
+        updated3, event3 = await service.handle_no_consensus(
+            updated2_vote, vote_distribution, max_rounds=3
         )
         assert isinstance(event3, DeadlockDetectedEvent)
         assert updated3.is_deadlocked is True
         assert updated3.outcome == DeliberationOutcome.ESCALATE
 
-    def test_service_vote_history_accumulation(self) -> None:
+    async def test_service_vote_history_accumulation(self) -> None:
         """Test service accumulates vote history correctly."""
         session = DeliberationSession.create(
             session_id=uuid4(),
             petition_id=uuid4(),
             assigned_archons=(uuid4(), uuid4(), uuid4()),
         )
-        session = session.with_phase(DeliberationPhase.VOTE)
+        session = (
+            session.with_phase(DeliberationPhase.POSITION)
+            .with_phase(DeliberationPhase.CROSS_EXAMINE)
+            .with_phase(DeliberationPhase.VOTE)
+        )
 
         service = DeadlockHandlerService()
         vote_distribution = {"ACKNOWLEDGE": 1, "REFER": 1, "ESCALATE": 1}
 
-        import asyncio
-
         # Round 1
-        updated, _ = asyncio.get_event_loop().run_until_complete(
-            service.handle_no_consensus(session, vote_distribution, max_rounds=3)
+        updated, _ = await service.handle_no_consensus(
+            session, vote_distribution, max_rounds=3
         )
         assert len(updated.votes_by_round) == 1
 
         # Round 2
         updated_vote = updated.with_phase(DeliberationPhase.VOTE)
-        updated, _ = asyncio.get_event_loop().run_until_complete(
-            service.handle_no_consensus(updated_vote, vote_distribution, max_rounds=3)
+        updated, _ = await service.handle_no_consensus(
+            updated_vote, vote_distribution, max_rounds=3
         )
         assert len(updated.votes_by_round) == 2
 
         # Round 3 (deadlock)
         updated_vote = updated.with_phase(DeliberationPhase.VOTE)
-        updated, event = asyncio.get_event_loop().run_until_complete(
-            service.handle_no_consensus(updated_vote, vote_distribution, max_rounds=3)
+        updated, event = await service.handle_no_consensus(
+            updated_vote, vote_distribution, max_rounds=3
         )
 
         # Deadlock event should have all 3 rounds of votes

@@ -58,11 +58,10 @@ def _create_escalated_petition(
         state=PetitionState.ESCALATED,
         realm=realm,
         co_signer_count=co_signer_count,
+        escalation_source=escalation_source,
+        escalated_at=escalated_at or datetime.now(timezone.utc),
+        escalated_to_realm=escalated_to_realm,
     )
-    # Add escalation tracking fields
-    petition.escalated_to_realm = escalated_to_realm
-    petition.escalation_source = escalation_source
-    petition.escalated_at = escalated_at or datetime.now(timezone.utc)
     return petition
 
 

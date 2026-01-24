@@ -55,7 +55,7 @@ from src.application.ports.petition_submission_repository import (
 from src.application.ports.promotion_budget_store import PromotionBudgetStore
 from src.application.services.event_writer_service import EventWriterService
 from src.domain.events.petition import PetitionAdoptedEventPayload
-from src.domain.models.motion_seed import RealmAssignment
+from src.domain.models.motion_seed import KING_REALM_MAP, RealmAssignment
 from src.domain.models.petition_submission import PetitionState
 
 
@@ -154,7 +154,7 @@ class PetitionAdoptionService(PetitionAdoptionProtocol):
             InsufficientBudgetException: If King has insufficient promotion budget
         """
         # CT-13: HALT CHECK FIRST - no writes during halt
-        if self.halt_checker.is_halted():
+        if await self.halt_checker.is_halted():
             self.logger.error(
                 "adoption_blocked_system_halted",
                 petition_id=str(request.petition_id),
@@ -330,11 +330,14 @@ class PetitionAdoptionService(PetitionAdoptionProtocol):
         created_at = datetime.now(timezone.utc)
 
         # Create realm assignment for the Motion
+        king_id_str = str(king_id)
+        king_info = KING_REALM_MAP.get(king_id_str, {})
+        king_name = king_info.get("name", "Unknown King")
+
         realm_assignment = RealmAssignment(
             primary_realm=realm_id,
-            assigned_king_id=str(king_id),
-            requires_collaboration=False,
-            collaborating_realms=[],
+            primary_sponsor_id=king_id_str,
+            primary_sponsor_name=king_name,
         )
 
         return MotionFromAdoption(

@@ -36,6 +36,11 @@ from src.infrastructure.adapters.government.failure_propagation_adapter import (
     FailurePropagationAdapter,
 )
 
+
+def _utc_now() -> datetime:
+    """Return current UTC time."""
+    return datetime.now(timezone.utc)
+
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -149,6 +154,7 @@ class TestFailurePropagationPipeline:
             task_id=task_id,
             severity=FailureSeverity.HIGH,
             evidence={"error": "Connection timeout", "retry_count": 3},
+            timestamp=_utc_now(),
         )
 
         result = await adapter.emit_failure(signal)
@@ -207,6 +213,7 @@ class TestFailurePropagationPipeline:
                 task_id=task_id,
                 severity=FailureSeverity.MEDIUM,
                 evidence={"attempt": i, "resource": "memory"},
+                timestamp=_utc_now(),
             )
             result = await adapter.emit_failure(signal)
             signals.append(result.signal)
@@ -246,6 +253,7 @@ class TestFailurePropagationPipeline:
                 severity=FailureSeverity.HIGH,
                 evidence={},
                 motion_ref=motion_id,
+                timestamp=_utc_now(),
             )
             await adapter.emit_failure(signal)
 
@@ -285,6 +293,7 @@ class TestSuppressionDetectionFlow:
             task_id=uuid4(),
             severity=FailureSeverity.CRITICAL,
             evidence={},
+            timestamp=_utc_now(),
         )
 
         # Start monitoring with immediate timeout
@@ -327,6 +336,7 @@ class TestSuppressionDetectionFlow:
             task_id=uuid4(),
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=_utc_now(),
         )
 
         # Proper flow: emit (which includes propagation)
@@ -372,6 +382,7 @@ class TestEventStoreIntegrity:
                 task_id=uuid4(),
                 severity=FailureSeverity.HIGH,
                 evidence={"index": i},
+                timestamp=_utc_now(),
             )
             result = await adapter.emit_failure(signal)
             signal_ids.append(result.signal.signal_id)
@@ -387,6 +398,7 @@ class TestEventStoreIntegrity:
                 task_id=uuid4(),
                 severity=FailureSeverity.MEDIUM,
                 evidence={},
+                timestamp=_utc_now(),
             )
             await adapter.emit_failure(signal)
 
@@ -417,6 +429,7 @@ class TestEventStoreIntegrity:
             task_id=task_id,
             severity=FailureSeverity.HIGH,
             evidence={},
+            timestamp=_utc_now(),
         )
         await adapter.emit_failure(signal)
 
@@ -432,6 +445,7 @@ class TestEventStoreIntegrity:
                 task_id=task_id,
                 severity=FailureSeverity.MEDIUM,
                 evidence={},
+                timestamp=_utc_now(),
             )
             await adapter.emit_failure(signal2)
 
@@ -459,6 +473,7 @@ class TestEventStoreIntegrity:
                 task_id=uuid4(),
                 severity=FailureSeverity.HIGH,
                 evidence={},
+                timestamp=_utc_now(),
             )
             await adapter.emit_failure(signal)
 
@@ -492,6 +507,7 @@ class TestSeverityBasedHandling:
             task_id=uuid4(),
             severity=FailureSeverity.CRITICAL,
             evidence={"critical_reason": "System integrity at risk"},
+            timestamp=_utc_now(),
         )
 
         result = await adapter.emit_failure(critical_signal)
@@ -528,6 +544,7 @@ class TestSeverityBasedHandling:
                 task_id=uuid4(),
                 severity=severity,
                 evidence={},
+                timestamp=_utc_now(),
             )
             result = await adapter.emit_failure(signal)
 
@@ -568,6 +585,7 @@ class TestConcurrentFailureHandling:
                 task_id=uuid4(),
                 severity=FailureSeverity.HIGH,
                 evidence={"index": index},
+                timestamp=_utc_now(),
             )
             await adapter.emit_failure(signal)
 
@@ -609,6 +627,7 @@ class TestErrorRecovery:
                 task_id=uuid4(),
                 severity=FailureSeverity.HIGH,
                 evidence={},
+                timestamp=_utc_now(),
             )
             await adapter.emit_failure(signal)
 
@@ -625,6 +644,7 @@ class TestErrorRecovery:
             task_id=uuid4(),
             severity=FailureSeverity.MEDIUM,
             evidence={},
+            timestamp=_utc_now(),
         )
         result = await adapter.emit_failure(new_signal)
 

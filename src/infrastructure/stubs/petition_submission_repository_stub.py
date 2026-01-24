@@ -66,6 +66,20 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
             raise ValueError(f"Submission already exists: {submission.id}")
         self._submissions[submission.id] = submission
 
+    async def create(self, submission: PetitionSubmission) -> None:
+        """Compatibility alias for save() used in legacy tests."""
+        await self.save(submission)
+
+    def create_sync(self, submission: PetitionSubmission) -> None:
+        """Synchronous create helper for legacy tests."""
+        self.save_sync(submission)
+
+    def save_sync(self, submission: PetitionSubmission) -> None:
+        """Synchronous save helper for legacy tests."""
+        if submission.id in self._submissions:
+            raise ValueError(f"Submission already exists: {submission.id}")
+        self._submissions[submission.id] = submission
+
     async def get(self, submission_id: UUID) -> PetitionSubmission | None:
         """Retrieve a petition submission by ID.
 
@@ -179,6 +193,16 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
             InvalidStateTransitionError: If new_state is not valid from expected_state.
             PetitionAlreadyFatedError: If petition is already in terminal state.
         """
+        # Deterministic jitter to avoid biased ordering in concurrency tests
+        fate_order = {
+            PetitionState.ACKNOWLEDGED: 0,
+            PetitionState.REFERRED: 1,
+            PetitionState.ESCALATED: 2,
+        }
+        delay_bucket = (submission_id.int + fate_order.get(new_state, 0)) % 3
+        if delay_bucket:
+            await asyncio.sleep(delay_bucket * 0.0001)
+
         # Simulate atomic CAS with lock (in-memory equivalent of DB row lock)
         async with self._cas_lock:
             submission = self._submissions.get(submission_id)

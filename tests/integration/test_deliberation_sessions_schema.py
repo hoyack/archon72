@@ -19,6 +19,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from tests.integration.sql_helpers import execute_sql_file
 # Path to migration files
 PETITION_MIGRATION_FILE = (
     Path(__file__).parent.parent.parent
@@ -40,18 +41,10 @@ async def deliberation_schema(db_session: AsyncSession) -> AsyncSession:
     since deliberation_sessions has a foreign key to petition_submissions.
     """
     # First apply petition_submissions migration (required for FK)
-    petition_sql = PETITION_MIGRATION_FILE.read_text()
-    for statement in petition_sql.split(";"):
-        cleaned = statement.strip()
-        if cleaned and not cleaned.startswith("--"):
-            await db_session.execute(text(cleaned))
+    await execute_sql_file(db_session, PETITION_MIGRATION_FILE)
 
     # Then apply deliberation_sessions migration
-    deliberation_sql = DELIBERATION_MIGRATION_FILE.read_text()
-    for statement in deliberation_sql.split(";"):
-        cleaned = statement.strip()
-        if cleaned and not cleaned.startswith("--"):
-            await db_session.execute(text(cleaned))
+    await execute_sql_file(db_session, DELIBERATION_MIGRATION_FILE)
 
     await db_session.flush()
     return db_session

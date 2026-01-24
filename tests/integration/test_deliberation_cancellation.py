@@ -106,6 +106,8 @@ class TestDeliberationCancellationOnEscalation:
             submission_id=petition_id,
             expected_state=PetitionState.DELIBERATING,
             new_state=PetitionState.ESCALATED,
+            escalation_source="CO_SIGNER_THRESHOLD",
+            escalated_to_realm=petition.realm,
         )
 
     @pytest.mark.asyncio
@@ -145,6 +147,8 @@ class TestDeliberationCancellationOnEscalation:
             submission_id=petition_id,
             expected_state=PetitionState.RECEIVED,
             new_state=PetitionState.ESCALATED,
+            escalation_source="CO_SIGNER_THRESHOLD",
+            escalated_to_realm=petition.realm,
         )
 
 

@@ -33,15 +33,16 @@ class TestPetitionType:
     """Test PetitionType enum."""
 
     def test_all_values_present(self) -> None:
-        """AC2: Verify all petition type values exist."""
+        """AC2: Verify all petition type values exist (FR-10.1, FR-10.4)."""
         assert PetitionType.GENERAL.value == "GENERAL"
         assert PetitionType.CESSATION.value == "CESSATION"
         assert PetitionType.GRIEVANCE.value == "GRIEVANCE"
         assert PetitionType.COLLABORATION.value == "COLLABORATION"
+        assert PetitionType.META.value == "META"  # FR-10.4: META petitions
 
     def test_enum_count(self) -> None:
-        """Verify exactly 4 petition types."""
-        assert len(PetitionType) == 4
+        """Verify exactly 5 petition types (including META, FR-10.4)."""
+        assert len(PetitionType) == 5
 
 
 class TestPetitionState:

@@ -298,7 +298,7 @@ class TestRFC7807ErrorFormat:
         rfc7807 = error.to_rfc7807_dict()
 
         # Required RFC 7807 fields
-        assert rfc7807["type"] == "https://archon72.ai/errors/co-sign/already-signed"
+        assert rfc7807["type"] == "urn:archon72:co-sign:already-signed"
         assert rfc7807["title"] == "Already Signed"
         assert rfc7807["status"] == 409
         assert "detail" in rfc7807

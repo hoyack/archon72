@@ -28,7 +28,10 @@ async def test_health_endpoint_returns_healthy_status() -> None:
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.get("/v1/health")
         data = response.json()
-        assert data == {"status": "healthy"}
+        assert data["status"] == "healthy"
+        assert data["health_type"] == "operational"
+        assert data["constitutional_health_url"] == "/health/constitutional"
+        assert data["uptime_seconds"] >= 0.0
 
 
 @pytest.mark.asyncio

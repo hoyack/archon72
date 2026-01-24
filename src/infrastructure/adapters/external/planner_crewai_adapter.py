@@ -19,7 +19,7 @@ import asyncio
 import json
 import time
 
-from crewai import Agent, Crew, Task
+from src.optional_deps.crewai import Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.execution_planner import (

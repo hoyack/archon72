@@ -24,6 +24,7 @@ os.environ["CREWAI_DISABLE_TRACKING"] = "true"
 import pytest
 
 from tests.helpers.fake_time_authority import FakeTimeAuthority
+from src.infrastructure.stubs.writer_lock_stub import WriterLockStub
 
 
 @pytest.fixture
@@ -83,3 +84,9 @@ def frozen_time_authority() -> FakeTimeAuthority:
     return FakeTimeAuthority(
         frozen_at=datetime(2026, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
     )
+
+
+@pytest.fixture(autouse=True)
+def _reset_writer_lock_global_state() -> None:
+    """Ensure WriterLockStub shared state does not leak between tests."""
+    WriterLockStub.reset_global_state()

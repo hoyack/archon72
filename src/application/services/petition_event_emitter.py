@@ -36,8 +36,10 @@ from src.domain.events.petition import (
     PETITION_RECEIVED_EVENT_TYPE,
     PETITION_REFERRED_EVENT_TYPE,
     PETITION_SYSTEM_AGENT_ID,
+    PETITION_WITHDRAWN_EVENT_TYPE,
     PetitionFateEventPayload,
     PetitionReceivedEventPayload,
+    PetitionWithdrawnEventPayload,
 )
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
@@ -274,3 +276,89 @@ class PetitionEventEmitter(PetitionEventEmitterPort):
                 f"Must be one of: {list(event_type_map.keys())}"
             )
         return event_type_map[new_state]
+
+    async def emit_petition_withdrawn(
+        self,
+        petition_id: UUID,
+        withdrawn_by: UUID,
+        reason: str | None = None,
+    ) -> bool:
+        """Emit petition.withdrawn event when petitioner withdraws (Story 7.3, FR-7.5).
+
+        This method emits a petition.withdrawn event to notify observers
+        that a petition has been withdrawn by the original petitioner.
+
+        Note: This is a secondary event - the primary fate event (petition.acknowledged)
+        is emitted via emit_fate_event with WITHDRAWN reason code. This event provides
+        additional context specifically for withdrawals.
+
+        The event is emitted to the governance ledger and witnessed
+        per CT-12. Emission errors are logged but do NOT fail the
+        calling operation (eventual consistency).
+
+        Constitutional Constraints:
+        - FR-7.5: Event SHALL be emitted when petitioner withdraws
+        - CT-12: Event is witnessed via GovernanceLedger
+        - CT-13: Halt check is caller responsibility
+
+        Args:
+            petition_id: The withdrawn petition identifier.
+            withdrawn_by: UUID of the petitioner who withdrew.
+            reason: Optional explanation for withdrawal.
+
+        Returns:
+            True if event was emitted successfully, False otherwise.
+            False does NOT indicate withdrawal failure - just event emission.
+        """
+        try:
+            # Get timestamp from time authority (HARDENING-1)
+            now: datetime = self._time_authority.utcnow()
+
+            # Create event payload (FR-7.5)
+            payload = PetitionWithdrawnEventPayload(
+                petition_id=petition_id,
+                withdrawn_by=withdrawn_by,
+                reason=reason,
+                withdrawn_at=now,
+            )
+
+            # Create governance event envelope
+            event_id = uuid4()
+            event = GovernanceEvent.create(
+                event_id=event_id,
+                event_type=PETITION_WITHDRAWN_EVENT_TYPE,
+                timestamp=now,
+                actor_id=f"submitter:{withdrawn_by}",
+                trace_id=str(petition_id),  # Use petition_id for tracing
+                payload=payload.to_dict(),
+                schema_version=CURRENT_SCHEMA_VERSION,
+            )
+
+            # Persist to ledger (CT-12: witnessing)
+            await self._ledger.append_event(event)
+
+            logger.info(
+                "petition.withdrawn event emitted",
+                extra={
+                    "petition_id": str(petition_id),
+                    "event_id": str(event_id),
+                    "withdrawn_by": str(withdrawn_by),
+                },
+            )
+
+            return True
+
+        except Exception as e:
+            # Log error but don't fail the operation (eventual consistency)
+            # The withdrawal fate event is already emitted; this is secondary
+            logger.error(
+                "Failed to emit petition.withdrawn event",
+                extra={
+                    "petition_id": str(petition_id),
+                    "withdrawn_by": str(withdrawn_by),
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                },
+                exc_info=True,
+            )
+            return False

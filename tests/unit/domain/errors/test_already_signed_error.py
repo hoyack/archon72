@@ -72,7 +72,7 @@ class TestAlreadySignedErrorRFC7807:
         error = AlreadySignedError(petition_id=petition_id, signer_id=signer_id)
         rfc7807 = error.to_rfc7807_dict()
 
-        assert rfc7807["type"] == "https://archon72.ai/errors/co-sign/already-signed"
+        assert rfc7807["type"] == "urn:archon72:co-sign:already-signed"
         assert rfc7807["title"] == "Already Signed"
         assert rfc7807["status"] == 409
         assert str(signer_id) in rfc7807["detail"]

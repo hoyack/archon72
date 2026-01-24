@@ -59,7 +59,8 @@ class JobSchedulerStub(JobSchedulerProtocol):
         self,
         job_type: str,
         payload: dict[str, Any],
-        run_at: datetime,
+        run_at: datetime | None = None,
+        scheduled_for: datetime | None = None,
     ) -> UUID:
         """Schedule a new job for future execution.
 
@@ -67,6 +68,7 @@ class JobSchedulerStub(JobSchedulerProtocol):
             job_type: Type of job (referral_timeout, deliberation_timeout, etc.)
             payload: Job-specific data (petition_id, deadline details, etc.)
             run_at: Timestamp when job should be executed (UTC, timezone-aware)
+            scheduled_for: Alias for run_at (legacy/test callers)
 
         Returns:
             UUID of the newly scheduled job
@@ -74,7 +76,10 @@ class JobSchedulerStub(JobSchedulerProtocol):
         Raises:
             ValueError: If run_at is not timezone-aware
         """
-        if run_at.tzinfo is None:
+        effective_run_at = run_at if run_at is not None else scheduled_for
+        if effective_run_at is None:
+            raise ValueError("run_at or scheduled_for must be provided")
+        if effective_run_at.tzinfo is None:
             raise ValueError("run_at must be timezone-aware (UTC)")
 
         job_id = uuid4()
@@ -82,7 +87,7 @@ class JobSchedulerStub(JobSchedulerProtocol):
             id=job_id,
             job_type=job_type,
             payload=payload,
-            scheduled_for=run_at,
+            scheduled_for=effective_run_at,
             created_at=_utc_now(),
             attempts=0,
             last_attempt_at=None,

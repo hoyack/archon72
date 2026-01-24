@@ -63,6 +63,8 @@ class HaltCheckerStub(HaltChecker):
         dual_channel_halt: DualChannelHaltTransport | None = None,
         halt_state: HaltState | None = None,
         halt_state_name: str | None = None,
+        is_halted: bool | None = None,
+        initial_halted: bool | None = None,
         force_halted: bool = False,
         halt_reason: str | None = None,
     ) -> None:
@@ -75,6 +77,12 @@ class HaltCheckerStub(HaltChecker):
             force_halted: If True, is_halted() returns True (standalone mode).
             halt_reason: Reason to return when halted (standalone mode).
         """
+        # Legacy aliases for force_halted
+        if is_halted is not None:
+            force_halted = is_halted
+        elif initial_halted is not None:
+            force_halted = initial_halted
+
         # DualChannelHaltTransport mode (highest priority)
         self._dual_channel_halt = dual_channel_halt
 

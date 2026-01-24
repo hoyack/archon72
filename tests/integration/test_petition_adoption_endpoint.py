@@ -432,13 +432,13 @@ def test_adopt_petition_system_halted(
 @pytest.mark.parametrize(
     "field,invalid_value,expected_error",
     [
-        ("motion_title", "", "validation"),  # Empty title
-        ("motion_title", "x" * 201, "validation"),  # Title too long
-        ("motion_body", "", "validation"),  # Empty body
-        ("motion_body", "x" * 5001, "validation"),  # Body too long
-        ("adoption_rationale", "", "validation"),  # Empty rationale
-        ("adoption_rationale", "short", "validation"),  # Rationale too short
-        ("adoption_rationale", "x" * 2001, "validation"),  # Rationale too long
+        ("motion_title", "", "motion_title"),  # Empty title
+        ("motion_title", "x" * 201, "motion_title"),  # Title too long
+        ("motion_body", "", "motion_body"),  # Empty body
+        ("motion_body", "x" * 5001, "motion_body"),  # Body too long
+        ("adoption_rationale", "", "adoption_rationale"),  # Empty rationale
+        ("adoption_rationale", "short", "adoption_rationale"),  # Rationale too short
+        ("adoption_rationale", "x" * 2001, "adoption_rationale"),  # Rationale too long
     ],
 )
 def test_adopt_petition_validation_errors(
@@ -528,8 +528,8 @@ def test_adopt_petition_creates_bidirectional_provenance(
     # Assert: Petition → Motion provenance (back-reference)
     import asyncio
     updated_petition = asyncio.run(petition_repo.get(escalated_petition.id))
-    assert updated_petition.adopted_as_motion_id == motion_id
-    assert updated_petition.adopted_by_king_id == king_id
+    assert str(updated_petition.adopted_as_motion_id) == motion_id
+    assert str(updated_petition.adopted_by_king_id) == king_id
     assert updated_petition.adopted_at is not None
 
 

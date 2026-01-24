@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from crewai import LLM, Agent, Crew, Task
+from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
 from src.application.ports.agent_orchestrator import (
@@ -43,7 +43,7 @@ from src.domain.models.archon_profile import ArchonProfile
 from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 if TYPE_CHECKING:
-    from crewai.tools import BaseTool
+    from src.optional_deps.crewai import BaseTool
 
 logger = get_logger(__name__)
 

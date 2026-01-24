@@ -24,7 +24,11 @@ import pytest
 from src.application.services.petition_submission_service import (
     PetitionSubmissionService,
 )
-from src.domain.errors import ConcurrentModificationError, FateEventEmissionError
+from src.domain.errors import (
+    ConcurrentModificationError,
+    FateEventEmissionError,
+    PetitionAlreadyFatedError,
+)
 from src.domain.models.petition_submission import (
     PetitionState,
     PetitionSubmission,
@@ -107,13 +111,13 @@ class TestTransactionalFateAssignmentIntegration:
         event_emitter: PetitionEventEmitterStub,
     ) -> None:
         """FR-2.5: State update and event emission happen atomically."""
-        petition = _make_received_petition()
+        petition = _make_deliberating_petition()
         await repository.save(petition)
 
         # Assign fate transactionally
         await service.assign_fate_transactional(
             petition_id=petition.id,
-            expected_state=PetitionState.RECEIVED,
+            expected_state=PetitionState.DELIBERATING,
             new_state=PetitionState.ACKNOWLEDGED,
             actor_id="clotho-agent",
             reason="Test reason",
@@ -128,7 +132,7 @@ class TestTransactionalFateAssignmentIntegration:
         assert len(event_emitter.emitted_fate_events) == 1
         fate_event = event_emitter.emitted_fate_events[0]
         assert fate_event.petition_id == petition.id
-        assert fate_event.previous_state == "RECEIVED"
+        assert fate_event.previous_state == "DELIBERATING"
         assert fate_event.new_state == "ACKNOWLEDGED"
         assert fate_event.actor_id == "clotho-agent"
         assert fate_event.reason == "Test reason"
@@ -152,22 +156,22 @@ class TestTransactionalFateAssignmentIntegration:
             event_emitter=failing_emitter,
         )
 
-        petition = _make_received_petition()
+        petition = _make_deliberating_petition()
         await repository.save(petition)
 
         # Attempt fate assignment - should fail and rollback
         with pytest.raises(FateEventEmissionError):
             await service.assign_fate_transactional(
                 petition_id=petition.id,
-                expected_state=PetitionState.RECEIVED,
+                expected_state=PetitionState.DELIBERATING,
                 new_state=PetitionState.ACKNOWLEDGED,
                 actor_id="clotho-agent",
             )
 
-        # Verify state was rolled back to RECEIVED
+        # Verify state was rolled back to DELIBERATING
         stored = await repository.get(petition.id)
         assert stored is not None
-        assert stored.state == PetitionState.RECEIVED
+        assert stored.state == PetitionState.DELIBERATING
 
         # Verify no fate event was persisted
         assert len(failing_emitter.emitted_fate_events) == 0
@@ -194,12 +198,17 @@ class TestTransactionalFateAssignmentIntegration:
             PetitionState.REFERRED,
             PetitionState.ESCALATED,
         ]:
-            petition = _make_received_petition()
+            if fate == PetitionState.REFERRED:
+                petition = _make_deliberating_petition()
+                expected_state = PetitionState.DELIBERATING
+            else:
+                petition = _make_received_petition()
+                expected_state = PetitionState.RECEIVED
             await repository.save(petition)
 
             await service.assign_fate_transactional(
                 petition_id=petition.id,
-                expected_state=PetitionState.RECEIVED,
+                expected_state=expected_state,
                 new_state=fate,
                 actor_id="test-agent",
             )
@@ -227,7 +236,7 @@ class TestTransactionalFateAssignmentIntegration:
             event_emitter=event_emitter,
         )
 
-        petition = _make_received_petition()
+        petition = _make_deliberating_petition()
         await repository.save(petition)
 
         successes = []
@@ -237,12 +246,16 @@ class TestTransactionalFateAssignmentIntegration:
             try:
                 result = await service.assign_fate_transactional(
                     petition_id=petition.id,
-                    expected_state=PetitionState.RECEIVED,
+                    expected_state=PetitionState.DELIBERATING,
                     new_state=fate,
                     actor_id=f"{fate.value.lower()}-agent",
                 )
                 successes.append(result.state)
-            except (ConcurrentModificationError, FateEventEmissionError) as e:
+            except (
+                ConcurrentModificationError,
+                FateEventEmissionError,
+                PetitionAlreadyFatedError,
+            ) as e:
                 failures.append((fate, type(e).__name__))
 
         # Race three fates
@@ -324,12 +337,12 @@ class TestTransactionalFateAssignmentIntegration:
         event_emitter: PetitionEventEmitterStub,
     ) -> None:
         """Verify emitted fate event contains all required fields."""
-        petition = _make_received_petition()
+        petition = _make_deliberating_petition()
         await repository.save(petition)
 
         await service.assign_fate_transactional(
             petition_id=petition.id,
-            expected_state=PetitionState.RECEIVED,
+            expected_state=PetitionState.DELIBERATING,
             new_state=PetitionState.REFERRED,
             actor_id="lachesis-agent",
             reason="Requires knight intervention",
@@ -339,7 +352,7 @@ class TestTransactionalFateAssignmentIntegration:
 
         # Verify all required fields are present
         assert event.petition_id == petition.id
-        assert event.previous_state == "RECEIVED"
+        assert event.previous_state == "DELIBERATING"
         assert event.new_state == "REFERRED"
         assert event.actor_id == "lachesis-agent"
         assert event.reason == "Requires knight intervention"
@@ -376,8 +389,8 @@ class TestTransactionalFateAssignmentIntegration:
         assert initial_event_count == 1
 
         # Attempt second fate with wrong expected state
-        # CAS should fail before event emission
-        with pytest.raises(ConcurrentModificationError):
+        # CAS/terminal-state guard should fail before event emission
+        with pytest.raises((ConcurrentModificationError, PetitionAlreadyFatedError)):
             await service.assign_fate_transactional(
                 petition_id=petition.id,
                 expected_state=PetitionState.RECEIVED,  # Wrong - already ACKNOWLEDGED
@@ -450,10 +463,6 @@ class TestTransactionalFateCorrelation:
         event_emitter: PetitionEventEmitterStub,
     ) -> None:
         """Each petition's event correlates to correct petition."""
-        petitions = [_make_received_petition() for _ in range(5)]
-        for p in petitions:
-            await repository.save(p)
-
         # Assign different fates
         fates = [
             PetitionState.ACKNOWLEDGED,
@@ -463,10 +472,28 @@ class TestTransactionalFateCorrelation:
             PetitionState.REFERRED,
         ]
 
-        for petition, fate in zip(petitions, fates, strict=True):
+        petitions = []
+        expected_states = []
+        for fate in fates:
+            if fate == PetitionState.REFERRED:
+                petitions.append(_make_deliberating_petition())
+                expected_states.append(PetitionState.DELIBERATING)
+            else:
+                petitions.append(_make_received_petition())
+                expected_states.append(PetitionState.RECEIVED)
+
+        for p in petitions:
+            await repository.save(p)
+
+        for petition, fate, expected_state in zip(
+            petitions,
+            fates,
+            expected_states,
+            strict=True,
+        ):
             await service.assign_fate_transactional(
                 petition_id=petition.id,
-                expected_state=PetitionState.RECEIVED,
+                expected_state=expected_state,
                 new_state=fate,
                 actor_id=f"{fate.value.lower()}-agent",
             )

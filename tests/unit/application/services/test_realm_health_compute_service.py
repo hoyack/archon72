@@ -81,7 +81,7 @@ class TestRealmHealthComputeService:
         realm_health_repo: RealmHealthRepositoryStub,
     ) -> None:
         """Test that compute_for_cycle creates health for all 9 canonical realms."""
-        _ = await service.compute_for_cycle(cycle_id="2026-W04")
+        results = await service.compute_for_cycle(cycle_id="2026-W04")
 
         assert len(results) == 9
         assert len(results) == len(CANONICAL_REALM_IDS)
@@ -111,7 +111,7 @@ class TestRealmHealthComputeService:
         """Test that compute_for_cycle uses provided petition/referral counts."""
         realm_id = "realm_privacy_discretion_services"
 
-        _ = await service.compute_for_cycle(
+        results = await service.compute_for_cycle(
             cycle_id="2026-W04",
             petition_counts={realm_id: {"received": 42, "fated": 38}},
             referral_counts={realm_id: {"pending": 3, "expired": 1}},
@@ -319,5 +319,5 @@ class TestRealmHealthComputeService:
         )
 
         # Should not raise even without event emitter
-        _ = await service.compute_for_cycle(cycle_id="2026-W04")
+        results = await service.compute_for_cycle(cycle_id="2026-W04")
         assert len(results) == 9

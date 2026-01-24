@@ -156,7 +156,7 @@ class TestAsyncValidationFallback:
         )
 
         # Check that async is not used
-        _ = await service._should_use_async_validation()
+        use_async = await service._should_use_async_validation()
         assert not use_async
 
     @pytest.mark.asyncio
@@ -175,7 +175,7 @@ class TestAsyncValidationFallback:
             validation_dispatcher=None,  # No dispatcher
         )
 
-        _ = await service._should_use_async_validation()
+        use_async = await service._should_use_async_validation()
         assert not use_async
 
     @pytest.mark.asyncio
@@ -200,7 +200,7 @@ class TestAsyncValidationFallback:
         )
 
         with caplog.at_level(logging.INFO):
-            _ = await service._should_use_async_validation()
+            use_async = await service._should_use_async_validation()
 
         assert not use_async
         assert "Circuit breaker OPEN" in caplog.text
@@ -221,7 +221,7 @@ class TestAsyncValidationFallback:
             validation_dispatcher=mock_dispatcher_success,
         )
 
-        _ = await service._should_use_async_validation()
+        use_async = await service._should_use_async_validation()
         assert use_async
 
     @pytest.mark.asyncio
@@ -473,7 +473,7 @@ class TestLoggingOnFallback:
         )
 
         with caplog.at_level(logging.INFO):
-            _ = await service._should_use_async_validation()
+            use_async = await service._should_use_async_validation()
 
         assert not use_async
         assert (

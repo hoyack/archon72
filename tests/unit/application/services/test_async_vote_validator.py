@@ -192,4 +192,4 @@ async def test_drain_timeout_raises():
     validator.pending_jobs[job.vote_id] = job
 
     with pytest.raises(ReconciliationTimeoutError):
-        await validator.drain(timeout=0.01)
+        await validator.drain(timeout_seconds=0.01)

@@ -180,9 +180,7 @@ class EscalationQueueStub:
         self._escalations[realm_id].append(item)
 
         # Sort by escalated_at (FIFO)
-        self._escalations[realm_id].sort(
-            key=lambda x: (x.escalated_at, x.petition_id)
-        )
+        self._escalations[realm_id].sort(key=lambda x: (x.escalated_at, x.petition_id))
 
     def add_escalation_item(self, realm_id: str, item: EscalationQueueItem) -> None:
         """Add an escalation item to the queue (test helper).
@@ -197,9 +195,7 @@ class EscalationQueueStub:
         self._escalations[realm_id].append(item)
 
         # Sort by escalated_at (FIFO)
-        self._escalations[realm_id].sort(
-            key=lambda x: (x.escalated_at, x.petition_id)
-        )
+        self._escalations[realm_id].sort(key=lambda x: (x.escalated_at, x.petition_id))
 
     def get_realm_escalations(self, realm_id: str) -> list[EscalationQueueItem]:
         """Get all escalations for a realm (test helper).

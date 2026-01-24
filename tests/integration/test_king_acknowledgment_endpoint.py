@@ -630,9 +630,7 @@ async def test_king_acknowledged_escalation_event_emitted(
     # Verify event was emitted
     events = acknowledgment_service.get_emitted_events()
     king_ack_events = [
-        e
-        for e in events
-        if "acknowledged_by_king" in e.get("event_type", "").lower()
+        e for e in events if "acknowledged_by_king" in e.get("event_type", "").lower()
     ]
     assert len(king_ack_events) == 1
 

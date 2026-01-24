@@ -148,7 +148,9 @@ class VoteAggregation:
         self.updated_at_ms = int(time.time() * 1000)
         return True
 
-    def get_latest_responses(self, attempt: int | None = None) -> list[ValidatorResponse]:
+    def get_latest_responses(
+        self, attempt: int | None = None
+    ) -> list[ValidatorResponse]:
         """Get the latest response from each validator.
 
         Args:
@@ -159,10 +161,7 @@ class VoteAggregation:
         """
         if attempt is not None:
             # Get responses for specific attempt
-            return [
-                r for key, r in self.responses.items()
-                if r.attempt == attempt
-            ]
+            return [r for key, r in self.responses.items() if r.attempt == attempt]
 
         # Get latest response per validator
         latest: dict[str, ValidatorResponse] = {}
@@ -276,7 +275,9 @@ class VoteAggregation:
         self.updated_at_ms = int(time.time() * 1000)
         return True
 
-    def get_secretary_responses(self, attempt: int | None = None) -> dict[ValidatorRole, SecretaryResponse]:
+    def get_secretary_responses(
+        self, attempt: int | None = None
+    ) -> dict[ValidatorRole, SecretaryResponse]:
         """Get secretary responses by role.
 
         Args:
@@ -292,7 +293,10 @@ class VoteAggregation:
                 continue
 
             # Keep latest response per role
-            if response.role not in result or response.attempt > result[response.role].attempt:
+            if (
+                response.role not in result
+                or response.attempt > result[response.role].attempt
+            ):
                 result[response.role] = response
 
         return result
@@ -373,18 +377,24 @@ class VoteAggregation:
                 "vote_choice": text_resp.vote_choice if text_resp else "",
                 "confidence": text_resp.confidence if text_resp else 0.0,
                 "reasoning": text_resp.reasoning if text_resp else "",
-            } if text_resp else None,
+            }
+            if text_resp
+            else None,
             "secretary_json": {
                 "secretary_id": json_resp.secretary_id if json_resp else "",
                 "vote_choice": json_resp.vote_choice if json_resp else "",
                 "confidence": json_resp.confidence if json_resp else 0.0,
                 "reasoning": json_resp.reasoning if json_resp else "",
-            } if json_resp else None,
+            }
+            if json_resp
+            else None,
             "witness": {
                 "witness_id": self.witness_observation.witness_id,
                 "verdict": self.witness_observation.verdict.value,
                 "statement": self.witness_observation.statement,
-            } if self.witness_observation else None,
+            }
+            if self.witness_observation
+            else None,
             "validation_source": ValidationSource.CONSENSUS.value,
             "timestamp_ms": int(time.time() * 1000),
         }
@@ -510,20 +520,24 @@ class ConsensusAggregator:
             try:
                 from confluent_kafka import Consumer
 
-                self._consumer = Consumer({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    "group.id": self._consumer_group,
-                    "auto.offset.reset": "earliest",
-                    "enable.auto.commit": False,
-                    "max.poll.interval.ms": 300000,
-                    "session.timeout.ms": 45000,
-                })
+                self._consumer = Consumer(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        "group.id": self._consumer_group,
+                        "auto.offset.reset": "earliest",
+                        "enable.auto.commit": False,
+                        "max.poll.interval.ms": 300000,
+                        "session.timeout.ms": 45000,
+                    }
+                )
 
                 # Subscribe to both secretary results and witness events
-                self._consumer.subscribe([
-                    TOPIC_VALIDATION_RESULTS,
-                    TOPIC_WITNESS_EVENTS,
-                ])
+                self._consumer.subscribe(
+                    [
+                        TOPIC_VALIDATION_RESULTS,
+                        TOPIC_WITNESS_EVENTS,
+                    ]
+                )
                 logger.info(
                     "Consumer subscribed to %s and %s",
                     TOPIC_VALIDATION_RESULTS,
@@ -542,15 +556,17 @@ class ConsensusAggregator:
             try:
                 from confluent_kafka import Producer
 
-                self._producer = Producer({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    "acks": "all",
-                    "enable.idempotence": True,
-                    "message.timeout.ms": 10000,
-                    "request.timeout.ms": 10000,
-                    "retries": 3,
-                    "compression.type": "snappy",
-                })
+                self._producer = Producer(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        "acks": "all",
+                        "enable.idempotence": True,
+                        "message.timeout.ms": 10000,
+                        "request.timeout.ms": 10000,
+                        "retries": 3,
+                        "compression.type": "snappy",
+                    }
+                )
 
             except ImportError:
                 logger.error("confluent-kafka not installed")
@@ -867,7 +883,10 @@ class ConsensusAggregator:
         else:
             # TOPIC_VALIDATION_RESULTS - secretary or legacy validator
             role = self._extract_role(message)
-            if role in {ValidatorRole.SECRETARY_TEXT.value, ValidatorRole.SECRETARY_JSON.value}:
+            if role in {
+                ValidatorRole.SECRETARY_TEXT.value,
+                ValidatorRole.SECRETARY_JSON.value,
+            }:
                 await self._process_secretary_result(message, role)
             else:
                 # Legacy validator flow (backwards compatibility)
@@ -1169,7 +1188,8 @@ class ConsensusAggregator:
         return [
             vote_id
             for vote_id, vote in self._vote_state.items()
-            if vote.status not in {ConsensusStatus.VALIDATED, ConsensusStatus.DEAD_LETTER}
+            if vote.status
+            not in {ConsensusStatus.VALIDATED, ConsensusStatus.DEAD_LETTER}
         ]
 
     def get_metrics(self) -> dict[str, Any]:
@@ -1256,10 +1276,19 @@ async def _run_from_env() -> None:
     if load_dotenv:
         load_dotenv()
 
-    bootstrap_servers = _get_env("KAFKA_BOOTSTRAP_SERVERS", "localhost:19092") or "localhost:19092"
-    schema_registry_url = _get_env("SCHEMA_REGISTRY_URL", "http://localhost:18081") or "http://localhost:18081"
-    consumer_group = _get_env("KAFKA_CONSUMER_GROUP", "conclave-aggregator") or "conclave-aggregator"
-    current_session_id = _get_env("CONCLAVE_SESSION_ID") or _get_env("CURRENT_SESSION_ID")
+    bootstrap_servers = (
+        _get_env("KAFKA_BOOTSTRAP_SERVERS", "localhost:19092") or "localhost:19092"
+    )
+    schema_registry_url = (
+        _get_env("SCHEMA_REGISTRY_URL", "http://localhost:18081")
+        or "http://localhost:18081"
+    )
+    consumer_group = (
+        _get_env("KAFKA_CONSUMER_GROUP", "conclave-aggregator") or "conclave-aggregator"
+    )
+    current_session_id = _get_env("CONCLAVE_SESSION_ID") or _get_env(
+        "CURRENT_SESSION_ID"
+    )
 
     aggregator = ConsensusAggregator(
         bootstrap_servers=bootstrap_servers,

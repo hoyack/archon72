@@ -294,9 +294,7 @@ class ArchonAcknowledgmentRateResponse(BaseModel):
 
     archon_id: str = Field(..., description="Archon identifier")
     archon_name: str = Field(..., description="Archon display name")
-    acknowledgment_count: int = Field(
-        ..., description="Acknowledgments this cycle"
-    )
+    acknowledgment_count: int = Field(..., description="Acknowledgments this cycle")
     rate: float = Field(..., description="Acknowledgments per day")
 
 

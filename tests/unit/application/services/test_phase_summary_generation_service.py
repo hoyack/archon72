@@ -584,7 +584,9 @@ class TestAllPhasesSupported:
         self, service: PhaseSummaryGenerationService, phase: DeliberationPhase
     ) -> None:
         """Test all non-COMPLETE phases return valid summary structure."""
-        transcript = "Sample governance discussion with themes of security and transparency."
+        transcript = (
+            "Sample governance discussion with themes of security and transparency."
+        )
 
         result = await service.generate_phase_summary(
             phase=phase,

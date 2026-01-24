@@ -32,7 +32,7 @@ class TestRateLimitDetection:
             "429 Too Many Requests",
             "503 Service Unavailable",
             "temporarily unavailable",
-            "OllamaException - {\"error\":\"too many concurrent requests\"}",
+            'OllamaException - {"error":"too many concurrent requests"}',
         ],
     )
     def test_transient_errors_return_retry(self, error_message: str) -> None:

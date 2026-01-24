@@ -411,9 +411,7 @@ class FateNotificationService(FateNotificationServiceProtocol):
                 # Future: await self._event_writer.write_event(...)
                 pass
             except Exception as e:
-                logger.warning(
-                    "Failed to emit notification event: %s", e
-                )
+                logger.warning("Failed to emit notification event: %s", e)
 
     async def schedule_retry(
         self,

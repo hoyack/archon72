@@ -141,9 +141,7 @@ class StatusToken:
         except (ValueError, UnicodeDecodeError, base64.binascii.Error) as e:
             raise InvalidStatusTokenError(f"Failed to decode token: {e}") from e
 
-    def validate_not_expired(
-        self, max_age_seconds: int | None = None
-    ) -> None:
+    def validate_not_expired(self, max_age_seconds: int | None = None) -> None:
         """Validate that the token has not expired.
 
         Args:

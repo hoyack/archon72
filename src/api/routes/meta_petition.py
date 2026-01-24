@@ -76,7 +76,10 @@ def get_resolution_service() -> MetaPetitionResolutionService:
     status_code=status.HTTP_200_OK,
     responses={
         401: {"model": MetaPetitionErrorResponse, "description": "Unauthorized"},
-        403: {"model": MetaPetitionErrorResponse, "description": "Forbidden - High Archon role required"},
+        403: {
+            "model": MetaPetitionErrorResponse,
+            "description": "Forbidden - High Archon role required",
+        },
     },
     summary="List pending META petitions",
     description="""
@@ -171,8 +174,14 @@ async def list_pending_meta_petitions(
     status_code=status.HTTP_200_OK,
     responses={
         401: {"model": MetaPetitionErrorResponse, "description": "Unauthorized"},
-        403: {"model": MetaPetitionErrorResponse, "description": "Forbidden - High Archon role required"},
-        404: {"model": MetaPetitionErrorResponse, "description": "META petition not found"},
+        403: {
+            "model": MetaPetitionErrorResponse,
+            "description": "Forbidden - High Archon role required",
+        },
+        404: {
+            "model": MetaPetitionErrorResponse,
+            "description": "META petition not found",
+        },
     },
     summary="Get META petition details",
     description="""
@@ -240,11 +249,23 @@ async def get_meta_petition(
     response_model=ResolveMetaPetitionResponse,
     status_code=status.HTTP_200_OK,
     responses={
-        400: {"model": MetaPetitionErrorResponse, "description": "Validation error (e.g., rationale too short)"},
+        400: {
+            "model": MetaPetitionErrorResponse,
+            "description": "Validation error (e.g., rationale too short)",
+        },
         401: {"model": MetaPetitionErrorResponse, "description": "Unauthorized"},
-        403: {"model": MetaPetitionErrorResponse, "description": "Forbidden - High Archon role required"},
-        404: {"model": MetaPetitionErrorResponse, "description": "META petition not found"},
-        409: {"model": MetaPetitionErrorResponse, "description": "META petition already resolved"},
+        403: {
+            "model": MetaPetitionErrorResponse,
+            "description": "Forbidden - High Archon role required",
+        },
+        404: {
+            "model": MetaPetitionErrorResponse,
+            "description": "META petition not found",
+        },
+        409: {
+            "model": MetaPetitionErrorResponse,
+            "description": "META petition already resolved",
+        },
     },
     summary="Resolve META petition",
     description="""

@@ -45,13 +45,19 @@ REALMS_MIGRATION_FILE = (
     Path(__file__).parent.parent.parent / "migrations" / "015_create_realms_table.sql"
 )
 PETITION_SUBMISSIONS_MIGRATION_FILE = (
-    Path(__file__).parent.parent.parent / "migrations" / "012_create_petition_submissions.sql"
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "012_create_petition_submissions.sql"
 )
 ACK_REASON_ENUM_MIGRATION_FILE = (
-    Path(__file__).parent.parent.parent / "migrations" / "021_create_acknowledgment_reason_enum.sql"
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "021_create_acknowledgment_reason_enum.sql"
 )
 ACK_TABLE_MIGRATION_FILE = (
-    Path(__file__).parent.parent.parent / "migrations" / "022_create_acknowledgments_table.sql"
+    Path(__file__).parent.parent.parent
+    / "migrations"
+    / "022_create_acknowledgments_table.sql"
 )
 ACK_SCHEMA_NAME = "ack_test"
 
@@ -178,7 +184,9 @@ async def db_session(
 
 
 @pytest.fixture
-async def db_connection(postgres_container: PostgresContainer) -> AsyncGenerator[asyncpg.Connection, None]:
+async def db_connection(
+    postgres_container: PostgresContainer,
+) -> AsyncGenerator[asyncpg.Connection, None]:
     """Asyncpg connection for tests expecting fetch/fetchval semantics."""
     dsn = postgres_container.get_connection_url().replace(
         "postgresql+psycopg2://", "postgresql://"

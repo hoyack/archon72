@@ -200,16 +200,18 @@ class ValidationDispatcher:
             try:
                 from confluent_kafka import Producer
 
-                self._producer = Producer({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    "acks": "all",  # R1: Durability
-                    "enable.idempotence": True,
-                    "message.timeout.ms": int(self._timeout * 1000),
-                    "request.timeout.ms": int(self._timeout * 1000),
-                    "retries": 3,
-                    "retry.backoff.ms": 100,
-                    "compression.type": "snappy",
-                })
+                self._producer = Producer(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        "acks": "all",  # R1: Durability
+                        "enable.idempotence": True,
+                        "message.timeout.ms": int(self._timeout * 1000),
+                        "request.timeout.ms": int(self._timeout * 1000),
+                        "retries": 3,
+                        "retry.backoff.ms": 100,
+                        "compression.type": "snappy",
+                    }
+                )
             except ImportError:
                 logger.error("confluent-kafka not installed")
                 raise
@@ -272,7 +274,11 @@ class ValidationDispatcher:
         headers = self._create_headers(request.session_id, request.validator_id)
 
         # Track delivery
-        delivery_result: dict[str, Any] = {"error": None, "partition": None, "offset": None}
+        delivery_result: dict[str, Any] = {
+            "error": None,
+            "partition": None,
+            "offset": None,
+        }
 
         def delivery_callback(err: Any, msg: Any) -> None:
             if err:

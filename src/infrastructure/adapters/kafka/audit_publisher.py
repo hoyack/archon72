@@ -40,9 +40,7 @@ class KafkaAuditPublisher:
             )
             self._producer = None
         else:
-            self._producer = Producer(
-                {"bootstrap.servers": self._bootstrap_servers}
-            )
+            self._producer = Producer({"bootstrap.servers": self._bootstrap_servers})
 
     def _resolve_topic(self, topic: str) -> str:
         if topic.startswith(f"{self._topic_prefix}."):

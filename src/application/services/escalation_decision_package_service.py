@@ -136,9 +136,7 @@ class EscalationDecisionPackageService:
             DecisionPackageData with complete context.
         """
         # Anonymize submitter (hash public key)
-        submitter_hash = self._hash_public_key(
-            submission.submitter_id or UUID(int=0)
-        )
+        submitter_hash = self._hash_public_key(submission.submitter_id or UUID(int=0))
 
         # Build co-signer data (for now, return empty list - Epic 5 will add full support)
         co_signers = CoSignerListData(

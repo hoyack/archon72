@@ -82,10 +82,14 @@ class LegitimacyAlertingService:
             )
 
         if hysteresis_buffer < 0 or hysteresis_buffer > 0.1:
-            raise ValueError(f"Hysteresis buffer ({hysteresis_buffer}) must be between 0.0 and 0.1")
+            raise ValueError(
+                f"Hysteresis buffer ({hysteresis_buffer}) must be between 0.0 and 0.1"
+            )
 
         if min_consecutive_breaches < 1:
-            raise ValueError(f"min_consecutive_breaches ({min_consecutive_breaches}) must be >= 1")
+            raise ValueError(
+                f"min_consecutive_breaches ({min_consecutive_breaches}) must be >= 1"
+            )
 
         self.petition_repo = petition_repo
         self.warning_threshold = warning_threshold
@@ -97,7 +101,9 @@ class LegitimacyAlertingService:
         self,
         metrics: LegitimacyMetrics,
         previous_state: LegitimacyAlertState | None,
-    ) -> tuple[LegitimacyAlertTriggeredEvent | None, LegitimacyAlertRecoveredEvent | None]:
+    ) -> tuple[
+        LegitimacyAlertTriggeredEvent | None, LegitimacyAlertRecoveredEvent | None
+    ]:
         """Check metrics and determine if alert should trigger or recover.
 
         This is the main entry point for alert processing. It implements:
@@ -153,7 +159,9 @@ class LegitimacyAlertingService:
         breaches_threshold: bool,
         severity: AlertSeverity | None,
         now: datetime,
-    ) -> tuple[LegitimacyAlertTriggeredEvent | None, LegitimacyAlertRecoveredEvent | None]:
+    ) -> tuple[
+        LegitimacyAlertTriggeredEvent | None, LegitimacyAlertRecoveredEvent | None
+    ]:
         """Handle alert logic when an alert is currently active.
 
         Args:
@@ -171,7 +179,11 @@ class LegitimacyAlertingService:
             return await self._trigger_recovery(metrics, state, now)
 
         # Still breaching - update breach count and severity
-        if breaches_threshold and severity is not None and metrics.legitimacy_score is not None:
+        if (
+            breaches_threshold
+            and severity is not None
+            and metrics.legitimacy_score is not None
+        ):
             state.update_breach_count(metrics.legitimacy_score, severity, now)
 
         return (None, None)
@@ -182,7 +194,9 @@ class LegitimacyAlertingService:
         state: LegitimacyAlertState,
         severity: AlertSeverity | None,
         now: datetime,
-    ) -> tuple[LegitimacyAlertTriggeredEvent | None, LegitimacyAlertRecoveredEvent | None]:
+    ) -> tuple[
+        LegitimacyAlertTriggeredEvent | None, LegitimacyAlertRecoveredEvent | None
+    ]:
         """Handle alert trigger logic when no alert is currently active.
 
         Args:
@@ -259,7 +273,9 @@ class LegitimacyAlertingService:
             Tuple of (None, recovery_event).
         """
         if state.alert_id is None or state.triggered_score is None:
-            raise ValueError("Cannot recover alert without alert_id and triggered_score")
+            raise ValueError(
+                "Cannot recover alert without alert_id and triggered_score"
+            )
 
         # Calculate alert duration
         alert_duration = state.alert_duration_seconds(now)
@@ -304,7 +320,9 @@ class LegitimacyAlertingService:
         else:
             return None
 
-    def _should_recover(self, score: float | None, current_severity: AlertSeverity | None) -> bool:
+    def _should_recover(
+        self, score: float | None, current_severity: AlertSeverity | None
+    ) -> bool:
         """Check if alert should recover (with hysteresis).
 
         Recovery requires score to exceed threshold + hysteresis_buffer to prevent flapping.

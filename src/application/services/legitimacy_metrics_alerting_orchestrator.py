@@ -76,7 +76,9 @@ class AlertHistoryRepositoryProtocol(Protocol):
 class AlertDeliveryServiceProtocol(Protocol):
     """Protocol for multi-channel alert delivery."""
 
-    async def deliver_alert(self, event: LegitimacyAlertTriggeredEvent) -> dict[str, bool]:
+    async def deliver_alert(
+        self, event: LegitimacyAlertTriggeredEvent
+    ) -> dict[str, bool]:
         """Deliver alert to configured channels.
 
         Args:
@@ -87,7 +89,9 @@ class AlertDeliveryServiceProtocol(Protocol):
         """
         ...
 
-    async def deliver_recovery(self, event: LegitimacyAlertRecoveredEvent) -> dict[str, bool]:
+    async def deliver_recovery(
+        self, event: LegitimacyAlertRecoveredEvent
+    ) -> dict[str, bool]:
         """Deliver recovery notification to configured channels.
 
         Args:
@@ -213,7 +217,9 @@ class LegitimacyMetricsAlertingOrchestrator:
 
         try:
             # Step 1: Compute metrics (Story 8.1)
-            metrics = self._metrics_service.compute_metrics(cycle_id, cycle_start, cycle_end)
+            metrics = self._metrics_service.compute_metrics(
+                cycle_id, cycle_start, cycle_end
+            )
             self._metrics_service.store_metrics(metrics)
 
             self._log.info(
@@ -225,9 +231,10 @@ class LegitimacyMetricsAlertingOrchestrator:
 
             # Step 2: Check alert conditions (Story 8.2)
             previous_state = await self._alert_state_repo.get_current_state()
-            trigger_event, recovery_event = await self._alerting_service.check_and_alert(
-                metrics, previous_state
-            )
+            (
+                trigger_event,
+                recovery_event,
+            ) = await self._alerting_service.check_and_alert(metrics, previous_state)
 
             # Step 3: Process alert trigger if any
             if trigger_event:
@@ -335,7 +342,9 @@ class LegitimacyMetricsAlertingOrchestrator:
         # Record Prometheus metrics (AC6)
         # Note: severity is not stored in recovery event, use WARNING as default
         # In production, would need to retrieve severity from alert state or history
-        self._prom_metrics.record_alert_recovered("WARNING", event.alert_duration_seconds)
+        self._prom_metrics.record_alert_recovered(
+            "WARNING", event.alert_duration_seconds
+        )
 
         # Emit witnessed event (CT-12)
         await self._event_writer.write_event(event)

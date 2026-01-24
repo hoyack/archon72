@@ -234,7 +234,9 @@ class TestOrphanReprocessing:
         # Setup: 3 petitions, 1 RECEIVED, 1 DELIBERATING, 1 missing
         pid1, pid2, pid3 = uuid4(), uuid4(), uuid4()
 
-        petition1 = self._create_petition(petition_id=pid1, state=PetitionState.RECEIVED)
+        petition1 = self._create_petition(
+            petition_id=pid1, state=PetitionState.RECEIVED
+        )
         petition2 = self._create_petition(
             petition_id=pid2, state=PetitionState.DELIBERATING
         )

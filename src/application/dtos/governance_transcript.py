@@ -86,7 +86,9 @@ class FullTranscriptResponse(BaseModel):
     ]
     outcome: Annotated[
         str,
-        Field(description="Final outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE)"),
+        Field(
+            description="Final outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE)"
+        ),
     ]
     has_dissent: Annotated[
         bool,

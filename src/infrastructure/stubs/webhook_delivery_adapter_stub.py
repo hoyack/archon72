@@ -196,9 +196,7 @@ class WebhookDeliveryAdapterStub(WebhookDeliveryAdapterProtocol):
         """Clear all per-URL response configurations."""
         self._url_responses.clear()
 
-    def set_delivery_callback(
-        self, callback: Callable[..., bool] | None
-    ) -> None:
+    def set_delivery_callback(self, callback: Callable[..., bool] | None) -> None:
         """Set a custom delivery callback.
 
         The callback receives keyword arguments: url, petition_id,

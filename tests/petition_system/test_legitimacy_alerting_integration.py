@@ -364,7 +364,7 @@ class TestEventSystemIntegration:
         event = mock_event_writer.write_event.call_args[0][0]
 
         # Verify event has signable content for witnessing
-        assert hasattr(event, 'signable_content')
+        assert hasattr(event, "signable_content")
         signable = event.signable_content()
         assert isinstance(signable, bytes)
 
@@ -478,7 +478,9 @@ class TestConfigurationIntegration:
     """Tests for configuration integration with orchestrator."""
 
     @pytest.mark.asyncio
-    async def test_custom_thresholds_are_respected(self, mock_petition_repo, mock_metrics_service):
+    async def test_custom_thresholds_are_respected(
+        self, mock_petition_repo, mock_metrics_service
+    ):
         """Test custom alert thresholds are applied correctly."""
         # Create alerting service with custom thresholds
         custom_service = LegitimacyAlertingService(

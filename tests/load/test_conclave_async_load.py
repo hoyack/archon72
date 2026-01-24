@@ -8,7 +8,9 @@ from src.domain.models.conclave import VoteChoice
 
 
 class StubValidationOrchestrator:
-    async def execute_validation_task(self, task_type, validator_archon_id, vote_payload):
+    async def execute_validation_task(
+        self, task_type, validator_archon_id, vote_payload
+    ):
         return {
             "vote_choice": "AYE",
             "confidence": 0.9,

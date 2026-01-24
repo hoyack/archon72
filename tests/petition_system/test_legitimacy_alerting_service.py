@@ -93,13 +93,17 @@ class TestAlertTriggering:
         """Test no alert at exact threshold boundaries."""
         # Test WARNING threshold exactly - should NOT trigger (boundary inclusive)
         metrics_warning = create_metrics(score=0.85)
-        trigger, recovery = await alerting_service.check_and_alert(metrics_warning, None)
+        trigger, recovery = await alerting_service.check_and_alert(
+            metrics_warning, None
+        )
         assert trigger is None
 
         # Test CRITICAL threshold exactly - should trigger WARNING (0.70 < 0.85)
         # Note: 0.70 is NOT < 0.70 (no CRITICAL), but IS < 0.85 (YES WARNING)
         metrics_critical = create_metrics(score=0.70)
-        trigger, recovery = await alerting_service.check_and_alert(metrics_critical, None)
+        trigger, recovery = await alerting_service.check_and_alert(
+            metrics_critical, None
+        )
         assert trigger is not None
         assert trigger.severity == AlertSeverity.WARNING
         assert trigger.threshold == 0.85
@@ -178,7 +182,9 @@ class TestFlapDetection:
         assert trigger is not None
 
     @pytest.mark.asyncio
-    async def test_requires_consecutive_breaches_when_configured(self, mock_petition_repo):
+    async def test_requires_consecutive_breaches_when_configured(
+        self, mock_petition_repo
+    ):
         """Test flap detection requires N consecutive breaches."""
         service = LegitimacyAlertingService(
             petition_repo=mock_petition_repo,
@@ -204,7 +210,9 @@ class TestAlertStateManagement:
     """Tests for alert state management."""
 
     @pytest.mark.asyncio
-    async def test_alert_updates_breach_count_on_continued_breach(self, alerting_service):
+    async def test_alert_updates_breach_count_on_continued_breach(
+        self, alerting_service
+    ):
         """Test active alert updates consecutive breach count."""
         # Trigger alert
         metrics1 = create_metrics(score=0.84, cycle_id="2026-W04")
@@ -348,7 +356,9 @@ class TestStuckPetitionCounting:
     """Tests for stuck petition counting."""
 
     @pytest.mark.asyncio
-    async def test_stuck_petition_count_included_in_trigger(self, mock_petition_repo, alerting_service):
+    async def test_stuck_petition_count_included_in_trigger(
+        self, mock_petition_repo, alerting_service
+    ):
         """Test stuck petition count is included in trigger event."""
         mock_petition_repo.count_stuck_petitions.return_value = 12
 
@@ -424,7 +434,7 @@ class TestEventStructure:
         trigger, _ = await alerting_service.check_and_alert(metrics, None)
 
         # Alert events should have signable_content() for witnessing
-        assert hasattr(trigger, 'signable_content')
+        assert hasattr(trigger, "signable_content")
         signable = trigger.signable_content()
         assert isinstance(signable, bytes)
         assert len(signable) > 0

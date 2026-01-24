@@ -625,9 +625,7 @@ class MetricsCollector:
             status=status,
         ).inc()
 
-    def observe_fate_notification_latency(
-        self, duration: float, channel: str
-    ) -> None:
+    def observe_fate_notification_latency(self, duration: float, channel: str) -> None:
         """Record a fate notification delivery latency (Story 7.2, FR-7.3).
 
         Args:

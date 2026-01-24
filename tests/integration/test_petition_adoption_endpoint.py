@@ -101,6 +101,7 @@ def escalated_petition(petition_repo):
     )
     # Use blocking call since this is pytest (not asyncio)
     import asyncio
+
     asyncio.run(petition_repo.create(petition))
     return petition
 
@@ -339,6 +340,7 @@ def test_adopt_petition_not_escalated(
         realm="governance",
     )
     import asyncio
+
     asyncio.run(petition_repo.create(petition))
 
     # Arrange: Adoption request
@@ -527,6 +529,7 @@ def test_adopt_petition_creates_bidirectional_provenance(
 
     # Assert: Petition → Motion provenance (back-reference)
     import asyncio
+
     updated_petition = asyncio.run(petition_repo.get(escalated_petition.id))
     assert str(updated_petition.adopted_as_motion_id) == motion_id
     assert str(updated_petition.adopted_by_king_id) == king_id

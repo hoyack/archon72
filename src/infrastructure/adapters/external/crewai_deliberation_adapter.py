@@ -871,10 +871,7 @@ Then briefly explain your final reasoning."""
             or "VOTE:ACKNOWLEDGE" in response_upper
         ):
             return DeliberationOutcome.ACKNOWLEDGE
-        if (
-            "VOTE: DEFER" in response_upper
-            or "VOTE:DEFER" in response_upper
-        ):
+        if "VOTE: DEFER" in response_upper or "VOTE:DEFER" in response_upper:
             return DeliberationOutcome.DEFER
         if (
             "VOTE: NO_RESPONSE" in response_upper
@@ -894,8 +891,7 @@ Then briefly explain your final reasoning."""
         if "DEFER" in response_upper and "VOTE" in response_upper:
             return DeliberationOutcome.DEFER
         if (
-            "NO_RESPONSE" in response_upper
-            or "NO RESPONSE" in response_upper
+            "NO_RESPONSE" in response_upper or "NO RESPONSE" in response_upper
         ) and "VOTE" in response_upper:
             return DeliberationOutcome.NO_RESPONSE
 

@@ -182,9 +182,7 @@ class TestLongPollEndpointBasic:
         assert detail["type"] == "https://archon72.io/errors/expired-status-token"
         assert "max_age_seconds" in detail
 
-    def test_longpoll_petition_not_found_returns_404(
-        self, client: TestClient
-    ) -> None:
+    def test_longpoll_petition_not_found_returns_404(self, client: TestClient) -> None:
         """Long-poll for nonexistent petition returns 404."""
         fake_id = uuid4()
         # Create a valid token for the fake ID
@@ -294,9 +292,7 @@ class TestLongPollTimeout:
         token = get_response.json()["status_token"]
 
         # Patch timeout to be very short for testing
-        with patch(
-            "src.api.routes.petition_submission.LONGPOLL_TIMEOUT_SECONDS", 0.1
-        ):
+        with patch("src.api.routes.petition_submission.LONGPOLL_TIMEOUT_SECONDS", 0.1):
             longpoll_response = client.get(
                 f"/v1/petition-submissions/{petition_id}/status",
                 params={"token": token},
@@ -320,9 +316,7 @@ class TestLongPollTimeout:
         token = get_response.json()["status_token"]
 
         # Patch timeout
-        with patch(
-            "src.api.routes.petition_submission.LONGPOLL_TIMEOUT_SECONDS", 0.1
-        ):
+        with patch("src.api.routes.petition_submission.LONGPOLL_TIMEOUT_SECONDS", 0.1):
             longpoll_response = client.get(
                 f"/v1/petition-submissions/{petition_id}/status",
                 params={"token": token},
@@ -402,9 +396,7 @@ class TestLongPollTokenValidation:
         token = get_response.json()["status_token"]
 
         # Use token immediately (with short timeout for test)
-        with patch(
-            "src.api.routes.petition_submission.LONGPOLL_TIMEOUT_SECONDS", 0.1
-        ):
+        with patch("src.api.routes.petition_submission.LONGPOLL_TIMEOUT_SECONDS", 0.1):
             response = client.get(
                 f"/v1/petition-submissions/{petition_id}/status",
                 params={"token": token},

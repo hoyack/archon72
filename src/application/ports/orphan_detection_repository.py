@@ -10,6 +10,8 @@ from src.domain.models.orphan_petition_detection import OrphanPetitionDetectionR
 class OrphanDetectionRepositoryProtocol(Protocol):
     """Protocol for persisting orphan detection results."""
 
-    def save_detection_result(self, detection_result: OrphanPetitionDetectionResult) -> None:
+    def save_detection_result(
+        self, detection_result: OrphanPetitionDetectionResult
+    ) -> None:
         """Persist a detection result."""
         ...

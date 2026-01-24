@@ -535,8 +535,7 @@ class SecretaryService:
             return None
         try:
             return {
-                name.lower()
-                for name in self._archon_profile_repository.get_all_names()
+                name.lower() for name in self._archon_profile_repository.get_all_names()
             }
         except Exception as exc:
             logger.warning("archon_name_set_load_failed", error=str(exc))

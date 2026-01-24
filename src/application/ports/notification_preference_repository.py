@@ -27,7 +27,9 @@ class NotificationPreferenceNotFoundError(Exception):
     """Raised when a notification preference is not found."""
 
     def __init__(self, petition_id: UUID) -> None:
-        super().__init__(f"Notification preference not found for petition {petition_id}")
+        super().__init__(
+            f"Notification preference not found for petition {petition_id}"
+        )
         self.petition_id = petition_id
 
 

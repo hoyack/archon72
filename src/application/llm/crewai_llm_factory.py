@@ -40,9 +40,10 @@ def _resolve_base_url(llm_config: LLMConfig) -> str | None:
     env_base_url = os.environ.get("OLLAMA_BASE_URL")
     if env_base_url:
         return env_base_url
-    if llm_config.provider == "ollama_cloud" or os.environ.get(
-        "OLLAMA_CLOUD_ENABLED", ""
-    ).lower() == "true":
+    if (
+        llm_config.provider == "ollama_cloud"
+        or os.environ.get("OLLAMA_CLOUD_ENABLED", "").lower() == "true"
+    ):
         return "https://ollama.com"
     if llm_config.provider == "local":
         return os.environ.get("OLLAMA_HOST", "http://localhost:11434")

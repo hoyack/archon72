@@ -555,7 +555,9 @@ class TestOutcomeMapping:
     ) -> None:
         """ACKNOWLEDGE outcome is correctly mapped."""
         session_id = uuid4()
-        session = _create_mock_session(session_id, outcome=DeliberationOutcome.ACKNOWLEDGE)
+        session = _create_mock_session(
+            session_id, outcome=DeliberationOutcome.ACKNOWLEDGE
+        )
         witnesses = _create_mock_witnesses(session_id)
 
         service._summary_repo.get_session_by_session_id.return_value = session

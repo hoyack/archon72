@@ -150,7 +150,9 @@ class MetaPetitionRoutingService:
         now = datetime.now(timezone.utc)
         event = MetaPetitionReceivedEventPayload(
             petition_id=petition.id,
-            submitter_id=petition.submitter_id if petition.submitter_id else UUID(int=0),
+            submitter_id=petition.submitter_id
+            if petition.submitter_id
+            else UUID(int=0),
             petition_text_preview=petition.text[:META_PETITION_TEXT_PREVIEW_LENGTH],
             received_at=now,
             routing_reason="EXPLICIT_META_TYPE",
@@ -170,5 +172,3 @@ class MetaPetitionRoutingService:
         )
 
         return event
-
-

@@ -171,7 +171,9 @@ def _get_repository_lock() -> asyncio.Lock:
     return _repository_lock
 
 
-async def get_notification_preference_repository() -> NotificationPreferenceRepositoryStub:
+async def get_notification_preference_repository() -> (
+    NotificationPreferenceRepositoryStub
+):
     """Get the singleton repository instance.
 
     Returns:

@@ -92,6 +92,7 @@ except ImportError:
 
 try:
     from src.workers.validation_dispatcher import DispatchResult, ValidationDispatcher
+
     ASYNC_VALIDATION_AVAILABLE = True
 except ImportError:
     ValidationDispatcher = None  # type: ignore
@@ -355,9 +356,7 @@ class ConclaveService:
             )
 
         for payload in self._pending_validation_payloads:
-            optimistic_choice = VoteChoice(
-                payload.get("optimistic_choice", "ABSTAIN")
-            )
+            optimistic_choice = VoteChoice(payload.get("optimistic_choice", "ABSTAIN"))
             await self._async_validator.submit_vote(
                 vote_id=payload.get("vote_id", str(uuid4())),
                 session_id=payload.get("session_id", ""),
@@ -1203,7 +1202,10 @@ Be concise but substantive. Your contribution will be recorded in the official t
                     self._emit_progress(
                         "archon_voting",
                         f"Voted: {archon.name} ({current}/{total_voters})",
-                        {"archon": archon.name, "progress": f"{current}/{total_voters}"},
+                        {
+                            "archon": archon.name,
+                            "progress": f"{current}/{total_voters}",
+                        },
                     )
 
                     return vote
@@ -1485,9 +1487,7 @@ Output format:
             if asyncio.iscoroutine(allowed):
                 allowed = await allowed
             if not allowed:
-                logger.info(
-                    "Circuit breaker OPEN, falling back to sync validation"
-                )
+                logger.info("Circuit breaker OPEN, falling back to sync validation")
                 return False
 
         return True
@@ -1560,7 +1560,9 @@ Output format:
                 voter_rank=archon.aegis_rank,
                 choice=choice,
                 timestamp=datetime.now(timezone.utc),
-                reasoning=raw_response[:500] if is_validated else "Awaiting secretary consensus",
+                reasoning=raw_response[:500]
+                if is_validated
+                else "Awaiting secretary consensus",
             )
             return vote, is_validated
 
@@ -1662,11 +1664,13 @@ Output format:
             else None
         )
 
-        reconciliation_result = await self._reconciliation_service.await_all_validations(
-            session_id=session_id,
-            motion_id=motion_id,
-            expected_vote_count=total_voters,
-            config=reconciliation_config,
+        reconciliation_result = (
+            await self._reconciliation_service.await_all_validations(
+                session_id=session_id,
+                motion_id=motion_id,
+                expected_vote_count=total_voters,
+                config=reconciliation_config,
+            )
         )
 
         self._emit_progress(
@@ -2091,7 +2095,9 @@ If unclear, choose ABSTAIN.
         }
         return mapping.get(raw_choice)
 
-    def _record_vote_validation_failure(self, archon: ArchonProfile, motion: Motion) -> None:
+    def _record_vote_validation_failure(
+        self, archon: ArchonProfile, motion: Motion
+    ) -> None:
         """Record a witnessed event when validators cannot reach consensus."""
         if not self._session:
             return

@@ -540,7 +540,8 @@ async def longpoll_petition_status(
 
 
 def _build_status_response(
-    submission: "PetitionSubmission", version: int  # noqa: F821
+    submission: "PetitionSubmission",
+    version: int,  # noqa: F821
 ) -> PetitionSubmissionStatusResponse:
     """Build a status response with token for the given submission.
 

@@ -407,6 +407,7 @@ class ErrorHandler:
 # Register common error types
 # These will be imported and registered by domain modules
 
+
 class WitnessWriteError(Exception):
     """Error writing to witness log (constitutional - P5)."""
 

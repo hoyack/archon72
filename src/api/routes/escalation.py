@@ -238,7 +238,9 @@ async def get_escalation_queue(
 # =============================================================================
 
 
-def _package_data_to_api(data: DecisionPackageData) -> EscalationDecisionPackageResponse:
+def _package_data_to_api(
+    data: DecisionPackageData,
+) -> EscalationDecisionPackageResponse:
     """Convert service DecisionPackageData to API response model."""
     # Convert co-signers
     co_signer_items = [
@@ -280,7 +282,9 @@ def _package_data_to_api(data: DecisionPackageData) -> EscalationDecisionPackage
 
     # Build escalation history
     escalation_history = EscalationHistoryResponse(
-        escalation_source=EscalationSourceEnum(data.escalation_history.escalation_source),
+        escalation_source=EscalationSourceEnum(
+            data.escalation_history.escalation_source
+        ),
         escalated_at=data.escalation_history.escalated_at,
         co_signer_count_at_escalation=data.escalation_history.co_signer_count_at_escalation,
         deliberation_summary=deliberation_summary,
@@ -451,7 +455,7 @@ async def adopt_petition(
     request: PetitionAdoptionRequest,
     king_id: UUID = Query(..., description="UUID of the King making the adoption"),
     realm_id: str = Query(..., description="Realm ID of the King (for authorization)"),
-    adoption_service = Depends(get_petition_adoption_service),
+    adoption_service=Depends(get_petition_adoption_service),
 ):
     """Adopt an escalated petition and create a Motion (Story 6.3, FR-5.5)."""
     try:
@@ -596,9 +600,11 @@ async def adopt_petition(
 async def acknowledge_escalation(
     petition_id: UUID,
     request: KingAcknowledgmentRequest,
-    king_id: UUID = Query(..., description="UUID of the King making the acknowledgment"),
+    king_id: UUID = Query(
+        ..., description="UUID of the King making the acknowledgment"
+    ),
     realm_id: str = Query(..., description="Realm ID of the King (for authorization)"),
-    acknowledgment_service = Depends(get_acknowledgment_execution_service),
+    acknowledgment_service=Depends(get_acknowledgment_execution_service),
 ):
     """Acknowledge an escalated petition as King (Story 6.5, FR-5.8).
 
@@ -647,7 +653,7 @@ async def acknowledge_escalation(
                     "title": "Invalid Reason Code",
                     "status": 400,
                     "detail": f"Invalid reason code: {request.reason_code}. "
-                             f"Must be one of: {', '.join(rc.value for rc in AcknowledgmentReasonCode)}",
+                    f"Must be one of: {', '.join(rc.value for rc in AcknowledgmentReasonCode)}",
                     "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
                 },
             )
@@ -691,7 +697,7 @@ async def acknowledge_escalation(
                 "title": "Petition Not Escalated",
                 "status": 400,
                 "detail": f"Petition {petition_id} is not escalated (current state: {e.current_state}). "
-                         "King can only acknowledge ESCALATED petitions.",
+                "King can only acknowledge ESCALATED petitions.",
                 "instance": f"/api/v1/kings/escalations/{petition_id}/acknowledge",
             },
         )

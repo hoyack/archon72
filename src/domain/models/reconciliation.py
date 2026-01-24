@@ -102,9 +102,7 @@ class ReconciliationResult:
     def total_votes(self) -> int:
         """Total number of votes processed."""
         return (
-            self.validated_count
-            + self.dlq_fallback_count
-            + self.sync_validated_count
+            self.validated_count + self.dlq_fallback_count + self.sync_validated_count
         )
 
     @property
@@ -113,7 +111,10 @@ class ReconciliationResult:
 
         Returns False if any votes used DLQ fallback (V1).
         """
-        return self.dlq_fallback_count == 0 and self.status == ReconciliationStatus.COMPLETE
+        return (
+            self.dlq_fallback_count == 0
+            and self.status == ReconciliationStatus.COMPLETE
+        )
 
     @property
     def has_overrides(self) -> bool:

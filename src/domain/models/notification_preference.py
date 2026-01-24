@@ -91,9 +91,7 @@ def _validate_webhook_url(url: str | None) -> None:
         raise InvalidWebhookUrlError(url, "URL must include scheme")
 
     if parsed.scheme.lower() != "https":
-        raise InvalidWebhookUrlError(
-            url, f"URL must use HTTPS (got {parsed.scheme})"
-        )
+        raise InvalidWebhookUrlError(url, f"URL must use HTTPS (got {parsed.scheme})")
 
     if not parsed.netloc:
         raise InvalidWebhookUrlError(url, "URL must include host")

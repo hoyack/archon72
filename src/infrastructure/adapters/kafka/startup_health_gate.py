@@ -57,10 +57,18 @@ class StartupHealthReport:
             "async_validation_enabled": self.async_validation_enabled,
             "circuit_breaker_state": self.circuit_breaker_state,
             "kafka_status": {
-                "broker_reachable": self.kafka_status.broker_reachable if self.kafka_status else False,
-                "schema_registry_reachable": self.kafka_status.schema_registry_reachable if self.kafka_status else False,
-                "consumer_group_active": self.kafka_status.consumer_group_active if self.kafka_status else False,
-                "consumer_lag": self.kafka_status.consumer_lag if self.kafka_status else -1,
+                "broker_reachable": self.kafka_status.broker_reachable
+                if self.kafka_status
+                else False,
+                "schema_registry_reachable": self.kafka_status.schema_registry_reachable
+                if self.kafka_status
+                else False,
+                "consumer_group_active": self.kafka_status.consumer_group_active
+                if self.kafka_status
+                else False,
+                "consumer_lag": self.kafka_status.consumer_lag
+                if self.kafka_status
+                else -1,
             },
             "errors": self.errors,
             "recommendations": self.recommendations,
@@ -226,9 +234,7 @@ class StartupHealthGate:
         if kafka_status.healthy:
             # All good - close circuit breaker
             self._circuit_breaker.force_closed()
-            logger.info(
-                "Kafka startup health gate PASSED - async validation enabled"
-            )
+            logger.info("Kafka startup health gate PASSED - async validation enabled")
 
             return StartupHealthReport(
                 result=StartupHealthResult.HEALTHY,
@@ -258,9 +264,7 @@ class StartupHealthGate:
         else:
             # Broker down - UNAVAILABLE
             self._circuit_breaker.force_open()
-            logger.error(
-                "Kafka startup health gate FAILED - Kafka unavailable"
-            )
+            logger.error("Kafka startup health gate FAILED - Kafka unavailable")
 
             return StartupHealthReport(
                 result=StartupHealthResult.UNAVAILABLE,

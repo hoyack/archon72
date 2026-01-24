@@ -47,9 +47,7 @@ class LegitimacyDashboardService:
     - NFR-1.2: <500ms response time
     """
 
-    def __init__(
-        self, db_connection: Any, cache: DashboardCache | None = None
-    ) -> None:
+    def __init__(self, db_connection: Any, cache: DashboardCache | None = None) -> None:
         """Initialize the legitimacy dashboard service.
 
         Args:

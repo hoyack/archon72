@@ -34,6 +34,7 @@ class MockContentHashService:
     def hash_text(self, text: str) -> bytes:
         # Return 32 bytes for Blake3 hash validation
         import hashlib
+
         return hashlib.sha256(text.encode()).digest()
 
 

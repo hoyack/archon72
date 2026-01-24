@@ -75,6 +75,7 @@ class TestMetaPetitionEventEmitterBehavior:
         received_event: MetaPetitionReceivedEventPayload,
     ) -> None:
         """Test that emit_received calls metrics increment."""
+
         # Create a minimal emitter class for testing
         class TestableEmitter:
             def __init__(self, metrics: MagicMock, log: MagicMock) -> None:
@@ -105,6 +106,7 @@ class TestMetaPetitionEventEmitterBehavior:
         resolved_event: MetaPetitionResolvedEventPayload,
     ) -> None:
         """Test that emit_resolved calls metrics with disposition."""
+
         class TestableEmitter:
             def __init__(self, metrics: MagicMock, log: MagicMock) -> None:
                 self._metrics = metrics

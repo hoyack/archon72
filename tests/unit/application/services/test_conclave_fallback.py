@@ -476,7 +476,10 @@ class TestLoggingOnFallback:
             _ = await service._should_use_async_validation()
 
         assert not use_async
-        assert "Circuit breaker OPEN" in caplog.text or "falling back" in caplog.text.lower()
+        assert (
+            "Circuit breaker OPEN" in caplog.text
+            or "falling back" in caplog.text.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_warning_logged_on_dispatch_failure(

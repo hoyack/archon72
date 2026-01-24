@@ -202,7 +202,9 @@ class Acknowledgment:
             ),
             "acknowledging_archon_ids": list(self.acknowledging_archon_ids),
             "acknowledged_by_king_id": (
-                str(self.acknowledged_by_king_id) if self.acknowledged_by_king_id else None
+                str(self.acknowledged_by_king_id)
+                if self.acknowledged_by_king_id
+                else None
             ),
             "acknowledged_at": self.acknowledged_at.isoformat(),
             "witness_hash": self.witness_hash,

@@ -234,7 +234,9 @@ class PetitionSubmissionNotFoundError(PetitionError):
             message: Optional detailed error message.
         """
         self.petition_id = petition_id
-        error_msg = message or f"Petition submission not found for petition: {petition_id}"
+        error_msg = (
+            message or f"Petition submission not found for petition: {petition_id}"
+        )
         super().__init__(f"FR-5.5: {error_msg}")
 
 

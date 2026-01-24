@@ -112,9 +112,7 @@ class TestStatusTokenDecode:
         assert decoded.petition_id == original.petition_id
         assert decoded.version == original.version
         # Timestamps should be within 1 second (unix timestamp precision)
-        assert abs(
-            (decoded.created_at - original.created_at).total_seconds()
-        ) < 1
+        assert abs((decoded.created_at - original.created_at).total_seconds()) < 1
 
     def test_decode_invalid_base64(self) -> None:
         """Test that invalid base64 raises InvalidStatusTokenError."""

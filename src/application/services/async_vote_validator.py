@@ -23,7 +23,9 @@ class KafkaPublisherProtocol(Protocol):
 class ReconciliationTimeoutError(RuntimeError):
     """Raised when async validation drain and reconciliation times out."""
 
-    def __init__(self, message: str, pending_count: int, timeout_seconds: float) -> None:
+    def __init__(
+        self, message: str, pending_count: int, timeout_seconds: float
+    ) -> None:
         super().__init__(message)
         self.pending_count = pending_count
         self.timeout_seconds = timeout_seconds
@@ -338,9 +340,7 @@ class AsyncVoteValidator:
             else:
                 ruling = WitnessRuling.RETORT
                 retort_reason = (
-                    "witness_unavailable"
-                    if witness_vote is None
-                    else "witness_dissent"
+                    "witness_unavailable" if witness_vote is None else "witness_dissent"
                 )
                 witness_statement = (
                     f"Witness retorts the secretaries' determination "

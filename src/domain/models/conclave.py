@@ -34,11 +34,14 @@ class MotionProvenanceImmutabilityError(Exception):
     requirement that the link between Motion and source petition cannot be altered.
     """
 
-    def __init__(self, motion_id: UUID | str, field_name: str, message: str | None = None):
+    def __init__(
+        self, motion_id: UUID | str, field_name: str, message: str | None = None
+    ):
         self.motion_id = str(motion_id)
         self.field_name = field_name
         self.message = (
-            message or f"Cannot modify {field_name} on Motion {motion_id} - provenance is immutable"
+            message
+            or f"Cannot modify {field_name} on Motion {motion_id} - provenance is immutable"
         )
         super().__init__(self.message)
 

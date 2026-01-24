@@ -24,7 +24,9 @@ _configuration_floor_service: ConfigurationFloorEnforcementService | None = None
 _pre_operational_service: PreOperationalVerificationService | None = None
 
 
-def get_configuration_floor_enforcement_service() -> ConfigurationFloorEnforcementService:
+def get_configuration_floor_enforcement_service() -> (
+    ConfigurationFloorEnforcementService
+):
     """Get configuration floor enforcement service with stub dependencies."""
     global _configuration_floor_service
     if _configuration_floor_service is None:

@@ -533,7 +533,9 @@ class PetitionAdoptedEventPayload:
 
 
 # Event type constant for king acknowledgment (Story 6.5, FR-5.8)
-KING_ACKNOWLEDGED_ESCALATION_EVENT_TYPE: str = "petition.escalation.acknowledged_by_king"
+KING_ACKNOWLEDGED_ESCALATION_EVENT_TYPE: str = (
+    "petition.escalation.acknowledged_by_king"
+)
 
 # Story 7.3: Petition Withdrawal Event
 PETITION_WITHDRAWN_EVENT_TYPE: str = "petition.submission.withdrawn"

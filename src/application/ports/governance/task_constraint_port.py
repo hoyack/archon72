@@ -218,4 +218,3 @@ class TaskConstraintPort(Protocol):
             Frozenset of TaskOperation values prohibited for the role.
         """
         ...
-

@@ -298,9 +298,14 @@ class TestFateNotificationSentEventPayloadStateTransitions:
             webhook_url="https://example.com/hook",
         )
 
-        permanently_failed = original.with_failed("Max retries exceeded", permanent=True)
+        permanently_failed = original.with_failed(
+            "Max retries exceeded", permanent=True
+        )
 
-        assert permanently_failed.delivery_status == NotificationDeliveryStatus.PERMANENTLY_FAILED
+        assert (
+            permanently_failed.delivery_status
+            == NotificationDeliveryStatus.PERMANENTLY_FAILED
+        )
         assert permanently_failed.retry_count == 3
 
 

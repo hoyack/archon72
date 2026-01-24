@@ -3,7 +3,6 @@
 Tests the RealmHealth aggregate and RealmHealthDelta models.
 """
 
-
 import pytest
 
 from src.domain.models.realm_health import (

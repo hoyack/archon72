@@ -47,6 +47,7 @@ class LedgerExportEvent(Protocol):
 
     sequence: int
 
+
 # Current export format version
 EXPORT_FORMAT_VERSION = "1.0.0"
 

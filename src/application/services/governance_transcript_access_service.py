@@ -50,7 +50,9 @@ if TYPE_CHECKING:
     from src.domain.models.deliberation_session import DeliberationSession
 
 
-class GovernanceTranscriptAccessService(LoggingMixin, GovernanceTranscriptAccessProtocol):
+class GovernanceTranscriptAccessService(
+    LoggingMixin, GovernanceTranscriptAccessProtocol
+):
     """Service for elevated transcript access (Story 7.6, FR-7.4, Ruling-2).
 
     Provides full transcript access for governance actors including
@@ -262,7 +264,9 @@ class GovernanceTranscriptAccessService(LoggingMixin, GovernanceTranscriptAccess
                 # List of utterances
                 return [
                     TranscriptUtterance(
-                        archon_id=UUID(item.get("archon_id", str(participating_archons[0]))),
+                        archon_id=UUID(
+                            item.get("archon_id", str(participating_archons[0]))
+                        ),
                         timestamp=item.get("timestamp", "1970-01-01T00:00:00Z"),
                         content=item.get("content", ""),
                         sequence=item.get("sequence", i),
@@ -274,7 +278,9 @@ class GovernanceTranscriptAccessService(LoggingMixin, GovernanceTranscriptAccess
                 utterances_data = data.get("utterances", [data])
                 return [
                     TranscriptUtterance(
-                        archon_id=UUID(item.get("archon_id", str(participating_archons[0]))),
+                        archon_id=UUID(
+                            item.get("archon_id", str(participating_archons[0]))
+                        ),
                         timestamp=item.get("timestamp", "1970-01-01T00:00:00Z"),
                         content=item.get("content", ""),
                         sequence=item.get("sequence", i),

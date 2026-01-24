@@ -138,7 +138,9 @@ class OrphanPetitionReprocessingTriggeredEventPayload:
         )
 
     @classmethod
-    def from_json(cls, json_str: str) -> OrphanPetitionReprocessingTriggeredEventPayload:
+    def from_json(
+        cls, json_str: str
+    ) -> OrphanPetitionReprocessingTriggeredEventPayload:
         """Deserialize from JSON.
 
         Args:

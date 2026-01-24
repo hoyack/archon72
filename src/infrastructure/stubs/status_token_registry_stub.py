@@ -115,9 +115,7 @@ class StatusTokenRegistryStub(StatusTokenRegistryProtocol):
                     # Create new event for future waiters
                     entry.event = asyncio.Event()
 
-            logger.debug(
-                "Updated petition %s to version %d", petition_id, new_version
-            )
+            logger.debug("Updated petition %s to version %d", petition_id, new_version)
 
     async def wait_for_change(
         self, petition_id: UUID, current_version: int, timeout_seconds: float

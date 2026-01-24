@@ -45,16 +45,12 @@ class MetaPetitionQueueItemResponse(BaseModel):
         }
     )
 
-    petition_id: UUID = Field(
-        description="UUID of the META petition"
-    )
+    petition_id: UUID = Field(description="UUID of the META petition")
     submitter_id: UUID | None = Field(
         default=None,
-        description="UUID of the petition submitter (may be None for anonymous)"
+        description="UUID of the petition submitter (may be None for anonymous)",
     )
-    petition_text: str = Field(
-        description="Full text of the META petition"
-    )
+    petition_text: str = Field(description="Full text of the META petition")
     received_at: datetime = Field(
         description="When the petition was received in the queue (UTC)"
     )
@@ -88,19 +84,9 @@ class MetaPetitionQueueResponse(BaseModel):
     items: list[MetaPetitionQueueItemResponse] = Field(
         description="List of pending META petitions (oldest first, FIFO)"
     )
-    total_count: int = Field(
-        ge=0,
-        description="Total number of pending META petitions"
-    )
-    limit: int = Field(
-        ge=1,
-        le=100,
-        description="Maximum items returned per page"
-    )
-    offset: int = Field(
-        ge=0,
-        description="Number of items skipped for pagination"
-    )
+    total_count: int = Field(ge=0, description="Total number of pending META petitions")
+    limit: int = Field(ge=1, le=100, description="Maximum items returned per page")
+    offset: int = Field(ge=0, description="Number of items skipped for pagination")
 
 
 class ResolveMetaPetitionRequest(BaseModel):
@@ -120,11 +106,11 @@ class ResolveMetaPetitionRequest(BaseModel):
     )
     rationale: str = Field(
         min_length=10,
-        description="High Archon's rationale for the resolution (min 10 characters)"
+        description="High Archon's rationale for the resolution (min 10 characters)",
     )
     forward_target: str | None = Field(
         default=None,
-        description="Target governance body (required if disposition is FORWARD)"
+        description="Target governance body (required if disposition is FORWARD)",
     )
 
 
@@ -145,27 +131,16 @@ class ResolveMetaPetitionResponse(BaseModel):
         }
     )
 
-    success: bool = Field(
-        description="Whether the resolution was successful"
-    )
-    petition_id: UUID = Field(
-        description="UUID of the resolved META petition"
-    )
+    success: bool = Field(description="Whether the resolution was successful")
+    petition_id: UUID = Field(description="UUID of the resolved META petition")
     disposition: MetaDispositionEnum = Field(
         description="Resolution disposition applied"
     )
-    rationale: str = Field(
-        description="High Archon's rationale"
-    )
-    high_archon_id: UUID = Field(
-        description="UUID of the High Archon who resolved"
-    )
-    resolved_at: datetime = Field(
-        description="When the resolution occurred (UTC)"
-    )
+    rationale: str = Field(description="High Archon's rationale")
+    high_archon_id: UUID = Field(description="UUID of the High Archon who resolved")
+    resolved_at: datetime = Field(description="When the resolution occurred (UTC)")
     forward_target: str | None = Field(
-        default=None,
-        description="Target governance body (if disposition is FORWARD)"
+        default=None, description="Target governance body (if disposition is FORWARD)"
     )
 
 
@@ -180,6 +155,4 @@ class MetaPetitionErrorResponse(BaseModel):
         }
     )
 
-    detail: str = Field(
-        description="Error message describing what went wrong"
-    )
+    detail: str = Field(description="Error message describing what went wrong")

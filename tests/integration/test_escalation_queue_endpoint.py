@@ -392,9 +392,7 @@ class TestEscalationQueuePagination:
     ) -> None:
         """Invalid cursor format returns 400 Bad Request."""
         king_id = uuid4()
-        response = client.get(
-            f"/v1/kings/{king_id}/escalations?cursor=invalid-cursor"
-        )
+        response = client.get(f"/v1/kings/{king_id}/escalations?cursor=invalid-cursor")
 
         assert response.status_code == 400
         data = response.json()

@@ -109,7 +109,9 @@ class LegitimacyAlertState:
             triggered_score=triggered_score,
         )
 
-    def update_breach_count(self, new_score: float, new_severity: AlertSeverity, updated_at: datetime) -> None:
+    def update_breach_count(
+        self, new_score: float, new_severity: AlertSeverity, updated_at: datetime
+    ) -> None:
         """Update consecutive breach count for an active alert.
 
         Args:

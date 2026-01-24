@@ -143,9 +143,7 @@ class TestListPendingMetaPetitions:
 
         assert response.status_code == 401
 
-    def test_list_pending_requires_high_archon_role(
-        self, client: TestClient
-    ) -> None:
+    def test_list_pending_requires_high_archon_role(self, client: TestClient) -> None:
         """Test that HIGH_ARCHON role is required."""
         headers = {
             "X-Archon-Id": str(uuid4()),
@@ -438,7 +436,9 @@ class TestServiceNotConfigured:
         # The RuntimeError is raised during dependency resolution, which
         # causes TestClient to raise directly rather than returning 500.
         # We verify the error is raised correctly.
-        with pytest.raises(RuntimeError, match="META petition resolution service not configured"):
+        with pytest.raises(
+            RuntimeError, match="META petition resolution service not configured"
+        ):
             client.get(
                 "/v1/governance/meta-petitions",
                 headers=high_archon_headers,

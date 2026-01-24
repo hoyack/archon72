@@ -180,8 +180,13 @@ class TestSubmitPetitionRequestWithNotificationPreferences:
         )
 
         assert request.notification_preferences is not None
-        assert request.notification_preferences.channel == NotificationChannelEnum.WEBHOOK
-        assert request.notification_preferences.webhook_url == "https://example.com/webhook"
+        assert (
+            request.notification_preferences.channel == NotificationChannelEnum.WEBHOOK
+        )
+        assert (
+            request.notification_preferences.webhook_url
+            == "https://example.com/webhook"
+        )
 
     def test_request_with_in_app_notification_preferences(self) -> None:
         """Request with in-app notification preferences succeeds."""
@@ -194,7 +199,9 @@ class TestSubmitPetitionRequestWithNotificationPreferences:
         )
 
         assert request.notification_preferences is not None
-        assert request.notification_preferences.channel == NotificationChannelEnum.IN_APP
+        assert (
+            request.notification_preferences.channel == NotificationChannelEnum.IN_APP
+        )
 
     def test_request_with_invalid_webhook_url_rejected(self) -> None:
         """Request with invalid webhook URL is rejected."""
@@ -226,5 +233,8 @@ class TestSubmitPetitionRequestWithNotificationPreferences:
         data = request.model_dump()
 
         assert data["notification_preferences"]["channel"] == "WEBHOOK"
-        assert data["notification_preferences"]["webhook_url"] == "https://example.com/hook"
+        assert (
+            data["notification_preferences"]["webhook_url"]
+            == "https://example.com/hook"
+        )
         assert data["notification_preferences"]["enabled"] is False

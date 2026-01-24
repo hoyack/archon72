@@ -303,7 +303,7 @@ class AcknowledgmentExecutionStub:
                 petition_id=petition_id,
                 current_state=petition.state.value,
                 message=f"King can only acknowledge ESCALATED petitions, "
-                        f"but petition {petition_id} is in {petition.state.value} state."
+                f"but petition {petition_id} is in {petition.state.value} state.",
             )
 
         # Validate realm authorization (Story 6.5 AC4, RULING-3)
@@ -312,7 +312,7 @@ class AcknowledgmentExecutionStub:
                 expected_realm=petition.escalated_to_realm or "unknown",
                 actual_realm=realm_id,
                 message=f"King from realm '{realm_id}' cannot acknowledge petition "
-                        f"escalated to realm '{petition.escalated_to_realm}' (RULING-3)."
+                f"escalated to realm '{petition.escalated_to_realm}' (RULING-3).",
             )
 
         # Validate acknowledgment requirements (FR-3.3, FR-3.4)

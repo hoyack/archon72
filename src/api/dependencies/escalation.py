@@ -148,7 +148,9 @@ def get_acknowledgment_execution_service() -> AcknowledgmentExecutionService:
     return _acknowledgment_execution_service
 
 
-def set_acknowledgment_execution_service(service: AcknowledgmentExecutionService) -> None:
+def set_acknowledgment_execution_service(
+    service: AcknowledgmentExecutionService,
+) -> None:
     """Set the acknowledgment execution service singleton (Story 6.5, FR-5.8).
 
     Called during application startup to inject the service.

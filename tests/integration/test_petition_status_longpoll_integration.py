@@ -209,7 +209,9 @@ class TestLongPollConcurrentConnections:
                 )
 
             # Start long-poll tasks
-            tasks = [asyncio.create_task(longpoll_request()) for _ in range(num_waiters)]
+            tasks = [
+                asyncio.create_task(longpoll_request()) for _ in range(num_waiters)
+            ]
 
             # Give them time to start waiting
             await asyncio.sleep(0.1)

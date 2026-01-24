@@ -69,7 +69,9 @@ def client(app: FastAPI) -> TestClient:
     return TestClient(app)
 
 
-def _inject_transcript(store: TranscriptStoreStub, content_hash: bytes, content: str) -> None:
+def _inject_transcript(
+    store: TranscriptStoreStub, content_hash: bytes, content: str
+) -> None:
     """Directly inject transcript at a specific hash (for testing).
 
     This bypasses the normal hash computation to allow matching
@@ -92,13 +94,17 @@ class TestHighArchonAccess:
         session = _create_completed_session()
         summary_repo.add_session(session)
 
-        witnesses = _create_phase_witnesses(session.session_id, session.assigned_archons)
+        witnesses = _create_phase_witnesses(
+            session.session_id, session.assigned_archons
+        )
         summary_repo.add_witnesses(session.session_id, witnesses)
 
         # Setup: Store transcript content at the witness hash
         transcript_json = _create_transcript_json(session.assigned_archons)
         for witness in witnesses:
-            _inject_transcript(transcript_store, witness.transcript_hash, transcript_json)
+            _inject_transcript(
+                transcript_store, witness.transcript_hash, transcript_json
+            )
 
         # Act: Call endpoint as HIGH_ARCHON
         response = client.get(
@@ -148,7 +154,9 @@ class TestHighArchonAccess:
 
         transcript_json = _create_transcript_json(session.assigned_archons)
         for witness in witnesses:
-            _inject_transcript(transcript_store, witness.transcript_hash, transcript_json)
+            _inject_transcript(
+                transcript_store, witness.transcript_hash, transcript_json
+            )
 
         # Act
         response = client.get(
@@ -180,12 +188,16 @@ class TestAuditorAccess:
         session = _create_completed_session()
         summary_repo.add_session(session)
 
-        witnesses = _create_phase_witnesses(session.session_id, session.assigned_archons)
+        witnesses = _create_phase_witnesses(
+            session.session_id, session.assigned_archons
+        )
         summary_repo.add_witnesses(session.session_id, witnesses)
 
         transcript_json = _create_transcript_json(session.assigned_archons)
         for witness in witnesses:
-            _inject_transcript(transcript_store, witness.transcript_hash, transcript_json)
+            _inject_transcript(
+                transcript_store, witness.transcript_hash, transcript_json
+            )
 
         # Act: Call endpoint as AUDITOR
         response = client.get(
@@ -306,12 +318,16 @@ class TestReadOperationsPermitted:
         session = _create_completed_session()
         summary_repo.add_session(session)
 
-        witnesses = _create_phase_witnesses(session.session_id, session.assigned_archons)
+        witnesses = _create_phase_witnesses(
+            session.session_id, session.assigned_archons
+        )
         summary_repo.add_witnesses(session.session_id, witnesses)
 
         transcript_json = _create_transcript_json(session.assigned_archons)
         for witness in witnesses:
-            _inject_transcript(transcript_store, witness.transcript_hash, transcript_json)
+            _inject_transcript(
+                transcript_store, witness.transcript_hash, transcript_json
+            )
 
         # Act: Read operation
         response = client.get(
@@ -399,12 +415,16 @@ class TestPhaseDetails:
         session = _create_completed_session()
         summary_repo.add_session(session)
 
-        witnesses = _create_phase_witnesses(session.session_id, session.assigned_archons)
+        witnesses = _create_phase_witnesses(
+            session.session_id, session.assigned_archons
+        )
         summary_repo.add_witnesses(session.session_id, witnesses)
 
         transcript_json = _create_transcript_json(session.assigned_archons)
         for witness in witnesses:
-            _inject_transcript(transcript_store, witness.transcript_hash, transcript_json)
+            _inject_transcript(
+                transcript_store, witness.transcript_hash, transcript_json
+            )
 
         # Act
         response = client.get(
@@ -436,12 +456,16 @@ class TestPhaseDetails:
         session = _create_completed_session()
         summary_repo.add_session(session)
 
-        witnesses = _create_phase_witnesses(session.session_id, session.assigned_archons)
+        witnesses = _create_phase_witnesses(
+            session.session_id, session.assigned_archons
+        )
         summary_repo.add_witnesses(session.session_id, witnesses)
 
         transcript_json = _create_transcript_json(session.assigned_archons)
         for witness in witnesses:
-            _inject_transcript(transcript_store, witness.transcript_hash, transcript_json)
+            _inject_transcript(
+                transcript_store, witness.transcript_hash, transcript_json
+            )
 
         # Act
         response = client.get(
@@ -482,7 +506,9 @@ def _create_completed_session(has_dissent: bool = False) -> DeliberationSession:
             archons[0]: DeliberationOutcome.ACKNOWLEDGE,
             archons[1]: DeliberationOutcome.ACKNOWLEDGE,
             archons[2]: (
-                DeliberationOutcome.ESCALATE if has_dissent else DeliberationOutcome.ACKNOWLEDGE
+                DeliberationOutcome.ESCALATE
+                if has_dissent
+                else DeliberationOutcome.ACKNOWLEDGE
             ),
         },
         dissent_archon_id=archons[2] if has_dissent else None,

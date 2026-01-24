@@ -503,7 +503,10 @@ class MockAdoptionRatioRepository(AdoptionRatioRepositoryProtocol):
         cycle_id: str,
     ) -> AdoptionRatioMetrics | None:
         if self._saved_metrics:
-            if self._saved_metrics.realm_id == realm_id and self._saved_metrics.cycle_id == cycle_id:
+            if (
+                self._saved_metrics.realm_id == realm_id
+                and self._saved_metrics.cycle_id == cycle_id
+            ):
                 return self._saved_metrics
         return None
 

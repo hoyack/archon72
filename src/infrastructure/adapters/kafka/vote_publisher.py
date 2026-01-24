@@ -134,21 +134,23 @@ class KafkaVotePublisher(VotePublisherProtocol):
             try:
                 from confluent_kafka import Producer
 
-                self._producer = Producer({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    # R1: acks=all ensures all replicas acknowledge
-                    "acks": "all",
-                    # Enable idempotence for exactly-once semantics
-                    "enable.idempotence": True,
-                    # Timeout settings
-                    "message.timeout.ms": int(self._timeout * 1000),
-                    "request.timeout.ms": int(self._timeout * 1000),
-                    # Retries for transient failures
-                    "retries": 3,
-                    "retry.backoff.ms": 100,
-                    # Compression for efficiency
-                    "compression.type": "snappy",
-                })
+                self._producer = Producer(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        # R1: acks=all ensures all replicas acknowledge
+                        "acks": "all",
+                        # Enable idempotence for exactly-once semantics
+                        "enable.idempotence": True,
+                        # Timeout settings
+                        "message.timeout.ms": int(self._timeout * 1000),
+                        "request.timeout.ms": int(self._timeout * 1000),
+                        # Retries for transient failures
+                        "retries": 3,
+                        "retry.backoff.ms": 100,
+                        # Compression for efficiency
+                        "compression.type": "snappy",
+                    }
+                )
                 logger.info(
                     "Created Kafka producer with acks=all (bootstrap=%s)",
                     self._bootstrap_servers,
@@ -218,7 +220,11 @@ class KafkaVotePublisher(VotePublisherProtocol):
             )
 
         # Track delivery result
-        delivery_result: dict[str, Any] = {"error": None, "partition": None, "offset": None}
+        delivery_result: dict[str, Any] = {
+            "error": None,
+            "partition": None,
+            "offset": None,
+        }
 
         def delivery_callback(err: Any, msg: Any) -> None:
             """Callback for async delivery confirmation."""

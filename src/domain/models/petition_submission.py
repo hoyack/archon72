@@ -363,7 +363,9 @@ class PetitionSubmission:
         Returns:
             New PetitionSubmission with escalation fields populated.
         """
-        effective_escalated_at = escalated_at if escalated_at is not None else _utc_now()
+        effective_escalated_at = (
+            escalated_at if escalated_at is not None else _utc_now()
+        )
 
         return PetitionSubmission(
             id=self.id,

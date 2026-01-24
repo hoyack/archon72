@@ -404,7 +404,10 @@ async def get_acknowledgment(
     status_code=status.HTTP_200_OK,
     responses={
         401: {"model": LegitimacyErrorResponse, "description": "Unauthorized"},
-        403: {"model": LegitimacyErrorResponse, "description": "Forbidden - High Archon role required"},
+        403: {
+            "model": LegitimacyErrorResponse,
+            "description": "Forbidden - High Archon role required",
+        },
     },
     summary="Get legitimacy dashboard",
     description="""

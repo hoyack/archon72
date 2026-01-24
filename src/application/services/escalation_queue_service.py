@@ -143,9 +143,7 @@ class EscalationQueueService:
 
         # Step 2: Validate limit
         if limit < 1 or limit > MAX_LIMIT:
-            raise ValueError(
-                f"Limit must be between 1 and {MAX_LIMIT}, got {limit}"
-            )
+            raise ValueError(f"Limit must be between 1 and {MAX_LIMIT}, got {limit}")
 
         # Step 3: Parse cursor (if provided)
         cursor_time: datetime | None = None
@@ -191,10 +189,7 @@ class EscalationQueueService:
             if cursor_time and cursor_id:
                 if petition.escalated_at < cursor_time:
                     continue
-                if (
-                    petition.escalated_at == cursor_time
-                    and petition.id <= cursor_id
-                ):
+                if petition.escalated_at == cursor_time and petition.id <= cursor_id:
                     continue
 
             # Build queue item

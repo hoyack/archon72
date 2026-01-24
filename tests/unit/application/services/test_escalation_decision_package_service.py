@@ -131,7 +131,10 @@ async def test_get_decision_package_anonymized_submitter(
     # Assert
     assert len(package.submitter_metadata.public_key_hash) == 64
     assert package.submitter_metadata.public_key_hash.isalnum()
-    assert str(escalated_petition.submitter_id) not in package.submitter_metadata.public_key_hash
+    assert (
+        str(escalated_petition.submitter_id)
+        not in package.submitter_metadata.public_key_hash
+    )
 
 
 @pytest.mark.asyncio
@@ -161,8 +164,12 @@ async def test_get_decision_package_escalation_history(
     assert history.escalation_source == "CO_SIGNER_THRESHOLD"
     assert history.escalated_at == escalated_petition.escalated_at
     assert history.co_signer_count_at_escalation == 150
-    assert history.deliberation_summary is None  # Not applicable for CO_SIGNER_THRESHOLD
-    assert history.knight_recommendation is None  # Not applicable for CO_SIGNER_THRESHOLD
+    assert (
+        history.deliberation_summary is None
+    )  # Not applicable for CO_SIGNER_THRESHOLD
+    assert (
+        history.knight_recommendation is None
+    )  # Not applicable for CO_SIGNER_THRESHOLD
 
 
 @pytest.mark.asyncio

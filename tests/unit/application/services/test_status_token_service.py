@@ -50,9 +50,7 @@ class TestStatusTokenServiceGenerateToken:
 
         assert isinstance(token, StatusToken)
 
-    def test_generate_token_sets_petition_id(
-        self, service: StatusTokenService
-    ) -> None:
+    def test_generate_token_sets_petition_id(self, service: StatusTokenService) -> None:
         """generate_token sets the correct petition_id."""
         petition_id = uuid4()
 
@@ -93,9 +91,7 @@ class TestStatusTokenServiceValidateToken:
         assert validated.petition_id == petition_id
         assert validated.version == 99
 
-    def test_validate_invalid_base64_raises(
-        self, service: StatusTokenService
-    ) -> None:
+    def test_validate_invalid_base64_raises(self, service: StatusTokenService) -> None:
         """validate_token raises InvalidStatusTokenError for invalid base64."""
         with pytest.raises(InvalidStatusTokenError):
             service.validate_token("not-valid-base64!!!", uuid4())
@@ -127,9 +123,7 @@ class TestStatusTokenServiceValidateToken:
         with pytest.raises(ExpiredStatusTokenError):
             service_with_short_max_age.validate_token(token_string, petition_id)
 
-    def test_validate_with_custom_max_age(
-        self, service: StatusTokenService
-    ) -> None:
+    def test_validate_with_custom_max_age(self, service: StatusTokenService) -> None:
         """validate_token respects custom max_age_seconds parameter."""
         petition_id = uuid4()
         # Token 100 seconds old
@@ -191,9 +185,7 @@ class TestStatusTokenServiceHasChanged:
 class TestStatusTokenServiceComputeVersion:
     """Tests for StatusTokenService.compute_version()."""
 
-    def test_compute_version_deterministic(
-        self, service: StatusTokenService
-    ) -> None:
+    def test_compute_version_deterministic(self, service: StatusTokenService) -> None:
         """compute_version returns same result for same inputs."""
         content_hash = b"test_hash"
         state = "RECEIVED"

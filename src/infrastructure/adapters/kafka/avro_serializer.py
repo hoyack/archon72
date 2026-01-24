@@ -20,7 +20,9 @@ import fastavro
 logger = logging.getLogger(__name__)
 
 # Schema paths relative to project root
-SCHEMA_DIR = Path(__file__).parent.parent.parent.parent.parent / "schemas" / "conclave" / "votes"
+SCHEMA_DIR = (
+    Path(__file__).parent.parent.parent.parent.parent / "schemas" / "conclave" / "votes"
+)
 
 
 class SchemaRegistryError(Exception):

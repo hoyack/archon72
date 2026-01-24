@@ -120,7 +120,9 @@ class FateNotificationSentEventPayload:
         """
         content: dict[str, Any] = {
             "channel": self.channel.value,
-            "delivered_at": self.delivered_at.isoformat() if self.delivered_at else None,
+            "delivered_at": self.delivered_at.isoformat()
+            if self.delivered_at
+            else None,
             "delivery_status": self.delivery_status.value,
             "error_message": self.error_message,
             "fate": self.fate,
@@ -150,14 +152,18 @@ class FateNotificationSentEventPayload:
             "fate_timestamp": self.fate_timestamp.isoformat(),
             "channel": self.channel.value,
             "delivery_status": self.delivery_status.value,
-            "delivered_at": self.delivered_at.isoformat() if self.delivered_at else None,
+            "delivered_at": self.delivered_at.isoformat()
+            if self.delivered_at
+            else None,
             "error_message": self.error_message,
             "retry_count": self.retry_count,
             "webhook_url": self.webhook_url,
             "schema_version": NOTIFICATION_EVENT_SCHEMA_VERSION,
         }
 
-    def with_delivered(self, delivered_at: datetime) -> FateNotificationSentEventPayload:
+    def with_delivered(
+        self, delivered_at: datetime
+    ) -> FateNotificationSentEventPayload:
         """Create new event with DELIVERED status.
 
         Since FateNotificationSentEventPayload is frozen, returns new instance.

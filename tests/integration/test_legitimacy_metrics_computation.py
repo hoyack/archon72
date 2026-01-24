@@ -239,7 +239,9 @@ class TestLegitimacyMetricsComputationIntegration:
                 created_at = cycle_start + timedelta(hours=i)
                 state = "ACKNOWLEDGED" if i < 6 else "RECEIVED"
                 updated_at = (
-                    created_at + timedelta(hours=1) if state == "ACKNOWLEDGED" else created_at
+                    created_at + timedelta(hours=1)
+                    if state == "ACKNOWLEDGED"
+                    else created_at
                 )
 
                 cursor.execute(

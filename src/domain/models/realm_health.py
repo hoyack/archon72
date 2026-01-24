@@ -315,13 +315,12 @@ class RealmHealthDelta:
                 RealmHealthStatus.DEGRADED: 2,
                 RealmHealthStatus.CRITICAL: 3,
             }
-            return status_order[self.current_status] < status_order[self.previous_status]
+            return (
+                status_order[self.current_status] < status_order[self.previous_status]
+            )
 
         # Same status - check if work is decreasing
-        return (
-            self.referrals_pending_delta <= 0
-            and self.escalations_pending_delta <= 0
-        )
+        return self.referrals_pending_delta <= 0 and self.escalations_pending_delta <= 0
 
     @property
     def is_degrading(self) -> bool:
@@ -337,13 +336,14 @@ class RealmHealthDelta:
                 RealmHealthStatus.DEGRADED: 2,
                 RealmHealthStatus.CRITICAL: 3,
             }
-            return status_order[self.current_status] > status_order[self.previous_status]
+            return (
+                status_order[self.current_status] > status_order[self.previous_status]
+            )
 
         # Same status - check if work is increasing
         if self.current_status != RealmHealthStatus.HEALTHY:
             return (
-                self.referrals_pending_delta > 0
-                or self.escalations_pending_delta > 0
+                self.referrals_pending_delta > 0 or self.escalations_pending_delta > 0
             )
 
         return False

@@ -119,7 +119,10 @@ class AdoptionRatioAlertingService:
         self,
         metrics: AdoptionRatioMetrics,
         trend_delta: float | None = None,
-    ) -> tuple[AdoptionRatioExceededEventPayload | None, AdoptionRatioNormalizedEventPayload | None]:
+    ) -> tuple[
+        AdoptionRatioExceededEventPayload | None,
+        AdoptionRatioNormalizedEventPayload | None,
+    ]:
         """Check metrics and manage alert lifecycle (PREVENT-7).
 
         This is the main alerting method that:

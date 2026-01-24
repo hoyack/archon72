@@ -17,7 +17,7 @@ import pytest
 
 _spec = importlib.util.spec_from_file_location(
     "meta_petition_routing_service",
-    "src/application/services/meta_petition_routing_service.py"
+    "src/application/services/meta_petition_routing_service.py",
 )
 _routing_module = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_routing_module)

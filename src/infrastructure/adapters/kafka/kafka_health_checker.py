@@ -59,10 +59,12 @@ class KafkaHealthChecker(KafkaHealthProtocol):
             try:
                 from confluent_kafka.admin import AdminClient
 
-                self._admin_client = AdminClient({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    "socket.timeout.ms": int(self._timeout * 1000),
-                })
+                self._admin_client = AdminClient(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        "socket.timeout.ms": int(self._timeout * 1000),
+                    }
+                )
             except ImportError:
                 logger.error("confluent-kafka not installed")
                 raise
@@ -224,12 +226,18 @@ class KafkaHealthChecker(KafkaHealthProtocol):
         if status.healthy:
             logger.debug(
                 "Kafka healthy: broker=%s schema=%s group=%s lag=%d",
-                broker_ok, schema_ok, group_ok, lag,
+                broker_ok,
+                schema_ok,
+                group_ok,
+                lag,
             )
         else:
             logger.warning(
                 "Kafka unhealthy: broker=%s schema=%s group=%s - %s",
-                broker_ok, schema_ok, group_ok, error_message,
+                broker_ok,
+                schema_ok,
+                group_ok,
+                error_message,
             )
 
         return status

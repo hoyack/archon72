@@ -141,8 +141,10 @@ class TestAssignFateTransactional:
 
         assert result == sample_petition
         mock_repository.assign_fate_cas.assert_called_once_with(
-            sample_petition.id, PetitionState.RECEIVED, PetitionState.ACKNOWLEDGED,
-            fate_reason="Test reason"
+            sample_petition.id,
+            PetitionState.RECEIVED,
+            PetitionState.ACKNOWLEDGED,
+            fate_reason="Test reason",
         )
         assert len(event_emitter_stub.emitted_fate_events) == 1
         fate_event = event_emitter_stub.emitted_fate_events[0]

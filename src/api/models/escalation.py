@@ -283,7 +283,7 @@ class CoSignerListResponse(BaseModel):
                 "items": [
                     {
                         "public_key_hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4",
-                "signed_at": "2026-01-15T09:15:00Z",
+                        "signed_at": "2026-01-15T09:15:00Z",
                         "sequence": 1,
                     }
                 ],
@@ -631,7 +631,6 @@ class PetitionAdoptionResponse(BaseModel):
                 },
             }
         }
-
 
 
 # Story 6.5: King Escalation Acknowledgment Models

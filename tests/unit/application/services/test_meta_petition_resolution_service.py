@@ -25,7 +25,7 @@ from src.application.ports.meta_petition_queue_repository import (
 
 _spec_res = importlib.util.spec_from_file_location(
     "meta_petition_resolution_service",
-    "src/application/services/meta_petition_resolution_service.py"
+    "src/application/services/meta_petition_resolution_service.py",
 )
 _resolution_module = importlib.util.module_from_spec(_spec_res)
 _spec_res.loader.exec_module(_resolution_module)

@@ -238,10 +238,7 @@ class TestMetaPetitionQueueOrdering:
     ) -> None:
         """Test that queue returns oldest petitions first (AC3)."""
         # Route multiple petitions
-        petitions = [
-            create_meta_petition(f"META petition {i}")
-            for i in range(3)
-        ]
+        petitions = [create_meta_petition(f"META petition {i}") for i in range(3)]
 
         for petition in petitions:
             await routing_service.route_meta_petition(petition)
@@ -469,7 +466,9 @@ class TestEndToEndMetaPetitionFlow:
         # Resolve in order (should be oldest first)
         for i in range(5):
             items, total = await resolution_service.get_pending_queue(limit=1)
-            assert items[0].petition_id == petitions[i].id, f"Expected petition {i} first"
+            assert items[0].petition_id == petitions[i].id, (
+                f"Expected petition {i} first"
+            )
 
             await resolution_service.resolve_meta_petition(
                 petition_id=petitions[i].id,

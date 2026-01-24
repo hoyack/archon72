@@ -40,7 +40,9 @@ class _DummyValidator:
         self.current = 0
         self.max_seen = 0
 
-    async def validate_vote(self, raw_response: str, optimistic_choice: str) -> tuple[str, float]:
+    async def validate_vote(
+        self, raw_response: str, optimistic_choice: str
+    ) -> tuple[str, float]:
         self.current += 1
         self.max_seen = max(self.max_seen, self.current)
         await asyncio.sleep(0.05)

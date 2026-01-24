@@ -53,9 +53,7 @@ def mock_db_connection():
 def dashboard_service(mock_db_connection):
     """Dashboard service with mock database."""
     cache = DashboardCache(ttl_seconds=300)
-    return LegitimacyDashboardService(
-        db_connection=mock_db_connection, cache=cache
-    )
+    return LegitimacyDashboardService(db_connection=mock_db_connection, cache=cache)
 
 
 @pytest.fixture

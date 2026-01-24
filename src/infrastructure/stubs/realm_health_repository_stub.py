@@ -126,9 +126,7 @@ class RealmHealthRepositoryStub:
 
         return result
 
-    async def count_by_status_for_cycle(
-        self, cycle_id: str
-    ) -> dict[str, int]:
+    async def count_by_status_for_cycle(self, cycle_id: str) -> dict[str, int]:
         """Count realms by health status for a cycle.
 
         Args:

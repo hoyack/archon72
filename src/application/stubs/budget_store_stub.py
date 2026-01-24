@@ -70,4 +70,8 @@ class InMemoryBudgetStore(PromotionBudgetStore):
             return new_used
 
 
-__all__ = ["InMemoryBudgetStore", "PromotionBudgetExceededError", "PromotionBudgetStore"]
+__all__ = [
+    "InMemoryBudgetStore",
+    "PromotionBudgetExceededError",
+    "PromotionBudgetStore",
+]

@@ -330,9 +330,7 @@ class AdoptionRatioComputeService:
             # ARRAY_AGG returns None if no matches, convert to empty list
             adopting_kings_raw = row[2] or []
             # Filter out None values and convert to UUIDs
-            adopting_kings = [
-                UUID(str(k)) for k in adopting_kings_raw if k is not None
-            ]
+            adopting_kings = [UUID(str(k)) for k in adopting_kings_raw if k is not None]
 
             return {
                 "escalation_count": escalation_count,

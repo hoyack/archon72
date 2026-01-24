@@ -417,8 +417,10 @@ class VoteOverrideService:
 
         # Check if outcome changed
         # This is a simplified check - in reality would compare to original outcome
-        outcome_changed = tally_before.ayes != tally_after.ayes or \
-                          tally_before.nays != tally_after.nays
+        outcome_changed = (
+            tally_before.ayes != tally_after.ayes
+            or tally_before.nays != tally_after.nays
+        )
 
         result = OverrideApplicationResult(
             session_id=session_id,

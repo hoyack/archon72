@@ -69,9 +69,7 @@ def _create_petition_repository_mock(
 ) -> MagicMock:
     """Create a mock petition repository."""
     mock = MagicMock()
-    mock.list_by_state = AsyncMock(
-        return_value=(petitions or [], len(petitions or []))
-    )
+    mock.list_by_state = AsyncMock(return_value=(petitions or [], len(petitions or [])))
     return mock
 
 
@@ -242,9 +240,7 @@ class TestGetQueueFIFOOrdering:
         )
 
         # Add in random order to test sorting
-        repo = _create_petition_repository_mock(
-            petitions=[newest, oldest, middle]
-        )
+        repo = _create_petition_repository_mock(petitions=[newest, oldest, middle])
         halt_checker = _create_halt_checker_mock(is_halted=False)
         service = EscalationQueueService(
             petition_repo=repo,

@@ -134,9 +134,7 @@ class AdoptionRatioRepositoryStub(AdoptionRatioRepositoryProtocol):
             List of AdoptionRatioMetrics for all realms with data.
         """
         return [
-            metrics
-            for (_, c_id), metrics in self._metrics.items()
-            if c_id == cycle_id
+            metrics for (_, c_id), metrics in self._metrics.items() if c_id == cycle_id
         ]
 
     async def save_alert(self, alert: AdoptionRatioAlert) -> None:
@@ -172,11 +170,7 @@ class AdoptionRatioRepositoryStub(AdoptionRatioRepositoryProtocol):
         Returns:
             List of all active AdoptionRatioAlert instances.
         """
-        return [
-            alert
-            for alert in self._alerts.values()
-            if alert.status == "ACTIVE"
-        ]
+        return [alert for alert in self._alerts.values() if alert.status == "ACTIVE"]
 
     async def resolve_alert(
         self,

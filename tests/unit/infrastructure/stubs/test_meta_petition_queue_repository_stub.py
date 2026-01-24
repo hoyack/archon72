@@ -33,7 +33,7 @@ from src.domain.models.meta_petition import MetaDisposition, MetaPetitionStatus
 
 spec = importlib.util.spec_from_file_location(
     "meta_petition_queue_repository_stub",
-    "src/infrastructure/stubs/meta_petition_queue_repository_stub.py"
+    "src/infrastructure/stubs/meta_petition_queue_repository_stub.py",
 )
 stub_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(stub_module)

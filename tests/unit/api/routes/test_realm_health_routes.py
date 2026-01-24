@@ -3,7 +3,6 @@
 Tests the API endpoints for realm health dashboard.
 """
 
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -61,7 +60,9 @@ class TestRealmHealthDashboardEndpoint:
             )
             realm_health_repo.add_health(health)
 
-        response = client.get("/api/v1/governance/dashboard/realm-health?cycle_id=2026-W04")
+        response = client.get(
+            "/api/v1/governance/dashboard/realm-health?cycle_id=2026-W04"
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -232,9 +233,7 @@ class TestRealmHealthByIdEndpoint:
         realm_health_repo: RealmHealthRepositoryStub,
     ) -> None:
         """Test 404 for unknown realm ID."""
-        response = client.get(
-            "/api/v1/governance/dashboard/realm-health/unknown_realm"
-        )
+        response = client.get("/api/v1/governance/dashboard/realm-health/unknown_realm")
 
         assert response.status_code == 404
         assert "Unknown realm" in response.json()["detail"]
@@ -272,9 +271,7 @@ class TestRealmHealthByIdEndpoint:
         """Test that empty realm returns default health record."""
         realm_id = "realm_privacy_discretion_services"
 
-        response = client.get(
-            f"/api/v1/governance/dashboard/realm-health/{realm_id}"
-        )
+        response = client.get(f"/api/v1/governance/dashboard/realm-health/{realm_id}")
 
         assert response.status_code == 200
         data = response.json()

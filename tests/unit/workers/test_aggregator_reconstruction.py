@@ -107,7 +107,6 @@ def create_vote_aggregation(
     )
 
 
-
 class TestStateReconstruction:
     """Tests for aggregator state reconstruction from Kafka replay.
 

@@ -163,9 +163,7 @@ class TestOrphanDetection:
         """Test custom threshold configuration (FR-8.5)."""
         # Setup: Petition 36 hours old
         timestamp = datetime.now(timezone.utc) - timedelta(hours=36)
-        _ = self._create_petition(
-            received_at=timestamp, state=PetitionState.RECEIVED
-        )
+        _ = self._create_petition(received_at=timestamp, state=PetitionState.RECEIVED)
 
         petition_repo = Mock()
         # Repository should return empty list since 36h < 48h threshold
@@ -278,9 +276,7 @@ class TestEdgeCases:
         """Test petition exactly at threshold is NOT considered orphan."""
         # Setup: Petition exactly 24 hours old
         timestamp = datetime.now(timezone.utc) - timedelta(hours=24, seconds=0)
-        _ = self._create_petition(
-            received_at=timestamp, state=PetitionState.RECEIVED
-        )
+        _ = self._create_petition(received_at=timestamp, state=PetitionState.RECEIVED)
 
         petition_repo = Mock()
         petition_repo.find_by_state.return_value = [petition]
@@ -305,9 +301,7 @@ class TestEdgeCases:
         """Test zero threshold detects all RECEIVED petitions."""
         # Setup: Very recent petition
         timestamp = datetime.now(timezone.utc) - timedelta(minutes=5)
-        _ = self._create_petition(
-            received_at=timestamp, state=PetitionState.RECEIVED
-        )
+        _ = self._create_petition(received_at=timestamp, state=PetitionState.RECEIVED)
 
         petition_repo = Mock()
         petition_repo.find_by_state.return_value = [petition]

@@ -65,7 +65,10 @@ class TrackedVote:
                 outcome = ValidationOutcome.VALIDATED_MATCH
             else:
                 outcome = ValidationOutcome.VALIDATED_OVERRIDE
-        elif self.status in {VoteTrackingStatus.DLQ, VoteTrackingStatus.FALLBACK_APPLIED}:
+        elif self.status in {
+            VoteTrackingStatus.DLQ,
+            VoteTrackingStatus.FALLBACK_APPLIED,
+        }:
             outcome = ValidationOutcome.DLQ_FALLBACK
         else:
             outcome = ValidationOutcome.SYNC_VALIDATED
@@ -484,15 +487,14 @@ class ReconciliationService(ReconciliationProtocol):
         """Get service metrics for monitoring."""
         total_votes = len(self._votes)
         pending = sum(
-            1 for v in self._votes.values()
-            if v.status == VoteTrackingStatus.PENDING
+            1 for v in self._votes.values() if v.status == VoteTrackingStatus.PENDING
         )
         validated = sum(
-            1 for v in self._votes.values()
-            if v.status == VoteTrackingStatus.VALIDATED
+            1 for v in self._votes.values() if v.status == VoteTrackingStatus.VALIDATED
         )
         dlq = sum(
-            1 for v in self._votes.values()
+            1
+            for v in self._votes.values()
             if v.status in {VoteTrackingStatus.DLQ, VoteTrackingStatus.FALLBACK_APPLIED}
         )
 

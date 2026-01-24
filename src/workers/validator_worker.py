@@ -417,14 +417,16 @@ class ValidatorWorker:
             try:
                 from confluent_kafka import Consumer
 
-                self._consumer = Consumer({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    "group.id": self._consumer_group,
-                    "auto.offset.reset": "earliest",
-                    "enable.auto.commit": False,  # Manual commit for exactly-once
-                    "max.poll.interval.ms": 300000,  # 5 minutes
-                    "session.timeout.ms": 45000,
-                })
+                self._consumer = Consumer(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        "group.id": self._consumer_group,
+                        "auto.offset.reset": "earliest",
+                        "enable.auto.commit": False,  # Manual commit for exactly-once
+                        "max.poll.interval.ms": 300000,  # 5 minutes
+                        "session.timeout.ms": 45000,
+                    }
+                )
 
                 self._consumer.subscribe([TOPIC_VALIDATION_REQUESTS])
                 logger.info(
@@ -444,15 +446,17 @@ class ValidatorWorker:
             try:
                 from confluent_kafka import Producer
 
-                self._producer = Producer({
-                    "bootstrap.servers": self._bootstrap_servers,
-                    "acks": "all",
-                    "enable.idempotence": True,
-                    "message.timeout.ms": 10000,
-                    "request.timeout.ms": 10000,
-                    "retries": 3,
-                    "compression.type": "snappy",
-                })
+                self._producer = Producer(
+                    {
+                        "bootstrap.servers": self._bootstrap_servers,
+                        "acks": "all",
+                        "enable.idempotence": True,
+                        "message.timeout.ms": 10000,
+                        "request.timeout.ms": 10000,
+                        "retries": 3,
+                        "compression.type": "snappy",
+                    }
+                )
 
             except ImportError:
                 logger.error("confluent-kafka not installed")
@@ -593,11 +597,12 @@ class ValidatorWorker:
             while True:
                 try:
                     async with OLLAMA_SEMAPHORE:
-                        validated_choice, confidence = (
-                            await self._validator.validate_vote(
-                                raw_response=request_data["raw_response"],
-                                optimistic_choice=request_data["optimistic_choice"],
-                            )
+                        (
+                            validated_choice,
+                            confidence,
+                        ) = await self._validator.validate_vote(
+                            raw_response=request_data["raw_response"],
+                            optimistic_choice=request_data["optimistic_choice"],
                         )
 
                     processing_time = (time.monotonic() - start_time) * 1000
@@ -931,14 +936,16 @@ class SecretaryWorker:
         if self._consumer is None:
             from confluent_kafka import Consumer
 
-            self._consumer = Consumer({
-                "bootstrap.servers": self._bootstrap_servers,
-                "group.id": self._consumer_group,
-                "auto.offset.reset": "earliest",
-                "enable.auto.commit": False,
-                "max.poll.interval.ms": 300000,
-                "session.timeout.ms": 45000,
-            })
+            self._consumer = Consumer(
+                {
+                    "bootstrap.servers": self._bootstrap_servers,
+                    "group.id": self._consumer_group,
+                    "auto.offset.reset": "earliest",
+                    "enable.auto.commit": False,
+                    "max.poll.interval.ms": 300000,
+                    "session.timeout.ms": 45000,
+                }
+            )
 
             self._consumer.subscribe([TOPIC_VALIDATION_REQUESTS])
             logger.info("Secretary subscribed to %s", TOPIC_VALIDATION_REQUESTS)
@@ -950,14 +957,16 @@ class SecretaryWorker:
         if self._producer is None:
             from confluent_kafka import Producer
 
-            self._producer = Producer({
-                "bootstrap.servers": self._bootstrap_servers,
-                "acks": "all",
-                "enable.idempotence": True,
-                "message.timeout.ms": 10000,
-                "retries": 3,
-                "compression.type": "snappy",
-            })
+            self._producer = Producer(
+                {
+                    "bootstrap.servers": self._bootstrap_servers,
+                    "acks": "all",
+                    "enable.idempotence": True,
+                    "message.timeout.ms": 10000,
+                    "retries": 3,
+                    "compression.type": "snappy",
+                }
+            )
 
         return self._producer
 
@@ -1067,7 +1076,11 @@ class SecretaryWorker:
 
         try:
             async with OLLAMA_SEMAPHORE:
-                vote_choice, confidence, reasoning = await self._secretary.determine_vote(
+                (
+                    vote_choice,
+                    confidence,
+                    reasoning,
+                ) = await self._secretary.determine_vote(
                     raw_response=raw_response,
                     archon_id=archon_id,
                     motion_text=motion_text,
@@ -1182,7 +1195,10 @@ class SecretaryWorker:
         """Get worker metrics."""
         avg_time = 0.0
         if self._metrics.messages_processed > 0:
-            avg_time = self._metrics.total_processing_time_ms / self._metrics.messages_processed
+            avg_time = (
+                self._metrics.total_processing_time_ms
+                / self._metrics.messages_processed
+            )
 
         return {
             "secretary_id": self._secretary_id,
@@ -1265,14 +1281,16 @@ class WitnessWorker:
         if self._consumer is None:
             from confluent_kafka import Consumer
 
-            self._consumer = Consumer({
-                "bootstrap.servers": self._bootstrap_servers,
-                "group.id": self._consumer_group,
-                "auto.offset.reset": "earliest",
-                "enable.auto.commit": False,
-                "max.poll.interval.ms": 300000,
-                "session.timeout.ms": 45000,
-            })
+            self._consumer = Consumer(
+                {
+                    "bootstrap.servers": self._bootstrap_servers,
+                    "group.id": self._consumer_group,
+                    "auto.offset.reset": "earliest",
+                    "enable.auto.commit": False,
+                    "max.poll.interval.ms": 300000,
+                    "session.timeout.ms": 45000,
+                }
+            )
 
             self._consumer.subscribe([TOPIC_WITNESS_REQUESTS])
             logger.info("Witness subscribed to %s", TOPIC_WITNESS_REQUESTS)
@@ -1284,14 +1302,16 @@ class WitnessWorker:
         if self._producer is None:
             from confluent_kafka import Producer
 
-            self._producer = Producer({
-                "bootstrap.servers": self._bootstrap_servers,
-                "acks": "all",
-                "enable.idempotence": True,
-                "message.timeout.ms": 10000,
-                "retries": 3,
-                "compression.type": "snappy",
-            })
+            self._producer = Producer(
+                {
+                    "bootstrap.servers": self._bootstrap_servers,
+                    "acks": "all",
+                    "enable.idempotence": True,
+                    "message.timeout.ms": 10000,
+                    "retries": 3,
+                    "compression.type": "snappy",
+                }
+            )
 
         return self._producer
 
@@ -1441,7 +1461,9 @@ class WitnessWorker:
             logger.error("Witness observation failed: vote=%s error=%s", vote_id, e)
 
         finally:
-            self._metrics.total_processing_time_ms += (time.monotonic() - start_time) * 1000
+            self._metrics.total_processing_time_ms += (
+                time.monotonic() - start_time
+            ) * 1000
 
     async def run(self) -> None:
         """Run the witness worker event loop."""
@@ -1490,7 +1512,10 @@ class WitnessWorker:
         """Get worker metrics."""
         avg_time = 0.0
         if self._metrics.messages_processed > 0:
-            avg_time = self._metrics.total_processing_time_ms / self._metrics.messages_processed
+            avg_time = (
+                self._metrics.total_processing_time_ms
+                / self._metrics.messages_processed
+            )
 
         return {
             "witness_id": self._witness_id,
@@ -1707,7 +1732,9 @@ async def _run_from_env() -> None:
 
     role = (_get_env("VALIDATOR_ROLE") or "").lower()
     if not role:
-        print("ERROR: VALIDATOR_ROLE must be set (secretary_text, secretary_json, witness)")
+        print(
+            "ERROR: VALIDATOR_ROLE must be set (secretary_text, secretary_json, witness)"
+        )
         sys.exit(1)
 
     archon_id = _resolve_archon_id(role)
@@ -1715,15 +1742,28 @@ async def _run_from_env() -> None:
         print("ERROR: VALIDATOR_ARCHON_ID (or role-specific override) is required")
         sys.exit(1)
 
-    bootstrap_servers = _get_env("KAFKA_BOOTSTRAP_SERVERS", "localhost:19092") or "localhost:19092"
-    schema_registry_url = _get_env("SCHEMA_REGISTRY_URL", "http://localhost:18081") or "http://localhost:18081"
+    bootstrap_servers = (
+        _get_env("KAFKA_BOOTSTRAP_SERVERS", "localhost:19092") or "localhost:19092"
+    )
+    schema_registry_url = (
+        _get_env("SCHEMA_REGISTRY_URL", "http://localhost:18081")
+        or "http://localhost:18081"
+    )
 
     if role in {"secretary_text", "secretary_json"}:
-        consumer_group = _get_env("KAFKA_CONSUMER_GROUP", "conclave-secretaries") or "conclave-secretaries"
+        consumer_group = (
+            _get_env("KAFKA_CONSUMER_GROUP", "conclave-secretaries")
+            or "conclave-secretaries"
+        )
     elif role == "witness":
-        consumer_group = _get_env("KAFKA_CONSUMER_GROUP", "conclave-witness") or "conclave-witness"
+        consumer_group = (
+            _get_env("KAFKA_CONSUMER_GROUP", "conclave-witness") or "conclave-witness"
+        )
     else:
-        consumer_group = _get_env("KAFKA_CONSUMER_GROUP", "conclave-validators") or "conclave-validators"
+        consumer_group = (
+            _get_env("KAFKA_CONSUMER_GROUP", "conclave-validators")
+            or "conclave-validators"
+        )
 
     from src.infrastructure.adapters.config.archon_profile_adapter import (
         create_archon_profile_repository,

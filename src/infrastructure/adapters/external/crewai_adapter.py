@@ -767,7 +767,9 @@ Be thorough but concise in your response.""",
         return {
             "final_vote": final_vote,
             "retort": retort_flag,
-            "retort_reason": parsed.get("retort_reason") if isinstance(parsed, dict) else None,
+            "retort_reason": parsed.get("retort_reason")
+            if isinstance(parsed, dict)
+            else None,
             "witness_statement": parsed.get("witness_statement", output.content)
             if isinstance(parsed, dict)
             else output.content,
@@ -843,11 +845,11 @@ Be thorough but concise in your response.""",
             f"RAW RESPONSE:\n{raw_response}\n\n"
             f"DELIBERATOR RESULTS:\n{deliberator_json}\n\n"
             "Return JSON only:\n"
-            '{\"consensus\": true|false, '
-            '\"final_vote\": \"AYE|NAY|ABSTAIN\", '
-            '\"ruling\": \"CONFIRMED|RETORT\", '
-            '\"retort_reason\": \"\", '
-            '\"witness_statement\": \"\"}\n'
+            '{"consensus": true|false, '
+            '"final_vote": "AYE|NAY|ABSTAIN", '
+            '"ruling": "CONFIRMED|RETORT", '
+            '"retort_reason": "", '
+            '"witness_statement": ""}\n'
         )
 
 

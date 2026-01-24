@@ -154,7 +154,9 @@ class TestAdoptionRatioAlertingServiceTrigger:
         )
 
         # When
-        exceeded_event, normalized_event = await service.check_and_alert(metrics=metrics)
+        exceeded_event, normalized_event = await service.check_and_alert(
+            metrics=metrics
+        )
 
         # Then
         assert exceeded_event is None  # No new alert
@@ -207,7 +209,9 @@ class TestAdoptionRatioAlertingServiceResolution:
         )
 
         # When
-        exceeded_event, normalized_event = await service.check_and_alert(metrics=metrics)
+        exceeded_event, normalized_event = await service.check_and_alert(
+            metrics=metrics
+        )
 
         # Then
         assert exceeded_event is None
@@ -246,7 +250,9 @@ class TestAdoptionRatioAlertingServiceResolution:
         )
 
         # When
-        exceeded_event, normalized_event = await service.check_and_alert(metrics=metrics)
+        exceeded_event, normalized_event = await service.check_and_alert(
+            metrics=metrics
+        )
 
         # Then
         assert exceeded_event is None
@@ -479,7 +485,9 @@ class TestAdoptionRatioAlertingServiceNoData:
         )
 
         # When
-        exceeded_event, normalized_event = await service.check_and_alert(metrics=metrics)
+        exceeded_event, normalized_event = await service.check_and_alert(
+            metrics=metrics
+        )
 
         # Then
         assert exceeded_event is None

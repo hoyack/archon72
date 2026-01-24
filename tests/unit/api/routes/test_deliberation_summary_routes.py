@@ -44,7 +44,9 @@ def app(mock_transcript_service: AsyncMock) -> Generator[FastAPI, None, None]:
     app.include_router(router)
 
     # Override the dependency to use the mock
-    app.dependency_overrides[get_transcript_access_service] = lambda: mock_transcript_service
+    app.dependency_overrides[get_transcript_access_service] = (
+        lambda: mock_transcript_service
+    )
 
     yield app
 
@@ -319,7 +321,9 @@ class TestMediationInResponse:
             completed_at=datetime.now(timezone.utc),
         )
 
-        mock_transcript_service.get_deliberation_summary.return_value = summary_with_dissent
+        mock_transcript_service.get_deliberation_summary.return_value = (
+            summary_with_dissent
+        )
 
         response = client.get(
             f"/v1/petition-submissions/{petition_id}/deliberation-summary"

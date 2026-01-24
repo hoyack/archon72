@@ -275,6 +275,8 @@ def create_test_transcript_response(
         phases=phases,
         outcome=outcome,
         has_dissent=has_dissent,
-        dissent_text="I respectfully dissent from the majority." if has_dissent else None,
+        dissent_text="I respectfully dissent from the majority."
+        if has_dissent
+        else None,
         completed_at=now,
     )

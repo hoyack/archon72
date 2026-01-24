@@ -266,8 +266,14 @@ class TestHelperMethods:
             transcript="POSITION transcript",
         )
 
-        assert stub.get_transcript_for_phase(DeliberationPhase.ASSESS) == "ASSESS transcript"
-        assert stub.get_transcript_for_phase(DeliberationPhase.POSITION) == "POSITION transcript"
+        assert (
+            stub.get_transcript_for_phase(DeliberationPhase.ASSESS)
+            == "ASSESS transcript"
+        )
+        assert (
+            stub.get_transcript_for_phase(DeliberationPhase.POSITION)
+            == "POSITION transcript"
+        )
         assert stub.get_transcript_for_phase(DeliberationPhase.VOTE) is None
 
 

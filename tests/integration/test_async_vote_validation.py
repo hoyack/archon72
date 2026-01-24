@@ -204,8 +204,7 @@ def kafka_topics(bootstrap_servers: str) -> list[str]:
     admin = AdminClient({"bootstrap.servers": bootstrap_servers})
 
     new_topics = [
-        NewTopic(topic, num_partitions=3, replication_factor=1)
-        for topic in topics
+        NewTopic(topic, num_partitions=3, replication_factor=1) for topic in topics
     ]
 
     futures = admin.create_topics(new_topics)
@@ -536,10 +535,12 @@ class TestConsumerLag:
     ) -> None:
         """Test that lag provider correctly reports consumer lag."""
         # Create a producer and write some messages
-        producer = Producer({
-            "bootstrap.servers": bootstrap_servers,
-            "acks": "all",
-        })
+        producer = Producer(
+            {
+                "bootstrap.servers": bootstrap_servers,
+                "acks": "all",
+            }
+        )
 
         topic = "conclave.votes.validation-results"
 
@@ -553,11 +554,13 @@ class TestConsumerLag:
         producer.flush()
 
         # Create consumer and measure lag
-        consumer = Consumer({
-            "bootstrap.servers": bootstrap_servers,
-            "group.id": "test-lag-group",
-            "auto.offset.reset": "earliest",
-        })
+        consumer = Consumer(
+            {
+                "bootstrap.servers": bootstrap_servers,
+                "group.id": "test-lag-group",
+                "auto.offset.reset": "earliest",
+            }
+        )
         consumer.subscribe([topic])
 
         # Consume some messages

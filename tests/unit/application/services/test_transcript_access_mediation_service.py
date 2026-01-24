@@ -343,7 +343,9 @@ def _create_mock_session(
     else:
         session.outcome = None
 
-    session.completed_at = datetime.now(timezone.utc) if phase == DeliberationPhase.COMPLETE else None
+    session.completed_at = (
+        datetime.now(timezone.utc) if phase == DeliberationPhase.COMPLETE else None
+    )
     session.created_at = datetime.now(timezone.utc)
 
     # Mock votes (will be converted to anonymous breakdown)

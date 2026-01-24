@@ -41,10 +41,10 @@ from src.application.ports.governance.task_timeout_port import (
     TimeoutProcessingResult,
     TimeoutSchedulerPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 from src.domain.governance.task.task_state import TaskState, TaskStatus
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = logging.getLogger(__name__)
 

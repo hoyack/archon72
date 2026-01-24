@@ -10,7 +10,7 @@ confluent-kafka with strong durability guarantees.
 
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
@@ -25,7 +25,10 @@ from src.infrastructure.adapters.kafka.avro_serializer import (
     SchemaRegistryUnavailableError,
     SerializationError,
 )
-from src.infrastructure.adapters.kafka.circuit_breaker import CircuitBreaker, CircuitState
+from src.infrastructure.adapters.kafka.circuit_breaker import (
+    CircuitBreaker,
+    CircuitState,
+)
 
 logger = logging.getLogger(__name__)
 

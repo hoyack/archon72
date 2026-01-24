@@ -5,6 +5,8 @@ from __future__ import annotations
 from src.application.ports.status_token_registry import StatusTokenRegistryProtocol
 from src.infrastructure.stubs.status_token_registry_stub import (
     get_status_token_registry as _get_stub_registry,
+)
+from src.infrastructure.stubs.status_token_registry_stub import (
     reset_status_token_registry as _reset_stub_registry,
 )
 

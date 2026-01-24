@@ -156,7 +156,7 @@ class StatusTokenRegistryStub(StatusTokenRegistryProtocol):
             await asyncio.wait_for(event.wait(), timeout=timeout_seconds)
             # Event was set - state changed
             return True
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return False
         finally:
             self._waiter_count -= 1

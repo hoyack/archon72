@@ -27,7 +27,6 @@ from uuid import UUID
 from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEventEmitterPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.cessation import (
     CessationRecord,
     ReconstitutionArtifact,
@@ -35,6 +34,7 @@ from src.domain.governance.cessation import (
     ValidationResult,
     ValidationStatus,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 # Baseline legitimacy for new instances - must be STABLE
 BASELINE_LEGITIMACY_BAND = "STABLE"

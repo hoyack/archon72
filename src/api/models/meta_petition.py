@@ -10,7 +10,6 @@ Constitutional Constraints:
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -49,7 +48,7 @@ class MetaPetitionQueueItemResponse(BaseModel):
     petition_id: UUID = Field(
         description="UUID of the META petition"
     )
-    submitter_id: Optional[UUID] = Field(
+    submitter_id: UUID | None = Field(
         default=None,
         description="UUID of the petition submitter (may be None for anonymous)"
     )
@@ -123,7 +122,7 @@ class ResolveMetaPetitionRequest(BaseModel):
         min_length=10,
         description="High Archon's rationale for the resolution (min 10 characters)"
     )
-    forward_target: Optional[str] = Field(
+    forward_target: str | None = Field(
         default=None,
         description="Target governance body (required if disposition is FORWARD)"
     )
@@ -164,7 +163,7 @@ class ResolveMetaPetitionResponse(BaseModel):
     resolved_at: datetime = Field(
         description="When the resolution occurred (UTC)"
     )
-    forward_target: Optional[str] = Field(
+    forward_target: str | None = Field(
         default=None,
         description="Target governance body (if disposition is FORWARD)"
     )

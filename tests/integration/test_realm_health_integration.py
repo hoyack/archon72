@@ -3,7 +3,6 @@
 Tests end-to-end flows for realm health computation and dashboard.
 """
 
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -13,7 +12,11 @@ from src.application.services.realm_health_compute_service import (
 )
 from src.domain.models.adoption_ratio import AdoptionRatioMetrics
 from src.domain.models.realm import CANONICAL_REALM_IDS
-from src.domain.models.realm_health import RealmHealth, RealmHealthDelta, RealmHealthStatus
+from src.domain.models.realm_health import (
+    RealmHealth,
+    RealmHealthDelta,
+    RealmHealthStatus,
+)
 from src.infrastructure.stubs.adoption_ratio_repository_stub import (
     AdoptionRatioRepositoryStub,
 )

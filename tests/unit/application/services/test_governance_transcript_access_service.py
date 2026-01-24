@@ -20,7 +20,6 @@ import pytest_asyncio
 from src.application.dtos.governance_transcript import (
     FullTranscriptResponse,
     PhaseTranscriptDetail,
-    TranscriptUtterance,
 )
 from src.application.ports.deliberation_summary import (
     DeliberationSummaryRepositoryProtocol,
@@ -87,7 +86,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -125,7 +124,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -178,7 +177,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute - should succeed
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -207,7 +206,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute - the logging is internal but we verify the call completes
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -251,7 +250,7 @@ class TestTranscriptWithDissent:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -280,7 +279,7 @@ class TestTranscriptWithDissent:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -319,7 +318,7 @@ class TestPhaseTranscriptDetails:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -349,7 +348,7 @@ class TestPhaseTranscriptDetails:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -378,7 +377,7 @@ class TestPhaseTranscriptDetails:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -429,7 +428,7 @@ class TestTranscriptContentParsing:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -473,7 +472,7 @@ class TestTranscriptContentParsing:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -500,7 +499,7 @@ class TestTranscriptContentParsing:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = transcript_content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -526,7 +525,7 @@ class TestTranscriptContentParsing:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = None  # No content
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -563,7 +562,7 @@ class TestOutcomeMapping:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = "[]"
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=uuid4(),
             accessor_role="HIGH_ARCHON",
@@ -584,7 +583,7 @@ class TestOutcomeMapping:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = "[]"
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=uuid4(),
             accessor_role="HIGH_ARCHON",
@@ -605,7 +604,7 @@ class TestOutcomeMapping:
         service._summary_repo.get_phase_witnesses.return_value = witnesses
         service._transcript_store.retrieve.return_value = "[]"
 
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=uuid4(),
             accessor_role="HIGH_ARCHON",

@@ -8,8 +8,9 @@ Constitutional Context:
 - CT-14: ACKNOWLEDGED is a terminal fate with mandatory reason code
 """
 
-from src.domain._compat import StrEnum
 from uuid import UUID
+
+from src.domain._compat import StrEnum
 
 
 class AcknowledgmentReasonCode(StrEnum):

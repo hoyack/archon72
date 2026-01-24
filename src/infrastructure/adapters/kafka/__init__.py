@@ -17,18 +17,18 @@ from src.infrastructure.adapters.kafka.circuit_breaker import (
     CircuitState,
 )
 from src.infrastructure.adapters.kafka.kafka_health_checker import KafkaHealthChecker
-from src.infrastructure.adapters.kafka.vote_publisher import (
-    KafkaVotePublisher,
-    TOPIC_DEAD_LETTER,
-    TOPIC_PENDING_VALIDATION,
-    TOPIC_VALIDATED,
-    TOPIC_VALIDATION_RESULTS,
-)
 from src.infrastructure.adapters.kafka.startup_health_gate import (
     StartupHealthGate,
     StartupHealthReport,
     StartupHealthResult,
     create_startup_health_gate,
+)
+from src.infrastructure.adapters.kafka.vote_publisher import (
+    TOPIC_DEAD_LETTER,
+    TOPIC_PENDING_VALIDATION,
+    TOPIC_VALIDATED,
+    TOPIC_VALIDATION_RESULTS,
+    KafkaVotePublisher,
 )
 
 __all__ = [

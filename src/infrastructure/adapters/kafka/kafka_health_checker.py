@@ -76,7 +76,7 @@ class KafkaHealthChecker(KafkaHealthProtocol):
             Tuple of (is_reachable, error_message)
         """
         try:
-            admin = self._get_admin_client()
+            _admin = self._get_admin_client()
             # Request cluster metadata as connectivity check
             metadata = admin.list_topics(timeout=self._timeout)
 
@@ -117,7 +117,7 @@ class KafkaHealthChecker(KafkaHealthProtocol):
             Tuple of (has_members, member_count, error_message)
         """
         try:
-            admin = self._get_admin_client()
+            _admin = self._get_admin_client()
 
             # List consumer groups (use Future timeout, not kwargs)
             groups = admin.list_consumer_groups()
@@ -153,7 +153,7 @@ class KafkaHealthChecker(KafkaHealthProtocol):
             Tuple of (total_lag, error_message)
         """
         try:
-            admin = self._get_admin_client()
+            _admin = self._get_admin_client()
 
             # Get consumer group offsets
             try:
@@ -244,7 +244,7 @@ class KafkaHealthChecker(KafkaHealthProtocol):
             Total lag across all partitions
         """
         try:
-            admin = self._get_admin_client()
+            _admin = self._get_admin_client()
 
             # This is a simplified implementation
             # A full implementation would use describe_topics and list_offsets

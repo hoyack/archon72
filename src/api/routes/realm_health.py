@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -129,7 +128,7 @@ def _to_delta_summary(delta: RealmHealthDelta) -> RealmHealthDeltaSummary:
 )
 async def get_realm_health_dashboard(
     high_archon_id: UUID = Depends(get_high_archon_id),
-    cycle_id: Optional[str] = Query(
+    cycle_id: str | None = Query(
         default=None,
         description="Governance cycle ID (YYYY-Wnn). Defaults to current cycle.",
         example="2026-W04",
@@ -266,7 +265,7 @@ async def get_realm_health_dashboard(
 async def get_realm_health_by_id(
     realm_id: str,
     high_archon_id: UUID = Depends(get_high_archon_id),
-    cycle_id: Optional[str] = Query(
+    cycle_id: str | None = Query(
         default=None,
         description="Governance cycle ID (YYYY-Wnn). Defaults to current cycle.",
     ),

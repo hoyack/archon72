@@ -25,14 +25,16 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-from uuid import UUID
 
-from src.infrastructure.adapters.kafka.avro_serializer import AvroSerializer, SerializationError
+from src.infrastructure.adapters.kafka.avro_serializer import (
+    AvroSerializer,
+    SerializationError,
+)
 from src.infrastructure.adapters.kafka.circuit_breaker import CircuitBreaker
 from src.workers.validator_worker import (
     TOPIC_VALIDATION_RESULTS,
-    TOPIC_WITNESS_REQUESTS,
     TOPIC_WITNESS_EVENTS,
+    TOPIC_WITNESS_REQUESTS,
     ValidatorRole,
     WitnessVerdict,
 )

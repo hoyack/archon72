@@ -26,16 +26,19 @@ import os
 import signal
 import sys
 import time
-from datetime import datetime, timezone
-from pathlib import Path
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable, Protocol
+from pathlib import Path
+from typing import Any, Protocol
 from uuid import uuid4
 
-from src.application.ports.vote_publisher import PublishResponse, PublishResult
 from src.application.ports.agent_orchestrator import ContextBundle
-from src.infrastructure.adapters.kafka.avro_serializer import AvroSerializer, SerializationError
+from src.application.ports.vote_publisher import PublishResponse, PublishResult
+from src.infrastructure.adapters.kafka.avro_serializer import (
+    AvroSerializer,
+    SerializationError,
+)
 from src.infrastructure.adapters.kafka.circuit_breaker import CircuitBreaker
 from src.workers.error_handler import (
     ErrorAction,
@@ -1722,10 +1725,10 @@ async def _run_from_env() -> None:
     else:
         consumer_group = _get_env("KAFKA_CONSUMER_GROUP", "conclave-validators") or "conclave-validators"
 
-    from src.infrastructure.adapters.external import create_crewai_adapter
     from src.infrastructure.adapters.config.archon_profile_adapter import (
         create_archon_profile_repository,
     )
+    from src.infrastructure.adapters.external import create_crewai_adapter
 
     profile_repo = create_archon_profile_repository()
     orchestrator = create_crewai_adapter(

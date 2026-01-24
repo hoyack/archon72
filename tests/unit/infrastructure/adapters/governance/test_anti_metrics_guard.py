@@ -21,11 +21,11 @@ from src.application.ports.governance.anti_metrics_port import (
     EventEmitterPort,
     SchemaValidatorPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.antimetrics import (
     AntiMetricsViolationError,
     ProhibitedPattern,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.infrastructure.adapters.governance.anti_metrics_guard import (
     AntiMetricsGuard,
 )

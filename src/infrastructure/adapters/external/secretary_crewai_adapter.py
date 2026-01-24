@@ -25,7 +25,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from src.optional_deps.crewai import Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.secretary_agent import (
@@ -58,6 +57,7 @@ from src.infrastructure.adapters.external.crewai_json_utils import (
     strip_markdown_fence,
 )
 from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
+from src.optional_deps.crewai import Agent, Crew, Task
 
 logger = get_logger(__name__)
 

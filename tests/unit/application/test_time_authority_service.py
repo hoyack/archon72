@@ -16,11 +16,11 @@ HARDENING-1 Additions:
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.time_authority_service import (
     DEFAULT_DRIFT_THRESHOLD_SECONDS,
     TimeAuthorityService,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class TestTimeAuthorityService:

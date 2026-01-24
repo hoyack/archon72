@@ -15,7 +15,7 @@ Constitutional Constraints:
 """
 
 from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -326,7 +326,10 @@ class TestMetaPetitionQueueItem:
 
     def test_queue_item_creation(self) -> None:
         """Test MetaPetitionQueueItem creation."""
-        from src.domain.models.meta_petition import MetaPetitionQueueItem, MetaPetitionStatus
+        from src.domain.models.meta_petition import (
+            MetaPetitionQueueItem,
+            MetaPetitionStatus,
+        )
 
         item = MetaPetitionQueueItem(
             petition_id=uuid4(),
@@ -341,7 +344,10 @@ class TestMetaPetitionQueueItem:
 
     def test_queue_item_is_frozen(self) -> None:
         """Test MetaPetitionQueueItem is immutable."""
-        from src.domain.models.meta_petition import MetaPetitionQueueItem, MetaPetitionStatus
+        from src.domain.models.meta_petition import (
+            MetaPetitionQueueItem,
+            MetaPetitionStatus,
+        )
 
         item = MetaPetitionQueueItem(
             petition_id=uuid4(),
@@ -356,7 +362,10 @@ class TestMetaPetitionQueueItem:
 
     def test_queue_item_with_resolved_status(self) -> None:
         """Test MetaPetitionQueueItem with RESOLVED status."""
-        from src.domain.models.meta_petition import MetaPetitionQueueItem, MetaPetitionStatus
+        from src.domain.models.meta_petition import (
+            MetaPetitionQueueItem,
+            MetaPetitionStatus,
+        )
 
         item = MetaPetitionQueueItem(
             petition_id=uuid4(),

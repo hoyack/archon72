@@ -23,10 +23,10 @@ from datetime import datetime, timezone
 
 from prometheus_client import Counter, Gauge, Histogram
 
-from src.application.ports.realm_health_repository import RealmHealthRepositoryProtocol
 from src.application.ports.adoption_ratio_repository import (
     AdoptionRatioRepositoryProtocol,
 )
+from src.application.ports.realm_health_repository import RealmHealthRepositoryProtocol
 from src.domain.events.realm_health import (
     AllRealmsHealthComputedEventPayload,
     RealmHealthComputedEventPayload,

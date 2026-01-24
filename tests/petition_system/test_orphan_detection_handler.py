@@ -15,7 +15,7 @@ Test Coverage:
 """
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import Mock
 from uuid import uuid4
 
 import pytest

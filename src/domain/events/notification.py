@@ -157,7 +157,7 @@ class FateNotificationSentEventPayload:
             "schema_version": NOTIFICATION_EVENT_SCHEMA_VERSION,
         }
 
-    def with_delivered(self, delivered_at: datetime) -> "FateNotificationSentEventPayload":
+    def with_delivered(self, delivered_at: datetime) -> FateNotificationSentEventPayload:
         """Create new event with DELIVERED status.
 
         Since FateNotificationSentEventPayload is frozen, returns new instance.
@@ -184,7 +184,7 @@ class FateNotificationSentEventPayload:
 
     def with_failed(
         self, error_message: str, permanent: bool = False
-    ) -> "FateNotificationSentEventPayload":
+    ) -> FateNotificationSentEventPayload:
         """Create new event with FAILED or PERMANENTLY_FAILED status.
 
         Since FateNotificationSentEventPayload is frozen, returns new instance.

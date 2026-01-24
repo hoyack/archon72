@@ -21,7 +21,6 @@ from src.application.ports.governance.panel_queue_port import PanelQueuePort
 from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEventEmitterPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.witness_routing_service import (
     HIGH_PRIORITY_KEYWORDS,
     ROUTING_RULES,
@@ -34,6 +33,7 @@ from src.domain.governance.queue.status import QueueItemStatus
 from src.domain.governance.witness.observation_content import ObservationContent
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class FakeTimeAuthority(TimeAuthorityProtocol):

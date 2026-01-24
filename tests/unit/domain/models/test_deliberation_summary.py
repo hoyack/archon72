@@ -14,7 +14,10 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.models.deliberation_session import DeliberationOutcome, DeliberationPhase
+from src.domain.models.deliberation_session import (
+    DeliberationOutcome,
+    DeliberationPhase,
+)
 from src.domain.models.deliberation_summary import (
     DeliberationSummary,
     EscalationTrigger,

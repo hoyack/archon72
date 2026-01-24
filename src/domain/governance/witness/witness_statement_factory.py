@@ -23,11 +23,11 @@ import threading
 from typing import Any
 from uuid import uuid4
 
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.witness.errors import JudgmentLanguageError
 from src.domain.governance.witness.observation_content import ObservationContent
 from src.domain.governance.witness.observation_type import ObservationType
 from src.domain.governance.witness.witness_statement import WitnessStatement
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class WitnessStatementFactory:

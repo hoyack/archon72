@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Any
 
 import fastavro
-from fastavro.schema import load_schema
 
 logger = logging.getLogger(__name__)
 

@@ -19,9 +19,10 @@ Developer Golden Rules:
 from __future__ import annotations
 
 import hashlib
-import structlog
 from datetime import datetime
 from uuid import UUID
+
+import structlog
 
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,

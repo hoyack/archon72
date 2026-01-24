@@ -18,9 +18,8 @@ from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Header, HTTPException, Request, status
-
 import structlog
+from fastapi import Header, HTTPException, Request, status
 
 logger = structlog.get_logger(__name__)
 

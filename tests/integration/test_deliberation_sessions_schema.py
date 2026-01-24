@@ -20,6 +20,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.integration.sql_helpers import execute_sql_file
+
 # Path to migration files
 PETITION_MIGRATION_FILE = (
     Path(__file__).parent.parent.parent

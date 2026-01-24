@@ -16,7 +16,6 @@ from src.domain.errors.reconciliation import TallyInvariantError, VoteOverrideEr
 from src.domain.models.reconciliation import (
     ReconciliationResult,
     ValidationOutcome,
-    VoteValidationSummary,
 )
 
 logger = logging.getLogger(__name__)

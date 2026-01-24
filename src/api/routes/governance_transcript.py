@@ -25,9 +25,8 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-
 import structlog
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from src.api.auth.elevated_auth import ElevatedActor, get_elevated_actor
 from src.api.models.governance_transcript import (

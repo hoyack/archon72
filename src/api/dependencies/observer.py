@@ -21,20 +21,15 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from src.api.middleware.rate_limiter import ObserverRateLimiter
-from src.application.ports.checkpoint_repository import CheckpointRepository
 from src.application.ports.event_store import EventStorePort
-from src.application.ports.halt_checker import HaltChecker
 from src.application.services.export_service import ExportService
-from src.application.services.integrity_case_service import IntegrityCaseService
 from src.application.services.merkle_tree_service import MerkleTreeService
 from src.application.services.notification_service import NotificationService
 from src.application.services.observer_service import ObserverService
 from src.bootstrap.observer import (
     get_checkpoint_repo,
-    get_deliberation_recorder,
     get_freeze_checker,
     get_halt_checker,
-    get_integrity_case_service,
 )
 
 if TYPE_CHECKING:

@@ -6,10 +6,11 @@ import asyncio
 import random
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Literal, Optional, Protocol
+from typing import Any, Literal, Protocol
 
-from src.domain.models.conclave import VoteChoice
 from src.domain.errors.agent import AgentInvocationError
+from src.domain.models.conclave import VoteChoice
+
 
 class KafkaPublisherProtocol(Protocol):
     """Protocol for publishing audit events."""
@@ -44,12 +45,12 @@ class DeliberatorResult:
 
     deliberator_type: DeliberatorType
     validator_archon_id: str
-    vote_choice: Optional[VoteChoice]
+    vote_choice: VoteChoice | None
     confidence: float
     raw_response: str
     parse_success: bool
     latency_ms: int
-    error: Optional[str] = None
+    error: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -60,7 +61,7 @@ class AdjudicationResult:
     consensus: bool
     final_vote: VoteChoice
     ruling: WitnessRuling
-    retort_reason: Optional[str]
+    retort_reason: str | None
     witness_statement: str
     deliberator_agreement: dict[str, VoteChoice | str]
 
@@ -78,9 +79,9 @@ class VoteValidationJob:
     vote_payload: dict[str, Any]
 
     deliberator_results: dict[str, DeliberatorResult] = field(default_factory=dict)
-    adjudication_result: Optional[AdjudicationResult] = None
+    adjudication_result: AdjudicationResult | None = None
     completed: asyncio.Event = field(default_factory=asyncio.Event)
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def override_required(self) -> bool:
@@ -290,85 +291,88 @@ class AsyncVoteValidator:
         return deliberator_result
 
     async def _witness_adjudicate(self, job: VoteValidationJob) -> AdjudicationResult:
-        """Witness reviews deliberator results and issues final ruling."""
-        deliberator_votes: dict[str, VoteChoice] = {
-            dtype: result.vote_choice
+        """Determine the validated vote and record the witness ruling.
+
+        3-Archon Protocol (ADR-004):
+          - Determination: TWO secretaries must agree on the vote choice.
+          - Witness: observes and records agreement/dissent (cannot change outcome).
+
+        Safety rule:
+          - Never override to ABSTAIN due to parsing failures. If validation is
+            inconclusive, fall back to the optimistic vote (no override).
+        """
+        secretary_results: dict[str, DeliberatorResult] = {
+            dtype: result
             for dtype, result in job.deliberator_results.items()
+            if dtype in ("text_analysis", "json_validation")
+        }
+        secretary_votes: dict[str, VoteChoice] = {
+            dtype: result.vote_choice
+            for dtype, result in secretary_results.items()
             if result.vote_choice is not None
         }
 
-        unique_votes = set(deliberator_votes.values())
-        if len(unique_votes) == 1 and unique_votes:
-            consensus_vote = next(iter(unique_votes))
+        witness_result = job.deliberator_results.get("witness_confirm")
+        witness_vote = witness_result.vote_choice if witness_result else None
+
+        deliberator_agreement: dict[str, VoteChoice | str] = {
+            dtype: choice.value for dtype, choice in secretary_votes.items()
+        }
+        if witness_vote is not None:
+            deliberator_agreement["witness_confirm"] = witness_vote.value
+
+        unique_secretary_votes = set(secretary_votes.values())
+        has_secretary_consensus = (
+            len(secretary_votes) == 2 and len(unique_secretary_votes) == 1
+        )
+
+        if has_secretary_consensus:
+            consensus_vote = next(iter(unique_secretary_votes))
+            if witness_vote == consensus_vote:
+                ruling = WitnessRuling.CONFIRMED
+                retort_reason = None
+                witness_statement = (
+                    f"Witness confirms the secretaries' determination: "
+                    f"{consensus_vote.value}."
+                )
+            else:
+                ruling = WitnessRuling.RETORT
+                retort_reason = (
+                    "witness_unavailable"
+                    if witness_vote is None
+                    else "witness_dissent"
+                )
+                witness_statement = (
+                    f"Witness retorts the secretaries' determination "
+                    f"({consensus_vote.value}). "
+                    f"Witness read: {witness_vote.value if witness_vote else 'unknown'}."
+                )
+
             return AdjudicationResult(
                 consensus=True,
                 final_vote=consensus_vote,
-                ruling=WitnessRuling.CONFIRMED,
-                retort_reason=None,
-                witness_statement=(
-                    f"All deliberators unanimously validated vote as "
-                    f"{consensus_vote.value}."
-                ),
-                deliberator_agreement={
-                    k: v.value for k, v in deliberator_votes.items()
-                },
+                ruling=ruling,
+                retort_reason=retort_reason,
+                witness_statement=witness_statement,
+                deliberator_agreement=deliberator_agreement,
             )
 
-        if len(unique_votes) == 2 and len(deliberator_votes) == 3:
-            from collections import Counter
-
-            vote_counts = Counter(deliberator_votes.values())
-            majority_vote, count = vote_counts.most_common(1)[0]
-            if count >= 2:
-                return AdjudicationResult(
-                    consensus=True,
-                    final_vote=majority_vote,
-                    ruling=WitnessRuling.CONFIRMED,
-                    retort_reason=None,
-                    witness_statement=(
-                        f"Majority ({count}/3) validated vote as "
-                        f"{majority_vote.value}."
-                    ),
-                    deliberator_agreement={
-                        k: v.value for k, v in deliberator_votes.items()
-                    },
-                )
-
-        adjudication_response = await self._execute_with_retries(
-            lambda: self._with_semaphore(
-                self.orchestrator.execute_witness_adjudication(
-                    witness_archon_id=self.witness_id,
-                    vote_payload=job.vote_payload,
-                    deliberator_results={
-                        dtype: {
-                            "vote_choice": result.vote_choice.value
-                            if result.vote_choice
-                            else None,
-                            "confidence": result.confidence,
-                            "metadata": result.metadata,
-                        }
-                        for dtype, result in job.deliberator_results.items()
-                    },
-                )
-            ),
-        )
-
-        final_vote = self._parse_vote_choice(adjudication_response.get("final_vote"))
-        ruling = (
-            WitnessRuling.RETORT
-            if adjudication_response.get("retort")
-            else WitnessRuling.CONFIRMED
+        secretary_text = secretary_votes.get("text_analysis")
+        secretary_json = secretary_votes.get("json_validation")
+        witness_statement = (
+            "Validation retort: no secretary consensus. "
+            f"text_analysis={secretary_text.value if secretary_text else 'unknown'}, "
+            f"json_validation={secretary_json.value if secretary_json else 'unknown'}. "
+            f"Preserving optimistic vote: {job.optimistic_choice.value}."
         )
 
         return AdjudicationResult(
-            consensus=not adjudication_response.get("retort", False),
-            final_vote=final_vote or VoteChoice.ABSTAIN,
-            ruling=ruling,
-            retort_reason=adjudication_response.get("retort_reason"),
-            witness_statement=adjudication_response.get("witness_statement", ""),
-            deliberator_agreement={
-                k: v.value for k, v in deliberator_votes.items()
-            },
+            consensus=False,
+            final_vote=job.optimistic_choice,
+            ruling=WitnessRuling.RETORT,
+            retort_reason="no_secretary_consensus",
+            witness_statement=witness_statement,
+            deliberator_agreement=deliberator_agreement,
         )
 
     def _is_retryable(self, exc: Exception) -> bool:
@@ -421,7 +425,7 @@ class AsyncVoteValidator:
         async with self.semaphore:
             return await coro
 
-    async def drain(self, timeout: float = 300.0) -> list[VoteValidationJob]:
+    async def drain(self, timeout_seconds: float = 300.0) -> list[VoteValidationJob]:
         """Wait for all pending validations to complete."""
         if not self.pending_jobs:
             return list(self.completed_jobs.values())
@@ -431,16 +435,16 @@ class AsyncVoteValidator:
         try:
             await asyncio.wait_for(
                 asyncio.gather(*[event.wait() for event in pending_events]),
-                timeout=timeout,
+                timeout=timeout_seconds,
             )
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             raise ReconciliationTimeoutError(
                 message=(
-                    f"Validation drain timed out after {timeout}s; "
+                    f"Validation drain timed out after {timeout_seconds}s; "
                     f"{len(self.pending_jobs)} jobs still pending."
                 ),
                 pending_count=len(self.pending_jobs),
-                timeout_seconds=timeout,
+                timeout_seconds=timeout_seconds,
             ) from exc
 
         return list(self.completed_jobs.values())
@@ -454,7 +458,7 @@ class AsyncVoteValidator:
             "overrides_required": self.total_overrides,
         }
 
-    def _parse_vote_choice(self, value: Any) -> Optional[VoteChoice]:
+    def _parse_vote_choice(self, value: Any) -> VoteChoice | None:
         """Parse vote choice from various formats."""
         if isinstance(value, VoteChoice):
             return value

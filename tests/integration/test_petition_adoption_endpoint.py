@@ -32,11 +32,11 @@ from src.domain.models.petition_submission import (
     PetitionSubmission,
     PetitionType,
 )
+from src.infrastructure.stubs.event_writer_stub import EventWriterStub
+from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
-from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.event_writer_stub import EventWriterStub
 
 
 @pytest.fixture

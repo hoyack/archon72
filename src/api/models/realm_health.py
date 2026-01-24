@@ -11,7 +11,6 @@ Developer Golden Rules:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -67,14 +66,14 @@ class RealmHealthSummary(BaseModel):
         ge=0,
         example=2,
     )
-    adoption_rate: Optional[float] = Field(
+    adoption_rate: float | None = Field(
         None,
         description="Adoption ratio (adoptions/escalations), None if no escalations",
         ge=0,
         le=1,
         example=0.35,
     )
-    average_referral_duration_seconds: Optional[int] = Field(
+    average_referral_duration_seconds: int | None = Field(
         None,
         description="Mean referral processing time in seconds",
         ge=0,
@@ -147,7 +146,7 @@ class RealmHealthDeltaSummary(BaseModel):
         description="Change in pending escalations",
         example=0,
     )
-    adoption_rate_delta: Optional[float] = Field(
+    adoption_rate_delta: float | None = Field(
         None,
         description="Change in adoption rate",
         example=-0.05,
@@ -186,7 +185,7 @@ class RealmHealthWithDelta(BaseModel):
         ...,
         description="Current cycle health metrics",
     )
-    delta: Optional[RealmHealthDeltaSummary] = Field(
+    delta: RealmHealthDeltaSummary | None = Field(
         None,
         description="Change from previous cycle (None if no previous data)",
     )

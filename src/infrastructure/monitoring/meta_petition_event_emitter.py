@@ -13,8 +13,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import structlog
 
 from src.application.ports.meta_petition_event_emitter import (

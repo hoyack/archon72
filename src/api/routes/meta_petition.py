@@ -14,9 +14,8 @@ Constitutional Constraints:
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
-
 import structlog
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from src.api.auth.high_archon_auth import get_high_archon_id
 from src.api.models.meta_petition import (

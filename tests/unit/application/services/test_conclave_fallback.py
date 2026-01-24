@@ -13,9 +13,8 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
@@ -25,12 +24,8 @@ from src.application.services.conclave_service import (
     ConclaveService,
 )
 from src.domain.models.conclave import (
-    ConclavePhase,
-    ConclaveSession,
     Motion,
-    MotionStatus,
     MotionType,
-    Vote,
     VoteChoice,
 )
 
@@ -161,7 +156,7 @@ class TestAsyncValidationFallback:
         )
 
         # Check that async is not used
-        use_async = await service._should_use_async_validation()
+        _ = await service._should_use_async_validation()
         assert not use_async
 
     @pytest.mark.asyncio
@@ -180,7 +175,7 @@ class TestAsyncValidationFallback:
             validation_dispatcher=None,  # No dispatcher
         )
 
-        use_async = await service._should_use_async_validation()
+        _ = await service._should_use_async_validation()
         assert not use_async
 
     @pytest.mark.asyncio
@@ -205,7 +200,7 @@ class TestAsyncValidationFallback:
         )
 
         with caplog.at_level(logging.INFO):
-            use_async = await service._should_use_async_validation()
+            _ = await service._should_use_async_validation()
 
         assert not use_async
         assert "Circuit breaker OPEN" in caplog.text
@@ -226,7 +221,7 @@ class TestAsyncValidationFallback:
             validation_dispatcher=mock_dispatcher_success,
         )
 
-        use_async = await service._should_use_async_validation()
+        _ = await service._should_use_async_validation()
         assert use_async
 
     @pytest.mark.asyncio
@@ -249,7 +244,7 @@ class TestAsyncValidationFallback:
         )
 
         # Create session and motion for voting
-        session = service.create_session("Test Session")
+        _ = service.create_session("Test Session")
         service._session.present_participants = ["archon_1"]
 
         # Create a motion
@@ -309,7 +304,7 @@ class TestAsyncValidationFallback:
             return_value=VoteChoice.AYE,
         ):
             # Create session
-            session = service.create_session("Fallback Test")
+            _ = service.create_session("Fallback Test")
 
             # Mark participants as present
             for profile in archon_profiles:
@@ -370,7 +365,7 @@ class TestSyncValidationPath:
         )
 
         # Create session
-        session = service.create_session("Sync Test")
+        _ = service.create_session("Sync Test")
 
         # Mock the validation request to return consistent AYE
         with patch.object(
@@ -418,7 +413,7 @@ class TestSyncValidationPath:
             config=config,
         )
 
-        session = service.create_session("Disagreement Test")
+        _ = service.create_session("Disagreement Test")
 
         # Mock validators to disagree
         async def mock_validation(*args, **kwargs) -> VoteChoice:
@@ -478,7 +473,7 @@ class TestLoggingOnFallback:
         )
 
         with caplog.at_level(logging.INFO):
-            use_async = await service._should_use_async_validation()
+            _ = await service._should_use_async_validation()
 
         assert not use_async
         assert "Circuit breaker OPEN" in caplog.text or "falling back" in caplog.text.lower()
@@ -500,7 +495,7 @@ class TestLoggingOnFallback:
             validation_dispatcher=mock_dispatcher_failure,
         )
 
-        session = service.create_session("Warning Log Test")
+        _ = service.create_session("Warning Log Test")
 
         motion = Motion(
             motion_id=uuid4(),
@@ -553,13 +548,13 @@ class TestAsyncValidationModule:
         )
 
         # Temporarily set module unavailable
-        original_flag = service.__class__.__module__
+        _ = service.__class__.__module__
 
         with patch(
             "src.application.services.conclave_service.ASYNC_VALIDATION_AVAILABLE",
             False,
         ):
-            use_async = await service._should_use_async_validation()
+            _ = await service._should_use_async_validation()
 
         # Even with async enabled in config, should fall back
         # when module is not available

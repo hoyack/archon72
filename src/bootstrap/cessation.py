@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 _freeze_checker: FreezeCheckerProtocol | None = None
 
 
-def get_freeze_checker() -> "FreezeCheckerProtocol":
+def get_freeze_checker() -> FreezeCheckerProtocol:
     """Get the freeze checker instance.
 
     Returns:
@@ -25,7 +25,7 @@ def get_freeze_checker() -> "FreezeCheckerProtocol":
     return _freeze_checker
 
 
-def set_freeze_checker(checker: "FreezeCheckerProtocol") -> None:
+def set_freeze_checker(checker: FreezeCheckerProtocol) -> None:
     """Set the freeze checker instance (for production use).
 
     Args:

@@ -15,8 +15,8 @@ from pydantic import ValidationError
 from src.api.models.petition_submission import (
     NotificationChannelEnum,
     NotificationPreferencesRequest,
-    SubmitPetitionSubmissionRequest,
     PetitionTypeEnum,
+    SubmitPetitionSubmissionRequest,
 )
 
 

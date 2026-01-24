@@ -13,7 +13,7 @@ Test Coverage:
 - Deliberation initiation success/failure
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import Mock
 from uuid import UUID, uuid4
 
@@ -25,7 +25,11 @@ from src.application.services.orphan_petition_reprocessing_service import (
 from src.domain.events.orphan_petition import (
     ORPHAN_PETITION_REPROCESSING_TRIGGERED_EVENT_TYPE,
 )
-from src.domain.models.petition_submission import PetitionState, PetitionSubmission, PetitionType
+from src.domain.models.petition_submission import (
+    PetitionState,
+    PetitionSubmission,
+    PetitionType,
+)
 
 
 class TestOrphanReprocessing:

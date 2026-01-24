@@ -18,10 +18,8 @@ from src.application.services.legitimacy_dashboard_service import (
     LegitimacyDashboardService,
 )
 from src.domain.models.legitimacy_dashboard import (
-    ArchonAcknowledgmentRate,
     DeliberationMetrics,
     LegitimacyDashboardData,
-    LegitimacyTrendPoint,
     PetitionStateCounts,
 )
 from src.infrastructure.cache.dashboard_cache import DashboardCache

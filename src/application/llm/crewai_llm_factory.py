@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import os
 
-from src.optional_deps.crewai import LLM
 from structlog import get_logger
 
 from src.domain.models.llm_config import LLMConfig
+from src.optional_deps.crewai import LLM
 
 logger = get_logger(__name__)
 

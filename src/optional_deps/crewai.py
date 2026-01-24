@@ -11,7 +11,7 @@ from typing import Any
 CREWAI_AVAILABLE = True
 
 try:
-    from crewai import Agent, Crew, LLM, Process, Task
+    from crewai import LLM, Agent, Crew, Process, Task
     from crewai.tools import BaseTool
 except ModuleNotFoundError:  # pragma: no cover - exercised in CI without CrewAI
     CREWAI_AVAILABLE = False

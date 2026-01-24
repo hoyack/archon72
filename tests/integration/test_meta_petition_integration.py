@@ -15,15 +15,12 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+# Direct imports to avoid infrastructure __init__ chain issues
+import importlib.util
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
-
-# Direct imports to avoid infrastructure __init__ chain issues
-import importlib.util
-import sys
 
 # Load routing service
 _routing_spec = importlib.util.spec_from_file_location(
@@ -64,8 +61,8 @@ from src.domain.events.meta_petition import (
 )
 from src.domain.models.meta_petition import MetaDisposition, MetaPetitionStatus
 from src.domain.models.petition_submission import (
-    PetitionSubmission,
     PetitionState,
+    PetitionSubmission,
     PetitionType,
 )
 
@@ -188,7 +185,7 @@ class TestMetaPetitionRouting:
         """Test that routing creates pending queue entry (AC2)."""
         petition = create_meta_petition()
 
-        event = await routing_service.route_meta_petition(petition)
+        _ = await routing_service.route_meta_petition(petition)
 
         # Verify queue entry was created
         items, total = await queue_repository.get_pending()
@@ -425,7 +422,7 @@ class TestEndToEndMetaPetitionFlow:
         high_archon_id = uuid4()
 
         # Step 2: Route to High Archon queue (AC2)
-        received_event = await routing_service.route_meta_petition(petition)
+        _ = await routing_service.route_meta_petition(petition)
         assert received_event.petition_id == petition.id
         assert received_event.routing_reason == "EXPLICIT_META_TYPE"
 

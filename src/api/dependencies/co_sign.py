@@ -58,13 +58,29 @@ from src.bootstrap.co_sign import (
     get_halt_checker,
     get_identity_store,
     get_petition_repository,
+)
+from src.bootstrap.co_sign import (
     reset_co_sign_dependencies as _reset_co_sign_dependencies,
+)
+from src.bootstrap.co_sign import (
     set_auto_escalation_executor as _set_auto_escalation_executor,
+)
+from src.bootstrap.co_sign import (
     set_co_sign_rate_limiter as _set_co_sign_rate_limiter,
+)
+from src.bootstrap.co_sign import (
     set_co_sign_repository as _set_co_sign_repository,
+)
+from src.bootstrap.co_sign import (
     set_escalation_threshold_checker as _set_escalation_threshold_checker,
+)
+from src.bootstrap.co_sign import (
     set_halt_checker as _set_halt_checker,
+)
+from src.bootstrap.co_sign import (
     set_identity_store as _set_identity_store,
+)
+from src.bootstrap.co_sign import (
     set_petition_repository as _set_petition_repository,
 )
 

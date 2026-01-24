@@ -25,7 +25,6 @@ from uuid import UUID
 from src.domain.models.meta_petition import (
     MetaDisposition,
     MetaPetitionQueueItem,
-    MetaPetitionStatus,
 )
 
 

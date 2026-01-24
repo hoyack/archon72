@@ -32,7 +32,6 @@ Note: This router is SEPARATE from the Story 7.2 petition router (/v1/petitions)
 which handles cessation co-signing. This router handles Three Fates submissions.
 """
 
-import asyncio
 import base64
 import time
 from datetime import datetime, timezone
@@ -649,7 +648,7 @@ async def withdraw_petition(
             updated_at=result.updated_at,
         )
 
-    except PetitionNotFoundError as e:
+    except PetitionNotFoundError:
         # AC4: Petition not found - 404
         raise HTTPException(
             status_code=404,

@@ -26,14 +26,12 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 
 from src.api.dependencies.escalation import (
-    get_escalation_queue_service,
-    get_escalation_decision_package_service,
-    get_petition_adoption_service,
     get_acknowledgment_execution_service,
+    get_escalation_decision_package_service,
+    get_escalation_queue_service,
+    get_petition_adoption_service,
 )
 from src.api.models.escalation import (
-    PetitionAdoptionRequest,
-    PetitionAdoptionResponse,
     CoSignerListResponse,
     CoSignerResponse,
     DeliberationSummaryResponse,
@@ -46,6 +44,8 @@ from src.api.models.escalation import (
     KingAcknowledgmentRequest,
     KingAcknowledgmentResponse,
     KnightRecommendationResponse,
+    PetitionAdoptionRequest,
+    PetitionAdoptionResponse,
     PetitionTypeEnum,
     SubmitterMetadataResponse,
 )
@@ -55,13 +55,13 @@ from src.application.ports.petition_adoption import (
     PetitionNotEscalatedException,
     RealmMismatchException,
 )
-from src.application.services.escalation_queue_service import EscalationQueueService
 from src.application.services.escalation_decision_package_service import (
     DecisionPackageData,
     EscalationDecisionPackageService,
     EscalationNotFoundError,
     RealmMismatchError,
 )
+from src.application.services.escalation_queue_service import EscalationQueueService
 from src.application.services.petition_adoption_service import SystemHaltedException
 from src.domain.errors import SystemHaltedError
 from src.domain.errors.petition import PetitionSubmissionNotFoundError
@@ -455,9 +455,10 @@ async def adopt_petition(
 ):
     """Adopt an escalated petition and create a Motion (Story 6.3, FR-5.5)."""
     try:
-        from src.application.ports.petition_adoption import AdoptionRequest
-        from src.api.models.escalation import ProvenanceResponse
         from datetime import datetime, timezone
+
+        from src.api.models.escalation import ProvenanceResponse
+        from src.application.ports.petition_adoption import AdoptionRequest
 
         adoption_request = AdoptionRequest(
             petition_id=petition_id,
@@ -529,7 +530,7 @@ async def adopt_petition(
                 "instance": f"/api/v1/escalations/{petition_id}/adopt",
             },
         )
-    except InsufficientBudgetException as e:
+    except InsufficientBudgetException:
         return JSONResponse(
             status_code=400,
             content={
@@ -540,7 +541,7 @@ async def adopt_petition(
                 "instance": f"/api/v1/escalations/{petition_id}/adopt",
             },
         )
-    except SystemHaltedException as e:
+    except SystemHaltedException:
         return JSONResponse(
             status_code=503,
             content={
@@ -628,9 +629,12 @@ async def acknowledge_escalation(
         503: System halted
     """
     try:
-        from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
         from src.domain.errors.acknowledgment import PetitionNotFoundError
-        from src.domain.errors.petition import PetitionNotEscalatedError, RealmMismatchError
+        from src.domain.errors.petition import (
+            PetitionNotEscalatedError,
+            RealmMismatchError,
+        )
+        from src.domain.models.acknowledgment_reason import AcknowledgmentReasonCode
 
         # Parse reason code
         try:
@@ -717,7 +721,7 @@ async def acknowledge_escalation(
             },
         )
 
-    except SystemHaltedError as e:
+    except SystemHaltedError:
         # CT-13: Return 503 during halt
         return JSONResponse(
             status_code=503,

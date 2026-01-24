@@ -11,10 +11,11 @@ Constitutional Constraints:
 - CT-13: Reads work during halt
 """
 
-import pytest
 from datetime import datetime, timezone
+from uuid import uuid4
+
+import pytest
 from fastapi.testclient import TestClient
-from uuid import UUID, uuid4
 
 from src.api.dependencies.escalation import set_escalation_decision_package_service
 from src.api.main import app
@@ -22,14 +23,13 @@ from src.application.services.escalation_decision_package_service import (
     EscalationDecisionPackageService,
 )
 from src.domain.models.petition_submission import (
+    PetitionState,
     PetitionSubmission,
     PetitionType,
-    PetitionState,
 )
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
-
 
 # =============================================================================
 # Test Fixtures

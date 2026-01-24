@@ -24,11 +24,11 @@ from src.domain.models.petition_submission import (
     PetitionSubmission,
     PetitionType,
 )
+from src.infrastructure.stubs.event_writer_stub import EventWriterStub
+from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
-from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.event_writer_stub import EventWriterStub
 
 
 @pytest.fixture
@@ -111,7 +111,7 @@ class TestBidirectionalProvenance:
         )
 
         # When: King adopts the petition
-        result = await adoption_service.adopt_petition(request)
+        _ = await adoption_service.adopt_petition(request)
 
         # Then: Adoption succeeds
         assert result.success is True
@@ -148,7 +148,7 @@ class TestBidirectionalProvenance:
         )
 
         # When: Petition is adopted
-        result = await adoption_service.adopt_petition(request)
+        _ = await adoption_service.adopt_petition(request)
 
         # Then: Provenance is visible immediately
         petition = await petition_repo.get(escalated_petition.id)
@@ -187,7 +187,7 @@ class TestAdoptionProvenanceImmutability:
         )
 
         # Given: A petition that has been adopted
-        result = await adoption_service.adopt_petition(request)
+        _ = await adoption_service.adopt_petition(request)
         original_motion_id = result.motion_id
 
         petition = await petition_repo.get(escalated_petition.id)
@@ -201,7 +201,7 @@ class TestAdoptionProvenanceImmutability:
         # In a real scenario, this would be caught by the database trigger
         # For the stub, we verify the application logic prevents this
 
-        modified_petition = PetitionSubmission(
+        _ = PetitionSubmission(
             id=petition.id,
             type=petition.type,
             text=petition.text,
@@ -308,7 +308,7 @@ class TestAdoptionProvenanceImmutability:
         )
 
         # Given: An adopted petition
-        result = await adoption_service.adopt_petition(request)
+        _ = await adoption_service.adopt_petition(request)
         original_motion_id = result.motion_id
 
         # When: Other petition fields might be updated (e.g., co_signer_count)
@@ -343,7 +343,7 @@ class TestProvenanceDataIntegrity:
         )
 
         # When: Petition is adopted
-        result = await adoption_service.adopt_petition(request)
+        _ = await adoption_service.adopt_petition(request)
 
         # Then: All three adoption fields should be set together
         petition = await petition_repo.get(escalated_petition.id)
@@ -360,8 +360,9 @@ class TestProvenanceDataIntegrity:
         self, adoption_service, petition_repo, escalated_petition
     ):
         """Test that adoption provenance UUIDs are valid."""
-        from src.application.ports.petition_adoption import AdoptionRequest
         from uuid import UUID
+
+        from src.application.ports.petition_adoption import AdoptionRequest
 
         king_id = uuid4()
 

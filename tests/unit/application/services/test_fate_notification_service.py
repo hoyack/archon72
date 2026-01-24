@@ -9,17 +9,17 @@ Tests:
 - Graceful degradation on failures
 """
 
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
+
+import pytest
 
 from src.application.services.fate_notification_service import (
     FateNotificationService,
     RetryEntry,
 )
 from src.domain.models.notification_preference import (
-    NotificationChannel as PreferenceChannel,
     NotificationPreference,
 )
 

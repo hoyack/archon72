@@ -10,8 +10,10 @@ These tests verify:
 7. Error handling
 """
 
+# Direct imports to avoid services __init__ chain issues
+import importlib.util
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -21,8 +23,6 @@ from src.application.ports.meta_petition_queue_repository import (
     MetaPetitionNotFoundError,
 )
 
-# Direct imports to avoid services __init__ chain issues
-import importlib.util
 _spec_res = importlib.util.spec_from_file_location(
     "meta_petition_resolution_service",
     "src/application/services/meta_petition_resolution_service.py"
@@ -35,7 +35,6 @@ MIN_RATIONALE_LENGTH = _resolution_module.MIN_RATIONALE_LENGTH
 from src.application.ports.meta_petition_event_emitter import (
     MetaPetitionEventEmitterProtocol,
 )
-
 from src.domain.events.meta_petition import MetaPetitionResolvedEventPayload
 from src.domain.models.meta_petition import (
     MetaDisposition,

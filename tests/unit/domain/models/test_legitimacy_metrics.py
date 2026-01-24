@@ -11,8 +11,6 @@ Constitutional Constraints:
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import pytest
-
 from src.domain.models.legitimacy_metrics import LegitimacyMetrics
 
 

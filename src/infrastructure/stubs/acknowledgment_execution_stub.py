@@ -275,8 +275,11 @@ class AcknowledgmentExecutionStub:
             ValueError: Rationale too short (< 100 chars).
             RealmMismatchError: King's realm doesn't match petition's realm.
         """
+        from src.domain.errors.petition import (
+            PetitionNotEscalatedError,
+            RealmMismatchError,
+        )
         from src.domain.models.petition_submission import PetitionState
-        from src.domain.errors.petition import PetitionNotEscalatedError, RealmMismatchError
 
         self._execution_count += 1
 

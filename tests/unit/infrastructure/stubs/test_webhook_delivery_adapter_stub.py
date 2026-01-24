@@ -8,9 +8,10 @@ Tests:
 - Singleton management
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import pytest
 
 from src.infrastructure.stubs.webhook_delivery_adapter_stub import (
     DeliveryAttempt,

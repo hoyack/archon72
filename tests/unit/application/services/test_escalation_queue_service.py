@@ -19,13 +19,12 @@ Acceptance Criteria Coverage:
 
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pytest
 from uuid6 import uuid7
 
 from src.application.ports.escalation_queue import (
-    EscalationQueueItem,
     EscalationQueueResult,
     EscalationSource,
 )
@@ -226,7 +225,7 @@ class TestGetQueueFIFOOrdering:
     @pytest.mark.asyncio
     async def test_orders_by_escalated_at_ascending(self) -> None:
         """Petitions ordered by escalated_at ascending (oldest first) (AC-4)."""
-        now = datetime.now(timezone.utc)
+        _ = datetime.now(timezone.utc)
 
         # Create petitions with different escalation times
         oldest = _create_escalated_petition(

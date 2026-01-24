@@ -10,7 +10,6 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from src.optional_deps.crewai import BaseTool
 from structlog import get_logger
 
 from src.application.ports.tool_registry import ToolRegistryProtocol
@@ -18,6 +17,7 @@ from src.infrastructure.adapters.tools.archon_tools import (
     ALL_ARCHON_TOOLS,
     TOOL_NAME_TO_CLASS,
 )
+from src.optional_deps.crewai import BaseTool
 
 logger = get_logger(__name__)
 

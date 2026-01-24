@@ -23,8 +23,8 @@ os.environ["CREWAI_DISABLE_TRACKING"] = "true"
 
 import pytest
 
-from tests.helpers.fake_time_authority import FakeTimeAuthority
 from src.infrastructure.stubs.writer_lock_stub import WriterLockStub
+from tests.helpers.fake_time_authority import FakeTimeAuthority
 
 
 @pytest.fixture

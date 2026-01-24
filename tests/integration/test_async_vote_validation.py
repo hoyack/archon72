@@ -18,9 +18,8 @@ import os
 import socket
 import time
 from dataclasses import dataclass
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 
@@ -39,17 +38,15 @@ try:
 except ImportError:
     pytest.skip("confluent-kafka not available", allow_module_level=True)
 
-from src.application.ports.vote_publisher import PendingVote, PublishResult
+from src.application.ports.vote_publisher import PendingVote
 from src.application.services.reconciliation_service import ReconciliationService
 from src.domain.models.reconciliation import (
     ReconciliationConfig,
     ReconciliationStatus,
     ValidationOutcome,
 )
-from src.workers.validation_dispatcher import ValidationDispatcher, DispatchResult
-from src.workers.consensus_aggregator import ConsensusAggregator
-from src.workers.validator_worker import ValidatorWorker
 from src.infrastructure.adapters.kafka.audit_publisher import KafkaAuditPublisher
+from src.workers.validation_dispatcher import ValidationDispatcher
 
 logger = logging.getLogger(__name__)
 

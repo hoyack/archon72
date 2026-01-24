@@ -19,10 +19,6 @@ from src.application.services.adoption_ratio_alerting_service import (
     ADOPTION_RATIO_THRESHOLD,
     AdoptionRatioAlertingService,
 )
-from src.domain.events.adoption_ratio import (
-    AdoptionRatioExceededEventPayload,
-    AdoptionRatioNormalizedEventPayload,
-)
 from src.domain.models.adoption_ratio import (
     AdoptionRatioAlert,
     AdoptionRatioMetrics,

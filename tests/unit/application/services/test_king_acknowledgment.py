@@ -94,7 +94,7 @@ class TestKingAcknowledgeHappyPath:
         """Successfully acknowledge escalated petition with NOTED reason (Story 6.5 AC1)."""
         stub.add_petition(escalated_petition)
 
-        ack = await stub.execute_king_acknowledge(
+        _ = await stub.execute_king_acknowledge(
             petition_id=escalated_petition.id,
             king_id=king_id,
             reason_code=AcknowledgmentReasonCode.NOTED,
@@ -120,7 +120,7 @@ class TestKingAcknowledgeHappyPath:
         """Successfully acknowledge with OUT_OF_SCOPE reason (Story 6.5 AC1)."""
         stub.add_petition(escalated_petition)
 
-        ack = await stub.execute_king_acknowledge(
+        _ = await stub.execute_king_acknowledge(
             petition_id=escalated_petition.id,
             king_id=king_id,
             reason_code=AcknowledgmentReasonCode.OUT_OF_SCOPE,
@@ -142,7 +142,7 @@ class TestKingAcknowledgeHappyPath:
         """King ID is recorded in acknowledged_by_king_id, not archon IDs (Story 6.5 AC6)."""
         stub.add_petition(escalated_petition)
 
-        ack = await stub.execute_king_acknowledge(
+        _ = await stub.execute_king_acknowledge(
             petition_id=escalated_petition.id,
             king_id=king_id,
             reason_code=AcknowledgmentReasonCode.NOTED,
@@ -193,7 +193,7 @@ class TestRationaleValidation:
 
         # Exactly 100 characters
         rationale_100 = "X" * 100
-        ack = await stub.execute_king_acknowledge(
+        _ = await stub.execute_king_acknowledge(
             petition_id=escalated_petition.id,
             king_id=king_id,
             reason_code=AcknowledgmentReasonCode.NOTED,
@@ -377,7 +377,7 @@ class TestRealmAuthorization:
         stub.add_petition(security_petition)
 
         # King from "security" realm can acknowledge
-        ack = await stub.execute_king_acknowledge(
+        _ = await stub.execute_king_acknowledge(
             petition_id=security_petition.id,
             king_id=king_id,
             reason_code=AcknowledgmentReasonCode.NOTED,
@@ -464,7 +464,7 @@ class TestEventEmission:
         """KingAcknowledgedEscalation event is emitted (Story 6.5 AC7)."""
         stub.add_petition(escalated_petition)
 
-        ack = await stub.execute_king_acknowledge(
+        _ = await stub.execute_king_acknowledge(
             petition_id=escalated_petition.id,
             king_id=king_id,
             reason_code=AcknowledgmentReasonCode.NOTED,

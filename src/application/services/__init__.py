@@ -242,6 +242,11 @@ from src.application.services.override_trend_service import (
 from src.application.services.pattern_violation_service import (
     PatternViolationService,
 )
+from src.application.services.petition_adoption_service import (
+    MotionFromAdoption,
+    PetitionAdoptionService,
+    SystemHaltedException,
+)
 from src.application.services.petition_service import (
     CosignPetitionResult,
     PetitionService,
@@ -362,11 +367,6 @@ from src.application.services.witness_pool_monitoring_service import (
     WitnessPoolMonitoringService,
 )
 from src.application.services.witness_service import WitnessService
-from src.application.services.petition_adoption_service import (
-    MotionFromAdoption,
-    PetitionAdoptionService,
-    SystemHaltedException,
-)
 
 __all__: list[str] = [
     "AcknowledgmentRateMetricsService",

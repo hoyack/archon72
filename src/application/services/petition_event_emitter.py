@@ -29,7 +29,6 @@ from uuid import UUID, uuid4
 
 from src.application.ports.governance.ledger_port import GovernanceLedgerPort
 from src.application.ports.petition_event_emitter import PetitionEventEmitterPort
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.events.petition import (
     PETITION_ACKNOWLEDGED_EVENT_TYPE,
     PETITION_DEFERRED_EVENT_TYPE,
@@ -45,6 +44,7 @@ from src.domain.events.petition import (
 )
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,9 @@ Tests:
 - Singleton pattern
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 from src.application.ports.notification_preference_repository import (
     NotificationPreferenceAlreadyExistsError,
@@ -18,7 +19,6 @@ from src.application.ports.notification_preference_repository import (
 )
 from src.domain.models.notification_preference import (
     NotificationPreference,
-    NotificationChannel,
 )
 from src.infrastructure.stubs.notification_preference_repository_stub import (
     NotificationPreferenceRepositoryStub,

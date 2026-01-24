@@ -21,7 +21,6 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.domain.governance.task.reminder_milestone import ReminderMilestone
 from src.application.ports.governance.task_timeout_port import TaskTimeoutConfig
 from src.application.services.governance.task_reminder_service import (
     TaskReminderScheduler,
@@ -34,6 +33,7 @@ from src.domain.governance.filter import (
     RejectionReason,
     ViolationType,
 )
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
 from src.domain.governance.task.task_state import TaskState, TaskStatus
 
 

@@ -34,7 +34,7 @@ class MetaPetitionEventEmitterProtocol(Protocol):
 
     async def emit_meta_petition_received(
         self,
-        event: "MetaPetitionReceivedEventPayload",
+        event: MetaPetitionReceivedEventPayload,
     ) -> None:
         """Emit MetaPetitionReceived event.
 
@@ -47,7 +47,7 @@ class MetaPetitionEventEmitterProtocol(Protocol):
 
     async def emit_meta_petition_resolved(
         self,
-        event: "MetaPetitionResolvedEventPayload",
+        event: MetaPetitionResolvedEventPayload,
     ) -> None:
         """Emit MetaPetitionResolved event.
 

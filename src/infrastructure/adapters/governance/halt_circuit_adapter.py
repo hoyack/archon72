@@ -38,8 +38,8 @@ from uuid import UUID
 from structlog import get_logger
 
 from src.application.ports.governance.halt_port import HaltPort
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.halt import HaltReason, HaltStatus
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis

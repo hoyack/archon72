@@ -19,7 +19,6 @@ import asyncio
 import json
 import time
 
-from src.optional_deps.crewai import Agent, Crew, Task
 from structlog import get_logger
 
 from src.application.ports.execution_planner import (
@@ -40,6 +39,7 @@ from src.infrastructure.adapters.external.crewai_llm_factory import (
     create_crewai_llm,
     llm_config_from_model_string,
 )
+from src.optional_deps.crewai import Agent, Crew, Task
 
 logger = get_logger(__name__)
 

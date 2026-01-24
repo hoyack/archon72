@@ -10,20 +10,15 @@ Tests proving aggregator state reconstruction works after crash/restart:
 
 from __future__ import annotations
 
-import asyncio
 import time
 from dataclasses import dataclass
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
 
-import pytest
-
 from src.workers.consensus_aggregator import (
-    ConsensusAggregator,
-    VoteAggregation,
     ConsensusStatus,
     ValidatorResponse,
+    VoteAggregation,
 )
 
 

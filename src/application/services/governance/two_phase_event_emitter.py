@@ -34,7 +34,6 @@ from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEmitError,
     TwoPhaseEventEmitterPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.events.event_envelope import GovernanceEvent
 from src.domain.governance.events.schema_versions import CURRENT_SCHEMA_VERSION
 from src.domain.governance.events.two_phase_events import (
@@ -42,6 +41,7 @@ from src.domain.governance.events.two_phase_events import (
     FailureRecordedEvent,
     IntentEmittedEvent,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 @dataclass

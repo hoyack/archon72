@@ -39,10 +39,10 @@ if TYPE_CHECKING:
     from src.application.ports.notification_preference_repository import (
         NotificationPreferenceRepositoryProtocol,
     )
+    from src.application.ports.status_token_registry import StatusTokenRegistryProtocol
     from src.application.ports.webhook_delivery_adapter import (
         WebhookDeliveryAdapterProtocol,
     )
-    from src.application.ports.status_token_registry import StatusTokenRegistryProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -385,7 +385,7 @@ class FateNotificationService(FateNotificationServiceProtocol):
             retry_count: Retry count.
             webhook_url: Webhook URL (if applicable).
         """
-        payload = FateNotificationSentEventPayload(
+        _payload = FateNotificationSentEventPayload(
             notification_id=notification_id,
             petition_id=petition_id,
             fate=fate,

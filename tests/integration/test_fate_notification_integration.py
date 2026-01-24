@@ -7,9 +7,9 @@ Tests:
 - Long-poll waiter notification
 """
 
-import pytest
 from datetime import datetime, timezone
-from uuid import uuid4
+
+import pytest
 
 from src.application.services.fate_notification_service import FateNotificationService
 from src.application.services.petition_submission_service import (

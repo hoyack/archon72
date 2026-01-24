@@ -19,9 +19,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from src.api.routes.governance_transcript import (
-    router,
     get_summary_repo,
     get_transcript_store,
+    router,
 )
 from src.domain.events.phase_witness import PhaseWitnessEvent
 from src.domain.models.deliberation_session import (

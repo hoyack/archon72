@@ -16,7 +16,6 @@ Database Table: petition_submissions (migration 012)
 
 from __future__ import annotations
 
-import base64
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from uuid import UUID
@@ -90,13 +89,6 @@ class PostgresPetitionSubmissionRepository:
 
         async with self._session_factory() as session:
             async with session.begin():
-                # Encode content_hash as base64 string for storage
-                content_hash_b64 = None
-                if submission.content_hash:
-                    content_hash_b64 = base64.b64encode(submission.content_hash).decode(
-                        "ascii"
-                    )
-
                 await session.execute(
                     text("""
                         INSERT INTO petition_submissions (

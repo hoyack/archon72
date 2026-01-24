@@ -23,7 +23,6 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-
 # Event type constants
 ADOPTION_RATIO_EXCEEDED_EVENT_TYPE: str = "adoption_ratio.alert.exceeded"
 ADOPTION_RATIO_NORMALIZED_EVENT_TYPE: str = "adoption_ratio.alert.normalized"

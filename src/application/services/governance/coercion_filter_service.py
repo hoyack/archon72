@@ -62,7 +62,6 @@ from src.application.ports.governance.coercion_filter_port import (
     CoercionFilterPort,
     MessageType,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.filter import (
     FilteredContent,
     FilterResult,
@@ -71,6 +70,7 @@ from src.domain.governance.filter import (
     Transformation,
     TransformationRule,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class PatternLibraryPort(ABC):

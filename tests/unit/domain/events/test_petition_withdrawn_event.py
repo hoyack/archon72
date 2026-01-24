@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 

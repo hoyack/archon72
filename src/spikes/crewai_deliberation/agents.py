@@ -12,7 +12,7 @@ Reference: petition-system-prd.md Section 13A
 
 from dataclasses import dataclass
 
-from src.optional_deps.crewai import Agent, LLM
+from src.optional_deps.crewai import LLM, Agent
 
 
 @dataclass(frozen=True)

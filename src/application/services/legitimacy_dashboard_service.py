@@ -17,6 +17,7 @@ from typing import Any
 
 import structlog
 
+from src.application.services.dashboard_cache import DashboardCache
 from src.domain.models.legitimacy_dashboard import (
     ArchonAcknowledgmentRate,
     DeliberationMetrics,
@@ -24,7 +25,6 @@ from src.domain.models.legitimacy_dashboard import (
     LegitimacyTrendPoint,
     PetitionStateCounts,
 )
-from src.application.services.dashboard_cache import DashboardCache
 
 logger = structlog.get_logger(__name__)
 

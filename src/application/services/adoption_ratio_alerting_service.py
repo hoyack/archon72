@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Protocol
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import structlog
 
@@ -28,8 +28,6 @@ from src.application.ports.adoption_ratio_repository import (
     AdoptionRatioRepositoryProtocol,
 )
 from src.domain.events.adoption_ratio import (
-    ADOPTION_RATIO_EXCEEDED_EVENT_TYPE,
-    ADOPTION_RATIO_NORMALIZED_EVENT_TYPE,
     AdoptionRatioExceededEventPayload,
     AdoptionRatioNormalizedEventPayload,
 )

@@ -13,11 +13,11 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from src.domain._compat import StrEnum
 from typing import Protocol
 
 from structlog import get_logger
 
+from src.domain._compat import StrEnum
 from src.domain.events.legitimacy_alert import (
     LegitimacyAlertRecoveredEvent,
     LegitimacyAlertTriggeredEvent,

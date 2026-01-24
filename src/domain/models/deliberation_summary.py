@@ -33,7 +33,10 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from src.domain.models.deliberation_session import DeliberationOutcome, DeliberationPhase
+from src.domain.models.deliberation_session import (
+    DeliberationOutcome,
+    DeliberationPhase,
+)
 
 
 class EscalationTrigger(Enum):

@@ -17,9 +17,10 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from src.optional_deps.crewai import BaseTool  # Use crewai's BaseTool, not crewai_tools
 from pydantic import BaseModel, Field
 from structlog import get_logger
+
+from src.optional_deps.crewai import BaseTool  # Use crewai's BaseTool, not crewai_tools
 
 logger = get_logger(__name__)
 

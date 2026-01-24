@@ -73,10 +73,7 @@ class AdoptionRatioMetrics:
             AdoptionRatioMetrics instance with computed ratio.
         """
         # Compute adoption ratio (PREVENT-7: None if no escalations)
-        if escalation_count == 0:
-            ratio = None  # No data, not 0
-        else:
-            ratio = adoption_count / escalation_count
+        ratio = None if escalation_count == 0 else adoption_count / escalation_count
 
         return cls(
             metrics_id=uuid4(),

@@ -19,7 +19,6 @@ from uuid import UUID
 from src.application.ports.reconciliation import LagProvider, ReconciliationProtocol
 from src.domain.errors.reconciliation import (
     ReconciliationIncompleteError,
-    ReconciliationLagError,
 )
 from src.domain.models.reconciliation import (
     ReconciliationConfig,

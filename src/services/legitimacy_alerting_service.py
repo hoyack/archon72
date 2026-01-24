@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Protocol
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from src.domain.events.legitimacy_alert import (
     AlertSeverity,

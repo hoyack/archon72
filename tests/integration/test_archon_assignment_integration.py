@@ -18,7 +18,6 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tests.integration.sql_helpers import execute_sql_file
 from src.application.ports.archon_assignment import (
     ARCHONS_ASSIGNED_EVENT_TYPE,
 )
@@ -37,6 +36,7 @@ from src.domain.models.deliberation_session import (
     DeliberationPhase,
 )
 from src.domain.models.petition_submission import PetitionState
+from tests.integration.sql_helpers import execute_sql_file
 
 # Path to migration files
 PETITION_MIGRATION_FILE = (

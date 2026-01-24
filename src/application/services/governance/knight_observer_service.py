@@ -65,10 +65,10 @@ if TYPE_CHECKING:
         PersistedGovernanceEvent,
     )
     from src.application.ports.governance.witness_port import WitnessPort
-    from src.domain.ports.time_authority import TimeAuthorityProtocol
     from src.domain.governance.witness.witness_statement_factory import (
         WitnessStatementFactory,
     )
+    from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 logger = logging.getLogger(__name__)
 

@@ -37,7 +37,6 @@ from src.application.ports.governance.anti_metrics_verification_port import (
     SchemaInspectorPort,
     VerificationEventEmitterPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.antimetrics import (
     PROHIBITED_COLUMN_PATTERNS,
     PROHIBITED_TABLE_PATTERNS,
@@ -48,6 +47,7 @@ from src.domain.governance.antimetrics.verification import (
     VerificationReport,
     VerificationStatus,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 if TYPE_CHECKING:
     pass

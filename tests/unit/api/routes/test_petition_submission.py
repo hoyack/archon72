@@ -756,7 +756,6 @@ class TestPetitionStatusTokenResponse:
     ) -> None:
         """status_token is valid base64url encoding (AC1)."""
         import base64
-        import re
 
         # Submit a petition
         submit_response = client.post(
@@ -848,6 +847,7 @@ class TestPetitionStatusTokenResponse:
     ) -> None:
         """status_token version changes when petition state changes (AC1)."""
         import asyncio
+
         from src.domain.models.status_token import StatusToken
 
         # Submit a petition

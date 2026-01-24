@@ -17,9 +17,9 @@ Constitutional Constraints:
 from __future__ import annotations
 
 import asyncio
-import os
 import json
 import logging
+import os
 import random
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -46,6 +46,16 @@ from src.application.ports.permission_enforcer import (
     ViolationDetail,
     ViolationSeverity,
 )
+from src.application.services.async_vote_validator import (
+    AsyncVoteValidator,
+    ReconciliationTimeoutError,
+    VoteValidationJob,
+)
+from src.domain.errors.agent import AgentInvocationError
+from src.domain.errors.reconciliation import (
+    ReconciliationIncompleteError,
+    TallyInvariantError,
+)
 from src.domain.models.conclave import (
     AgendaItem,
     ConclavePhase,
@@ -59,16 +69,6 @@ from src.domain.models.conclave import (
     VoteChoice,
     get_rank_priority,
 )
-from src.domain.errors.agent import AgentInvocationError
-from src.domain.errors.reconciliation import (
-    ReconciliationIncompleteError,
-    TallyInvariantError,
-)
-from src.application.services.async_vote_validator import (
-    AsyncVoteValidator,
-    ReconciliationTimeoutError,
-    VoteValidationJob,
-)
 
 # Optional async validation imports (Story 4.3, 4.4)
 # These are imported conditionally to avoid hard dependencies
@@ -80,8 +80,8 @@ except ImportError:
 try:
     from src.application.ports.reconciliation import ReconciliationProtocol
     from src.application.services.vote_override_service import (
-        VoteOverrideService,
         OverrideApplicationResult,
+        VoteOverrideService,
     )
     from src.domain.models.reconciliation import ReconciliationConfig
 except ImportError:
@@ -91,7 +91,7 @@ except ImportError:
     ReconciliationConfig = None  # type: ignore
 
 try:
-    from src.workers.validation_dispatcher import ValidationDispatcher, DispatchResult
+    from src.workers.validation_dispatcher import DispatchResult, ValidationDispatcher
     ASYNC_VALIDATION_AVAILABLE = True
 except ImportError:
     ValidationDispatcher = None  # type: ignore
@@ -894,7 +894,7 @@ class ConclaveService:
                     self._orchestrator.invoke(agent_id, bundle),
                     timeout=timeout,
                 )
-            except asyncio.TimeoutError as exc:
+            except TimeoutError as exc:
                 if attempt >= max_attempts:
                     logger.warning(
                         "archon_invoke_timeout agent_id=%s timeout_seconds=%s attempts=%s",

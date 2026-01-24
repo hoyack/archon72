@@ -348,7 +348,9 @@ async def create_startup_health_gate(
     Returns:
         Tuple of (gate, initial_report)
     """
-    from src.infrastructure.adapters.kafka.kafka_health_checker import KafkaHealthChecker
+    from src.infrastructure.adapters.kafka.kafka_health_checker import (
+        KafkaHealthChecker,
+    )
 
     health_checker = KafkaHealthChecker(
         bootstrap_servers=bootstrap_servers,

@@ -3,8 +3,6 @@
 Tests the RealmHealth aggregate and RealmHealthDelta models.
 """
 
-from datetime import datetime, timezone
-from uuid import uuid4
 
 import pytest
 

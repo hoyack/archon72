@@ -23,9 +23,10 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from src.optional_deps.crewai import BaseTool
 from pydantic import BaseModel, Field
 from structlog import get_logger
+
+from src.optional_deps.crewai import BaseTool
 
 logger = get_logger(__name__)
 

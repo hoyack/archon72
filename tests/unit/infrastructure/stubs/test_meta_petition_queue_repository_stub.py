@@ -12,15 +12,17 @@ Tests:
 6. Error handling
 """
 
-from datetime import datetime, timezone
+import sys
 from uuid import uuid4
 
 import pytest
 
-import sys
 # Workaround for import chain issues in test environment
 if "src.infrastructure" in sys.modules:
     del sys.modules["src.infrastructure"]
+
+# Direct import to avoid infrastructure __init__ chain
+import importlib.util
 
 from src.application.ports.meta_petition_queue_repository import (
     MetaPetitionAlreadyResolvedError,
@@ -29,8 +31,6 @@ from src.application.ports.meta_petition_queue_repository import (
 )
 from src.domain.models.meta_petition import MetaDisposition, MetaPetitionStatus
 
-# Direct import to avoid infrastructure __init__ chain
-import importlib.util
 spec = importlib.util.spec_from_file_location(
     "meta_petition_queue_repository_stub",
     "src/infrastructure/stubs/meta_petition_queue_repository_stub.py"

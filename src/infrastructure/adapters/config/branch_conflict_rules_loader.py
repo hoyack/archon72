@@ -16,7 +16,6 @@ from structlog import get_logger
 
 from src.application.ports.branch_conflict_rules_loader import (
     BranchConflictRule,
-    BranchConflictRulesLoaderProtocol,
     BranchConflictSeverity,
     ConfigurationError,
 )

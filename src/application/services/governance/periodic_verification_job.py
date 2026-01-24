@@ -35,7 +35,6 @@ from uuid import UUID, uuid4
 
 import structlog
 
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.anti_metrics_verification_service import (
     AntiMetricsVerificationService,
 )
@@ -43,6 +42,7 @@ from src.domain.governance.antimetrics.verification import (
     VerificationReport,
     VerificationStatus,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 log = structlog.get_logger()
 

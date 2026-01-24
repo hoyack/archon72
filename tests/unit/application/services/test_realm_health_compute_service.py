@@ -3,19 +3,16 @@
 Tests the service for computing realm health metrics.
 """
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
 
 from src.application.services.realm_health_compute_service import (
     RealmHealthComputeService,
-    RealmHealthEventEmitterProtocol,
 )
 from src.domain.models.adoption_ratio import AdoptionRatioMetrics
 from src.domain.models.realm import CANONICAL_REALM_IDS
-from src.domain.models.realm_health import RealmHealth, RealmHealthStatus
+from src.domain.models.realm_health import RealmHealth
 from src.infrastructure.stubs.adoption_ratio_repository_stub import (
     AdoptionRatioRepositoryStub,
 )
@@ -84,7 +81,7 @@ class TestRealmHealthComputeService:
         realm_health_repo: RealmHealthRepositoryStub,
     ) -> None:
         """Test that compute_for_cycle creates health for all 9 canonical realms."""
-        results = await service.compute_for_cycle(cycle_id="2026-W04")
+        _ = await service.compute_for_cycle(cycle_id="2026-W04")
 
         assert len(results) == 9
         assert len(results) == len(CANONICAL_REALM_IDS)
@@ -114,7 +111,7 @@ class TestRealmHealthComputeService:
         """Test that compute_for_cycle uses provided petition/referral counts."""
         realm_id = "realm_privacy_discretion_services"
 
-        results = await service.compute_for_cycle(
+        _ = await service.compute_for_cycle(
             cycle_id="2026-W04",
             petition_counts={realm_id: {"received": 42, "fated": 38}},
             referral_counts={realm_id: {"pending": 3, "expired": 1}},
@@ -285,7 +282,7 @@ class TestRealmHealthComputeService:
     ) -> None:
         """Test that status counts are calculated correctly."""
         # Configure different statuses for different realms
-        petition_counts = {}
+        _ = {}
         escalation_counts = {}
 
         # First realm: CRITICAL (>10 escalations)
@@ -294,7 +291,7 @@ class TestRealmHealthComputeService:
         # Second realm: ATTENTION (1-5 escalations)
         escalation_counts["realm_relationship_facilitation"] = {"pending": 3}
 
-        results = await service.compute_for_cycle(
+        _ = await service.compute_for_cycle(
             cycle_id="2026-W04",
             escalation_counts=escalation_counts,
         )
@@ -322,5 +319,5 @@ class TestRealmHealthComputeService:
         )
 
         # Should not raise even without event emitter
-        results = await service.compute_for_cycle(cycle_id="2026-W04")
+        _ = await service.compute_for_cycle(cycle_id="2026-W04")
         assert len(results) == 9

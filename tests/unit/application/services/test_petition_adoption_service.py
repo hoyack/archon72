@@ -43,11 +43,11 @@ from src.domain.models.petition_submission import (
     PetitionSubmission,
     PetitionType,
 )
+from src.infrastructure.stubs.event_writer_stub import EventWriterStub
+from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )
-from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.event_writer_stub import EventWriterStub
 
 
 @pytest.fixture
@@ -584,7 +584,7 @@ async def test_adopt_petition_invalid_rationale(
     await petition_repo.create(escalated_petition)
 
     # Arrange: Create request with invalid rationale
-    invalid_request = AdoptionRequest(
+    _ = AdoptionRequest(
         petition_id=escalated_petition.id,
         king_id=adoption_request.king_id,
         realm_id=adoption_request.realm_id,

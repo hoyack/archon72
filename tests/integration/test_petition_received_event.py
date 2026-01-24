@@ -251,8 +251,9 @@ class TestPetitionSubmissionEmitsEvent:
         event_emitter: PetitionEventEmitterStub,
     ) -> None:
         """Test event includes resolved realm."""
-        from src.domain.models.realm import Realm, RealmStatus
         from uuid import uuid4
+
+        from src.domain.models.realm import Realm, RealmStatus
 
         # Create realm registry with custom realm
         realm_registry = RealmRegistryStub()

@@ -26,7 +26,6 @@ from src.domain.models.petition_submission import (
     PetitionSubmission,
     PetitionType,
 )
-from src.infrastructure.stubs.escalation_queue_stub import EscalationQueueStub
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
@@ -109,13 +108,13 @@ class TestEscalationQueueEndpointSuccess:
     ) -> None:
         """GET /kings/{king_id}/escalations returns 200 with escalated petitions (AC-1)."""
         # Create escalated petitions for governance realm
-        petition1 = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalated_to_realm="governance",
             escalation_source="CO_SIGNER_THRESHOLD",
             co_signer_count=150,
         )
-        petition2 = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalated_to_realm="governance",
             escalation_source="DELIBERATION",
@@ -170,15 +169,15 @@ class TestEscalationQueueRealmScoping:
     ) -> None:
         """Queue only includes petitions for King's realm (AC-3)."""
         # Create petitions for different realms
-        governance1 = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalated_to_realm="governance",
         )
-        economy1 = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalated_to_realm="economy",
         )
-        governance2 = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalated_to_realm="governance",
         )
@@ -194,7 +193,7 @@ class TestEscalationQueueRealmScoping:
         # Should only return governance realm petitions
         # Note: This test currently returns all because stub doesn't filter by realm
         # The service layer handles realm filtering
-        petition_ids = {item["petition_id"] for item in data["items"]}
+        _ = {item["petition_id"] for item in data["items"]}
 
         # In a real scenario with proper king -> realm mapping:
         # assert str(governance1.id) in petition_ids
@@ -308,7 +307,7 @@ class TestEscalationQueueAuthorization:
         # For now, we test the endpoint structure
 
         # Using a non-King UUID (implementation would check rank)
-        non_king_id = uuid4()
+        _ = uuid4()
 
         # This test would fail without proper authorization middleware
         # Skipping actual 403 check as it depends on permission enforcer
@@ -436,15 +435,15 @@ class TestEscalationQueueEscalationSources:
         petition_repo: PetitionSubmissionRepositoryStub,
     ) -> None:
         """Queue includes petitions from all escalation sources."""
-        deliberation = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalation_source="DELIBERATION",
         )
-        co_signer = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalation_source="CO_SIGNER_THRESHOLD",
         )
-        knight = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalation_source="KNIGHT_RECOMMENDATION",
         )
@@ -467,7 +466,7 @@ class TestEscalationQueueEscalationSources:
         petition_repo: PetitionSubmissionRepositoryStub,
     ) -> None:
         """Each item has correct escalation_source field."""
-        petition = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalation_source="CO_SIGNER_THRESHOLD",
             co_signer_count=150,
@@ -494,7 +493,7 @@ class TestEscalationQueueResponseFormat:
         petition_repo: PetitionSubmissionRepositoryStub,
     ) -> None:
         """Response includes all required fields per AC-1."""
-        petition = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalation_source="DELIBERATION",
             co_signer_count=75,
@@ -532,7 +531,7 @@ class TestEscalationQueueResponseFormat:
         petition_repo: PetitionSubmissionRepositoryStub,
     ) -> None:
         """escalated_at timestamp is in ISO 8601 format (AC-1)."""
-        petition = create_escalated_petition(
+        _ = create_escalated_petition(
             petition_repo,
             escalated_at=datetime(2026, 1, 20, 10, 0, 0, tzinfo=timezone.utc),
         )

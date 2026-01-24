@@ -8,15 +8,16 @@ Tests:
 - Helper methods (is_webhook, is_in_app, should_notify)
 """
 
-import pytest
 from datetime import datetime, timezone
 from uuid import uuid4
 
+import pytest
+
 from src.domain.models.notification_preference import (
-    NotificationChannel,
-    NotificationPreference,
     InvalidNotificationPreferenceError,
     InvalidWebhookUrlError,
+    NotificationChannel,
+    NotificationPreference,
 )
 
 

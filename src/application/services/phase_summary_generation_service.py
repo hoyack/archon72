@@ -33,7 +33,6 @@ import re
 from collections import Counter
 from typing import Any
 
-from src.application.ports.phase_summary_generator import PhaseSummaryGeneratorProtocol
 from src.application.services.base import LoggingMixin
 from src.domain.models.deliberation_session import DeliberationPhase
 
@@ -198,7 +197,6 @@ STOPWORDS: frozenset[str] = frozenset(
         "all",
         "each",
         "every",
-        "both",
         "few",
         "more",
         "most",
@@ -206,15 +204,6 @@ STOPWORDS: frozenset[str] = frozenset(
         "some",
         "such",
         "no",
-        "nor",
-        "not",
-        "only",
-        "own",
-        "same",
-        "so",
-        "than",
-        "too",
-        "very",
         # Misc common words
         "as",
         "if",

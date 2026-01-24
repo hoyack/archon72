@@ -33,7 +33,6 @@ from src.domain.events.meta_petition import (
     META_PETITION_RECEIVED_EVENT_TYPE,
     MetaPetitionReceivedEventPayload,
 )
-from src.domain.models.meta_petition import MetaPetitionQueueItem
 from src.domain.models.petition_submission import PetitionSubmission, PetitionType
 
 logger = structlog.get_logger(__name__)

@@ -22,7 +22,6 @@ from src.application.ports.governance.anti_metrics_verification_port import (
     SchemaInspectorPort,
     VerificationEventEmitterPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.anti_metrics_verification_service import (
     AntiMetricsVerificationService,
 )
@@ -32,6 +31,7 @@ from src.domain.governance.antimetrics.verification import (
     VerificationReport,
     VerificationStatus,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class FakeTimeAuthority(TimeAuthorityProtocol):

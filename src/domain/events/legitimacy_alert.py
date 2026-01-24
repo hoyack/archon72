@@ -18,10 +18,11 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from src.domain._compat import StrEnum
+from datetime import datetime
 from typing import Any
 from uuid import UUID
+
+from src.domain._compat import StrEnum
 
 # Event type constants
 LEGITIMACY_ALERT_TRIGGERED_EVENT_TYPE: str = "legitimacy.alert.triggered"

@@ -14,11 +14,9 @@ Constitutional Constraints:
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-import pytest
-
 from src.domain.models.petition_submission import (
-    PetitionSubmission,
     PetitionState,
+    PetitionSubmission,
     PetitionType,
 )
 

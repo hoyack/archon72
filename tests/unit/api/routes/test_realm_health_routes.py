@@ -3,15 +3,12 @@
 Tests the API endpoints for realm health dashboard.
 """
 
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
-from uuid import uuid4
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.api.routes.realm_health import router, get_realm_health_repo
+from src.api.routes.realm_health import get_realm_health_repo, router
 from src.domain.models.realm import CANONICAL_REALM_IDS
 from src.domain.models.realm_health import RealmHealth
 from src.infrastructure.stubs.realm_health_repository_stub import (

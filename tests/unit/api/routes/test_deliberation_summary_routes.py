@@ -8,8 +8,8 @@ Constitutional Constraints:
 - D7: RFC 7807 error responses
 """
 
+from collections.abc import Generator
 from datetime import datetime, timezone
-from typing import Generator
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -21,10 +21,12 @@ from src.api.dependencies.petition_submission import get_transcript_access_servi
 from src.api.routes.petition_submission import router
 from src.domain.errors.deliberation import DeliberationPendingError
 from src.domain.errors.petition import PetitionNotFoundError
-from src.domain.models.deliberation_session import DeliberationOutcome, DeliberationPhase
+from src.domain.models.deliberation_session import (
+    DeliberationOutcome,
+    DeliberationPhase,
+)
 from src.domain.models.deliberation_summary import (
     DeliberationSummary,
-    EscalationTrigger,
     PhaseSummaryItem,
 )
 

@@ -87,6 +87,12 @@ from src.application.ports.auto_escalation_executor import (
     AutoEscalationExecutorProtocol,
     AutoEscalationResult,
 )
+from src.application.ports.branch_conflict_rules_loader import (
+    BranchConflictRule,
+    BranchConflictRulesLoaderProtocol,
+    BranchConflictSeverity,
+    ConfigurationError,
+)
 from src.application.ports.breach_declaration import BreachDeclarationProtocol
 from src.application.ports.breach_repository import BreachRepositoryProtocol
 from src.application.ports.cessation import CessationConsiderationProtocol
@@ -271,12 +277,6 @@ from src.application.ports.failure_mode_registry import (
     FailureModeRegistryPort,
     HealthSummary,
 )
-from src.application.ports.branch_conflict_rules_loader import (
-    BranchConflictRule,
-    BranchConflictRulesLoaderProtocol,
-    BranchConflictSeverity,
-    ConfigurationError,
-)
 
 # Government PRD Phase 3 - Flow Orchestrator (Epic 8, Story 8.2, FR-GOV-23)
 from src.application.ports.flow_orchestrator import (
@@ -422,6 +422,14 @@ from src.application.ports.override_trend_repository import (
     OverrideTrendData,
     OverrideTrendRepositoryProtocol,
 )
+from src.application.ports.petition_adoption import (
+    AdoptionRequest,
+    AdoptionResult,
+    InsufficientBudgetException,
+    PetitionAdoptionProtocol,
+    PetitionNotEscalatedException,
+    RealmMismatchException,
+)
 from src.application.ports.petition_event_emitter import (
     PetitionEventEmitterPort,
 )
@@ -430,14 +438,6 @@ from src.application.ports.petition_repository import (
 )
 from src.application.ports.petition_submission_repository import (
     PetitionSubmissionRepositoryProtocol,
-)
-from src.application.ports.petition_adoption import (
-    AdoptionRequest,
-    AdoptionResult,
-    InsufficientBudgetException,
-    PetitionAdoptionProtocol,
-    PetitionNotEscalatedException,
-    RealmMismatchException,
 )
 from src.application.ports.phase_witness_batching import (
     PhaseWitnessBatchingProtocol,
@@ -518,7 +518,6 @@ from src.application.ports.threshold_configuration import (
     ThresholdConfigurationProtocol,
     ThresholdRepositoryProtocol,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.ports.tool_registry import (
     ToolRegistryProtocol,
 )
@@ -576,6 +575,7 @@ from src.application.ports.witness_pool_monitor import (
 )
 from src.application.ports.witnessed_halt_writer import WitnessedHaltWriter
 from src.application.ports.writer_lock import WriterLockProtocol
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 __all__: list[str] = [
     # Time Authority Protocol (HARDENING-1, AC4)

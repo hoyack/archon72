@@ -11,14 +11,14 @@ Constitutional Constraints:
 - CT-13: Halt check first pattern
 """
 
-from src.application.services.escalation_queue_service import EscalationQueueService
-from src.application.services.escalation_decision_package_service import (
-    EscalationDecisionPackageService,
-)
-from src.application.services.petition_adoption_service import PetitionAdoptionService
 from src.application.services.acknowledgment_execution_service import (
     AcknowledgmentExecutionService,
 )
+from src.application.services.escalation_decision_package_service import (
+    EscalationDecisionPackageService,
+)
+from src.application.services.escalation_queue_service import EscalationQueueService
+from src.application.services.petition_adoption_service import PetitionAdoptionService
 
 # Singleton instances (initialized at startup)
 _escalation_queue_service: EscalationQueueService | None = None

@@ -21,7 +21,6 @@ from src.application.ports.adoption_ratio_repository import (
     AdoptionRatioRepositoryProtocol,
 )
 from src.application.services.adoption_ratio_alerting_service import (
-    ADOPTION_RATIO_CRITICAL_THRESHOLD,
     ADOPTION_RATIO_THRESHOLD,
     AdoptionRatioAlertingService,
     AdoptionRatioEventEmitterProtocol,

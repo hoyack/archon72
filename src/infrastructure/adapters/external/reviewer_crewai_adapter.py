@@ -19,7 +19,6 @@ import asyncio
 import json
 import time
 
-from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
 from src.application.ports.archon_profile_repository import ArchonProfileRepository
@@ -40,6 +39,7 @@ from src.application.ports.reviewer_agent import (
 from src.domain.models.llm_config import LLMConfig
 from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
 from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
+from src.optional_deps.crewai import LLM, Agent, Crew, Task
 
 logger = get_logger(__name__)
 

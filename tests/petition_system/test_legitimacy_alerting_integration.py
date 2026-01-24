@@ -9,7 +9,7 @@ Tests cover:
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 

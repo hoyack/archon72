@@ -27,7 +27,6 @@ from src.application.ports.governance.cessation_record_port import CessationReco
 from src.application.ports.governance.two_phase_emitter_port import (
     TwoPhaseEventEmitterPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.cessation import (
     CessationRecord,
     CessationRecordAlreadyExistsError,
@@ -36,6 +35,7 @@ from src.domain.governance.cessation import (
     InterruptedWork,
     SystemSnapshot,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class LedgerPort(Protocol):

@@ -25,6 +25,7 @@ from uuid import uuid4
 
 from src.application.ports.promotion_budget_store import PromotionBudgetStore
 from src.application.services.base import LoggingMixin
+from src.application.stubs.budget_store_stub import InMemoryBudgetStore
 from src.domain.models.motion_seed import (
     KING_REALM_MAP,
     MotionSeed,
@@ -35,7 +36,6 @@ from src.domain.models.motion_seed import (
     is_king,
     validate_king_realm_match,
 )
-from src.application.stubs.budget_store_stub import InMemoryBudgetStore
 
 
 @dataclass

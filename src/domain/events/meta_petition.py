@@ -26,7 +26,6 @@ from uuid import UUID
 
 from src.domain.models.meta_petition import MetaDisposition
 
-
 # Event type constants for META petition events
 META_PETITION_RECEIVED_EVENT_TYPE: str = "meta_petition.received"
 META_PETITION_RESOLVED_EVENT_TYPE: str = "meta_petition.resolved"

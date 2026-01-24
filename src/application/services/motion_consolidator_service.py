@@ -30,11 +30,11 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
-from src.domain.models.secretary_agent import load_secretary_config_from_yaml
 from src.application.llm.crewai_llm_factory import create_crewai_llm
+from src.domain.models.secretary_agent import load_secretary_config_from_yaml
+from src.optional_deps.crewai import LLM, Agent, Crew, Task
 
 logger = get_logger(__name__)
 

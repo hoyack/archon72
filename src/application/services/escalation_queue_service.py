@@ -29,7 +29,6 @@ from structlog import get_logger
 
 from src.application.ports.escalation_queue import (
     EscalationQueueItem,
-    EscalationQueueProtocol,
     EscalationQueueResult,
     EscalationSource,
 )

@@ -7,14 +7,14 @@ These tests verify:
 4. Error handling for non-META petitions
 """
 
+# Direct imports to avoid services __init__ chain issues
+import importlib.util
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
 
-# Direct imports to avoid services __init__ chain issues
-import importlib.util
 _spec = importlib.util.spec_from_file_location(
     "meta_petition_routing_service",
     "src/application/services/meta_petition_routing_service.py"
@@ -27,13 +27,12 @@ META_PETITION_TEXT_PREVIEW_LENGTH = _routing_module.META_PETITION_TEXT_PREVIEW_L
 from src.application.ports.meta_petition_event_emitter import (
     MetaPetitionEventEmitterProtocol,
 )
-
 from src.domain.events.meta_petition import MetaPetitionReceivedEventPayload
 from src.domain.models.meta_petition import MetaPetitionQueueItem, MetaPetitionStatus
 from src.domain.models.petition_submission import (
+    PetitionState,
     PetitionSubmission,
     PetitionType,
-    PetitionState,
 )
 
 

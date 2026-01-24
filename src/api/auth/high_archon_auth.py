@@ -12,9 +12,8 @@ Constitutional Constraints:
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Header, HTTPException, status
-
 import structlog
+from fastapi import Header, HTTPException, status
 
 logger = structlog.get_logger(__name__)
 

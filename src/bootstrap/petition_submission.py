@@ -17,7 +17,9 @@ from src.application.ports.realm_registry import RealmRegistryProtocol
 from src.application.services.content_hash_service import Blake3ContentHashService
 from src.config.petition_config import PetitionQueueConfig, PetitionRateLimitConfig
 from src.infrastructure.stubs.halt_checker_stub import HaltCheckerStub
-from src.infrastructure.stubs.petition_event_emitter_stub import PetitionEventEmitterStub
+from src.infrastructure.stubs.petition_event_emitter_stub import (
+    PetitionEventEmitterStub,
+)
 from src.infrastructure.stubs.petition_submission_repository_stub import (
     PetitionSubmissionRepositoryStub,
 )

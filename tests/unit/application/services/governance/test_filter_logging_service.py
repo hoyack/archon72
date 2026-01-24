@@ -26,7 +26,6 @@ from src.application.ports.governance.ledger_port import (
     LedgerReadOptions,
     PersistedGovernanceEvent,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.application.services.governance.filter_logging_service import (
     FILTER_DECISION_LOGGED_EVENT,
     FilterLoggingService,
@@ -41,6 +40,7 @@ from src.domain.governance.filter import (
     Transformation,
     ViolationType,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class FakeTimeAuthority(TimeAuthorityProtocol):

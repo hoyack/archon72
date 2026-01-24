@@ -60,10 +60,6 @@ from src.infrastructure.stubs.auto_escalation_executor_stub import (
     AutoEscalationExecutorStub,
     EscalationHistoryEntry,
 )
-from src.infrastructure.stubs.escalation_queue_stub import (
-    EscalationQueueStub,
-    QueueQueryEntry,
-)
 from src.infrastructure.stubs.breach_repository_stub import BreachRepositoryStub
 from src.infrastructure.stubs.cessation_agenda_repository_stub import (
     CessationAgendaRepositoryStub,
@@ -146,6 +142,10 @@ from src.infrastructure.stubs.entropy_source_stub import (
     DEV_MODE_WARNING,
     EntropySourceStub,
     SecureEntropySourceStub,
+)
+from src.infrastructure.stubs.escalation_queue_stub import (
+    EscalationQueueStub,
+    QueueQueryEntry,
 )
 from src.infrastructure.stubs.escalation_repository_stub import EscalationRepositoryStub
 from src.infrastructure.stubs.event_query_stub import (

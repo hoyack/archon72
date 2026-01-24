@@ -16,8 +16,6 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from src.api.dependencies.petition_submission import (
-    get_deliberation_summary_repository,
-    get_petition_submission_repository,
     reset_petition_submission_dependencies,
     set_deliberation_summary_repository,
     set_petition_submission_repository,

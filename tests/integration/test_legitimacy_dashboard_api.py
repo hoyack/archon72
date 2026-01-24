@@ -268,7 +268,7 @@ class TestDashboardCaching:
         )
 
         # Reset call counts
-        initial_cursor_calls = mock_db_connection.cursor.call_count
+        _ = mock_db_connection.cursor.call_count
         mock_db_connection.reset_mock()
 
         # Act - Second request (cache hit)

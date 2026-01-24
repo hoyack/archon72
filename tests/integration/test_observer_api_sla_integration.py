@@ -19,6 +19,8 @@ import pytest
 
 from src.api.models.observer import (
     CheckpointAnchor as ApiCheckpointAnchor,
+)
+from src.api.models.observer import (
     CheckpointFallback,
     DependencyHealth,
     ObserverHealthResponse,

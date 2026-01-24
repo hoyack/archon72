@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.bootstrap.cessation import get_freeze_checker, set_freeze_checker
+from src.bootstrap.cessation import get_freeze_checker
 
 if TYPE_CHECKING:
     from src.application.ports.freeze_checker import FreezeCheckerProtocol

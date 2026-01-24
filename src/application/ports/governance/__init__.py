@@ -144,12 +144,6 @@ from src.application.ports.governance.task_reminder_port import (
     ReminderTrackingPort,
     TaskReminderPort,
 )
-from src.domain.governance.task.reminder_milestone import ReminderMilestone
-from src.domain.governance.task.task_constraint import (
-    ROLE_ALLOWED_OPERATIONS,
-    ROLE_PROHIBITED_OPERATIONS,
-    TaskOperation,
-)
 from src.application.ports.governance.task_result_port import (
     InvalidResultStateError,
     ProblemCategory,
@@ -174,6 +168,12 @@ from src.application.ports.governance.verification_port import (
 )
 from src.application.ports.governance.witness_port import (
     WitnessPort,
+)
+from src.domain.governance.task.reminder_milestone import ReminderMilestone
+from src.domain.governance.task.task_constraint import (
+    ROLE_ALLOWED_OPERATIONS,
+    ROLE_PROHIBITED_OPERATIONS,
+    TaskOperation,
 )
 
 __all__ = [

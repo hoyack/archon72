@@ -20,14 +20,13 @@ Uses ToolRegistryProtocol to resolve tool names to CrewAI Tool instances.
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
 import json
 import os
 import random
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
-from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
 from src.application.ports.agent_orchestrator import (
@@ -44,6 +43,7 @@ from src.application.ports.tool_registry import ToolRegistryProtocol
 from src.domain.errors.agent import AgentInvocationError, AgentNotFoundError
 from src.domain.models.archon_profile import ArchonProfile
 from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
+from src.optional_deps.crewai import LLM, Agent, Crew, Task
 
 if TYPE_CHECKING:
     from src.optional_deps.crewai import BaseTool
@@ -374,7 +374,7 @@ Be thorough but concise in your response.""",
 
             except asyncio.CancelledError:
                 raise
-            except (asyncio.TimeoutError, TimeoutError) as exc:
+            except TimeoutError as exc:
                 if attempt >= self._retry_max_attempts:
                     error_msg = (
                         f"Agent {agent_id} timed out after "
@@ -775,15 +775,23 @@ Be thorough but concise in your response.""",
 
     @staticmethod
     def _parse_json_payload(content: str) -> dict[str, Any] | None:
-        """Parse the first JSON object found in the content."""
-        start = content.find("{")
-        end = content.rfind("}")
-        if start == -1 or end == -1 or end <= start:
-            return None
-        try:
-            return json.loads(content[start : end + 1])
-        except json.JSONDecodeError:
-            return None
+        """Parse the first JSON object found in the content.
+
+        Models sometimes return valid JSON followed by extra prose, markdown
+        fences, or other text. We need a parser that can extract the first
+        JSON object reliably without requiring the entire response to be JSON.
+        """
+        decoder = json.JSONDecoder()
+        for index, char in enumerate(content):
+            if char not in ("{", "["):
+                continue
+            try:
+                payload, _end = decoder.raw_decode(content[index:])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, dict):
+                return payload
+        return None
 
     @staticmethod
     def _build_validation_prompt(task_type: str, vote_payload: dict[str, Any]) -> str:
@@ -793,44 +801,29 @@ Be thorough but concise in your response.""",
         motion_title = vote_payload.get("motion_title", "")
         archon_name = vote_payload.get("archon_name", "")
 
-        if task_type == "json_validation":
-            return (
-                "You are validating a vote response for structural consistency.\n"
-                "Return JSON only (no prose, no markdown).\n"
-                f"ARCHON: {archon_name}\n"
-                f"MOTION: {motion_title}\n"
-                f"MOTION TEXT:\n{motion_text}\n\n"
-                f"RAW RESPONSE:\n{raw_response}\n\n"
-                "Return JSON only:\n"
-                '{\"vote_choice\": \"AYE|NAY|ABSTAIN\", '
-                '\"structural_valid\": true|false, '
-                '\"contradictions\": [], '
-                '\"motion_alignment\": 0.0}\n'
-            )
+        # IMPORTANT: The first non-empty line selects the deterministic mode
+        # defined in docs/archons-base.json. In CONCLAVE VOTE VALIDATION mode,
+        # Archons MUST return JSON only: {"choice":"AYE|NAY|ABSTAIN"} with no prose.
+        header = "ARCHON 72 CONCLAVE - VOTE VALIDATION\n\n"
 
-        if task_type == "witness_confirm":
-            return (
-                "You are a witness confirming vote intent.\n"
-                "Return JSON only (no prose, no markdown).\n"
-                f"ARCHON: {archon_name}\n"
-                f"MOTION: {motion_title}\n"
-                f"RAW RESPONSE:\n{raw_response}\n\n"
-                "Return JSON only:\n"
-                '{\"vote_choice\": \"AYE|NAY|ABSTAIN\", '
-                '\"intent_clear\": true|false}\n'
+        if task_type == "json_validation":
+            guidance = (
+                "Validate the vote based on structural signals (explicit JSON choice "
+                "wins)."
             )
+        elif task_type == "witness_confirm":
+            guidance = "Independently confirm the vote intent."
+        else:
+            guidance = "Validate the vote intent from natural language."
 
         return (
-            "You are analyzing vote intent from natural language.\n"
-            "Return JSON only (no prose, no markdown).\n"
-            f"ARCHON: {archon_name}\n"
-            f"MOTION: {motion_title}\n"
-            f"RAW RESPONSE:\n{raw_response}\n\n"
-            "Return JSON only:\n"
-            '{\"vote_choice\": \"AYE|NAY|ABSTAIN\", '
-            '\"confidence\": 0.0, '
-            '\"reasoning_summary\": \"\", '
-            '\"ambiguity_flags\": []}\n'
+            header
+            + f"{guidance}\n"
+            + f"ARCHON: {archon_name}\n"
+            + f"MOTION: {motion_title}\n"
+            + f"MOTION TEXT:\n{motion_text}\n\n"
+            + f"RAW RESPONSE:\n{raw_response}\n\n"
+            + 'Return JSON only: {"choice":"AYE"} or {"choice":"NAY"} or {"choice":"ABSTAIN"}'
         )
 
     @staticmethod

@@ -33,8 +33,6 @@ from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 from src.domain.governance.task.task_constraint import (
-    ROLE_ALLOWED_OPERATIONS,
-    ROLE_PROHIBITED_OPERATIONS,
     TaskOperation,
 )
 

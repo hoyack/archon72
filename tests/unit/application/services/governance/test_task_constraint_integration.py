@@ -23,10 +23,10 @@ import pytest
 from src.application.ports.governance.task_constraint_port import (
     ConstraintViolationError,
 )
-from src.domain.governance.task.task_constraint import TaskOperation
 from src.application.services.governance.task_constraint_service import (
     TaskConstraintService,
 )
+from src.domain.governance.task.task_constraint import TaskOperation
 
 
 class TestEarlConstraintsIntegration:

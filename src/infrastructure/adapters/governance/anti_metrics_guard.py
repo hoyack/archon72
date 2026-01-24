@@ -41,7 +41,6 @@ from src.application.ports.governance.anti_metrics_port import (
     EventEmitterPort,
     SchemaValidatorPort,
 )
-from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.governance.antimetrics import (
     PROHIBITED_COLUMN_PATTERNS,
     PROHIBITED_TABLE_PATTERNS,
@@ -49,6 +48,7 @@ from src.domain.governance.antimetrics import (
     AntiMetricsViolationError,
     ProhibitedPattern,
 )
+from src.domain.ports.time_authority import TimeAuthorityProtocol
 
 
 class AntiMetricsGuard(AntiMetricsGuardPort):

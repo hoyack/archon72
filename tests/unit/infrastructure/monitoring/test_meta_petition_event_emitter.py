@@ -9,7 +9,7 @@ Note: Uses mocking to avoid prometheus_client dependency in minimal test env.
 """
 
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest

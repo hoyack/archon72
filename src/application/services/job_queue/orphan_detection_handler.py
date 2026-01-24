@@ -27,11 +27,11 @@ from src.application.services.job_queue.job_worker_service import JobHandler
 from src.domain.models.scheduled_job import ScheduledJob
 
 if TYPE_CHECKING:
-    from src.application.services.orphan_petition_detection_service import (
-        OrphanPetitionDetectionService,
-    )
     from src.application.ports.orphan_detection_repository import (
         OrphanDetectionRepositoryProtocol,
+    )
+    from src.application.services.orphan_petition_detection_service import (
+        OrphanPetitionDetectionService,
     )
 
 logger = get_logger()

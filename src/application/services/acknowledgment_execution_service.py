@@ -429,7 +429,9 @@ class AcknowledgmentExecutionService:
         # Check for existing acknowledgment (idempotency)
         existing = await self._acknowledgment_repo.get_by_petition_id(petition_id)
         if existing is not None:
-            from src.domain.errors.acknowledgment import AcknowledgmentAlreadyExistsError
+            from src.domain.errors.acknowledgment import (
+                AcknowledgmentAlreadyExistsError,
+            )
             raise AcknowledgmentAlreadyExistsError(
                 petition_id=petition_id,
                 existing_acknowledgment_id=existing.id,

@@ -14,17 +14,18 @@ Test Coverage:
 """
 
 from datetime import datetime, timedelta, timezone
-from typing import Any
 from unittest.mock import Mock
-from uuid import UUID, uuid4
-
-import pytest
+from uuid import uuid4
 
 from src.application.services.orphan_petition_detection_service import (
     OrphanPetitionDetectionService,
 )
 from src.domain.events.orphan_petition import ORPHAN_PETITIONS_DETECTED_EVENT_TYPE
-from src.domain.models.petition_submission import PetitionState, PetitionSubmission, PetitionType
+from src.domain.models.petition_submission import (
+    PetitionState,
+    PetitionSubmission,
+    PetitionType,
+)
 
 
 class TestOrphanDetection:
@@ -34,7 +35,7 @@ class TestOrphanDetection:
         """Test orphans are detected when age > threshold (FR-8.5)."""
         # Setup: Create petition older than 24 hour threshold
         old_timestamp = datetime.now(timezone.utc) - timedelta(hours=30)
-        old_petition = self._create_petition(
+        _ = self._create_petition(
             received_at=old_timestamp, state=PetitionState.RECEIVED
         )
 
@@ -50,7 +51,7 @@ class TestOrphanDetection:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify
         assert result.has_orphans()
@@ -68,7 +69,7 @@ class TestOrphanDetection:
         """Test no orphans detected when all petitions recent (FR-8.5)."""
         # Setup: Create petition within threshold
         recent_timestamp = datetime.now(timezone.utc) - timedelta(hours=12)
-        recent_petition = self._create_petition(
+        _ = self._create_petition(
             received_at=recent_timestamp, state=PetitionState.RECEIVED
         )
 
@@ -85,7 +86,7 @@ class TestOrphanDetection:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify: No orphans detected, no event emitted
         assert not result.has_orphans()
@@ -107,7 +108,7 @@ class TestOrphanDetection:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify
         assert not result.has_orphans()
@@ -141,7 +142,7 @@ class TestOrphanDetection:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify: All 3 orphans detected (NFR-7.1)
         assert result.has_orphans()
@@ -162,7 +163,7 @@ class TestOrphanDetection:
         """Test custom threshold configuration (FR-8.5)."""
         # Setup: Petition 36 hours old
         timestamp = datetime.now(timezone.utc) - timedelta(hours=36)
-        petition = self._create_petition(
+        _ = self._create_petition(
             received_at=timestamp, state=PetitionState.RECEIVED
         )
 
@@ -180,7 +181,7 @@ class TestOrphanDetection:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify: Not an orphan with 48 hour threshold
         assert not result.has_orphans()
@@ -191,7 +192,7 @@ class TestOrphanDetection:
         """Test event payload contains all required fields (CT-12)."""
         # Setup
         old_timestamp = datetime.now(timezone.utc) - timedelta(hours=30)
-        old_petition = self._create_petition(
+        _ = self._create_petition(
             received_at=old_timestamp, state=PetitionState.RECEIVED
         )
 
@@ -224,7 +225,7 @@ class TestOrphanDetection:
         """Test orphan info includes petition metadata for context."""
         # Setup
         old_timestamp = datetime.now(timezone.utc) - timedelta(hours=30)
-        old_petition = self._create_petition(
+        _ = self._create_petition(
             received_at=old_timestamp,
             state=PetitionState.RECEIVED,
             petition_type=PetitionType.CESSATION,
@@ -243,7 +244,7 @@ class TestOrphanDetection:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify metadata included
         orphan_info = result.orphan_petitions[0]
@@ -277,7 +278,7 @@ class TestEdgeCases:
         """Test petition exactly at threshold is NOT considered orphan."""
         # Setup: Petition exactly 24 hours old
         timestamp = datetime.now(timezone.utc) - timedelta(hours=24, seconds=0)
-        petition = self._create_petition(
+        _ = self._create_petition(
             received_at=timestamp, state=PetitionState.RECEIVED
         )
 
@@ -293,7 +294,7 @@ class TestEdgeCases:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify: At threshold means NOT orphan (boundary condition)
         # Repository query uses received_before which is < cutoff, not <=
@@ -304,7 +305,7 @@ class TestEdgeCases:
         """Test zero threshold detects all RECEIVED petitions."""
         # Setup: Very recent petition
         timestamp = datetime.now(timezone.utc) - timedelta(minutes=5)
-        petition = self._create_petition(
+        _ = self._create_petition(
             received_at=timestamp, state=PetitionState.RECEIVED
         )
 
@@ -320,7 +321,7 @@ class TestEdgeCases:
         )
 
         # Execute
-        result = service.detect_orphans()
+        _ = service.detect_orphans()
 
         # Verify: Even recent petition is orphan with 0 threshold
         assert result.has_orphans()

@@ -256,7 +256,7 @@ class PetitionAdoptionService(PetitionAdoptionProtocol):
         )
 
         # Step 6: Update petition with adoption back-reference (NFR-6.2)
-        updated_petition = await self.petition_repo.mark_adopted(
+        _updated_petition = await self.petition_repo.mark_adopted(
             submission_id=request.petition_id,
             motion_id=motion.motion_id,
             king_id=request.king_id,

@@ -66,7 +66,7 @@ As Lachesis, Weigher of Merit, evaluate this petition and provide:
 2. **Precedent Analysis**: Are there similar cases? What were the outcomes?
 3. **Principle Evaluation**: Which of the Five Pillars are relevant?
 4. **Merit Score**: On a scale of 1-10, rate the petition's merit (with justification).
-5. **Recommendation Tendency**: Do you lean toward ACKNOWLEDGE, REFER, or ESCALATE?
+5. **Recommendation Tendency**: Do you lean toward ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE?
 
 **Output Format:**
 Provide a structured evaluation in markdown format. Be dispassionate and principled.
@@ -93,19 +93,21 @@ You are performing Phase 3 of the Three Fates Deliberation Protocol.
 As Atropos, Decider of Fate, render the final disposition:
 
 1. **Synthesis**: Summarize the key points from Clotho and Lachesis.
-2. **Disposition**: Choose ONE of: ACKNOWLEDGE, REFER, ESCALATE
+2. **Disposition**: Choose ONE of: ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE
 3. **Rationale**: Explain why this disposition is appropriate.
 4. **Conditions**: If REFER, specify the Knight domain. If ESCALATE, specify urgency.
 5. **Dissent Note**: If you disagree with either Fate's assessment, note it here.
 
-**CRITICAL**: Your disposition must be one of exactly three values:
+**CRITICAL**: Your disposition must be one of exactly five values:
 - ACKNOWLEDGE - No further action warranted
 - REFER - Route to Knight for domain expert review
 - ESCALATE - Elevate to King for mandatory consideration
+- DEFER - Hold for later consideration
+- NO_RESPONSE - Decline to respond to petition
 
 **Output Format:**
 ```
-DISPOSITION: [ACKNOWLEDGE|REFER|ESCALATE]
+DISPOSITION: [ACKNOWLEDGE|REFER|ESCALATE|DEFER|NO_RESPONSE]
 RATIONALE: [Your reasoning]
 CONDITIONS: [Any conditions or specifications]
 DISSENT: [None or specific disagreement]
@@ -382,7 +384,7 @@ def extract_disposition(atropos_output: str) -> str:
         atropos_output: The full output from Atropos.
 
     Returns:
-        One of: ACKNOWLEDGE, REFER, ESCALATE, or UNKNOWN.
+        One of: ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE, or UNKNOWN.
     """
     output_upper = atropos_output.upper()
 
@@ -395,12 +397,20 @@ def extract_disposition(atropos_output: str) -> str:
                 return Disposition.REFER
             if "ESCALATE" in line:
                 return Disposition.ESCALATE
+            if "DEFER" in line:
+                return Disposition.DEFER
+            if "NO_RESPONSE" in line or "NO RESPONSE" in line:
+                return Disposition.NO_RESPONSE
 
     # Fallback: look for keywords anywhere
     if "ESCALATE" in output_upper:
         return Disposition.ESCALATE
     if "REFER" in output_upper:
         return Disposition.REFER
+    if "DEFER" in output_upper:
+        return Disposition.DEFER
+    if "NO_RESPONSE" in output_upper or "NO RESPONSE" in output_upper:
+        return Disposition.NO_RESPONSE
     if "ACKNOWLEDGE" in output_upper:
         return Disposition.ACKNOWLEDGE
 

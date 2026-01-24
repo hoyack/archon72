@@ -128,7 +128,7 @@ class PetitionSubmissionRepositoryProtocol(Protocol):
         Args:
             submission_id: The petition submission to update.
             expected_state: The state the petition must be in for update to succeed.
-            new_state: The new terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED).
+            new_state: The new terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE).
             escalation_source: What triggered escalation (Story 6.1, for ESCALATED state).
             escalated_to_realm: Target King's realm (Story 6.1, for ESCALATED state).
 

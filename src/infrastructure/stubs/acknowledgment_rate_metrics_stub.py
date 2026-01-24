@@ -55,12 +55,12 @@ class AcknowledgmentRateMetricsStub(AcknowledgmentRateMetricsProtocol):
 
         Args:
             archon_id: UUID of the voting archon.
-            outcome: Vote outcome - ACKNOWLEDGE, REFER, or ESCALATE.
+            outcome: Vote outcome - ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE.
 
         Raises:
             ValueError: If outcome is not a valid deliberation outcome.
         """
-        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE")
+        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE", "DEFER", "NO_RESPONSE")
         if outcome not in valid_outcomes:
             raise ValueError(
                 f"Invalid outcome '{outcome}'. Must be one of {valid_outcomes}."

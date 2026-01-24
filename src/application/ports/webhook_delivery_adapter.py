@@ -48,7 +48,7 @@ class WebhookDeliveryAdapterProtocol(Protocol):
         Args:
             url: HTTPS URL to POST to.
             petition_id: UUID of the fated petition.
-            fate: Terminal fate (ACKNOWLEDGED, REFERRED, ESCALATED).
+            fate: Terminal fate (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE).
             fate_reason: Reason for fate (for ACKNOWLEDGED).
             fate_timestamp: When the fate was assigned.
 

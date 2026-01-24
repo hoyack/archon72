@@ -61,6 +61,8 @@ OUTCOME_TO_PIPELINE: dict[DispositionOutcome, PipelineType] = {
     DispositionOutcome.ACKNOWLEDGE: PipelineType.ACKNOWLEDGMENT,
     DispositionOutcome.REFER: PipelineType.KNIGHT_REFERRAL,
     DispositionOutcome.ESCALATE: PipelineType.KING_ESCALATION,
+    DispositionOutcome.DEFER: PipelineType.DEFERRED_REVIEW,
+    DispositionOutcome.NO_RESPONSE: PipelineType.NO_RESPONSE_ARCHIVE,
 }
 
 

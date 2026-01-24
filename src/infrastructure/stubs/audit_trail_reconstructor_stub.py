@@ -198,7 +198,7 @@ class AuditTrailReconstructorStub:
             assigned_archons: Tuple of exactly 3 archon UUIDs.
             started_at: When deliberation started (defaults to now).
             completed_at: When deliberation completed (optional).
-            outcome: Final outcome (ACKNOWLEDGE, REFER, ESCALATE).
+            outcome: Final outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE).
             termination_reason: How deliberation terminated.
             transcripts: Dict mapping phase name to transcript content.
             dissent_record: Optional dissent record.

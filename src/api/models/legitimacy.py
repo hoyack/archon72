@@ -251,6 +251,8 @@ class PetitionStateCountsResponse(BaseModel):
         acknowledged: Count of petitions in ACKNOWLEDGED state.
         referred: Count of petitions in REFERRED state.
         escalated: Count of petitions in ESCALATED state.
+        deferred: Count of petitions in DEFERRED state.
+        no_response: Count of petitions in NO_RESPONSE state.
         total: Total petition count across all states.
     """
 
@@ -259,6 +261,8 @@ class PetitionStateCountsResponse(BaseModel):
     acknowledged: int = Field(..., description="Count in ACKNOWLEDGED state")
     referred: int = Field(..., description="Count in REFERRED state")
     escalated: int = Field(..., description="Count in ESCALATED state")
+    deferred: int = Field(..., description="Count in DEFERRED state")
+    no_response: int = Field(..., description="Count in NO_RESPONSE state")
     total: int = Field(..., description="Total count across all states")
 
 

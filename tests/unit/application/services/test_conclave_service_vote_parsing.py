@@ -29,6 +29,10 @@ def service(tmp_path) -> ConclaveService:
 @pytest.mark.parametrize(
     ("content", "expected"),
     [
+        ('{"choice":"AYE"}\n', VoteChoice.AYE),
+        ('{"choice":"NAY"}\n', VoteChoice.NAY),
+        ('{"choice":"ABSTAIN"}\n', VoteChoice.ABSTAIN),
+        ('{"choice":"AYE"}\n\nReason...\n', VoteChoice.AYE),
         ("Vote: FOR\n\nReason...\n", VoteChoice.AYE),
         ("Vote: NAY\n\nReason...\n", VoteChoice.NAY),
         ("Vote: ABSTAIN\n\nReason...\n", VoteChoice.ABSTAIN),
@@ -47,4 +51,3 @@ def test_parse_vote_accepts_common_formats(
     service: ConclaveService, content: str, expected: VoteChoice
 ) -> None:
     assert service._parse_vote(content) == expected
-

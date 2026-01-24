@@ -104,7 +104,7 @@ class NotificationPreference:
     """Notification preferences for petition fate assignment (FR-7.3).
 
     Stores how an Observer wants to be notified when their petition
-    receives a fate (ACKNOWLEDGED, REFERRED, or ESCALATED).
+    receives a fate (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, or NO_RESPONSE).
 
     Constitutional Constraints:
     - FR-7.3: System SHALL notify Observer on fate assignment

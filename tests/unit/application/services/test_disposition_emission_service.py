@@ -276,6 +276,44 @@ class TestDispositionEmissionService:
         assert result.target_pipeline == PipelineType.KING_ESCALATION
 
     @pytest.mark.asyncio
+    async def test_emit_disposition_success_defer(self) -> None:
+        """Test DEFER outcome routes to DEFERRED_REVIEW pipeline."""
+        # Arrange
+        session = _create_complete_session(
+            archons=self.archons,
+            outcome=DeliberationOutcome.DEFER,
+        )
+        consensus = _create_consensus(session, "DEFER")
+        petition = _create_petition(session.petition_id)
+
+        # Act
+        result = await self.service.emit_disposition(session, consensus, petition)
+
+        # Assert
+        assert result.success is True
+        assert result.outcome == DispositionOutcome.DEFER
+        assert result.target_pipeline == PipelineType.DEFERRED_REVIEW
+
+    @pytest.mark.asyncio
+    async def test_emit_disposition_success_no_response(self) -> None:
+        """Test NO_RESPONSE outcome routes to NO_RESPONSE_ARCHIVE pipeline."""
+        # Arrange
+        session = _create_complete_session(
+            archons=self.archons,
+            outcome=DeliberationOutcome.NO_RESPONSE,
+        )
+        consensus = _create_consensus(session, "NO_RESPONSE")
+        petition = _create_petition(session.petition_id)
+
+        # Act
+        result = await self.service.emit_disposition(session, consensus, petition)
+
+        # Assert
+        assert result.success is True
+        assert result.outcome == DispositionOutcome.NO_RESPONSE
+        assert result.target_pipeline == PipelineType.NO_RESPONSE_ARCHIVE
+
+    @pytest.mark.asyncio
     async def test_emit_disposition_with_dissent(self) -> None:
         """Test AC2: Event includes vote breakdown and dissent info."""
         # Arrange - create 2-1 vote
@@ -449,6 +487,40 @@ class TestRouteToBasePipeline:
         assert result.pipeline == PipelineType.KING_ESCALATION
 
     @pytest.mark.asyncio
+    async def test_route_to_deferred_review_pipeline(self) -> None:
+        """Test routing to DEFERRED_REVIEW pipeline."""
+        # Arrange
+        petition = _create_petition(uuid4())
+        event_id = uuid4()
+
+        # Act
+        result = await self.service.route_to_pipeline(
+            petition=petition,
+            outcome=DispositionOutcome.DEFER,
+            deliberation_event_id=event_id,
+        )
+
+        # Assert
+        assert result.pipeline == PipelineType.DEFERRED_REVIEW
+
+    @pytest.mark.asyncio
+    async def test_route_to_no_response_archive_pipeline(self) -> None:
+        """Test routing to NO_RESPONSE_ARCHIVE pipeline."""
+        # Arrange
+        petition = _create_petition(uuid4())
+        event_id = uuid4()
+
+        # Act
+        result = await self.service.route_to_pipeline(
+            petition=petition,
+            outcome=DispositionOutcome.NO_RESPONSE,
+            deliberation_event_id=event_id,
+        )
+
+        # Assert
+        assert result.pipeline == PipelineType.NO_RESPONSE_ARCHIVE
+
+    @pytest.mark.asyncio
     async def test_route_adds_to_pending_queue(self) -> None:
         """Test that routing adds petition to pending queue."""
         # Arrange
@@ -570,6 +642,20 @@ class TestOutcomeToPipelineMapping:
         assert (
             OUTCOME_TO_PIPELINE[DispositionOutcome.ESCALATE]
             == PipelineType.KING_ESCALATION
+        )
+
+    def test_defer_maps_to_deferred_review(self) -> None:
+        """Test DEFER -> DEFERRED_REVIEW."""
+        assert (
+            OUTCOME_TO_PIPELINE[DispositionOutcome.DEFER]
+            == PipelineType.DEFERRED_REVIEW
+        )
+
+    def test_no_response_maps_to_archive(self) -> None:
+        """Test NO_RESPONSE -> NO_RESPONSE_ARCHIVE."""
+        assert (
+            OUTCOME_TO_PIPELINE[DispositionOutcome.NO_RESPONSE]
+            == PipelineType.NO_RESPONSE_ARCHIVE
         )
 
 

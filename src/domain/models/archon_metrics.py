@@ -32,6 +32,8 @@ class ArchonDeliberationMetrics:
         acknowledge_votes: Number of ACKNOWLEDGE votes cast.
         refer_votes: Number of REFER votes cast.
         escalate_votes: Number of ESCALATE votes cast.
+        defer_votes: Number of DEFER votes cast.
+        no_response_votes: Number of NO_RESPONSE votes cast.
     """
 
     archon_id: UUID
@@ -39,6 +41,8 @@ class ArchonDeliberationMetrics:
     acknowledge_votes: int = 0
     refer_votes: int = 0
     escalate_votes: int = 0
+    defer_votes: int = 0
+    no_response_votes: int = 0
 
     def __post_init__(self) -> None:
         """Validate metrics invariants."""
@@ -50,9 +54,19 @@ class ArchonDeliberationMetrics:
             raise ValueError("refer_votes must be non-negative")
         if self.escalate_votes < 0:
             raise ValueError("escalate_votes must be non-negative")
+        if self.defer_votes < 0:
+            raise ValueError("defer_votes must be non-negative")
+        if self.no_response_votes < 0:
+            raise ValueError("no_response_votes must be non-negative")
 
         # Total votes should not exceed participations
-        total_votes = self.acknowledge_votes + self.refer_votes + self.escalate_votes
+        total_votes = (
+            self.acknowledge_votes
+            + self.refer_votes
+            + self.escalate_votes
+            + self.defer_votes
+            + self.no_response_votes
+        )
         if total_votes > self.total_participations:
             raise ValueError(
                 f"Total votes ({total_votes}) cannot exceed participations ({self.total_participations})"
@@ -65,7 +79,13 @@ class ArchonDeliberationMetrics:
         Returns:
             Sum of all vote types.
         """
-        return self.acknowledge_votes + self.refer_votes + self.escalate_votes
+        return (
+            self.acknowledge_votes
+            + self.refer_votes
+            + self.escalate_votes
+            + self.defer_votes
+            + self.no_response_votes
+        )
 
     @property
     def acknowledgment_rate(self) -> float:
@@ -119,13 +139,15 @@ class ArchonDeliberationMetrics:
             acknowledge_votes=self.acknowledge_votes,
             refer_votes=self.refer_votes,
             escalate_votes=self.escalate_votes,
+            defer_votes=self.defer_votes,
+            no_response_votes=self.no_response_votes,
         )
 
     def with_vote(self, outcome: str) -> ArchonDeliberationMetrics:
         """Create new metrics with vote recorded.
 
         Args:
-            outcome: Vote outcome - must be ACKNOWLEDGE, REFER, or ESCALATE.
+            outcome: Vote outcome - must be ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE.
 
         Returns:
             New ArchonDeliberationMetrics with vote incremented.
@@ -140,6 +162,8 @@ class ArchonDeliberationMetrics:
                 acknowledge_votes=self.acknowledge_votes + 1,
                 refer_votes=self.refer_votes,
                 escalate_votes=self.escalate_votes,
+                defer_votes=self.defer_votes,
+                no_response_votes=self.no_response_votes,
             )
         elif outcome == "REFER":
             return ArchonDeliberationMetrics(
@@ -148,6 +172,8 @@ class ArchonDeliberationMetrics:
                 acknowledge_votes=self.acknowledge_votes,
                 refer_votes=self.refer_votes + 1,
                 escalate_votes=self.escalate_votes,
+                defer_votes=self.defer_votes,
+                no_response_votes=self.no_response_votes,
             )
         elif outcome == "ESCALATE":
             return ArchonDeliberationMetrics(
@@ -156,10 +182,33 @@ class ArchonDeliberationMetrics:
                 acknowledge_votes=self.acknowledge_votes,
                 refer_votes=self.refer_votes,
                 escalate_votes=self.escalate_votes + 1,
+                defer_votes=self.defer_votes,
+                no_response_votes=self.no_response_votes,
+            )
+        elif outcome == "DEFER":
+            return ArchonDeliberationMetrics(
+                archon_id=self.archon_id,
+                total_participations=self.total_participations,
+                acknowledge_votes=self.acknowledge_votes,
+                refer_votes=self.refer_votes,
+                escalate_votes=self.escalate_votes,
+                defer_votes=self.defer_votes + 1,
+                no_response_votes=self.no_response_votes,
+            )
+        elif outcome == "NO_RESPONSE":
+            return ArchonDeliberationMetrics(
+                archon_id=self.archon_id,
+                total_participations=self.total_participations,
+                acknowledge_votes=self.acknowledge_votes,
+                refer_votes=self.refer_votes,
+                escalate_votes=self.escalate_votes,
+                defer_votes=self.defer_votes,
+                no_response_votes=self.no_response_votes + 1,
             )
         else:
             raise ValueError(
-                f"Invalid outcome '{outcome}'. Must be ACKNOWLEDGE, REFER, or ESCALATE."
+                f"Invalid outcome '{outcome}'. Must be ACKNOWLEDGE, REFER, "
+                "ESCALATE, DEFER, or NO_RESPONSE."
             )
 
     @classmethod

@@ -9,7 +9,7 @@ Constitutional Constraints:
 - PRD Section 13A.8: Observer tier access definition
 
 What Observers CAN see:
-- Outcome (ACKNOWLEDGE, REFER, ESCALATE)
+- Outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE)
 - Vote breakdown string (e.g., "2-1", "3-0")
 - Dissent presence (boolean only)
 - Phase summaries (metadata, not content)
@@ -45,11 +45,15 @@ class DeliberationOutcomeEnum(str, Enum):
         ACKNOWLEDGE: Petition acknowledged, no further action needed.
         REFER: Referred to Knight for review.
         ESCALATE: Escalated to King for adoption consideration.
+        DEFER: Deferred for later consideration.
+        NO_RESPONSE: Petition receives no response.
     """
 
     ACKNOWLEDGE = "ACKNOWLEDGE"
     REFER = "REFER"
     ESCALATE = "ESCALATE"
+    DEFER = "DEFER"
+    NO_RESPONSE = "NO_RESPONSE"
 
 
 class EscalationTriggerEnum(str, Enum):
@@ -138,7 +142,7 @@ class DeliberationSummaryResponse(BaseModel):
 
     Attributes:
         petition_id: UUID of the deliberated petition.
-        outcome: Deliberation outcome (ACKNOWLEDGE, REFER, ESCALATE).
+        outcome: Deliberation outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE).
         vote_breakdown: Anonymous vote breakdown (e.g., "2-1", "3-0").
         has_dissent: Whether there was a dissenting vote (boolean, not identity).
         phase_summaries: List of phase summaries with metadata.
@@ -153,7 +157,7 @@ class DeliberationSummaryResponse(BaseModel):
     petition_id: str = Field(..., description="UUID of the petition")
     outcome: DeliberationOutcomeEnum = Field(
         ...,
-        description="Deliberation outcome (ACKNOWLEDGE, REFER, ESCALATE)",
+        description="Deliberation outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE)",
     )
     vote_breakdown: str = Field(
         ...,

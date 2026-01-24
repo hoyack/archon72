@@ -41,7 +41,7 @@ class FateEventEmissionError(Exception):
 
         Args:
             petition_id: UUID of the petition.
-            new_state: The terminal fate state (ACKNOWLEDGED/REFERRED/ESCALATED).
+            new_state: The terminal fate state (ACKNOWLEDGED/REFERRED/ESCALATED/DEFERRED/NO_RESPONSE).
             cause: The underlying exception from event emission.
         """
         self.petition_id = petition_id

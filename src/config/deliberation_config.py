@@ -13,7 +13,7 @@ Constitutional Constraints:
 - HC-7: Deliberation timeout auto-ESCALATE - Prevent stuck petitions
 - CT-11: Silent failure destroys legitimacy - timeout/deadlock MUST fire
 - CT-14: Silence must be expensive - every petition terminates in witnessed fate
-- AT-1: Every petition terminates in exactly one of Three Fates
+- AT-1: Every petition terminates in exactly one fate
 
 Environment Variables:
 - MIN_DWELL_TIME_SECONDS: Minimum time in DELIBERATING before ACKNOWLEDGE (default: 30, min: 0, max: 300)
@@ -100,7 +100,7 @@ class DeliberationConfig:
     - HC-7: Prevent stuck petitions via timeout/deadlock
     - CT-11: Silent failure destroys legitimacy - timeout/deadlock MUST fire
     - CT-14: Silence is expensive - every petition terminates in witnessed fate
-    - AT-1: Every petition terminates in exactly one of Three Fates
+    - AT-1: Every petition terminates in exactly one fate
 
     Attributes:
         min_dwell_seconds: Minimum time in DELIBERATING before ACKNOWLEDGE (FR-3.5).

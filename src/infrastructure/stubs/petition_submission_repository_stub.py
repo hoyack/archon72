@@ -179,7 +179,7 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
         Args:
             submission_id: The petition submission to update.
             expected_state: The state the petition must be in for update to succeed.
-            new_state: The new terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED).
+            new_state: The new terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE).
             fate_reason: Optional reason for fate assignment (Story 1.8).
             escalation_source: What triggered escalation (Story 6.1, for ESCALATED state).
             escalated_to_realm: Target King's realm (Story 6.1, for ESCALATED state).
@@ -198,6 +198,8 @@ class PetitionSubmissionRepositoryStub(PetitionSubmissionRepositoryProtocol):
             PetitionState.ACKNOWLEDGED: 0,
             PetitionState.REFERRED: 1,
             PetitionState.ESCALATED: 2,
+            PetitionState.DEFERRED: 3,
+            PetitionState.NO_RESPONSE: 4,
         }
         delay_bucket = (submission_id.int + fate_order.get(new_state, 0)) % 3
         if delay_bucket:

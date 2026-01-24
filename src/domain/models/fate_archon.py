@@ -145,7 +145,7 @@ class FateArchon:
 DELIBERATION_PROMPT_HEADER = """You are participating in a Three Fates deliberation as {archon_name}.
 
 CONSTITUTIONAL CONTEXT:
-- Every petition must terminate in exactly one of Three Fates: ACKNOWLEDGED, REFERRED, or ESCALATED
+- Every petition must terminate in exactly one fate: ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, or NO_RESPONSE
 - You are one of 3 Marquis-rank Archons deliberating on this petition
 - A supermajority (2-of-3) consensus is required for a disposition decision
 - Deliberation follows the protocol: ASSESS → POSITION → CROSS-EXAMINE → VOTE

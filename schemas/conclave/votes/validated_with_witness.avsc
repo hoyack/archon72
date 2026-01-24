@@ -1,0 +1,104 @@
+{
+  "type": "record",
+  "name": "ValidatedVoteWithWitness",
+  "namespace": "archon72.conclave.votes",
+  "doc": "Final validated vote including secretary details and witness observation.",
+  "fields": [
+    {
+      "name": "vote_id",
+      "type": "string",
+      "doc": "Vote being validated (UUID)"
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "doc": "Conclave session identifier (UUID)"
+    },
+    {
+      "name": "archon_id",
+      "type": "string",
+      "doc": "Archon who cast the vote (UUID)"
+    },
+    {
+      "name": "validated_choice",
+      "type": "string",
+      "doc": "Final validated choice"
+    },
+    {
+      "name": "consensus_reached",
+      "type": "boolean",
+      "doc": "True if secretaries reached consensus"
+    },
+    {
+      "name": "confidence",
+      "type": "double",
+      "doc": "Consensus confidence"
+    },
+    {
+      "name": "secretary_text",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "SecretaryTextResult",
+          "fields": [
+            {"name": "secretary_id", "type": "string"},
+            {"name": "vote_choice", "type": "string"},
+            {"name": "confidence", "type": "double"},
+            {"name": "reasoning", "type": "string"}
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "SECRETARY_TEXT determination details"
+    },
+    {
+      "name": "secretary_json",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "SecretaryJsonResult",
+          "fields": [
+            {"name": "secretary_id", "type": "string"},
+            {"name": "vote_choice", "type": "string"},
+            {"name": "confidence", "type": "double"},
+            {"name": "reasoning", "type": "string"}
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "SECRETARY_JSON determination details"
+    },
+    {
+      "name": "witness",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "WitnessObservation",
+          "fields": [
+            {"name": "witness_id", "type": "string"},
+            {"name": "verdict", "type": "string"},
+            {"name": "statement", "type": "string"}
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "Witness observation"
+    },
+    {
+      "name": "validation_source",
+      "type": "string",
+      "doc": "How validation was determined"
+    },
+    {
+      "name": "timestamp_ms",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "When validation completed"
+    }
+  ]
+}

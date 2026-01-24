@@ -122,7 +122,7 @@ Query the current status of a petition. Returns a `status_token` for efficient l
 
 #### Terminal State Response
 
-When a petition has reached a terminal fate (ACKNOWLEDGED, REFERRED, or ESCALATED):
+When a petition has reached a terminal fate (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, or NO_RESPONSE):
 
 ```json
 {
@@ -262,7 +262,7 @@ Get mediated deliberation summary for a petition (Observer tier access). Returns
 | Field | Type | Description |
 |-------|------|-------------|
 | `petition_id` | UUID | Petition identifier |
-| `outcome` | string | Deliberation outcome (ACKNOWLEDGED, REFERRED, ESCALATED) |
+| `outcome` | string | Deliberation outcome (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE) |
 | `vote_breakdown` | string | Anonymous vote summary (e.g., "2-1") |
 | `has_dissent` | boolean | Whether there was dissent (no identity revealed) |
 | `phase_summaries` | array | Metadata for each deliberation phase |
@@ -386,6 +386,8 @@ Headers: `Retry-After: 60`
 | `ACKNOWLEDGED` | Petition acknowledged (terminal fate) | Yes |
 | `REFERRED` | Referred to Knight for review (terminal fate) | Yes |
 | `ESCALATED` | Escalated to King for adoption (terminal fate) | Yes |
+| `DEFERRED` | Petition deferred for later consideration (terminal fate) | Yes |
+| `NO_RESPONSE` | Petition receives no response (terminal fate) | Yes |
 
 ### State Transition Matrix
 
@@ -394,7 +396,9 @@ RECEIVED ─────┬───────> DELIBERATING ─────�
               │                           │
               ├───────> ACKNOWLEDGED       ├───────> REFERRED
               │         (withdrawal)       │
-              │                           └───────> ESCALATED
+              │                           ├───────> ESCALATED
+              │                           ├───────> DEFERRED
+              │                           └───────> NO_RESPONSE
               └───────> ESCALATED
                         (auto-escalation)
 ```

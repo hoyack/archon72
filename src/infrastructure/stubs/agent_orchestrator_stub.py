@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
+from typing import Any
 from uuid import uuid4
 
 from structlog import get_logger
@@ -322,6 +323,40 @@ class AgentOrchestratorStub(AgentOrchestratorProtocol):
             )
 
         return self._agent_status[agent_id]
+
+    async def execute_validation_task(
+        self,
+        task_type: str,
+        validator_archon_id: str,
+        vote_payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Stub: Return deterministic validation output."""
+        await asyncio.sleep(self._latency_ms / 1000.0)
+        return {
+            "vote_choice": "AYE",
+            "confidence": 0.75,
+            "raw_response": f"{DEV_MODE_WATERMARK}{task_type} validation",
+            "parse_success": True,
+            "metadata": {
+                "validator_archon_id": validator_archon_id,
+                "task_type": task_type,
+            },
+        }
+
+    async def execute_witness_adjudication(
+        self,
+        witness_archon_id: str,
+        vote_payload: dict[str, Any],
+        deliberator_results: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Stub: Return deterministic witness adjudication output."""
+        await asyncio.sleep(self._latency_ms / 1000.0)
+        return {
+            "final_vote": "AYE",
+            "retort": False,
+            "retort_reason": None,
+            "witness_statement": f"{DEV_MODE_WATERMARK}witness confirmed",
+        }
 
     # Test helper methods
 

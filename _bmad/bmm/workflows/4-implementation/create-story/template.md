@@ -21,19 +21,6 @@ so that {{benefit}}.
 - [ ] Task 2 (AC: #)
   - [ ] Subtask 2.1
 
-## Documentation Checklist
-
-<!--
-Team Agreement: Story not "done" until documentation reflects the change.
-Check all that apply, or mark N/A if no documentation impact.
--->
-
-- [ ] Architecture docs updated (if patterns/structure changed)
-- [ ] API docs updated (if endpoints/contracts changed)
-- [ ] README updated (if setup/usage changed)
-- [ ] Inline comments added for complex logic
-- [ ] N/A - no documentation impact (explain why)
-
 ## Dev Notes
 
 - Relevant architecture patterns and constraints

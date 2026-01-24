@@ -21,7 +21,10 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+import json
+import os
+import random
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from src.optional_deps.crewai import Agent, Crew, LLM, Task
@@ -46,6 +49,34 @@ if TYPE_CHECKING:
     from src.optional_deps.crewai import BaseTool
 
 logger = get_logger(__name__)
+
+
+def _log_safe(log_fn, event: str, **fields) -> None:
+    """Log with structured fields, falling back to plain string on TypeError."""
+    try:
+        log_fn(event, **fields)
+    except TypeError:
+        log_fn(f"{event} {fields}")
+
+
+def _get_env_int(name: str, default: int) -> int:
+    value = os.getenv(name, "").strip()
+    if not value:
+        return default
+    try:
+        return int(float(value))
+    except ValueError:
+        return default
+
+
+def _get_env_float(name: str, default: float) -> float:
+    value = os.getenv(name, "").strip()
+    if not value:
+        return default
+    try:
+        return float(value)
+    except ValueError:
+        return default
 
 
 class CrewAIAdapter(AgentOrchestratorProtocol):
@@ -86,6 +117,35 @@ class CrewAIAdapter(AgentOrchestratorProtocol):
         self._agent_status: dict[str, AgentStatusInfo] = {}
         self._verbose = verbose
         self._tool_registry = tool_registry
+        raw_max_concurrent = os.getenv("OLLAMA_MAX_CONCURRENT", "").strip()
+        self._llm_max_concurrent_configured = bool(raw_max_concurrent)
+        self._llm_max_concurrent = _get_env_int("OLLAMA_MAX_CONCURRENT", 0)
+        self._llm_semaphore = (
+            asyncio.Semaphore(self._llm_max_concurrent)
+            if self._llm_max_concurrent > 0
+            else None
+        )
+        self._retry_max_attempts = max(
+            1,
+            _get_env_int(
+                "OLLAMA_RETRY_MAX_ATTEMPTS",
+                _get_env_int("AGENT_TIMEOUT_MAX_ATTEMPTS", 3),
+            ),
+        )
+        self._retry_base_delay = max(
+            0.0,
+            _get_env_float(
+                "OLLAMA_RETRY_BASE_DELAY",
+                _get_env_float("AGENT_TIMEOUT_BASE_DELAY_SECONDS", 2.0),
+            ),
+        )
+        self._retry_max_delay = max(
+            self._retry_base_delay,
+            _get_env_float(
+                "OLLAMA_RETRY_MAX_DELAY",
+                _get_env_float("AGENT_TIMEOUT_MAX_DELAY_SECONDS", 30.0),
+            ),
+        )
 
         tools_available = tool_registry.list_tools() if tool_registry else []
         logger.info(
@@ -94,6 +154,10 @@ class CrewAIAdapter(AgentOrchestratorProtocol):
             verbose=verbose,
             tools_available=tools_available,
             tool_count=len(tools_available),
+            llm_max_concurrent=self._llm_max_concurrent,
+            retry_max_attempts=self._retry_max_attempts,
+            retry_base_delay_seconds=self._retry_base_delay,
+            retry_max_delay_seconds=self._retry_max_delay,
         )
 
     def _resolve_profile(self, agent_id: str) -> ArchonProfile:
@@ -242,6 +306,7 @@ Be thorough but concise in your response.""",
         """
         # Resolve profile
         profile = self._resolve_profile(agent_id)
+        self._ensure_llm_semaphore(profile)
 
         # Update status to BUSY
         self._agent_status[agent_id] = AgentStatusInfo(
@@ -251,7 +316,7 @@ Be thorough but concise in your response.""",
             last_error=None,
         )
 
-        try:
+        async def _invoke_once() -> str:
             # Create CrewAI agent and task
             agent = self._create_crewai_agent(profile, context)
             task = self._create_task(agent, context)
@@ -263,72 +328,167 @@ Be thorough but concise in your response.""",
                 verbose=self._verbose,
             )
 
-            # Execute in thread pool to not block event loop
-            # CrewAI's kickoff() is synchronous
-            result = await asyncio.wait_for(
-                asyncio.to_thread(crew.kickoff),
-                timeout=profile.llm_config.timeout_ms / 1000.0,
-            )
+            async def _run_kickoff() -> Any:
+                return await asyncio.wait_for(
+                    asyncio.to_thread(crew.kickoff),
+                    timeout=profile.llm_config.timeout_ms / 1000.0,
+                )
 
-            # Extract result content
-            content = str(result)
+            if self._llm_semaphore:
+                async with self._llm_semaphore:
+                    return str(await _run_kickoff())
 
-            # Update status to IDLE
-            self._agent_status[agent_id] = AgentStatusInfo(
-                agent_id=agent_id,
-                status=AgentStatus.IDLE,
-                last_invocation=datetime.now(timezone.utc),
-                last_error=None,
-            )
+            return str(await _run_kickoff())
 
-            logger.info(
-                "crewai_agent_invoked",
-                agent_id=agent_id,
-                archon=profile.name,
-                topic_id=context.topic_id,
-                content_length=len(content),
-            )
+        attempt = 1
+        retry_delay = 0.0
+        while True:
+            try:
+                content = await _invoke_once()
 
-            return AgentOutput(
-                output_id=uuid4(),
-                agent_id=agent_id,
-                request_id=context.bundle_id,
-                content=content,
-                content_type="text/plain",
-                generated_at=datetime.now(timezone.utc),
-            )
+                # Update status to IDLE
+                self._agent_status[agent_id] = AgentStatusInfo(
+                    agent_id=agent_id,
+                    status=AgentStatus.IDLE,
+                    last_invocation=datetime.now(timezone.utc),
+                    last_error=None,
+                )
 
-        except TimeoutError:
-            error_msg = (
-                f"Agent {agent_id} timed out after {profile.llm_config.timeout_ms}ms"
-            )
-            self._agent_status[agent_id] = AgentStatusInfo(
-                agent_id=agent_id,
-                status=AgentStatus.FAILED,
-                last_invocation=datetime.now(timezone.utc),
-                last_error=error_msg,
-            )
-            logger.error(
-                "crewai_agent_timeout",
-                agent_id=agent_id,
-                timeout_ms=profile.llm_config.timeout_ms,
-            )
-            raise AgentInvocationError(error_msg) from None
+                _log_safe(
+                    logger.info,
+                    "crewai_agent_invoked",
+                    agent_id=agent_id,
+                    archon=profile.name,
+                    topic_id=context.topic_id,
+                    content_length=len(content),
+                )
 
-        except Exception as e:
-            error_msg = f"Agent {agent_id} failed: {e}"
-            self._agent_status[agent_id] = AgentStatusInfo(
-                agent_id=agent_id,
-                status=AgentStatus.FAILED,
-                last_invocation=datetime.now(timezone.utc),
-                last_error=error_msg,
+                return AgentOutput(
+                    output_id=uuid4(),
+                    agent_id=agent_id,
+                    request_id=context.bundle_id,
+                    content=content,
+                    content_type="text/plain",
+                    generated_at=datetime.now(timezone.utc),
+                )
+
+            except asyncio.CancelledError:
+                raise
+            except (asyncio.TimeoutError, TimeoutError) as exc:
+                if attempt >= self._retry_max_attempts:
+                    error_msg = (
+                        f"Agent {agent_id} timed out after "
+                        f"{profile.llm_config.timeout_ms}ms (attempts={attempt})"
+                    )
+                    self._agent_status[agent_id] = AgentStatusInfo(
+                        agent_id=agent_id,
+                        status=AgentStatus.FAILED,
+                        last_invocation=datetime.now(timezone.utc),
+                        last_error=error_msg,
+                    )
+                    _log_safe(
+                        logger.error,
+                        "crewai_agent_timeout",
+                        agent_id=agent_id,
+                        timeout_ms=profile.llm_config.timeout_ms,
+                        attempts=attempt,
+                    )
+                    raise AgentInvocationError(error_msg) from exc
+
+                retry_delay = self._next_retry_delay(retry_delay)
+                _log_safe(
+                    logger.warning,
+                    "crewai_agent_timeout_retry",
+                    agent_id=agent_id,
+                    timeout_ms=profile.llm_config.timeout_ms,
+                    attempt=attempt,
+                    retry_delay_seconds=retry_delay,
+                )
+                await asyncio.sleep(retry_delay)
+                attempt += 1
+            except Exception as e:
+                if self._is_retryable_error(e) and attempt < self._retry_max_attempts:
+                    retry_delay = self._next_retry_delay(retry_delay)
+                    _log_safe(
+                        logger.warning,
+                        "crewai_agent_retry",
+                        agent_id=agent_id,
+                        attempt=attempt,
+                        retry_delay_seconds=retry_delay,
+                        error=str(e),
+                    )
+                    await asyncio.sleep(retry_delay)
+                    attempt += 1
+                    continue
+
+                error_msg = f"Agent {agent_id} failed: {e}"
+                self._agent_status[agent_id] = AgentStatusInfo(
+                    agent_id=agent_id,
+                    status=AgentStatus.FAILED,
+                    last_invocation=datetime.now(timezone.utc),
+                    last_error=error_msg,
+                )
+                _log_safe(
+                    logger.error,
+                    "crewai_agent_failed",
+                    agent_id=agent_id,
+                    error=str(e),
+                )
+                raise AgentInvocationError(error_msg) from e
+
+    def _next_retry_delay(self, previous_delay: float) -> float:
+        """Decorrelated jitter backoff for retries."""
+        if self._retry_base_delay <= 0:
+            return 0.0
+        if previous_delay <= 0:
+            delay = self._retry_base_delay
+        else:
+            delay = random.uniform(self._retry_base_delay, previous_delay * 3)
+        return min(delay, self._retry_max_delay)
+
+    def _ensure_llm_semaphore(self, profile: ArchonProfile) -> None:
+        """Initialize a default semaphore for Ollama Cloud if not configured."""
+        if self._llm_semaphore is not None or self._llm_max_concurrent_configured:
+            return
+
+        base_url = profile.llm_config.base_url or os.getenv("OLLAMA_BASE_URL", "")
+        cloud_enabled = os.getenv("OLLAMA_CLOUD_ENABLED", "").lower() == "true"
+        uses_cloud = (
+            profile.llm_config.provider == "ollama_cloud"
+            or cloud_enabled
+            or "ollama.com" in base_url
+        )
+        if not uses_cloud:
+            return
+
+        # Default to a conservative limit if not configured.
+        self._llm_max_concurrent = 5
+        self._llm_semaphore = asyncio.Semaphore(self._llm_max_concurrent)
+        _log_safe(
+            logger.info,
+            "crewai_llm_semaphore_defaulted",
+            llm_max_concurrent=self._llm_max_concurrent,
+        )
+
+    @staticmethod
+    def _is_retryable_error(error: Exception) -> bool:
+        """Return True for transient errors worth retrying."""
+        if isinstance(error, (ConnectionError, TimeoutError, asyncio.TimeoutError)):
+            return True
+        message = str(error).lower()
+        return any(
+            token in message
+            for token in (
+                "too many concurrent requests",
+                "rate limit",
+                "429",
+                "503",
+                "temporarily unavailable",
+                "timeout",
+                "connection",
+                "api connection",
             )
-            logger.error(
-                "crewai_agent_failed",
-                agent_id=agent_id,
-                error=str(e),
-            )
-            raise AgentInvocationError(error_msg) from e
+        )
 
     async def invoke_batch(
         self,
@@ -532,6 +692,169 @@ Be thorough but concise in your response.""",
             status=AgentStatus.IDLE,
             last_invocation=None,
             last_error=None,
+        )
+
+    async def execute_validation_task(
+        self,
+        task_type: str,
+        validator_archon_id: str,
+        vote_payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Execute a validation task and return structured output."""
+        prompt = self._build_validation_prompt(task_type, vote_payload)
+        bundle = ContextBundle(
+            bundle_id=uuid4(),
+            topic_id=f"vote-validate-{task_type}",
+            topic_content=prompt,
+            metadata={
+                "task_type": task_type,
+                "validation": "vote",
+            },
+            created_at=datetime.now(timezone.utc),
+        )
+
+        output = await self.invoke(validator_archon_id, bundle)
+        parsed = self._parse_json_payload(output.content)
+
+        vote_choice = None
+        confidence = 0.0
+        if isinstance(parsed, dict):
+            vote_choice = parsed.get("vote_choice") or parsed.get("choice")
+            confidence = float(parsed.get("confidence", 0.0) or 0.0)
+
+        return {
+            "vote_choice": vote_choice,
+            "confidence": confidence,
+            "raw_response": output.content,
+            "parse_success": parsed is not None,
+            "metadata": parsed or {},
+        }
+
+    async def execute_witness_adjudication(
+        self,
+        witness_archon_id: str,
+        vote_payload: dict[str, Any],
+        deliberator_results: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Execute witness adjudication and return structured output."""
+        prompt = self._build_witness_adjudication_prompt(
+            vote_payload=vote_payload,
+            deliberator_results=deliberator_results,
+        )
+        bundle = ContextBundle(
+            bundle_id=uuid4(),
+            topic_id="vote-witness-adjudication",
+            topic_content=prompt,
+            metadata={
+                "validation": "witness_adjudication",
+            },
+            created_at=datetime.now(timezone.utc),
+        )
+
+        output = await self.invoke(witness_archon_id, bundle)
+        parsed = self._parse_json_payload(output.content)
+
+        final_vote = None
+        retort_flag = False
+        if isinstance(parsed, dict):
+            final_vote = parsed.get("final_vote") or parsed.get("vote_choice")
+            ruling = str(parsed.get("ruling", "")).upper()
+            if ruling == "RETORT":
+                retort_flag = True
+            else:
+                retort_flag = bool(parsed.get("retort", False))
+
+        return {
+            "final_vote": final_vote,
+            "retort": retort_flag,
+            "retort_reason": parsed.get("retort_reason") if isinstance(parsed, dict) else None,
+            "witness_statement": parsed.get("witness_statement", output.content)
+            if isinstance(parsed, dict)
+            else output.content,
+        }
+
+    @staticmethod
+    def _parse_json_payload(content: str) -> dict[str, Any] | None:
+        """Parse the first JSON object found in the content."""
+        start = content.find("{")
+        end = content.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            return None
+        try:
+            return json.loads(content[start : end + 1])
+        except json.JSONDecodeError:
+            return None
+
+    @staticmethod
+    def _build_validation_prompt(task_type: str, vote_payload: dict[str, Any]) -> str:
+        """Build prompt for validation tasks."""
+        raw_response = vote_payload.get("raw_content", "")
+        motion_text = vote_payload.get("motion_text", "")
+        motion_title = vote_payload.get("motion_title", "")
+        archon_name = vote_payload.get("archon_name", "")
+
+        if task_type == "json_validation":
+            return (
+                "You are validating a vote response for structural consistency.\n"
+                "Return JSON only (no prose, no markdown).\n"
+                f"ARCHON: {archon_name}\n"
+                f"MOTION: {motion_title}\n"
+                f"MOTION TEXT:\n{motion_text}\n\n"
+                f"RAW RESPONSE:\n{raw_response}\n\n"
+                "Return JSON only:\n"
+                '{\"vote_choice\": \"AYE|NAY|ABSTAIN\", '
+                '\"structural_valid\": true|false, '
+                '\"contradictions\": [], '
+                '\"motion_alignment\": 0.0}\n'
+            )
+
+        if task_type == "witness_confirm":
+            return (
+                "You are a witness confirming vote intent.\n"
+                "Return JSON only (no prose, no markdown).\n"
+                f"ARCHON: {archon_name}\n"
+                f"MOTION: {motion_title}\n"
+                f"RAW RESPONSE:\n{raw_response}\n\n"
+                "Return JSON only:\n"
+                '{\"vote_choice\": \"AYE|NAY|ABSTAIN\", '
+                '\"intent_clear\": true|false}\n'
+            )
+
+        return (
+            "You are analyzing vote intent from natural language.\n"
+            "Return JSON only (no prose, no markdown).\n"
+            f"ARCHON: {archon_name}\n"
+            f"MOTION: {motion_title}\n"
+            f"RAW RESPONSE:\n{raw_response}\n\n"
+            "Return JSON only:\n"
+            '{\"vote_choice\": \"AYE|NAY|ABSTAIN\", '
+            '\"confidence\": 0.0, '
+            '\"reasoning_summary\": \"\", '
+            '\"ambiguity_flags\": []}\n'
+        )
+
+    @staticmethod
+    def _build_witness_adjudication_prompt(
+        vote_payload: dict[str, Any],
+        deliberator_results: dict[str, Any],
+    ) -> str:
+        """Build prompt for witness adjudication."""
+        raw_response = vote_payload.get("raw_content", "")
+        motion_title = vote_payload.get("motion_title", "")
+        deliberator_json = json.dumps(deliberator_results, ensure_ascii=True)
+
+        return (
+            "You are the witness adjudicating a vote validation dispute.\n"
+            "Return JSON only (no prose, no markdown).\n"
+            f"MOTION: {motion_title}\n"
+            f"RAW RESPONSE:\n{raw_response}\n\n"
+            f"DELIBERATOR RESULTS:\n{deliberator_json}\n\n"
+            "Return JSON only:\n"
+            '{\"consensus\": true|false, '
+            '\"final_vote\": \"AYE|NAY|ABSTAIN\", '
+            '\"ruling\": \"CONFIRMED|RETORT\", '
+            '\"retort_reason\": \"\", '
+            '\"witness_statement\": \"\"}\n'
         )
 
 

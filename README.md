@@ -423,7 +423,9 @@ make stop
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure:
+Copy `.env.example` to `.env` and configure. The table below highlights the most-used settings (see `.env.example` for the full list).
+
+### Core Services
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -432,6 +434,44 @@ Copy `.env.example` to `.env` and configure:
 | `DEV_MODE` | Enable development features | `true` |
 | `API_HOST` | API bind address | `0.0.0.0` |
 | `API_PORT` | API port | `8000` |
+
+### Conclave & Vote Validation (Spec v2)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SECRETARY_TEXT_ARCHON_ID` | Secretary (text analysis) archon UUID | empty |
+| `SECRETARY_JSON_ARCHON_ID` | Secretary (JSON validation) archon UUID | empty |
+| `WITNESS_ARCHON_ID` | Witness archon UUID | empty |
+| `ENABLE_ASYNC_VALIDATION` | Enable in-process async validation in `run_conclave.py` | `false` |
+| `VOTE_VALIDATION_TASK_TIMEOUT` | Per-task timeout (seconds) for validation calls | `60` |
+| `VOTE_VALIDATION_MAX_ATTEMPTS` | Max retries for validation tasks | `3` |
+| `RECONCILIATION_TIMEOUT` | Seconds to wait for validations at adjournment | `300` |
+| `AGENT_TIMEOUT_SECONDS` | Per-LLM timeout (seconds) for debate/vote calls | `180` |
+| `AGENT_TIMEOUT_MAX_ATTEMPTS` | Max retries for LLM timeouts | `3` |
+| `AGENT_TIMEOUT_BASE_DELAY_SECONDS` | Base delay for timeout backoff | `2.0` |
+| `AGENT_TIMEOUT_MAX_DELAY_SECONDS` | Max delay for timeout backoff | `30.0` |
+
+### Kafka / Redpanda (Audit + Workers)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `KAFKA_ENABLED` | Publish Conclave audit events to Kafka | `false` |
+| `KAFKA_BOOTSTRAP_SERVERS` | Kafka bootstrap servers | `localhost:19092` |
+| `SCHEMA_REGISTRY_URL` | Schema registry URL | `http://localhost:18081` |
+| `KAFKA_TOPIC_PREFIX` | Topic namespace | `conclave` |
+
+### LLM / Ollama
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OLLAMA_HOST` | Local Ollama base URL | `http://localhost:11434` |
+| `OLLAMA_BASE_URL` | Ollama Cloud base URL | empty |
+| `OLLAMA_API_KEY` | Ollama Cloud API key | empty |
+| `OLLAMA_CLOUD_ENABLED` | Force Ollama Cloud usage | `false` |
+| `OLLAMA_MAX_CONCURRENT` | Global LLM concurrency cap (0 = unlimited; if unset and Ollama Cloud is detected, defaults to 5) | `0` |
+| `OLLAMA_RETRY_MAX_ATTEMPTS` | Retry attempts for rate limits/timeouts | `3` |
+| `OLLAMA_RETRY_BASE_DELAY` | Base backoff delay (seconds) | `2.0` |
+| `OLLAMA_RETRY_MAX_DELAY` | Max backoff delay (seconds) | `30.0` |
 
 ## Make Commands
 
@@ -628,13 +668,13 @@ Run `make check-imports` to validate architecture boundaries.
 
 The `docs/archons-base.json` file is the canonical source of truth for all 72 Archon definitions, including governance permissions, branch assignments, and voice bindings.
 
-### Schema Structure (v2.2.0)
+### Schema Structure (v2.3.0)
 
 ```json
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "governance_prd_version": "1.0",
-  "last_updated_at": "2026-01-16T...",
+  "last_updated_at": "2026-01-24T...",
   "source_of_truth": "liber_infernum",
   "enums": { ... },           // 11 enum types
   "governance_matrix": { ... }, // 7 branch definitions
@@ -779,9 +819,24 @@ The validator checks:
 
 The Archon 72 Conclave is a formal parliamentary assembly where all 72 agents deliberate on motions using rank-ordered speaking and supermajority voting.
 
+### Prompt Modes (GENERAL vs CONCLAVE)
+
+All Archons share a small protocol header in `docs/archons-base.json` that selects an interaction mode based on the **first non-empty line** of the prompt:
+
+- `ARCHON 72 CONCLAVE - FORMAL VOTE` → **CONCLAVE VOTE mode**
+  - Output contract: first line **JSON only** `{"choice":"AYE"|"NAY"|"ABSTAIN"}`, then optional short rationale.
+- `ARCHON 72 CONCLAVE - FORMAL DEBATE` → **CONCLAVE DEBATE mode**
+  - Output contract: first line `STANCE: FOR|AGAINST|NEUTRAL`, then a short paragraph.
+- `ARCHON 72 CONCLAVE - VOTE VALIDATION` → **CONCLAVE VOTE VALIDATION mode**
+  - Output contract: **JSON only** `{"choice":"AYE"|"NAY"|"ABSTAIN"}` (no prose).
+- Any other first line → **GENERAL mode**
+  - Archons follow the prompt’s requested format/intent and should **not** emit vote tokens/JSON unless the prompt explicitly asks for a vote.
+
+This prevents “vote leakage” into non-governance tasks (e.g. `scripts/run_roll_call.py`).
+
 ### Prerequisites
 
-1. **Ollama Server** - Local LLM inference server
+1. **Ollama (Local or Cloud)** - LLM inference
    ```bash
    # Install Ollama (https://ollama.ai)
    curl -fsSL https://ollama.ai/install.sh | sh
@@ -794,10 +849,75 @@ The Archon 72 Conclave is a formal parliamentary assembly where all 72 agents de
 
 2. **Configure Environment**
    ```bash
-   # In .env file
+   # Local Ollama (default)
    OLLAMA_HOST=http://localhost:11434
+
+   # Ollama Cloud (optional)
+   # OLLAMA_BASE_URL=https://ollama.com
+   # OLLAMA_API_KEY=your_api_key_here
+   # OLLAMA_CLOUD_ENABLED=true
+   #
+   # Optional rate limiting for validator workers
+   # OLLAMA_MAX_CONCURRENT=5
+   # OLLAMA_RETRY_MAX_ATTEMPTS=5
+   # OLLAMA_RETRY_BASE_DELAY=1.0
+   # OLLAMA_RETRY_MAX_DELAY=60.0
    DELIBERATION_MODE=sequential
    ```
+
+3. **Kafka / Redpanda (optional but recommended for async audit trail)**
+   ```bash
+   # Start Redpanda + dependencies
+   docker compose up -d redpanda redpanda-console db redis
+
+   # Create Kafka topics used by the Conclave audit trail
+   python scripts/create_kafka_topics.py --bootstrap-servers localhost:19092
+
+   # Verify topic configuration
+   python scripts/create_kafka_topics.py --bootstrap-servers localhost:19092 --verify
+
+   # Check Redpanda health
+   docker exec -it archon72-redpanda rpk cluster health
+   ```
+
+   Optional: start the async-validation worker containers (validator workers + consensus aggregator):
+   ```bash
+   docker compose --profile async-validation up -d
+   ```
+
+### Async Vote Validation (Spec v2)
+
+The Conclave implements the three-tier async vote validation model described in
+`docs/spikes/conclave_async_specv2.md`. Key behaviors:
+
+- **Three-Archon Protocol**: `SECRETARY_TEXT_ARCHON_ID` + `SECRETARY_JSON_ARCHON_ID` determine
+  the vote; `WITNESS_ARCHON_ID` observes and records agreement/dissent.
+- **In-process async validation** (default for `run_conclave.py`): enable with
+  `ENABLE_ASYNC_VALIDATION=true`. Votes are captured immediately and validated
+  in the background with bounded concurrency.
+- **Optimistic tally + correction**: an initial vote is recorded for progress
+  and immediate tallying, but the final vote is determined by the secretaries
+  and witness during reconciliation.
+- **Concurrency controls**:
+  - `--voting-concurrency` limits how many archons vote in parallel (default `1`, `0` = unlimited).
+  - `OLLAMA_MAX_CONCURRENT` caps concurrent LLM calls (useful for Ollama Cloud rate limits).
+- **Retries + timeouts**: validation tasks and LLM calls retry with backoff on
+  transient failures (`VOTE_VALIDATION_TASK_TIMEOUT`, `VOTE_VALIDATION_MAX_ATTEMPTS`,
+  `OLLAMA_RETRY_*`).
+- **Reconciliation gate**: at adjournment, the Conclave waits for all validations
+  to complete. If it times out (`RECONCILIATION_TIMEOUT`), the session halts to
+  preserve integrity.
+- **Kafka audit trail**: set `KAFKA_ENABLED=true` to publish validation events to
+  Kafka/Redpanda. The worker containers (`validator-worker-*`, `consensus-aggregator`)
+  can consume these topics for out-of-process validation flows.
+
+Pipeline at a glance (Spec v2):
+
+1. **Vote captured** → raw LLM response stored.
+2. **Parallel validation** → secretary text + secretary JSON + witness confirm run concurrently.
+3. **Witness adjudication** → witness consolidates and issues final ruling.
+4. **Reconciliation gate** → overrides (if any) are applied before final adjournment.
+5. **Audit trail** → all stages can be published to Kafka topics for replay/analysis.
 
 ### Running a Conclave
 
@@ -807,6 +927,11 @@ python scripts/run_conclave.py
 
 # Quick test (1 debate round)
 python scripts/run_conclave.py --quick
+
+# Async validation (v2) with bounded concurrency + Kafka audit
+ENABLE_ASYNC_VALIDATION=true KAFKA_ENABLED=true \
+KAFKA_BOOTSTRAP_SERVERS=localhost:19092 SCHEMA_REGISTRY_URL=http://localhost:18081 \
+python scripts/run_conclave.py --quick --voting-concurrency 8 --no-queue --no-blockers
 
 # Custom motion (inline text)
 python scripts/run_conclave.py \
@@ -858,6 +983,7 @@ This resolution shall take effect [timing].
 | `--debate-rounds N` | Number of debate rounds | 3 |
 | `--quick` | Quick mode (1 round, faster) | Off |
 | `--resume FILE` | Resume from checkpoint | None |
+| `--voting-concurrency N` | Max archons voting in parallel (`0` = unlimited) | `1` |
 | `--no-queue` | Disable motion queue ingestion | Off |
 | `--queue-max-items` | Max queue items to include | 5 |
 | `--queue-min-consensus` | Minimum consensus tier | `medium` |
@@ -880,6 +1006,8 @@ During execution, the Conclave displays real-time progress:
   AYE: 64
   NAY: 7
   ABSTAIN: 1
+[reconciliation_started] Waiting for validations to complete
+[reconciliation_complete] Validations complete (overrides applied: 0)
 ```
 
 ### Output Files
@@ -1351,7 +1479,7 @@ python scripts/run_review_pipeline.py
 # Triage only (no review simulation)
 python scripts/run_review_pipeline.py --triage-only
 
-# Real LLM-powered Archon reviews (requires Ollama)
+# Real LLM-powered Archon reviews (requires Ollama local or cloud)
 python scripts/run_review_pipeline.py --real-agent
 
 # Specific consolidator session
@@ -1378,7 +1506,9 @@ When using `--real-agent`, each Archon uses their specific LLM binding from `con
 2. Rank-based default from `_rank_defaults`
 3. Global `_default` (gemma3:4b)
 
-All local models use Ollama via `OLLAMA_HOST` environment variable.
+Local models use Ollama via `OLLAMA_HOST`. For Ollama Cloud, set
+`OLLAMA_BASE_URL=https://ollama.com`, `OLLAMA_API_KEY`, and optionally
+`OLLAMA_CLOUD_ENABLED=true`.
 
 ## Motion Gates Hardening
 
@@ -1772,6 +1902,9 @@ python scripts/run_secretary.py --verbose
 
 Use the roll call script to diagnose which Archons have broken LLM configurations:
 
+Notes:
+- Roll call is a **GENERAL mode** prompt (not a vote/debate). If you see `AYE/NAY/ABSTAIN` or `{"choice":...}` in roll call responses, verify you’re using the current `docs/archons-base.json` protocol header and that your prompt didn’t start with a Conclave mode header.
+
 ```bash
 # Test all 72 Archons sequentially (2s delay between each)
 python scripts/run_roll_call.py
@@ -1798,6 +1931,7 @@ python scripts/run_roll_call.py --timeout 120
 | `--timeout SEC` | Timeout per Archon in seconds | 60 |
 | `--delay SEC` | Delay between tests (rate limiting) | 2 |
 | `--parallel` | Run tests in parallel | Sequential |
+| `--async` | Run tests asynchronously and stream results | Off |
 | `--verbose` | Show additional debug info | Off |
 
 **Output Example:**
@@ -1806,7 +1940,7 @@ python scripts/run_roll_call.py --timeout 120
 ======================================================================
   [1/72] Testing Paimon (executive_director)
   Model: local/gpt-oss:120b-cloud
-  Base URL: http://192.168.1.104:11434
+  Base URL: https://ollama.com
 
   [PRESENT] Paimon responded in 12.3s
 
@@ -1845,6 +1979,17 @@ curl http://localhost:11434/api/tags
 
 # For remote Ollama, set environment variable
 export OLLAMA_HOST=http://192.168.1.66:11434
+```
+
+#### Cloud Unauthorized (401)
+
+**Cause:** Missing or invalid Ollama Cloud API key.
+
+**Fix:**
+```bash
+export OLLAMA_BASE_URL=https://ollama.com
+export OLLAMA_API_KEY=your_key_here
+export OLLAMA_CLOUD_ENABLED=true
 ```
 
 #### Model Not Found

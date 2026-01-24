@@ -483,6 +483,8 @@ async def get_dashboard(
             acknowledged=dashboard_data.petitions_by_state.acknowledged,
             referred=dashboard_data.petitions_by_state.referred,
             escalated=dashboard_data.petitions_by_state.escalated,
+            deferred=dashboard_data.petitions_by_state.deferred,
+            no_response=dashboard_data.petitions_by_state.no_response,
             total=dashboard_data.petitions_by_state.total(),
         ),
         orphan_petition_count=dashboard_data.orphan_petition_count,

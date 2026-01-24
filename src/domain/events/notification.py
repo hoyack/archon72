@@ -82,7 +82,7 @@ class FateNotificationSentEventPayload:
     Attributes:
         notification_id: Unique identifier for this notification attempt.
         petition_id: UUID of the petition that received a fate.
-        fate: Terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED).
+        fate: Terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE).
         fate_reason: Reason for fate assignment (for ACKNOWLEDGED).
         fate_timestamp: When the fate was assigned (UTC).
         channel: Notification delivery channel used.

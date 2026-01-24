@@ -18,7 +18,9 @@ import pytest
 from src.application.services.petition_event_emitter import PetitionEventEmitter
 from src.domain.events.petition import (
     PETITION_ACKNOWLEDGED_EVENT_TYPE,
+    PETITION_DEFERRED_EVENT_TYPE,
     PETITION_ESCALATED_EVENT_TYPE,
+    PETITION_NO_RESPONSE_EVENT_TYPE,
     PETITION_RECEIVED_EVENT_TYPE,
     PETITION_REFERRED_EVENT_TYPE,
     PETITION_SYSTEM_AGENT_ID,
@@ -536,6 +538,16 @@ class TestPetitionEventEmitterGetFateEventType:
         """Test ESCALATED maps to petition.escalated event type."""
         result = PetitionEventEmitter._get_fate_event_type("ESCALATED")
         assert result == PETITION_ESCALATED_EVENT_TYPE
+
+    def test_deferred_maps_correctly(self) -> None:
+        """Test DEFERRED maps to petition.deferred event type."""
+        result = PetitionEventEmitter._get_fate_event_type("DEFERRED")
+        assert result == PETITION_DEFERRED_EVENT_TYPE
+
+    def test_no_response_maps_correctly(self) -> None:
+        """Test NO_RESPONSE maps to petition.no_response event type."""
+        result = PetitionEventEmitter._get_fate_event_type("NO_RESPONSE")
+        assert result == PETITION_NO_RESPONSE_EVENT_TYPE
 
     def test_invalid_state_raises_value_error(self) -> None:
         """Test invalid state raises ValueError."""

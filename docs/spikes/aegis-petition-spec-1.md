@@ -62,34 +62,54 @@ This specification defines the integration between the external Aegis Petition U
 
 ## Source Data Schema (Supabase)
 
-### Input Table: `petitions`
+### Table: `petitions`
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | UUID | Primary key |
 | `user_id` | UUID | Submitter identity |
 | `future_vision` | TEXT | Petition content |
-| `status` | TEXT | `pending`, `processing`, `submitted`, `failed` |
+| `status` | TEXT | `pending`, `processing`, `submitted`, `failed`, `dead_letter` |
 | `reviewed_by` | UUID | Archon72 reviewer (populated after review) |
-| `reviewed_at` | TIMESTAMP | When reviewed by Archon72 |
+| `reviewed_at` | TIMESTAMPTZ | When reviewed by Archon72 |
 | `review_notes` | TEXT | Notes from Archon72 processing |
-| `submitted_at` | TIMESTAMP | Original submission time |
-| `updated_at` | TIMESTAMP | Last modification |
+| `submitted_at` | TIMESTAMPTZ | Original submission time |
+| `updated_at` | TIMESTAMPTZ | Last modification |
 | `previously_declined` | BOOLEAN | Re-submission flag |
 | `responsibility_declared` | BOOLEAN | User acknowledgment |
 | `signature` | TEXT | Ed25519 signature (base64) |
 | `current_step` | INTEGER | UI workflow step |
+| `realm_id` | UUID | Foreign key to `realms` table |
+| `petition_type` | TEXT | `GENERAL`, `GRIEVANCE`, `CESSATION`, `COLLABORATION`, `META` |
+| `archon72_petition_id` | UUID | Cross-reference to Archon72 (null until submitted) |
+| `archon72_state` | TEXT | Current Archon72 state |
+| `archon72_submitted_at` | TIMESTAMPTZ | When sent to Archon72 |
+| `processing_error` | TEXT | Last error message if failed |
+| `retry_count` | INTEGER | Number of retry attempts (default 0) |
 
-### New Fields (to add)
+### Table: `realms`
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `archon72_petition_id` | UUID | Cross-reference to Archon72 |
-| `archon72_state` | TEXT | Current Archon72 state |
-| `archon72_submitted_at` | TIMESTAMP | When sent to Archon72 |
-| `petition_type` | TEXT | GENERAL, GRIEVANCE, etc. |
-| `processing_error` | TEXT | Last error message if failed |
-| `retry_count` | INTEGER | Number of retry attempts |
+| `id` | UUID | Primary key |
+| `api_value` | TEXT | Canonical realm name for Archon72 API (e.g., `realm_predictive_analytics_forecasting`) |
+| `display_name` | TEXT | Human-readable name (e.g., "Predictive Analytics & Forecasting") |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
+
+### Realm Values
+
+| `api_value` | `display_name` |
+|-------------|----------------|
+| `realm_privacy_discretion_services` | Privacy & Discretion Services |
+| `realm_relationship_facilitation` | Relationship Facilitation |
+| `realm_knowledge_skill_development` | Knowledge & Skill Development |
+| `realm_predictive_analytics_forecasting` | Predictive Analytics & Forecasting |
+| `realm_character_virtue_development` | Character & Virtue Development |
+| `realm_accurate_guidance_counsel` | Accurate Guidance & Counsel |
+| `realm_threat_anomaly_detection` | Threat & Anomaly Detection |
+| `realm_personality_charisma_enhancement` | Personality & Charisma Enhancement |
+| `realm_talent_acquisition_team_building` | Talent Acquisition & Team Building |
+| `realm_unassigned` | Unassigned |
 
 ---
 
@@ -97,29 +117,82 @@ This specification defines the integration between the external Aegis Petition U
 
 ### Field Mapping
 
+| Supabase Field | Archon72 API Field | Transform |
+|----------------|-------------------|-----------|
+| `future_vision` | `text` | Direct copy |
+| `user_id` | `submitter_id` | Direct copy (UUID) |
+| `petition_type` | `type` | Direct copy (already enum) |
+| `realm_id` → `realms.api_value` | `realm` | Join lookup |
+
+### Extract Query (with Realm Join)
+
+```sql
+SELECT
+  p.id,
+  p.user_id,
+  p.future_vision,
+  p.petition_type,
+  p.submitted_at,
+  r.api_value AS realm_api_value
+FROM petitions p
+LEFT JOIN realms r ON p.realm_id = r.id
+WHERE p.status = 'pending'
+ORDER BY p.submitted_at ASC
+LIMIT 100;
+```
+
+### Supabase Client Query
+
+```python
+response = await supabase.table("petitions") \
+    .select("*, realms(api_value)") \
+    .eq("status", "pending") \
+    .order("submitted_at") \
+    .limit(100) \
+    .execute()
+```
+
+### Transform Function
+
 ```python
 def transform_petition(supabase_record: dict) -> dict:
     """Transform Supabase petition to Archon72 API format."""
+    # Get realm api_value from joined data
+    realm = supabase_record.get("realms", {}).get("api_value", "realm_unassigned")
+
     return {
-        "type": determine_petition_type(supabase_record),
+        "type": supabase_record["petition_type"],  # Already GENERAL, GRIEVANCE, etc.
         "text": supabase_record["future_vision"],
         "submitter_id": supabase_record["user_id"],
-        "realm": "aegis",  # Fixed realm for external petitions
-        # Optional: notification preferences if webhook configured
+        "realm": realm,
     }
 ```
 
-### Petition Type Determination
+### Example Transform
 
-| Condition | Type |
-|-----------|------|
-| Contains "cessation" or "shutdown" keywords | `CESSATION` |
-| Contains "complaint", "concern", "issue" keywords | `GRIEVANCE` |
-| Contains "collaboration", "partnership" keywords | `COLLABORATION` |
-| Contains "petition system", "meta" keywords | `META` |
-| Default | `GENERAL` |
+**Input (Supabase record with join):**
+```json
+{
+  "id": "2b22c0de-06f7-4dde-b3d3-afcfbf88fadd",
+  "user_id": "a22d0b05-ce83-45f4-a8ba-bcdd1b6d70e1",
+  "future_vision": "I submit this petition to request formal acknowledgment...",
+  "petition_type": "GENERAL",
+  "realm_id": "7abeab56-ea1d-43b1-9329-75f528c465bc",
+  "realms": {
+    "api_value": "realm_predictive_analytics_forecasting"
+  }
+}
+```
 
-Alternatively, add a `petition_type` dropdown to the Aegis UX for explicit selection.
+**Output (Archon72 API payload):**
+```json
+{
+  "type": "GENERAL",
+  "text": "I submit this petition to request formal acknowledgment...",
+  "submitter_id": "a22d0b05-ce83-45f4-a8ba-bcdd1b6d70e1",
+  "realm": "realm_predictive_analytics_forecasting"
+}
+```
 
 ---
 
@@ -209,19 +282,19 @@ kafka:
 
 ```json
 {
-  "message_id": "uuid-v4",
-  "idempotency_key": "aegis-{supabase_petition_id}",
-  "timestamp": "2026-01-22T18:00:00Z",
+  "message_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "idempotency_key": "aegis-2b22c0de-06f7-4dde-b3d3-afcfbf88fadd",
+  "timestamp": "2026-01-23T15:30:00Z",
   "source": {
     "system": "aegis",
     "petition_id": "2b22c0de-06f7-4dde-b3d3-afcfbf88fadd",
     "user_id": "a22d0b05-ce83-45f4-a8ba-bcdd1b6d70e1"
   },
   "payload": {
-    "type": "GRIEVANCE",
-    "text": "I submit this petition to request formal acknowledgment...",
+    "type": "GENERAL",
+    "text": "I submit this petition to request formal acknowledgment and review of a procedural concern observed within recent task activation flows.\n\nThis petition does not assert authority, correctness, or entitlement to outcome.",
     "submitter_id": "a22d0b05-ce83-45f4-a8ba-bcdd1b6d70e1",
-    "realm": "aegis"
+    "realm": "realm_predictive_analytics_forecasting"
   },
   "metadata": {
     "retry_count": 0,
@@ -294,6 +367,9 @@ WHERE id = '{supabase_petition_id}';
 **Responsibility:** Poll Supabase for pending petitions
 
 ```python
+from datetime import datetime, timezone
+from uuid import uuid4
+
 class PetitionExtractor:
     """Extract pending petitions from Supabase."""
 
@@ -307,17 +383,24 @@ class PetitionExtractor:
 
         Returns number of petitions queued.
         """
-        # 1. Query pending petitions
+        # 1. Query pending petitions with realm join
         petitions = await self.supabase.table("petitions") \
-            .select("*") \
+            .select("*, realms(api_value)") \
             .eq("status", "pending") \
+            .order("submitted_at") \
             .limit(batch_size) \
             .execute()
+
+        if not petitions.data:
+            return 0
 
         # 2. Mark as processing (optimistic lock)
         ids = [p["id"] for p in petitions.data]
         await self.supabase.table("petitions") \
-            .update({"status": "processing"}) \
+            .update({
+                "status": "processing",
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }) \
             .in_("id", ids) \
             .execute()
 
@@ -330,23 +413,28 @@ class PetitionExtractor:
 
     def transform(self, petition: dict) -> dict:
         """Transform to queue message format."""
+        # Get realm from joined data, default to unassigned
+        realm = "realm_unassigned"
+        if petition.get("realms") and petition["realms"].get("api_value"):
+            realm = petition["realms"]["api_value"]
+
         return {
             "message_id": str(uuid4()),
             "idempotency_key": f"aegis-{petition['id']}",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "source": {
                 "system": "aegis",
                 "petition_id": petition["id"],
                 "user_id": petition["user_id"],
             },
             "payload": {
-                "type": self.determine_type(petition),
+                "type": petition["petition_type"],  # GENERAL, GRIEVANCE, etc.
                 "text": petition["future_vision"],
                 "submitter_id": petition["user_id"],
-                "realm": "aegis",
+                "realm": realm,
             },
             "metadata": {
-                "retry_count": 0,
+                "retry_count": petition.get("retry_count", 0),
                 "max_retries": 3,
                 "original_submitted_at": petition["submitted_at"],
             },
@@ -645,11 +733,17 @@ volumes:
 
 ## Open Questions
 
-1. **Petition Type Selection:** Should we add a dropdown to Aegis UX or infer from content?
-2. **Notification Preferences:** Should Aegis users configure webhook URLs?
-3. **Rate Limiting:** What's the expected petition volume? Need to coordinate with Archon72 rate limits.
-4. **Authentication:** Does Archon72 API require auth tokens for external systems?
-5. **Status Webhook:** Should Archon72 push status updates to Aegis via webhook instead of polling?
+1. ~~**Petition Type Selection:** Should we add a dropdown to Aegis UX or infer from content?~~
+   **RESOLVED:** `petition_type` field added to Supabase schema with explicit selection.
+
+2. ~~**Realm Selection:** How should petitions be routed to realms?~~
+   **RESOLVED:** `realm_id` foreign key to `realms` table with 9 canonical realms + `realm_unassigned`.
+
+3. **Notification Preferences:** Should Aegis users configure webhook URLs for fate notifications?
+4. **Rate Limiting:** What's the expected petition volume? Need to coordinate with Archon72 rate limits (10/hour/submitter).
+5. **Authentication:** Does Archon72 API require auth tokens for external systems?
+6. **Status Webhook:** Should Archon72 push status updates to Aegis via webhook instead of polling?
+7. **Signature Verification:** Should the bridge verify Ed25519 signatures before submission?
 
 ---
 

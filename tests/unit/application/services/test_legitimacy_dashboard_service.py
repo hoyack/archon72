@@ -60,7 +60,13 @@ class TestGetDashboardData:
             health_status="HEALTHY",
             historical_trend=[],
             petitions_by_state=PetitionStateCounts(
-                received=10, deliberating=5, acknowledged=3, referred=2, escalated=1
+                received=10,
+                deliberating=5,
+                acknowledged=3,
+                referred=2,
+                escalated=1,
+                deferred=0,
+                no_response=0,
             ),
             orphan_petition_count=0,
             average_time_to_fate=120.0,
@@ -175,6 +181,8 @@ class TestQueryPetitionStateCounts:
             ("ACKNOWLEDGED", 20),
             ("REFERRED", 3),
             ("ESCALATED", 2),
+            ("DEFERRED", 1),
+            ("NO_RESPONSE", 4),
         ]
 
         # Act
@@ -186,7 +194,9 @@ class TestQueryPetitionStateCounts:
         assert result.acknowledged == 20
         assert result.referred == 3
         assert result.escalated == 2
-        assert result.total() == 40
+        assert result.deferred == 1
+        assert result.no_response == 4
+        assert result.total() == 45
 
     def test_handles_missing_states(self, dashboard_service, mock_db, mock_cache):
         """Test handling when some states have no petitions."""
@@ -208,6 +218,8 @@ class TestQueryPetitionStateCounts:
         assert result.acknowledged == 10
         assert result.referred == 0
         assert result.escalated == 0
+        assert result.deferred == 0
+        assert result.no_response == 0
 
 
 class TestQueryDeliberationMetrics:

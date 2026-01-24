@@ -11,7 +11,7 @@ Constitutional Constraints:
 - PRD Section 13A.8: Observers receive phase-level summaries + final disposition
 
 What Observers CAN see:
-- Outcome (ACKNOWLEDGE, REFER, ESCALATE)
+- Outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE)
 - Vote breakdown string (e.g., "2-1" or "3-0")
 - Dissent presence indicator (boolean only)
 - Phase summaries (metadata, not content)
@@ -116,7 +116,7 @@ class DeliberationSummary:
 
     Attributes:
         petition_id: UUID of the deliberated petition.
-        outcome: Deliberation outcome (ACKNOWLEDGE, REFER, ESCALATE).
+        outcome: Deliberation outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE).
         vote_breakdown: Vote breakdown string (e.g., "2-1", "3-0").
         has_dissent: Whether there was a dissenting vote (boolean, not identity).
         phase_summaries: List of phase summaries with metadata.

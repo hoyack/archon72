@@ -229,6 +229,8 @@ def test_basic_deliberation(mock: bool = True) -> tuple[bool, str]:
             Disposition.ACKNOWLEDGE,
             Disposition.REFER,
             Disposition.ESCALATE,
+            Disposition.DEFER,
+            Disposition.NO_RESPONSE,
         ]
 
         if disposition in valid_dispositions:

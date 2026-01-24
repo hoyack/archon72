@@ -6,13 +6,14 @@
 #
 # Structure:
 #   <archon-uuid>:
-#     provider: anthropic | openai | google | local
+#     provider: anthropic | openai | google | local | ollama_cloud
 #     model: <model-identifier>
 #     temperature: 0.0 - 1.0
 #     max_tokens: <positive integer>
 #     timeout_ms: <milliseconds>
 #     api_key_env: <optional env var override>
 #     base_url: <optional per-archon server URL for distributed inference>
+#              (for Ollama Cloud use https://ollama.com or OLLAMA_BASE_URL)
 #
 # Archons without explicit configuration use _default.
 # Use _rank_defaults for rank-based fallbacks before _default.

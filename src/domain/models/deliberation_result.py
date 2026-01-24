@@ -6,7 +6,7 @@ while DeliberationResult captures the complete deliberation outcome.
 
 Constitutional Constraints:
 - CT-14: Results capture witnessed fate assignment
-- AT-1: Every petition terminates in exactly one of Three Fates
+- AT-1: Every petition terminates in exactly one fate
 - AT-6: Deliberation is collective judgment - outcome reflects consensus
 - FR-11.4: Structured protocol execution tracked via phase results
 - NFR-10.4: Witness completeness - transcript hashes enable verification
@@ -117,7 +117,7 @@ class DeliberationResult:
     deliberation. The result is immutable to preserve witness integrity.
 
     Constitutional Constraints:
-    - AT-1: outcome is one of the Three Fates
+    - AT-1: outcome is one of the Five Fates
     - AT-6: outcome reflects 2-of-3 consensus (collective judgment)
     - CT-12: phase_results contain transcript hashes for witness verification
     - FR-11.5: outcome requires supermajority consensus
@@ -125,12 +125,14 @@ class DeliberationResult:
     Attributes:
         session_id: UUID of the deliberation session.
         petition_id: UUID of the petition deliberated.
-        outcome: The resolved outcome (ACKNOWLEDGE, REFER, ESCALATE).
+        outcome: The resolved outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE).
         votes: Map of archon_id to their final vote.
         dissent_archon_id: UUID of dissenting archon (if 2-1 vote, else None).
         phase_results: Ordered tuple of all phase results.
         started_at: Deliberation start timestamp (UTC).
         completed_at: Deliberation completion timestamp (UTC).
+        is_aborted: True if deliberation was aborted due to failures.
+        abort_reason: Reason for abort (if aborted).
 
     Example:
         >>> result = DeliberationResult(
@@ -155,9 +157,22 @@ class DeliberationResult:
     phase_results: tuple[PhaseResult, ...]
     started_at: datetime
     completed_at: datetime
+    is_aborted: bool = False
+    abort_reason: str | None = None
 
     def __post_init__(self) -> None:
         """Validate deliberation result invariants."""
+        # Validate timestamps
+        if self.completed_at < self.started_at:
+            raise ValueError("completed_at cannot be before started_at")
+
+        if self.is_aborted:
+            if self.outcome != DeliberationOutcome.ESCALATE:
+                raise ValueError("Aborted deliberation must ESCALATE")
+            if self.abort_reason is None:
+                raise ValueError("abort_reason required for aborted deliberation")
+            return
+
         # Validate vote count (must be exactly 3)
         if len(self.votes) != 3:
             raise ValueError(f"Exactly 3 votes required, got {len(self.votes)}")
@@ -166,10 +181,6 @@ class DeliberationResult:
         is_deadlock_escalation = self._is_deadlock_escalation(vote_counts)
         self._validate_outcome_consensus(vote_counts, is_deadlock_escalation)
         self._validate_dissent(vote_counts, is_deadlock_escalation)
-
-        # Validate timestamps
-        if self.completed_at < self.started_at:
-            raise ValueError("completed_at cannot be before started_at")
 
         self._validate_phase_results()
 

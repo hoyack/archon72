@@ -26,7 +26,7 @@ class DeliberationMetricsCollector:
 
     This collector tracks:
     - Total deliberation participations per archon
-    - Votes cast by outcome (ACKNOWLEDGE, REFER, ESCALATE) per archon
+    - Votes cast by outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE) per archon
 
     These counters enable calculation of acknowledgment rates via Prometheus
     queries using rate() and increase() functions over time windows.
@@ -56,7 +56,7 @@ class DeliberationMetricsCollector:
         )
 
         # Counter for votes by outcome (AC-2, AC-3)
-        # Labels include outcome for breakdown by ACKNOWLEDGE/REFER/ESCALATE
+        # Labels include outcome for breakdown by ACKNOWLEDGE/REFER/ESCALATE/DEFER/NO_RESPONSE
         self.deliberation_votes_total = Counter(
             name="deliberation_votes_total",
             documentation="Total votes cast per archon by outcome (FR-3.6)",
@@ -85,12 +85,12 @@ class DeliberationMetricsCollector:
 
         Args:
             archon_id: UUID of the voting archon.
-            outcome: Vote outcome - ACKNOWLEDGE, REFER, or ESCALATE.
+            outcome: Vote outcome - ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE.
 
         Raises:
             ValueError: If outcome is not a valid deliberation outcome.
         """
-        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE")
+        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE", "DEFER", "NO_RESPONSE")
         if outcome not in valid_outcomes:
             raise ValueError(
                 f"Invalid outcome '{outcome}'. Must be one of {valid_outcomes}."

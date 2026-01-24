@@ -47,7 +47,7 @@ class DissentRecordedEvent:
         session_id: Deliberation session ID.
         petition_id: Petition ID.
         dissent_archon_id: ID of dissenting archon.
-        dissent_disposition: What they voted for (ACKNOWLEDGE, REFER, ESCALATE).
+        dissent_disposition: What they voted for (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE).
         rationale_hash: Blake3 hash of rationale (hex-encoded).
         majority_disposition: The winning outcome.
         recorded_at: Timestamp of recording.

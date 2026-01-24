@@ -466,6 +466,18 @@ class TestFateEventTypeConstants:
 
         assert PETITION_ESCALATED_EVENT_TYPE == "petition.submission.escalated"
 
+    def test_petition_deferred_event_type(self) -> None:
+        """Test petition deferred event type constant (FR-2.5)."""
+        from src.domain.events.petition import PETITION_DEFERRED_EVENT_TYPE
+
+        assert PETITION_DEFERRED_EVENT_TYPE == "petition.submission.deferred"
+
+    def test_petition_no_response_event_type(self) -> None:
+        """Test petition no_response event type constant (FR-2.5)."""
+        from src.domain.events.petition import PETITION_NO_RESPONSE_EVENT_TYPE
+
+        assert PETITION_NO_RESPONSE_EVENT_TYPE == "petition.submission.no_response"
+
 
 class TestPetitionFateEventPayload:
     """Tests for PetitionFateEventPayload (Story 1.7, FR-2.5).
@@ -662,10 +674,16 @@ class TestPetitionFateEventPayload:
         assert result["reason"] is None
 
     def test_all_fate_states_supported(self) -> None:
-        """Test payload accepts all three terminal fate states (FR-2.6)."""
+        """Test payload accepts all terminal fate states (FR-2.6)."""
         from src.domain.events.petition import PetitionFateEventPayload
 
-        for fate_state in ["ACKNOWLEDGED", "REFERRED", "ESCALATED"]:
+        for fate_state in [
+            "ACKNOWLEDGED",
+            "REFERRED",
+            "ESCALATED",
+            "DEFERRED",
+            "NO_RESPONSE",
+        ]:
             payload = PetitionFateEventPayload(
                 petition_id=uuid4(),
                 previous_state="DELIBERATING",

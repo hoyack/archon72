@@ -65,6 +65,14 @@ class Colors:
     DIM = "\033[2m"
 
 
+def parse_env_bool(name: str, default: bool = False) -> bool:
+    """Parse a boolean environment variable."""
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 def print_banner() -> None:
     """Print the Conclave banner."""
     print(f"\n{Colors.BOLD}{Colors.HEADER}")
@@ -189,6 +197,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     from src.infrastructure.adapters.external.crewai_adapter import (
         create_crewai_adapter,
     )
+    from src.infrastructure.adapters.kafka.audit_publisher import KafkaAuditPublisher
     from src.infrastructure.adapters.witness import create_knight_witness
 
     print_banner()
@@ -231,17 +240,72 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     config = ConclaveConfig(
         max_debate_rounds=args.debate_rounds,
         checkpoint_interval_minutes=5,
+        voting_concurrency=args.voting_concurrency,
     )
     if args.quick:
         config.max_debate_rounds = 1
         config.agent_timeout_seconds = 60
 
+    timeout_override = os.getenv("AGENT_TIMEOUT_SECONDS", "").strip()
+    if timeout_override:
+        try:
+            config.agent_timeout_seconds = max(0, int(float(timeout_override)))
+        except ValueError:
+            print(
+                f"  Invalid AGENT_TIMEOUT_SECONDS={timeout_override!r}; "
+                "using default."
+            )
+
+    max_attempts = os.getenv("AGENT_TIMEOUT_MAX_ATTEMPTS", "").strip()
+    if max_attempts.isdigit():
+        config.agent_timeout_max_attempts = max(1, int(max_attempts))
+
+    base_delay = os.getenv("AGENT_TIMEOUT_BASE_DELAY_SECONDS", "").strip()
+    if base_delay:
+        try:
+            config.agent_timeout_backoff_base_seconds = max(0.0, float(base_delay))
+        except ValueError:
+            print(
+                f"  Invalid AGENT_TIMEOUT_BASE_DELAY_SECONDS={base_delay!r}; "
+                "using default."
+            )
+
+    max_delay = os.getenv("AGENT_TIMEOUT_MAX_DELAY_SECONDS", "").strip()
+    if max_delay:
+        try:
+            config.agent_timeout_backoff_max_seconds = max(0.0, float(max_delay))
+        except ValueError:
+            print(
+                f"  Invalid AGENT_TIMEOUT_MAX_DELAY_SECONDS={max_delay!r}; "
+                "using default."
+            )
+
+    task_timeout = os.getenv("VOTE_VALIDATION_TASK_TIMEOUT", "").strip()
+    if task_timeout:
+        try:
+            config.task_timeout_seconds = max(1, int(float(task_timeout)))
+        except ValueError:
+            print(
+                f"  Invalid VOTE_VALIDATION_TASK_TIMEOUT={task_timeout!r}; "
+                "using default."
+            )
+
+    concurrency_label = (
+        "unlimited" if config.voting_concurrency <= 0 else str(config.voting_concurrency)
+    )
+    print(f"  Voting concurrency: {concurrency_label}")
+
     witness_archon_id = os.getenv("WITNESS_ARCHON_ID", "").strip()
     secretary_text_archon_id = os.getenv("SECRETARY_TEXT_ARCHON_ID", "").strip()
-    if witness_archon_id and secretary_text_archon_id:
+    secretary_json_archon_id = os.getenv("SECRETARY_JSON_ARCHON_ID", "").strip()
+    config.secretary_text_archon_id = secretary_text_archon_id or None
+    config.secretary_json_archon_id = secretary_json_archon_id or None
+    config.witness_archon_id = witness_archon_id or None
+    if secretary_text_archon_id and secretary_json_archon_id:
+        # Sync vote validation uses secretary consensus only.
         config.vote_validation_archon_ids = [
-            witness_archon_id,
             secretary_text_archon_id,
+            secretary_json_archon_id,
         ]
         max_attempts = os.getenv("VOTE_VALIDATION_MAX_ATTEMPTS", "").strip()
         if max_attempts.isdigit():
@@ -249,12 +313,54 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
 
     knight_witness = create_knight_witness(verbose=False)
 
+    validation_dispatcher = None
+    reconciliation_service = None
+    validation_listener = None
+    validation_listener_task: asyncio.Task | None = None
+    async_requested = parse_env_bool("ENABLE_ASYNC_VALIDATION", False)
+    if async_requested:
+        config.async_validation_enabled = True
+        config.enable_async_validation = False
+        config.kafka_bootstrap_servers = os.getenv(
+            "KAFKA_BOOTSTRAP_SERVERS",
+            config.kafka_bootstrap_servers,
+        )
+        config.schema_registry_url = os.getenv(
+            "SCHEMA_REGISTRY_URL",
+            config.schema_registry_url,
+        )
+        reconciliation_timeout = os.getenv("RECONCILIATION_TIMEOUT", "").strip()
+        if reconciliation_timeout:
+            try:
+                config.reconciliation_timeout = float(reconciliation_timeout)
+            except ValueError:
+                print(
+                    f"  Invalid RECONCILIATION_TIMEOUT={reconciliation_timeout!r}; "
+                    "using default."
+                )
+
+    kafka_enabled = parse_env_bool("KAFKA_ENABLED", False)
+    config.kafka_enabled = kafka_enabled
+    topic_prefix = os.getenv("KAFKA_TOPIC_PREFIX", "").strip()
+    if topic_prefix:
+        config.kafka_topic_prefix = topic_prefix
+
+    kafka_publisher = None
+    if kafka_enabled:
+        kafka_publisher = KafkaAuditPublisher(
+            bootstrap_servers=config.kafka_bootstrap_servers,
+            topic_prefix=config.kafka_topic_prefix,
+        )
+
     # Create Conclave service
     conclave = ConclaveService(
         orchestrator=adapter,
         archon_profiles=archon_profiles,
         config=config,
         knight_witness=knight_witness,
+        validation_dispatcher=validation_dispatcher,
+        reconciliation_service=reconciliation_service,
+        kafka_publisher=kafka_publisher,
     )
     conclave.set_progress_callback(format_progress)
 
@@ -262,6 +368,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     if args.resume:
         print(f"\n{Colors.BLUE}Resuming from checkpoint...{Colors.ENDC}")
         session = conclave.load_session(Path(args.resume))
+        await conclave.resume_pending_validations()
         print(f"  Session: {session.session_name}")
         print(f"  Phase: {session.current_phase.value}")
     else:
@@ -284,7 +391,23 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         )
         print(f"    Max attempts: {config.vote_validation_max_attempts}")
     else:
-        print("  Vote validation: disabled (missing WITNESS_ARCHON_ID or SECRETARY_TEXT_ARCHON_ID)")
+        print(
+            "  Vote validation: disabled "
+            "(missing SECRETARY_TEXT_ARCHON_ID or SECRETARY_JSON_ARCHON_ID)"
+        )
+    if config.async_validation_enabled:
+        print("  Async validation: enabled (in-process)")
+        print(f"    Kafka bootstrap: {config.kafka_bootstrap_servers}")
+        print(f"    Schema registry: {config.schema_registry_url}")
+    elif config.enable_async_validation:
+        print("  Async validation: enabled (legacy Kafka)")
+        print(f"    Kafka bootstrap: {config.kafka_bootstrap_servers}")
+        print(f"    Schema registry: {config.schema_registry_url}")
+    else:
+        print("  Async validation: disabled")
+    print(
+        f"  Kafka audit: {'enabled' if config.kafka_enabled else 'disabled'}"
+    )
 
     # Build motion plans (queue + blockers unless custom motion specified)
     custom_motion_requested = bool(args.motion or args.motion_text or args.motion_file)
@@ -482,6 +605,14 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         except Exception:
             pass
         raise
+    finally:
+        if validation_listener:
+            validation_listener.stop()
+        if validation_listener_task:
+            try:
+                await validation_listener_task
+            except Exception:
+                pass
 
 
 def main() -> None:
@@ -553,6 +684,12 @@ Motion File Format:
         "--quick",
         action="store_true",
         help="Quick mode: 1 debate round, shorter timeouts",
+    )
+    parser.add_argument(
+        "--voting-concurrency",
+        type=int,
+        default=1,
+        help="Number of archons that can vote concurrently (default: 1 = sequential, 0 = unlimited)",
     )
     parser.add_argument(
         "--no-queue",

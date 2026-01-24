@@ -1,0 +1,32 @@
+# Aegis Bridge - Development Docker Compose
+
+version: '3.8'
+
+services:
+  aegis-bridge:
+    build: .
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - ARCHON72_API_URL=${ARCHON72_API_URL:-http://archon72-api:8000}
+      - BATCH_SIZE=${BATCH_SIZE:-100}
+      - MAX_RETRIES=${MAX_RETRIES:-3}
+      - DRY_RUN=${DRY_RUN:-false}
+    # Default: single batch run then exit
+    # For continuous mode, uncomment:
+    # command: ["--continuous", "--interval", "60"]
+    networks:
+      - archon72-network
+
+  # For local development without external Archon72
+  # archon72-api:
+  #   image: archon72:latest
+  #   ports:
+  #     - "8000:8000"
+  #   networks:
+  #     - archon72-network
+
+networks:
+  archon72-network:
+    external: true
+    name: archon72_default

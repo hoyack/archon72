@@ -316,7 +316,7 @@ class AuditTimeline:
         petition_id: UUID of the petition.
         events: Tuple of TimelineEvents in chronological order.
         assigned_archons: Initial 3-archon assignment.
-        outcome: Final outcome (ACKNOWLEDGE, REFER, ESCALATE).
+        outcome: Final outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE).
         termination_reason: Normal, Timeout, Deadlock, or Abort.
         started_at: When deliberation started (UTC).
         completed_at: When deliberation completed (UTC).
@@ -330,7 +330,7 @@ class AuditTimeline:
     petition_id: UUID
     events: tuple[TimelineEvent, ...]
     assigned_archons: tuple[UUID, UUID, UUID]
-    outcome: str  # ACKNOWLEDGE, REFER, ESCALATE
+    outcome: str  # ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE
     termination_reason: TerminationReason
     started_at: datetime
     completed_at: datetime | None = field(default=None)
@@ -354,8 +354,8 @@ class AuditTimeline:
         # Validate archons are unique
         if len(set(self.assigned_archons)) != REQUIRED_ARCHON_COUNT:
             raise ValueError("assigned_archons must be unique")
-        # Validate outcome is one of Three Fates
-        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE")
+        # Validate outcome is one of Five Fates
+        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE", "DEFER", "NO_RESPONSE")
         if self.outcome not in valid_outcomes:
             raise ValueError(
                 f"outcome must be one of {valid_outcomes}, got '{self.outcome}'"

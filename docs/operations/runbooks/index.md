@@ -1,7 +1,7 @@
 # Operational Runbooks Index
 
-Last Updated: 2026-01-08
-Version: 1.0
+Last Updated: 2026-01-23
+Version: 1.1
 
 ## Quick Reference
 
@@ -10,7 +10,7 @@ Version: 1.0
 | Severity | Runbooks |
 |----------|----------|
 | **CRITICAL** | [Halt & Fork Recovery](epic-3-halt-fork.md), [Cessation Procedures](epic-7-cessation.md) |
-| **HIGH** | [Breach Detection](epic-6-breach.md), [Emergence Audit](epic-9-emergence-audit.md), [Incident Response](incident-response.md) |
+| **HIGH** | [Breach Detection](epic-6-breach.md), [Emergence Audit](epic-9-emergence-audit.md), [Incident Response](incident-response.md), [Async Vote Validation](async-vote-validation.md) |
 | **MEDIUM** | [Event Store Recovery](epic-1-event-store.md), [Keeper Operations](epic-5-keeper.md) |
 | **LOW** | [Scaling](scaling.md), [Backup](backup.md) |
 | **INFO** | [Startup](startup.md), [Shutdown](shutdown.md) |
@@ -29,6 +29,8 @@ Version: 1.0
 | Agent heartbeat missed | [Deliberation Monitoring](epic-2-deliberation.md) | [Monitoring](epic-8-monitoring.md) |
 | Override logged | [Keeper Operations](epic-5-keeper.md) | [Incident Response](incident-response.md) |
 | Observer API down | [Observer API](epic-4-observer.md) | [External Monitoring](../external-monitoring-setup.md) |
+| Vote validation issues | [Async Vote Validation](async-vote-validation.md) | [Deliberation](epic-2-deliberation.md) |
+| Circuit breaker tripped | [Async Vote Validation](async-vote-validation.md) | [Monitoring](epic-8-monitoring.md) |
 | Need to scale | [Scaling](scaling.md) | [Monitoring](epic-8-monitoring.md) |
 | Disaster recovery | [Recovery](recovery.md) | [Backup](backup.md) |
 
@@ -43,6 +45,7 @@ Version: 1.0
 | [Scaling](scaling.md) | Horizontal scaling procedures | As needed |
 | [Backup](backup.md) | Database and event store backup | Daily/scheduled |
 | [Recovery](recovery.md) | General disaster recovery | Emergency |
+| [Async Vote Validation](async-vote-validation.md) | Kafka validation pipeline operations | Conclave sessions |
 
 ---
 

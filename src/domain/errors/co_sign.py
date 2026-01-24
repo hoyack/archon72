@@ -146,7 +146,7 @@ class CoSignPetitionFatedError(CoSignError):
 
         Args:
             petition_id: UUID of the petition.
-            terminal_state: The terminal state name (ACKNOWLEDGED/REFERRED/ESCALATED).
+            terminal_state: The terminal state name (ACKNOWLEDGED/REFERRED/ESCALATED/DEFERRED/NO_RESPONSE).
         """
         self.petition_id = petition_id
         self.terminal_state = terminal_state

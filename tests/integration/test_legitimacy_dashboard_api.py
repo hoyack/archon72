@@ -197,6 +197,8 @@ class TestDashboardDataRetrieval:
         assert "acknowledged" in state_counts
         assert "referred" in state_counts
         assert "escalated" in state_counts
+        assert "deferred" in state_counts
+        assert "no_response" in state_counts
         assert "total" in state_counts
 
     def test_deliberation_metrics_structure(self, client):

@@ -143,7 +143,9 @@ class TestPetitionEnums:
         assert "ACKNOWLEDGED" in values
         assert "REFERRED" in values
         assert "ESCALATED" in values
-        assert len(values) == 5
+        assert "DEFERRED" in values
+        assert "NO_RESPONSE" in values
+        assert len(values) == 7
 
 
 @pytest.mark.integration

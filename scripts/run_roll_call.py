@@ -15,6 +15,8 @@ Options:
     --delay SEC          Delay between each archon in seconds (default: 2)
     --verbose            Show full responses from archons
     --parallel           Run tests in parallel (default: sequential)
+    --async              Run tests asynchronously and stream results as they complete
+    --max-concurrent N   Cap concurrent async tasks (0 = unlimited; use with --async/--parallel)
 """
 
 import argparse
@@ -117,6 +119,8 @@ async def test_archon(
             topic_content=(
                 "WHO GOES THERE?\n\n"
                 "You are being tested for LLM configuration. "
+                "This is NOT a vote or debate. "
+                "Do NOT output AYE/NAY/ABSTAIN, \"Vote:\", \"STANCE:\", or {\"choice\":...} JSON. "
                 "Please respond with:\n"
                 "1. Your name\n"
                 "2. Your rank\n"
@@ -189,7 +193,17 @@ async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
     print(f"  OLLAMA_HOST: {os.environ.get('OLLAMA_HOST', 'not set')}")
     print(f"  Timeout per archon: {args.timeout}s")
     print(f"  Delay between tests: {args.delay}s")
-    print(f"  Mode: {'parallel' if args.parallel else 'sequential'}")
+    if args.async_mode:
+        mode = "async"
+    elif args.parallel:
+        mode = "parallel"
+    else:
+        mode = "sequential"
+    print(f"  Mode: {mode}")
+    if args.max_concurrent and args.max_concurrent > 0:
+        print(f"  Max concurrent: {args.max_concurrent}")
+    else:
+        print("  Max concurrent: unlimited")
     print(f"  Archons to test: {len(all_profiles)}")
 
     # Show LLM configuration summary
@@ -223,12 +237,66 @@ async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
     success_count = 0
     failure_count = 0
 
-    if args.parallel:
-        # Run all tests in parallel
-        print(f"{Colors.YELLOW}Running {len(all_profiles)} tests in parallel...{Colors.ENDC}\n")
+    if args.async_mode:
+        # Run all tests asynchronously and print as they complete
+        print(
+            f"{Colors.YELLOW}Running {len(all_profiles)} tests asynchronously...{Colors.ENDC}\n"
+        )
+        semaphore = (
+            asyncio.Semaphore(args.max_concurrent)
+            if args.max_concurrent and args.max_concurrent > 0
+            else None
+        )
+
+        async def _run_with_limit(profile):
+            if semaphore is None:
+                return await test_archon(adapter, profile, args.timeout)
+            async with semaphore:
+                return await test_archon(adapter, profile, args.timeout)
+
         tasks = [
-            test_archon(adapter, p, args.timeout) for p in all_profiles
+            asyncio.create_task(_run_with_limit(p)) for p in all_profiles
         ]
+
+        for completed in asyncio.as_completed(tasks):
+            result = await completed
+            results.append(result)
+            if result["success"]:
+                success_count += 1
+                status = f"{Colors.GREEN}PRESENT{Colors.ENDC}"
+            else:
+                failure_count += 1
+                status = f"{Colors.RED}FAILED{Colors.ENDC}"
+
+            print(
+                f"\n  [{status}] {result['name']} ({result['rank']}) - "
+                f"{result['provider']}/{result['model']} - {result['duration_seconds']:.1f}s"
+            )
+            if result["error"]:
+                print(f"  {Colors.RED}ERROR:{Colors.ENDC} {result['error']}")
+            if result["response"]:
+                # Show full response, indented
+                print(f"  {Colors.CYAN}RESPONSE:{Colors.ENDC}")
+                for line in result["response"].split("\n"):
+                    print(f"    {line}")
+    elif args.parallel:
+        # Run all tests in parallel
+        print(
+            f"{Colors.YELLOW}Running {len(all_profiles)} tests in parallel...{Colors.ENDC}\n"
+        )
+        semaphore = (
+            asyncio.Semaphore(args.max_concurrent)
+            if args.max_concurrent and args.max_concurrent > 0
+            else None
+        )
+
+        async def _run_with_limit(profile):
+            if semaphore is None:
+                return await test_archon(adapter, profile, args.timeout)
+            async with semaphore:
+                return await test_archon(adapter, profile, args.timeout)
+
+        tasks = [_run_with_limit(p) for p in all_profiles]
         results = await asyncio.gather(*tasks)
 
         for result in results:
@@ -361,6 +429,12 @@ Examples:
   # Run in parallel with longer timeout (no delay in parallel mode)
   python scripts/run_roll_call.py --parallel --timeout 120
 
+  # Run asynchronously and stream results as they complete
+  python scripts/run_roll_call.py --async --timeout 120
+
+  # Limit concurrent async tasks (recommended for Ollama Cloud rate limits)
+  python scripts/run_roll_call.py --async --max-concurrent 5
+
   # Verbose output showing responses
   python scripts/run_roll_call.py --verbose --limit 5
 """,
@@ -397,6 +471,18 @@ Examples:
         "--parallel",
         action="store_true",
         help="Run tests in parallel (default: sequential)",
+    )
+    parser.add_argument(
+        "--async",
+        dest="async_mode",
+        action="store_true",
+        help="Run tests asynchronously and stream results as they complete",
+    )
+    parser.add_argument(
+        "--max-concurrent",
+        type=int,
+        default=0,
+        help="Cap concurrent async tasks (0 = unlimited; use with --async/--parallel)",
     )
 
     args = parser.parse_args()

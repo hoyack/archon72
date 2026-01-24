@@ -75,7 +75,7 @@ class PhaseExecutorProtocol(Protocol):
         """Execute POSITION phase - state preferred dispositions.
 
         Phase 2 of the deliberation protocol. Each Archon states their
-        preferred disposition (ACKNOWLEDGE, REFER, or ESCALATE) with
+        preferred disposition (ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE) with
         rationale. Positions are sequential, allowing each Archon to
         see previous positions.
 
@@ -127,7 +127,7 @@ class PhaseExecutorProtocol(Protocol):
         """Execute VOTE phase - cast final votes.
 
         Phase 4 of the deliberation protocol. Each Archon casts a final
-        vote for ACKNOWLEDGE, REFER, or ESCALATE. Votes are simultaneous
+        vote for ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE. Votes are simultaneous
         (no Archon can see others' votes before casting).
 
         The phase_metadata in the returned PhaseResult MUST include:
@@ -170,7 +170,7 @@ class DeliberationOrchestratorProtocol(Protocol):
         self,
         session: DeliberationSession,
         package: DeliberationContextPackage,
-    ) -> DeliberationResult:
+    ) -> tuple[DeliberationSession, DeliberationResult]:
         """Orchestrate the complete deliberation protocol.
 
         Executes the 4-phase protocol in strict sequence:
@@ -191,8 +191,8 @@ class DeliberationOrchestratorProtocol(Protocol):
                 Must match session's petition_id.
 
         Returns:
-            DeliberationResult with:
-            - outcome: The resolved disposition (ACKNOWLEDGE, REFER, ESCALATE)
+            Tuple of (updated session, DeliberationResult) with:
+            - outcome: The resolved disposition (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE)
             - votes: All 3 archon votes
             - dissent_archon_id: UUID of dissenter in 2-1 vote (or None)
             - phase_results: All 4 phase results with transcripts
@@ -205,8 +205,8 @@ class DeliberationOrchestratorProtocol(Protocol):
 
         Example:
             >>> orchestrator = DeliberationOrchestratorService(executor)
-            >>> result = orchestrator.orchestrate(session, package)
-            >>> assert result.outcome in [ACKNOWLEDGE, REFER, ESCALATE]
+            >>> session, result = orchestrator.orchestrate(session, package)
+            >>> assert result.outcome in [ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE]
             >>> assert len(result.phase_results) == 4
         """
         ...

@@ -1,0 +1,46 @@
+{
+  "type": "record",
+  "name": "PendingValidation",
+  "namespace": "archon72.conclave.votes",
+  "doc": "Vote awaiting async validation. Published when archon casts vote.",
+  "fields": [
+    {
+      "name": "vote_id",
+      "type": "string",
+      "doc": "Unique identifier for this vote (UUID)"
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "doc": "Conclave session identifier (UUID) - used for replay filtering (V2)"
+    },
+    {
+      "name": "motion_id",
+      "type": "string",
+      "doc": "Motion being voted on (UUID)"
+    },
+    {
+      "name": "archon_id",
+      "type": "string",
+      "doc": "Archon who cast this vote (UUID)"
+    },
+    {
+      "name": "optimistic_choice",
+      "type": "string",
+      "doc": "Vote choice placeholder (AYE/NAY/ABSTAIN)"
+    },
+    {
+      "name": "raw_response",
+      "type": "string",
+      "doc": "Original LLM response text for validation"
+    },
+    {
+      "name": "timestamp_ms",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "When this vote was published for validation"
+    }
+  ]
+}

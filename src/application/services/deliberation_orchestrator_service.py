@@ -78,8 +78,8 @@ class DeliberationOrchestratorService:
         >>> orchestrator = DeliberationOrchestratorService(
         ...     executor, timeout_handler, deadlock_handler
         ... )
-        >>> result = await orchestrator.orchestrate(session, package)
-        >>> assert result.outcome in [ACKNOWLEDGE, REFER, ESCALATE]
+        >>> session, result = await orchestrator.orchestrate(session, package)
+        >>> assert result.outcome in [ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE]
 
     Constitutional Constraints:
     - FR-11.4: Structured protocol execution
@@ -128,7 +128,7 @@ class DeliberationOrchestratorService:
         self,
         session: DeliberationSession,
         package: DeliberationContextPackage,
-    ) -> DeliberationResult:
+    ) -> tuple[DeliberationSession, DeliberationResult]:
         """Orchestrate the complete deliberation protocol.
 
         Executes the 4-phase protocol in strict sequence, updates session
@@ -158,7 +158,7 @@ class DeliberationOrchestratorService:
             package: The context package for deliberation.
 
         Returns:
-            DeliberationResult with outcome and all phase results.
+            Tuple of (updated session, DeliberationResult) with outcome and phase results.
 
         Raises:
             PetitionSessionMismatchError: If package doesn't match session.
@@ -189,7 +189,9 @@ class DeliberationOrchestratorService:
                 execute_fn=lambda s: self._executor.execute_assess(s, package),
             )
             if session.is_aborted or assess_result is None:
-                return self._build_aborted_result(session, phase_results, started_at)
+                return session, self._build_aborted_result(
+                    session, phase_results, started_at
+                )
             phase_results.append(assess_result)
             session = session.with_transcript(
                 DeliberationPhase.ASSESS, assess_result.transcript_hash
@@ -206,7 +208,9 @@ class DeliberationOrchestratorService:
                 ),
             )
             if session.is_aborted or position_result is None:
-                return self._build_aborted_result(session, phase_results, started_at)
+                return session, self._build_aborted_result(
+                    session, phase_results, started_at
+                )
             phase_results.append(position_result)
             session = session.with_transcript(
                 DeliberationPhase.POSITION, position_result.transcript_hash
@@ -222,7 +226,9 @@ class DeliberationOrchestratorService:
 
             # Check if aborted during cross-examine/vote loop
             if session.is_aborted:
-                return self._build_aborted_result(session, phase_results, started_at)
+                return session, self._build_aborted_result(
+                    session, phase_results, started_at
+                )
 
             # FR-11.9: Cancel timeout on normal completion
             if self._timeout_handler is not None:
@@ -240,7 +246,7 @@ class DeliberationOrchestratorService:
 
         completed_at = datetime.now(timezone.utc)
 
-        return DeliberationResult(
+        result = DeliberationResult(
             session_id=session.session_id,
             petition_id=session.petition_id,
             outcome=session.outcome,
@@ -250,6 +256,7 @@ class DeliberationOrchestratorService:
             started_at=started_at,
             completed_at=completed_at,
         )
+        return session, result
 
     def _execute_phase_with_substitution(
         self,
@@ -349,6 +356,8 @@ class DeliberationOrchestratorService:
             phase_results=tuple(phase_results),
             started_at=started_at,
             completed_at=completed_at,
+            is_aborted=True,
+            abort_reason=session.abort_reason,
         )
 
     def _execute_cross_examine_vote_loop(

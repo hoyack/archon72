@@ -42,6 +42,8 @@ PETITION_THRESHOLD_MET_EVENT_TYPE: str = "petition.submission.threshold_met"
 PETITION_ACKNOWLEDGED_EVENT_TYPE: str = "petition.submission.acknowledged"
 PETITION_REFERRED_EVENT_TYPE: str = "petition.submission.referred"
 PETITION_ESCALATED_EVENT_TYPE: str = "petition.submission.escalated"
+PETITION_DEFERRED_EVENT_TYPE: str = "petition.submission.deferred"
+PETITION_NO_RESPONSE_EVENT_TYPE: str = "petition.submission.no_response"
 
 # Petition system agent ID for event attribution
 PETITION_SYSTEM_AGENT_ID: str = "petition-system"
@@ -361,6 +363,8 @@ class PetitionFateEventPayload:
     - ACKNOWLEDGED: Petition noted, no further action required
     - REFERRED: Petition routed to realm-specific Knight
     - ESCALATED: Petition elevated to Conclave for constitutional review
+    - DEFERRED: Petition deferred for later consideration
+    - NO_RESPONSE: Petition receives no response
 
     This event MUST be witnessed (CT-12) and is immutable after creation.
 
@@ -377,7 +381,7 @@ class PetitionFateEventPayload:
     Attributes:
         petition_id: Unique identifier for the petition.
         previous_state: State before fate assignment (RECEIVED or DELIBERATING).
-        new_state: Terminal fate state (ACKNOWLEDGED, REFERRED, or ESCALATED).
+        new_state: Terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, or NO_RESPONSE).
         actor_id: Agent or system identifier that assigned the fate.
         timestamp: When the fate was assigned (UTC).
         reason: Optional reason code or rationale for the fate decision.

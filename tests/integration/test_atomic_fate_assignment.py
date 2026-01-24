@@ -79,13 +79,14 @@ class TestAtomicFateAssignmentIntegration:
             except (ConcurrentModificationError, PetitionAlreadyFatedError):
                 failures += 1
 
-        # Create 10 concurrent fate attempts (mix of all three fates)
+        # Create 10 concurrent fate attempts (mix of all terminal fates)
         fates = [
             PetitionState.ACKNOWLEDGED,
             PetitionState.REFERRED,
             PetitionState.ESCALATED,
-        ] * 4  # 12 attempts, 4 of each
-        fates = fates[:10]  # Take first 10
+            PetitionState.DEFERRED,
+            PetitionState.NO_RESPONSE,
+        ] * 2  # 10 attempts, 2 of each
 
         tasks = [attempt_fate(fate) for fate in fates]
         await asyncio.gather(*tasks)
@@ -125,13 +126,15 @@ class TestAtomicFateAssignmentIntegration:
             except (ConcurrentModificationError, PetitionAlreadyFatedError):
                 errors[petition_id] += 1
 
-        # For each petition, try 3 concurrent fate assignments
+        # For each petition, try concurrent fate assignments for all terminal fates
         all_tasks = []
         for petition in petitions:
             for fate in [
                 PetitionState.ACKNOWLEDGED,
                 PetitionState.REFERRED,
                 PetitionState.ESCALATED,
+                PetitionState.DEFERRED,
+                PetitionState.NO_RESPONSE,
             ]:
                 all_tasks.append(attempt_fate(petition.id, fate))
 
@@ -215,7 +218,7 @@ class TestAtomicFateAssignmentIntegration:
         fate_wins: Counter[PetitionState] = Counter()
 
         async def race_for_fate(petition_id: uuid.UUID) -> None:
-            """Race three concurrent fate assignments."""
+            """Race concurrent fate assignments."""
             results = []
 
             async def try_fate(fate: PetitionState) -> None:
@@ -233,6 +236,8 @@ class TestAtomicFateAssignmentIntegration:
                 try_fate(PetitionState.ACKNOWLEDGED),
                 try_fate(PetitionState.REFERRED),
                 try_fate(PetitionState.ESCALATED),
+                try_fate(PetitionState.DEFERRED),
+                try_fate(PetitionState.NO_RESPONSE),
             )
 
             assert len(results) == 1
@@ -241,7 +246,7 @@ class TestAtomicFateAssignmentIntegration:
         # Race all petitions
         await asyncio.gather(*[race_for_fate(p.id) for p in petitions])
 
-        # All three fate types should have won at least once
+        # Multiple fate types should have won at least once
         # (probabilistically, with 30 trials this is very likely)
         assert len(fate_wins) >= 2, f"Too few fate types won: {dict(fate_wins)}"
         assert sum(fate_wins.values()) == n_petitions
@@ -265,6 +270,8 @@ class TestAtomicFateAssignmentIntegration:
         for new_fate in [
             PetitionState.ACKNOWLEDGED,
             PetitionState.ESCALATED,
+            PetitionState.DEFERRED,
+            PetitionState.NO_RESPONSE,
             PetitionState.DELIBERATING,
         ]:
             with pytest.raises(PetitionAlreadyFatedError):

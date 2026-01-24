@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import os
+
+from structlog import get_logger
+
 from src.application.ports.content_hash_service import ContentHashServiceProtocol
 from src.application.ports.halt_checker import HaltChecker
 from src.application.ports.petition_event_emitter import PetitionEventEmitterPort
@@ -20,6 +24,8 @@ from src.infrastructure.stubs.petition_submission_repository_stub import (
 from src.infrastructure.stubs.rate_limiter_stub import RateLimiterStub
 from src.infrastructure.stubs.realm_registry_stub import RealmRegistryStub
 
+logger = get_logger()
+
 _petition_submission_repository: PetitionSubmissionRepositoryProtocol | None = None
 _content_hash_service: ContentHashServiceProtocol | None = None
 _realm_registry: RealmRegistryProtocol | None = None
@@ -31,10 +37,50 @@ _event_emitter: PetitionEventEmitterPort | None = None
 
 
 def get_petition_submission_repository() -> PetitionSubmissionRepositoryProtocol:
-    """Get petition submission repository instance."""
+    """Get petition submission repository instance.
+
+    Returns PostgreSQL repository if DATABASE_URL is configured,
+    otherwise falls back to in-memory stub for testing.
+
+    Constitutional Compliance:
+    - FR-2.4: PostgreSQL repository uses atomic CAS for fate assignment
+    - NFR-3.2: Database-level atomic fate assignment guarantee
+    - CT-11: Repository selection logged for audit trail
+    """
     global _petition_submission_repository
     if _petition_submission_repository is None:
-        _petition_submission_repository = PetitionSubmissionRepositoryStub()
+        # Check if DATABASE_URL is configured for PostgreSQL
+        database_url = os.environ.get("DATABASE_URL")
+        if database_url:
+            try:
+                from src.bootstrap.database import get_session_factory
+                from src.infrastructure.adapters.persistence.petition_submission_repository import (
+                    PostgresPetitionSubmissionRepository,
+                )
+
+                session_factory = get_session_factory()
+                _petition_submission_repository = PostgresPetitionSubmissionRepository(
+                    session_factory=session_factory
+                )
+                logger.info(
+                    "petition_repository_initialized",
+                    repository_type="PostgreSQL",
+                    message="Using PostgreSQL repository for petition persistence",
+                )
+            except Exception as e:
+                logger.error(
+                    "postgres_repository_init_failed",
+                    error=str(e),
+                    message="Falling back to in-memory stub",
+                )
+                _petition_submission_repository = PetitionSubmissionRepositoryStub()
+        else:
+            logger.warning(
+                "petition_repository_initialized",
+                repository_type="InMemoryStub",
+                message="DATABASE_URL not set - using in-memory stub (data will not persist)",
+            )
+            _petition_submission_repository = PetitionSubmissionRepositoryStub()
     return _petition_submission_repository
 
 

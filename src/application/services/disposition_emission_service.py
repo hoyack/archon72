@@ -12,6 +12,8 @@ Pipeline Routing:
 - ACKNOWLEDGE → Acknowledgment Execution (Epic 3)
 - REFER → Knight Referral Workflow (Epic 4)
 - ESCALATE → King Escalation Queue (Epic 6)
+- DEFER → Deferred Review Queue
+- NO_RESPONSE → No-Response Archive
 """
 
 from __future__ import annotations
@@ -67,6 +69,8 @@ OUTCOME_TO_PIPELINE: dict[DispositionOutcome, PipelineType] = {
     DispositionOutcome.ACKNOWLEDGE: PipelineType.ACKNOWLEDGMENT,
     DispositionOutcome.REFER: PipelineType.KNIGHT_REFERRAL,
     DispositionOutcome.ESCALATE: PipelineType.KING_ESCALATION,
+    DispositionOutcome.DEFER: PipelineType.DEFERRED_REVIEW,
+    DispositionOutcome.NO_RESPONSE: PipelineType.NO_RESPONSE_ARCHIVE,
 }
 
 
@@ -90,6 +94,8 @@ class DispositionEmissionService:
     - ACKNOWLEDGE → Acknowledgment Execution (Epic 3)
     - REFER → Knight Referral Workflow (Epic 4)
     - ESCALATE → King Escalation Queue (Epic 6)
+    - DEFER → Deferred Review Queue
+    - NO_RESPONSE → No-Response Archive
     """
 
     def __init__(self) -> None:

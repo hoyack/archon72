@@ -28,7 +28,7 @@ DISPOSITION_EVENT_SCHEMA_VERSION: int = 1
 
 
 class DispositionOutcome(str, Enum):
-    """Possible outcomes from Three Fates deliberation.
+    """Possible outcomes from Five Fates deliberation.
 
     These map directly to DeliberationOutcome but are used in the
     disposition/pipeline routing context for clearer semantics.
@@ -37,25 +37,33 @@ class DispositionOutcome(str, Enum):
         ACKNOWLEDGE: Petition heard, no action required
         REFER: Refer to Knight for review
         ESCALATE: Escalate to King for decision
+        DEFER: Defer petition for later consideration
+        NO_RESPONSE: Decline to respond to petition
     """
 
     ACKNOWLEDGE = "ACKNOWLEDGE"
     REFER = "REFER"
     ESCALATE = "ESCALATE"
+    DEFER = "DEFER"
+    NO_RESPONSE = "NO_RESPONSE"
 
 
 class PipelineType(str, Enum):
     """Target pipelines for disposition routing.
 
-    Each pipeline corresponds to a downstream epic:
+    Each pipeline corresponds to a downstream epic or queue:
     - ACKNOWLEDGMENT: Epic 3
     - KNIGHT_REFERRAL: Epic 4
     - KING_ESCALATION: Epic 6
+    - DEFERRED_REVIEW: Deferred review queue
+    - NO_RESPONSE_ARCHIVE: No-response archival queue
     """
 
     ACKNOWLEDGMENT = "ACKNOWLEDGMENT"
     KNIGHT_REFERRAL = "KNIGHT_REFERRAL"
     KING_ESCALATION = "KING_ESCALATION"
+    DEFERRED_REVIEW = "DEFERRED_REVIEW"
+    NO_RESPONSE_ARCHIVE = "NO_RESPONSE_ARCHIVE"
 
 
 def _utc_now() -> datetime:

@@ -67,16 +67,16 @@ class AcknowledgmentRateMetricsService(AcknowledgmentRateMetricsProtocol):
         """Record an archon's vote with its outcome.
 
         Called once per archon when consensus is reached, recording
-        the specific vote cast (ACKNOWLEDGE, REFER, or ESCALATE).
+        the specific vote cast (ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE).
 
         Args:
             archon_id: UUID of the voting archon.
-            outcome: Vote outcome - must be one of ACKNOWLEDGE, REFER, ESCALATE.
+            outcome: Vote outcome - must be one of ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE.
 
         Raises:
             ValueError: If outcome is not a valid deliberation outcome.
         """
-        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE")
+        valid_outcomes = ("ACKNOWLEDGE", "REFER", "ESCALATE", "DEFER", "NO_RESPONSE")
         if outcome not in valid_outcomes:
             raise ValueError(
                 f"Invalid outcome '{outcome}'. Must be one of {valid_outcomes}."

@@ -192,13 +192,19 @@ class TestTransactionalFateAssignmentIntegration:
             event_emitter=event_emitter,
         )
 
-        # Create petitions and assign all three fates
+        # Create petitions and assign all terminal fates
         for fate in [
             PetitionState.ACKNOWLEDGED,
             PetitionState.REFERRED,
             PetitionState.ESCALATED,
+            PetitionState.DEFERRED,
+            PetitionState.NO_RESPONSE,
         ]:
-            if fate == PetitionState.REFERRED:
+            if fate in {
+                PetitionState.REFERRED,
+                PetitionState.DEFERRED,
+                PetitionState.NO_RESPONSE,
+            }:
                 petition = _make_deliberating_petition()
                 expected_state = PetitionState.DELIBERATING
             else:
@@ -213,12 +219,18 @@ class TestTransactionalFateAssignmentIntegration:
                 actor_id="test-agent",
             )
 
-        # Verify we have exactly 3 fate events
-        assert len(event_emitter.emitted_fate_events) == 3
+        # Verify we have exactly 5 fate events
+        assert len(event_emitter.emitted_fate_events) == 5
 
         # Verify each fate type has an event
         emitted_states = {e.new_state for e in event_emitter.emitted_fate_events}
-        assert emitted_states == {"ACKNOWLEDGED", "REFERRED", "ESCALATED"}
+        assert emitted_states == {
+            "ACKNOWLEDGED",
+            "REFERRED",
+            "ESCALATED",
+            "DEFERRED",
+            "NO_RESPONSE",
+        }
 
     @pytest.mark.asyncio
     async def test_concurrent_fate_with_event_exactly_one(

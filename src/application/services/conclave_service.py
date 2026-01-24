@@ -16,8 +16,11 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
+import asyncio
+import os
 import json
 import logging
+import random
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -56,6 +59,44 @@ from src.domain.models.conclave import (
     VoteChoice,
     get_rank_priority,
 )
+from src.domain.errors.agent import AgentInvocationError
+from src.domain.errors.reconciliation import (
+    ReconciliationIncompleteError,
+    TallyInvariantError,
+)
+from src.application.services.async_vote_validator import (
+    AsyncVoteValidator,
+    ReconciliationTimeoutError,
+    VoteValidationJob,
+)
+
+# Optional async validation imports (Story 4.3, 4.4)
+# These are imported conditionally to avoid hard dependencies
+try:
+    from src.application.ports.vote_publisher import PendingVote
+except ImportError:
+    PendingVote = None  # type: ignore
+
+try:
+    from src.application.ports.reconciliation import ReconciliationProtocol
+    from src.application.services.vote_override_service import (
+        VoteOverrideService,
+        OverrideApplicationResult,
+    )
+    from src.domain.models.reconciliation import ReconciliationConfig
+except ImportError:
+    ReconciliationProtocol = None  # type: ignore
+    VoteOverrideService = None  # type: ignore
+    OverrideApplicationResult = None  # type: ignore
+    ReconciliationConfig = None  # type: ignore
+
+try:
+    from src.workers.validation_dispatcher import ValidationDispatcher, DispatchResult
+    ASYNC_VALIDATION_AVAILABLE = True
+except ImportError:
+    ValidationDispatcher = None  # type: ignore
+    DispatchResult = None  # type: ignore
+    ASYNC_VALIDATION_AVAILABLE = PendingVote is not None
 
 logger = logging.getLogger(__name__)
 
@@ -92,12 +133,34 @@ class ConclaveConfig:
     supermajority_threshold: float = 2 / 3  # 2/3 for passage
     vote_validation_archon_ids: list[str] = field(default_factory=list)
     vote_validation_max_attempts: int = 3
+    # Number of archons voting in parallel (1 = sequential, 0 = unlimited)
+    voting_concurrency: int = 1
+
+    # Three-tier async validation (spec v2)
+    async_validation_enabled: bool = False
+    secretary_text_archon_id: str | None = None
+    secretary_json_archon_id: str | None = None
+    witness_archon_id: str | None = None
+    task_timeout_seconds: int = 60
+    reconciliation_timeout: float = 300.0
 
     # Agent invocation
     agent_timeout_seconds: int = 180
+    agent_timeout_max_attempts: int = 3
+    agent_timeout_backoff_base_seconds: float = 2.0
+    agent_timeout_backoff_max_seconds: float = 30.0
 
     # Output settings
     output_dir: Path = field(default_factory=lambda: Path("_bmad-output/conclave"))
+
+    # Async validation (Story 4.3)
+    # When enabled, votes are published to Kafka for async validation
+    # Falls back to sync validation when circuit breaker is OPEN
+    enable_async_validation: bool = False
+    kafka_bootstrap_servers: str = "localhost:19092"
+    schema_registry_url: str = "http://localhost:18081"
+    kafka_enabled: bool = False
+    kafka_topic_prefix: str = "conclave"
 
 
 class ConclaveService:
@@ -118,6 +181,9 @@ class ConclaveService:
         config: ConclaveConfig | None = None,
         permission_enforcer: PermissionEnforcerProtocol | None = None,
         knight_witness: KnightWitnessProtocol | None = None,
+        validation_dispatcher: Any | None = None,  # Story 4.3: ValidationDispatcher
+        reconciliation_service: Any | None = None,  # Story 4.3: ReconciliationProtocol
+        kafka_publisher: Any | None = None,
     ):
         """Initialize the Conclave service.
 
@@ -127,6 +193,8 @@ class ConclaveService:
             config: Conclave configuration
             permission_enforcer: Optional permission enforcer for rank-based permissions
             knight_witness: Optional Knight-Witness service for governance observation
+            validation_dispatcher: Optional ValidationDispatcher for async vote validation
+            reconciliation_service: Optional ReconciliationService for vote tracking
         """
         self._orchestrator = orchestrator
         self._profiles = {p.id: p for p in archon_profiles}
@@ -135,6 +203,14 @@ class ConclaveService:
         self._permission_enforcer = permission_enforcer
         self._knight_witness = knight_witness
 
+        # Story 4.3: Async validation components
+        self._validation_dispatcher = validation_dispatcher
+        self._reconciliation_service = reconciliation_service
+        self._async_validation_active = False  # Set per-session
+        self._async_validator: AsyncVoteValidator | None = None
+        self._kafka_publisher = kafka_publisher
+        self._pending_validation_payloads: list[dict[str, Any]] = []
+
         # Current session state
         self._session: ConclaveSession | None = None
         self._progress_callback: ConclaveProgressCallback | None = None
@@ -142,6 +218,24 @@ class ConclaveService:
         # Ensure output directories exist
         self._config.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         self._config.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Validate async validation setup
+        if self._config.async_validation_enabled:
+            missing_ids = [
+                name
+                for name, value in {
+                    "SECRETARY_TEXT_ARCHON_ID": self._config.secretary_text_archon_id,
+                    "SECRETARY_JSON_ARCHON_ID": self._config.secretary_json_archon_id,
+                    "WITNESS_ARCHON_ID": self._config.witness_archon_id,
+                }.items()
+                if not value
+            ]
+            if missing_ids:
+                logger.warning(
+                    "Async validation enabled but missing archon IDs: %s. "
+                    "Will use sync validation.",
+                    ", ".join(missing_ids),
+                )
 
     def _sort_by_rank(self, profiles: list[ArchonProfile]) -> list[ArchonProfile]:
         """Sort profiles by rank priority (Kings speak first)."""
@@ -228,6 +322,53 @@ class ConclaveService:
             },
         )
         return self._session
+
+    async def resume_pending_validations(self) -> None:
+        """Resume any pending async validations from checkpoint."""
+        if not self._pending_validation_payloads:
+            return
+
+        if not (
+            self._config.async_validation_enabled
+            and self._config.secretary_text_archon_id
+            and self._config.secretary_json_archon_id
+            and self._config.witness_archon_id
+        ):
+            logger.warning(
+                "Pending validations found but async validation is disabled; "
+                "skipping resume."
+            )
+            return
+
+        if not self._async_validator:
+            self._async_validator = AsyncVoteValidator(
+                voting_concurrency=self._config.voting_concurrency,
+                secretary_text_id=self._config.secretary_text_archon_id,
+                secretary_json_id=self._config.secretary_json_archon_id,
+                witness_id=self._config.witness_archon_id,
+                orchestrator=self._orchestrator,
+                kafka_publisher=self._kafka_publisher,
+                task_timeout_seconds=self._config.task_timeout_seconds,
+                max_attempts=self._config.vote_validation_max_attempts,
+                backoff_base_seconds=self._config.agent_timeout_backoff_base_seconds,
+                backoff_max_seconds=self._config.agent_timeout_backoff_max_seconds,
+            )
+
+        for payload in self._pending_validation_payloads:
+            optimistic_choice = VoteChoice(
+                payload.get("optimistic_choice", "ABSTAIN")
+            )
+            await self._async_validator.submit_vote(
+                vote_id=payload.get("vote_id", str(uuid4())),
+                session_id=payload.get("session_id", ""),
+                motion_id=payload.get("motion_id", ""),
+                archon_id=payload.get("archon_id", ""),
+                archon_name=payload.get("archon_name", ""),
+                optimistic_choice=optimistic_choice,
+                vote_payload=payload.get("vote_payload", payload),
+            )
+
+        self._pending_validation_payloads = []
 
     def save_checkpoint(self) -> Path:
         """Save current session state to checkpoint.
@@ -342,6 +483,41 @@ class ConclaveService:
             entry_type="procedural",
             content="Motion to adjourn is in order.",
         )
+
+        if self._async_validator:
+            self._emit_progress(
+                "reconciliation_started",
+                "Waiting for validations to complete",
+                {"pending": self._async_validator.get_stats()["pending"]},
+            )
+            try:
+                validated_jobs = await self._async_validator.drain(
+                    timeout=self._config.reconciliation_timeout
+                )
+            except ReconciliationTimeoutError as exc:
+                motion_id = (
+                    self._session.current_motion.motion_id
+                    if self._session.current_motion
+                    else UUID(int=0)
+                )
+                raise ReconciliationIncompleteError(
+                    session_id=self._session.session_id,
+                    motion_id=motion_id,
+                    pending_count=exc.pending_count,
+                    consumer_lag=0,
+                    dlq_count=0,
+                    timeout_seconds=exc.timeout_seconds,
+                ) from exc
+
+            override_count = await self._apply_validation_overrides(validated_jobs)
+            self._emit_progress(
+                "reconciliation_complete",
+                "All validations complete",
+                {
+                    "total_votes": len(validated_jobs),
+                    "overrides_applied": override_count,
+                },
+            )
 
         # Mark session as ended
         self._session.ended_at = datetime.now(timezone.utc)
@@ -691,7 +867,75 @@ class ConclaveService:
             created_at=datetime.now(timezone.utc),
         )
 
-        return await self._orchestrator.invoke(archon.id, bundle)
+        return await self._invoke_with_timeout(archon.id, bundle)
+
+    async def _invoke_with_timeout(
+        self,
+        agent_id: str,
+        bundle: ContextBundle,
+    ) -> AgentOutput:
+        """Invoke an archon with a hard timeout from config.
+
+        This prevents a single stalled LLM call from hanging the Conclave.
+        Set agent_timeout_seconds <= 0 to disable the timeout.
+        """
+        timeout = self._config.agent_timeout_seconds
+        if timeout <= 0:
+            return await self._orchestrator.invoke(agent_id, bundle)
+
+        max_attempts = max(1, self._config.agent_timeout_max_attempts)
+        base_delay = max(0.0, self._config.agent_timeout_backoff_base_seconds)
+        max_delay = max(base_delay, self._config.agent_timeout_backoff_max_seconds)
+
+        attempt = 1
+        while True:
+            try:
+                return await asyncio.wait_for(
+                    self._orchestrator.invoke(agent_id, bundle),
+                    timeout=timeout,
+                )
+            except asyncio.TimeoutError as exc:
+                if attempt >= max_attempts:
+                    logger.warning(
+                        "archon_invoke_timeout agent_id=%s timeout_seconds=%s attempts=%s",
+                        agent_id,
+                        timeout,
+                        attempt,
+                    )
+                    raise AgentInvocationError(
+                        f"Agent {agent_id} timed out after {timeout}s "
+                        f"(attempts={attempt})"
+                    ) from exc
+
+                delay = self._calculate_timeout_backoff(
+                    attempt=attempt,
+                    base_delay=base_delay,
+                    max_delay=max_delay,
+                )
+                logger.warning(
+                    "archon_invoke_timeout_retry agent_id=%s timeout_seconds=%s "
+                    "attempt=%s retry_delay_seconds=%s",
+                    agent_id,
+                    timeout,
+                    attempt,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+                attempt += 1
+
+    @staticmethod
+    def _calculate_timeout_backoff(
+        attempt: int,
+        base_delay: float,
+        max_delay: float,
+    ) -> float:
+        """Decorrelated jitter backoff for timeout retries."""
+        if attempt <= 1:
+            return min(base_delay, max_delay)
+
+        previous = base_delay * (2 ** (attempt - 2))
+        delay = random.uniform(base_delay, previous * 3)
+        return min(delay, max_delay)
 
     def _build_debate_context(
         self,
@@ -741,7 +985,7 @@ DEBATE ROUND: {round_num} of {motion.max_debate_rounds}
 INSTRUCTIONS:
 You are participating in a formal deliberation of the Archon 72 Conclave.
 Provide your perspective on this motion based on your domain expertise and role.
-State clearly whether you are FOR, AGAINST, or NEUTRAL on the motion.
+Start with one line: STANCE: FOR or STANCE: AGAINST or STANCE: NEUTRAL
 Be concise but substantive. Your contribution will be recorded in the official transcript.
 """
         return context
@@ -756,6 +1000,19 @@ Be concise but substantive. Your contribution will be recorded in the official t
             True (for), False (against), or None (neutral)
         """
         content_lower = content.lower()
+
+        if "stance:" in content_lower:
+            for line in content_lower.splitlines():
+                line = line.strip()
+                if not line.startswith("stance:"):
+                    continue
+                value = line.split(":", 1)[1].strip()
+                if value.startswith("for"):
+                    return True
+                if value.startswith("against"):
+                    return False
+                if value.startswith("neutral"):
+                    return None
 
         # Look for explicit position statements
         for_indicators = [
@@ -815,7 +1072,9 @@ Be concise but substantive. Your contribution will be recorded in the official t
     async def conduct_vote(self) -> dict[str, Any]:
         """Conduct voting on the current motion.
 
-        All present Archons vote in rank order.
+        Archons vote with configurable concurrency (default: sequential).
+        Use --voting-concurrency N to allow N archons to vote in parallel
+        (0 = unlimited).
 
         Returns:
             Dict with vote results
@@ -832,60 +1091,203 @@ Be concise but substantive. Your contribution will be recorded in the official t
         elif motion.status != MotionStatus.VOTING:
             raise ValueError(f"Cannot vote on motion in status {motion.status}")
 
-        self._emit_progress(
-            "voting_start",
-            "Voting has begun",
-            {"motion_id": str(motion.motion_id), "title": motion.title},
-        )
-
         # Collect votes from all present archons
         total_voters = len(self._session.present_participants)
 
-        for idx, archon_id in enumerate(self._session.present_participants):
+        configured_concurrency = self._config.voting_concurrency
+        if configured_concurrency <= 0:
+            configured_concurrency = max(1, total_voters)
+
+        self._emit_progress(
+            "voting_start",
+            "Voting has begun",
+            {
+                "motion_id": str(motion.motion_id),
+                "title": motion.title,
+                "concurrency": configured_concurrency,
+            },
+        )
+        completed_count = 0
+        completed_lock = asyncio.Lock()
+
+        # Create semaphore for concurrency control
+        voting_semaphore = asyncio.Semaphore(configured_concurrency)
+
+        use_async_validator = (
+            self._config.async_validation_enabled
+            and self._config.secretary_text_archon_id
+            and self._config.secretary_json_archon_id
+            and self._config.witness_archon_id
+        )
+
+        if use_async_validator and not self._async_validator:
+            self._async_validator = AsyncVoteValidator(
+                voting_concurrency=self._config.voting_concurrency,
+                secretary_text_id=self._config.secretary_text_archon_id,
+                secretary_json_id=self._config.secretary_json_archon_id,
+                witness_id=self._config.witness_archon_id,
+                orchestrator=self._orchestrator,
+                kafka_publisher=self._kafka_publisher,
+                task_timeout_seconds=self._config.task_timeout_seconds,
+                max_attempts=self._config.vote_validation_max_attempts,
+                backoff_base_seconds=self._config.agent_timeout_backoff_base_seconds,
+                backoff_max_seconds=self._config.agent_timeout_backoff_max_seconds,
+            )
+
+        async def collect_single_vote(archon_id: str) -> Vote | None:
+            """Collect a single vote with semaphore-controlled concurrency."""
+            nonlocal completed_count
+
             archon = self._profiles.get(archon_id)
             if not archon:
-                continue
+                return None
 
-            current = idx + 1
-            self._emit_percent_complete(
-                phase="vote",
-                current_index=current,
-                total_items=total_voters,
-            )
-            self._emit_progress(
-                "archon_voting",
-                f"Voting: {archon.name} ({current}/{total_voters})",
-                {"archon": archon.name, "progress": f"{current}/{total_voters}"},
-            )
+            async with voting_semaphore:
+                try:
+                    if use_async_validator and self._async_validator:
+                        payload = await self._collect_vote_payload(archon, motion)
+                        raw_response = payload["raw_content"]
+                        optimistic_choice = self._parse_vote(raw_response)
+                        vote_id = str(uuid4())
 
-            try:
-                vote, is_valid = await self._get_archon_vote(archon, motion)
-                motion.cast_vote(vote)
+                        payload.update(
+                            {
+                                "vote_id": vote_id,
+                                "session_id": str(
+                                    self._session.session_id if self._session else ""
+                                ),
+                                "motion_id": str(motion.motion_id),
+                                "archon_id": archon.id,
+                                "archon_name": archon.name,
+                                "optimistic_choice": optimistic_choice.value,
+                            }
+                        )
 
-                if is_valid:
-                    self._session.add_transcript_entry(
-                        entry_type="vote",
-                        content=f"Vote: {vote.choice.value.upper()}",
-                        speaker_id=archon_id,
-                        speaker_name=archon.name,
-                        metadata={
-                            "motion_id": str(motion.motion_id),
-                            "choice": vote.choice.value,
-                        },
+                        if self._kafka_publisher:
+                            await self._kafka_publisher.publish(
+                                "conclave.votes.cast",
+                                payload,
+                            )
+
+                        await self._async_validator.submit_vote(
+                            vote_id=vote_id,
+                            session_id=payload["session_id"],
+                            motion_id=payload["motion_id"],
+                            archon_id=archon.id,
+                            archon_name=archon.name,
+                            optimistic_choice=optimistic_choice,
+                            vote_payload=payload,
+                        )
+
+                        vote = Vote(
+                            voter_id=archon.id,
+                            voter_name=archon.name,
+                            voter_rank=archon.aegis_rank,
+                            choice=optimistic_choice,
+                            timestamp=datetime.now(timezone.utc),
+                            reasoning=raw_response[:500],
+                        )
+                    else:
+                        vote, _is_valid = await self._get_archon_vote(archon, motion)
+
+                    # Update progress atomically
+                    async with completed_lock:
+                        completed_count += 1
+                        current = completed_count
+
+                    self._emit_percent_complete(
+                        phase="vote",
+                        current_index=current,
+                        total_items=total_voters,
+                    )
+                    self._emit_progress(
+                        "archon_voting",
+                        f"Voted: {archon.name} ({current}/{total_voters})",
+                        {"archon": archon.name, "progress": f"{current}/{total_voters}"},
                     )
 
-            except Exception as e:
-                logger.error(f"Error getting vote from {archon.name}: {e}")
-                # Record abstention on error
-                vote = Vote(
-                    voter_id=archon_id,
-                    voter_name=archon.name,
-                    voter_rank=archon.aegis_rank,
-                    choice=VoteChoice.ABSTAIN,
-                    timestamp=datetime.now(timezone.utc),
-                    reasoning=f"Vote error: {e}",
+                    return vote
+
+                except AgentInvocationError as e:
+                    logger.error(f"Error getting vote from {archon.name}: {e}")
+
+                    # Update progress atomically
+                    async with completed_lock:
+                        completed_count += 1
+
+                    # Do not silently skip failed LLM invocations.
+                    raise
+                except Exception as e:
+                    logger.error(f"Error getting vote from {archon.name}: {e}")
+
+                    # Update progress atomically
+                    async with completed_lock:
+                        completed_count += 1
+
+                    # Record abstention on unexpected errors
+                    return Vote(
+                        voter_id=archon_id,
+                        voter_name=archon.name,
+                        voter_rank=archon.aegis_rank,
+                        choice=VoteChoice.ABSTAIN,
+                        timestamp=datetime.now(timezone.utc),
+                        reasoning=f"Vote error: {e}",
+                    )
+
+        # Run votes with configured concurrency
+        if configured_concurrency == 1:
+            # Sequential mode (original behavior)
+            for archon_id in self._session.present_participants:
+                vote = await collect_single_vote(archon_id)
+                if vote:
+                    motion.cast_vote(vote)
+                    if self._session:
+                        self._session.add_transcript_entry(
+                            entry_type="vote",
+                            content=f"Vote: {vote.choice.value.upper()}",
+                            speaker_id=vote.voter_id,
+                            speaker_name=vote.voter_name,
+                            metadata={
+                                "motion_id": str(motion.motion_id),
+                                "choice": vote.choice.value,
+                            },
+                        )
+        else:
+            # Concurrent mode
+            tasks = [
+                collect_single_vote(archon_id)
+                for archon_id in self._session.present_participants
+            ]
+            votes = await asyncio.gather(*tasks)
+
+            # Cast all votes and record in transcript
+            for vote in votes:
+                if vote:
+                    motion.cast_vote(vote)
+                    if self._session:
+                        self._session.add_transcript_entry(
+                            entry_type="vote",
+                            content=f"Vote: {vote.choice.value.upper()}",
+                            speaker_id=vote.voter_id,
+                            speaker_name=vote.voter_name,
+                            metadata={
+                                "motion_id": str(motion.motion_id),
+                                "choice": vote.choice.value,
+                            },
+                        )
+
+        # Story 4.4: Reconciliation gate for async validation (legacy Kafka path)
+        # P2: ReconciliationIncompleteError MUST propagate - do NOT catch
+        if not use_async_validator and await self._should_use_async_validation():
+            override_result = await self._await_reconciliation_gate(
+                motion=motion,
+                total_voters=total_voters,
+            )
+            if override_result and override_result.overrides_applied > 0:
+                logger.info(
+                    "Applied %d vote overrides after reconciliation",
+                    override_result.overrides_applied,
                 )
-                motion.cast_vote(vote)
 
         # Tally and determine result
         motion.tally_votes(total_voters)
@@ -920,17 +1322,61 @@ Be concise but substantive. Your contribution will be recorded in the official t
 
         return result
 
+    async def _collect_vote_payload(
+        self, archon: ArchonProfile, motion: Motion
+    ) -> dict[str, Any]:
+        """Collect raw vote response for async validation."""
+        vote_context = f"""ARCHON 72 CONCLAVE - FORMAL VOTE
+
+MOTION: {motion.title}
+TYPE: {motion.motion_type.value.upper()}
+
+MOTION TEXT:
+{motion.text}
+
+You must now cast your vote on this motion.
+Based on the debate and your own judgment, choose one:
+- AYE (support the motion)
+- NAY (oppose the motion)
+- ABSTAIN (decline to vote)
+
+Output format:
+- First line MUST be JSON only: {{"choice":"AYE"}} or {{"choice":"NAY"}} or {{"choice":"ABSTAIN"}}
+- Then (optional) up to 2 short paragraphs of public rationale.
+"""
+
+        bundle = ContextBundle(
+            bundle_id=uuid4(),
+            topic_id=f"vote-{motion.motion_id}",
+            topic_content=vote_context,
+            metadata={"motion_id": str(motion.motion_id), "voting": "true"},
+            created_at=datetime.now(timezone.utc),
+        )
+
+        output = await self._invoke_with_timeout(archon.id, bundle)
+        return {
+            "raw_content": output.content,
+            "motion_title": motion.title,
+            "motion_text": motion.text,
+            "archon_id": archon.id,
+            "archon_name": archon.name,
+        }
+
     async def _get_archon_vote(
         self, archon: ArchonProfile, motion: Motion
     ) -> tuple[Vote, bool]:
         """Get a vote from an archon.
+
+        Story 4.3: Supports async validation via Kafka when enabled.
+        - When async enabled and circuit breaker allows: publish for async validation
+        - When circuit breaker OPEN or async disabled: use sync validation
 
         Args:
             archon: The archon voting
             motion: The motion being voted on
 
         Returns:
-            Vote object
+            tuple of (Vote object, is_validated flag)
         """
         # Build voting context
         vote_context = f"""ARCHON 72 CONCLAVE - FORMAL VOTE
@@ -942,13 +1388,14 @@ MOTION TEXT:
 {motion.text}
 
 You must now cast your vote on this motion.
-Based on the debate and your own judgment, vote:
+Based on the debate and your own judgment, choose one:
 - AYE (support the motion)
 - NAY (oppose the motion)
 - ABSTAIN (decline to vote)
 
-State your vote clearly as "I VOTE AYE", "I VOTE NAY", or "I ABSTAIN".
-You may briefly explain your reasoning.
+Output format:
+- First line MUST be JSON only: {{"choice":"AYE"}} or {{"choice":"NAY"}} or {{"choice":"ABSTAIN"}}
+- Then (optional) up to 2 short paragraphs of public rationale.
 """
 
         bundle = ContextBundle(
@@ -959,34 +1406,42 @@ You may briefly explain your reasoning.
             created_at=datetime.now(timezone.utc),
         )
 
-        output = await self._orchestrator.invoke(archon.id, bundle)
+        output = await self._invoke_with_timeout(archon.id, bundle)
 
-        # Parse the vote (fallback if validation not configured)
-        choice = self._parse_vote(output.content)
+        # 3-Archon Vote Validation Protocol:
+        # Votes are determined ONLY by secretary consensus, not by parsing.
+        # Secretaries analyze the raw response and determine: AYE, NAY, or ABSTAIN.
+        # Witness observes and records agreement/dissent (cannot change outcome).
 
-        # Optional dual validation
+        # Story 4.3: Check if async validation should be used
+        use_async = await self._should_use_async_validation()
+
+        if use_async:
+            # Async path: publish for validation
+            # Vote choice will be determined by secretary consensus via Kafka
+            vote, is_validated = await self._handle_async_vote(
+                archon=archon,
+                motion=motion,
+                optimistic_choice=VoteChoice.ABSTAIN,  # Placeholder until validated
+                raw_response=output.content,
+            )
+            return vote, is_validated
+
+        # Sync path: use 3-archon validation (secretary consensus)
         validated_choice = await self._validate_vote_consensus(
             archon=archon,
             motion=motion,
             raw_vote=output.content,
         )
         is_validated = validated_choice is not None
+
         if is_validated:
-            if validated_choice != choice:
-                logger.warning(
-                    "vote_validation_override archon_id=%s archon_name=%s "
-                    "motion_id=%s parsed=%s validated=%s",
-                    archon.id,
-                    archon.name,
-                    motion.motion_id,
-                    choice.value,
-                    validated_choice.value,
-                )
             choice = validated_choice
-        elif self._config.vote_validation_archon_ids:
-            # Validation configured but no consensus reached -> abstain
+        else:
+            # No secretary consensus reached - abstain is the constitutional default
             choice = VoteChoice.ABSTAIN
-            self._record_vote_validation_failure(archon, motion)
+            if self._config.vote_validation_archon_ids:
+                self._record_vote_validation_failure(archon, motion)
 
         vote = Vote(
             voter_id=archon.id,
@@ -1002,8 +1457,448 @@ You may briefly explain your reasoning.
         )
         return vote, (is_validated or not self._config.vote_validation_archon_ids)
 
+    async def _should_use_async_validation(self) -> bool:
+        """Check if async validation should be used.
+
+        Story 4.3: Async validation is used when:
+        1. enable_async_validation config is True
+        2. Async validation module is available
+        3. ValidationDispatcher is configured
+        4. Circuit breaker allows requests (CLOSED or HALF_OPEN)
+
+        Returns:
+            True if async validation should be used, False for sync fallback
+        """
+        if not self._config.enable_async_validation:
+            return False
+
+        if not ASYNC_VALIDATION_AVAILABLE and not self._validation_dispatcher:
+            return False
+
+        if not self._validation_dispatcher:
+            return False
+
+        # Check circuit breaker state
+        breaker = getattr(self._validation_dispatcher, "_circuit_breaker", None)
+        if breaker is not None and hasattr(breaker, "should_allow_request"):
+            allowed = breaker.should_allow_request()
+            if asyncio.iscoroutine(allowed):
+                allowed = await allowed
+            if not allowed:
+                logger.info(
+                    "Circuit breaker OPEN, falling back to sync validation"
+                )
+                return False
+
+        return True
+
+    async def _handle_async_vote(
+        self,
+        archon: ArchonProfile,
+        motion: Motion,
+        optimistic_choice: VoteChoice,
+        raw_response: str,
+    ) -> tuple[Vote, bool]:
+        """Handle a vote using async validation via Kafka.
+
+        3-Archon Vote Validation Protocol:
+        Vote choice is determined ONLY by secretary consensus (SECRETARY_TEXT
+        and SECRETARY_JSON must agree). Publishes vote for async validation
+        and returns a pending vote. Final choice will be determined by the
+        consensus aggregator when validation completes.
+
+        Args:
+            archon: The archon voting
+            motion: The motion being voted on
+            optimistic_choice: Placeholder (ABSTAIN) - not used for determination
+            raw_response: Full LLM response for validation by secretaries
+
+        Returns:
+            tuple of (Vote with pending status, validation_pending=False)
+        """
+        vote_id = uuid4()
+        session_id = self._session.session_id if self._session else uuid4()
+
+        # Create pending vote for dispatcher
+        # Note: optimistic_choice is ABSTAIN (placeholder) - actual choice
+        # will be determined by 3-Archon Protocol secretary consensus
+        pending_vote = PendingVote(
+            vote_id=vote_id,
+            session_id=session_id,
+            motion_id=motion.motion_id,
+            archon_id=archon.id,
+            raw_response=raw_response,
+            optimistic_choice="ABSTAIN",  # Placeholder - secretaries determine actual vote
+            timestamp_ms=int(datetime.now(timezone.utc).timestamp() * 1000),
+        )
+
+        # Attempt async dispatch
+        dispatch_result = await self._validation_dispatcher.dispatch_vote(
+            vote=pending_vote,
+            attempt=1,
+        )
+
+        if dispatch_result.should_fallback_to_sync:
+            # Dispatch failed, fall back to sync validation (secretary consensus)
+            logger.warning(
+                "Async dispatch failed for vote %s, falling back to sync",
+                vote_id,
+            )
+            validated_choice = await self._validate_vote_consensus(
+                archon=archon,
+                motion=motion,
+                raw_vote=raw_response,
+            )
+
+            # Use secretary consensus or ABSTAIN if no consensus
+            choice = validated_choice if validated_choice else VoteChoice.ABSTAIN
+            is_validated = validated_choice is not None
+
+            vote = Vote(
+                voter_id=archon.id,
+                voter_name=archon.name,
+                voter_rank=archon.aegis_rank,
+                choice=choice,
+                timestamp=datetime.now(timezone.utc),
+                reasoning=raw_response[:500] if is_validated else "Awaiting secretary consensus",
+            )
+            return vote, is_validated
+
+        # Dispatch succeeded - register with reconciliation service
+        if self._reconciliation_service:
+            self._reconciliation_service.register_vote(
+                session_id=session_id,
+                motion_id=motion.motion_id,
+                vote_id=vote_id,
+                archon_id=archon.id,
+                optimistic_choice="ABSTAIN",  # Placeholder until secretaries determine
+            )
+
+        logger.info(
+            "Vote dispatched for 3-Archon validation: vote_id=%s archon=%s (awaiting secretary consensus)",
+            vote_id,
+            archon.id,
+        )
+
+        # Return vote with ABSTAIN placeholder - actual choice determined by
+        # 3-Archon Protocol (secretary consensus + witness observation)
+        # is_validated=False indicates async validation pending
+        vote = Vote(
+            voter_id=archon.id,
+            voter_name=archon.name,
+            voter_rank=archon.aegis_rank,
+            choice=VoteChoice.ABSTAIN,  # Placeholder until validation completes
+            timestamp=datetime.now(timezone.utc),
+            reasoning="Awaiting 3-Archon validation (secretary consensus + witness)",
+        )
+        return vote, False  # False = validation pending (async)
+
+    async def _await_reconciliation_gate(
+        self,
+        motion: Motion,
+        total_voters: int,
+    ) -> OverrideApplicationResult | None:
+        """Await async validation reconciliation before tallying.
+
+        Story 4.4: Implements the hard reconciliation gate (P2).
+        - Waits for all async validations to complete
+        - Applies vote overrides where validated != optimistic
+        - P6: Enforces tally invariant (ayes + nays + abstains == total)
+        - P2: ReconciliationIncompleteError MUST propagate
+
+        Args:
+            motion: The motion being voted on
+            total_voters: Expected total number of votes
+
+        Returns:
+            OverrideApplicationResult if overrides applied, None if no async validation
+
+        Raises:
+            ReconciliationIncompleteError: If reconciliation times out (P2)
+            TallyInvariantError: If P6 invariant violated
+        """
+        if not self._reconciliation_service:
+            logger.warning(
+                "Async validation active but no reconciliation service configured"
+            )
+            return None
+
+        if not self._session:
+            return None
+
+        session_id = self._session.session_id
+        motion_id = motion.motion_id
+
+        # P2: This call raises ReconciliationIncompleteError on timeout
+        # We MUST NOT catch it - it propagates to halt the session
+        self._emit_progress(
+            "reconciliation_start",
+            "Waiting for vote validations to complete...",
+            {"motion_id": str(motion_id), "total_votes": total_voters},
+        )
+
+        timeout_seconds = 300.0
+        timeout_env = os.getenv("RECONCILIATION_TIMEOUT_SECONDS", "").strip()
+        if not timeout_env:
+            timeout_env = os.getenv("VOTE_VALIDATION_TIMEOUT", "").strip()
+        if timeout_env:
+            try:
+                timeout_seconds = max(30.0, float(timeout_env))
+            except ValueError:
+                logger.warning(
+                    "Invalid RECONCILIATION_TIMEOUT_SECONDS=%s; using default %.1fs",
+                    timeout_env,
+                    timeout_seconds,
+                )
+
+        reconciliation_config = (
+            ReconciliationConfig(
+                timeout_seconds=timeout_seconds,
+                poll_interval_seconds=1.0,
+                max_lag_for_complete=0,  # R3: Must be zero
+                require_zero_pending=True,  # P1: Must have zero pending
+            )
+            if ReconciliationConfig
+            else None
+        )
+
+        reconciliation_result = await self._reconciliation_service.await_all_validations(
+            session_id=session_id,
+            motion_id=motion_id,
+            expected_vote_count=total_voters,
+            config=reconciliation_config,
+        )
+
+        self._emit_progress(
+            "reconciliation_complete",
+            f"Vote validations complete: {reconciliation_result.validated_count} validated, "
+            f"{reconciliation_result.dlq_fallback_count} DLQ fallback",
+            {
+                "validated": reconciliation_result.validated_count,
+                "dlq_fallback": reconciliation_result.dlq_fallback_count,
+                "has_overrides": reconciliation_result.has_overrides,
+            },
+        )
+
+        # If no overrides needed, we're done
+        if not reconciliation_result.has_overrides:
+            logger.info("No vote overrides required after reconciliation")
+            return None
+
+        # Apply overrides via VoteOverrideService
+        logger.info(
+            "Applying %d vote overrides from reconciliation",
+            reconciliation_result.override_count,
+        )
+
+        if not VoteOverrideService:
+            logger.error("VoteOverrideService not available but overrides needed")
+            return None
+
+        override_service = VoteOverrideService(
+            witness=self._knight_witness if hasattr(self, "_knight_witness") else None,
+            strict_invariant=True,  # P6: Raise on invariant violation
+        )
+
+        # Create helper functions for the override service
+        def get_vote_choice(archon_id: str) -> str:
+            """Get current vote choice for an archon."""
+            for vote in motion.votes:
+                if vote.voter_id == archon_id:
+                    return vote.choice.value
+            raise KeyError(f"No vote found for archon {archon_id}")
+
+        def update_vote_choice(archon_id: str, new_choice: str) -> None:
+            """Update a vote's choice (mutates motion.votes)."""
+            for vote in motion.votes:
+                if vote.voter_id == archon_id:
+                    # Convert string to VoteChoice enum
+                    choice_map = {
+                        "APPROVE": VoteChoice.AYE,
+                        "REJECT": VoteChoice.NAY,
+                        "ABSTAIN": VoteChoice.ABSTAIN,
+                        "AYE": VoteChoice.AYE,
+                        "NAY": VoteChoice.NAY,
+                    }
+                    vote.choice = choice_map.get(new_choice.upper(), VoteChoice.ABSTAIN)
+                    return
+            raise KeyError(f"No vote found for archon {archon_id}")
+
+        def get_current_tallies() -> tuple[int, int, int]:
+            """Get current vote tallies from motion."""
+            ayes = sum(1 for v in motion.votes if v.choice == VoteChoice.AYE)
+            nays = sum(1 for v in motion.votes if v.choice == VoteChoice.NAY)
+            abstains = sum(1 for v in motion.votes if v.choice == VoteChoice.ABSTAIN)
+            return ayes, nays, abstains
+
+        override_result = await override_service.apply_overrides(
+            session_id=session_id,
+            motion_id=motion_id,
+            reconciliation_result=reconciliation_result,
+            get_vote_fn=get_vote_choice,
+            update_vote_fn=update_vote_choice,
+            get_tallies_fn=get_current_tallies,
+            total_votes=total_voters,
+        )
+
+        if override_result.outcome_changed:
+            logger.warning(
+                "Motion outcome may have changed after reconciliation! "
+                "Tallies before: %s, after: %s",
+                override_result.tally_before.to_dict(),
+                override_result.tally_after.to_dict(),
+            )
+            self._emit_progress(
+                "reconciliation_outcome_changed",
+                "Vote overrides changed motion outcome",
+                {
+                    "tally_before": override_result.tally_before.to_dict(),
+                    "tally_after": override_result.tally_after.to_dict(),
+                },
+            )
+
+        return override_result
+
+    async def _apply_validation_overrides(
+        self,
+        validated_jobs: list[VoteValidationJob],
+    ) -> int:
+        """Apply validated vote corrections and recompute tallies."""
+        if not self._session:
+            return 0
+
+        override_count = 0
+        affected_motion_ids: set[str] = set()
+
+        for job in validated_jobs:
+            if not job.override_required or not job.adjudication_result:
+                continue
+
+            motion = next(
+                (m for m in self._session.motions if str(m.motion_id) == job.motion_id),
+                None,
+            )
+            if not motion:
+                continue
+
+            vote = next(
+                (v for v in motion.votes if v.voter_id == job.archon_id),
+                None,
+            )
+            if not vote:
+                continue
+
+            original_choice = vote.choice
+            vote.choice = job.adjudication_result.final_vote
+            vote.reasoning = (vote.reasoning or "") + (
+                f"\n\n[Validated: {job.adjudication_result.final_vote.value}]"
+            )
+
+            self._session.add_transcript_entry(
+                entry_type="procedural",
+                content=(
+                    f"Vote correction: {job.archon_name}'s vote on "
+                    f"'{motion.title}' validated as "
+                    f"{job.adjudication_result.final_vote.value} "
+                    f"(originally {original_choice.value}). "
+                    f"Witness ruling: {job.adjudication_result.ruling.value}"
+                ),
+                speaker_id="system",
+                speaker_name="Validation System",
+                metadata={
+                    "event": "vote_override",
+                    "vote_id": job.vote_id,
+                    "motion_id": job.motion_id,
+                    "archon_id": job.archon_id,
+                    "original": original_choice.value,
+                    "validated": job.adjudication_result.final_vote.value,
+                    "witness_statement": job.adjudication_result.witness_statement,
+                },
+            )
+
+            if self._kafka_publisher:
+                await self._kafka_publisher.publish(
+                    "conclave.votes.overrides",
+                    {
+                        "vote_id": job.vote_id,
+                        "session_id": job.session_id,
+                        "motion_id": job.motion_id,
+                        "archon_id": job.archon_id,
+                        "original": original_choice.value,
+                        "validated": job.adjudication_result.final_vote.value,
+                        "witness_ruling": job.adjudication_result.ruling.value,
+                    },
+                )
+
+            override_count += 1
+            affected_motion_ids.add(job.motion_id)
+
+        for motion_id in affected_motion_ids:
+            motion = next(
+                (m for m in self._session.motions if str(m.motion_id) == motion_id),
+                None,
+            )
+            if not motion:
+                continue
+            outcome_changed = self._recompute_motion_result(motion)
+            if outcome_changed:
+                self._session.add_transcript_entry(
+                    entry_type="procedural",
+                    content=(
+                        f"Motion '{motion.title}' result changed after vote validation: "
+                        f"{'PASSED' if motion.status == MotionStatus.PASSED else 'FAILED'}"
+                    ),
+                    speaker_id="system",
+                    speaker_name="Validation System",
+                )
+
+        return override_count
+
+    def _recompute_motion_result(self, motion: Motion) -> bool:
+        """Recompute motion pass/fail after vote overrides."""
+        original_status = motion.status
+
+        ayes = sum(1 for v in motion.votes if v.choice == VoteChoice.AYE)
+        nays = sum(1 for v in motion.votes if v.choice == VoteChoice.NAY)
+        abstentions = sum(
+            1
+            for v in motion.votes
+            if v.choice in (VoteChoice.ABSTAIN, VoteChoice.PRESENT)
+        )
+
+        total_votes = len(motion.votes)
+        if ayes + nays + abstentions != total_votes:
+            raise TallyInvariantError(
+                session_id=self._session.session_id,
+                motion_id=motion.motion_id,
+                ayes=ayes,
+                nays=nays,
+                abstains=abstentions,
+                total_votes=total_votes,
+            )
+
+        motion.final_ayes = ayes
+        motion.final_nays = nays
+        motion.final_abstentions = abstentions
+
+        votes_cast = ayes + nays
+        if votes_cast == 0:
+            motion.status = MotionStatus.FAILED
+        elif (ayes / votes_cast) >= self._config.supermajority_threshold:
+            motion.status = MotionStatus.PASSED
+        else:
+            motion.status = MotionStatus.FAILED
+
+        motion.vote_ended_at = datetime.now(timezone.utc)
+        return motion.status != original_status
+
     def _parse_vote(self, content: str) -> VoteChoice:
-        """Parse a vote from archon response.
+        """Parse a vote from archon response (DEPRECATED - for debugging only).
+
+        DEPRECATED: The 3-Archon Vote Validation Protocol should be used instead.
+        Votes are now determined ONLY by secretary consensus (SECRETARY_TEXT and
+        SECRETARY_JSON must agree), then witnessed by WITNESS. This method is kept
+        only for debugging, logging, or fallback scenarios.
 
         Args:
             content: The response text
@@ -1011,8 +1906,12 @@ You may briefly explain your reasoning.
         Returns:
             VoteChoice
         """
-        # NOTE: This parser intentionally accepts common LLM vote synonyms
-        # using deterministic string parsing (no regex).
+        json_choice = self._parse_validation_json(content)
+        if json_choice is not None:
+            return json_choice
+
+        # DEPRECATED: Deterministic string parsing for fallback/debugging only.
+        # Votes should be determined by 3-Archon Protocol secretaries.
         #
         # Upstream formats:
         # - Conclave vote prompt: "I VOTE AYE|NAY|I ABSTAIN"
@@ -1077,10 +1976,15 @@ You may briefly explain your reasoning.
         motion: Motion,
         raw_vote: str,
     ) -> VoteChoice | None:
-        """Validate a vote via dual LLM consensus.
+        """Validate a vote via 3-Archon Protocol secretary consensus.
+
+        In the 3-Archon Protocol:
+        - SECRETARY_TEXT (Orias): Analyzes via natural language
+        - SECRETARY_JSON (Orobas): Analyzes via structured output
+        Both must agree for consensus. WITNESS observes but cannot change outcome.
 
         Returns:
-            VoteChoice if validators agree, otherwise None.
+            VoteChoice if secretaries agree, otherwise None.
         """
         validator_ids = [vid for vid in self._config.vote_validation_archon_ids if vid]
         if len(validator_ids) < 2:
@@ -1149,7 +2053,7 @@ If unclear, choose ABSTAIN.
         )
 
         try:
-            output = await self._orchestrator.invoke(validator_id, bundle)
+            output = await self._invoke_with_timeout(validator_id, bundle)
         except Exception as exc:  # pragma: no cover - defensive
             logger.warning(
                 "vote_validation_error validator_id=%s validator_name=%s "
@@ -1511,6 +2415,23 @@ If unclear, choose ABSTAIN.
 
     def _serialize_session(self, session: ConclaveSession) -> dict[str, Any]:
         """Serialize session to JSON-compatible dict."""
+        pending_validations: list[dict[str, Any]] = []
+        if self._async_validator:
+            for job in self._async_validator.pending_jobs.values():
+                pending_validations.append(
+                    {
+                        "vote_id": job.vote_id,
+                        "session_id": job.session_id,
+                        "motion_id": job.motion_id,
+                        "archon_id": job.archon_id,
+                        "archon_name": job.archon_name,
+                        "optimistic_choice": job.optimistic_choice.value,
+                        "vote_payload": job.vote_payload,
+                    }
+                )
+        elif self._pending_validation_payloads:
+            pending_validations = list(self._pending_validation_payloads)
+
         return {
             "session_id": str(session.session_id),
             "session_name": session.session_name,
@@ -1528,6 +2449,7 @@ If unclear, choose ABSTAIN.
                 self._serialize_transcript_entry(t) for t in session.transcript
             ],
             "agenda": [self._serialize_agenda_item(a) for a in session.agenda],
+            "pending_validations": pending_validations,
         }
 
     def _serialize_motion(self, motion: Motion) -> dict[str, Any]:
@@ -1635,6 +2557,8 @@ If unclear, choose ABSTAIN.
         # Deserialize agenda
         for a_data in data.get("agenda", []):
             session.agenda.append(self._deserialize_agenda_item(a_data))
+
+        self._pending_validation_payloads = data.get("pending_validations", []) or []
 
         return session
 

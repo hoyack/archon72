@@ -8,7 +8,7 @@ Usage:
     >>> # Create stub with default unanimous vote
     >>> executor = PhaseExecutorStub()
     >>> orchestrator = DeliberationOrchestratorStub(executor)
-    >>> result = orchestrator.orchestrate(session, package)
+    >>> session, result = orchestrator.orchestrate(session, package)
     >>> assert result.outcome == DeliberationOutcome.ACKNOWLEDGE
     >>> assert result.is_unanimous
 
@@ -18,7 +18,7 @@ Usage:
     ...     archon2: DeliberationOutcome.ACKNOWLEDGE,
     ...     archon3: DeliberationOutcome.REFER,
     ... })
-    >>> result = orchestrator.orchestrate(session, package)
+    >>> session, result = orchestrator.orchestrate(session, package)
     >>> assert result.dissent_archon_id == archon3
 """
 
@@ -371,7 +371,7 @@ class DeliberationOrchestratorStub(DeliberationOrchestratorService):
 
         >>> executor = PhaseExecutorStub()
         >>> orchestrator = DeliberationOrchestratorStub(executor)
-        >>> result = orchestrator.orchestrate(session, package)
+        >>> session, result = orchestrator.orchestrate(session, package)
 
     For custom voting:
 

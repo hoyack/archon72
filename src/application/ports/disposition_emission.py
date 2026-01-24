@@ -12,6 +12,8 @@ Pipeline Routing:
 - ACKNOWLEDGE → Acknowledgment Execution (Epic 3)
 - REFER → Knight Referral Workflow (Epic 4)
 - ESCALATE → King Escalation Queue (Epic 6)
+- DEFER → Deferred Review Queue
+- NO_RESPONSE → No-Response Archive
 """
 
 from __future__ import annotations
@@ -50,6 +52,8 @@ class DispositionEmissionProtocol(Protocol):
     - ACKNOWLEDGE → Acknowledgment Execution (Epic 3)
     - REFER → Knight Referral Workflow (Epic 4)
     - ESCALATE → King Escalation Queue (Epic 6)
+    - DEFER → Deferred Review Queue
+    - NO_RESPONSE → No-Response Archive
     """
 
     async def emit_disposition(

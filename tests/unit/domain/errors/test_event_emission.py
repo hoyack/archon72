@@ -110,9 +110,9 @@ class TestFateEventEmissionError:
         assert exc_info.value.new_state == "REFERRED"
         assert exc_info.value.cause is cause
 
-    def test_all_three_fate_states_work(self) -> None:
-        """Test error works with all three terminal fate states."""
-        for state in ["ACKNOWLEDGED", "REFERRED", "ESCALATED"]:
+    def test_all_fate_states_work(self) -> None:
+        """Test error works with all terminal fate states."""
+        for state in ["ACKNOWLEDGED", "REFERRED", "ESCALATED", "DEFERRED", "NO_RESPONSE"]:
             error = FateEventEmissionError(
                 petition_id=uuid4(),
                 new_state=state,

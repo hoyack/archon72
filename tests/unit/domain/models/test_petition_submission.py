@@ -321,7 +321,7 @@ class TestPetitionSubmission:
         assert escalated.state == PetitionState.ESCALATED
 
     def test_valid_state_transitions_from_deliberating(self) -> None:
-        """FR-2.1: DELIBERATING can transition to any Three Fates."""
+        """FR-2.1: DELIBERATING can transition to any terminal fate."""
         petition = PetitionSubmission(
             id=uuid4(),
             type=PetitionType.GENERAL,
@@ -341,24 +341,36 @@ class TestPetitionSubmission:
         escalated = petition.with_state(PetitionState.ESCALATED)
         assert escalated.state == PetitionState.ESCALATED
 
+        # Valid: DELIBERATING -> DEFERRED
+        deferred = petition.with_state(PetitionState.DEFERRED)
+        assert deferred.state == PetitionState.DEFERRED
+
+        # Valid: DELIBERATING -> NO_RESPONSE
+        no_response = petition.with_state(PetitionState.NO_RESPONSE)
+        assert no_response.state == PetitionState.NO_RESPONSE
+
 
 class TestPetitionStateMachine:
     """Test PetitionState state machine (Story 1.5, FR-2.1, FR-2.3, FR-2.6)."""
 
     def test_terminal_states_defined(self) -> None:
-        """FR-2.6: Terminal states are the Three Fates."""
+        """FR-2.6: Terminal states are the terminal fates."""
         assert PetitionState.ACKNOWLEDGED in TERMINAL_STATES
         assert PetitionState.REFERRED in TERMINAL_STATES
         assert PetitionState.ESCALATED in TERMINAL_STATES
+        assert PetitionState.DEFERRED in TERMINAL_STATES
+        assert PetitionState.NO_RESPONSE in TERMINAL_STATES
         assert PetitionState.RECEIVED not in TERMINAL_STATES
         assert PetitionState.DELIBERATING not in TERMINAL_STATES
-        assert len(TERMINAL_STATES) == 3
+        assert len(TERMINAL_STATES) == 5
 
     def test_is_terminal_method(self) -> None:
         """FR-2.6: is_terminal() correctly identifies terminal states."""
         assert PetitionState.ACKNOWLEDGED.is_terminal() is True
         assert PetitionState.REFERRED.is_terminal() is True
         assert PetitionState.ESCALATED.is_terminal() is True
+        assert PetitionState.DEFERRED.is_terminal() is True
+        assert PetitionState.NO_RESPONSE.is_terminal() is True
         assert PetitionState.RECEIVED.is_terminal() is False
         assert PetitionState.DELIBERATING.is_terminal() is False
 
@@ -372,11 +384,13 @@ class TestPetitionStateMachine:
         assert PetitionState.RECEIVED not in valid
 
     def test_valid_transitions_from_deliberating(self) -> None:
-        """FR-2.3: DELIBERATING can reach any of Three Fates."""
+        """FR-2.3: DELIBERATING can reach any terminal fate."""
         valid = PetitionState.DELIBERATING.valid_transitions()
         assert PetitionState.ACKNOWLEDGED in valid
         assert PetitionState.REFERRED in valid
         assert PetitionState.ESCALATED in valid
+        assert PetitionState.DEFERRED in valid
+        assert PetitionState.NO_RESPONSE in valid
         assert PetitionState.RECEIVED not in valid
         assert PetitionState.DELIBERATING not in valid
 

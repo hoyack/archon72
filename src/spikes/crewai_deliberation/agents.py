@@ -225,6 +225,8 @@ class Disposition:
     ACKNOWLEDGE = "ACKNOWLEDGE"  # No further action warranted
     REFER = "REFER"  # Route to Knight for domain expert review
     ESCALATE = "ESCALATE"  # Elevate to King for mandatory consideration
+    DEFER = "DEFER"  # Hold for later consideration
+    NO_RESPONSE = "NO_RESPONSE"  # Decline to respond
 
 
 DISPOSITION_DESCRIPTIONS = {
@@ -242,5 +244,13 @@ DISPOSITION_DESCRIPTIONS = {
         "The petition warrants mandatory consideration by the King. The Three "
         "Fates escalate this matter for sovereign review. The King must address "
         "this petition before it is resolved."
+    ),
+    Disposition.DEFER: (
+        "The petition is not ready for a final fate. The Three Fates defer this "
+        "matter for later consideration under revised circumstances or evidence."
+    ),
+    Disposition.NO_RESPONSE: (
+        "The petition is declined without response. The Three Fates record the "
+        "submission but take no further action."
     ),
 }

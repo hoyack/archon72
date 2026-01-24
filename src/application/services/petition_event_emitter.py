@@ -32,7 +32,9 @@ from src.application.ports.petition_event_emitter import PetitionEventEmitterPor
 from src.domain.ports.time_authority import TimeAuthorityProtocol
 from src.domain.events.petition import (
     PETITION_ACKNOWLEDGED_EVENT_TYPE,
+    PETITION_DEFERRED_EVENT_TYPE,
     PETITION_ESCALATED_EVENT_TYPE,
+    PETITION_NO_RESPONSE_EVENT_TYPE,
     PETITION_RECEIVED_EVENT_TYPE,
     PETITION_REFERRED_EVENT_TYPE,
     PETITION_SYSTEM_AGENT_ID,
@@ -269,6 +271,8 @@ class PetitionEventEmitter(PetitionEventEmitterPort):
             "ACKNOWLEDGED": PETITION_ACKNOWLEDGED_EVENT_TYPE,
             "REFERRED": PETITION_REFERRED_EVENT_TYPE,
             "ESCALATED": PETITION_ESCALATED_EVENT_TYPE,
+            "DEFERRED": PETITION_DEFERRED_EVENT_TYPE,
+            "NO_RESPONSE": PETITION_NO_RESPONSE_EVENT_TYPE,
         }
         if new_state not in event_type_map:
             raise ValueError(

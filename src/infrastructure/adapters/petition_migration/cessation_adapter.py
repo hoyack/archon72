@@ -49,6 +49,9 @@ STATE_TO_STATUS_MAP: Final[dict[PetitionState, PetitionStatus]] = {
     # don't use these states, but we need a fallback for completeness
     PetitionState.DELIBERATING: PetitionStatus.OPEN,
     PetitionState.REFERRED: PetitionStatus.OPEN,
+    # New terminal fates map to CLOSED for legacy completeness
+    PetitionState.DEFERRED: PetitionStatus.CLOSED,
+    PetitionState.NO_RESPONSE: PetitionStatus.CLOSED,
 }
 
 

@@ -29,6 +29,8 @@ class PetitionStateCounts:
         acknowledged: Count of petitions in ACKNOWLEDGED state
         referred: Count of petitions in REFERRED state
         escalated: Count of petitions in ESCALATED state
+        deferred: Count of petitions in DEFERRED state
+        no_response: Count of petitions in NO_RESPONSE state
     """
 
     received: int
@@ -36,6 +38,8 @@ class PetitionStateCounts:
     acknowledged: int
     referred: int
     escalated: int
+    deferred: int
+    no_response: int
 
     def total(self) -> int:
         """Return total petition count across all states."""
@@ -45,6 +49,8 @@ class PetitionStateCounts:
             + self.acknowledged
             + self.referred
             + self.escalated
+            + self.deferred
+            + self.no_response
         )
 
 

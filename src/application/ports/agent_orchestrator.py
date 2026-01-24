@@ -24,6 +24,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import Any
 from uuid import UUID
 
 # Re-export AgentStatus from domain layer for backward compatibility
@@ -260,5 +261,43 @@ class AgentOrchestratorProtocol(ABC):
 
         Raises:
             AgentNotFoundError: If the agent_id is not recognized.
+        """
+        ...
+
+    @abstractmethod
+    async def execute_validation_task(
+        self,
+        task_type: str,
+        validator_archon_id: str,
+        vote_payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Execute a vote validation task for a specific validator.
+
+        Args:
+            task_type: One of "text_analysis", "json_validation", or "witness_confirm".
+            validator_archon_id: Archon ID to execute the task.
+            vote_payload: Payload describing the vote context.
+
+        Returns:
+            Dict with keys like vote_choice, confidence, raw_response, parse_success, metadata.
+        """
+        ...
+
+    @abstractmethod
+    async def execute_witness_adjudication(
+        self,
+        witness_archon_id: str,
+        vote_payload: dict[str, Any],
+        deliberator_results: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Execute witness adjudication when deliberators disagree.
+
+        Args:
+            witness_archon_id: Archon ID of the witness.
+            vote_payload: Payload describing the vote context.
+            deliberator_results: Aggregated deliberator outputs.
+
+        Returns:
+            Dict with keys like final_vote, retort, retort_reason, witness_statement.
         """
         ...

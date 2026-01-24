@@ -182,7 +182,7 @@ class TestDeliberationEnums:
     async def test_deliberation_outcome_enum_values(
         self, deliberation_schema: AsyncSession
     ) -> None:
-        """AT-1: Verify deliberation_outcome enum has Three Fates values."""
+        """AT-1: Verify deliberation_outcome enum has expected values."""
         result = await deliberation_schema.execute(
             text("""
                 SELECT unnest(enum_range(NULL::deliberation_outcome))::text
@@ -193,7 +193,9 @@ class TestDeliberationEnums:
         assert "ACKNOWLEDGE" in values
         assert "REFER" in values
         assert "ESCALATE" in values
-        assert len(values) == 3
+        assert "DEFER" in values
+        assert "NO_RESPONSE" in values
+        assert len(values) == 5
 
 
 # =============================================================================

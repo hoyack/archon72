@@ -1,0 +1,72 @@
+{
+  "type": "record",
+  "name": "ValidatedVote",
+  "namespace": "archon72.conclave.votes",
+  "doc": "Final validated vote after consensus is reached (or DLQ fallback). Used for reconciliation.",
+  "fields": [
+    {
+      "name": "vote_id",
+      "type": "string",
+      "doc": "Vote that was validated (UUID)"
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "doc": "Conclave session identifier (UUID)"
+    },
+    {
+      "name": "optimistic_choice",
+      "type": "string",
+      "doc": "Original regex-parsed choice"
+    },
+    {
+      "name": "validated_choice",
+      "type": "string",
+      "doc": "Final validated choice (may differ from optimistic)"
+    },
+    {
+      "name": "requires_override",
+      "type": "boolean",
+      "doc": "True if validated_choice differs from optimistic_choice"
+    },
+    {
+      "name": "consensus_reached",
+      "type": "boolean",
+      "doc": "True if validators agreed, false if DLQ fallback"
+    },
+    {
+      "name": "confidence",
+      "type": "double",
+      "doc": "Consensus confidence"
+    },
+    {
+      "name": "validator_responses",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "ValidatorResponse",
+          "fields": [
+            {"name": "validator_id", "type": "string"},
+            {"name": "validated_choice", "type": "string"},
+            {"name": "confidence", "type": "double"}
+          ]
+        }
+      },
+      "doc": "Validator responses used for consensus"
+    },
+    {
+      "name": "validation_source",
+      "type": "string",
+      "doc": "How validation was determined"
+    },
+    {
+      "name": "timestamp_ms",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "When validation completed"
+    }
+  ]
+}

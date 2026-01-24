@@ -166,10 +166,12 @@ class TestDeliberationOutcome:
         assert DeliberationOutcome.ACKNOWLEDGE.value == "ACKNOWLEDGE"
         assert DeliberationOutcome.REFER.value == "REFER"
         assert DeliberationOutcome.ESCALATE.value == "ESCALATE"
+        assert DeliberationOutcome.DEFER.value == "DEFER"
+        assert DeliberationOutcome.NO_RESPONSE.value == "NO_RESPONSE"
 
     def test_outcome_count(self):
-        """Test exactly 3 outcomes exist (Three Fates)."""
-        assert len(DeliberationOutcome) == 3
+        """Test exactly 5 outcomes exist."""
+        assert len(DeliberationOutcome) == 5
 
 
 # =============================================================================

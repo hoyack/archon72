@@ -91,11 +91,11 @@ class ConsensusResolverService(ConsensusResolverProtocol):
             vote_count=len(votes),
         )
 
-        assigned_set = set(session.assigned_archons)
+        active_set = set(session.current_active_archons)
         voter_set = set(votes.keys())
 
         # Check for unauthorized voters
-        unauthorized = voter_set - assigned_set
+        unauthorized = voter_set - active_set
         if unauthorized:
             log.warning(
                 "unauthorized_voters_detected",
@@ -104,7 +104,7 @@ class ConsensusResolverService(ConsensusResolverProtocol):
             return VoteValidationResult.unauthorized_voter(tuple(unauthorized))
 
         # Check for missing votes
-        missing = assigned_set - voter_set
+        missing = active_set - voter_set
         if missing:
             log.info(
                 "missing_votes_detected",
@@ -265,7 +265,7 @@ class ConsensusResolverService(ConsensusResolverProtocol):
     ) -> bool:
         """Check if votes can mathematically reach consensus (helper method).
 
-        With 3 archons and 3 possible outcomes, consensus is always
+        With 3 archons and multiple possible outcomes, consensus is always
         reachable unless all 3 archons vote for different outcomes.
 
         Args:

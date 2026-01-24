@@ -385,7 +385,7 @@ class PetitionSubmissionService(LoggingMixin):
         Args:
             petition_id: The petition to assign fate to.
             expected_state: The state petition must be in for CAS to succeed.
-            new_state: Terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED).
+            new_state: Terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE).
             actor_id: Agent or system identifier assigning the fate.
             reason: Optional rationale for the fate decision.
 

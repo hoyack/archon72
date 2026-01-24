@@ -24,7 +24,7 @@ class AcknowledgmentRateMetricsProtocol(Protocol):
 
     Metrics tracked:
     - Total deliberation participations per archon
-    - Vote counts by outcome (ACKNOWLEDGE, REFER, ESCALATE) per archon
+    - Vote counts by outcome (ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE) per archon
     - Derived acknowledgment rate (ACKNOWLEDGE / total participations)
     """
 
@@ -43,11 +43,11 @@ class AcknowledgmentRateMetricsProtocol(Protocol):
         """Record an archon's vote with its outcome.
 
         Called once per archon when consensus is reached, recording
-        the specific vote cast (ACKNOWLEDGE, REFER, or ESCALATE).
+        the specific vote cast (ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE).
 
         Args:
             archon_id: UUID of the voting archon.
-            outcome: Vote outcome - must be one of ACKNOWLEDGE, REFER, ESCALATE.
+            outcome: Vote outcome - must be one of ACKNOWLEDGE, REFER, ESCALATE, DEFER, NO_RESPONSE.
 
         Raises:
             ValueError: If outcome is not a valid deliberation outcome.

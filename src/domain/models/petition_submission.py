@@ -8,7 +8,8 @@ Constitutional Constraints:
 - CT-11: Silent failure destroys legitimacy -> Track all petitions
 - CT-12: Witnessing creates accountability -> Frozen dataclass
 - FR-2.1: System SHALL enforce valid state transitions only
-- FR-2.2: States: RECEIVED, DELIBERATING, ACKNOWLEDGED, REFERRED, ESCALATED
+- FR-2.2: States: RECEIVED, DELIBERATING, ACKNOWLEDGED, REFERRED, ESCALATED,
+           DEFERRED, NO_RESPONSE
 - FR-2.3: System SHALL reject transitions not in transition matrix
 - FR-2.6: System SHALL mark petition as terminal when fate assigned
 """
@@ -54,9 +55,11 @@ class PetitionState(Enum):
         DELIBERATING -> ACKNOWLEDGED (Three Fates acknowledge)
         DELIBERATING -> REFERRED (referred to Knight)
         DELIBERATING -> ESCALATED (escalated to King)
+        DELIBERATING -> DEFERRED (deferred for later consideration)
+        DELIBERATING -> NO_RESPONSE (no response disposition)
 
     Terminal States (FR-2.6):
-        ACKNOWLEDGED, REFERRED, ESCALATED are terminal (Three Fates).
+        ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE are terminal.
         Once a petition reaches a terminal state, no further transitions
         are permitted (AT-1: exactly one fate per petition).
 
@@ -66,6 +69,8 @@ class PetitionState(Enum):
         ACKNOWLEDGED: Petition acknowledged (terminal fate)
         REFERRED: Referred to Knight for review (terminal fate)
         ESCALATED: Escalated to King for adoption (terminal fate)
+        DEFERRED: Petition deferred for later consideration (terminal fate)
+        NO_RESPONSE: Petition receives no response (terminal fate)
     """
 
     RECEIVED = "RECEIVED"
@@ -73,11 +78,14 @@ class PetitionState(Enum):
     ACKNOWLEDGED = "ACKNOWLEDGED"
     REFERRED = "REFERRED"
     ESCALATED = "ESCALATED"
+    DEFERRED = "DEFERRED"
+    NO_RESPONSE = "NO_RESPONSE"
 
     def is_terminal(self) -> bool:
         """Check if this state is a terminal fate (FR-2.6).
 
-        Terminal states are the Three Fates: ACKNOWLEDGED, REFERRED, ESCALATED.
+        Terminal states are the Five Fates: ACKNOWLEDGED, REFERRED, ESCALATED,
+        DEFERRED, NO_RESPONSE.
         Once a petition reaches a terminal state, no further transitions
         are permitted.
 
@@ -96,12 +104,14 @@ class PetitionState(Enum):
         return STATE_TRANSITION_MATRIX.get(self, frozenset())
 
 
-# Terminal states - the Three Fates (FR-2.6, AT-1)
+# Terminal states - the Five Fates (FR-2.6, AT-1)
 TERMINAL_STATES: frozenset[PetitionState] = frozenset(
     {
         PetitionState.ACKNOWLEDGED,
         PetitionState.REFERRED,
         PetitionState.ESCALATED,
+        PetitionState.DEFERRED,
+        PetitionState.NO_RESPONSE,
     }
 )
 
@@ -127,12 +137,16 @@ STATE_TRANSITION_MATRIX: dict[PetitionState, frozenset[PetitionState]] = {
             PetitionState.ACKNOWLEDGED,
             PetitionState.REFERRED,
             PetitionState.ESCALATED,
+            PetitionState.DEFERRED,
+            PetitionState.NO_RESPONSE,
         }
     ),
     # Terminal states have no valid transitions
     PetitionState.ACKNOWLEDGED: frozenset(),
     PetitionState.REFERRED: frozenset(),
     PetitionState.ESCALATED: frozenset(),
+    PetitionState.DEFERRED: frozenset(),
+    PetitionState.NO_RESPONSE: frozenset(),
 }
 
 

@@ -655,3 +655,13 @@ class TestValidOutcomes:
         """Test ESCALATE is valid outcome."""
         timeline = AuditTimeline(**{**base_kwargs, "outcome": "ESCALATE"})
         assert timeline.outcome == "ESCALATE"
+
+    def test_defer_outcome_valid(self, base_kwargs: dict) -> None:
+        """Test DEFER is valid outcome."""
+        timeline = AuditTimeline(**{**base_kwargs, "outcome": "DEFER"})
+        assert timeline.outcome == "DEFER"
+
+    def test_no_response_outcome_valid(self, base_kwargs: dict) -> None:
+        """Test NO_RESPONSE is valid outcome."""
+        timeline = AuditTimeline(**{**base_kwargs, "outcome": "NO_RESPONSE"})
+        assert timeline.outcome == "NO_RESPONSE"

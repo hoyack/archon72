@@ -1,0 +1,56 @@
+{
+  "type": "record",
+  "name": "ValidationRequest",
+  "namespace": "archon72.conclave.votes",
+  "doc": "Request for a specific validator to validate a vote. Round 7 mitigation: per-validator keying.",
+  "fields": [
+    {
+      "name": "vote_id",
+      "type": "string",
+      "doc": "Vote to validate (UUID)"
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "doc": "Conclave session identifier (UUID)"
+    },
+    {
+      "name": "motion_id",
+      "type": "string",
+      "doc": "Motion being voted on (UUID)"
+    },
+    {
+      "name": "archon_id",
+      "type": "string",
+      "doc": "Archon who cast this vote (UUID)"
+    },
+    {
+      "name": "validator_id",
+      "type": "string",
+      "doc": "Validator archon assigned to this request (UUID)"
+    },
+    {
+      "name": "optimistic_choice",
+      "type": "string",
+      "doc": "Optimistic choice placeholder"
+    },
+    {
+      "name": "raw_response",
+      "type": "string",
+      "doc": "Original LLM response text to validate"
+    },
+    {
+      "name": "attempt",
+      "type": "int",
+      "doc": "Validation attempt number (1-based)"
+    },
+    {
+      "name": "request_time_ms",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "When this validation was requested"
+    }
+  ]
+}

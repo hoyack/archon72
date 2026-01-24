@@ -257,6 +257,8 @@ class LegitimacyDashboardService:
             "ACKNOWLEDGED": 0,
             "REFERRED": 0,
             "ESCALATED": 0,
+            "DEFERRED": 0,
+            "NO_RESPONSE": 0,
         }
 
         # Populate from query results
@@ -272,6 +274,8 @@ class LegitimacyDashboardService:
             acknowledged=counts["ACKNOWLEDGED"],
             referred=counts["REFERRED"],
             escalated=counts["ESCALATED"],
+            deferred=counts["DEFERRED"],
+            no_response=counts["NO_RESPONSE"],
         )
 
     def _query_orphan_petition_count(self) -> int:

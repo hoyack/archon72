@@ -1,9 +1,54 @@
 # Conclave Async Vote Validation Architecture
 
-**Spike Document v1.0**  
-**Date:** 2026-01-23  
-**Author:** Claude (with Brandon)  
-**Status:** Proposal
+**Spike Document v1.1**
+**Date:** 2026-01-23
+**Author:** Claude (with Brandon)
+**Status:** ✅ IMPLEMENTED
+
+---
+
+## Implementation Status
+
+| Epic | Status | Stories |
+|------|--------|---------|
+| Epic 1: Infrastructure Foundation | ✅ Complete | 1.1-1.4 |
+| Epic 2: Async Publishing & Health | ✅ Complete | 2.1-2.4 |
+| Epic 3: Validation Workers & Aggregation | ✅ Complete | 3.1-3.4 |
+| Epic 4: Reconciliation & Integration | ✅ Complete | 4.1-4.4 |
+| Epic 5: Testing & Hardening | ✅ Complete | 5.1-5.3 |
+
+### Key Components Implemented
+
+| Component | Location | Description |
+|-----------|----------|-------------|
+| `ValidationDispatcher` | `src/workers/validation_dispatcher.py` | Kafka vote publishing with circuit breaker |
+| `ValidatorWorker` | `src/workers/validator_worker.py` | LLM-based vote validation |
+| `ConsensusAggregator` | `src/workers/consensus_aggregator.py` | Multi-validator consensus |
+| `ReconciliationService` | `src/application/services/reconciliation_service.py` | Vote tracking & DLQ fallback |
+| `VoteOverrideService` | `src/application/services/vote_override_service.py` | P6 tally invariant enforcement |
+| `ConclaveService` | `src/application/services/conclave_service.py` | Modified for async path |
+| `CircuitBreaker` | `src/infrastructure/adapters/kafka/circuit_breaker.py` | CLOSED/OPEN/HALF_OPEN states |
+
+### Pre-mortems Addressed
+
+| ID | Risk | Mitigation | Status |
+|----|------|------------|--------|
+| P2 | Reconciliation soft-failure | Hard gate with `ReconciliationIncompleteError` | ✅ |
+| P4 | Redis SPOF | In-memory state with Kafka replay | ✅ |
+| P5 | Witness write silent failure | Constitutional errors propagate | ✅ |
+| P6 | Tally invariant violation | `VoteOverrideService` enforces sum = total | ✅ |
+| V1 | DLQ fallback unwitnessed | All DLQ fallbacks are witnessed | ✅ |
+| V2 | Stale message replay | Session-bounded filtering via session_id header | ✅ |
+| R3 | Consumer lag at adjournment | Reconciliation gate waits for lag = 0 | ✅ |
+| Round 7 | Split-brain validators | Per-validator keying for partition isolation | ✅ |
+
+### Test Coverage
+
+| Test Suite | Location | Coverage |
+|------------|----------|----------|
+| Integration (Redpanda) | `tests/integration/test_async_vote_validation.py` | Full round-trip, DLQ, overrides |
+| Fallback Paths | `tests/unit/application/services/test_conclave_fallback.py` | Circuit breaker, sync fallback |
+| State Reconstruction | `tests/unit/workers/test_aggregator_reconstruction.py` | P4 replay, V2 filtering, idempotency |
 
 ---
 
@@ -981,6 +1026,7 @@ Ideal validators should:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-01-23 | Claude | Initial spike document |
+| 1.1 | 2026-01-23 | Claude | Updated status to IMPLEMENTED, added implementation summary |
 
 ---
 

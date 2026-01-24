@@ -20,6 +20,8 @@ class TestArchonDeliberationMetrics:
         assert metrics.acknowledge_votes == 0
         assert metrics.refer_votes == 0
         assert metrics.escalate_votes == 0
+        assert metrics.defer_votes == 0
+        assert metrics.no_response_votes == 0
 
     def test_create_with_values(self) -> None:
         """Test creating metrics with explicit values."""
@@ -30,12 +32,16 @@ class TestArchonDeliberationMetrics:
             acknowledge_votes=5,
             refer_votes=3,
             escalate_votes=2,
+            defer_votes=0,
+            no_response_votes=0,
         )
 
         assert metrics.total_participations == 10
         assert metrics.acknowledge_votes == 5
         assert metrics.refer_votes == 3
         assert metrics.escalate_votes == 2
+        assert metrics.defer_votes == 0
+        assert metrics.no_response_votes == 0
 
     def test_total_votes_property(self) -> None:
         """Test total_votes sums all vote types."""
@@ -46,6 +52,8 @@ class TestArchonDeliberationMetrics:
             acknowledge_votes=5,
             refer_votes=3,
             escalate_votes=2,
+            defer_votes=0,
+            no_response_votes=0,
         )
 
         assert metrics.total_votes == 10
@@ -59,6 +67,8 @@ class TestArchonDeliberationMetrics:
             acknowledge_votes=7,
             refer_votes=2,
             escalate_votes=1,
+            defer_votes=0,
+            no_response_votes=0,
         )
 
         assert metrics.acknowledgment_rate == 0.7
@@ -79,6 +89,8 @@ class TestArchonDeliberationMetrics:
             acknowledge_votes=5,
             refer_votes=3,
             escalate_votes=2,
+            defer_votes=0,
+            no_response_votes=0,
         )
 
         assert metrics.refer_rate == 0.3
@@ -92,6 +104,8 @@ class TestArchonDeliberationMetrics:
             acknowledge_votes=5,
             refer_votes=3,
             escalate_votes=2,
+            defer_votes=0,
+            no_response_votes=0,
         )
 
         assert metrics.escalate_rate == 0.2
@@ -117,6 +131,8 @@ class TestArchonDeliberationMetrics:
         assert updated.acknowledge_votes == 1
         assert updated.refer_votes == 0
         assert updated.escalate_votes == 0
+        assert updated.defer_votes == 0
+        assert updated.no_response_votes == 0
 
     def test_with_vote_refer(self) -> None:
         """Test with_vote increments refer votes."""
@@ -129,6 +145,8 @@ class TestArchonDeliberationMetrics:
         assert updated.acknowledge_votes == 0
         assert updated.refer_votes == 1
         assert updated.escalate_votes == 0
+        assert updated.defer_votes == 0
+        assert updated.no_response_votes == 0
 
     def test_with_vote_escalate(self) -> None:
         """Test with_vote increments escalate votes."""
@@ -141,6 +159,34 @@ class TestArchonDeliberationMetrics:
         assert updated.acknowledge_votes == 0
         assert updated.refer_votes == 0
         assert updated.escalate_votes == 1
+        assert updated.defer_votes == 0
+        assert updated.no_response_votes == 0
+
+    def test_with_vote_defer(self) -> None:
+        """Test with_vote increments defer votes."""
+        archon_id = uuid4()
+        metrics = ArchonDeliberationMetrics.create(archon_id)
+
+        updated = metrics.with_participation().with_vote("DEFER")
+
+        assert updated.acknowledge_votes == 0
+        assert updated.refer_votes == 0
+        assert updated.escalate_votes == 0
+        assert updated.defer_votes == 1
+        assert updated.no_response_votes == 0
+
+    def test_with_vote_no_response(self) -> None:
+        """Test with_vote increments no_response votes."""
+        archon_id = uuid4()
+        metrics = ArchonDeliberationMetrics.create(archon_id)
+
+        updated = metrics.with_participation().with_vote("NO_RESPONSE")
+
+        assert updated.acknowledge_votes == 0
+        assert updated.refer_votes == 0
+        assert updated.escalate_votes == 0
+        assert updated.defer_votes == 0
+        assert updated.no_response_votes == 1
 
     def test_with_vote_invalid_outcome_raises(self) -> None:
         """Test with_vote raises ValueError for invalid outcome."""
@@ -184,6 +230,22 @@ class TestArchonDeliberationMetrics:
                 escalate_votes=-1,
             )
 
+    def test_negative_defer_votes_raises(self) -> None:
+        """Test negative defer votes raises ValueError."""
+        with pytest.raises(ValueError, match="defer_votes must be non-negative"):
+            ArchonDeliberationMetrics(
+                archon_id=uuid4(),
+                defer_votes=-1,
+            )
+
+    def test_negative_no_response_votes_raises(self) -> None:
+        """Test negative no_response votes raises ValueError."""
+        with pytest.raises(ValueError, match="no_response_votes must be non-negative"):
+            ArchonDeliberationMetrics(
+                archon_id=uuid4(),
+                no_response_votes=-1,
+            )
+
     def test_votes_exceed_participations_raises(self) -> None:
         """Test total votes exceeding participations raises ValueError."""
         with pytest.raises(ValueError, match="cannot exceed participations"):
@@ -222,4 +284,6 @@ class TestArchonDeliberationMetrics:
         assert updated.acknowledge_votes == 2
         assert updated.refer_votes == 1
         assert updated.escalate_votes == 0
+        assert updated.defer_votes == 0
+        assert updated.no_response_votes == 0
         assert updated.acknowledgment_rate == pytest.approx(2 / 3)

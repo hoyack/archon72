@@ -162,6 +162,16 @@ class CrewAIDeliberationAdapter(PhaseExecutorProtocol):
             )
         return profile
 
+    def _get_active_archons(self, session: DeliberationSession) -> tuple[UUID, ...]:
+        """Return active archons in assigned order with substitutions applied."""
+        active = list(session.assigned_archons)
+        for sub in session.substitutions:
+            active = [
+                sub.substitute_archon_id if aid == sub.failed_archon_id else aid
+                for aid in active
+            ]
+        return tuple(active)
+
     async def _invoke_archon(
         self,
         archon_id: UUID,
@@ -297,7 +307,7 @@ Provide your independent assessment covering:
 1. Nature and legitimacy of the petition
 2. Potential impacts and considerations
 3. Relevant constitutional or procedural factors
-4. Initial disposition tendency (ACKNOWLEDGE, REFER, or ESCALATE)
+4. Initial disposition tendency (ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE)
 
 Be thorough but concise. Your assessment will inform subsequent deliberation phases."""
 
@@ -346,9 +356,11 @@ State your preferred disposition choosing from:
 - ACKNOWLEDGE: Note the petition, no further action required
 - REFER: Route to the relevant Knight for domain-specific review
 - ESCALATE: Elevate to the King for adoption consideration
+- DEFER: Defer the petition for later consideration
+- NO_RESPONSE: Decline to respond to the petition
 
 Provide:
-1. Your chosen disposition: [ACKNOWLEDGE | REFER | ESCALATE]
+1. Your chosen disposition: [ACKNOWLEDGE | REFER | ESCALATE | DEFER | NO_RESPONSE]
 2. Clear rationale for your choice
 3. Any conditions or caveats"""
 
@@ -438,6 +450,8 @@ Your response MUST start with one of these exact strings:
 - "VOTE: ACKNOWLEDGE" - Note the petition, no further action
 - "VOTE: REFER" - Route to Knight for review
 - "VOTE: ESCALATE" - Elevate to King for consideration
+- "VOTE: DEFER" - Defer the petition for later consideration
+- "VOTE: NO_RESPONSE" - Decline to respond to the petition
 
 Then briefly explain your final reasoning."""
 
@@ -465,10 +479,11 @@ Then briefly explain your final reasoning."""
             "assess_phase_starting",
             session_id=str(session.session_id),
             petition_id=str(package.petition_id),
-            archon_count=len(session.assigned_archons),
+            archon_count=len(self._get_active_archons(session)),
         )
 
         started_at = _utc_now()
+        active_archons = self._get_active_archons(session)
 
         async def execute_concurrent() -> list[tuple[UUID, str]]:
             """Execute all archon invocations concurrently."""
@@ -478,10 +493,10 @@ Then briefly explain your final reasoning."""
                     self._build_assess_prompt(archon_id, package),
                     DeliberationPhase.ASSESS,
                 )
-                for archon_id in session.assigned_archons
+                for archon_id in active_archons
             ]
             results = await asyncio.gather(*tasks)
-            return list(zip(session.assigned_archons, results, strict=True))
+            return list(zip(active_archons, results, strict=True))
 
         # Run concurrent execution
         assessments = self._run_async(execute_concurrent())
@@ -520,7 +535,7 @@ Then briefly explain your final reasoning."""
             phase=DeliberationPhase.ASSESS,
             transcript=transcript,
             transcript_hash=transcript_hash,
-            participants=session.assigned_archons,
+            participants=active_archons,
             started_at=started_at,
             completed_at=completed_at,
             phase_metadata={
@@ -558,11 +573,12 @@ Then briefly explain your final reasoning."""
         )
 
         started_at = _utc_now()
+        active_archons = self._get_active_archons(session)
 
         async def execute_sequential() -> list[tuple[UUID, str]]:
             """Execute archon invocations sequentially."""
             positions: list[tuple[UUID, str]] = []
-            for archon_id in session.assigned_archons:
+            for archon_id in active_archons:
                 prompt = self._build_position_prompt(archon_id, package, positions)
                 response = await self._invoke_archon(
                     archon_id, prompt, DeliberationPhase.POSITION
@@ -604,7 +620,7 @@ Then briefly explain your final reasoning."""
             phase=DeliberationPhase.POSITION,
             transcript=transcript,
             transcript_hash=transcript_hash,
-            participants=session.assigned_archons,
+            participants=active_archons,
             started_at=started_at,
             completed_at=completed_at,
             phase_metadata={
@@ -642,6 +658,7 @@ Then briefly explain your final reasoning."""
         )
 
         started_at = _utc_now()
+        active_archons = self._get_active_archons(session)
         all_positions = position_result.get_metadata("positions", [])
         exchange_history: list[str] = []
         rounds_completed = 0
@@ -652,7 +669,7 @@ Then briefly explain your final reasoning."""
             nonlocal challenges_raised
             round_had_challenges = False
 
-            for archon_id in session.assigned_archons:
+            for archon_id in active_archons:
                 prompt = self._build_cross_examine_prompt(
                     archon_id, package, all_positions, exchange_history
                 )
@@ -709,7 +726,7 @@ Then briefly explain your final reasoning."""
             phase=DeliberationPhase.CROSS_EXAMINE,
             transcript=transcript,
             transcript_hash=transcript_hash,
-            participants=session.assigned_archons,
+            participants=active_archons,
             started_at=started_at,
             completed_at=completed_at,
             phase_metadata={
@@ -747,6 +764,7 @@ Then briefly explain your final reasoning."""
         )
 
         started_at = _utc_now()
+        active_archons = self._get_active_archons(session)
         cross_examine_summary = cross_examine_result.transcript[
             :2000
         ]  # Truncate for prompt
@@ -759,10 +777,10 @@ Then briefly explain your final reasoning."""
                     self._build_vote_prompt(archon_id, package, cross_examine_summary),
                     DeliberationPhase.VOTE,
                 )
-                for archon_id in session.assigned_archons
+                for archon_id in active_archons
             ]
             results = await asyncio.gather(*tasks)
-            return list(zip(session.assigned_archons, results, strict=True))
+            return list(zip(active_archons, results, strict=True))
 
         vote_responses = self._run_async(execute_concurrent())
 
@@ -822,7 +840,7 @@ Then briefly explain your final reasoning."""
             phase=DeliberationPhase.VOTE,
             transcript=transcript,
             transcript_hash=transcript_hash,
-            participants=session.assigned_archons,
+            participants=active_archons,
             started_at=started_at,
             completed_at=completed_at,
             phase_metadata={
@@ -853,6 +871,18 @@ Then briefly explain your final reasoning."""
             or "VOTE:ACKNOWLEDGE" in response_upper
         ):
             return DeliberationOutcome.ACKNOWLEDGE
+        if (
+            "VOTE: DEFER" in response_upper
+            or "VOTE:DEFER" in response_upper
+        ):
+            return DeliberationOutcome.DEFER
+        if (
+            "VOTE: NO_RESPONSE" in response_upper
+            or "VOTE:NO_RESPONSE" in response_upper
+            or "VOTE: NO RESPONSE" in response_upper
+            or "VOTE:NORESPONSE" in response_upper
+        ):
+            return DeliberationOutcome.NO_RESPONSE
 
         # Try to find the outcome in a more flexible way
         if "ESCALATE" in response_upper and "VOTE" in response_upper:
@@ -861,6 +891,13 @@ Then briefly explain your final reasoning."""
             return DeliberationOutcome.REFER
         if "ACKNOWLEDGE" in response_upper and "VOTE" in response_upper:
             return DeliberationOutcome.ACKNOWLEDGE
+        if "DEFER" in response_upper and "VOTE" in response_upper:
+            return DeliberationOutcome.DEFER
+        if (
+            "NO_RESPONSE" in response_upper
+            or "NO RESPONSE" in response_upper
+        ) and "VOTE" in response_upper:
+            return DeliberationOutcome.NO_RESPONSE
 
         return None
 

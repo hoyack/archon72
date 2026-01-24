@@ -105,7 +105,7 @@ class PetitionEventEmitterPort(Protocol):
         Args:
             petition_id: The petition reaching terminal state.
             previous_state: State before fate assignment (RECEIVED or DELIBERATING).
-            new_state: Terminal fate state (ACKNOWLEDGED, REFERRED, or ESCALATED).
+            new_state: Terminal fate state (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, or NO_RESPONSE).
             actor_id: Agent or system identifier that assigned the fate.
             reason: Optional reason code or rationale.
 

@@ -165,10 +165,10 @@ class TestCoSignPetitionFatedError:
 
     @pytest.mark.parametrize(
         "terminal_state",
-        ["ACKNOWLEDGED", "REFERRED", "ESCALATED"],
+        ["ACKNOWLEDGED", "REFERRED", "ESCALATED", "DEFERRED", "NO_RESPONSE"],
     )
     def test_accepts_all_three_fates(self, terminal_state: str) -> None:
-        """Error should accept all Three Fates terminal states."""
+        """Error should accept all terminal fate states."""
         petition_id = uuid4()
         error = CoSignPetitionFatedError(petition_id, terminal_state)
         assert error.terminal_state == terminal_state

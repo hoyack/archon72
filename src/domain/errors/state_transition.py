@@ -64,9 +64,9 @@ class InvalidStateTransitionError(ConstitutionalViolationError):
 class PetitionAlreadyFatedError(ConstitutionalViolationError):
     """Raised when attempting to modify a petition in terminal state (FR-2.6).
 
-    Once a petition has been assigned a fate (ACKNOWLEDGED, REFERRED, or
-    ESCALATED), no further state transitions are permitted. This ensures
-    the integrity of the Three Fates deliberation system.
+    Once a petition has been assigned a fate (ACKNOWLEDGED, REFERRED, ESCALATED,
+    DEFERRED, or NO_RESPONSE), no further state transitions are permitted. This
+    ensures the integrity of the Three Fates deliberation system.
 
     Constitutional Constraints:
     - FR-2.6: System SHALL mark petition as terminal when fate assigned
@@ -86,7 +86,7 @@ class PetitionAlreadyFatedError(ConstitutionalViolationError):
 
         Args:
             petition_id: UUID string of the petition.
-            terminal_state: The terminal state (ACKNOWLEDGED/REFERRED/ESCALATED).
+            terminal_state: The terminal state (ACKNOWLEDGED/REFERRED/ESCALATED/DEFERRED/NO_RESPONSE).
         """
         self.petition_id = petition_id
         self.terminal_state = terminal_state

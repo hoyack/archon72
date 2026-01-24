@@ -1,0 +1,56 @@
+{
+  "type": "record",
+  "name": "WitnessRequest",
+  "namespace": "archon72.conclave.votes",
+  "doc": "Witness request emitted after secretary consensus.",
+  "fields": [
+    {
+      "name": "vote_id",
+      "type": "string",
+      "doc": "Vote being observed (UUID)"
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "doc": "Conclave session identifier (UUID)"
+    },
+    {
+      "name": "archon_id",
+      "type": "string",
+      "doc": "Archon who cast the vote (UUID)"
+    },
+    {
+      "name": "raw_response",
+      "type": "string",
+      "doc": "Original LLM response text"
+    },
+    {
+      "name": "motion_text",
+      "type": "string",
+      "doc": "Motion being voted on"
+    },
+    {
+      "name": "secretary_text_choice",
+      "type": "string",
+      "doc": "SECRETARY_TEXT determination"
+    },
+    {
+      "name": "secretary_json_choice",
+      "type": "string",
+      "doc": "SECRETARY_JSON determination"
+    },
+    {
+      "name": "consensus_choice",
+      "type": "string",
+      "doc": "Consensus choice agreed by secretaries"
+    },
+    {
+      "name": "timestamp_ms",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "When this request was created"
+    }
+  ]
+}

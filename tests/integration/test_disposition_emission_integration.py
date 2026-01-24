@@ -235,6 +235,56 @@ class TestFullDispositionFlow:
         assert len(pending) == 1
 
     @pytest.mark.asyncio
+    async def test_complete_defer_flow(self) -> None:
+        """Test complete flow for DEFER disposition."""
+        # Arrange
+        petition_id = uuid4()
+        petition = _create_petition(petition_id)
+        session = _create_complete_session(
+            archons=self.archons,
+            petition_id=petition_id,
+            outcome=DeliberationOutcome.DEFER,
+        )
+        consensus = _create_consensus(session, "DEFER")
+
+        # Act
+        result = await self.service.emit_disposition(session, consensus, petition)
+
+        # Verify
+        assert result.success is True
+        assert result.routing_event.pipeline == PipelineType.DEFERRED_REVIEW
+
+        pending = await self.service.get_pending_dispositions(
+            PipelineType.DEFERRED_REVIEW
+        )
+        assert len(pending) == 1
+
+    @pytest.mark.asyncio
+    async def test_complete_no_response_flow(self) -> None:
+        """Test complete flow for NO_RESPONSE disposition."""
+        # Arrange
+        petition_id = uuid4()
+        petition = _create_petition(petition_id)
+        session = _create_complete_session(
+            archons=self.archons,
+            petition_id=petition_id,
+            outcome=DeliberationOutcome.NO_RESPONSE,
+        )
+        consensus = _create_consensus(session, "NO_RESPONSE")
+
+        # Act
+        result = await self.service.emit_disposition(session, consensus, petition)
+
+        # Verify
+        assert result.success is True
+        assert result.routing_event.pipeline == PipelineType.NO_RESPONSE_ARCHIVE
+
+        pending = await self.service.get_pending_dispositions(
+            PipelineType.NO_RESPONSE_ARCHIVE
+        )
+        assert len(pending) == 1
+
+    @pytest.mark.asyncio
     async def test_dissent_tracking_in_flow(self) -> None:
         """Test that dissent is properly tracked through the flow."""
         # Arrange - 2-1 vote with dissent
@@ -311,6 +361,12 @@ class TestMultiplePipelineScenarios:
             ),
             (DeliberationOutcome.REFER, "REFER", PipelineType.KNIGHT_REFERRAL),
             (DeliberationOutcome.ESCALATE, "ESCALATE", PipelineType.KING_ESCALATION),
+            (DeliberationOutcome.DEFER, "DEFER", PipelineType.DEFERRED_REVIEW),
+            (
+                DeliberationOutcome.NO_RESPONSE,
+                "NO_RESPONSE",
+                PipelineType.NO_RESPONSE_ARCHIVE,
+            ),
         ]
 
         for outcome, outcome_str, expected_pipeline in outcomes:

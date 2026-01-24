@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 # Supported LLM providers
-LLMProvider = Literal["anthropic", "openai", "google", "local"]
+LLMProvider = Literal["anthropic", "openai", "google", "local", "ollama_cloud"]
 
 
 @dataclass(frozen=True, eq=True)
@@ -21,7 +21,7 @@ class LLMConfig:
     personality fidelity across the 72-agent collective.
 
     Attributes:
-        provider: The LLM provider (anthropic, openai, google, local)
+        provider: The LLM provider (anthropic, openai, google, local, ollama_cloud)
         model: The specific model identifier (e.g., claude-3-opus, gpt-4o)
         temperature: Sampling temperature (0.0 = deterministic, 1.0 = creative)
         max_tokens: Maximum tokens in response
@@ -29,7 +29,7 @@ class LLMConfig:
         api_key_env: Optional override for API key environment variable name.
                      If None, uses provider default (e.g., ANTHROPIC_API_KEY)
         base_url: Optional base URL for the LLM API endpoint.
-                  For local/Ollama, this specifies the Ollama server address.
+                  For Ollama, this specifies the API base URL.
                   If None for local provider, falls back to OLLAMA_HOST env var.
                   Enables per-archon server assignment for distributed inference.
     """
@@ -63,6 +63,7 @@ class LLMConfig:
             "openai": "OPENAI_API_KEY",
             "google": "GOOGLE_API_KEY",
             "local": "LOCAL_LLM_API_KEY",
+            "ollama_cloud": "OLLAMA_API_KEY",
         }
         return self.api_key_env or env_map.get(self.provider, "LLM_API_KEY")
 

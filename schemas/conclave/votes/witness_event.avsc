@@ -1,0 +1,61 @@
+{
+  "type": "record",
+  "name": "WitnessEvent",
+  "namespace": "archon72.conclave.votes",
+  "doc": "Witness observation for secretary consensus.",
+  "fields": [
+    {
+      "name": "vote_id",
+      "type": "string",
+      "doc": "Vote being observed (UUID)"
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "doc": "Conclave session identifier (UUID)"
+    },
+    {
+      "name": "archon_id",
+      "type": "string",
+      "doc": "Archon who cast the vote (UUID)"
+    },
+    {
+      "name": "witness_id",
+      "type": "string",
+      "doc": "Witness archon ID (UUID)"
+    },
+    {
+      "name": "consensus_choice",
+      "type": "string",
+      "doc": "Consensus choice determined by secretaries"
+    },
+    {
+      "name": "verdict",
+      "type": "string",
+      "doc": "Witness verdict (AGREES or DISSENTS)"
+    },
+    {
+      "name": "statement",
+      "type": "string",
+      "doc": "Witness statement"
+    },
+    {
+      "name": "secretary_text_choice",
+      "type": "string",
+      "doc": "SECRETARY_TEXT determination"
+    },
+    {
+      "name": "secretary_json_choice",
+      "type": "string",
+      "doc": "SECRETARY_JSON determination"
+    },
+    {
+      "name": "timestamp_ms",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "When this witness event was recorded"
+    }
+  ]
+}

@@ -613,7 +613,7 @@ class MetricsCollector:
         """Increment the fate notification sent counter (Story 7.2, FR-7.3).
 
         Args:
-            fate: Terminal fate (ACKNOWLEDGED, REFERRED, ESCALATED).
+            fate: Terminal fate (ACKNOWLEDGED, REFERRED, ESCALATED, DEFERRED, NO_RESPONSE).
             channel: Notification channel (WEBHOOK, IN_APP, LONG_POLL).
             status: Delivery status (DELIVERED, FAILED, PERMANENTLY_FAILED).
         """

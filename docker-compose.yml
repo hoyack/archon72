@@ -1,7 +1,167 @@
 # Docker Compose configuration for Archon 72 local development
-# Provides PostgreSQL, Redis, and FastAPI services
+# Provides PostgreSQL, Redis, Redpanda (Kafka), and FastAPI services
 
 services:
+  # =============================================================================
+  # Redpanda (Kafka-compatible) - ADR-001: Message Infrastructure
+  # =============================================================================
+  redpanda:
+    image: redpandadata/redpanda:v24.1.1
+    container_name: archon72-redpanda
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr redpanda:33145
+      - --advertise-rpc-addr redpanda:33145
+      - --mode dev-container
+      - --smp 1
+      - --default-log-level=warn
+    ports:
+      - "18081:18081"  # Schema Registry (external)
+      - "18082:18082"  # Pandaproxy (external)
+      - "19092:19092"  # Kafka (external)
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - archon72-network
+
+  # Redpanda Console (optional - for debugging/monitoring)
+  redpanda-console:
+    image: redpandadata/console:v2.4.5
+    container_name: archon72-redpanda-console
+    environment:
+      - KAFKA_BROKERS=redpanda:9092
+      - KAFKA_SCHEMAREGISTRY_ENABLED=true
+      - KAFKA_SCHEMAREGISTRY_URLS=http://redpanda:8081
+    ports:
+      - "8080:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - archon72-network
+
+  # =============================================================================
+  # Async Validation Workers - ADR-004: Worker Deployment Model
+  # =============================================================================
+  validator-worker-furcas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archon72-validator-furcas
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/archon72
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - SCHEMA_REGISTRY_URL=http://redpanda:8081
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
+      - VALIDATOR_ARCHON_ID=${WITNESS_ARCHON_ID}
+      - VALIDATOR_ROLE=witness
+      - KAFKA_CONSUMER_GROUP=conclave-witness
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: python -m src.workers.validator_worker
+    healthcheck:
+      disable: true
+    networks:
+      - archon72-network
+    profiles:
+      - async-validation  # Only starts with: docker-compose --profile async-validation up
+
+  validator-worker-orias:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archon72-validator-orias
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/archon72
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - SCHEMA_REGISTRY_URL=http://redpanda:8081
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
+      - VALIDATOR_ARCHON_ID=${SECRETARY_TEXT_ARCHON_ID}
+      - VALIDATOR_ROLE=secretary_text
+      - KAFKA_CONSUMER_GROUP=conclave-secretaries
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: python -m src.workers.validator_worker
+    healthcheck:
+      disable: true
+    networks:
+      - archon72-network
+    profiles:
+      - async-validation
+
+  validator-worker-orobas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archon72-validator-orobas
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/archon72
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - SCHEMA_REGISTRY_URL=http://redpanda:8081
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
+      - VALIDATOR_ARCHON_ID=${SECRETARY_JSON_ARCHON_ID}
+      - VALIDATOR_ROLE=secretary_json
+      - KAFKA_CONSUMER_GROUP=conclave-secretaries
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: python -m src.workers.validator_worker
+    healthcheck:
+      disable: true
+    networks:
+      - archon72-network
+    profiles:
+      - async-validation
+
+  consensus-aggregator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: archon72-consensus-aggregator
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/archon72
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - SCHEMA_REGISTRY_URL=http://redpanda:8081
+      - KAFKA_CONSUMER_GROUP=conclave-aggregator
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: python -m src.workers.consensus_aggregator
+    healthcheck:
+      disable: true
+    networks:
+      - archon72-network
+    profiles:
+      - async-validation
+
+  # =============================================================================
+  # Core Services
+  # =============================================================================
   db:
     image: postgres:16-alpine
     container_name: archon72-db
@@ -59,6 +219,7 @@ services:
 
 volumes:
   postgres_data:
+  redpanda_data:
 
 networks:
   archon72-network:

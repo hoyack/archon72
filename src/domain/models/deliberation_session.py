@@ -6,7 +6,7 @@ structured protocol through which 3 Marquis-rank Archons assess a petition.
 
 Constitutional Constraints:
 - CT-14: Silence is expensive - every claim terminates in witnessed fate
-- AT-1: Every petition terminates in exactly one of Three Fates
+- AT-1: Every petition terminates in exactly one fate
 - AT-6: Deliberation is collective judgment, not unilateral decision
 - FR-11.1: System SHALL assign exactly 3 Marquis-rank Archons
 - FR-11.4: Deliberation SHALL follow structured protocol
@@ -71,22 +71,28 @@ class DeliberationPhase(Enum):
 
 
 class DeliberationOutcome(Enum):
-    """Possible outcomes of deliberation (Three Fates).
+    """Possible outcomes of deliberation (Five Fates).
 
     These map to the terminal PetitionState values:
     - ACKNOWLEDGE -> PetitionState.ACKNOWLEDGED
     - REFER -> PetitionState.REFERRED
     - ESCALATE -> PetitionState.ESCALATED
+    - DEFER -> PetitionState.DEFERRED
+    - NO_RESPONSE -> PetitionState.NO_RESPONSE
 
     Outcomes:
         ACKNOWLEDGE: Petition acknowledged, no further action
         REFER: Referred to Knight for review
         ESCALATE: Escalated to King for adoption consideration
+        DEFER: Petition deferred for later consideration
+        NO_RESPONSE: Petition receives no response
     """
 
     ACKNOWLEDGE = "ACKNOWLEDGE"
     REFER = "REFER"
     ESCALATE = "ESCALATE"
+    DEFER = "DEFER"
+    NO_RESPONSE = "NO_RESPONSE"
 
 
 # Phase transition matrix (FR-11.4)
@@ -456,7 +462,9 @@ class DeliberationSession:
     def with_votes(self, votes: dict[UUID, DeliberationOutcome]) -> DeliberationSession:
         """Create new session with votes recorded.
 
-        All 3 assigned archons must vote. Only assigned archons can vote.
+        All 3 active archons must vote. Only active archons can vote.
+        If a substitution occurred, active archons reflect the substitute
+        (Story 2B.4).
 
         Args:
             votes: Map of archon_id to their vote. Must have exactly 3 entries.
@@ -486,12 +494,12 @@ class DeliberationSession:
                 f"Exactly {REQUIRED_ARCHON_COUNT} votes required, got {len(votes)}"
             )
 
-        # Validate all voters are assigned archons
-        assigned_set = set(self.assigned_archons)
+        # Validate all voters are currently active archons (includes substitutes)
+        active_set = set(self.current_active_archons)
         for archon_id in votes:
-            if archon_id not in assigned_set:
+            if archon_id not in active_set:
                 raise InvalidArchonAssignmentError(
-                    message=f"Archon {archon_id} is not assigned to this session",
+                    message=f"Archon {archon_id} is not active in this session",
                     archon_count=len(votes),
                 )
 
@@ -573,7 +581,7 @@ class DeliberationSession:
                 break
 
         if resolved_outcome is None:
-            # This can happen if all 3 archons vote differently (shouldn't be possible with 3 outcomes)
+            # This can happen if all 3 archons vote differently (no supermajority)
             raise ConsensusNotReachedError(
                 message="No outcome achieved 2-of-3 consensus",
                 votes_received=len(self.votes),

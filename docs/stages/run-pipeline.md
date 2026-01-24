@@ -13,6 +13,27 @@ This guide documents a full end-to-end cycle, including the circular return to C
 
 ## Step-by-Step Commands
 
+### 0) Start Docker dependencies (Postgres, Redis, Redpanda)
+
+```bash
+# Start core services needed by Conclave + Kafka audit trail
+docker compose up -d db redis redpanda redpanda-console
+
+# Create Kafka topics required for async vote validation + audit trail
+python scripts/create_kafka_topics.py --bootstrap-servers localhost:19092
+
+# Verify topic configuration
+python scripts/create_kafka_topics.py --bootstrap-servers localhost:19092 --verify
+
+# Sanity check Redpanda health
+docker exec -it archon72-redpanda rpk cluster health
+```
+
+Optional: start async-validation workers (validator workers + consensus aggregator):
+```bash
+docker compose --profile async-validation up -d
+```
+
 ### 1) Run Conclave (initial session)
 
 ```bash
@@ -28,6 +49,7 @@ Common flags:
 - `--motion-type constitutional|policy|procedural|open`: Motion type (default: `open`).
 - `--debate-rounds <int>`: Max debate rounds (default: 3).
 - `--quick`: Quick mode (1 debate round).
+- `--voting-concurrency <int>`: Max archons voting in parallel (`0` = unlimited, default `1`).
 - `--no-queue`: Skip motion queue loading.
 - `--queue-max-items <int>`: Max queued items (default: 5).
 - `--queue-min-consensus critical|high|medium|low|single`: Min consensus tier.
@@ -37,6 +59,19 @@ Common flags:
 Outputs:
 - Transcript under `_bmad-output/conclave/`
 - Motion queue under `_bmad-output/motion-queue/`
+
+Async validation (Spec v2) example:
+```bash
+ENABLE_ASYNC_VALIDATION=true KAFKA_ENABLED=true \
+KAFKA_BOOTSTRAP_SERVERS=localhost:19092 SCHEMA_REGISTRY_URL=http://localhost:18081 \
+python scripts/run_conclave.py --quick --voting-concurrency 8 --no-queue --no-blockers
+```
+
+Async validation summary (Spec v2):
+- **Secretaries** (`SECRETARY_TEXT_ARCHON_ID`, `SECRETARY_JSON_ARCHON_ID`) determine the vote.
+- **Witness** (`WITNESS_ARCHON_ID`) records agreement/dissent and adjudicates.
+- Validation runs in-process with bounded concurrency; reconciliation is enforced at adjournment
+  (`RECONCILIATION_TIMEOUT`).
 
 ### 2) Run Secretary (extract recommendations/motions)
 
@@ -172,3 +207,9 @@ python scripts/run_conclave.py --blockers-path _bmad-output/execution-planner/<s
 - `scripts/run_execution_planner.py` consumes `ratification_results.json` from the review pipeline output directory.
 - If you pass `--triage-only`, no review/ratification files are generated.
 - For role-based overrides, set the Archon UUIDs in `.env` and ensure those IDs exist in `docs/archons-base.json`.
+- Async vote validation (Spec v2) requires `SECRETARY_TEXT_ARCHON_ID`, `SECRETARY_JSON_ARCHON_ID`,
+  and `WITNESS_ARCHON_ID`. If any are missing, Conclave falls back to sync validation.
+- `ENABLE_ASYNC_VALIDATION=true` enables the in-process async validator in `run_conclave.py`.
+  `KAFKA_ENABLED=true` only publishes audit events; Kafka health should be verified first.
+- If you hit Ollama Cloud rate limits, lower `--voting-concurrency` and/or set
+  `OLLAMA_MAX_CONCURRENT` plus `OLLAMA_RETRY_*` backoff settings.

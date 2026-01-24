@@ -31,6 +31,12 @@ from src.bootstrap.observer import (
     get_freeze_checker,
     get_halt_checker,
 )
+from src.bootstrap.observer import (
+    get_deliberation_recorder as _get_deliberation_recorder,
+)
+from src.bootstrap.observer import (
+    get_integrity_case_service as _get_integrity_case_service,
+)
 
 if TYPE_CHECKING:
     from src.domain.events import Event
@@ -257,3 +263,23 @@ def get_notification_service() -> NotificationService:
 
 
 """Deliberation recorder and integrity case service provided by bootstrap."""
+
+
+def get_deliberation_recorder():
+    """Get deliberation recorder instance from bootstrap wiring."""
+    return _get_deliberation_recorder()
+
+
+def get_integrity_case_service():
+    """Get integrity case service instance from bootstrap wiring."""
+    return _get_integrity_case_service()
+
+
+__all__ = [
+    "get_deliberation_recorder",
+    "get_export_service",
+    "get_integrity_case_service",
+    "get_notification_service",
+    "get_observer_service",
+    "get_rate_limiter",
+]

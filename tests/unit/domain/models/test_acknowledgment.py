@@ -233,6 +233,7 @@ class TestAcknowledgmentSerialization:
             rationale=None,
             reference_petition_id=None,
             acknowledging_archon_ids=(15, 42),
+            acknowledged_by_king_id=None,
             acknowledged_at=acknowledged_at,
             witness_hash="blake3:abc",
         )
@@ -245,6 +246,7 @@ class TestAcknowledgmentSerialization:
         assert result["rationale"] is None
         assert result["reference_petition_id"] is None
         assert result["acknowledging_archon_ids"] == [15, 42]
+        assert result["acknowledged_by_king_id"] is None
         assert result["acknowledged_at"] == acknowledged_at.isoformat()
         assert result["witness_hash"] == "blake3:abc"
         assert result["schema_version"] == ACKNOWLEDGMENT_SCHEMA_VERSION

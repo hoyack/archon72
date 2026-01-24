@@ -304,7 +304,7 @@ class TestJSONParsing:
         raw = '```json\n[{"key": "value"}]\n```'
         cleaned = aggressive_clean(raw)
         assert "```" not in cleaned
-        assert "[" in cleaned
+        assert "{" in cleaned
 
     def test_aggressive_json_clean_fixes_trailing_commas(self) -> None:
         """Test aggressive_json_clean removes trailing commas."""

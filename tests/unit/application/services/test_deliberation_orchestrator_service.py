@@ -98,7 +98,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Verify outcome
         assert result.outcome == DeliberationOutcome.ACKNOWLEDGE
@@ -135,7 +135,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub.with_votes(votes)
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.REFER
         assert result.is_unanimous is False
@@ -153,7 +153,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub.with_unanimous_vote(DeliberationOutcome.ESCALATE)
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.ESCALATE
         assert result.is_unanimous is True
@@ -170,7 +170,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         for phase_result in result.phase_results:
             assert phase_result.transcript != ""
@@ -188,7 +188,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         for phase_result in result.phase_results:
             assert len(phase_result.participants) == 3
@@ -222,7 +222,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.started_at is not None
         assert result.completed_at is not None
@@ -248,7 +248,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub.with_votes(expected_votes)
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Verify votes match
         assert result.votes == expected_votes
@@ -267,7 +267,7 @@ class TestDeliberationOrchestratorService:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Check ASSESS metadata
         assess = result.get_phase_result(DeliberationPhase.ASSESS)
@@ -304,11 +304,11 @@ class TestDeliberationOrchestratorService:
 
         executor1 = PhaseExecutorStub.with_votes(votes)
         orchestrator1 = DeliberationOrchestratorService(executor1)
-        result1 = orchestrator1.orchestrate(session, package)
+        _, result1 = orchestrator1.orchestrate(session, package)
 
         executor2 = PhaseExecutorStub.with_votes(votes)
         orchestrator2 = DeliberationOrchestratorService(executor2)
-        result2 = orchestrator2.orchestrate(session, package)
+        _, result2 = orchestrator2.orchestrate(session, package)
 
         # Outcomes must match
         assert result1.outcome == result2.outcome
@@ -332,7 +332,7 @@ class TestPhaseSequenceEnforcement:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Verify strict order
         expected_order = [
@@ -361,7 +361,7 @@ class TestPhaseSequenceEnforcement:
         executor = PhaseExecutorStub()
         orchestrator = DeliberationOrchestratorService(executor)
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Must have exactly 4 phases
         assert len(result.phase_results) == 4
@@ -397,7 +397,7 @@ class TestConsensusResolution:
 
         executor = PhaseExecutorStub.with_votes(votes)
         orchestrator = DeliberationOrchestratorService(executor)
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.ACKNOWLEDGE
 
@@ -419,7 +419,7 @@ class TestConsensusResolution:
 
         executor = PhaseExecutorStub.with_votes(votes)
         orchestrator = DeliberationOrchestratorService(executor)
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.REFER
 
@@ -441,7 +441,7 @@ class TestConsensusResolution:
 
         executor = PhaseExecutorStub.with_votes(votes)
         orchestrator = DeliberationOrchestratorService(executor)
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.ESCALATE
 
@@ -463,7 +463,7 @@ class TestConsensusResolution:
 
         executor = PhaseExecutorStub.with_votes(votes)
         orchestrator = DeliberationOrchestratorService(executor)
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.REFER
         assert result.is_unanimous is True
@@ -487,7 +487,7 @@ class TestConsensusResolution:
 
         executor = PhaseExecutorStub.with_votes(votes)
         orchestrator = DeliberationOrchestratorService(executor)
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         assert result.outcome == DeliberationOutcome.ACKNOWLEDGE
         assert result.is_unanimous is False
@@ -546,7 +546,7 @@ class TestDeadlockIntegration:
             config=config,
         )
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Should eventually deadlock and auto-ESCALATE
         assert result.outcome == DeliberationOutcome.ESCALATE
@@ -575,7 +575,7 @@ class TestDeadlockIntegration:
             config=SINGLE_ROUND_DELIBERATION_CONFIG,
         )
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # Immediate deadlock on first 1-1-1
         assert result.outcome == DeliberationOutcome.ESCALATE
@@ -603,7 +603,7 @@ class TestDeadlockIntegration:
             deadlock_handler=deadlock_handler,
         )
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # 2-1 reaches consensus normally
         assert result.outcome == DeliberationOutcome.REFER
@@ -634,7 +634,7 @@ class TestDeadlockIntegration:
             config=config,
         )
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # FR-11.10: Must auto-ESCALATE
         assert result.outcome == DeliberationOutcome.ESCALATE
@@ -662,7 +662,7 @@ class TestDeadlockIntegration:
             deadlock_handler=deadlock_handler,
         )
 
-        result = orchestrator.orchestrate(session, package)
+        _, result = orchestrator.orchestrate(session, package)
 
         # CT-11: Session must have completed with a valid outcome
         assert result.outcome is not None

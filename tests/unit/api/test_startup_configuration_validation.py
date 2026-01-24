@@ -41,11 +41,11 @@ class TestValidateConfigurationFloorsAtStartup:
         ]
 
         with patch(
-            "src.api.startup.ConfigurationFloorEnforcementService"
-        ) as MockService:
+            "src.api.startup.get_configuration_floor_enforcement_service"
+        ) as mock_get_service:
             mock_service = AsyncMock()
             mock_service.validate_startup_configuration.return_value = mock_result
-            MockService.return_value = mock_service
+            mock_get_service.return_value = mock_service
 
             with pytest.raises(StartupFloorViolationError):
                 await validate_configuration_floors_at_startup()

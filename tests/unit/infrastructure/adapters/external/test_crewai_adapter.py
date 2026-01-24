@@ -164,7 +164,7 @@ class TestCrewaiLlmFactory:
             model="claude-3-opus-20240229",
         )
         llm = create_crewai_llm(config)
-        assert llm == "anthropic/claude-3-opus-20240229"
+        assert getattr(llm, "model", llm) == "anthropic/claude-3-opus-20240229"
 
     def test_openai_provider(self) -> None:
         """Test OpenAI provider string generation."""
@@ -173,7 +173,7 @@ class TestCrewaiLlmFactory:
             model="gpt-4o",
         )
         llm = create_crewai_llm(config)
-        assert llm == "openai/gpt-4o"
+        assert getattr(llm, "model", llm) == "openai/gpt-4o"
 
     def test_google_provider(self) -> None:
         """Test Google provider string generation."""
@@ -182,7 +182,7 @@ class TestCrewaiLlmFactory:
             model="gemini-pro",
         )
         llm = create_crewai_llm(config)
-        assert llm == "google/gemini-pro"
+        assert getattr(llm, "model", llm) == "google/gemini-pro"
 
     def test_local_provider_maps_to_ollama(self) -> None:
         """Test local provider maps to ollama."""
@@ -343,7 +343,9 @@ class TestCrewAIAgentCreation:
 
         assert call_kwargs["role"] == sample_archon_profile.role
         assert call_kwargs["goal"] == sample_archon_profile.goal
-        assert call_kwargs["llm"] == "anthropic/claude-3-opus-20240229"
+        assert getattr(call_kwargs["llm"], "model", call_kwargs["llm"]) == (
+            "anthropic/claude-3-opus-20240229"
+        )
         assert call_kwargs["allow_delegation"] is True
         assert call_kwargs["verbose"] is False
 

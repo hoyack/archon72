@@ -55,10 +55,12 @@ class TestPetitionState:
         assert PetitionState.ACKNOWLEDGED.value == "ACKNOWLEDGED"
         assert PetitionState.REFERRED.value == "REFERRED"
         assert PetitionState.ESCALATED.value == "ESCALATED"
+        assert PetitionState.DEFERRED.value == "DEFERRED"
+        assert PetitionState.NO_RESPONSE.value == "NO_RESPONSE"
 
     def test_enum_count(self) -> None:
-        """Verify exactly 5 petition states."""
-        assert len(PetitionState) == 5
+        """Verify exactly 7 petition states."""
+        assert len(PetitionState) == 7
 
 
 class TestPetitionSubmission:

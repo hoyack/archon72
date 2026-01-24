@@ -482,7 +482,7 @@ class TestVoting:
         with pytest.raises(InvalidArchonAssignmentError) as exc_info:
             sample_session.with_votes(votes)
 
-        assert "not assigned to this session" in str(exc_info.value)
+        assert "not active in this session" in str(exc_info.value)
 
     def test_votes_fail_with_too_few_votes(self, sample_session):
         """Test that fewer than 3 votes raises error."""

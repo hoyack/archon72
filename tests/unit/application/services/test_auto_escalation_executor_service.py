@@ -335,6 +335,8 @@ class TestExecuteSuccessfulEscalation:
             submission_id=petition_id,
             expected_state=PetitionState.RECEIVED,
             new_state=PetitionState.ESCALATED,
+            escalation_source="CO_SIGNER_THRESHOLD",
+            escalated_to_realm="default",
         )
 
     @pytest.mark.asyncio
@@ -368,6 +370,8 @@ class TestExecuteSuccessfulEscalation:
             submission_id=petition_id,
             expected_state=PetitionState.DELIBERATING,
             new_state=PetitionState.ESCALATED,
+            escalation_source="CO_SIGNER_THRESHOLD",
+            escalated_to_realm="default",
         )
 
     @pytest.mark.asyncio

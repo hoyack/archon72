@@ -151,7 +151,7 @@ class TestKingAcknowledgeHappyPath:
         )
 
         assert ack.acknowledged_by_king_id == king_id
-        assert ack.acknowledging_archon_ids == []
+        assert ack.acknowledging_archon_ids == ()
         # Verify these are mutually exclusive
         assert (ack.acknowledged_by_king_id is not None) != (
             len(ack.acknowledging_archon_ids) > 0
@@ -477,7 +477,11 @@ class TestEventEmission:
         assert len(events) > 0
 
         # Find the KingAcknowledgedEscalation event
-        king_ack_events = [e for e in events if "king_acknowledged" in e.get("event_type", "").lower()]
+        king_ack_events = [
+            e
+            for e in events
+            if e.get("event_type") == "petition.escalation.acknowledged_by_king"
+        ]
         assert len(king_ack_events) == 1
 
         event = king_ack_events[0]

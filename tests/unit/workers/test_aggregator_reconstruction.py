@@ -93,6 +93,26 @@ def create_validator_response(
     )
 
 
+def create_vote_aggregation(
+    vote_id: str | UUID,
+    session_id: str | UUID,
+    optimistic_choice: str = "APPROVE",
+    archon_id: str = "archon_test",
+    raw_response: str = "raw response",
+    motion_text: str = "motion text",
+) -> VoteAggregation:
+    """Helper to create VoteAggregation with required fields."""
+    return VoteAggregation(
+        vote_id=str(vote_id),
+        session_id=str(session_id),
+        archon_id=archon_id,
+        raw_response=raw_response,
+        motion_text=motion_text,
+        optimistic_choice=optimistic_choice,
+    )
+
+
+
 class TestStateReconstruction:
     """Tests for aggregator state reconstruction from Kafka replay.
 
@@ -102,7 +122,7 @@ class TestStateReconstruction:
 
     def test_fresh_vote_aggregation_has_no_responses(self) -> None:
         """Test that a fresh VoteAggregation starts with no responses."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -121,7 +141,7 @@ class TestStateReconstruction:
         session_id = str(uuid4())
 
         # Create "original" vote aggregation and add response
-        original = VoteAggregation(
+        original = create_vote_aggregation(
             vote_id=vote_id,
             session_id=session_id,
             optimistic_choice="APPROVE",
@@ -139,7 +159,7 @@ class TestStateReconstruction:
         assert "validator_1:1" in original.responses
 
         # Create "restarted" vote aggregation (simulating replay)
-        restarted = VoteAggregation(
+        restarted = create_vote_aggregation(
             vote_id=vote_id,
             session_id=session_id,
             optimistic_choice="APPROVE",
@@ -159,7 +179,7 @@ class TestStateReconstruction:
         Idempotency guarantee: (vote_id, validator_id, attempt) tuple
         should only be processed once.
         """
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -194,14 +214,14 @@ class TestStateReconstruction:
         vote_id = str(uuid4())
 
         # Vote for current session
-        vote_current = VoteAggregation(
+        vote_current = create_vote_aggregation(
             vote_id=vote_id,
             session_id=current_session,
             optimistic_choice="APPROVE",
         )
 
         # Vote for other session (same vote_id, different session)
-        vote_other = VoteAggregation(
+        vote_other = create_vote_aggregation(
             vote_id=vote_id,
             session_id=other_session,
             optimistic_choice="APPROVE",
@@ -219,7 +239,7 @@ class TestStateReconstruction:
 
     def test_consensus_determination_both_agree(self) -> None:
         """Test that consensus is correctly determined when validators agree."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -245,7 +265,7 @@ class TestStateReconstruction:
 
     def test_no_consensus_when_validators_disagree(self) -> None:
         """Test that disagreement is tracked correctly."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -276,7 +296,7 @@ class TestIdempotencyGuarantees:
 
     def test_same_validator_multiple_attempts(self) -> None:
         """Test that multiple attempts from same validator are tracked separately."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -306,7 +326,7 @@ class TestIdempotencyGuarantees:
 
     def test_duplicate_key_ignored(self) -> None:
         """Test that duplicate (vote_id, validator_id, attempt) is ignored."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -339,7 +359,7 @@ class TestMetricsAfterReconstruction:
 
         for i in range(5):
             vote_id = str(uuid4())
-            vote = VoteAggregation(
+            vote = create_vote_aggregation(
                 vote_id=vote_id,
                 session_id=str(uuid4()),
                 optimistic_choice="APPROVE",
@@ -362,7 +382,7 @@ class TestMetricsAfterReconstruction:
 
     def test_duplicate_skip_tracking(self) -> None:
         """Test that duplicate skips can be tracked."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -390,7 +410,7 @@ class TestEdgeCases:
 
     def test_empty_aggregation(self) -> None:
         """Test that empty VoteAggregation is valid."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -402,7 +422,7 @@ class TestEdgeCases:
 
     def test_partial_consensus_state(self) -> None:
         """Test state with only partial validator responses."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -421,7 +441,7 @@ class TestEdgeCases:
 
     def test_response_data_integrity(self) -> None:
         """Test that response data is preserved correctly."""
-        vote = VoteAggregation(
+        vote = create_vote_aggregation(
             vote_id=str(uuid4()),
             session_id=str(uuid4()),
             optimistic_choice="APPROVE",
@@ -452,7 +472,7 @@ class TestEdgeCases:
         # Create three separate votes
         for i in range(3):
             vote_id = str(uuid4())
-            vote = VoteAggregation(
+            vote = create_vote_aggregation(
                 vote_id=vote_id,
                 session_id=str(uuid4()),
                 optimistic_choice=["APPROVE", "REJECT", "ABSTAIN"][i],

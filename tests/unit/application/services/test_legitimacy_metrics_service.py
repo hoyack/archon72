@@ -129,9 +129,9 @@ class TestLegitimacyMetricsServiceCompute:
 
         # Then
         cursor.execute.assert_called_once()
-        call_args = cursor.execute.call_args
-        assert cycle_start in call_args[0]
-        assert cycle_end in call_args[0]
+        call_args = cursor.execute.call_args[0]
+        assert cycle_start in call_args[1]
+        assert cycle_end in call_args[1]
 
 
 class TestLegitimacyMetricsServiceStore:

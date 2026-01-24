@@ -34,7 +34,7 @@ from src.optional_deps.crewai import Agent, Crew, LLM, Task
 from structlog import get_logger
 
 from src.domain.models.secretary_agent import load_secretary_config_from_yaml
-from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
+from src.application.llm.crewai_llm_factory import create_crewai_llm
 
 logger = get_logger(__name__)
 

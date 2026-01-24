@@ -17,7 +17,7 @@ from uuid import UUID, uuid4
 import pytest
 import pytest_asyncio
 
-from src.api.models.governance_transcript import (
+from src.application.dtos.governance_transcript import (
     FullTranscriptResponse,
     PhaseTranscriptDetail,
     TranscriptUtterance,

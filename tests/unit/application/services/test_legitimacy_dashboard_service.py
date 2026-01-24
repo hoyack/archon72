@@ -109,6 +109,8 @@ class TestGetDashboardData:
             (0.85, 150.0, 120.0),
             # Orphan count
             (5,),
+            # Deliberation metrics
+            (20, 18, 1, 1),
         ]
 
         # Mock historical trend query
@@ -117,8 +119,6 @@ class TestGetDashboardData:
             [("2026-W03", 0.88, datetime.now(timezone.utc))],
             # Petition state counts
             [("RECEIVED", 10), ("DELIBERATING", 5)],
-            # Deliberation metrics
-            [(20, 18, 1, 1)],
             # Archon rates
             [],
         ]
@@ -146,12 +146,12 @@ class TestGetDashboardData:
         mock_cursor.fetchone.side_effect = [
             None,  # No current cycle metrics
             (0,),  # No orphans
+            (0, 0, 0, 0),  # No deliberations
         ]
 
         mock_cursor.fetchall.side_effect = [
             [],  # No historical trend
             [],  # No petition state counts
-            [(0, 0, 0, 0)],  # No deliberations
             [],  # No archon rates
         ]
 

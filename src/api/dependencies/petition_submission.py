@@ -64,6 +64,9 @@ from src.bootstrap.petition_submission import (
     get_realm_registry,
 )
 from src.bootstrap.petition_submission import (
+    get_rate_limiter as _get_rate_limiter,
+)
+from src.bootstrap.petition_submission import (
     reset_petition_submission_dependencies as _reset_petition_submission_dependencies,
 )
 from src.bootstrap.petition_submission import (
@@ -97,6 +100,11 @@ _deliberation_summary_repo: DeliberationSummaryRepositoryProtocol | None = None
 
 
 """Dependency instances are provided by bootstrap wiring."""
+
+
+def get_rate_limiter() -> RateLimiterPort:
+    """Get rate limiter instance for petition submission routes."""
+    return _get_rate_limiter()
 
 
 def get_queue_capacity_service() -> QueueCapacityService:

@@ -86,7 +86,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -124,7 +124,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,
@@ -206,7 +206,7 @@ class TestGetFullTranscript:
         service._transcript_store.retrieve.return_value = transcript_content
 
         # Execute - the logging is internal but we verify the call completes
-        result = await service.get_full_transcript(
+        _ = await service.get_full_transcript(
             session_id=session_id,
             accessor_archon_id=accessor_archon_id,
             accessor_role=accessor_role,

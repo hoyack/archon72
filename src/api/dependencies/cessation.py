@@ -21,11 +21,18 @@ from typing import TYPE_CHECKING
 from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.bootstrap.cessation import get_freeze_checker
+from src.bootstrap.cessation import get_freeze_checker, set_freeze_checker
 
 if TYPE_CHECKING:
     from src.application.ports.freeze_checker import FreezeCheckerProtocol
 
+
+__all__ = [
+    "CeasedWriteResponse",
+    "get_freeze_checker",
+    "require_not_ceased",
+    "set_freeze_checker",
+]
 
 # get_freeze_checker and set_freeze_checker are provided by bootstrap wiring.
 

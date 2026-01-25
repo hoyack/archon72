@@ -529,7 +529,7 @@
       "elevenlabs_voice_id": "J6ztGyM6e7omeh5pPJ5t",
       "llm_config": {
         "provider": "local",
-        "model": "gemini-3-pro-preview:latest",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.675,
         "max_tokens": 8500,
         "timeout_ms": 180000,

@@ -115,6 +115,7 @@ class DebateEntry:
     round_number: int
     timestamp: datetime
     in_favor: bool | None  # True=for, False=against, None=neutral
+    is_red_team: bool = False  # True if this is a red-team adversarial entry
 
     @classmethod
     def create(
@@ -125,6 +126,7 @@ class DebateEntry:
         content: str,
         round_number: int,
         in_favor: bool | None = None,
+        is_red_team: bool = False,
     ) -> DebateEntry:
         return cls(
             entry_id=uuid4(),
@@ -135,6 +137,7 @@ class DebateEntry:
             round_number=round_number,
             timestamp=datetime.now(timezone.utc),
             in_favor=in_favor,
+            is_red_team=is_red_team,
         )
 
 
@@ -191,6 +194,12 @@ class Motion:
     debate_entries: list[DebateEntry] = field(default_factory=list)
     current_debate_round: int = 0
     max_debate_rounds: int = 5  # Can be extended
+
+    # Debate digests - LLM-generated summaries created periodically during debate
+    # Each digest summarizes the debate up to that point (FOR/AGAINST/key arguments)
+    debate_digests: list[str] = field(default_factory=list)
+    last_digest_entry_count: int = 0  # Track when last digest was generated
+    last_digest_attempt_count: int = 0  # Track failed attempts to prevent infinite retry
 
     # Voting
     votes: list[Vote] = field(default_factory=list)

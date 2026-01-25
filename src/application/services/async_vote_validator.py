@@ -8,8 +8,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Literal, Protocol
 
+import structlog
+
 from src.domain.errors.agent import AgentInvocationError
 from src.domain.models.conclave import VoteChoice
+
+logger = structlog.get_logger(__name__)
 
 
 class KafkaPublisherProtocol(Protocol):
@@ -155,6 +159,15 @@ class AsyncVoteValidator:
         self.pending_jobs[vote_id] = job
         self.total_submitted += 1
 
+        logger.info(
+            "Vote submitted for validation",
+            vote_id=vote_id,
+            archon_id=archon_id,
+            archon_name=archon_name,
+            optimistic_choice=optimistic_choice.value,
+            pending_count=len(self.pending_jobs),
+        )
+
         if self.kafka_publisher:
             await self.kafka_publisher.publish(
                 "conclave.votes.validation-started",
@@ -214,6 +227,12 @@ class AsyncVoteValidator:
                     )
         except Exception as exc:
             job.error = str(exc)
+            logger.error(
+                "Validation pipeline failed",
+                vote_id=job.vote_id,
+                archon_name=job.archon_name,
+                error=str(exc),
+            )
         finally:
             job.completed.set()
             self.pending_jobs.pop(job.vote_id, None)
@@ -222,6 +241,27 @@ class AsyncVoteValidator:
             self.total_completed += 1
             if job.override_required:
                 self.total_overrides += 1
+                logger.warning(
+                    "Vote override required",
+                    vote_id=job.vote_id,
+                    archon_name=job.archon_name,
+                    optimistic=job.optimistic_choice.value,
+                    validated=job.adjudication_result.final_vote.value
+                    if job.adjudication_result
+                    else "unknown",
+                )
+            else:
+                logger.info(
+                    "Validation complete",
+                    vote_id=job.vote_id,
+                    archon_name=job.archon_name,
+                    validated_choice=job.adjudication_result.final_vote.value
+                    if job.adjudication_result
+                    else "unknown",
+                    consensus=job.adjudication_result.consensus
+                    if job.adjudication_result
+                    else False,
+                )
 
     async def _run_deliberator(
         self,
@@ -273,6 +313,29 @@ class AsyncVoteValidator:
             )
 
         job.deliberator_results[deliberator_type] = deliberator_result
+
+        # Log deliberator result
+        if deliberator_result.error:
+            logger.warning(
+                "Deliberator failed",
+                vote_id=job.vote_id,
+                archon_name=job.archon_name,
+                deliberator=deliberator_type,
+                error=deliberator_result.error,
+                latency_ms=latency_ms,
+            )
+        else:
+            logger.debug(
+                "Deliberator completed",
+                vote_id=job.vote_id,
+                archon_name=job.archon_name,
+                deliberator=deliberator_type,
+                vote_choice=deliberator_result.vote_choice.value
+                if deliberator_result.vote_choice
+                else None,
+                confidence=deliberator_result.confidence,
+                latency_ms=latency_ms,
+            )
 
         if self.kafka_publisher:
             await self.kafka_publisher.publish(
@@ -348,6 +411,15 @@ class AsyncVoteValidator:
                     f"Witness read: {witness_vote.value if witness_vote else 'unknown'}."
                 )
 
+            logger.info(
+                "Adjudication: secretary consensus reached",
+                vote_id=job.vote_id,
+                archon_name=job.archon_name,
+                final_vote=consensus_vote.value,
+                witness_ruling=ruling.value,
+                retort_reason=retort_reason,
+            )
+
             return AdjudicationResult(
                 consensus=True,
                 final_vote=consensus_vote,
@@ -364,6 +436,15 @@ class AsyncVoteValidator:
             f"text_analysis={secretary_text.value if secretary_text else 'unknown'}, "
             f"json_validation={secretary_json.value if secretary_json else 'unknown'}. "
             f"Preserving optimistic vote: {job.optimistic_choice.value}."
+        )
+
+        logger.warning(
+            "Adjudication: no secretary consensus - preserving optimistic vote",
+            vote_id=job.vote_id,
+            archon_name=job.archon_name,
+            text_analysis=secretary_text.value if secretary_text else "unknown",
+            json_validation=secretary_json.value if secretary_json else "unknown",
+            optimistic_preserved=job.optimistic_choice.value,
         )
 
         return AdjudicationResult(
@@ -428,7 +509,19 @@ class AsyncVoteValidator:
     async def drain(self, timeout_seconds: float = 300.0) -> list[VoteValidationJob]:
         """Wait for all pending validations to complete."""
         if not self.pending_jobs:
+            logger.info(
+                "Validation drain: no pending jobs",
+                total_completed=self.total_completed,
+                overrides_required=self.total_overrides,
+            )
             return list(self.completed_jobs.values())
+
+        pending_count = len(self.pending_jobs)
+        logger.info(
+            "Validation drain started",
+            pending_count=pending_count,
+            timeout_seconds=timeout_seconds,
+        )
 
         pending_events = [job.completed for job in self.pending_jobs.values()]
 
@@ -438,6 +531,11 @@ class AsyncVoteValidator:
                 timeout=timeout_seconds,
             )
         except TimeoutError as exc:
+            logger.error(
+                "Validation drain timed out",
+                pending_count=len(self.pending_jobs),
+                timeout_seconds=timeout_seconds,
+            )
             raise ReconciliationTimeoutError(
                 message=(
                     f"Validation drain timed out after {timeout_seconds}s; "
@@ -446,6 +544,27 @@ class AsyncVoteValidator:
                 pending_count=len(self.pending_jobs),
                 timeout_seconds=timeout_seconds,
             ) from exc
+
+        # Log summary statistics
+        consensus_count = sum(
+            1
+            for job in self.completed_jobs.values()
+            if job.adjudication_result and job.adjudication_result.consensus
+        )
+        retort_count = sum(
+            1
+            for job in self.completed_jobs.values()
+            if job.adjudication_result
+            and job.adjudication_result.ruling == WitnessRuling.RETORT
+        )
+
+        logger.info(
+            "Validation drain complete",
+            total_validated=self.total_completed,
+            consensus_reached=consensus_count,
+            witness_retorts=retort_count,
+            overrides_required=self.total_overrides,
+        )
 
         return list(self.completed_jobs.values())
 

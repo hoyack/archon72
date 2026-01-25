@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import random
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -126,6 +127,20 @@ class ConclaveConfig:
     # Deliberation settings
     max_debate_rounds: int = 5
     speaking_time_limit_seconds: int = 120  # Per turn
+    debate_digest_interval: int = 10  # Generate digest every N debate entries
+
+    # Adversarial deliberation mechanisms (prevent consensus cascade)
+    # 1. Exploitation prompt - adds "consider how this could be abused" to context
+    exploitation_prompt_enabled: bool = True
+    # 2. Adversarial digest - includes pattern-matched risk analysis
+    adversarial_digest_enabled: bool = True
+    # 3. Consensus break - forces opposition when consensus exceeds threshold
+    consensus_break_enabled: bool = True
+    consensus_break_threshold: float = 0.85  # Trigger at 85%+ same stance
+    consensus_break_speaker_count: int = 3  # How many speakers must argue opposite
+    # 4. Red team round - mandatory adversarial round before voting
+    red_team_enabled: bool = True
+    red_team_count: int = 5  # Number of archons in red team
 
     # Quorum settings
     quorum_percentage: float = 0.5  # 50% needed for quorum
@@ -215,6 +230,11 @@ class ConclaveService:
         # Current session state
         self._session: ConclaveSession | None = None
         self._progress_callback: ConclaveProgressCallback | None = None
+
+        # Consensus break tracking (prevents cascade)
+        self._consensus_break_active: bool = False
+        self._consensus_break_target: str = "AGAINST"  # Stance speakers must argue
+        self._consensus_break_remaining: int = 0  # How many speakers left to force
 
         # Ensure output directories exist
         self._config.checkpoint_dir.mkdir(parents=True, exist_ok=True)
@@ -990,9 +1010,16 @@ Then provide a brief explanation (2-3 sentences) for your decision.
             if not motion.next_debate_round():
                 break
 
+        # Run Red Team Round if enabled (mandatory adversarial round)
+        if self._config.red_team_enabled:
+            red_team_entries = await self._conduct_red_team_round(motion)
+            all_entries.extend(red_team_entries)
+            self.save_checkpoint()
+
         self._emit_progress(
             "debate_complete",
-            f"Debate concluded after {motion.current_debate_round} rounds",
+            f"Debate concluded after {motion.current_debate_round} rounds"
+            + (" + red team round" if self._config.red_team_enabled else ""),
             {"total_entries": len(all_entries)},
         )
         self._emit_percent_complete(
@@ -1023,9 +1050,6 @@ Then provide a brief explanation (2-3 sentences) for your decision.
         if self._session is None:
             raise RuntimeError("Conclave session not initialized")
 
-        # Build context for debate
-        debate_context = self._build_debate_context(motion, round_num, topic_prompt)
-
         # Create requests for all archons (in rank order)
         total_archons = len(self._profiles_by_rank)
 
@@ -1043,10 +1067,23 @@ Then provide a brief explanation (2-3 sentences) for your decision.
             )
 
             try:
+                # Check if consensus break should trigger (before building context)
+                self._check_consensus_break(motion)
+
+                # Build context fresh for each archon so they see latest digest
+                # This ensures mid-round digest generation is immediately visible
+                # Also includes consensus break prompt if active
+                debate_context = self._build_debate_context(
+                    motion, round_num, topic_prompt
+                )
+
                 # Invoke the archon
                 output = await self._invoke_archon_for_debate(
                     archon, debate_context, motion
                 )
+
+                # Decrement consensus break counter after contribution
+                self._decrement_consensus_break()
 
                 # Validate speech for rank violations (per Government PRD FR-GOV-6)
                 is_valid, violations = self._validate_speech_for_rank(
@@ -1090,6 +1127,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                     metadata=metadata,
                 )
 
+                # Check if we should generate a debate digest
+                # This ensures archons have comprehensive context as debate grows
+                await self._maybe_generate_debate_digest(motion)
+
                 # Flag violations if detected
                 if violations:
                     self._flag_speech_violation(archon, violations, motion)
@@ -1103,6 +1144,229 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                 )
 
         return entries
+
+    async def _conduct_red_team_round(
+        self, motion: Motion
+    ) -> list[DebateEntry]:
+        """Conduct a mandatory red team round with adversarial arguments.
+
+        Selects a diverse group of archons and requires them to argue AGAINST
+        the motion, regardless of their personal stance. This ensures both
+        sides are represented before voting.
+
+        Args:
+            motion: The motion being debated
+
+        Returns:
+            List of red team debate entries
+        """
+        if self._session is None:
+            raise RuntimeError("Conclave session not initialized")
+
+        entries: list[DebateEntry] = []
+
+        # Determine which position to attack
+        for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+        against_count = sum(1 for e in motion.debate_entries if e.in_favor is False)
+        attack_position = "FOR" if for_count > against_count else "AGAINST"
+        target_stance = "AGAINST" if attack_position == "FOR" else "FOR"
+
+        # Select red team archons (diverse ranks)
+        red_team = self._select_red_team_archons(motion)
+
+        if not red_team:
+            logger.warning("No archons available for red team round")
+            return entries
+
+        # Record start of red team round
+        self._session.add_transcript_entry(
+            entry_type="procedural",
+            content=(
+                f"RED TEAM ROUND: Before voting, {len(red_team)} archons will now "
+                f"steelman the {target_stance} position to ensure robust deliberation. "
+                f"Current consensus: {for_count} FOR, {against_count} AGAINST."
+            ),
+            metadata={
+                "red_team_count": len(red_team),
+                "target_stance": target_stance,
+                "for_count": for_count,
+                "against_count": against_count,
+            },
+        )
+
+        self._emit_progress(
+            "red_team_start",
+            f"Red team round: {len(red_team)} archons steelmanning {target_stance}",
+            {"red_team_count": len(red_team), "target_stance": target_stance},
+        )
+
+        # Build red team context
+        red_team_context = self._build_red_team_context(motion, target_stance)
+
+        for idx, archon in enumerate(red_team):
+            current = idx + 1
+            self._emit_progress(
+                "red_team_speaking",
+                f"Red team: {archon.name} ({current}/{len(red_team)})",
+                {"archon": archon.name, "progress": f"{current}/{len(red_team)}"},
+            )
+
+            try:
+                output = await self._invoke_archon_for_debate(
+                    archon, red_team_context, motion
+                )
+
+                # Parse position (should be target_stance due to prompt)
+                position = self._parse_debate_position(output.content)
+
+                entry = DebateEntry.create(
+                    speaker_id=archon.id,
+                    speaker_name=archon.name,
+                    speaker_rank=archon.aegis_rank,
+                    content=output.content,
+                    round_number=motion.current_debate_round + 1,  # Extra round
+                    in_favor=position,
+                    is_red_team=True,  # Mark as red-team entry
+                )
+
+                motion.add_debate_entry(entry)
+                entries.append(entry)
+
+                self._session.add_transcript_entry(
+                    entry_type="red_team_speech",
+                    content=output.content,
+                    speaker_id=archon.id,
+                    speaker_name=archon.name,
+                    metadata={
+                        "round": "red_team",
+                        "motion_id": str(motion.motion_id),
+                        "target_stance": target_stance,
+                        "actual_position": (
+                            "for" if position is True
+                            else "against" if position is False
+                            else "neutral"
+                        ),
+                    },
+                )
+
+            except Exception as e:
+                logger.error(f"Error during red team from {archon.name}: {e}")
+                self._session.add_transcript_entry(
+                    entry_type="system",
+                    content=f"[Error: {archon.name} unable to contribute to red team: {e}]",
+                )
+
+        # Generate a final digest with red team arguments included
+        if entries:
+            await self._generate_debate_digest(motion)
+
+        self._emit_progress(
+            "red_team_complete",
+            f"Red team round complete: {len(entries)} contributions",
+            {"contributions": len(entries)},
+        )
+
+        return entries
+
+    def _select_red_team_archons(self, motion: Motion) -> list[ArchonProfile]:
+        """Select archons for the red team round.
+
+        Selects a diverse group by rank to ensure legitimacy:
+        - At least 1 King (if available)
+        - Mix of other ranks
+
+        Excludes archons who have already argued against consensus.
+
+        Args:
+            motion: The motion being debated
+
+        Returns:
+            List of archon profiles for red team
+        """
+        count = self._config.red_team_count
+
+        # Find archons who haven't already argued against consensus
+        for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+        against_count = sum(1 for e in motion.debate_entries if e.in_favor is False)
+        consensus_is_for = for_count > against_count
+
+        # Get archons who argued WITH consensus (they should steelman the other side)
+        consensus_archon_ids = set()
+        for entry in motion.debate_entries:
+            if entry.in_favor == consensus_is_for:
+                consensus_archon_ids.add(entry.speaker_id)
+
+        # Filter to archons who agreed with consensus
+        candidates = [
+            p for p in self._profiles_by_rank
+            if p.id in consensus_archon_ids
+        ]
+
+        if len(candidates) < count:
+            # Fall back to all archons
+            candidates = list(self._profiles_by_rank)
+
+        # Select diverse group by rank
+        selected: list[ArchonProfile] = []
+        ranks_used: set[str] = set()
+
+        for archon in candidates:
+            if len(selected) >= count:
+                break
+            # Prefer archons from ranks not yet represented
+            if archon.aegis_rank not in ranks_used or len(selected) < count:
+                selected.append(archon)
+                ranks_used.add(archon.aegis_rank)
+
+        return selected[:count]
+
+    def _build_red_team_context(self, motion: Motion, target_stance: str) -> str:
+        """Build the context prompt for red team speakers.
+
+        Args:
+            motion: The motion being debated
+            target_stance: The stance red team must argue ("FOR" or "AGAINST")
+
+        Returns:
+            Red team debate context
+        """
+        # Get current debate summary
+        debate_summary = self._build_debate_summary(motion)
+
+        # Get structural risk analysis
+        risk_analysis = self._generate_structural_risk_analysis(motion)
+
+        return f"""ARCHON 72 CONCLAVE - RED TEAM ROUND
+
+!!! MANDATORY ADVERSARIAL CONTRIBUTION !!!
+
+You have been selected for the RED TEAM. Your task is to STEELMAN the {target_stance}
+position, regardless of your personal view. This is a procedural requirement to ensure
+robust deliberation before voting.
+
+MOTION: {motion.title}
+TYPE: {motion.motion_type.value.upper()}
+
+MOTION TEXT:
+{motion.text}
+
+{debate_summary}
+{risk_analysis}
+
+YOUR ASSIGNMENT:
+1. You MUST argue {target_stance} this motion
+2. Identify the STRONGEST possible objections/arguments
+3. Consider failure modes, exploitation vectors, unintended consequences
+4. Do NOT simply agree with previous speakers - add NEW arguments
+5. Think like an adversary: how could this motion be misused or go wrong?
+
+You MUST declare: STANCE: {target_stance}
+
+This is not about your personal opinion - it's about ensuring the Conclave has heard
+the strongest possible arguments on both sides before voting.
+
+Be specific, substantive, and rigorous. Identify concrete risks, not vague concerns.
+"""
 
     async def _invoke_archon_for_debate(
         self,
@@ -1210,6 +1474,14 @@ Then provide a brief explanation (2-3 sentences) for your decision.
     ) -> str:
         """Build the context prompt for debate.
 
+        Includes:
+        - Motion details
+        - Latest debate digest (LLM-generated summary of full debate so far)
+        - Recent contributions (sliding window of last 5 entries for recency)
+
+        This hybrid approach provides both comprehensive coverage (via digest)
+        and immediate context (via recent entries).
+
         Args:
             motion: The motion being debated
             round_num: Current round number
@@ -1218,22 +1490,68 @@ Then provide a brief explanation (2-3 sentences) for your decision.
         Returns:
             Complete debate prompt
         """
-        # Include previous debate entries for context
-        previous_debate = ""
+        # Include the latest debate digest if available
+        # This gives archons the full scope of arguments made so far
+        debate_digest_section = ""
+        if motion.debate_digests:
+            latest_digest = motion.debate_digests[-1]
+            debate_digest_section = f"""
+--- SECRETARY'S DEBATE DIGEST ---
+(Summarizing {motion.last_digest_entry_count} contributions so far)
+
+{latest_digest}
+
+--- END DIGEST ---
+"""
+
+        # Include recent debate entries for immediate context
+        # Reduced from 10 to 5 since digest covers the full debate
+        recent_contributions = ""
         if motion.debate_entries:
-            previous_debate = "\n\nPrevious contributions:\n"
-            for entry in motion.debate_entries[-10:]:  # Last 10 entries
-                position = (
-                    "FOR"
-                    if entry.in_favor is True
-                    else "AGAINST"
-                    if entry.in_favor is False
-                    else "NEUTRAL"
-                )
-                previous_debate += f"\n[{entry.speaker_name} ({position})]:\n{entry.content[:500]}...\n"
+            # Show entries since the last digest, or last 5, whichever is smaller
+            entries_since_digest = motion.debate_entries[motion.last_digest_entry_count:]
+            entries_to_show = entries_since_digest[-5:] if entries_since_digest else motion.debate_entries[-5:]
+
+            if entries_to_show:
+                recent_contributions = "\n\nRecent contributions (since last digest):\n"
+                for entry in entries_to_show:
+                    position = (
+                        "FOR"
+                        if entry.in_favor is True
+                        else "AGAINST"
+                        if entry.in_favor is False
+                        else "NEUTRAL"
+                    )
+                    recent_contributions += f"\n[{entry.speaker_name} ({position})]:\n{entry.content[:400]}...\n"
+
+        # Count current positions for quick reference
+        for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+        against_count = sum(1 for e in motion.debate_entries if e.in_favor is False)
+        neutral_count = sum(1 for e in motion.debate_entries if e.in_favor is None)
+        position_summary = ""
+        if motion.debate_entries:
+            position_summary = f"\nCurrent positions: {for_count} FOR | {against_count} AGAINST | {neutral_count} NEUTRAL"
+
+        # Build exploitation prompt if enabled
+        exploitation_prompt = ""
+        if self._config.exploitation_prompt_enabled:
+            exploitation_prompt = """
+ADVERSARIAL CONSIDERATION (required before declaring stance):
+Before supporting any motion, you MUST consider:
+1. How could a bad actor exploit this motion's provisions?
+2. What happens if the stated constraints are not enforced?
+3. Does this motion create any entity, authority, or precedent that could expand beyond its stated scope?
+4. "Non-binding" and "advisory" mechanisms often acquire de facto authority through citation - does this apply here?
+5. If you find yourself agreeing easily, ask: "What am I missing? What would a skeptic say?"
+
+If you cannot identify at least one significant risk, you may not be thinking critically enough.
+"""
+
+        # Check for consensus break override
+        consensus_break_prompt = self._get_consensus_break_prompt()
 
         context = f"""ARCHON 72 CONCLAVE - FORMAL DEBATE
-
+{consensus_break_prompt}
 MOTION: {motion.title}
 TYPE: {motion.motion_type.value.upper()}
 PROPOSER: {motion.proposer_name}
@@ -1243,43 +1561,83 @@ MOTION TEXT:
 {motion.text}
 
 DEBATE ROUND: {round_num} of {motion.max_debate_rounds}
-{previous_debate}
-
+Total contributions so far: {len(motion.debate_entries)}{position_summary}
+{debate_digest_section}{recent_contributions}
+{exploitation_prompt}
 {topic_prompt or ""}
 
 INSTRUCTIONS:
 You are participating in a formal deliberation of the Archon 72 Conclave.
 Provide your perspective on this motion based on your domain expertise and role.
+Consider both the arguments in the digest AND your own domain expertise.
 Start with one line: STANCE: FOR or STANCE: AGAINST or STANCE: NEUTRAL
 Be concise but substantive. Your contribution will be recorded in the official transcript.
 """
         return context
 
+    # Regex pattern for stance parsing - handles markdown formatting variants
+    # Matches: STANCE: FOR, **STANCE: FOR**, - STANCE: FOR, > STANCE - FOR, etc.
+    _STANCE_PATTERN = re.compile(
+        r"^\s*[*_>-]*\s*stance\s*[:\-]\s*(for|against|neutral)\b",
+        re.IGNORECASE | re.MULTILINE,
+    )
+
+    def _normalize_line_for_stance(self, line: str) -> str:
+        """Normalize a line for stance parsing by removing markdown/formatting.
+
+        Strips: asterisks, underscores, bullets, blockquotes, leading/trailing space.
+        """
+        # Remove common markdown prefixes: **, *, _, >, -
+        normalized = re.sub(r"^[\s*_>-]+", "", line)
+        # Remove trailing markdown
+        normalized = re.sub(r"[\s*_]+$", "", normalized)
+        return normalized.strip()
+
     def _parse_debate_position(self, content: str) -> bool | None:
         """Parse an archon's position from their debate contribution.
+
+        Uses robust regex matching that handles common LLM formatting variants:
+        - STANCE: FOR
+        - **STANCE: FOR**
+        - - STANCE: FOR
+        - > STANCE - FOR
+        - STANCE - FOR
+        - *STANCE: AGAINST*
 
         Args:
             content: The debate contribution text
 
         Returns:
-            True (for), False (against), or None (neutral)
+            True (for), False (against), or None (neutral/not found)
         """
+        # First try regex matching (handles most formatting variants)
+        match = self._STANCE_PATTERN.search(content)
+        if match:
+            stance_value = match.group(1).lower()
+            if stance_value == "for":
+                return True
+            elif stance_value == "against":
+                return False
+            else:  # neutral
+                return None
+
+        # Fallback: line-by-line normalized parsing
         content_lower = content.lower()
+        for line in content.splitlines():
+            normalized = self._normalize_line_for_stance(line).lower()
+            if normalized.startswith("stance"):
+                # Extract value after "stance" and separator
+                value_match = re.search(r"stance\s*[:\-]\s*(\w+)", normalized)
+                if value_match:
+                    value = value_match.group(1)
+                    if value.startswith("for"):
+                        return True
+                    if value.startswith("against"):
+                        return False
+                    if value.startswith("neutral"):
+                        return None
 
-        if "stance:" in content_lower:
-            for line in content_lower.splitlines():
-                line = line.strip()
-                if not line.startswith("stance:"):
-                    continue
-                value = line.split(":", 1)[1].strip()
-                if value.startswith("for"):
-                    return True
-                if value.startswith("against"):
-                    return False
-                if value.startswith("neutral"):
-                    return None
-
-        # Look for explicit position statements
+        # Final fallback: look for explicit position statements in content
         for_indicators = [
             "i support",
             "i am for",
@@ -1304,6 +1662,551 @@ Be concise but substantive. Your contribution will be recorded in the official t
                 return False
 
         return None
+
+    def _get_archon_declared_stance(
+        self, motion: Motion, archon_id: str
+    ) -> tuple[bool | None, str | None]:
+        """Look up an archon's declared stance from their debate contributions.
+
+        Args:
+            motion: The motion being voted on
+            archon_id: The archon's ID
+
+        Returns:
+            Tuple of (stance, stance_string) where:
+            - stance: True (FOR), False (AGAINST), None (NEUTRAL or not found)
+            - stance_string: "FOR", "AGAINST", "NEUTRAL", or None if not declared
+        """
+        # Search debate entries in reverse to find the archon's most recent stance
+        for entry in reversed(motion.debate_entries):
+            if entry.speaker_id == archon_id:
+                if entry.in_favor is True:
+                    return (True, "FOR")
+                elif entry.in_favor is False:
+                    return (False, "AGAINST")
+                else:
+                    return (None, "NEUTRAL")
+        return (None, None)
+
+    # Boilerplate patterns to skip when extracting key arguments
+    _BOILERPLATE_PATTERNS = re.compile(
+        r"^(thought:|analysis:|reasoning:|let me|i will|i think|"
+        r"i need to|my analysis|#|##|---|```|\*\*\*)",
+        re.IGNORECASE,
+    )
+
+    # Governance anti-patterns for adversarial digest risk analysis
+    # Each tuple: (regex pattern, risk description)
+    _GOVERNANCE_ANTI_PATTERNS: list[tuple[str, str]] = [
+        (
+            r"interpret|explanation|clarif|context.*for",
+            "INTERPRETIVE AUTHORITY: Interpretive power often becomes de facto "
+            "binding through citation and social pressure, even when labeled 'non-binding'",
+        ),
+        (
+            r"non-binding|advisory|optional|voluntary",
+            "SOFT POWER CREEP: 'Non-binding' mechanisms frequently acquire informal "
+            "authority over time through repeated citation and reference",
+        ),
+        (
+            r"(create|establish|authorize).*(entity|body|layer|office|mechanism)",
+            "INSTITUTIONAL EXPANSION: New entities tend to expand scope beyond "
+            "original mandate; sunset clauses are often extended or ignored",
+        ),
+        (
+            r"opt-in|voluntary participation",
+            "SOCIAL COERCION: Voluntary participation often shifts to de facto "
+            "mandatory through social pressure and competitive dynamics",
+        ),
+        (
+            r"publish|disseminate|communicate|announce",
+            "NARRATIVE CONTROL: Entities with publication authority shape perception "
+            "and framing, which is a form of soft power",
+        ),
+        (
+            r"no.*(authority|power|instruction|constraint)",
+            "NEGATIVE DEFINITION: Defining what something is NOT often leaves "
+            "ambiguous gaps that expand over time",
+        ),
+        (
+            r"review after|sunset|provisional|temporary",
+            "PERMANENCE BIAS: Temporary measures tend to become permanent; "
+            "review clauses are often waived or extended indefinitely",
+        ),
+    ]
+
+    def _generate_structural_risk_analysis(self, motion: Motion) -> str:
+        """Generate risk warnings based on governance anti-patterns.
+
+        Scans motion text for patterns that historically lead to governance
+        problems, regardless of whether any archon has voiced opposition.
+
+        Args:
+            motion: The motion being analyzed
+
+        Returns:
+            Formatted risk analysis string, or empty if no patterns match
+        """
+        warnings: list[str] = []
+
+        # Check motion text against anti-patterns
+        for pattern, risk_description in self._GOVERNANCE_ANTI_PATTERNS:
+            if re.search(pattern, motion.text, re.IGNORECASE):
+                warnings.append(f"  - {risk_description}")
+
+        # Check for suspicious consensus
+        if motion.debate_entries:
+            for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+            total = len(motion.debate_entries)
+            if total >= 5 and for_count / total > 0.9:
+                warnings.append(
+                    f"  - CONSENSUS CASCADE: {for_count}/{total} ({for_count/total:.0%}) "
+                    f"speakers share same stance - may indicate informational cascade "
+                    f"rather than genuine deliberation"
+                )
+
+        if not warnings:
+            return ""
+
+        return (
+            "\n**Structural Risk Analysis (auto-generated):**\n"
+            + "\n".join(warnings)
+            + "\n"
+        )
+
+    def _extract_substantive_argument(self, content: str) -> str:
+        """Extract the first substantive argument from debate content.
+
+        Skips:
+        - STANCE lines (any formatting variant)
+        - Boilerplate (Thought:, Analysis:, etc.)
+        - Empty lines
+        - Markdown headings (#, ##)
+        - Horizontal rules (---, ***)
+
+        Args:
+            content: The debate contribution text
+
+        Returns:
+            First substantive argument line (or empty string)
+        """
+        for line in content.split("\n"):
+            # Normalize the line
+            normalized = self._normalize_line_for_stance(line)
+            stripped = normalized.strip()
+
+            # Skip empty lines
+            if not stripped:
+                continue
+
+            # Skip stance lines (using same normalization as parsing)
+            if re.match(r"^stance\s*[:\-]", stripped, re.IGNORECASE):
+                continue
+
+            # Skip boilerplate patterns
+            if self._BOILERPLATE_PATTERNS.match(stripped):
+                continue
+
+            # Found a substantive line
+            return stripped
+
+        return ""
+
+    def _build_debate_summary(self, motion: Motion) -> str:
+        """Build a brief summary of the debate for vote context.
+
+        Uses improved argument extraction that skips boilerplate to ensure
+        the Chair summary contains high-signal content.
+
+        Args:
+            motion: The motion with debate entries
+
+        Returns:
+            A concise summary of debate positions and key arguments
+        """
+        if not motion.debate_entries:
+            return "No debate contributions recorded."
+
+        # Count positions
+        for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+        against_count = sum(1 for e in motion.debate_entries if e.in_favor is False)
+        neutral_count = sum(1 for e in motion.debate_entries if e.in_favor is None)
+
+        summary = f"DEBATE SUMMARY ({len(motion.debate_entries)} contributions):\n"
+        summary += f"- Declared FOR: {for_count}\n"
+        summary += f"- Declared AGAINST: {against_count}\n"
+        summary += f"- Declared NEUTRAL: {neutral_count}\n\n"
+
+        # Extract key arguments from each side (first substantive argument)
+        for_args: list[str] = []
+        against_args: list[str] = []
+
+        for entry in motion.debate_entries:
+            # Use improved extraction that skips boilerplate
+            reasoning = self._extract_substantive_argument(entry.content)
+
+            if entry.in_favor is True and len(for_args) < 2 and reasoning:
+                for_args.append(f"  - {entry.speaker_name}: {reasoning[:150]}...")
+            elif entry.in_favor is False and len(against_args) < 2 and reasoning:
+                against_args.append(f"  - {entry.speaker_name}: {reasoning[:150]}...")
+
+        if for_args:
+            summary += "Key FOR arguments:\n" + "\n".join(for_args) + "\n\n"
+        if against_args:
+            summary += "Key AGAINST arguments:\n" + "\n".join(against_args) + "\n"
+
+        return summary
+
+    async def _generate_debate_digest(self, motion: Motion) -> str | None:
+        """Generate an LLM-powered debate digest using the Secretary archon.
+
+        Uses INCREMENTAL summarization to avoid context growth:
+        - Includes previous digest (if any) as baseline
+        - Only adds NEW entries since last digest
+        - Caps entries to prevent context explosion
+
+        Args:
+            motion: The motion being debated
+
+        Returns:
+            The generated digest string, or None if generation failed
+        """
+        if not self._config.secretary_text_archon_id:
+            logger.warning("No secretary_text_archon_id configured, skipping digest")
+            return None
+
+        if not motion.debate_entries:
+            return None
+
+        # Count ALL positions for accurate summary
+        for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+        against_count = sum(1 for e in motion.debate_entries if e.in_favor is False)
+        neutral_count = sum(1 for e in motion.debate_entries if e.in_favor is None)
+
+        # INCREMENTAL: Only include entries since last digest
+        # Cap at 20 entries to prevent context explosion
+        new_entries = motion.debate_entries[motion.last_digest_entry_count:]
+        entries_to_summarize = new_entries[-20:]  # Cap at last 20 new entries
+
+        # Build content for new entries only
+        new_content = ""
+        for entry in entries_to_summarize:
+            position = (
+                "FOR" if entry.in_favor is True
+                else "AGAINST" if entry.in_favor is False
+                else "NEUTRAL"
+            )
+            # Truncate each entry to keep context manageable
+            content_preview = entry.content[:600]
+            new_content += f"\n[{entry.speaker_name} - {position}]:\n{content_preview}\n"
+
+        # Build previous digest section if available
+        previous_digest_section = ""
+        if motion.debate_digests:
+            previous_digest_section = f"""
+PREVIOUS DIGEST (covering entries 1-{motion.last_digest_entry_count}):
+{motion.debate_digests[-1]}
+
+---
+"""
+
+        digest_prompt = f"""ARCHON 72 CONCLAVE - INCREMENTAL DEBATE DIGEST
+
+You are the Secretary of the Conclave. Create an UPDATED digest incorporating
+the previous summary plus new contributions.
+
+MOTION: {motion.title}
+
+CURRENT POSITION COUNTS (all {len(motion.debate_entries)} entries):
+- FOR: {for_count}
+- AGAINST: {against_count}
+- NEUTRAL: {neutral_count}
+{previous_digest_section}
+NEW CONTRIBUTIONS (entries {motion.last_digest_entry_count + 1}-{len(motion.debate_entries)}):
+{new_content}
+
+Create an UPDATED DEBATE DIGEST that:
+1. Incorporates key points from the previous digest (if any)
+2. Integrates new arguments and concerns from recent contributions
+3. Updates the position counts
+
+Format:
+
+## Debate Digest (Entry {len(motion.debate_entries)})
+
+**Position Summary:** {for_count} FOR | {against_count} AGAINST | {neutral_count} NEUTRAL
+
+**Key FOR Arguments:**
+- [2-3 strongest arguments supporting the motion]
+
+**Key AGAINST Arguments:**
+- [2-3 strongest arguments opposing the motion]
+
+**Notable Concerns Raised:**
+- [Significant risks, safeguards, or conditions mentioned]
+
+**Unresolved Questions:**
+- [Open questions or issues]
+
+Keep the digest concise (under 400 words). Present both sides fairly.
+"""
+
+        bundle = ContextBundle(
+            bundle_id=uuid4(),
+            topic_id=f"debate-digest-{motion.motion_id}-{len(motion.debate_entries)}",
+            topic_content=digest_prompt,
+            metadata={
+                "motion_id": str(motion.motion_id),
+                "digest_type": "debate_summary",
+                "entry_count": len(motion.debate_entries),
+            },
+            created_at=datetime.now(timezone.utc),
+        )
+
+        try:
+            output = await self._invoke_with_timeout(
+                self._config.secretary_text_archon_id, bundle
+            )
+            digest = output.content.strip()
+
+            # Append structural risk analysis if enabled (adversarial digest)
+            # This is deterministic pattern-matching, not LLM-generated
+            if self._config.adversarial_digest_enabled:
+                risk_analysis = self._generate_structural_risk_analysis(motion)
+                if risk_analysis:
+                    digest += "\n" + risk_analysis
+
+            # Store the digest on the motion
+            motion.debate_digests.append(digest)
+            motion.last_digest_entry_count = len(motion.debate_entries)
+
+            # Record in transcript
+            if self._session:
+                self._session.add_transcript_entry(
+                    entry_type="debate_digest",
+                    content=digest,
+                    speaker_name="Secretary",
+                    metadata={
+                        "motion_id": str(motion.motion_id),
+                        "entry_count": len(motion.debate_entries),
+                        "digest_number": len(motion.debate_digests),
+                        "has_risk_analysis": self._config.adversarial_digest_enabled,
+                    },
+                )
+
+            self._emit_progress(
+                "debate_digest_generated",
+                f"Debate digest #{len(motion.debate_digests)} generated "
+                f"(covering {len(motion.debate_entries)} entries)",
+                {
+                    "motion_id": str(motion.motion_id),
+                    "digest_number": len(motion.debate_digests),
+                    "entry_count": len(motion.debate_entries),
+                },
+            )
+
+            return digest
+
+        except Exception as e:
+            logger.error(f"Failed to generate debate digest: {e}")
+            # Advance attempt count to prevent infinite retry
+            # Next attempt will only happen after another interval of entries
+            motion.last_digest_attempt_count = len(motion.debate_entries)
+            return None
+
+    async def _maybe_generate_debate_digest(self, motion: Motion) -> None:
+        """Check if a debate digest should be generated and create one if needed.
+
+        Digests are generated every N debate entries (configured by
+        debate_digest_interval). This ensures archons always have access to
+        a recent summary of the full debate.
+
+        Uses throttling to prevent infinite retry on failure:
+        - last_digest_entry_count: advances on SUCCESS
+        - last_digest_attempt_count: advances on ATTEMPT (success or failure)
+
+        Args:
+            motion: The motion being debated
+        """
+        entry_count = len(motion.debate_entries)
+        interval = self._config.debate_digest_interval
+
+        # Check if we've hit the interval threshold since last SUCCESS
+        entries_since_success = entry_count - motion.last_digest_entry_count
+
+        # Also check if we've already attempted at this entry count (throttle)
+        # This prevents retrying on every entry after a failure
+        already_attempted = entry_count <= motion.last_digest_attempt_count
+
+        if entries_since_success >= interval and not already_attempted:
+            logger.info(
+                f"Generating debate digest (entries: {entry_count}, "
+                f"interval: {interval}, since_success: {entries_since_success})"
+            )
+            # Mark attempt before calling (in case of failure)
+            motion.last_digest_attempt_count = entry_count
+            await self._generate_debate_digest(motion)
+
+    def _check_consensus_break(self, motion: Motion) -> bool:
+        """Check if consensus is too high and trigger a consensus break.
+
+        When stance distribution exceeds the threshold, activates consensus
+        break mode which forces subsequent speakers to argue the minority position.
+
+        Args:
+            motion: The motion being debated
+
+        Returns:
+            True if consensus break was triggered, False otherwise
+        """
+        if not self._config.consensus_break_enabled:
+            return False
+
+        if self._consensus_break_active:
+            return False  # Already in consensus break
+
+        if len(motion.debate_entries) < 10:
+            return False  # Too early to judge
+
+        for_count = sum(1 for e in motion.debate_entries if e.in_favor is True)
+        against_count = sum(1 for e in motion.debate_entries if e.in_favor is False)
+        total = len(motion.debate_entries)
+
+        for_ratio = for_count / total
+        against_ratio = against_count / total
+
+        consensus_ratio = max(for_ratio, against_ratio)
+
+        if consensus_ratio >= self._config.consensus_break_threshold:
+            # Trigger consensus break
+            self._consensus_break_active = True
+            # Target is the stance we want speakers to argue (opposite of consensus)
+            majority_stance = "FOR" if for_ratio > against_ratio else "AGAINST"
+            self._consensus_break_target = "AGAINST" if for_ratio > against_ratio else "FOR"
+            self._consensus_break_remaining = self._config.consensus_break_speaker_count
+
+            logger.warning(
+                f"CONSENSUS BREAK TRIGGERED: {consensus_ratio:.0%} {majority_stance} "
+                f"consensus detected → forcing next {self._consensus_break_remaining} "
+                f"speakers to steelman {self._consensus_break_target}"
+            )
+
+            # Record in transcript
+            if self._session:
+                self._session.add_transcript_entry(
+                    entry_type="procedural",
+                    content=(
+                        f"CONSENSUS ALERT: {consensus_ratio:.0%} of speakers share the same stance "
+                        f"({for_count} FOR, {against_count} AGAINST out of {total}). "
+                        f"To ensure robust deliberation, the Chair directs the next "
+                        f"{self._consensus_break_remaining} speakers to steelman the "
+                        f"{self._consensus_break_target} position."
+                    ),
+                    metadata={
+                        "consensus_ratio": consensus_ratio,
+                        "target_stance": self._consensus_break_target,
+                        "speakers_required": self._consensus_break_remaining,
+                    },
+                )
+
+            return True
+
+        return False
+
+    def _get_consensus_break_prompt(self) -> str:
+        """Get the prompt override for consensus break mode.
+
+        Returns:
+            Prompt text requiring the speaker to argue the minority position,
+            or empty string if consensus break is not active.
+        """
+        if not self._consensus_break_active or self._consensus_break_remaining <= 0:
+            return ""
+
+        return f"""
+!!! CONSENSUS BREAK ACTIVE !!!
+
+Current debate shows suspiciously high consensus. To prevent groupthink and ensure
+robust deliberation, you are REQUIRED to argue the {self._consensus_break_target} position
+for this contribution, REGARDLESS of your personal view.
+
+Your task:
+1. Identify the strongest possible objections to the current consensus
+2. Steelman the {self._consensus_break_target} position with genuine arguments
+3. Consider failure modes, exploitation vectors, and unintended consequences
+4. DO NOT simply agree with the majority - that would undermine deliberation
+
+You MUST declare: STANCE: {self._consensus_break_target}
+
+This is a procedural requirement to ensure both sides are fairly represented.
+"""
+
+    def _decrement_consensus_break(self) -> None:
+        """Decrement the consensus break counter after a speaker contributes."""
+        if self._consensus_break_active and self._consensus_break_remaining > 0:
+            self._consensus_break_remaining -= 1
+            if self._consensus_break_remaining <= 0:
+                self._consensus_break_active = False
+                logger.info("Consensus break complete - returning to normal deliberation")
+
+    def _build_vote_context(
+        self, archon: ArchonProfile, motion: Motion
+    ) -> str:
+        """Build the complete vote context with stance reminder and debate summary.
+
+        This enhanced context helps archons vote consistently with their declared
+        positions and be aware of both sides of the debate.
+
+        Args:
+            archon: The archon casting the vote
+            motion: The motion being voted on
+
+        Returns:
+            Complete vote prompt with stance reminder and debate summary
+        """
+        # Get the archon's declared stance from debate
+        declared_stance, stance_str = self._get_archon_declared_stance(
+            motion, archon.id
+        )
+
+        # Build stance reminder if they participated in debate
+        stance_reminder = ""
+        if stance_str:
+            stance_reminder = f"""
+YOUR DECLARED STANCE: During the debate, you declared STANCE: {stance_str}
+
+IMPORTANT: If you now wish to vote differently than your declared stance,
+you MUST explain why your position has changed. Include a line:
+STANCE_CHANGED: [brief reason for changing position]
+
+Unexplained stance/vote divergence will be recorded in the transcript.
+"""
+
+        # Build debate summary
+        debate_summary = self._build_debate_summary(motion)
+
+        vote_context = f"""ARCHON 72 CONCLAVE - FORMAL VOTE
+
+MOTION: {motion.title}
+TYPE: {motion.motion_type.value.upper()}
+
+MOTION TEXT:
+{motion.text}
+
+{debate_summary}
+{stance_reminder}
+You must now cast your vote on this motion.
+Based on the debate and your own judgment, choose one:
+- AYE (support the motion)
+- NAY (oppose the motion)
+- ABSTAIN (decline to vote)
+
+Output format:
+- First line MUST be JSON only: {{"choice":"AYE"}} or {{"choice":"NAY"}} or {{"choice":"ABSTAIN"}}
+- If changing from your declared stance, include: STANCE_CHANGED: [reason]
+- Then (optional) up to 2 short paragraphs of public rationale.
+"""
+        return vote_context
 
     async def call_question(self) -> None:
         """Call the question, ending debate.
@@ -1524,16 +2427,19 @@ Be concise but substantive. Your contribution will be recorded in the official t
             """Record a vote in transcript with stance divergence detection.
 
             Compares the vote to the archon's declared stance during debate.
-            If they diverge, records a witnessed divergence event.
+            If they diverge, records a witnessed divergence event, distinguishing
+            between explained changes (with STANCE_CHANGED acknowledgment) and
+            unexplained changes.
             """
             motion.cast_vote(vote)
             if not self._session:
                 return
 
             # Look up archon's last declared stance from debate entries
+            # Skip red-team entries since those are mandated adversarial positions
             declared_stance: bool | None = None
             for entry in reversed(motion.debate_entries):
-                if entry.speaker_id == vote.voter_id:
+                if entry.speaker_id == vote.voter_id and not entry.is_red_team:
                     declared_stance = entry.in_favor
                     break
 
@@ -1546,6 +2452,19 @@ Be concise but substantive. Your contribution will be recorded in the official t
                 or (declared_stance is False and vote.choice != VoteChoice.NAY)
             )
 
+            # Check if archon acknowledged the stance change with STANCE_CHANGED
+            stance_change_explained = False
+            stance_change_reason = None
+            if vote.reasoning:
+                reasoning_lower = vote.reasoning.lower()
+                if "stance_changed:" in reasoning_lower:
+                    stance_change_explained = True
+                    # Extract the reason
+                    for line in vote.reasoning.split("\n"):
+                        if "STANCE_CHANGED:" in line.upper():
+                            stance_change_reason = line.split(":", 1)[1].strip()[:200]
+                            break
+
             # Build metadata with stance tracking
             vote_metadata: dict[str, Any] = {
                 "motion_id": str(motion.motion_id),
@@ -1557,6 +2476,11 @@ Be concise but substantive. Your contribution will be recorded in the official t
                     "for" if declared_stance is True else "against"
                 )
                 vote_metadata["stance_vote_consistent"] = stance_vote_match
+
+            if stance_change_explained:
+                vote_metadata["stance_change_acknowledged"] = True
+                if stance_change_reason:
+                    vote_metadata["stance_change_reason"] = stance_change_reason
 
             # Record the vote with its original timestamp
             self._session.add_transcript_entry(
@@ -1571,23 +2495,49 @@ Be concise but substantive. Your contribution will be recorded in the official t
             # If stance diverged, record a witnessed divergence event
             if not stance_vote_match and declared_stance is not None:
                 stance_str = "FOR" if declared_stance else "AGAINST"
-                self._session.add_transcript_entry(
-                    entry_type="stance_vote_divergence",
-                    content=(
-                        f"Stance/vote divergence: {vote.voter_name} declared "
-                        f"STANCE: {stance_str} during debate but voted "
-                        f"{vote.choice.value.upper()}"
-                    ),
-                    speaker_id=vote.voter_id,
-                    speaker_name=vote.voter_name,
-                    metadata={
-                        "motion_id": str(motion.motion_id),
-                        "declared_stance": stance_str.lower(),
-                        "vote_cast": vote.choice.value,
-                        "divergence_witnessed": True,
-                    },
-                    timestamp=vote.timestamp,
-                )
+
+                if stance_change_explained:
+                    # Explained divergence - archon acknowledged the change
+                    self._session.add_transcript_entry(
+                        entry_type="stance_change_acknowledged",
+                        content=(
+                            f"Acknowledged stance change: {vote.voter_name} declared "
+                            f"STANCE: {stance_str} during debate but voted "
+                            f"{vote.choice.value.upper()}. "
+                            f"Reason: {stance_change_reason or 'not specified'}"
+                        ),
+                        speaker_id=vote.voter_id,
+                        speaker_name=vote.voter_name,
+                        metadata={
+                            "motion_id": str(motion.motion_id),
+                            "declared_stance": stance_str.lower(),
+                            "vote_cast": vote.choice.value,
+                            "change_acknowledged": True,
+                            "change_reason": stance_change_reason,
+                        },
+                        timestamp=vote.timestamp,
+                    )
+                else:
+                    # Unexplained divergence - no acknowledgment
+                    self._session.add_transcript_entry(
+                        entry_type="stance_vote_divergence",
+                        content=(
+                            f"UNEXPLAINED stance/vote divergence: {vote.voter_name} "
+                            f"declared STANCE: {stance_str} during debate but voted "
+                            f"{vote.choice.value.upper()} without acknowledging "
+                            f"the change (no STANCE_CHANGED provided)"
+                        ),
+                        speaker_id=vote.voter_id,
+                        speaker_name=vote.voter_name,
+                        metadata={
+                            "motion_id": str(motion.motion_id),
+                            "declared_stance": stance_str.lower(),
+                            "vote_cast": vote.choice.value,
+                            "divergence_witnessed": True,
+                            "change_acknowledged": False,
+                        },
+                        timestamp=vote.timestamp,
+                    )
 
         if configured_concurrency == 1:
             # Sequential mode (original behavior)
@@ -1692,24 +2642,7 @@ Be concise but substantive. Your contribution will be recorded in the official t
         self, archon: ArchonProfile, motion: Motion
     ) -> dict[str, Any]:
         """Collect raw vote response for async validation."""
-        vote_context = f"""ARCHON 72 CONCLAVE - FORMAL VOTE
-
-MOTION: {motion.title}
-TYPE: {motion.motion_type.value.upper()}
-
-MOTION TEXT:
-{motion.text}
-
-You must now cast your vote on this motion.
-Based on the debate and your own judgment, choose one:
-- AYE (support the motion)
-- NAY (oppose the motion)
-- ABSTAIN (decline to vote)
-
-Output format:
-- First line MUST be JSON only: {{"choice":"AYE"}} or {{"choice":"NAY"}} or {{"choice":"ABSTAIN"}}
-- Then (optional) up to 2 short paragraphs of public rationale.
-"""
+        vote_context = self._build_vote_context(archon, motion)
 
         bundle = ContextBundle(
             bundle_id=uuid4(),
@@ -1744,25 +2677,8 @@ Output format:
         Returns:
             tuple of (Vote object, is_validated flag)
         """
-        # Build voting context
-        vote_context = f"""ARCHON 72 CONCLAVE - FORMAL VOTE
-
-MOTION: {motion.title}
-TYPE: {motion.motion_type.value.upper()}
-
-MOTION TEXT:
-{motion.text}
-
-You must now cast your vote on this motion.
-Based on the debate and your own judgment, choose one:
-- AYE (support the motion)
-- NAY (oppose the motion)
-- ABSTAIN (decline to vote)
-
-Output format:
-- First line MUST be JSON only: {{"choice":"AYE"}} or {{"choice":"NAY"}} or {{"choice":"ABSTAIN"}}
-- Then (optional) up to 2 short paragraphs of public rationale.
-"""
+        # Build voting context with stance reminder and debate summary
+        vote_context = self._build_vote_context(archon, motion)
 
         bundle = ContextBundle(
             bundle_id=uuid4(),
@@ -2867,6 +3783,10 @@ If unclear, choose ABSTAIN.
                 }
                 for v in motion.votes
             ],
+            # Debate digest state (for checkpoint persistence)
+            "debate_digests": motion.debate_digests,
+            "last_digest_entry_count": motion.last_digest_entry_count,
+            "last_digest_attempt_count": motion.last_digest_attempt_count,
         }
 
     def _serialize_transcript_entry(self, entry: TranscriptEntry) -> dict[str, Any]:
@@ -2982,6 +3902,11 @@ If unclear, choose ABSTAIN.
                     reasoning=v_data.get("reasoning"),
                 )
             )
+
+        # Deserialize debate digest state (for checkpoint persistence)
+        motion.debate_digests = data.get("debate_digests", [])
+        motion.last_digest_entry_count = data.get("last_digest_entry_count", 0)
+        motion.last_digest_attempt_count = data.get("last_digest_attempt_count", 0)
 
         return motion
 

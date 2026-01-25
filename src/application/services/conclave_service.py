@@ -668,9 +668,7 @@ class ConclaveService:
             logger.warning(f"Failed to second motion: {e}")
             return False
 
-    async def evaluate_motion_for_seconding(
-        self, archon_id: str
-    ) -> tuple[bool, str]:
+    async def evaluate_motion_for_seconding(self, archon_id: str) -> tuple[bool, str]:
         """Ask an Archon to evaluate if they would second the current motion.
 
         This implements deliberative seconding - Archons evaluate motions
@@ -873,7 +871,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
         self._emit_progress(
             "seeking_second",
             f"Seeking a second for motion: {motion.title}",
-            {"motion_id": str(motion.motion_id), "candidates": len(candidate_archon_ids)},
+            {
+                "motion_id": str(motion.motion_id),
+                "candidates": len(candidate_archon_ids),
+            },
         )
 
         for archon_id in candidate_archon_ids:
@@ -896,7 +897,9 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                 {"archon": archon.name, "attempt": attempts, "max_attempts": limit},
             )
 
-            would_second, reasoning = await self.evaluate_motion_for_seconding(archon_id)
+            would_second, reasoning = await self.evaluate_motion_for_seconding(
+                archon_id
+            )
             evaluations.append((archon.name, reasoning))
 
             if would_second:
@@ -925,7 +928,7 @@ Then provide a brief explanation (2-3 sentences) for your decision.
         )
         self._emit_progress(
             "motion_died_no_second",
-            f"Motion died for lack of a second",
+            "Motion died for lack of a second",
             {"motion_id": str(motion.motion_id), "attempts": attempts},
         )
 

@@ -303,11 +303,17 @@ PETITION DETAILS:
 PETITION TEXT:
 {package.petition_text}
 
+SEVERITY SIGNALS (heuristic, non-binding):
+- Severity tier: {package.severity_tier.upper()}
+- Signals: {", ".join(package.severity_signals) if package.severity_signals else "none"}
+Note: These signals are advisory only. Use your own judgment.
+
 Provide your independent assessment covering:
 1. Nature and legitimacy of the petition
 2. Potential impacts and considerations
 3. Relevant constitutional or procedural factors
 4. Initial disposition tendency (ACKNOWLEDGE, REFER, ESCALATE, DEFER, or NO_RESPONSE)
+5. Whether a less costly disposition could suffice (briefly justify)
 
 Be thorough but concise. Your assessment will inform subsequent deliberation phases."""
 
@@ -359,10 +365,18 @@ State your preferred disposition choosing from:
 - DEFER: Defer the petition for later consideration
 - NO_RESPONSE: Decline to respond to the petition
 
+Disposition discipline (least-sufficient):
+- Prefer the least costly disposition that fully addresses the petition.
+- REFER and ESCALATE are expensive routes; choose them only if necessary.
+- If you choose REFER or ESCALATE, cite explicit trigger(s): domain-specific review,
+  cross-realm impact, systemic policy change, or high-severity risk.
+
 Provide:
 1. Your chosen disposition: [ACKNOWLEDGE | REFER | ESCALATE | DEFER | NO_RESPONSE]
 2. Clear rationale for your choice
-3. Any conditions or caveats"""
+3. Any conditions or caveats
+4. Severity tier (LOW | MEDIUM | HIGH) and why
+5. Why this is the least-sufficient disposition"""
 
     def _build_cross_examine_prompt(
         self,
@@ -413,6 +427,10 @@ You may:
 2. Defend your position if challenged
 3. State "NO CHALLENGE" if you accept the current state
 
+Adversarial check:
+- If any position chooses REFER or ESCALATE, ask what cheaper disposition could
+  suffice and which explicit trigger justifies the higher-cost route.
+
 Keep responses focused and constructive. We seek consensus through examination."""
 
     def _build_vote_prompt(
@@ -453,7 +471,12 @@ Your response MUST start with one of these exact strings:
 - "VOTE: DEFER" - Defer the petition for later consideration
 - "VOTE: NO_RESPONSE" - Decline to respond to the petition
 
-Then briefly explain your final reasoning."""
+Then briefly explain your final reasoning.
+
+Disposition discipline (least-sufficient):
+- Prefer the least costly disposition that fully addresses the petition.
+- If voting REFER or ESCALATE, cite the explicit trigger(s) that require it.
+- If voting NO_RESPONSE, explain why no action is warranted."""
 
     def execute_assess(
         self,

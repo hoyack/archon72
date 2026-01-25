@@ -26,7 +26,7 @@ from typing import Any, Literal, cast
 from uuid import UUID
 
 # Schema version for D2 compliance
-CONTEXT_PACKAGE_SCHEMA_VERSION: Literal["1.0.0"] = "1.0.0"
+CONTEXT_PACKAGE_SCHEMA_VERSION: Literal["1.1.0"] = "1.1.0"
 
 
 def _utc_now() -> datetime:
@@ -59,6 +59,8 @@ class DeliberationContextPackage:
         assigned_archons: Tuple of 3 assigned archon UUIDs.
         similar_petitions: Empty tuple (Ruling-3 deferred to M2).
         ruling_3_deferred: Flag indicating similar petitions deferred.
+        severity_tier: Heuristic severity tier (low, medium, high).
+        severity_signals: Non-binding signals used to derive severity.
         schema_version: Package schema version for evolution.
         built_at: When package was built (UTC).
         content_hash: SHA-256 hash of canonical JSON (64 hex chars).
@@ -80,6 +82,10 @@ class DeliberationContextPackage:
     # M2 deferred (Ruling-3)
     similar_petitions: tuple[()] = field(default_factory=tuple)
     ruling_3_deferred: bool = field(default=True)
+
+    # Heuristic severity signals (non-binding)
+    severity_tier: str = field(default="low")
+    severity_signals: tuple[str, ...] = field(default_factory=tuple)
 
     # Metadata
     schema_version: str = field(default=CONTEXT_PACKAGE_SCHEMA_VERSION)
@@ -103,6 +109,12 @@ class DeliberationContextPackage:
             raise ValueError(
                 f"Schema version must be '{CONTEXT_PACKAGE_SCHEMA_VERSION}', "
                 f"got '{self.schema_version}'"
+            )
+
+        # Validate severity tier
+        if self.severity_tier not in {"low", "medium", "high"}:
+            raise ValueError(
+                "Severity tier must be one of: low, medium, high"
             )
 
         # Validate content hash format if provided
@@ -136,6 +148,8 @@ class DeliberationContextPackage:
             "assigned_archons": [str(a) for a in self.assigned_archons],
             "similar_petitions": list(self.similar_petitions),
             "ruling_3_deferred": self.ruling_3_deferred,
+            "severity_tier": self.severity_tier,
+            "severity_signals": list(self.severity_signals),
             "schema_version": self.schema_version,
             "built_at": self.built_at.isoformat(),
         }
@@ -196,6 +210,8 @@ class DeliberationContextPackage:
             assigned_archons=cast(tuple[UUID, UUID, UUID], assigned_archons_raw),
             similar_petitions=tuple(),
             ruling_3_deferred=data.get("ruling_3_deferred", True),
+            severity_tier=data.get("severity_tier", "low"),
+            severity_signals=tuple(data.get("severity_signals", [])),
             schema_version=data.get("schema_version", CONTEXT_PACKAGE_SCHEMA_VERSION),
             built_at=datetime.fromisoformat(data["built_at"]),
             content_hash=data.get("content_hash", ""),

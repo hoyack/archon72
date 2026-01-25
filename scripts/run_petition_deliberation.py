@@ -524,6 +524,8 @@ async def run_deliberation_on_petition(petition, dry_run: bool = False):
             "context_package": {
                 "content_hash": package.content_hash,
                 "schema_version": package.schema_version,
+                "severity_tier": package.severity_tier,
+                "severity_signals": list(package.severity_signals),
             },
             "deliberation": {
                 "started_at": deliberation_result.started_at.isoformat(),

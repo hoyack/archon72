@@ -50,6 +50,8 @@ def sample_package(sample_archons) -> DeliberationContextPackage:
         "assigned_archons": [str(a) for a in sample_archons],
         "similar_petitions": [],
         "ruling_3_deferred": True,
+        "severity_tier": "low",
+        "severity_signals": [],
         "schema_version": CONTEXT_PACKAGE_SCHEMA_VERSION,
         "built_at": now.isoformat(),
     }
@@ -317,9 +319,9 @@ class TestContentHash:
 class TestSchemaVersion:
     """Tests for schema version field."""
 
-    def test_schema_version_is_1_0_0(self, sample_package):
-        """Test that schema version is 1.0.0."""
-        assert sample_package.schema_version == "1.0.0"
+    def test_schema_version_is_1_1_0(self, sample_package):
+        """Test that schema version is 1.1.0."""
+        assert sample_package.schema_version == "1.1.0"
         assert sample_package.schema_version == CONTEXT_PACKAGE_SCHEMA_VERSION
 
     def test_schema_version_in_json(self, sample_package):
@@ -327,7 +329,7 @@ class TestSchemaVersion:
         json_str = sample_package.to_canonical_json()
         parsed = json.loads(json_str)
 
-        assert parsed["schema_version"] == "1.0.0"
+        assert parsed["schema_version"] == "1.1.0"
 
 
 class TestPetitionTypes:

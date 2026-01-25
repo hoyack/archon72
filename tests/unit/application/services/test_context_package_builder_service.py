@@ -95,7 +95,7 @@ class TestBuildPackageHappyPath:
         """Test that built package has schema version."""
         package = builder.build_package(sample_petition, sample_session)
 
-        assert package.schema_version == "1.0.0"
+        assert package.schema_version == "1.1.0"
 
     def test_package_has_build_timestamp(
         self, builder, sample_petition, sample_session

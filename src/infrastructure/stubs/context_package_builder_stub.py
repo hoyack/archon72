@@ -18,6 +18,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from src.application.services.context_package_builder_service import (
+    _assess_petition_severity,
+)
 from src.domain.errors.deliberation import PetitionSessionMismatchError
 from src.domain.models.deliberation_context_package import (
     CONTEXT_PACKAGE_SCHEMA_VERSION,
@@ -81,6 +84,7 @@ class ContextPackageBuilderStub:
 
         # Use fixed time or current time
         built_at = self._fixed_build_time or datetime.now(timezone.utc)
+        severity_tier, severity_signals = _assess_petition_severity(petition)
 
         # Build hashable content first (without content_hash)
         hashable_dict = {
@@ -97,6 +101,8 @@ class ContextPackageBuilderStub:
             "assigned_archons": [str(a) for a in session.assigned_archons],
             "similar_petitions": [],  # Ruling-3: deferred to M2
             "ruling_3_deferred": True,
+            "severity_tier": severity_tier,
+            "severity_signals": list(severity_signals),
             "schema_version": CONTEXT_PACKAGE_SCHEMA_VERSION,
             "built_at": built_at.isoformat(),
         }
@@ -117,6 +123,8 @@ class ContextPackageBuilderStub:
             assigned_archons=session.assigned_archons,
             similar_petitions=tuple(),
             ruling_3_deferred=True,
+            severity_tier=severity_tier,
+            severity_signals=severity_signals,
             schema_version=CONTEXT_PACKAGE_SCHEMA_VERSION,
             built_at=built_at,
             content_hash=content_hash,

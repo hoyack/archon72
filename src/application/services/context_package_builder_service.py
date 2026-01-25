@@ -13,6 +13,7 @@ Constitutional Constraints:
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 
 from src.domain.errors.deliberation import PetitionSessionMismatchError
 from src.domain.models.deliberation_context_package import (
@@ -72,6 +73,8 @@ class ContextPackageBuilderService:
         # Capture build time for determinism
         built_at = datetime.now(timezone.utc)
 
+        severity_tier, severity_signals = _assess_petition_severity(petition)
+
         # Build hashable content first (without content_hash)
         hashable_dict = {
             "petition_id": str(petition.id),
@@ -87,6 +90,8 @@ class ContextPackageBuilderService:
             "assigned_archons": [str(a) for a in session.assigned_archons],
             "similar_petitions": [],  # Ruling-3: deferred to M2
             "ruling_3_deferred": True,
+            "severity_tier": severity_tier,
+            "severity_signals": list(severity_signals),
             "schema_version": CONTEXT_PACKAGE_SCHEMA_VERSION,
             "built_at": built_at.isoformat(),
         }
@@ -107,7 +112,84 @@ class ContextPackageBuilderService:
             assigned_archons=session.assigned_archons,
             similar_petitions=tuple(),
             ruling_3_deferred=True,
+            severity_tier=severity_tier,
+            severity_signals=severity_signals,
             schema_version=CONTEXT_PACKAGE_SCHEMA_VERSION,
             built_at=built_at,
             content_hash=content_hash,
         )
+
+
+_SEVERITY_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "high": (
+        "harm",
+        "danger",
+        "threat",
+        "violence",
+        "abuse",
+        "illegal",
+        "fraud",
+        "injury",
+        "death",
+        "safety",
+    ),
+    "medium": (
+        "privacy",
+        "discretion",
+        "harassment",
+        "bias",
+        "discrimination",
+        "breach",
+        "leak",
+        "security",
+        "integrity",
+        "coercion",
+        "manipulation",
+        "misconduct",
+    ),
+}
+
+_SEVERITY_ORDER = ("low", "medium", "high")
+_TYPE_BASELINE = {
+    "CESSATION": "high",
+    "GRIEVANCE": "medium",
+}
+
+
+def _upgrade_severity(current: str, candidate: str) -> str:
+    """Return the higher severity tier."""
+    if _SEVERITY_ORDER.index(candidate) > _SEVERITY_ORDER.index(current):
+        return candidate
+    return current
+
+
+def _term_present(text: str, term: str) -> bool:
+    """Return True if term is present with word boundaries (or as phrase)."""
+    if " " in term:
+        return term in text
+    return re.search(rf"\\b{re.escape(term)}\\b", text) is not None
+
+
+def _assess_petition_severity(
+    petition: PetitionSubmission,
+) -> tuple[str, tuple[str, ...]]:
+    """Heuristic, non-binding severity assessment for deliberation context."""
+    tier = "low"
+    signals: list[str] = []
+
+    petition_type = petition.type.value
+    baseline = _TYPE_BASELINE.get(petition_type)
+    if baseline:
+        tier = _upgrade_severity(tier, baseline)
+        signals.append(f"type:{petition_type}")
+
+    text = petition.text.lower()
+    for level in ("high", "medium"):
+        for keyword in _SEVERITY_KEYWORDS[level]:
+            if _term_present(text, keyword):
+                tier = _upgrade_severity(tier, level)
+                signal = f"keyword:{keyword}"
+                if signal not in signals:
+                    signals.append(signal)
+
+    return tier, tuple(signals)

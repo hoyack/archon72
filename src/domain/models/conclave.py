@@ -368,10 +368,11 @@ class TranscriptEntry:
         speaker_id: str | None = None,
         speaker_name: str | None = None,
         metadata: dict[str, Any] | None = None,
+        timestamp: datetime | None = None,
     ) -> TranscriptEntry:
         return cls(
             entry_id=uuid4(),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=timestamp or datetime.now(timezone.utc),
             phase=phase,
             speaker_id=speaker_id,
             speaker_name=speaker_name,
@@ -440,8 +441,20 @@ class ConclaveSession:
         speaker_id: str | None = None,
         speaker_name: str | None = None,
         metadata: dict[str, Any] | None = None,
+        timestamp: datetime | None = None,
     ) -> TranscriptEntry:
-        """Add an entry to the meeting transcript."""
+        """Add an entry to the meeting transcript.
+
+        Args:
+            entry_type: Type of entry (speech, vote, procedural, etc.)
+            content: The content of the entry
+            speaker_id: Optional speaker ID
+            speaker_name: Optional speaker name
+            metadata: Optional metadata dict
+            timestamp: Optional timestamp (defaults to now if not provided).
+                       Use this to preserve original event timestamps, e.g.,
+                       when recording votes that were collected in parallel.
+        """
         entry = TranscriptEntry.create(
             phase=self.current_phase,
             entry_type=entry_type,
@@ -449,6 +462,7 @@ class ConclaveSession:
             speaker_id=speaker_id,
             speaker_name=speaker_name,
             metadata=metadata,
+            timestamp=timestamp,
         )
         self.transcript.append(entry)
         return entry

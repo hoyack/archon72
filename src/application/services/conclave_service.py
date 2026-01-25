@@ -1519,23 +1519,82 @@ Be concise but substantive. Your contribution will be recorded in the official t
         # =====================================================================
         # PHASE 1: Vote Collection (bounded concurrency, no validation yet)
         # =====================================================================
+
+        def _record_vote_with_divergence_check(vote: Vote) -> None:
+            """Record a vote in transcript with stance divergence detection.
+
+            Compares the vote to the archon's declared stance during debate.
+            If they diverge, records a witnessed divergence event.
+            """
+            motion.cast_vote(vote)
+            if not self._session:
+                return
+
+            # Look up archon's last declared stance from debate entries
+            declared_stance: bool | None = None
+            for entry in reversed(motion.debate_entries):
+                if entry.speaker_id == vote.voter_id:
+                    declared_stance = entry.in_favor
+                    break
+
+            # Determine if vote diverges from declared stance
+            # in_favor: True=FOR, False=AGAINST, None=NEUTRAL
+            # vote.choice: AYE, NAY, ABSTAIN
+            # NEUTRAL stance can resolve to any vote, so no divergence there
+            stance_vote_match = not (
+                (declared_stance is True and vote.choice != VoteChoice.AYE)
+                or (declared_stance is False and vote.choice != VoteChoice.NAY)
+            )
+
+            # Build metadata with stance tracking
+            vote_metadata: dict[str, Any] = {
+                "motion_id": str(motion.motion_id),
+                "choice": vote.choice.value,
+            }
+
+            if declared_stance is not None:
+                vote_metadata["declared_stance"] = (
+                    "for" if declared_stance is True else "against"
+                )
+                vote_metadata["stance_vote_consistent"] = stance_vote_match
+
+            # Record the vote with its original timestamp
+            self._session.add_transcript_entry(
+                entry_type="vote",
+                content=f"Vote: {vote.choice.value.upper()}",
+                speaker_id=vote.voter_id,
+                speaker_name=vote.voter_name,
+                metadata=vote_metadata,
+                timestamp=vote.timestamp,
+            )
+
+            # If stance diverged, record a witnessed divergence event
+            if not stance_vote_match and declared_stance is not None:
+                stance_str = "FOR" if declared_stance else "AGAINST"
+                self._session.add_transcript_entry(
+                    entry_type="stance_vote_divergence",
+                    content=(
+                        f"Stance/vote divergence: {vote.voter_name} declared "
+                        f"STANCE: {stance_str} during debate but voted "
+                        f"{vote.choice.value.upper()}"
+                    ),
+                    speaker_id=vote.voter_id,
+                    speaker_name=vote.voter_name,
+                    metadata={
+                        "motion_id": str(motion.motion_id),
+                        "declared_stance": stance_str.lower(),
+                        "vote_cast": vote.choice.value,
+                        "divergence_witnessed": True,
+                    },
+                    timestamp=vote.timestamp,
+                )
+
         if configured_concurrency == 1:
             # Sequential mode (original behavior)
             for archon_id in self._session.present_participants:
                 vote = await collect_single_vote(archon_id)
                 if vote:
-                    motion.cast_vote(vote)
-                    if self._session:
-                        self._session.add_transcript_entry(
-                            entry_type="vote",
-                            content=f"Vote: {vote.choice.value.upper()}",
-                            speaker_id=vote.voter_id,
-                            speaker_name=vote.voter_name,
-                            metadata={
-                                "motion_id": str(motion.motion_id),
-                                "choice": vote.choice.value,
-                            },
-                        )
+                    _record_vote_with_divergence_check(vote)
         else:
             # Concurrent mode
             tasks = [
@@ -1544,21 +1603,10 @@ Be concise but substantive. Your contribution will be recorded in the official t
             ]
             votes = await asyncio.gather(*tasks)
 
-            # Cast all votes and record in transcript
+            # Cast all votes and record in transcript with divergence checking
             for vote in votes:
                 if vote:
-                    motion.cast_vote(vote)
-                    if self._session:
-                        self._session.add_transcript_entry(
-                            entry_type="vote",
-                            content=f"Vote: {vote.choice.value.upper()}",
-                            speaker_id=vote.voter_id,
-                            speaker_name=vote.voter_name,
-                            metadata={
-                                "motion_id": str(motion.motion_id),
-                                "choice": vote.choice.value,
-                            },
-                        )
+                    _record_vote_with_divergence_check(vote)
 
         # =====================================================================
         # PHASE 2: Batch Validation Submission (after all votes collected)

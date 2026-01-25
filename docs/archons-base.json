@@ -529,7 +529,7 @@
       "elevenlabs_voice_id": "J6ztGyM6e7omeh5pPJ5t",
       "llm_config": {
         "provider": "local",
-        "model": "gpt-oss:120b-cloud",
+        "model": "gemini-3-pro-preview:latest",
         "temperature": 0.675,
         "max_tokens": 8500,
         "timeout_ms": 180000,
@@ -586,7 +586,7 @@
       "elevenlabs_voice_id": "WQtnYFc7Yukn61S8uhNK",
       "llm_config": {
         "provider": "local",
-        "model": "gpt-oss:120b-cloud",
+        "model": "mistral-large-3:675b-cloud",
         "temperature": 0.7,
         "max_tokens": 20000,
         "timeout_ms": 180000,
@@ -640,7 +640,7 @@
       "elevenlabs_voice_id": "Cj3OegwgdZmvkrNVdS6i",
       "llm_config": {
         "provider": "local",
-        "model": "gpt-oss:120b-cloud",
+        "model": "deepseek-v3.1:671b-cloud",
         "temperature": 0.725,
         "max_tokens": 2200,
         "timeout_ms": 180000,
@@ -692,7 +692,7 @@
       "elevenlabs_voice_id": "dVt7o123a2mAmac39HPP",
       "llm_config": {
         "provider": "local",
-        "model": "gpt-oss:120b-cloud",
+        "model": "cogito-2.1:671b-cloud",
         "temperature": 0.75,
         "max_tokens": 7200,
         "timeout_ms": 180000,
@@ -797,7 +797,7 @@
       "elevenlabs_voice_id": "vyJKOz9xx1xClFTqqvv3",
       "llm_config": {
         "provider": "local",
-        "model": "gpt-oss:120b-cloud",
+        "model": "deepseek-v3.1:671b-cloud",
         "temperature": 0.675,
         "max_tokens": 3600,
         "timeout_ms": 180000,
@@ -848,7 +848,7 @@
       "elevenlabs_voice_id": "XIUVSt5umWufiun95ncW",
       "llm_config": {
         "provider": "local",
-        "model": "gpt-oss:120b-cloud",
+        "model": "qwen3-vl:235b-instruct-cloud",
         "temperature": 0.7,
         "max_tokens": 3300,
         "timeout_ms": 180000,

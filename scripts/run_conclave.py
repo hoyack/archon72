@@ -145,6 +145,20 @@ def format_progress(event: str, message: str, data: dict) -> None:
         print(f"  Duration: {data.get('duration_minutes', 0):.1f} minutes")
         print(f"  Motions passed: {data.get('motions_passed', 0)}")
         print(f"  Motions failed: {data.get('motions_failed', 0)}")
+    elif event == "seeking_second":
+        print(f"\n{Colors.YELLOW}[SEEKING SECOND]{Colors.ENDC} {message}")
+    elif event == "seconding_evaluation":
+        archon = data.get("archon", "Unknown")
+        attempt = data.get("attempt", "?")
+        max_attempts = data.get("max_attempts", "?")
+        print(f"  {Colors.DIM}[{attempt}/{max_attempts}]{Colors.ENDC} Evaluating: {archon}")
+    elif event == "second_declined":
+        archon = data.get("archon", "Unknown")
+        reasoning = data.get("reasoning", "")[:100]
+        print(f"  {Colors.RED}[DECLINED]{Colors.ENDC} {archon}: {reasoning}")
+    elif event == "motion_died_no_second":
+        print(f"\n{Colors.RED}[MOTION DIED]{Colors.ENDC} {message}")
+        print(f"  All 9 Kings declined to second this motion.")
     else:
         print(f"{Colors.DIM}[{event}]{Colors.ENDC} {message}")
 
@@ -536,7 +550,11 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         # Phase 3: Move to New Business
         await conclave.advance_to_new_business()
 
-        seconder = archon_profiles[1] if len(archon_profiles) > 1 else archon_profiles[0]
+        # Build candidate list for deliberative seconding - Kings only (9 total)
+        # Kings have authority to decide what's worth the Conclave's time
+        # Note: all_profiles has full ArchonProfile with original_rank; archon_profiles is simplified
+        king_seconder_ids = [str(p.id) for p in all_profiles if p.original_rank == "King"]
+        print(f"{Colors.DIM}  Kings available for seconding: {len(king_seconder_ids)}{Colors.ENDC}")
 
         for idx, plan in enumerate(motion_plans, 1):
             if plan["source"] == "custom":
@@ -550,7 +568,29 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
             else:
                 conclave.add_external_motion(plan["motion"])
 
-            await conclave.second_motion(seconder_id=seconder.id)
+            # Deliberative seconding: All 9 Kings evaluate the motion
+            # If ANY King seconds it, the motion proceeds to debate
+            # If ALL 9 Kings decline, the motion dies without debate
+            seconder_id, evaluations = await conclave.seek_second(
+                candidate_archon_ids=king_seconder_ids,
+                max_attempts=9,  # Try all 9 Kings
+            )
+
+            if not seconder_id:
+                # Motion died for lack of a second - skip to next motion
+                print(
+                    f"\n{Colors.RED}[SKIPPED]{Colors.ENDC} Motion '{plan.get('motion_title', 'Unknown')}' "
+                    f"will not be debated (all 9 Kings declined to second)"
+                )
+                queued_motion_id = plan.get("queued_motion_id")
+                if queued_motion_id:
+                    queue_service.mark_voted(
+                        queued_motion_id,
+                        passed=False,
+                        vote_details={"died_no_second": True, "evaluations": evaluations},
+                    )
+                continue
+
             await conclave.conduct_debate()
             await conclave.call_question()
             vote_result = await conclave.conduct_vote()

@@ -491,7 +491,7 @@ class ConclaveService:
             )
             try:
                 validated_jobs = await self._async_validator.drain(
-                    timeout=self._config.reconciliation_timeout
+                    timeout_seconds=self._config.reconciliation_timeout
                 )
             except ReconciliationTimeoutError as exc:
                 motion_id = (
@@ -667,6 +667,269 @@ class ConclaveService:
         except ValueError as e:
             logger.warning(f"Failed to second motion: {e}")
             return False
+
+    async def evaluate_motion_for_seconding(
+        self, archon_id: str
+    ) -> tuple[bool, str]:
+        """Ask an Archon to evaluate if they would second the current motion.
+
+        This implements deliberative seconding - Archons evaluate motions
+        before deciding to second them. Absurd or harmful motions may be
+        refused, causing them to die without debate.
+
+        Args:
+            archon_id: ID of the Archon to ask
+
+        Returns:
+            Tuple of (would_second: bool, reasoning: str)
+        """
+        if not self._session:
+            raise ValueError("No active session")
+
+        motion = self._session.current_motion
+        if not motion:
+            raise ValueError("No motion pending")
+
+        archon = self._profiles.get(archon_id)
+        if not archon:
+            raise ValueError(f"Unknown archon: {archon_id}")
+
+        # Don't let the proposer second their own motion
+        if archon_id == motion.proposer_id:
+            return False, "Cannot second own motion"
+
+        prompt = self._build_seconding_prompt(motion, archon)
+
+        bundle = ContextBundle(
+            bundle_id=uuid4(),
+            topic_id=f"second-eval-{motion.motion_id}",
+            topic_content=prompt,
+            metadata={
+                "motion_type": motion.motion_type.value,
+                "motion_title": motion.title,
+                "evaluation_type": "seconding",
+            },
+            created_at=datetime.now(timezone.utc),
+        )
+
+        try:
+            result = await self._invoke_with_timeout(archon_id, bundle)
+            content = result.content if result else ""
+            would_second, reasoning = self._parse_seconding_decision(content)
+
+            # Log the decision
+            logger.info(
+                "seconding_evaluation archon=%s motion=%s would_second=%s",
+                archon.name,
+                motion.title[:50],
+                would_second,
+            )
+
+            return would_second, reasoning
+
+        except Exception as e:
+            logger.warning(
+                "seconding_evaluation_failed archon=%s error=%s",
+                archon.name,
+                str(e),
+            )
+            # On error, decline to second (fail-safe)
+            return False, f"Evaluation failed: {e}"
+
+    def _build_seconding_prompt(self, motion: Motion, archon: ArchonProfile) -> str:
+        """Build the prompt for evaluating whether to second a motion."""
+        return f"""ARCHON 72 CONCLAVE - MOTION SECONDING EVALUATION
+
+You are {archon.name}, {archon.aegis_rank}.
+Your domain: {archon.domain}
+
+A motion has been proposed and requires a second before it can be debated.
+You must decide whether this motion is worth the Conclave's time to debate.
+
+MOTION TITLE: {motion.title}
+MOTION TYPE: {motion.motion_type.value.upper()}
+PROPOSER: {motion.proposer_name}
+
+MOTION TEXT:
+{motion.text}
+
+EVALUATION CRITERIA:
+1. Is this motion coherent and understandable?
+2. Does it address a legitimate governance concern?
+3. Is it feasible to implement if passed?
+4. Does it align with the Conclave's purpose and values?
+5. Is it a serious proposal worthy of formal debate?
+
+INSTRUCTIONS:
+Evaluate this motion based on your expertise and the criteria above.
+A motion should be seconded if it merits formal debate, even if you might
+ultimately vote against it. However, frivolous, absurd, or clearly harmful
+motions should NOT be seconded.
+
+Start your response with exactly one of:
+DECISION: SECOND - if the motion merits debate
+DECISION: DECLINE - if the motion should not proceed
+
+Then provide a brief explanation (2-3 sentences) for your decision.
+"""
+
+    def _parse_seconding_decision(self, content: str) -> tuple[bool, str]:
+        """Parse an Archon's seconding decision from their response.
+
+        Args:
+            content: The LLM response text
+
+        Returns:
+            Tuple of (would_second: bool, reasoning: str)
+        """
+        content_lower = content.lower()
+        lines = content.strip().splitlines()
+
+        would_second = False
+        reasoning = content[:500] if content else "No response provided"
+
+        # Look for explicit decision
+        for line in lines:
+            line_stripped = line.strip().lower()
+            if line_stripped.startswith("decision:"):
+                decision_part = line_stripped.split(":", 1)[1].strip()
+                if decision_part.startswith("second"):
+                    would_second = True
+                elif decision_part.startswith("decline"):
+                    would_second = False
+                # Extract reasoning from remaining content
+                idx = content.lower().find("decision:")
+                if idx >= 0:
+                    after_decision = content[idx:]
+                    newline_idx = after_decision.find("\n")
+                    if newline_idx >= 0:
+                        reasoning = after_decision[newline_idx:].strip()[:500]
+                break
+
+        # Fallback: look for indicators if no explicit decision
+        if "decision:" not in content_lower:
+            second_indicators = [
+                "i second",
+                "i will second",
+                "worthy of debate",
+                "merits debate",
+                "deserves consideration",
+                "should be debated",
+            ]
+            decline_indicators = [
+                "i decline",
+                "i cannot second",
+                "refuse to second",
+                "not worthy",
+                "frivolous",
+                "absurd",
+                "waste of time",
+                "does not merit",
+            ]
+
+            for indicator in decline_indicators:
+                if indicator in content_lower:
+                    would_second = False
+                    break
+
+            for indicator in second_indicators:
+                if indicator in content_lower:
+                    would_second = True
+                    break
+
+        return would_second, reasoning
+
+    async def seek_second(
+        self,
+        candidate_archon_ids: list[str],
+        max_attempts: int | None = None,
+    ) -> tuple[str | None, list[tuple[str, str]]]:
+        """Seek a second for the current motion from candidate Archons.
+
+        Tries each candidate in order until one agrees to second or all decline.
+        This implements deliberative seconding where Archons evaluate motions
+        before seconding them.
+
+        Args:
+            candidate_archon_ids: List of Archon IDs to try, in order
+            max_attempts: Maximum number of Archons to ask (default: all)
+
+        Returns:
+            Tuple of:
+                - seconder_id if someone seconded, None if all declined
+                - List of (archon_name, reasoning) for all evaluations
+        """
+        if not self._session:
+            raise ValueError("No active session")
+
+        motion = self._session.current_motion
+        if not motion:
+            raise ValueError("No motion pending")
+
+        evaluations: list[tuple[str, str]] = []
+        attempts = 0
+        limit = max_attempts or len(candidate_archon_ids)
+
+        self._emit_progress(
+            "seeking_second",
+            f"Seeking a second for motion: {motion.title}",
+            {"motion_id": str(motion.motion_id), "candidates": len(candidate_archon_ids)},
+        )
+
+        for archon_id in candidate_archon_ids:
+            if attempts >= limit:
+                break
+
+            # Skip the proposer
+            if archon_id == motion.proposer_id:
+                continue
+
+            archon = self._profiles.get(archon_id)
+            if not archon:
+                continue
+
+            attempts += 1
+
+            self._emit_progress(
+                "seconding_evaluation",
+                f"Asking {archon.name} to evaluate motion",
+                {"archon": archon.name, "attempt": attempts, "max_attempts": limit},
+            )
+
+            would_second, reasoning = await self.evaluate_motion_for_seconding(archon_id)
+            evaluations.append((archon.name, reasoning))
+
+            if would_second:
+                # This Archon agrees to second
+                success = await self.second_motion(archon_id)
+                if success:
+                    return archon_id, evaluations
+            else:
+                # Record the decline in transcript
+                self._session.add_transcript_entry(
+                    entry_type="motion",
+                    content=f"{archon.name} declines to second: {reasoning[:200]}",
+                    speaker_id=archon_id,
+                    speaker_name=archon.name,
+                )
+                self._emit_progress(
+                    "second_declined",
+                    f"{archon.name} declined to second",
+                    {"archon": archon.name, "reasoning": reasoning[:200]},
+                )
+
+        # No one seconded - motion dies
+        self._session.add_transcript_entry(
+            entry_type="procedural",
+            content=f"Motion '{motion.title}' died for lack of a second after {attempts} Archon(s) declined.",
+        )
+        self._emit_progress(
+            "motion_died_no_second",
+            f"Motion died for lack of a second",
+            {"motion_id": str(motion.motion_id), "attempts": attempts},
+        )
+
+        return None, evaluations
 
     async def conduct_debate(
         self,
@@ -1071,8 +1334,16 @@ Be concise but substantive. Your contribution will be recorded in the official t
     async def conduct_vote(self) -> dict[str, Any]:
         """Conduct voting on the current motion.
 
-        Archons vote with configurable concurrency (default: sequential).
-        Use --voting-concurrency N to allow N archons to vote in parallel
+        Voting proceeds in two phases (batch architecture):
+          Phase 1 - Vote Collection: Collect all votes from archons with bounded
+                    concurrency. No validation LLM calls during this phase.
+          Phase 2 - Batch Validation: After all votes collected, submit all to
+                    the async validator. Validation runs independently.
+
+        This separation eliminates resource contention between vote collection
+        and validation LLM calls.
+
+        Use --voting-concurrency N to control parallel vote collection
         (0 = unlimited).
 
         Returns:
@@ -1099,7 +1370,7 @@ Be concise but substantive. Your contribution will be recorded in the official t
 
         self._emit_progress(
             "voting_start",
-            "Voting has begun",
+            "Voting has begun (Phase 1: Collection)",
             {
                 "motion_id": str(motion.motion_id),
                 "title": motion.title,
@@ -1109,7 +1380,7 @@ Be concise but substantive. Your contribution will be recorded in the official t
         completed_count = 0
         completed_lock = asyncio.Lock()
 
-        # Create semaphore for concurrency control
+        # Create semaphore for concurrency control during vote collection
         voting_semaphore = asyncio.Semaphore(configured_concurrency)
 
         use_async_validator = (
@@ -1133,8 +1404,19 @@ Be concise but substantive. Your contribution will be recorded in the official t
                 backoff_max_seconds=self._config.agent_timeout_backoff_max_seconds,
             )
 
-        async def collect_single_vote(archon_id: str) -> Vote | None:
-            """Collect a single vote with semaphore-controlled concurrency."""
+        # Storage for validation payloads (Phase 2 batch submission)
+        validation_payloads: list[dict[str, Any]] = []
+        validation_payloads_lock = asyncio.Lock()
+
+        async def collect_single_vote(
+            archon_id: str,
+        ) -> Vote | None:
+            """Collect a single vote with semaphore-controlled concurrency.
+
+            Phase 1 only: Collects vote payload from LLM, parses optimistic choice,
+            stores payload for batch validation submission. Does NOT submit to
+            validator here - that happens in Phase 2.
+            """
             nonlocal completed_count
 
             archon = self._profiles.get(archon_id)
@@ -1143,7 +1425,8 @@ Be concise but substantive. Your contribution will be recorded in the official t
 
             async with voting_semaphore:
                 try:
-                    if use_async_validator and self._async_validator:
+                    if use_async_validator:
+                        # Phase 1: Collect vote payload, defer validation submission
                         payload = await self._collect_vote_payload(archon, motion)
                         raw_response = payload["raw_content"]
                         optimistic_choice = self._parse_vote(raw_response)
@@ -1168,15 +1451,9 @@ Be concise but substantive. Your contribution will be recorded in the official t
                                 payload,
                             )
 
-                        await self._async_validator.submit_vote(
-                            vote_id=vote_id,
-                            session_id=payload["session_id"],
-                            motion_id=payload["motion_id"],
-                            archon_id=archon.id,
-                            archon_name=archon.name,
-                            optimistic_choice=optimistic_choice,
-                            vote_payload=payload,
-                        )
+                        # Store payload for Phase 2 batch submission
+                        async with validation_payloads_lock:
+                            validation_payloads.append(payload)
 
                         vote = Vote(
                             voter_id=archon.id,
@@ -1195,13 +1472,13 @@ Be concise but substantive. Your contribution will be recorded in the official t
                         current = completed_count
 
                     self._emit_percent_complete(
-                        phase="vote",
+                        phase="vote_collection",
                         current_index=current,
                         total_items=total_voters,
                     )
                     self._emit_progress(
                         "archon_voting",
-                        f"Voted: {archon.name} ({current}/{total_voters})",
+                        f"Collected: {archon.name} ({current}/{total_voters})",
                         {
                             "archon": archon.name,
                             "progress": f"{current}/{total_voters}",
@@ -1236,7 +1513,9 @@ Be concise but substantive. Your contribution will be recorded in the official t
                         reasoning=f"Vote error: {e}",
                     )
 
-        # Run votes with configured concurrency
+        # =====================================================================
+        # PHASE 1: Vote Collection (bounded concurrency, no validation yet)
+        # =====================================================================
         if configured_concurrency == 1:
             # Sequential mode (original behavior)
             for archon_id in self._session.present_participants:
@@ -1277,6 +1556,40 @@ Be concise but substantive. Your contribution will be recorded in the official t
                                 "choice": vote.choice.value,
                             },
                         )
+
+        # =====================================================================
+        # PHASE 2: Batch Validation Submission (after all votes collected)
+        # =====================================================================
+        if use_async_validator and self._async_validator and validation_payloads:
+            self._emit_progress(
+                "validation_batch_start",
+                f"Phase 2: Submitting {len(validation_payloads)} votes for validation",
+                {
+                    "motion_id": str(motion.motion_id),
+                    "vote_count": len(validation_payloads),
+                },
+            )
+
+            for payload in validation_payloads:
+                await self._async_validator.submit_vote(
+                    vote_id=payload["vote_id"],
+                    session_id=payload["session_id"],
+                    motion_id=payload["motion_id"],
+                    archon_id=payload["archon_id"],
+                    archon_name=payload["archon_name"],
+                    optimistic_choice=VoteChoice(payload["optimistic_choice"]),
+                    vote_payload=payload,
+                )
+
+            self._emit_progress(
+                "validation_batch_complete",
+                f"Phase 2: All {len(validation_payloads)} votes submitted for async validation",
+                {
+                    "motion_id": str(motion.motion_id),
+                    "vote_count": len(validation_payloads),
+                    "pending_validations": self._async_validator.get_stats()["pending"],
+                },
+            )
 
         # Story 4.4: Reconciliation gate for async validation (legacy Kafka path)
         # P2: ReconciliationIncompleteError MUST propagate - do NOT catch

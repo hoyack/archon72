@@ -114,3 +114,11 @@ docker-compose up
 # With continuous mode
 docker-compose run aegis-bridge --continuous
 ```
+
+## Notes
+
+```bash
+cd /home/hoyack/work/archon72/aegis-bridge && python main.py
+cd ..
+python scripts/run_petition_deliberation.py --petition-id 80b5787d-31c3-4ef7-ab0f-4178e820388a
+```

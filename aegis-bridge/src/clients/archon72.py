@@ -232,11 +232,20 @@ class Archon72Client:
         Returns:
             True if healthy, False otherwise.
         """
-        url = f"{self._base_url}/health"
+        # Prefer the versioned health endpoint; fall back to legacy root path.
+        urls = (
+            f"{self._base_url}/v1/health",
+            f"{self._base_url}/health",
+        )
 
         async with httpx.AsyncClient(timeout=5) as client:
-            try:
-                response = await client.get(url)
-                return response.status_code == 200
-            except Exception:
-                return False
+            for url in urls:
+                try:
+                    response = await client.get(url)
+                except Exception:
+                    continue
+                if response.status_code == 200:
+                    return True
+                if response.status_code != 404:
+                    return False
+        return False

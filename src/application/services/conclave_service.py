@@ -154,6 +154,10 @@ class ConclaveConfig:
 
     # Three-tier async validation (spec v2)
     async_validation_enabled: bool = False
+    # Skip the 3-LLM post-vote validation batch (keeps simple vote parsing)
+    # When True: votes parsed directly, no 3-archon validation batch runs
+    # When False: 3-LLM validation runs after vote collection (expensive)
+    skip_async_validation_batch: bool = False
     secretary_text_archon_id: str | None = None
     secretary_json_archon_id: str | None = None
     witness_archon_id: str | None = None
@@ -503,7 +507,8 @@ class ConclaveService:
             content="Motion to adjourn is in order.",
         )
 
-        if self._async_validator:
+        # Only run validation drain if async validator was used and batch wasn't skipped
+        if self._async_validator and not self._config.skip_async_validation_batch:
             self._emit_progress(
                 "reconciliation_started",
                 "Waiting for validations to complete",
@@ -2560,8 +2565,15 @@ Output format:
 
         # =====================================================================
         # PHASE 2: Batch Validation Submission (after all votes collected)
+        # Skip if skip_async_validation_batch is True (saves 216 LLM calls)
         # =====================================================================
-        if use_async_validator and self._async_validator and validation_payloads:
+        run_validation_batch = (
+            use_async_validator
+            and self._async_validator
+            and validation_payloads
+            and not self._config.skip_async_validation_batch
+        )
+        if run_validation_batch:
             self._emit_progress(
                 "validation_batch_start",
                 f"Phase 2: Submitting {len(validation_payloads)} votes for validation",

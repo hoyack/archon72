@@ -158,7 +158,7 @@ def format_progress(event: str, message: str, data: dict) -> None:
         print(f"  {Colors.RED}[DECLINED]{Colors.ENDC} {archon}: {reasoning}")
     elif event == "motion_died_no_second":
         print(f"\n{Colors.RED}[MOTION DIED]{Colors.ENDC} {message}")
-        print(f"  All 9 Kings declined to second this motion.")
+        print("  All 9 Kings declined to second this motion.")
     else:
         print(f"{Colors.DIM}[{event}]{Colors.ENDC} {message}")
 
@@ -353,6 +353,12 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
                     "using default."
                 )
 
+    # Option to skip the 3-LLM validation batch (saves ~216 LLM calls)
+    # Set SKIP_ASYNC_VALIDATION_BATCH=true to skip validation while keeping
+    # the simple vote parsing path that async_validation_enabled uses
+    skip_validation_batch = parse_env_bool("SKIP_ASYNC_VALIDATION_BATCH", False)
+    config.skip_async_validation_batch = skip_validation_batch
+
     kafka_enabled = parse_env_bool("KAFKA_ENABLED", False)
     config.kafka_enabled = kafka_enabled
     topic_prefix = os.getenv("KAFKA_TOPIC_PREFIX", "").strip()
@@ -410,9 +416,12 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
             "(missing SECRETARY_TEXT_ARCHON_ID or SECRETARY_JSON_ARCHON_ID)"
         )
     if config.async_validation_enabled:
-        print("  Async validation: enabled (in-process)")
-        print(f"    Kafka bootstrap: {config.kafka_bootstrap_servers}")
-        print(f"    Schema registry: {config.schema_registry_url}")
+        if config.skip_async_validation_batch:
+            print("  Async validation: enabled (3-LLM batch SKIPPED)")
+        else:
+            print("  Async validation: enabled (in-process)")
+            print(f"    Kafka bootstrap: {config.kafka_bootstrap_servers}")
+            print(f"    Schema registry: {config.schema_registry_url}")
     elif config.enable_async_validation:
         print("  Async validation: enabled (legacy Kafka)")
         print(f"    Kafka bootstrap: {config.kafka_bootstrap_servers}")

@@ -119,6 +119,7 @@ class LoadTestHarnessStub:
         failed = 0
         timeouts = 0
         failure_breakdown: dict[str, int] = {}
+        rng = random.Random(0)
 
         # Process all petitions
         for i in range(config.total_petitions):
@@ -126,14 +127,14 @@ class LoadTestHarnessStub:
             self._metrics.start_session()
 
             # Determine outcome based on injection rates
-            roll = random.random()
+            roll = rng.random()
 
             if roll < config.failure_injection_rate:
                 # Injected failure
                 latency = self._generate_latency()
                 latencies.append(latency)
                 failed += 1
-                reason = random.choice(self.FAILURE_REASONS)
+                reason = rng.choice(self.FAILURE_REASONS)
                 failure_breakdown[reason] = failure_breakdown.get(reason, 0) + 1
                 self._metrics.record_completion(latency, success=False)
 

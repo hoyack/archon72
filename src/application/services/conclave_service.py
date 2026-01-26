@@ -1115,8 +1115,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                             "archon": archon.name,
                             "archon_id": archon.id,
                             "inferred_position": (
-                                "for" if position is True
-                                else "against" if position is False
+                                "for"
+                                if position is True
+                                else "against"
+                                if position is False
                                 else "neutral"
                             ),
                             "response_preview": output.content[:200],
@@ -1168,7 +1170,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                         ),
                         speaker_id="Secretary",
                         speaker_name="Secretary",
-                        metadata={"warning_type": "stance_missing", "archon": archon.name},
+                        metadata={
+                            "warning_type": "stance_missing",
+                            "archon": archon.name,
+                        },
                     )
 
                 # Check if we should generate a debate digest
@@ -1276,8 +1281,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                             "context": "red_team",
                             "target_stance": target_stance,
                             "inferred_position": (
-                                "for" if position is True
-                                else "against" if position is False
+                                "for"
+                                if position is True
+                                else "against"
+                                if position is False
                                 else "neutral"
                             ),
                         },
@@ -2485,7 +2492,9 @@ Output format:
                             voter_rank=archon.aegis_rank,
                             choice=optimistic_choice,
                             timestamp=datetime.now(timezone.utc),
-                            reasoning=raw_response[:self._config.vote_reasoning_max_chars],
+                            reasoning=raw_response[
+                                : self._config.vote_reasoning_max_chars
+                            ],
                         )
                     else:
                         vote, _is_valid = await self._get_archon_vote(archon, motion)
@@ -2581,7 +2590,9 @@ Output format:
                     for line in vote.reasoning.split("\n"):
                         if "STANCE_CHANGED:" in line.upper():
                             max_len = self._config.stance_change_reason_max_chars
-                            stance_change_reason = line.split(":", 1)[1].strip()[:max_len]
+                            stance_change_reason = line.split(":", 1)[1].strip()[
+                                :max_len
+                            ]
                             break
 
             # Build metadata with stance tracking
@@ -2858,7 +2869,7 @@ Output format:
             choice=choice,
             timestamp=datetime.now(timezone.utc),
             reasoning=(
-                output.content[:self._config.vote_reasoning_max_chars]
+                output.content[: self._config.vote_reasoning_max_chars]
                 if is_validated or not self._config.vote_validation_archon_ids
                 else "Vote validation failed: no consensus"
             ),
@@ -2966,7 +2977,7 @@ Output format:
                 voter_rank=archon.aegis_rank,
                 choice=choice,
                 timestamp=datetime.now(timezone.utc),
-                reasoning=raw_response[:self._config.vote_reasoning_max_chars]
+                reasoning=raw_response[: self._config.vote_reasoning_max_chars]
                 if is_validated
                 else "Awaiting secretary consensus",
             )

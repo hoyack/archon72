@@ -7,14 +7,14 @@ help:
 	@echo "  make dev              - Start development environment (Docker Compose)"
 	@echo "  make stop             - Stop all containers"
 	@echo "  make db-reset         - Reset database (drop volumes, restart)"
-	@echo "  make test             - Run all tests with pytest"
+	@echo "  make test             - Run unit tests (no external deps)"
 	@echo "  make test-unit        - Run unit tests only"
 	@echo "  make test-integration - Run integration tests (requires Docker)"
 	@echo "  make test-integration-crewai - Run CrewAI E2E tests (requires API keys)"
 	@echo "  make test-crewai-smoke - Run quick CrewAI smoke test (~30s, ~$0.05)"
 	@echo "  make test-crewai-load - Run 72-agent load test (~5min, ~$2.00)"
 	@echo "  make test-chaos       - Run chaos tests only (PM-5)"
-	@echo "  make test-all         - Alias for make test"
+	@echo "  make test-all         - Run full test suite (includes external deps)"
 	@echo "  make chaos-cessation  - Run cessation chaos test (PM-5 mandatory)"
 	@echo "  make validate-cessation - Validate cessation code path (CI weekly)"
 	@echo "  make lint             - Run linting (ruff + mypy)"
@@ -44,18 +44,18 @@ db-reset:
 	@echo "Database reset complete. Starting all services..."
 	docker compose up -d
 
-# Run all tests (unit + integration)
+# Run unit tests only (default, no external deps)
 test:
-	python3 -m pytest tests/ -v --tb=short
+	poetry run pytest tests/unit/ -v --tb=short
 
 # Run unit tests only
 test-unit:
-	python3 -m pytest tests/unit/ -v --tb=short
+	poetry run pytest tests/unit/ -v --tb=short
 
 # Run integration tests only (requires Docker)
 test-integration:
 	@docker info > /dev/null 2>&1 || (echo "Error: Docker is not running. Please start Docker first." && exit 1)
-	python3 -m pytest tests/integration/ -v -m integration --tb=short --ignore=tests/integration/crewai \
+	poetry run pytest tests/integration/ -v -m integration --tb=short --run-external --ignore=tests/integration/crewai \
 		--ignore=tests/integration/test_acknowledgment_execution_integration.py \
 		--ignore=tests/integration/test_acknowledgment_reason_persistence.py \
 		--ignore=tests/integration/test_archon_assignment_integration.py \
@@ -80,57 +80,58 @@ test-integration:
 # Run CrewAI E2E integration tests (requires API keys)
 test-integration-crewai:
 	@echo "Running CrewAI E2E tests (requires ANTHROPIC_API_KEY or OPENAI_API_KEY)..."
-	python3 -m pytest tests/integration/crewai/ -v -m integration --tb=short
+	poetry run pytest tests/integration/crewai/ -v -m integration --tb=short --run-external
 
 # Run quick CrewAI smoke test (~30s, ~$0.05)
 test-crewai-smoke:
 	@echo "Running CrewAI smoke test..."
-	python3 -m pytest tests/integration/crewai/ -v -m "smoke" --tb=short
+	poetry run pytest tests/integration/crewai/ -v -m "smoke" --tb=short --run-external
 
 # Run 72-agent load test (~5min, ~$2.00) - expensive!
 test-crewai-load:
 	@echo "WARNING: This test invokes 72 agents and costs ~$2.00 per run!"
 	@read -p "Continue? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
-	python3 -m pytest tests/integration/crewai/ -v -m "load" --tb=short
+	poetry run pytest tests/integration/crewai/ -v -m "load" --tb=short --run-external
 
-# Alias for test
-test-all: test
+# Run full test suite (includes external deps)
+test-all:
+	poetry run pytest tests/ -v --tb=short --run-external
 
 # Run chaos tests only (PM-5 mandate)
 test-chaos:
-	python3 -m pytest tests/chaos/ -v -m chaos --tb=short
+	poetry run pytest tests/chaos/ -v -m chaos --tb=short
 
 # Run cessation chaos test specifically (PM-5 mandatory)
 chaos-cessation:
 	@echo "[PM-5] Running mandatory cessation chaos test..."
-	python3 -m pytest tests/chaos/cessation/ -v --tb=short
+	poetry run pytest tests/chaos/cessation/ -v --tb=short
 
 # Validate cessation code path without execution (CI weekly)
 validate-cessation:
 	@echo "[PM-5] Validating cessation code path..."
-	python3 scripts/validate_cessation_path.py
+	poetry run python scripts/validate_cessation_path.py
 
 # Run linting
 lint:
-	python3 -m ruff check src/ tests/
-	python3 -m mypy src/ --strict
+	poetry run ruff check src/ tests/
+	poetry run mypy src/ --strict
 
 # Check hexagonal architecture import boundaries
 check-imports:
-	python3 scripts/check_imports.py
+	poetry run python scripts/check_imports.py
 
 # Format code with black and ruff
 format:
-	python3 -m black src/ tests/ scripts/
-	python3 -m ruff check --fix src/ tests/ scripts/
+	poetry run black src/ tests/ scripts/
+	poetry run ruff check --fix src/ tests/ scripts/
 
 # Run all pre-commit hooks
 pre-commit:
-	python3 -m pre_commit run --all-files
+	poetry run pre_commit run --all-files
 
 # Install pre-commit git hooks
 pre-commit-install:
-	python3 -m pre_commit install
+	poetry run pre_commit install
 	@echo "Pre-commit hooks installed. They will run automatically on git commit."
 
 # Clean up everything

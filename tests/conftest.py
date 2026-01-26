@@ -23,6 +23,64 @@ os.environ["CREWAI_DISABLE_TRACKING"] = "true"
 
 import pytest
 
+EXTERNAL_TEST_PATHS = (
+    f"{os.sep}tests{os.sep}integration{os.sep}",
+    f"{os.sep}tests{os.sep}chaos{os.sep}",
+    f"{os.sep}tests{os.sep}spikes{os.sep}",
+)
+
+EXTERNAL_MARKERS = {
+    "integration",
+    "chaos",
+    "load",
+    "performance",
+    "slow",
+    "requires_api_keys",
+    "requires_llm",
+    "requires_supabase",
+    "requires_postgres",
+    "requires_redis",
+    "requires_kafka",
+    "requires_litellm",
+    "external",
+}
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Add CLI option to enable external-dependency tests."""
+    parser.addoption(
+        "--run-external",
+        action="store_true",
+        default=False,
+        help="Run tests that require external services or LLM/API access.",
+    )
+
+
+def _is_external_test(item: pytest.Item) -> bool:
+    path = str(item.fspath)
+    if any(part in path for part in EXTERNAL_TEST_PATHS):
+        return True
+    return any(marker in item.keywords for marker in EXTERNAL_MARKERS)
+
+
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Skip external-dependency tests unless explicitly enabled."""
+    if (
+        config.getoption("--run-external")
+        or os.environ.get("RUN_EXTERNAL_TESTS") == "1"
+    ):
+        return
+
+    skip_external = pytest.mark.skip(
+        reason="Requires external dependencies (use --run-external or RUN_EXTERNAL_TESTS=1)"
+    )
+    for item in items:
+        if _is_external_test(item):
+            item.add_marker(skip_external)
+
+
 from src.infrastructure.stubs.writer_lock_stub import WriterLockStub
 from tests.helpers.fake_time_authority import FakeTimeAuthority
 

@@ -368,6 +368,7 @@ jobs:
           poetry run pytest tests/integration/ \
             -v \
             --tb=long \
+            --run-external \
             -m "not requires_supabase" \
             --timeout=300 \
             --ignore=tests/integration/test_acknowledgment_execution_integration.py \

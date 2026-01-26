@@ -199,7 +199,9 @@ class Motion:
     # Each digest summarizes the debate up to that point (FOR/AGAINST/key arguments)
     debate_digests: list[str] = field(default_factory=list)
     last_digest_entry_count: int = 0  # Track when last digest was generated
-    last_digest_attempt_count: int = 0  # Track failed attempts to prevent infinite retry
+    last_digest_attempt_count: int = (
+        0  # Track failed attempts to prevent infinite retry
+    )
 
     # Voting
     votes: list[Vote] = field(default_factory=list)

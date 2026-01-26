@@ -1150,9 +1150,7 @@ Then provide a brief explanation (2-3 sentences) for your decision.
 
         return entries
 
-    async def _conduct_red_team_round(
-        self, motion: Motion
-    ) -> list[DebateEntry]:
+    async def _conduct_red_team_round(self, motion: Motion) -> list[DebateEntry]:
         """Conduct a mandatory red team round with adversarial arguments.
 
         Selects a diverse group of archons and requires them to argue AGAINST
@@ -1247,8 +1245,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                         "motion_id": str(motion.motion_id),
                         "target_stance": target_stance,
                         "actual_position": (
-                            "for" if position is True
-                            else "against" if position is False
+                            "for"
+                            if position is True
+                            else "against"
+                            if position is False
                             else "neutral"
                         ),
                     },
@@ -1302,10 +1302,7 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                 consensus_archon_ids.add(entry.speaker_id)
 
         # Filter to archons who agreed with consensus
-        candidates = [
-            p for p in self._profiles_by_rank
-            if p.id in consensus_archon_ids
-        ]
+        candidates = [p for p in self._profiles_by_rank if p.id in consensus_archon_ids]
 
         if len(candidates) < count:
             # Fall back to all archons
@@ -1514,8 +1511,14 @@ Be specific, substantive, and rigorous. Identify concrete risks, not vague conce
         recent_contributions = ""
         if motion.debate_entries:
             # Show entries since the last digest, or last 5, whichever is smaller
-            entries_since_digest = motion.debate_entries[motion.last_digest_entry_count:]
-            entries_to_show = entries_since_digest[-5:] if entries_since_digest else motion.debate_entries[-5:]
+            entries_since_digest = motion.debate_entries[
+                motion.last_digest_entry_count :
+            ]
+            entries_to_show = (
+                entries_since_digest[-5:]
+                if entries_since_digest
+                else motion.debate_entries[-5:]
+            )
 
             if entries_to_show:
                 recent_contributions = "\n\nRecent contributions (since last digest):\n"
@@ -1765,7 +1768,7 @@ Be concise but substantive. Your contribution will be recorded in the official t
             total = len(motion.debate_entries)
             if total >= 5 and for_count / total > 0.9:
                 warnings.append(
-                    f"  - CONSENSUS CASCADE: {for_count}/{total} ({for_count/total:.0%}) "
+                    f"  - CONSENSUS CASCADE: {for_count}/{total} ({for_count / total:.0%}) "
                     f"speakers share same stance - may indicate informational cascade "
                     f"rather than genuine deliberation"
                 )
@@ -1890,20 +1893,24 @@ Be concise but substantive. Your contribution will be recorded in the official t
 
         # INCREMENTAL: Only include entries since last digest
         # Cap at 20 entries to prevent context explosion
-        new_entries = motion.debate_entries[motion.last_digest_entry_count:]
+        new_entries = motion.debate_entries[motion.last_digest_entry_count :]
         entries_to_summarize = new_entries[-20:]  # Cap at last 20 new entries
 
         # Build content for new entries only
         new_content = ""
         for entry in entries_to_summarize:
             position = (
-                "FOR" if entry.in_favor is True
-                else "AGAINST" if entry.in_favor is False
+                "FOR"
+                if entry.in_favor is True
+                else "AGAINST"
+                if entry.in_favor is False
                 else "NEUTRAL"
             )
             # Truncate each entry to keep context manageable
             content_preview = entry.content[:600]
-            new_content += f"\n[{entry.speaker_name} - {position}]:\n{content_preview}\n"
+            new_content += (
+                f"\n[{entry.speaker_name} - {position}]:\n{content_preview}\n"
+            )
 
         # Build previous digest section if available
         previous_digest_section = ""
@@ -2087,7 +2094,9 @@ Keep the digest concise (under 400 words). Present both sides fairly.
             self._consensus_break_active = True
             # Target is the stance we want speakers to argue (opposite of consensus)
             majority_stance = "FOR" if for_ratio > against_ratio else "AGAINST"
-            self._consensus_break_target = "AGAINST" if for_ratio > against_ratio else "FOR"
+            self._consensus_break_target = (
+                "AGAINST" if for_ratio > against_ratio else "FOR"
+            )
             self._consensus_break_remaining = self._config.consensus_break_speaker_count
 
             logger.warning(
@@ -2152,11 +2161,11 @@ This is a procedural requirement to ensure both sides are fairly represented.
             self._consensus_break_remaining -= 1
             if self._consensus_break_remaining <= 0:
                 self._consensus_break_active = False
-                logger.info("Consensus break complete - returning to normal deliberation")
+                logger.info(
+                    "Consensus break complete - returning to normal deliberation"
+                )
 
-    def _build_vote_context(
-        self, archon: ArchonProfile, motion: Motion
-    ) -> str:
+    def _build_vote_context(self, archon: ArchonProfile, motion: Motion) -> str:
         """Build the complete vote context with stance reminder and debate summary.
 
         This enhanced context helps archons vote consistently with their declared

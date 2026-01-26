@@ -104,7 +104,7 @@ echo -e "${YELLOW}[2/4] Running test suite...${NC}"
 # Set test environment
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 
-if ! poetry run pytest tests/ \
+if ! poetry run pytest tests/unit/ \
     -v \
     --tb=short \
     -m "not slow and not chaos and not load and not requires_api_keys" \
@@ -130,7 +130,7 @@ echo -e "${YELLOW}[3/4] Running burn-in loop (${BURN_IN_ITERATIONS} iterations).
 for i in $(seq 1 $BURN_IN_ITERATIONS); do
     echo -e "  ${BLUE}Burn-in iteration $i/$BURN_IN_ITERATIONS${NC}"
 
-    if ! poetry run pytest tests/ \
+    if ! poetry run pytest tests/unit/ \
         -m "smoke or not slow" \
         --tb=line \
         -q \
@@ -148,7 +148,7 @@ echo ""
 # ═══════════════════════════════════════════════════════════════
 echo -e "${YELLOW}[4/4] Generating coverage report...${NC}"
 
-poetry run pytest tests/ \
+poetry run pytest tests/unit/ \
     -m "not slow and not chaos and not load and not requires_api_keys" \
     --cov=src \
     --cov-report=term-missing \

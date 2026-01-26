@@ -50,6 +50,17 @@ DEFAULT_ARCHON_TIMEOUT_SECONDS = 30
 # Maximum cross-examination rounds (Story 2A.5 AC-4)
 MAX_CROSS_EXAMINE_ROUNDS = 3
 
+# Guardrail to avoid runaway prompt sizes for very large petitions.
+MAX_PETITION_TEXT_CHARS = 4000
+
+
+def _format_petition_text_for_prompt(text: str) -> str:
+    """Format petition text for prompts with a conservative size cap."""
+    if len(text) <= MAX_PETITION_TEXT_CHARS:
+        return text
+    omitted = len(text) - MAX_PETITION_TEXT_CHARS
+    return text[:MAX_PETITION_TEXT_CHARS] + f"\n\n[... truncated {omitted} chars ...]\n"
+
 
 def _utc_now() -> datetime:
     """Return current UTC time with timezone info."""
@@ -301,7 +312,7 @@ PETITION DETAILS:
 - Submitted: {package.submitted_at.isoformat()}
 
 PETITION TEXT:
-{package.petition_text}
+{_format_petition_text_for_prompt(package.petition_text)}
 
 SEVERITY SIGNALS (heuristic, non-binding):
 - Severity tier: {package.severity_tier.upper()}
@@ -357,26 +368,65 @@ PETITION SUMMARY:
 - Petition ID: {package.petition_id}
 - Type: {package.petition_type}
 - Co-signers: {package.co_signer_count}
+- Realm: {package.realm}
+- Submitted: {package.submitted_at.isoformat()}
+
+PETITION TEXT:
+{_format_petition_text_for_prompt(package.petition_text)}
 
 State your preferred disposition choosing from:
-- ACKNOWLEDGE: Note the petition, no further action required
-- REFER: Route to the relevant Knight for domain-specific review
+- ACKNOWLEDGE: Provide a brief recorded response to the petitioner; no downstream workflow
+- REFER: Route to the relevant Knight for domain-specific review (when investigation or specialized authority is needed)
 - ESCALATE: Elevate to the King for adoption consideration
-- DEFER: Defer the petition for later consideration
-- NO_RESPONSE: Decline to respond to the petition
+- DEFER: Defer the petition (e.g., request more specifics, or schedule later review)
+- NO_RESPONSE: Decline to respond (e.g., abusive/profane, spam, or non-actionable)
 
 Disposition discipline (least-sufficient):
 - Prefer the least costly disposition that fully addresses the petition.
 - REFER and ESCALATE are expensive routes; choose them only if necessary.
 - If you choose REFER or ESCALATE, cite explicit trigger(s): domain-specific review,
   cross-realm impact, systemic policy change, or high-severity risk.
+- Do NOT justify your choice solely using lack of co-signers or lack of challenges.
+- If the petition is primarily abusive/profane or contains no actionable request,
+  NO_RESPONSE may be the least-sufficient disposition.
+- If the petition requests clarification that you can answer directly from the
+  petition text (without needing new evidence), prefer ACKNOWLEDGE and provide
+  the response.
+- ACKNOWLEDGE is NOT "receipt-only". The recorded response is the action.
+  If the petitioner asks the Realm to "determine", "clarify", or "state whether a standard exists",
+  you can often satisfy this with a principled standard + what would be needed to assess specific cases.
+- Use REFER when a correct answer requires inspecting actual system behavior,
+  reviewing specific instances/evidence, or applying domain authority beyond what the
+  Three Fates can responsibly assert from the petition alone.
+
+REFERRAL GATE (be restrictive):
+Choose REFER only if at least ONE is true:
+1) The petition includes (or credibly implies) specific incidents that must be examined (quotes/IDs/timestamps/logs).
+2) The petition alleges credible safety/abuse/coercion/legal risk requiring investigation.
+3) The petition demonstrates cross-realm systemic impact (not just a single-user clarity request).
+4) The petitioner requests enforcement/audit/discipline and provides enough evidence to act.
+If none apply, prefer ACKNOWLEDGE (or DEFER if you must request specifics).
+
+ACKNOWLEDGE RESPONSE PATTERN (2-6 sentences):
+- 1-2 sentences: state the Realm's standard/principle clearly.
+- 1-2 sentences: give practical guidance for how the petitioner should interpret/act.
+- Optional: invite resubmission with 2-3 concrete examples if they want a factual review of "patterns" or "divergence".
+
+EXAMPLE ACKNOWLEDGMENTS (adapt; keep 2-6 sentences total):
+- Learning vs performance framing: "In this Realm, failure during learning is treated as instructional unless a task is explicitly labeled as evaluative. If you are being asked to perform increasingly complex actions without clear evaluation criteria, treat them as training and request explicit criteria before interpreting failure as disqualifying. If you believe you were penalized for instructional failure, resubmit with 2-3 specific examples (what was asked, what happened after, and any stated criteria)."
+- Divergent guidance: "Divergent guidance can be acceptable when assumptions or constraints differ; it is unresolved when materially different directives are presented under the same stated assumptions without disclosure. Our standard is to label guidance with assumptions, tradeoffs, and confidence when multiple paths exist. If you can provide 2-3 paired examples of the conflicting guidance and the shared underlying question, we can assess whether the divergence is expected or an inconsistency that needs correction."
+- Virtue vs compliance: "Challenges should aim at reflective virtue formation, not obedience without understanding. If a challenge demands submission without reasons or discourages reflection, treat that as a warning sign and request the purpose and success criteria. If you want us to evaluate the 'current pattern', resubmit with specific challenges and how they were framed so the Realm can assess alignment with virtue formation."
 
 Provide:
 1. Your chosen disposition: [ACKNOWLEDGE | REFER | ESCALATE | DEFER | NO_RESPONSE]
 2. Clear rationale for your choice
 3. Any conditions or caveats
 4. Severity tier (LOW | MEDIUM | HIGH) and why
-5. Why this is the least-sufficient disposition"""
+5. Why this is the least-sufficient disposition
+6. Cite at least one specific phrase from the petition text that your decision relies on
+7. If ACKNOWLEDGE: draft the recorded response (2-6 sentences) and prefix it with "RECORDED RESPONSE:"
+8. If REFER: state what exact question the Knight must answer and what evidence is needed. Include lines:
+   "KNIGHT QUESTION:" and "REQUIRED EVIDENCE:"."""
 
     def _build_cross_examine_prompt(
         self,
@@ -417,6 +467,9 @@ PHASE: CROSS_EXAMINE (Challenge Positions)
 
 Review the positions stated and determine if you have any challenges or questions.
 
+PETITION TEXT:
+{_format_petition_text_for_prompt(package.petition_text)}
+
 POSITIONS:
 {positions_text}
 {history_section}
@@ -430,6 +483,11 @@ You may:
 Adversarial check:
 - If any position chooses REFER or ESCALATE, ask what cheaper disposition could
   suffice and which explicit trigger justifies the higher-cost route.
+- If any position chooses ACKNOWLEDGE or NO_RESPONSE, ask why that is sufficient
+  to address the petitioner's request (not merely procedural closure).
+- Do NOT treat words like "determine", "standard", or "pattern" as an automatic trigger for REFER.
+  Challenge REFER positions on whether a principled ACKNOWLEDGE response + a request for examples
+  would satisfy the petition at lower cost.
 
 Keep responses focused and constructive. We seek consensus through examination."""
 
@@ -459,13 +517,16 @@ After assessment, positioning, and cross-examination, you must now cast your fin
 
 PETITION: {package.petition_id} ({package.petition_type})
 
+PETITION TEXT:
+{_format_petition_text_for_prompt(package.petition_text)}
+
 CROSS-EXAMINATION SUMMARY:
 {cross_examine_summary}
 
 Cast your FINAL vote. This vote is binding and cannot be changed.
 
 Your response MUST start with one of these exact strings:
-- "VOTE: ACKNOWLEDGE" - Note the petition, no further action
+- "VOTE: ACKNOWLEDGE" - Provide a brief recorded response; no downstream workflow
 - "VOTE: REFER" - Route to Knight for review
 - "VOTE: ESCALATE" - Elevate to King for consideration
 - "VOTE: DEFER" - Defer the petition for later consideration
@@ -476,7 +537,23 @@ Then briefly explain your final reasoning.
 Disposition discipline (least-sufficient):
 - Prefer the least costly disposition that fully addresses the petition.
 - If voting REFER or ESCALATE, cite the explicit trigger(s) that require it.
-- If voting NO_RESPONSE, explain why no action is warranted."""
+- If voting NO_RESPONSE, explain why no action is warranted.
+- If voting ACKNOWLEDGE, explain why acknowledging is sufficient to address the petitioner's request.
+- Do not justify your vote solely on the absence of challenges.
+- If the petition is primarily abusive/profane or contains no actionable request,
+  explain why NO_RESPONSE is or is not appropriate.
+- ACKNOWLEDGE is NOT "receipt-only". The recorded response is the action.
+  If the petition is a standards/clarity request that you can answer in principle,
+  prefer ACKNOWLEDGE and invite resubmission with concrete examples only if factual review is needed.
+
+Your reasoning MUST cite at least one specific phrase from the petition text.
+
+If you vote ACKNOWLEDGE:
+- Include the final response text you would record (2-6 sentences) and prefix it with "RECORDED RESPONSE:"
+
+If you vote REFER:
+- Include the exact scope for the Knight in two lines:
+  "KNIGHT QUESTION:" and "REQUIRED EVIDENCE:"."""
 
     def execute_assess(
         self,

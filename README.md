@@ -480,9 +480,27 @@ Copy `.env.example` to `.env` and configure. The table below highlights the most
 | `make dev` | Start development environment |
 | `make stop` | Stop all containers |
 | `make db-reset` | Reset database (drops all data) |
-| `make test` | Run tests |
+| `make test` | Run unit tests (no external deps) |
+| `make test-unit` | Run unit tests only |
+| `make test-all` | Run full test suite (includes external deps) |
+| `make test-integration` | Run integration tests (requires Docker/services) |
 | `make lint` | Run linting (ruff + mypy) |
 | `make clean` | Stop and clean up |
+
+### Test Tiers
+
+By default, tests that require external services (LLM APIs, Kafka, Postgres, Redis) are skipped.
+To include them in a local run, pass `--run-external` to pytest or use `make test-all`.
+
+Examples:
+
+```bash
+# Unit tests only (default)
+make test
+
+# Full suite (includes external deps)
+make test-all
+```
 
 ## Architecture
 

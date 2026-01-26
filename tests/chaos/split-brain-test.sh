@@ -4,7 +4,7 @@
 
 # Change to project root directory
 # cd "$(dirname "$0")/.." || exit 1
-python scripts/run_conclave.py --quick --voting-concurrency 3 --no-queue --no-blockers \
+python scripts/run_conclave.py --voting-concurrency 3 --no-queue --no-blockers \
     --motion "Motion to Require Single-Seat Continuity Proof During Each Conclave Cycle" \
     --motion-file _bmad-output/motions/split-brain-motion.md \
     --motion-type policy \

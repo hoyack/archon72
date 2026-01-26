@@ -342,6 +342,27 @@ Be thorough but concise in your response.""",
 
         attempt = 1
         retry_delay = 0.0
+
+        def _raise_timeout(exc: BaseException, attempt_count: int) -> None:
+            error_msg = (
+                f"Agent {agent_id} timed out after "
+                f"{profile.llm_config.timeout_ms}ms (attempts={attempt_count})"
+            )
+            self._agent_status[agent_id] = AgentStatusInfo(
+                agent_id=agent_id,
+                status=AgentStatus.FAILED,
+                last_invocation=datetime.now(timezone.utc),
+                last_error=error_msg,
+            )
+            _log_safe(
+                logger.error,
+                "crewai_agent_timeout",
+                agent_id=agent_id,
+                timeout_ms=profile.llm_config.timeout_ms,
+                attempts=attempt_count,
+            )
+            raise AgentInvocationError(error_msg) from exc
+
         while True:
             try:
                 content = await _invoke_once()
@@ -376,24 +397,7 @@ Be thorough but concise in your response.""",
                 raise
             except TimeoutError as exc:
                 if attempt >= self._retry_max_attempts:
-                    error_msg = (
-                        f"Agent {agent_id} timed out after "
-                        f"{profile.llm_config.timeout_ms}ms (attempts={attempt})"
-                    )
-                    self._agent_status[agent_id] = AgentStatusInfo(
-                        agent_id=agent_id,
-                        status=AgentStatus.FAILED,
-                        last_invocation=datetime.now(timezone.utc),
-                        last_error=error_msg,
-                    )
-                    _log_safe(
-                        logger.error,
-                        "crewai_agent_timeout",
-                        agent_id=agent_id,
-                        timeout_ms=profile.llm_config.timeout_ms,
-                        attempts=attempt,
-                    )
-                    raise AgentInvocationError(error_msg) from exc
+                    _raise_timeout(exc, attempt)
 
                 retry_delay = self._next_retry_delay(retry_delay)
                 _log_safe(
@@ -407,6 +411,23 @@ Be thorough but concise in your response.""",
                 await asyncio.sleep(retry_delay)
                 attempt += 1
             except Exception as e:
+                if isinstance(e, TimeoutError) or (
+                    e.__class__.__name__ == "TimeoutError"
+                ):
+                    if attempt >= self._retry_max_attempts:
+                        _raise_timeout(e, attempt)
+                    retry_delay = self._next_retry_delay(retry_delay)
+                    _log_safe(
+                        logger.warning,
+                        "crewai_agent_timeout_retry",
+                        agent_id=agent_id,
+                        timeout_ms=profile.llm_config.timeout_ms,
+                        attempt=attempt,
+                        retry_delay_seconds=retry_delay,
+                    )
+                    await asyncio.sleep(retry_delay)
+                    attempt += 1
+                    continue
                 if self._is_retryable_error(e) and attempt < self._retry_max_attempts:
                     retry_delay = self._next_retry_delay(retry_delay)
                     _log_safe(

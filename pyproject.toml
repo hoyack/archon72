@@ -127,6 +127,7 @@ max-complexity = 15
 "src/api/models/observer.py" = ["F811"]  # Re-export + local definitions during DTO migration
 "src/infrastructure/adapters/**/*.py" = ["ASYNC230", "C901"]  # Allow blocking IO and complex adapters
 "tests/**/*.py" = ["F811", "F821", "E402", "ASYNC230", "ASYNC251"]  # Allow test-specific patterns
+"tests/integration/conftest.py" = ["C901"]  # Complex SQL splitting helper
 
 [tool.mypy]
 python_version = "3.11"
@@ -185,8 +186,13 @@ markers = [
     "requires_api_keys: mark test as requiring LLM API keys to run",
     "requires_llm: mark test as requiring LLM/AI API connection (skipped in CI)",
     "requires_supabase: mark test as requiring real Supabase connection (skipped in CI)",
+    "requires_postgres: mark test as requiring PostgreSQL connection",
+    "requires_redis: mark test as requiring Redis connection",
+    "requires_kafka: mark test as requiring Kafka/Redpanda connection",
+    "requires_litellm: mark test as requiring LiteLLM or provider access",
     "performance: mark test as performance/timing sensitive (skipped in CI)",
     "timeout: mark test with a timeout in seconds",
+    "external: mark test as requiring external services or APIs",
 ]
 
 [tool.coverage.run]

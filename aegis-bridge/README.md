@@ -38,6 +38,19 @@ python main.py
 python main.py --continuous --interval 60
 ```
 
+### 5. Run with deliberation (submit + process outcomes)
+
+```bash
+# Process one batch, then deliberate each submitted petition (sequential)
+python run_with_deliberation.py
+
+# Override batch size
+python run_with_deliberation.py --batch-size 1
+
+# Force deliberation even if petition state is not RECEIVED
+python run_with_deliberation.py --force-deliberation
+```
+
 ## Usage
 
 ```
@@ -121,4 +134,11 @@ docker-compose run aegis-bridge --continuous
 cd /home/hoyack/work/archon72/aegis-bridge && python main.py
 cd ..
 python scripts/run_petition_deliberation.py --petition-id 80b5787d-31c3-4ef7-ab0f-4178e820388a
+```
+
+To run the integrated flow from within the app directory:
+
+```bash
+cd /home/hoyack/work/archon72/aegis-bridge
+python run_with_deliberation.py
 ```

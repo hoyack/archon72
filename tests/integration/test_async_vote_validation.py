@@ -54,6 +54,7 @@ logger = logging.getLogger(__name__)
 # Redpanda container configuration
 REDPANDA_IMAGE = "redpandadata/redpanda:v23.3.5"
 REDPANDA_KAFKA_PORT = 9092
+REDPANDA_KAFKA_EXTERNAL_PORT = 19092
 REDPANDA_SCHEMA_REGISTRY_PORT = 8081
 REDPANDA_RPC_PORT = 33145
 
@@ -82,15 +83,16 @@ class RedpandaContainer(DockerContainer):
         super().__init__(REDPANDA_IMAGE)
         self._kafka_host_port = _get_free_port()
         self._schema_registry_host_port = _get_free_port()
-        self.with_bind_ports(REDPANDA_KAFKA_PORT, self._kafka_host_port)
+        # Redpanda requires distinct internal/external listener ports.
+        self.with_bind_ports(REDPANDA_KAFKA_EXTERNAL_PORT, self._kafka_host_port)
         self.with_bind_ports(
             REDPANDA_SCHEMA_REGISTRY_PORT, self._schema_registry_host_port
         )
         self.with_command(
             "redpanda start "
-            f"--kafka-addr internal://0.0.0.0:{REDPANDA_KAFKA_PORT},external://0.0.0.0:{REDPANDA_KAFKA_PORT} "
+            f"--kafka-addr internal://0.0.0.0:{REDPANDA_KAFKA_PORT},external://0.0.0.0:{REDPANDA_KAFKA_EXTERNAL_PORT} "
             f"--advertise-kafka-addr internal://localhost:{REDPANDA_KAFKA_PORT},external://localhost:{self._kafka_host_port} "
-            f"--schema-registry-addr internal://0.0.0.0:{REDPANDA_SCHEMA_REGISTRY_PORT},external://0.0.0.0:{REDPANDA_SCHEMA_REGISTRY_PORT} "
+            f"--schema-registry-addr 0.0.0.0:{REDPANDA_SCHEMA_REGISTRY_PORT} "
             f"--rpc-addr 0.0.0.0:{REDPANDA_RPC_PORT} "
             f"--advertise-rpc-addr localhost:{REDPANDA_RPC_PORT} "
             "--smp 1 "

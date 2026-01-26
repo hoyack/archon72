@@ -15,7 +15,10 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any
 
-import fastavro
+try:
+    import fastavro
+except ModuleNotFoundError:  # pragma: no cover - exercised when optional dep missing
+    fastavro = None
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +89,12 @@ class AvroSerializer:
 
     def _load_local_schemas(self) -> None:
         """Load all Avro schemas from the schemas directory."""
+        if fastavro is None:
+            logger.warning(
+                "fastavro is not installed; Avro schemas will not be loaded."
+            )
+            return
+
         if not SCHEMA_DIR.exists():
             logger.warning("Schema directory not found: %s", SCHEMA_DIR)
             return
@@ -172,6 +181,11 @@ class AvroSerializer:
         """
         self._ensure_registry_available()
 
+        if fastavro is None:
+            raise SerializationError(
+                "fastavro is not installed; cannot serialize Avro payloads."
+            )
+
         schema_info = self._schema_cache.get(schema_name)
         if not schema_info:
             raise SerializationError(f"Unknown schema: {schema_name}")
@@ -206,6 +220,11 @@ class AvroSerializer:
         schema_info = self._schema_cache.get(schema_name)
         if not schema_info:
             raise SerializationError(f"Unknown schema: {schema_name}")
+
+        if fastavro is None:
+            raise SerializationError(
+                "fastavro is not installed; cannot deserialize Avro payloads."
+            )
 
         try:
             buffer = BytesIO(data)

@@ -27,8 +27,8 @@ Code quality checks run first to catch issues early:
 Tests run in parallel across 4 shards for faster execution:
 
 - **Sharding**: Tests are split alphabetically across 4 jobs
-- **Services**: PostgreSQL and Redis containers for integration tests
-- **Markers**: Slow, chaos, load, and API-key tests are excluded by default
+- **Scope**: Unit tests only (no external services)
+- **Markers**: Slow, chaos, load, and external dependency tests are excluded by default
 - **Coverage**: Each shard generates coverage reports
 
 ### Stage 3: Burn-In (~30 minutes)
@@ -78,6 +78,9 @@ This mirrors the CI pipeline locally:
 ```bash
 ./scripts/ci-local.sh --test
 ```
+
+By default, external-dependency tests (integration/chaos/load/LLM/API) are skipped.
+Use `--run-external` or `RUN_EXTERNAL_TESTS=1` when explicitly running those suites.
 
 ## Burn-In Testing
 

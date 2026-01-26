@@ -129,6 +129,88 @@ def _extract_dissent_rationale(transcript: str, dissent_archon_id: UUID) -> str:
     return "Dissent rationale captured in vote transcript (see witness hash)."
 
 
+def _extract_vote_artifacts(vote_transcript: str) -> dict[str, dict[str, str | None]]:
+    """Extract structured artifacts from the VOTE transcript.
+
+    We encourage (but do not strictly require) Archons to include:
+    - "RECORDED RESPONSE:" for ACKNOWLEDGE votes
+    - "KNIGHT QUESTION:" and "REQUIRED EVIDENCE:" for REFER votes
+    """
+
+    def _grab_tagged_block(lines: list[str], start_idx: int, tag: str) -> tuple[str, int]:
+        """Return (text, next_idx) for a tagged multi-line block."""
+        first = lines[start_idx]
+        # Capture remainder on same line, then continue until a blank line or end.
+        captured: list[str] = []
+        remainder = first.split(tag, 1)[1].lstrip()
+        if remainder:
+            captured.append(remainder)
+        i = start_idx + 1
+        while i < len(lines):
+            line = lines[i]
+            if not line.strip():
+                break
+            # Stop early if a new tag starts.
+            if line.lstrip().startswith(("RECORDED RESPONSE:", "KNIGHT QUESTION:", "REQUIRED EVIDENCE:")):
+                break
+            captured.append(line.strip())
+            i += 1
+        return ("\n".join(captured).strip() or None), i
+
+    artifacts: dict[str, dict[str, str | None]] = {}
+
+    current_archon_id: str | None = None
+    current_lines: list[str] = []
+
+    def _flush() -> None:
+        nonlocal current_archon_id, current_lines
+        if current_archon_id is None:
+            return
+        block_lines = current_lines
+        recorded_response: str | None = None
+        knight_question: str | None = None
+        required_evidence: str | None = None
+
+        i = 0
+        while i < len(block_lines):
+            line = block_lines[i].strip()
+            if "RECORDED RESPONSE:" in line:
+                recorded_response, i = _grab_tagged_block(block_lines, i, "RECORDED RESPONSE:")
+                continue
+            if line.startswith("KNIGHT QUESTION:"):
+                knight_question, i = _grab_tagged_block(block_lines, i, "KNIGHT QUESTION:")
+                continue
+            if line.startswith("REQUIRED EVIDENCE:"):
+                required_evidence, i = _grab_tagged_block(block_lines, i, "REQUIRED EVIDENCE:")
+                continue
+            i += 1
+
+        artifacts[current_archon_id] = {
+            "recorded_response": recorded_response,
+            "knight_question": knight_question,
+            "required_evidence": required_evidence,
+        }
+
+        current_archon_id = None
+        current_lines = []
+
+    for raw in vote_transcript.splitlines():
+        if raw.startswith("--- Vote from"):
+            _flush()
+            # Example: --- Vote from Name (uuid) ---
+            if "(" in raw and ")" in raw:
+                current_archon_id = raw.rsplit("(", 1)[1].split(")", 1)[0]
+            else:
+                current_archon_id = "unknown"
+            current_lines = []
+            continue
+        if current_archon_id is not None:
+            current_lines.append(raw)
+
+    _flush()
+    return artifacts
+
+
 def _build_deadlock_consensus(session, votes):
     """Create a consensus result for a deadlock-triggered auto-ESCALATE."""
     from src.domain.models.consensus_result import (
@@ -512,6 +594,19 @@ async def run_deliberation_on_petition(petition, dry_run: bool = False):
 
         # Step 8: Emit deliberation events to file
         print(f"\n{Colors.YELLOW}Step 8: Writing deliberation events...{Colors.ENDC}")
+        vote_phase_result = next(
+            (
+                phase
+                for phase in deliberation_result.phase_results
+                if phase.phase.value == "VOTE"
+            ),
+            None,
+        )
+        vote_artifacts = (
+            _extract_vote_artifacts(vote_phase_result.transcript)
+            if vote_phase_result is not None
+            else {}
+        )
         output_payload = {
             "petition_id": str(petition.id),
             "session_id": str(session.session_id),
@@ -577,6 +672,7 @@ async def run_deliberation_on_petition(petition, dry_run: bool = False):
                     ),
                 }
             ),
+            "vote_artifacts": vote_artifacts,
             "witness_events": [_json_safe(event.to_dict()) for event in witness_events],
             "petition_update": petition_update,
             "transcript_store": type(transcript_store).__name__,

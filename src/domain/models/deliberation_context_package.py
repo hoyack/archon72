@@ -113,9 +113,7 @@ class DeliberationContextPackage:
 
         # Validate severity tier
         if self.severity_tier not in {"low", "medium", "high"}:
-            raise ValueError(
-                "Severity tier must be one of: low, medium, high"
-            )
+            raise ValueError("Severity tier must be one of: low, medium, high")
 
         # Validate content hash format if provided
         if self.content_hash and len(self.content_hash) != 64:

@@ -12,8 +12,8 @@ Constitutional Constraints:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import re
+from datetime import datetime, timezone
 
 from src.domain.errors.deliberation import PetitionSessionMismatchError
 from src.domain.models.deliberation_context_package import (

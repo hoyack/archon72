@@ -96,7 +96,7 @@ class TestWitnessValidationTrigger:
 
                 -- FR4: Validate witness signature length (Ed25519 = 64 bytes = ~88 base64 chars)
                 IF length(NEW.witness_signature) < 80 OR length(NEW.witness_signature) > 100 THEN
-                    RAISE EXCEPTION 'FR4: Invalid witness signature - unexpected length (expected 80-100 chars, got %%)', length(NEW.witness_signature);
+                    RAISE EXCEPTION 'FR4: Invalid witness signature - unexpected length (expected 80-100 chars, got %)', length(NEW.witness_signature);
                 END IF;
 
                 RETURN NEW;
@@ -171,7 +171,7 @@ class TestWitnessValidationTrigger:
                     event_id, event_type, payload, prev_hash, content_hash,
                     signature, witness_id, witness_signature, local_timestamp
                 ) VALUES (
-                    :event_id, :event_type, :payload::jsonb, :prev_hash, :content_hash,
+                    :event_id, :event_type, CAST(:payload AS jsonb), :prev_hash, :content_hash,
                     :signature, :witness_id, :witness_signature, :local_timestamp
                 )
             """),
@@ -511,7 +511,7 @@ class TestWitnessValidationTrigger:
                     event_id, event_type, payload, prev_hash, content_hash,
                     signature, witness_id, witness_signature, local_timestamp
                 ) VALUES (
-                    :event_id, :event_type, :payload::jsonb, :prev_hash, :content_hash,
+                    :event_id, :event_type, CAST(:payload AS jsonb), :prev_hash, :content_hash,
                     :signature, :witness_id, :witness_signature, :local_timestamp
                 )
             """),
@@ -541,7 +541,7 @@ class TestWitnessValidationTrigger:
                     event_id, event_type, payload, prev_hash, content_hash,
                     signature, witness_id, witness_signature, local_timestamp
                 ) VALUES (
-                    :event_id, :event_type, :payload::jsonb, :prev_hash, :content_hash,
+                    :event_id, :event_type, CAST(:payload AS jsonb), :prev_hash, :content_hash,
                     :signature, :witness_id, :witness_signature, :local_timestamp
                 )
             """),

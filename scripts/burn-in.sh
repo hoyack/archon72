@@ -76,7 +76,7 @@ for i in $(seq 1 $ITERATIONS); do
     echo -e "${BLUE}  Burn-in iteration $i/$ITERATIONS${NC}"
     echo -e "${BLUE}────────────────────────────────────────────────────────────────${NC}"
 
-    if ! poetry run pytest tests/ \
+    if ! poetry run pytest tests/unit/ \
         $PYTEST_ARGS \
         --tb=short \
         -q \
@@ -97,8 +97,8 @@ for i in $(seq 1 $ITERATIONS); do
         echo "  - May have order-dependent execution"
         echo ""
         echo "Investigation steps:"
-        echo "  1. Re-run with verbose output: pytest tests/ -v --tb=long"
-        echo "  2. Check test isolation: pytest tests/ --forked"
+        echo "  1. Re-run with verbose output: pytest tests/unit -v --tb=long"
+        echo "  2. Check test isolation: pytest tests/unit --forked"
         echo "  3. Run single test repeatedly: pytest tests/path/to/test.py -v --count=10"
         echo ""
         exit 1

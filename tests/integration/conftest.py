@@ -416,12 +416,146 @@ class IntegrationTestBase:
 
     client: SupabaseClientStub
 
+    @staticmethod
+    def _split_sql_statements(sql: str) -> list[str]:
+        """Split a SQL script into individual statements.
+
+        We can't naively split on ';' because migrations may contain PL/pgSQL
+        functions (dollar-quoted) with internal semicolons.
+        """
+
+        def scan_dollar_delimiter(source: str, start: int) -> str | None:
+            if source[start] != "$":
+                return None
+            end = source.find("$", start + 1)
+            if end == -1:
+                return None
+            tag = source[start + 1 : end]
+            if tag and not all(ch.isalnum() or ch == "_" for ch in tag):
+                return None
+            return source[start : end + 1]
+
+        statements: list[str] = []
+        buf: list[str] = []
+
+        in_single_quote = False
+        in_double_quote = False
+        in_line_comment = False
+        in_block_comment = False
+        dollar_delim: str | None = None
+
+        i = 0
+        while i < len(sql):
+            ch = sql[i]
+            nxt = sql[i + 1] if i + 1 < len(sql) else ""
+
+            if in_line_comment:
+                buf.append(ch)
+                if ch == "\n":
+                    in_line_comment = False
+                i += 1
+                continue
+
+            if in_block_comment:
+                buf.append(ch)
+                if ch == "*" and nxt == "/":
+                    buf.append(nxt)
+                    i += 2
+                    in_block_comment = False
+                    continue
+                i += 1
+                continue
+
+            if dollar_delim is not None:
+                if sql.startswith(dollar_delim, i):
+                    buf.append(dollar_delim)
+                    i += len(dollar_delim)
+                    dollar_delim = None
+                    continue
+                buf.append(ch)
+                i += 1
+                continue
+
+            if in_single_quote:
+                buf.append(ch)
+                if ch == "'":
+                    if nxt == "'":  # Escaped quote in standard SQL strings.
+                        buf.append(nxt)
+                        i += 2
+                        continue
+                    in_single_quote = False
+                i += 1
+                continue
+
+            if in_double_quote:
+                buf.append(ch)
+                if ch == '"':
+                    if nxt == '"':  # Escaped double quote in identifiers.
+                        buf.append(nxt)
+                        i += 2
+                        continue
+                    in_double_quote = False
+                i += 1
+                continue
+
+            # Outside any quoted/comment context.
+            if ch == "-" and nxt == "-":
+                buf.append(ch)
+                buf.append(nxt)
+                i += 2
+                in_line_comment = True
+                continue
+
+            if ch == "/" and nxt == "*":
+                buf.append(ch)
+                buf.append(nxt)
+                i += 2
+                in_block_comment = True
+                continue
+
+            if ch == "$":
+                delim = scan_dollar_delimiter(sql, i)
+                if delim is not None:
+                    buf.append(delim)
+                    i += len(delim)
+                    dollar_delim = delim
+                    continue
+
+            if ch == "'":
+                buf.append(ch)
+                in_single_quote = True
+                i += 1
+                continue
+
+            if ch == '"':
+                buf.append(ch)
+                in_double_quote = True
+                i += 1
+                continue
+
+            if ch == ";":
+                statement = "".join(buf).strip()
+                if statement:
+                    statements.append(statement)
+                buf = []
+                i += 1
+                continue
+
+            buf.append(ch)
+            i += 1
+
+        tail = "".join(buf).strip()
+        if tail:
+            statements.append(tail)
+
+        return statements
+
     @pytest.fixture(autouse=True)
     async def _setup_realm_schema(self, db_session: AsyncSession) -> None:
         migration_sql = REALMS_MIGRATION_FILE.read_text()
-        for statement in migration_sql.split(";"):
+        for statement in self._split_sql_statements(migration_sql):
             cleaned = statement.strip()
-            if cleaned and not cleaned.startswith("--"):
+            if cleaned:
                 await db_session.execute(text(cleaned))
         await db_session.flush()
         self.client = SupabaseClientStub(db_session)

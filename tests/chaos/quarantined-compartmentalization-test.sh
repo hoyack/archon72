@@ -20,7 +20,7 @@
 #    can exploit is structurally unsafe."
 # By making exploitation mechanically impossible (absence, not restraint).
 
-python scripts/run_conclave.py --voting-concurrency 3 --no-queue --no-blockers \
+python scripts/run_conclave.py --quick --voting-concurrency 3 --no-queue --no-blockers \
     --motion "Authorization of Quarantined Compartmentalization with Mandatory Recusal" \
     --motion-file _bmad-output/motions/quarantined-compartmentalization.md \
     --motion-type policy \

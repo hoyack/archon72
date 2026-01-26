@@ -152,6 +152,10 @@ class ConclaveConfig:
     # Number of archons voting in parallel (1 = sequential, 0 = unlimited)
     voting_concurrency: int = 1
 
+    # Transcript/logging limits
+    vote_reasoning_max_chars: int = 1200  # Max chars for vote reasoning in transcript
+    stance_change_reason_max_chars: int = 600  # Max chars for stance change explanation
+
     # Three-tier async validation (spec v2)
     async_validation_enabled: bool = False
     # Skip the 3-LLM post-vote validation batch (keeps simple vote parsing)
@@ -1096,7 +1100,28 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                 )
 
                 # Parse their position (for/against/neutral)
-                position = self._parse_debate_position(output.content)
+                position, was_explicit = self._parse_debate_position(output.content)
+
+                # Log warning if stance was missing or inferred
+                if not was_explicit:
+                    logger.warning(
+                        f"STANCE_MISSING: {archon.name} did not provide explicit "
+                        f"STANCE token; treated as {'neutral' if position is None else 'inferred'}"
+                    )
+                    self._emit_progress(
+                        "stance_missing",
+                        f"STANCE_MISSING: {archon.name} - no explicit STANCE token",
+                        {
+                            "archon": archon.name,
+                            "archon_id": archon.id,
+                            "inferred_position": (
+                                "for" if position is True
+                                else "against" if position is False
+                                else "neutral"
+                            ),
+                            "response_preview": output.content[:200],
+                        },
+                    )
 
                 entry = DebateEntry.create(
                     speaker_id=archon.id,
@@ -1120,6 +1145,7 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                     else "against"
                     if position is False
                     else "neutral",
+                    "stance_explicit": was_explicit,
                     "has_violations": not is_valid,
                     "violation_count": len(violations),
                 }
@@ -1131,6 +1157,19 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                     speaker_name=archon.name,
                     metadata=metadata,
                 )
+
+                # Add procedural note if stance was missing
+                if not was_explicit:
+                    self._session.add_transcript_entry(
+                        entry_type="procedural",
+                        content=(
+                            f"STANCE_MISSING: {archon.name} did not provide an explicit "
+                            f"STANCE token; treated as NEUTRAL for tallying."
+                        ),
+                        speaker_id="Secretary",
+                        speaker_name="Secretary",
+                        metadata={"warning_type": "stance_missing", "archon": archon.name},
+                    )
 
                 # Check if we should generate a debate digest
                 # This ensures archons have comprehensive context as debate grows
@@ -1220,7 +1259,29 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                 )
 
                 # Parse position (should be target_stance due to prompt)
-                position = self._parse_debate_position(output.content)
+                position, was_explicit = self._parse_debate_position(output.content)
+
+                # Red team members MUST declare stance - log warning if missing
+                if not was_explicit:
+                    logger.warning(
+                        f"RED_TEAM_STANCE_MISSING: {archon.name} did not provide "
+                        f"explicit STANCE token despite red team requirement"
+                    )
+                    self._emit_progress(
+                        "stance_missing",
+                        f"RED_TEAM_STANCE_MISSING: {archon.name} - required STANCE token missing",
+                        {
+                            "archon": archon.name,
+                            "archon_id": archon.id,
+                            "context": "red_team",
+                            "target_stance": target_stance,
+                            "inferred_position": (
+                                "for" if position is True
+                                else "against" if position is False
+                                else "neutral"
+                            ),
+                        },
+                    )
 
                 entry = DebateEntry.create(
                     speaker_id=archon.id,
@@ -1244,6 +1305,7 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                         "round": "red_team",
                         "motion_id": str(motion.motion_id),
                         "target_stance": target_stance,
+                        "stance_explicit": was_explicit,
                         "actual_position": (
                             "for"
                             if position is True
@@ -1253,6 +1315,23 @@ Then provide a brief explanation (2-3 sentences) for your decision.
                         ),
                     },
                 )
+
+                # Add procedural note if red team member didn't declare stance
+                if not was_explicit:
+                    self._session.add_transcript_entry(
+                        entry_type="procedural",
+                        content=(
+                            f"RED_TEAM_STANCE_MISSING: {archon.name} (red team) did not provide "
+                            f"explicit STANCE token; target was {target_stance}."
+                        ),
+                        speaker_id="Secretary",
+                        speaker_name="Secretary",
+                        metadata={
+                            "warning_type": "red_team_stance_missing",
+                            "archon": archon.name,
+                            "target_stance": target_stance,
+                        },
+                    )
 
             except Exception as e:
                 logger.error(f"Error during red team from {archon.name}: {e}")
@@ -1279,6 +1358,10 @@ Then provide a brief explanation (2-3 sentences) for your decision.
         Selects a diverse group by rank to ensure legitimacy:
         - At least 1 King (if available)
         - Mix of other ranks
+
+        Uses two-pass selection with seeded shuffle for reproducibility:
+        - Pass 1: Select one archon per unique rank
+        - Pass 2: Fill remaining slots from unused candidates
 
         Excludes archons who have already argued against consensus.
 
@@ -1308,17 +1391,34 @@ Then provide a brief explanation (2-3 sentences) for your decision.
             # Fall back to all archons
             candidates = list(self._profiles_by_rank)
 
-        # Select diverse group by rank
+        # Shuffle candidates using session-seeded RNG for reproducibility
+        # This ensures non-deterministic selection across sessions but
+        # deterministic within a session for debugging
+        rng = random.Random(str(self._session.session_id))
+        shuffled = list(candidates)
+        rng.shuffle(shuffled)
+
+        # Two-pass selection for rank diversity
         selected: list[ArchonProfile] = []
         ranks_used: set[str] = set()
+        remaining: list[ArchonProfile] = []
 
-        for archon in candidates:
-            if len(selected) >= count:
-                break
-            # Prefer archons from ranks not yet represented
-            if archon.aegis_rank not in ranks_used or len(selected) < count:
+        # Pass 1: Select one archon per unique rank
+        for archon in shuffled:
+            if archon.aegis_rank not in ranks_used:
                 selected.append(archon)
                 ranks_used.add(archon.aegis_rank)
+            else:
+                remaining.append(archon)
+
+            if len(selected) >= count:
+                return selected[:count]
+
+        # Pass 2: Fill remaining slots from unused candidates
+        for archon in remaining:
+            if len(selected) >= count:
+                break
+            selected.append(archon)
 
         return selected[:count]
 
@@ -1601,7 +1701,7 @@ Be concise but substantive. Your contribution will be recorded in the official t
         normalized = re.sub(r"[\s*_]+$", "", normalized)
         return normalized.strip()
 
-    def _parse_debate_position(self, content: str) -> bool | None:
+    def _parse_debate_position(self, content: str) -> tuple[bool | None, bool]:
         """Parse an archon's position from their debate contribution.
 
         Uses robust regex matching that handles common LLM formatting variants:
@@ -1616,18 +1716,20 @@ Be concise but substantive. Your contribution will be recorded in the official t
             content: The debate contribution text
 
         Returns:
-            True (for), False (against), or None (neutral/not found)
+            Tuple of (position, was_explicit) where:
+            - position: True (for), False (against), or None (neutral/unknown)
+            - was_explicit: True if STANCE token was found, False if inferred/missing
         """
         # First try regex matching (handles most formatting variants)
         match = self._STANCE_PATTERN.search(content)
         if match:
             stance_value = match.group(1).lower()
             if stance_value == "for":
-                return True
+                return True, True
             elif stance_value == "against":
-                return False
+                return False, True
             else:  # neutral
-                return None
+                return None, True  # Explicit NEUTRAL declaration
 
         # Fallback: line-by-line normalized parsing
         content_lower = content.lower()
@@ -1639,13 +1741,14 @@ Be concise but substantive. Your contribution will be recorded in the official t
                 if value_match:
                     value = value_match.group(1)
                     if value.startswith("for"):
-                        return True
+                        return True, True
                     if value.startswith("against"):
-                        return False
+                        return False, True
                     if value.startswith("neutral"):
-                        return None
+                        return None, True
 
         # Final fallback: look for explicit position statements in content
+        # These are NOT explicit STANCE declarations, so was_explicit=False
         for_indicators = [
             "i support",
             "i am for",
@@ -1663,13 +1766,14 @@ Be concise but substantive. Your contribution will be recorded in the official t
 
         for indicator in for_indicators:
             if indicator in content_lower:
-                return True
+                return True, False  # Inferred, not explicit
 
         for indicator in against_indicators:
             if indicator in content_lower:
-                return False
+                return False, False  # Inferred, not explicit
 
-        return None
+        # No stance found at all
+        return None, False
 
     def _get_archon_declared_stance(
         self, motion: Motion, archon_id: str
@@ -2381,7 +2485,7 @@ Output format:
                             voter_rank=archon.aegis_rank,
                             choice=optimistic_choice,
                             timestamp=datetime.now(timezone.utc),
-                            reasoning=raw_response[:500],
+                            reasoning=raw_response[:self._config.vote_reasoning_max_chars],
                         )
                     else:
                         vote, _is_valid = await self._get_archon_vote(archon, motion)
@@ -2476,7 +2580,8 @@ Output format:
                     # Extract the reason
                     for line in vote.reasoning.split("\n"):
                         if "STANCE_CHANGED:" in line.upper():
-                            stance_change_reason = line.split(":", 1)[1].strip()[:200]
+                            max_len = self._config.stance_change_reason_max_chars
+                            stance_change_reason = line.split(":", 1)[1].strip()[:max_len]
                             break
 
             # Build metadata with stance tracking
@@ -2753,7 +2858,7 @@ Output format:
             choice=choice,
             timestamp=datetime.now(timezone.utc),
             reasoning=(
-                output.content[:500]
+                output.content[:self._config.vote_reasoning_max_chars]
                 if is_validated or not self._config.vote_validation_archon_ids
                 else "Vote validation failed: no consensus"
             ),
@@ -2861,7 +2966,7 @@ Output format:
                 voter_rank=archon.aegis_rank,
                 choice=choice,
                 timestamp=datetime.now(timezone.utc),
-                reasoning=raw_response[:500]
+                reasoning=raw_response[:self._config.vote_reasoning_max_chars]
                 if is_validated
                 else "Awaiting secretary consensus",
             )

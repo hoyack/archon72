@@ -542,9 +542,15 @@ class SecretaryService:
             return None
 
     def _is_valid_speaker(self, speaker_name: str) -> bool:
-        """Validate that the transcript speaker is an Archon."""
+        """Validate that the transcript speaker is an Archon.
+
+        Filters out system speakers and procedural entry sources:
+        - [system], system: System messages
+        - execution planner: Internal planning messages
+        - secretary: Procedural notes (STANCE_MISSING, digests, etc.)
+        """
         normalized = speaker_name.strip().lower()
-        if normalized in {"[system]", "system", "execution planner"}:
+        if normalized in {"[system]", "system", "execution planner", "secretary"}:
             return False
         if self._archon_names is None:
             return True
@@ -674,6 +680,13 @@ class SecretaryService:
         # Pattern for vote entries (skip these)
         vote_pattern = re.compile(r"Vote:\s*(?:AYE|NAY|ABSTAIN)", re.IGNORECASE)
 
+        # Pattern for Secretary procedural notes (skip these)
+        # Matches: STANCE_MISSING:, RED_TEAM_STANCE_MISSING:, UNEXPLAINED stance, ## Debate Digest
+        secretary_procedural = re.compile(
+            r"^(STANCE_MISSING:|RED_TEAM_STANCE_MISSING:|UNEXPLAINED stance|## Debate Digest)",
+            re.IGNORECASE,
+        )
+
         for i, line in enumerate(lines):
             # Skip procedural entries
             if procedural.match(line):
@@ -689,7 +702,14 @@ class SecretaryService:
                 # Save previous speech if exists
                 if current_speaker and current_speech_lines:
                     speech_content = "\n".join(current_speech_lines).strip()
-                    if len(speech_content) >= self._config.min_recommendation_length:
+                    # Skip Secretary procedural notes (STANCE_MISSING, digests, etc.)
+                    if secretary_procedural.match(speech_content):
+                        logger.debug(
+                            "skipping_secretary_procedural",
+                            speaker=current_speaker,
+                            content_preview=speech_content[:100],
+                        )
+                    elif len(speech_content) >= self._config.min_recommendation_length:
                         speeches.append(
                             self.ParsedSpeech(
                                 archon_id=current_speaker.lower().replace(" ", "_"),
@@ -731,7 +751,14 @@ class SecretaryService:
         # Don't forget the last speech
         if current_speaker and current_speech_lines:
             speech_content = "\n".join(current_speech_lines).strip()
-            if len(speech_content) >= self._config.min_recommendation_length:
+            # Skip Secretary procedural notes (STANCE_MISSING, digests, etc.)
+            if secretary_procedural.match(speech_content):
+                logger.debug(
+                    "skipping_secretary_procedural",
+                    speaker=current_speaker,
+                    content_preview=speech_content[:100],
+                )
+            elif len(speech_content) >= self._config.min_recommendation_length:
                 speeches.append(
                     self.ParsedSpeech(
                         archon_id=current_speaker.lower().replace(" ", "_"),

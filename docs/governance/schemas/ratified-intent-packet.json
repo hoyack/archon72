@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RatifiedIntentPacket",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "created_at",
+    "motion_id",
+    "ratified_motion",
+    "ratification_record",
+    "review_artifacts",
+    "provenance"
+  ],
+  "properties": {
+    "packet_id": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "motion_id": { "type": "string" },
+    "ratified_motion": { "type": "object" },
+    "ratification_record": { "type": "object" },
+    "review_artifacts": { "type": "object" },
+    "provenance": {
+      "type": "object",
+      "required": ["source_artifacts"],
+      "properties": {
+        "source_artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "path", "sha256"],
+            "properties": {
+              "name": { "type": "string" },
+              "path": { "type": "string" },
+              "sha256": { "type": "string" }
+            }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}
+

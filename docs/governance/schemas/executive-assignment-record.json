@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecutiveAssignmentRecord",
+  "type": "object",
+  "required": [
+    "cycle_id",
+    "created_at",
+    "motion_id",
+    "plan_owner",
+    "affected_portfolios",
+    "response_deadline",
+    "gates"
+  ],
+  "properties": {
+    "cycle_id": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "motion_id": { "type": "string" },
+    "plan_owner": {
+      "type": "object",
+      "required": ["portfolio_id", "president_id", "president_name"],
+      "properties": {
+        "portfolio_id": { "type": "string" },
+        "president_id": { "type": "string" },
+        "president_name": { "type": "string" }
+      }
+    },
+    "affected_portfolios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["portfolio_id", "president_id", "president_name"],
+        "properties": {
+          "portfolio_id": { "type": "string" },
+          "president_id": { "type": "string" },
+          "president_name": { "type": "string" }
+        }
+      }
+    },
+    "response_deadline": { "type": "string", "format": "date-time" },
+    "gates": {
+      "type": "object",
+      "required": ["completeness", "integrity", "visibility"],
+      "properties": {
+        "completeness": { "type": "string", "enum": ["REQUIRED"] },
+        "integrity": { "type": "string", "enum": ["REQUIRED"] },
+        "visibility": { "type": "string", "enum": ["REQUIRED"] }
+      }
+    }
+  }
+}
+

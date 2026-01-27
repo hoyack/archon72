@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NoActionAttestation",
+  "type": "object",
+  "required": [
+    "cycle_id",
+    "motion_id",
+    "portfolio_id",
+    "president_id",
+    "president_name",
+    "reason_code",
+    "explanation",
+    "capacity_claim"
+  ],
+  "properties": {
+    "cycle_id": { "type": "string" },
+    "motion_id": { "type": "string" },
+    "portfolio_id": { "type": "string" },
+    "president_id": { "type": "string" },
+    "president_name": { "type": "string" },
+    "reason_code": {
+      "type": "string",
+      "enum": [
+        "OUTSIDE_PORTFOLIO_SCOPE",
+        "MOTION_DOES_NOT_REQUIRE_MY_DOMAIN",
+        "NO_CAPACITY_AVAILABLE",
+        "DELEGATED_TO_OTHER_PORTFOLIO"
+      ]
+    },
+    "explanation": { "type": "string", "minLength": 8 },
+    "capacity_claim": {
+      "type": "object",
+      "required": ["claim_type"],
+      "properties": {
+        "claim_type": { "type": "string", "enum": ["NONE", "COARSE_ESTIMATE"] },
+        "units": { "type": "number" },
+        "unit_label": { "type": "string" }
+      }
+    }
+  }
+}
+

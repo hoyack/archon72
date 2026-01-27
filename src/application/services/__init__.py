@@ -367,6 +367,12 @@ from src.application.services.witness_pool_monitoring_service import (
     WitnessPoolMonitoringService,
 )
 from src.application.services.witness_service import WitnessService
+from src.application.services.administrative_pipeline_service import (
+    AdministrativePipelineService,
+)
+from src.application.services.executive_review_service import (
+    ExecutiveReviewService,
+)
 
 __all__: list[str] = [
     "AcknowledgmentRateMetricsService",
@@ -621,4 +627,8 @@ __all__: list[str] = [
     "MotionFromAdoption",
     "PetitionAdoptionService",
     "SystemHaltedException",
+    # Administrative Pipeline Service (E4 Implementation)
+    "AdministrativePipelineService",
+    # Executive Review Service (E4 Implementation)
+    "ExecutiveReviewService",
 ]

@@ -105,15 +105,11 @@ async def run_enhanced(
     print(f"Config exists: {_CONFIG_FILE.exists()}")
 
     text_config, json_config, checkpoints = load_secretary_config_from_yaml()
-    text_override = resolve_archon_llm_config(
-        "SECRETARY_TEXT_ARCHON_ID", "Text model"
-    )
+    text_override = resolve_archon_llm_config("SECRETARY_TEXT_ARCHON_ID", "Text model")
     if text_override:
         text_config = text_override
 
-    json_override = resolve_archon_llm_config(
-        "SECRETARY_JSON_ARCHON_ID", "JSON model"
-    )
+    json_override = resolve_archon_llm_config("SECRETARY_JSON_ARCHON_ID", "JSON model")
     if json_override:
         json_config = json_override
 

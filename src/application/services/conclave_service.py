@@ -4130,6 +4130,90 @@ If unclear, choose ABSTAIN.
 
         return output_path
 
+    def export_motion_results(self) -> dict[str, Any]:
+        """Export structured motion results for registrar ingestion."""
+        if not self._session:
+            raise ValueError("No active session")
+
+        motions: list[dict[str, Any]] = []
+        passed: list[dict[str, Any]] = []
+        failed: list[dict[str, Any]] = []
+        died_no_second: list[dict[str, Any]] = []
+        other: list[dict[str, Any]] = []
+
+        for motion in self._session.motions:
+            vote_total = (
+                (motion.final_ayes or 0)
+                + (motion.final_nays or 0)
+                + (motion.final_abstentions or 0)
+            )
+            record = {
+                "motion_id": str(motion.motion_id),
+                "motion_type": motion.motion_type.value,
+                "title": motion.title,
+                "text": motion.text,
+                "status": motion.status.value,
+                "proposer": {
+                    "id": motion.proposer_id,
+                    "name": motion.proposer_name,
+                },
+                "seconder": {
+                    "id": motion.seconder_id,
+                    "name": motion.seconder_name,
+                },
+                "proposed_at": motion.proposed_at.isoformat(),
+                "seconded_at": motion.seconded_at.isoformat()
+                if motion.seconded_at
+                else None,
+                "vote_result": {
+                    "ayes": motion.final_ayes,
+                    "nays": motion.final_nays,
+                    "abstentions": motion.final_abstentions,
+                    "total_votes": vote_total,
+                    "threshold": "supermajority",
+                    "threshold_met": motion.status == MotionStatus.PASSED,
+                },
+            }
+
+            motions.append(record)
+
+            if motion.status == MotionStatus.PASSED:
+                passed.append(record)
+            elif motion.status == MotionStatus.FAILED:
+                failed.append(record)
+            elif motion.seconder_id is None and motion.status == MotionStatus.PROPOSED:
+                died_no_second.append(record)
+            else:
+                other.append(record)
+
+        return {
+            "schema_version": "1.0",
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "session_id": str(self._session.session_id),
+            "session_name": self._session.session_name,
+            "motions": motions,
+            "passed_motions": passed,
+            "failed_motions": failed,
+            "died_no_second": died_no_second,
+            "other_motions": other,
+        }
+
+    def save_motion_results(self, filename: str | None = None) -> Path:
+        """Save structured motion results for registrar ingestion."""
+        if not self._session:
+            raise ValueError("No active session")
+
+        if not filename:
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            filename = f"conclave-results-{self._session.session_id}-{timestamp}.json"
+
+        output_path = self._config.output_dir / filename
+        results = self.export_motion_results()
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+
+        return output_path
+
     def get_session_summary(self) -> dict[str, Any]:
         """Get summary of the current session.
 

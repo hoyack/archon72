@@ -40,16 +40,19 @@ from uuid import UUID
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from structlog import get_logger
 
+from src.application.services.archon_assignment_service import ArchonAssignmentService
+from src.application.services.archon_pool import get_archon_pool_service
+from src.application.services.context_package_builder_service import (
+    ContextPackageBuilderService,
+)
 from src.bootstrap.petition_submission import get_petition_submission_repository
 from src.domain.models.deliberation_session import DeliberationSession
 from src.domain.models.petition_submission import PetitionState
-from src.application.services.archon_assignment_service import ArchonAssignmentService
-from src.application.services.archon_pool import get_archon_pool_service
-from src.application.services.context_package_builder_service import ContextPackageBuilderService
 
 logger = get_logger()
 
@@ -129,85 +132,80 @@ def _extract_dissent_rationale(transcript: str, dissent_archon_id: UUID) -> str:
     return "Dissent rationale captured in vote transcript (see witness hash)."
 
 
-def _extract_vote_artifacts(vote_transcript: str) -> dict[str, dict[str, str | None]]:
-    """Extract structured artifacts from the VOTE transcript.
+def _grab_tagged_block(
+    lines: list[str], start_idx: int, tag: str
+) -> tuple[str | None, int]:
+    """Return (text, next_idx) for a tagged multi-line block."""
+    first = lines[start_idx]
+    captured: list[str] = []
+    remainder = first.split(tag, 1)[1].lstrip()
+    if remainder:
+        captured.append(remainder)
+    i = start_idx + 1
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip():
+            break
+        if line.lstrip().startswith(
+            ("RECORDED RESPONSE:", "KNIGHT QUESTION:", "REQUIRED EVIDENCE:")
+        ):
+            break
+        captured.append(line.strip())
+        i += 1
+    return ("\n".join(captured).strip() or None), i
 
-    We encourage (but do not strictly require) Archons to include:
-    - "RECORDED RESPONSE:" for ACKNOWLEDGE votes
-    - "KNIGHT QUESTION:" and "REQUIRED EVIDENCE:" for REFER votes
-    """
 
-    def _grab_tagged_block(lines: list[str], start_idx: int, tag: str) -> tuple[str, int]:
-        """Return (text, next_idx) for a tagged multi-line block."""
-        first = lines[start_idx]
-        # Capture remainder on same line, then continue until a blank line or end.
-        captured: list[str] = []
-        remainder = first.split(tag, 1)[1].lstrip()
-        if remainder:
-            captured.append(remainder)
-        i = start_idx + 1
-        while i < len(lines):
-            line = lines[i]
-            if not line.strip():
-                break
-            # Stop early if a new tag starts.
-            if line.lstrip().startswith(("RECORDED RESPONSE:", "KNIGHT QUESTION:", "REQUIRED EVIDENCE:")):
-                break
-            captured.append(line.strip())
-            i += 1
-        return ("\n".join(captured).strip() or None), i
+def _extract_tagged_artifacts(block_lines: list[str]) -> dict[str, str | None]:
+    recorded_response: str | None = None
+    knight_question: str | None = None
+    required_evidence: str | None = None
 
-    artifacts: dict[str, dict[str, str | None]] = {}
+    i = 0
+    while i < len(block_lines):
+        line = block_lines[i].strip()
+        if "RECORDED RESPONSE:" in line:
+            recorded_response, i = _grab_tagged_block(
+                block_lines, i, "RECORDED RESPONSE:"
+            )
+            continue
+        if line.startswith("KNIGHT QUESTION:"):
+            knight_question, i = _grab_tagged_block(block_lines, i, "KNIGHT QUESTION:")
+            continue
+        if line.startswith("REQUIRED EVIDENCE:"):
+            required_evidence, i = _grab_tagged_block(
+                block_lines, i, "REQUIRED EVIDENCE:"
+            )
+            continue
+        i += 1
 
+    return {
+        "recorded_response": recorded_response,
+        "knight_question": knight_question,
+        "required_evidence": required_evidence,
+    }
+
+
+def _parse_vote_blocks(vote_transcript: str) -> dict[str, list[str]]:
+    blocks: dict[str, list[str]] = {}
     current_archon_id: str | None = None
-    current_lines: list[str] = []
-
-    def _flush() -> None:
-        nonlocal current_archon_id, current_lines
-        if current_archon_id is None:
-            return
-        block_lines = current_lines
-        recorded_response: str | None = None
-        knight_question: str | None = None
-        required_evidence: str | None = None
-
-        i = 0
-        while i < len(block_lines):
-            line = block_lines[i].strip()
-            if "RECORDED RESPONSE:" in line:
-                recorded_response, i = _grab_tagged_block(block_lines, i, "RECORDED RESPONSE:")
-                continue
-            if line.startswith("KNIGHT QUESTION:"):
-                knight_question, i = _grab_tagged_block(block_lines, i, "KNIGHT QUESTION:")
-                continue
-            if line.startswith("REQUIRED EVIDENCE:"):
-                required_evidence, i = _grab_tagged_block(block_lines, i, "REQUIRED EVIDENCE:")
-                continue
-            i += 1
-
-        artifacts[current_archon_id] = {
-            "recorded_response": recorded_response,
-            "knight_question": knight_question,
-            "required_evidence": required_evidence,
-        }
-
-        current_archon_id = None
-        current_lines = []
-
     for raw in vote_transcript.splitlines():
         if raw.startswith("--- Vote from"):
-            _flush()
-            # Example: --- Vote from Name (uuid) ---
             if "(" in raw and ")" in raw:
                 current_archon_id = raw.rsplit("(", 1)[1].split(")", 1)[0]
             else:
                 current_archon_id = "unknown"
-            current_lines = []
+            blocks.setdefault(current_archon_id, [])
             continue
         if current_archon_id is not None:
-            current_lines.append(raw)
+            blocks[current_archon_id].append(raw)
+    return blocks
 
-    _flush()
+
+def _extract_vote_artifacts(vote_transcript: str) -> dict[str, dict[str, str | None]]:
+    """Extract structured artifacts from the VOTE transcript."""
+    artifacts: dict[str, dict[str, str | None]] = {}
+    for archon_id, block_lines in _parse_vote_blocks(vote_transcript).items():
+        artifacts[archon_id] = _extract_tagged_artifacts(block_lines)
     return artifacts
 
 
@@ -238,8 +236,8 @@ def _build_deadlock_consensus(session, votes):
 
 def _json_safe(value):
     """Convert objects into JSON-serializable structures."""
-    from enum import Enum
     from datetime import datetime
+    from enum import Enum
 
     if isinstance(value, UUID):
         return str(value)
@@ -250,10 +248,7 @@ def _json_safe(value):
     if isinstance(value, datetime):
         return value.isoformat()
     if isinstance(value, dict):
-        return {
-            _json_safe(key): _json_safe(val)
-            for key, val in value.items()
-        }
+        return {_json_safe(key): _json_safe(val) for key, val in value.items()}
     if isinstance(value, (list, tuple)):
         return [_json_safe(item) for item in value]
     return value
@@ -276,7 +271,9 @@ def _map_disposition_to_state(outcome) -> PetitionState:
     raise ValueError(f"Unsupported disposition outcome: {outcome}")
 
 
-def _write_deliberation_output(payload: dict, petition_id: UUID, session_id: UUID) -> Path:
+def _write_deliberation_output(
+    payload: dict, petition_id: UUID, session_id: UUID
+) -> Path:
     """Write deliberation events and metadata to a durable JSON file."""
     output_dir = Path("_bmad-output/petition-deliberations")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -308,6 +305,315 @@ class _ArchonAssignmentRepositoryAdapter:
             await update_state(petition.id, petition.state, petition.fate_reason)
         except TypeError:
             await update_state(petition.id, petition.state)
+
+
+async def _assign_archons_and_session(
+    petition,
+    archon_pool,
+    petition_repo,
+    petition_repo_impl,
+    log,
+):
+    if petition.state == PetitionState.DELIBERATING:
+        assigned_archons = archon_pool.select_archons(petition.id)
+        session = DeliberationSession.create(
+            petition_id=petition.id,
+            assigned_archons=tuple(a.id for a in assigned_archons),
+        )
+        return petition, assigned_archons, session
+
+    assignment_service = ArchonAssignmentService(
+        archon_pool=archon_pool,
+        petition_repository=petition_repo,
+    )
+    assignment_result = await assignment_service.assign_archons(petition.id)
+    assigned_archons = assignment_result.assigned_archons
+    session = assignment_result.session
+    refreshed = await petition_repo_impl.get(petition.id)
+    if refreshed is not None:
+        petition = refreshed
+    else:
+        log.warning("petition_refresh_failed", message="Using stale petition state")
+    return petition, assigned_archons, session
+
+
+def _create_orchestrator(archon_pool):
+    from src.application.services.archon_substitution_service import (
+        ArchonSubstitutionService,
+    )
+    from src.application.services.deadlock_handler_service import DeadlockHandlerService
+    from src.application.services.deliberation_orchestrator_service import (
+        DeliberationOrchestratorService,
+    )
+    from src.application.services.deliberation_timeout_service import (
+        DeliberationTimeoutService,
+    )
+    from src.infrastructure.adapters.external.crewai_deliberation_adapter import (
+        create_crewai_deliberation_adapter,
+    )
+    from src.infrastructure.stubs.job_scheduler_stub import JobSchedulerStub
+
+    executor = create_crewai_deliberation_adapter(verbose=True, timeout_seconds=120)
+    timeout_handler = DeliberationTimeoutService(job_scheduler=JobSchedulerStub())
+    deadlock_handler = DeadlockHandlerService()
+    substitution_handler = ArchonSubstitutionService(archon_pool=archon_pool)
+
+    return DeliberationOrchestratorService(
+        executor=executor,
+        timeout_handler=timeout_handler,
+        deadlock_handler=deadlock_handler,
+        substitution_handler=substitution_handler,
+    )
+
+
+async def _witness_phase_transcripts(session, deliberation_result, log):
+    from src.application.services.phase_summary_generation_service import (
+        PhaseSummaryGenerationService,
+    )
+    from src.application.services.phase_witness_batching_service import (
+        PhaseWitnessBatchingService,
+    )
+
+    transcript_store = _get_transcript_store()
+    witness_events = []
+    witness_service = PhaseWitnessBatchingService(transcript_store=transcript_store)
+    summary_service = PhaseSummaryGenerationService()
+
+    for phase_result in deliberation_result.phase_results:
+        try:
+            metadata = await summary_service.augment_phase_metadata(
+                phase=phase_result.phase,
+                transcript=phase_result.transcript,
+                existing_metadata=phase_result.phase_metadata,
+            )
+        except Exception as exc:
+            log.warning(
+                "phase_summary_failed",
+                phase=phase_result.phase.value,
+                error=str(exc),
+            )
+            metadata = dict(phase_result.phase_metadata)
+
+        witness_event = await witness_service.witness_phase(
+            session=session,
+            phase=phase_result.phase,
+            transcript=phase_result.transcript,
+            metadata=metadata,
+            start_timestamp=phase_result.started_at,
+            end_timestamp=phase_result.completed_at,
+        )
+        witness_events.append(witness_event)
+        if not session.phase.is_terminal():
+            session = session.with_transcript(
+                phase_result.phase, witness_event.transcript_hash
+            )
+        print(
+            f"  {phase_result.phase.value}: witness {witness_event.transcript_hash_hex[:16]}..."
+        )
+
+    return session, transcript_store, witness_events
+
+
+async def _resolve_consensus_and_disposition(
+    session, deliberation_result, petition, log
+):
+    from src.application.services.consensus_resolver_service import (
+        ConsensusResolverService,
+    )
+    from src.application.services.disposition_emission_service import (
+        DispositionEmissionService,
+    )
+    from src.application.services.dissent_recorder_service import DissentRecorderService
+    from src.domain.models.deliberation_session import DeliberationOutcome
+
+    if deliberation_result.is_aborted:
+        print(
+            f"{Colors.YELLOW}  Deliberation aborted: {deliberation_result.abort_reason}. "
+            "Auto-ESCALATE will be applied without consensus routing."
+            f"{Colors.ENDC}"
+        )
+        return None, None, False
+
+    is_deadlock = (
+        deliberation_result.outcome == DeliberationOutcome.ESCALATE
+        and _is_deadlock_vote(deliberation_result.votes)
+    )
+
+    consensus_resolver = ConsensusResolverService()
+    if is_deadlock:
+        consensus = _build_deadlock_consensus(session, deliberation_result.votes)
+        print("  Deadlock detected (1-1-1). Auto-ESCALATE applied for routing.")
+    else:
+        consensus = consensus_resolver.resolve_consensus(
+            session, deliberation_result.votes
+        )
+
+    dissent_recorder = DissentRecorderService()
+    if consensus.has_dissent and consensus.dissent_archon_id:
+        vote_phase = next(
+            (
+                phase
+                for phase in deliberation_result.phase_results
+                if phase.phase.value == "VOTE"
+            ),
+            None,
+        )
+        rationale = (
+            _extract_dissent_rationale(
+                vote_phase.transcript, consensus.dissent_archon_id
+            )
+            if vote_phase is not None
+            else "Dissent rationale captured in vote transcript (missing phase reference)."
+        )
+        await dissent_recorder.record_dissent(session, consensus, rationale)
+
+    disposition_service = DispositionEmissionService()
+    disposition_result = await disposition_service.emit_disposition(
+        session=session,
+        consensus=consensus,
+        petition=petition,
+    )
+
+    print(f"  Routed to pipeline: {disposition_result.routing_event.pipeline.value}")
+    print(f"  Pending disposition ID: {disposition_result.routing_event.event_id}")
+    return consensus, disposition_result, is_deadlock
+
+
+async def _update_petition_disposition(petition, disposition_result, log):
+    petition_update = {"success": False}
+    petition_repo = get_petition_submission_repository()
+    target_state = (
+        _map_disposition_to_state(disposition_result.deliberation_event.outcome)
+        if disposition_result is not None
+        else PetitionState.ESCALATED
+    )
+    try:
+        assign_fate = getattr(petition_repo, "assign_fate_cas", None)
+        if callable(assign_fate):
+            updated_petition = await assign_fate(
+                submission_id=petition.id,
+                expected_state=PetitionState.DELIBERATING,
+                new_state=target_state,
+                escalation_source="DELIBERATION"
+                if target_state == PetitionState.ESCALATED
+                else None,
+                escalated_to_realm=petition.realm
+                if target_state == PetitionState.ESCALATED
+                else None,
+            )
+            petition = updated_petition
+        else:
+            await petition_repo.update_state(petition.id, target_state)
+            petition = await petition_repo.get(petition.id) or petition
+
+        petition_update = {
+            "success": True,
+            "new_state": petition.state.value,
+        }
+        print(f"  Petition state updated: {petition.state.value}")
+    except Exception as exc:
+        log.error("petition_disposition_update_failed", error=str(exc))
+        petition_update = {"success": False, "error": str(exc)}
+        print(f"{Colors.RED}Petition state update failed: {exc}{Colors.ENDC}")
+
+    return petition, petition_update
+
+
+def _build_deliberation_payload(
+    petition,
+    session,
+    assigned_archons,
+    package,
+    deliberation_result,
+    consensus,
+    disposition_result,
+    is_deadlock: bool,
+    witness_events,
+    petition_update: dict,
+    transcript_store,
+):
+    vote_phase_result = next(
+        (
+            phase
+            for phase in deliberation_result.phase_results
+            if phase.phase.value == "VOTE"
+        ),
+        None,
+    )
+    vote_artifacts = (
+        _extract_vote_artifacts(vote_phase_result.transcript)
+        if vote_phase_result is not None
+        else {}
+    )
+
+    return {
+        "petition_id": str(petition.id),
+        "session_id": str(session.session_id),
+        "petition_type": petition.type.value,
+        "petition_realm": petition.realm,
+        "assigned_archons": [
+            {"id": str(archon.id), "name": archon.name, "title": archon.title}
+            for archon in assigned_archons
+        ],
+        "context_package": {
+            "content_hash": package.content_hash,
+            "schema_version": package.schema_version,
+            "severity_tier": package.severity_tier,
+            "severity_signals": list(package.severity_signals),
+        },
+        "deliberation": {
+            "started_at": deliberation_result.started_at.isoformat(),
+            "completed_at": deliberation_result.completed_at.isoformat(),
+            "outcome": deliberation_result.outcome.value,
+            "votes": {
+                str(archon_id): outcome.value
+                for archon_id, outcome in deliberation_result.votes.items()
+            },
+            "phase_results": [
+                {
+                    "phase": phase_result.phase.value,
+                    "transcript_hash": phase_result.transcript_hash.hex(),
+                    "participants": [str(aid) for aid in phase_result.participants],
+                    "started_at": phase_result.started_at.isoformat(),
+                    "completed_at": phase_result.completed_at.isoformat(),
+                    "duration_ms": phase_result.duration_ms,
+                    "metadata": _json_safe(phase_result.phase_metadata),
+                }
+                for phase_result in deliberation_result.phase_results
+            ],
+            "deadlock": is_deadlock,
+            "timed_out": session.timed_out,
+            "aborted": deliberation_result.is_aborted,
+            "abort_reason": deliberation_result.abort_reason,
+        },
+        "consensus": _json_safe(consensus.to_dict()) if consensus else None,
+        "events": _json_safe(
+            {
+                **(
+                    {
+                        "deliberation_complete": disposition_result.deliberation_event.to_dict(),
+                        "pipeline_routing": disposition_result.routing_event.to_dict(),
+                    }
+                    if disposition_result
+                    else {}
+                ),
+                **(
+                    {
+                        "deliberation_aborted": {
+                            "reason": deliberation_result.abort_reason
+                        }
+                    }
+                    if deliberation_result.is_aborted
+                    else {}
+                ),
+            }
+        ),
+        "vote_artifacts": vote_artifacts,
+        "witness_events": [_json_safe(event.to_dict()) for event in witness_events],
+        "petition_update": petition_update,
+        "transcript_store": type(transcript_store).__name__,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def print_header(text: str) -> None:
@@ -351,31 +657,18 @@ async def run_deliberation_on_petition(petition, dry_run: bool = False):
         print("  Assigned Archons:")
         for i, archon in enumerate(assigned_archons, 1):
             print(f"    {i}. {archon.name} ({archon.title}) - {archon.id}")
-        print(f"\n{Colors.YELLOW}[DRY RUN] Would proceed with deliberation{Colors.ENDC}")
+        print(
+            f"\n{Colors.YELLOW}[DRY RUN] Would proceed with deliberation{Colors.ENDC}"
+        )
         return True
 
-    assigned_archons = None
-    session = None
-
-    if petition.state == PetitionState.DELIBERATING:
-        assigned_archons = archon_pool.select_archons(petition.id)
-        session = DeliberationSession.create(
-            petition_id=petition.id,
-            assigned_archons=tuple(a.id for a in assigned_archons),
-        )
-    else:
-        assignment_service = ArchonAssignmentService(
-            archon_pool=archon_pool,
-            petition_repository=petition_repo,
-        )
-        assignment_result = await assignment_service.assign_archons(petition.id)
-        assigned_archons = assignment_result.assigned_archons
-        session = assignment_result.session
-        refreshed = await petition_repo_impl.get(petition.id)
-        if refreshed is not None:
-            petition = refreshed
-        else:
-            log.warning("petition_refresh_failed", message="Using stale petition state")
+    petition, assigned_archons, session = await _assign_archons_and_session(
+        petition=petition,
+        archon_pool=archon_pool,
+        petition_repo=petition_repo,
+        petition_repo_impl=petition_repo_impl,
+        log=log,
+    )
 
     print("  Assigned Archons:")
     for i, archon in enumerate(assigned_archons, 1):
@@ -397,56 +690,12 @@ async def run_deliberation_on_petition(petition, dry_run: bool = False):
 
     # Step 4: Run Deliberation Orchestrator (FR-11.4)
     print(f"\n{Colors.YELLOW}Step 4: Running deliberation protocol...{Colors.ENDC}")
-    print(f"  Protocol: ASSESS → POSITION → CROSS_EXAMINE → VOTE")
+    print("  Protocol: ASSESS → POSITION → CROSS_EXAMINE → VOTE")
 
     try:
         _ensure_crewai_env()
 
-        from src.application.services.archon_substitution_service import (
-            ArchonSubstitutionService,
-        )
-        from src.application.services.consensus_resolver_service import (
-            ConsensusResolverService,
-        )
-        from src.application.services.deadlock_handler_service import (
-            DeadlockHandlerService,
-        )
-        from src.application.services.deliberation_orchestrator_service import (
-            DeliberationOrchestratorService,
-        )
-        from src.application.services.deliberation_timeout_service import (
-            DeliberationTimeoutService,
-        )
-        from src.application.services.disposition_emission_service import (
-            DispositionEmissionService,
-        )
-        from src.application.services.dissent_recorder_service import (
-            DissentRecorderService,
-        )
-        from src.application.services.phase_summary_generation_service import (
-            PhaseSummaryGenerationService,
-        )
-        from src.application.services.phase_witness_batching_service import (
-            PhaseWitnessBatchingService,
-        )
-        from src.domain.models.deliberation_session import DeliberationOutcome
-        from src.infrastructure.adapters.external.crewai_deliberation_adapter import (
-            create_crewai_deliberation_adapter,
-        )
-        from src.infrastructure.stubs.job_scheduler_stub import JobSchedulerStub
-
-        executor = create_crewai_deliberation_adapter(verbose=True, timeout_seconds=120)
-        timeout_handler = DeliberationTimeoutService(job_scheduler=JobSchedulerStub())
-        deadlock_handler = DeadlockHandlerService()
-        substitution_handler = ArchonSubstitutionService(archon_pool=archon_pool)
-
-        orchestrator = DeliberationOrchestratorService(
-            executor=executor,
-            timeout_handler=timeout_handler,
-            deadlock_handler=deadlock_handler,
-            substitution_handler=substitution_handler,
-        )
-
+        orchestrator = _create_orchestrator(archon_pool)
         session, deliberation_result = orchestrator.orchestrate(session, package)
 
         print(f"\n{Colors.GREEN}Deliberation Complete!{Colors.ENDC}")
@@ -454,230 +703,50 @@ async def run_deliberation_on_petition(petition, dry_run: bool = False):
 
         # Step 5: Witness transcripts at phase boundaries (FR-11.7)
         print(f"\n{Colors.YELLOW}Step 5: Witnessing phase transcripts...{Colors.ENDC}")
-        transcript_store = _get_transcript_store()
-        witness_events = []
-        witness_service = PhaseWitnessBatchingService(transcript_store=transcript_store)
-        summary_service = PhaseSummaryGenerationService()
-
-        for phase_result in deliberation_result.phase_results:
-            try:
-                metadata = await summary_service.augment_phase_metadata(
-                    phase=phase_result.phase,
-                    transcript=phase_result.transcript,
-                    existing_metadata=phase_result.phase_metadata,
-                )
-            except Exception as exc:
-                log.warning(
-                    "phase_summary_failed",
-                    phase=phase_result.phase.value,
-                    error=str(exc),
-                )
-                metadata = dict(phase_result.phase_metadata)
-
-            witness_event = await witness_service.witness_phase(
-                session=session,
-                phase=phase_result.phase,
-                transcript=phase_result.transcript,
-                metadata=metadata,
-                start_timestamp=phase_result.started_at,
-                end_timestamp=phase_result.completed_at,
-            )
-            witness_events.append(witness_event)
-            if not session.phase.is_terminal():
-                session = session.with_transcript(
-                    phase_result.phase, witness_event.transcript_hash
-                )
-            print(
-                f"  {phase_result.phase.value}: witness {witness_event.transcript_hash_hex[:16]}..."
-            )
+        session, transcript_store, witness_events = await _witness_phase_transcripts(
+            session=session,
+            deliberation_result=deliberation_result,
+            log=log,
+        )
 
         # Step 6: Resolve consensus + disposition routing (FR-11.5, FR-11.11)
-        print(f"\n{Colors.YELLOW}Step 6: Resolving consensus & routing disposition...{Colors.ENDC}")
-        consensus = None
-        disposition_result = None
-        is_deadlock = False
-        if deliberation_result.is_aborted:
-            print(
-                f"{Colors.YELLOW}  Deliberation aborted: {deliberation_result.abort_reason}. "
-                "Auto-ESCALATE will be applied without consensus routing."
-                f"{Colors.ENDC}"
-            )
-        else:
-            is_deadlock = (
-                deliberation_result.outcome == DeliberationOutcome.ESCALATE
-                and _is_deadlock_vote(deliberation_result.votes)
-            )
-
-            consensus_resolver = ConsensusResolverService()
-            if is_deadlock:
-                consensus = _build_deadlock_consensus(session, deliberation_result.votes)
-                print(
-                    "  Deadlock detected (1-1-1). Auto-ESCALATE applied for routing."
-                )
-            else:
-                consensus = consensus_resolver.resolve_consensus(
-                    session, deliberation_result.votes
-                )
-
-            dissent_recorder = DissentRecorderService()
-            if consensus.has_dissent and consensus.dissent_archon_id:
-                vote_phase = next(
-                    (
-                        phase
-                        for phase in deliberation_result.phase_results
-                        if phase.phase.value == "VOTE"
-                    ),
-                    None,
-                )
-                rationale = (
-                    _extract_dissent_rationale(
-                        vote_phase.transcript, consensus.dissent_archon_id
-                    )
-                    if vote_phase is not None
-                    else "Dissent rationale captured in vote transcript (missing phase reference)."
-                )
-                await dissent_recorder.record_dissent(session, consensus, rationale)
-
-            disposition_service = DispositionEmissionService()
-            disposition_result = await disposition_service.emit_disposition(
-                session=session,
-                consensus=consensus,
-                petition=petition,
-            )
-
-            print(
-                f"  Routed to pipeline: {disposition_result.routing_event.pipeline.value}"
-            )
-            print(
-                f"  Pending disposition ID: {disposition_result.routing_event.event_id}"
-            )
+        print(
+            f"\n{Colors.YELLOW}Step 6: Resolving consensus & routing disposition...{Colors.ENDC}"
+        )
+        (
+            consensus,
+            disposition_result,
+            is_deadlock,
+        ) = await _resolve_consensus_and_disposition(
+            session=session,
+            deliberation_result=deliberation_result,
+            petition=petition,
+            log=log,
+        )
 
         # Step 7: Update petition disposition in database
         print(f"\n{Colors.YELLOW}Step 7: Updating petition disposition...{Colors.ENDC}")
-        petition_update = {"success": False}
-        petition_repo = get_petition_submission_repository()
-        target_state = (
-            _map_disposition_to_state(disposition_result.deliberation_event.outcome)
-            if disposition_result is not None
-            else PetitionState.ESCALATED
+        petition, petition_update = await _update_petition_disposition(
+            petition=petition,
+            disposition_result=disposition_result,
+            log=log,
         )
-        try:
-            assign_fate = getattr(petition_repo, "assign_fate_cas", None)
-            if callable(assign_fate):
-                updated_petition = await assign_fate(
-                    submission_id=petition.id,
-                    expected_state=PetitionState.DELIBERATING,
-                    new_state=target_state,
-                    escalation_source="DELIBERATION"
-                    if target_state == PetitionState.ESCALATED
-                    else None,
-                    escalated_to_realm=petition.realm
-                    if target_state == PetitionState.ESCALATED
-                    else None,
-                )
-                petition = updated_petition
-            else:
-                await petition_repo.update_state(petition.id, target_state)
-                petition = await petition_repo.get(petition.id) or petition
-
-            petition_update = {
-                "success": True,
-                "new_state": petition.state.value,
-            }
-            print(f"  Petition state updated: {petition.state.value}")
-        except Exception as exc:
-            log.error("petition_disposition_update_failed", error=str(exc))
-            petition_update = {"success": False, "error": str(exc)}
-            print(
-                f"{Colors.RED}Petition state update failed: {exc}{Colors.ENDC}"
-            )
 
         # Step 8: Emit deliberation events to file
         print(f"\n{Colors.YELLOW}Step 8: Writing deliberation events...{Colors.ENDC}")
-        vote_phase_result = next(
-            (
-                phase
-                for phase in deliberation_result.phase_results
-                if phase.phase.value == "VOTE"
-            ),
-            None,
+        output_payload = _build_deliberation_payload(
+            petition=petition,
+            session=session,
+            assigned_archons=assigned_archons,
+            package=package,
+            deliberation_result=deliberation_result,
+            consensus=consensus,
+            disposition_result=disposition_result,
+            is_deadlock=is_deadlock,
+            witness_events=witness_events,
+            petition_update=petition_update,
+            transcript_store=transcript_store,
         )
-        vote_artifacts = (
-            _extract_vote_artifacts(vote_phase_result.transcript)
-            if vote_phase_result is not None
-            else {}
-        )
-        output_payload = {
-            "petition_id": str(petition.id),
-            "session_id": str(session.session_id),
-            "petition_type": petition.type.value,
-            "petition_realm": petition.realm,
-            "assigned_archons": [
-                {"id": str(archon.id), "name": archon.name, "title": archon.title}
-                for archon in assigned_archons
-            ],
-            "context_package": {
-                "content_hash": package.content_hash,
-                "schema_version": package.schema_version,
-                "severity_tier": package.severity_tier,
-                "severity_signals": list(package.severity_signals),
-            },
-            "deliberation": {
-                "started_at": deliberation_result.started_at.isoformat(),
-                "completed_at": deliberation_result.completed_at.isoformat(),
-                "outcome": deliberation_result.outcome.value,
-                "votes": {
-                    str(archon_id): outcome.value
-                    for archon_id, outcome in deliberation_result.votes.items()
-                },
-                "phase_results": [
-                    {
-                        "phase": phase_result.phase.value,
-                        "transcript_hash": phase_result.transcript_hash.hex(),
-                        "participants": [
-                            str(archon_id)
-                            for archon_id in phase_result.participants
-                        ],
-                        "started_at": phase_result.started_at.isoformat(),
-                        "completed_at": phase_result.completed_at.isoformat(),
-                        "duration_ms": phase_result.duration_ms,
-                        "metadata": _json_safe(phase_result.phase_metadata),
-                    }
-                    for phase_result in deliberation_result.phase_results
-                ],
-                "deadlock": is_deadlock,
-                "timed_out": session.timed_out,
-                "aborted": deliberation_result.is_aborted,
-                "abort_reason": deliberation_result.abort_reason,
-            },
-            "consensus": _json_safe(consensus.to_dict()) if consensus else None,
-            "events": _json_safe(
-                {
-                    **(
-                        {
-                            "deliberation_complete": disposition_result.deliberation_event.to_dict(),
-                            "pipeline_routing": disposition_result.routing_event.to_dict(),
-                        }
-                        if disposition_result
-                        else {}
-                    ),
-                    **(
-                        {
-                            "deliberation_aborted": {
-                                "reason": deliberation_result.abort_reason
-                            }
-                        }
-                        if deliberation_result.is_aborted
-                        else {}
-                    ),
-                }
-            ),
-            "vote_artifacts": vote_artifacts,
-            "witness_events": [_json_safe(event.to_dict()) for event in witness_events],
-            "petition_update": petition_update,
-            "transcript_store": type(transcript_store).__name__,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-        }
 
         output_file = _write_deliberation_output(
             output_payload, petition.id, session.session_id
@@ -726,7 +795,9 @@ async def main(args):
         # Process all RECEIVED petitions
         petitions, total = await get_received_petitions(limit=args.limit)
 
-        print(f"Found {total} petitions in RECEIVED state (processing up to {args.limit})")
+        print(
+            f"Found {total} petitions in RECEIVED state (processing up to {args.limit})"
+        )
 
         if not petitions:
             print(f"{Colors.YELLOW}No petitions to process{Colors.ENDC}")

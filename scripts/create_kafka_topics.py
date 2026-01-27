@@ -15,7 +15,7 @@ import sys
 from dataclasses import dataclass
 
 try:
-    from confluent_kafka.admin import AdminClient, NewTopic, ConfigResource
+    from confluent_kafka.admin import AdminClient, NewTopic
 except ImportError:
     print("ERROR: confluent-kafka not installed. Run: pip install confluent-kafka")
     sys.exit(1)
@@ -182,7 +182,11 @@ def create_topics(bootstrap_servers: str, dry_run: bool = False) -> bool:
         for topic in TOPICS:
             print(f"  Would create: {topic.name}")
             print(f"    Partitions: {topic.partitions}")
-            print(f"    Retention: {topic.retention_ms}ms" if topic.retention_ms else "    Retention: infinite")
+            print(
+                f"    Retention: {topic.retention_ms}ms"
+                if topic.retention_ms
+                else "    Retention: infinite"
+            )
             print(f"    Cleanup: {topic.cleanup_policy}")
         return True
 
@@ -254,7 +258,9 @@ def verify_topics(bootstrap_servers: str) -> bool:
             topic_metadata = metadata.topics[topic.name]
             partition_count = len(topic_metadata.partitions)
             if partition_count != topic.partitions:
-                print(f"  WARN: {topic.name} has {partition_count} partitions, expected {topic.partitions}")
+                print(
+                    f"  WARN: {topic.name} has {partition_count} partitions, expected {topic.partitions}"
+                )
             else:
                 print(f"  OK: {topic.name} ({partition_count} partitions)")
 

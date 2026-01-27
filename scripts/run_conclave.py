@@ -151,7 +151,9 @@ def format_progress(event: str, message: str, data: dict) -> None:
         archon = data.get("archon", "Unknown")
         attempt = data.get("attempt", "?")
         max_attempts = data.get("max_attempts", "?")
-        print(f"  {Colors.DIM}[{attempt}/{max_attempts}]{Colors.ENDC} Evaluating: {archon}")
+        print(
+            f"  {Colors.DIM}[{attempt}/{max_attempts}]{Colors.ENDC} Evaluating: {archon}"
+        )
     elif event == "second_declined":
         archon = data.get("archon", "Unknown")
         reasoning = data.get("reasoning", "")[:100]
@@ -266,8 +268,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
             config.agent_timeout_seconds = max(0, int(float(timeout_override)))
         except ValueError:
             print(
-                f"  Invalid AGENT_TIMEOUT_SECONDS={timeout_override!r}; "
-                "using default."
+                f"  Invalid AGENT_TIMEOUT_SECONDS={timeout_override!r}; using default."
             )
 
     max_attempts = os.getenv("AGENT_TIMEOUT_MAX_ATTEMPTS", "").strip()
@@ -305,7 +306,9 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
             )
 
     concurrency_label = (
-        "unlimited" if config.voting_concurrency <= 0 else str(config.voting_concurrency)
+        "unlimited"
+        if config.voting_concurrency <= 0
+        else str(config.voting_concurrency)
     )
     print(f"  Voting concurrency: {concurrency_label}")
 
@@ -405,10 +408,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
     print(f"  Supermajority threshold: {config.supermajority_threshold:.1%}")
     if config.vote_validation_archon_ids:
         print("  Vote validation: enabled")
-        print(
-            "    Validators: "
-            + ", ".join(config.vote_validation_archon_ids)
-        )
+        print("    Validators: " + ", ".join(config.vote_validation_archon_ids))
         print(f"    Max attempts: {config.vote_validation_max_attempts}")
     else:
         print(
@@ -428,9 +428,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         print(f"    Schema registry: {config.schema_registry_url}")
     else:
         print("  Async validation: disabled")
-    print(
-        f"  Kafka audit: {'enabled' if config.kafka_enabled else 'disabled'}"
-    )
+    print(f"  Kafka audit: {'enabled' if config.kafka_enabled else 'disabled'}")
 
     # Build motion plans (queue + blockers unless custom motion specified)
     custom_motion_requested = bool(args.motion or args.motion_text or args.motion_file)
@@ -489,10 +487,14 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         if args.motion_file:
             motion_file_path = Path(args.motion_file)
             if not motion_file_path.exists():
-                print(f"{Colors.RED}Error: Motion file not found: {args.motion_file}{Colors.ENDC}")
+                print(
+                    f"{Colors.RED}Error: Motion file not found: {args.motion_file}{Colors.ENDC}"
+                )
                 sys.exit(1)
             motion_text = motion_file_path.read_text(encoding="utf-8").strip()
-            print(f"{Colors.GREEN}Loaded motion text from: {args.motion_file}{Colors.ENDC}")
+            print(
+                f"{Colors.GREEN}Loaded motion text from: {args.motion_file}{Colors.ENDC}"
+            )
         elif args.motion_text:
             motion_text = args.motion_text
         else:
@@ -562,8 +564,12 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         # Build candidate list for deliberative seconding - Kings only (9 total)
         # Kings have authority to decide what's worth the Conclave's time
         # Note: all_profiles has full ArchonProfile with original_rank; archon_profiles is simplified
-        king_seconder_ids = [str(p.id) for p in all_profiles if p.original_rank == "King"]
-        print(f"{Colors.DIM}  Kings available for seconding: {len(king_seconder_ids)}{Colors.ENDC}")
+        king_seconder_ids = [
+            str(p.id) for p in all_profiles if p.original_rank == "King"
+        ]
+        print(
+            f"{Colors.DIM}  Kings available for seconding: {len(king_seconder_ids)}{Colors.ENDC}"
+        )
 
         for idx, plan in enumerate(motion_plans, 1):
             if plan["source"] == "custom":
@@ -596,7 +602,10 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
                     queue_service.mark_voted(
                         queued_motion_id,
                         passed=False,
-                        vote_details={"died_no_second": True, "evaluations": evaluations},
+                        vote_details={
+                            "died_no_second": True,
+                            "evaluations": evaluations,
+                        },
                     )
                 continue
 
@@ -618,6 +627,12 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
         # Save transcript
         transcript_path = conclave.save_transcript()
         print(f"\n{Colors.GREEN}Transcript saved:{Colors.ENDC} {transcript_path}")
+
+        # Save structured motion results for registrar
+        results_path = conclave.save_motion_results()
+        print(
+            f"{Colors.GREEN}Conclave results saved:{Colors.ENDC} {results_path}"
+        )
 
         # Print summary
         summary = conclave.get_session_summary()

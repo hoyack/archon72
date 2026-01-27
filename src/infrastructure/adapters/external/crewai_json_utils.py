@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 
@@ -9,6 +10,9 @@ import re
 def strip_markdown_fence(text: str) -> str:
     """Remove markdown code fences from text if present."""
     cleaned = text.strip()
+    fence_match = re.search(r"```(?:json)?\s*(.*?)```", cleaned, re.DOTALL | re.IGNORECASE)
+    if fence_match:
+        return fence_match.group(1).strip()
     if cleaned.startswith("```"):
         lines = cleaned.split("\n")
         if lines[-1].strip().startswith("```"):
@@ -30,6 +34,20 @@ def extract_json_object(text: str) -> str:
     if start >= 0 and end > start:
         return text[start:end]
     return text
+
+
+def extract_json_payload(text: str) -> str:
+    """Extract the outermost JSON object or array from a string."""
+    obj_start = text.find("{")
+    arr_start = text.find("[")
+    if obj_start == -1 and arr_start == -1:
+        return text
+    if obj_start == -1 or (0 <= arr_start < obj_start):
+        end = text.rfind("]") + 1
+        if arr_start >= 0 and end > arr_start:
+            return text[arr_start:end]
+        return text
+    return extract_json_object(text)
 
 
 def sanitize_json_string(text: str) -> str:
@@ -95,15 +113,26 @@ def aggressive_clean(text: str) -> str:
     cleaned = remove_trailing_commas(cleaned)
     cleaned = re.sub(r"{\s*(\w+):", r'{"\1":', cleaned)
     cleaned = re.sub(r",\s*(\w+):", r',"\1":', cleaned)
-    cleaned = extract_json_object(cleaned)
+    cleaned = extract_json_payload(cleaned)
     return cleaned
+
+
+def _literal_eval_json(candidate: str) -> dict | None:
+    """Attempt to parse a Python literal payload into a dict."""
+    try:
+        parsed = ast.literal_eval(candidate)
+    except Exception:
+        return None
+    if isinstance(parsed, dict):
+        return parsed
+    return None
 
 
 def parse_json_response(text: str, *, aggressive: bool = False) -> dict:
     """Parse JSON from LLM response, handling common formatting issues."""
     cleaned = strip_markdown_fence(text)
     cleaned = remove_trailing_commas(cleaned)
-    cleaned = extract_json_object(cleaned)
+    cleaned = extract_json_payload(cleaned)
     cleaned = sanitize_json_string(cleaned)
 
     try:
@@ -112,4 +141,16 @@ def parse_json_response(text: str, *, aggressive: bool = False) -> dict:
         if not aggressive:
             raise
         cleaned = aggressive_clean(text)
-        return json.loads(cleaned)
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            fallback = _literal_eval_json(cleaned)
+            if fallback is not None:
+                return fallback
+            fallback = _literal_eval_json(strip_markdown_fence(text))
+            if fallback is not None:
+                return fallback
+            fallback = _literal_eval_json(extract_json_payload(text))
+            if fallback is not None:
+                return fallback
+            raise

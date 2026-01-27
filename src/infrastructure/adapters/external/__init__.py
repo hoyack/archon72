@@ -4,23 +4,41 @@ This package contains adapters for external services and frameworks
 like CrewAI for agent orchestration.
 """
 
+from src.infrastructure.adapters.external.administrative_crewai_adapter import (
+    AdministrativeCrewAIAdapter,
+    create_administrative_proposal_generator,
+)
 from src.infrastructure.adapters.external.crewai_adapter import (
     CrewAIAdapter,
     create_crewai_adapter,
 )
+from src.infrastructure.adapters.external.executive_review_crewai_adapter import (
+    ExecutiveReviewCrewAIAdapter,
+    create_executive_reviewer,
+)
 from src.infrastructure.adapters.external.planner_crewai_adapter import (
     PlannerCrewAIAdapter,
     create_planner_agent,
+)
+from src.infrastructure.adapters.external.president_crewai_adapter import (
+    PresidentCrewAIAdapter,
+    create_president_deliberator,
 )
 from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     SecretaryCrewAIAdapter,
 )
 
 __all__ = [
+    "AdministrativeCrewAIAdapter",
+    "create_administrative_proposal_generator",
     "CrewAIAdapter",
     "create_crewai_adapter",
+    "ExecutiveReviewCrewAIAdapter",
+    "create_executive_reviewer",
     "PlannerCrewAIAdapter",
     "create_planner_agent",
+    "PresidentCrewAIAdapter",
+    "create_president_deliberator",
     "SecretaryCrewAIAdapter",
     "create_secretary_agent",
 ]

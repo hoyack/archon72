@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-01-26T23:26:08.878805+00:00",
+  "updated_at": "2026-01-27T19:32:42.677611+00:00",
   "motion_count": 458,
   "motions": [
     {
@@ -721,7 +721,7 @@
     },
     {
       "queued_motion_id": "a2f5be27-2d82-4b6a-87b8-88e308b2fa0c",
-      "status": "pending",
+      "status": "promoted",
       "title": "Oversight Body",
       "text": "Explicit Attribution and Verifiability for All Authority-Bearing Actions",
       "rationale": "Derived from 42 Archon recommendations",
@@ -778,12 +778,12 @@
       "endorsements": [],
       "endorsement_count": 0,
       "created_at": "2026-01-26T15:25:52.904669+00:00",
-      "promoted_at": null,
-      "target_conclave_id": null
+      "promoted_at": "2026-01-27T19:32:42.650097+00:00",
+      "target_conclave_id": "2e77aa80-f186-4a00-8d06-494fd1236fca"
     },
     {
       "queued_motion_id": "e3f2c7bf-f523-4f08-be1b-dd29a9ee953a",
-      "status": "pending",
+      "status": "promoted",
       "title": "Oversight Mechanism",
       "text": "Mandated as a co\u2011sponsor",
       "rationale": "Derived from 33 Archon recommendations",
@@ -831,8 +831,8 @@
       "endorsements": [],
       "endorsement_count": 0,
       "created_at": "2026-01-26T15:25:52.904684+00:00",
-      "promoted_at": null,
-      "target_conclave_id": null
+      "promoted_at": "2026-01-27T19:32:42.677610+00:00",
+      "target_conclave_id": "2e77aa80-f186-4a00-8d06-494fd1236fca"
     },
     {
       "queued_motion_id": "ec027abe-2fc9-4c0d-a6c5-cf383a58552c",
@@ -9474,7 +9474,7 @@
     },
     {
       "queued_motion_id": "e58fb0c6-d898-498f-9464-5270b7648a20",
-      "status": "pending",
+      "status": "promoted",
       "title": "Motion to Strengthen Attribution System Security",
       "text": "The Conclave hereby resolves to implement robust security protocols, architectural safeguards, and comprehensive failure-mode analysis for the attribution system to prevent exploitation, reputational harm, or unauthorized access, ensuring its integrity and reliability.",
       "rationale": "Based on the consensus of 68 Archons, including Asmoday, Bael, Beleth, Belial, Paimon, Purson, Vine, Zagan, Aim, and Agares, who emphasized the critical need to secure the attribution system against vulnerabilities and potential misuse.",
@@ -9557,12 +9557,12 @@
       "endorsements": [],
       "endorsement_count": 0,
       "created_at": "2026-01-26T23:24:02.253122+00:00",
-      "promoted_at": null,
-      "target_conclave_id": null
+      "promoted_at": "2026-01-27T19:32:42.607323+00:00",
+      "target_conclave_id": "2e77aa80-f186-4a00-8d06-494fd1236fca"
     },
     {
       "queued_motion_id": "0accae83-e2a2-46e4-9a43-8a791e8456d5",
-      "status": "pending",
+      "status": "promoted",
       "title": "Motion to Establish Interpretive Authority Framework with Review Mechanism",
       "text": "The Conclave hereby resolves to implement a structured interpretive authority framework that ensures all authoritative decisions are traceable, dignified, and subject to periodic review to strengthen governance bonds and maintain accountability.",
       "rationale": "Based on the consensus among 42 Archons, including Asmoday, Aim, Amdusias, Bune, Crocell, Focalor, Eligos, Gusion, Valefor, and Vapula, this motion addresses the need for a careful and transparent implementation of interpretive authority, with a review clause to uphold legitimacy and collective trust.",
@@ -9619,8 +9619,8 @@
       "endorsements": [],
       "endorsement_count": 0,
       "created_at": "2026-01-26T23:24:07.864887+00:00",
-      "promoted_at": null,
-      "target_conclave_id": null
+      "promoted_at": "2026-01-27T19:32:42.664206+00:00",
+      "target_conclave_id": "2e77aa80-f186-4a00-8d06-494fd1236fca"
     },
     {
       "queued_motion_id": "285e2388-dcdf-48fe-b364-daff93e93a87",
@@ -9648,7 +9648,7 @@
     },
     {
       "queued_motion_id": "b1aef9a2-1643-4b4a-8fdc-ce36575c691e",
-      "status": "pending",
+      "status": "promoted",
       "title": "Motion to Enhance Review Clause Criteria",
       "text": "The Conclave hereby resolves to amend the review clause to explicitly measure factional stability and attribution fatigue alongside compliance metrics, ensuring a comprehensive evaluation framework.",
       "rationale": "Based on the consensus of 48 Archons, including Asmoday, Paimon, Agares, Aim, Alloces, Barbatos, Bathim, Berith, Focalor, and Gremory, who emphasized the need for the review clause to address not only compliance but also the broader systemic impacts on factional stability and attribution fatigue.",
@@ -9711,8 +9711,8 @@
       "endorsements": [],
       "endorsement_count": 0,
       "created_at": "2026-01-26T23:24:13.676358+00:00",
-      "promoted_at": null,
-      "target_conclave_id": null
+      "promoted_at": "2026-01-27T19:32:42.632760+00:00",
+      "target_conclave_id": "2e77aa80-f186-4a00-8d06-494fd1236fca"
     },
     {
       "queued_motion_id": "6df94059-4691-46be-af2c-56b6b926215e",

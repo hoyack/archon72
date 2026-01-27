@@ -266,6 +266,34 @@ from src.domain.models.key_generation_ceremony import (
 from src.domain.models.legitimacy_metrics import (
     LegitimacyMetrics,
 )
+from src.domain.models.administrative_pipeline import (
+    ADMIN_SCHEMA_VERSION,
+    AggregatedResourceSummary,
+    CapacityCommitment,
+    ConfidenceLevel,
+    ImplementationProposal,
+    ImplementationRisk,
+    ResourcePriority,
+    ResourceRequest,
+    ResourceType,
+    RiskImpact,
+    RiskLikelihood,
+    SpecType,
+    TacticProposal,
+    TechnicalSpecReference,
+)
+from src.domain.models.executive_review import (
+    REVIEW_SCHEMA_VERSION,
+    ConclaveEscalation,
+    EscalationUrgency,
+    ExecutiveReviewResult,
+    PlanAcceptance,
+    ProposalReviewResult,
+    ReviewOutcome,
+    RevisionHandback,
+    RevisionRequest,
+    RevisionType,
+)
 from src.domain.models.load_test_config import LoadTestConfig
 from src.domain.models.load_test_metrics import LoadTestMetrics
 from src.domain.models.load_test_report import (
@@ -682,4 +710,30 @@ __all__: list[str] = [
     "CoSign",
     # Legitimacy metrics models (Story 8.1, FR-8.1, FR-8.2)
     "LegitimacyMetrics",
+    # Administrative Pipeline models (E4 Implementation)
+    "ADMIN_SCHEMA_VERSION",
+    "AggregatedResourceSummary",
+    "CapacityCommitment",
+    "ConfidenceLevel",
+    "ImplementationProposal",
+    "ImplementationRisk",
+    "ResourcePriority",
+    "ResourceRequest",
+    "ResourceType",
+    "RiskImpact",
+    "RiskLikelihood",
+    "SpecType",
+    "TacticProposal",
+    "TechnicalSpecReference",
+    # Executive Review models (E4 Implementation)
+    "REVIEW_SCHEMA_VERSION",
+    "ConclaveEscalation",
+    "EscalationUrgency",
+    "ExecutiveReviewResult",
+    "PlanAcceptance",
+    "ProposalReviewResult",
+    "ReviewOutcome",
+    "RevisionHandback",
+    "RevisionRequest",
+    "RevisionType",
 ]

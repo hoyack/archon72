@@ -120,7 +120,7 @@ async def test_archon(
                 "WHO GOES THERE?\n\n"
                 "You are being tested for LLM configuration. "
                 "This is NOT a vote or debate. "
-                "Do NOT output AYE/NAY/ABSTAIN, \"Vote:\", \"STANCE:\", or {\"choice\":...} JSON. "
+                'Do NOT output AYE/NAY/ABSTAIN, "Vote:", "STANCE:", or {"choice":...} JSON. '
                 "Please respond with:\n"
                 "1. Your name\n"
                 "2. Your rank\n"
@@ -254,9 +254,7 @@ async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
             async with semaphore:
                 return await test_archon(adapter, profile, args.timeout)
 
-        tasks = [
-            asyncio.create_task(_run_with_limit(p)) for p in all_profiles
-        ]
+        tasks = [asyncio.create_task(_run_with_limit(p)) for p in all_profiles]
 
         for completed in asyncio.as_completed(tasks):
             result = await completed
@@ -354,7 +352,9 @@ async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
 
             # Rate limiting delay between tests (skip after last one)
             if args.delay > 0 and i < len(all_profiles):
-                print(f"\n  {Colors.DIM}Waiting {args.delay}s before next test...{Colors.ENDC}")
+                print(
+                    f"\n  {Colors.DIM}Waiting {args.delay}s before next test...{Colors.ENDC}"
+                )
                 await asyncio.sleep(args.delay)
 
     # Print summary
@@ -374,7 +374,9 @@ async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
         status_text = "PARTIAL"
 
     print(f"  Status: {status_color}{Colors.BOLD}{status_text}{Colors.ENDC}")
-    print(f"  Present: {Colors.GREEN}{success_count}{Colors.ENDC}/{total} ({success_pct:.1f}%)")
+    print(
+        f"  Present: {Colors.GREEN}{success_count}{Colors.ENDC}/{total} ({success_pct:.1f}%)"
+    )
     print(f"  Failed: {Colors.RED}{failure_count}{Colors.ENDC}/{total}")
 
     # List failed archons
@@ -401,7 +403,9 @@ async def run_roll_call(args: argparse.Namespace) -> None:  # noqa: C901
                     failure_by_model[key] = []
                 failure_by_model[key].append(result["name"])
 
-        for model, archons in sorted(failure_by_model.items(), key=lambda x: -len(x[1])):
+        for model, archons in sorted(
+            failure_by_model.items(), key=lambda x: -len(x[1])
+        ):
             print(f"  {model}: {len(archons)} failures")
             if len(archons) <= 5:
                 print(f"    Archons: {', '.join(archons)}")

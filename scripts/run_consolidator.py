@@ -53,14 +53,27 @@ from src.application.services.motion_consolidator_service import (
 from src.infrastructure.adapters.external.crewai_llm_factory import create_crewai_llm
 
 
-def find_latest_motions_checkpoint() -> Path | None:
-    """Find the most recent motions checkpoint file."""
-    pattern = "_bmad-output/secretary/checkpoints/*_05_motions.json"
-    files = glob.glob(pattern)
-    if not files:
-        return None
-    # Return most recently modified
-    return Path(max(files, key=lambda f: Path(f).stat().st_mtime))
+def find_latest_secretary_output() -> Path | None:
+    """Find the most recent Secretary output.
+
+    Prefers session directory format (motion-queue.json) over checkpoint format
+    since session directories contain fully serialized data with status/consensus values.
+    """
+    # First, try session directory format (preferred - has complete data)
+    session_pattern = "_bmad-output/secretary/*/secretary-report.json"
+    session_reports = glob.glob(session_pattern)
+    if session_reports:
+        # Return most recently modified session directory
+        latest = max(session_reports, key=lambda f: Path(f).stat().st_mtime)
+        return Path(latest).parent  # Return the session directory
+
+    # Fall back to checkpoint format (has empty enum placeholders)
+    checkpoint_pattern = "_bmad-output/secretary/checkpoints/*_05_motions.json"
+    checkpoints = glob.glob(checkpoint_pattern)
+    if checkpoints:
+        return Path(max(checkpoints, key=lambda f: Path(f).stat().st_mtime))
+
+    return None
 
 
 def prepare_motions_checkpoint_from_report(
@@ -294,14 +307,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Find checkpoint if not specified
+    # Find Secretary output if not specified
     if args.checkpoint is None:
-        args.checkpoint = find_latest_motions_checkpoint()
+        args.checkpoint = find_latest_secretary_output()
         if args.checkpoint is None:
-            print("Error: No motions checkpoint found. Run Secretary first.")
-            print("Looking for: _bmad-output/secretary/checkpoints/*_05_motions.json")
+            print("Error: No Secretary output found. Run Secretary first.")
+            print("Looking for: _bmad-output/secretary/*/secretary-report.json")
+            print("         or: _bmad-output/secretary/checkpoints/*_05_motions.json")
             sys.exit(1)
-        print(f"Auto-detected checkpoint: {args.checkpoint}")
+        print(f"Auto-detected Secretary output: {args.checkpoint}")
 
     # Validate checkpoint exists
     if not args.checkpoint.exists():

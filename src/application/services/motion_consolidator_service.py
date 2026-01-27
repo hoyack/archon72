@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -115,6 +116,9 @@ def _aggressive_json_clean(text: str) -> str:
 
 # Target number of mega-motions
 TARGET_MEGA_MOTION_COUNT = 12
+# Default concurrency settings (override via env vars).
+DEFAULT_SYNTHESIS_CONCURRENCY = 3
+DEFAULT_NOVELTY_CONCURRENCY = 2
 
 
 @dataclass
@@ -172,6 +176,8 @@ class NovelProposal:
     novelty_score: float  # 0-1, higher = more novel
     category: str  # "unconventional", "cross-domain", "minority-insight", "creative"
     keywords: list[str]
+    deferred: bool = True
+    deferred_reason: str | None = None
 
 
 @dataclass
@@ -260,11 +266,28 @@ class MotionConsolidatorService:
             tools=[],
         )
 
+        # Concurrency controls
+        self._synthesis_concurrency = self._resolve_concurrency(
+            "CONSOLIDATOR_SYNTH_CONCURRENCY", DEFAULT_SYNTHESIS_CONCURRENCY
+        )
+        self._novelty_concurrency = self._resolve_concurrency(
+            "CONSOLIDATOR_NOVELTY_CONCURRENCY", DEFAULT_NOVELTY_CONCURRENCY
+        )
+
         logger.info(
             "motion_consolidator_initialized",
             target_count=target_count,
             model=getattr(self._llm, "model", None),
         )
+
+    def _resolve_concurrency(self, env_var: str, default: int) -> int:
+        """Resolve a bounded concurrency value from env."""
+        try:
+            raw = os.environ.get(env_var, "")
+            value = int(raw) if raw else default
+        except ValueError:
+            value = default
+        return max(1, value)
 
     def load_motions_from_checkpoint(self, checkpoint_path: Path) -> list[SourceMotion]:
         """Load motions from Secretary checkpoint file.
@@ -354,28 +377,51 @@ class MotionConsolidatorService:
         # Step 1: Get thematic groupings from LLM
         groupings = await self._identify_groupings(motions)
 
-        # Step 2: Synthesize mega-motions for each group
-        mega_motions = []
-        accounted_motion_ids = set()
+        # Step 2: Synthesize mega-motions for each group (bounded concurrency)
 
-        for group in groupings:
-            group_motions = [m for m in motions if m.motion_id in group["motion_ids"]]
+        semaphore = asyncio.Semaphore(self._synthesis_concurrency)
+        results_by_index: dict[int, MegaMotion] = {}
+
+        async def _synthesize_group(idx: int, group: dict) -> None:
+            group_motions = [
+                m for m in motions if m.motion_id in group.get("motion_ids", [])
+            ]
             if not group_motions:
-                continue
+                return
+            async with semaphore:
+                try:
+                    mega_motion = await self._synthesize_mega_motion(
+                        theme=group.get("theme", "Unknown"),
+                        motions=group_motions,
+                    )
+                    results_by_index[idx] = mega_motion
+                except Exception as exc:
+                    logger.warning(
+                        "mega_motion_synthesis_failed",
+                        theme=group.get("theme", "Unknown"),
+                        error=str(exc),
+                    )
 
-            mega_motion = await self._synthesize_mega_motion(
-                theme=group["theme"],
-                motions=group_motions,
-            )
-            mega_motions.append(mega_motion)
-            accounted_motion_ids.update(group["motion_ids"])
+        tasks = [
+            asyncio.create_task(_synthesize_group(idx, group))
+            for idx, group in enumerate(groupings)
+        ]
+        if tasks:
+            await asyncio.gather(*tasks)
+
+        mega_motions = [results_by_index[i] for i in sorted(results_by_index)]
 
         mega_motions, merge_audit = await self._merge_similar_mega_motions(
             mega_motions, motions
         )
+        mega_motions = self._dedupe_mega_motion_sources(mega_motions, motions)
+        self._apply_emergency_exception_clause(mega_motions)
 
         # Check for orphaned motions
         all_motion_ids = {m.motion_id for m in motions}
+        accounted_motion_ids = {
+            mid for mm in mega_motions for mid in mm.source_motion_ids
+        }
         orphaned = list(all_motion_ids - accounted_motion_ids)
 
         if orphaned:
@@ -404,7 +450,22 @@ class MotionConsolidatorService:
         self,
         motions: list[SourceMotion],
     ) -> list[dict]:
-        """Use LLM to identify thematic groupings."""
+        """Use LLM to identify thematic groupings.
+
+        For large motion counts (>50), uses batched pre-grouping to avoid
+        LLM output truncation.
+        """
+        # For large motion sets, use batched approach
+        if len(motions) > 50:
+            return await self._identify_groupings_batched(motions)
+
+        return await self._identify_groupings_single(motions)
+
+    async def _identify_groupings_single(
+        self,
+        motions: list[SourceMotion],
+    ) -> list[dict]:
+        """Identify groupings for a manageable number of motions."""
         # Prepare motion summaries for LLM
         motion_summaries = json.dumps(
             [
@@ -453,6 +514,172 @@ RULES:
 
         result = await asyncio.to_thread(crew.kickoff)
         return self._parse_groupings(str(result), motions)
+
+    async def _identify_groupings_batched(
+        self,
+        motions: list[SourceMotion],
+    ) -> list[dict]:
+        """Identify groupings for large motion sets using batched approach.
+
+        Strategy:
+        1. Divide motions into batches of ~30
+        2. Ask LLM to identify themes in each batch
+        3. Merge themes across batches using keyword matching
+        4. Final grouping based on consolidated themes
+        """
+        batch_size = 30
+        batches = [
+            motions[i : i + batch_size]
+            for i in range(0, len(motions), batch_size)
+        ]
+
+        logger.info(
+            "batched_grouping_start",
+            total_motions=len(motions),
+            batch_count=len(batches),
+            target_groups=self._target_count,
+        )
+
+        # Step 1: Pre-group within each batch
+        all_themes: dict[str, list[str]] = {}  # theme -> motion_ids
+
+        for batch_idx, batch in enumerate(batches):
+            # Ask LLM to categorize this batch into ~target_count themes
+            batch_summaries = json.dumps(
+                [
+                    {
+                        "id": m.motion_id,
+                        "title": m.title[:80],
+                        "theme": m.theme,
+                    }
+                    for m in batch
+                ],
+                indent=2,
+            )
+
+            task = Task(
+                description=f"""Categorize these {len(batch)} motions into {self._target_count} broad themes.
+
+MOTIONS:
+{batch_summaries}
+
+OUTPUT: Return ONLY a JSON array of theme groups:
+[{{"theme": "Theme Name", "motion_ids": ["id1", "id2"]}}]
+
+RULES:
+- Use broad theme names (e.g., "Attribution", "Security", "Compliance")
+- Every motion ID must appear exactly once
+- Output ONLY valid JSON, no other text""",
+                expected_output="JSON array of theme groups",
+                agent=self._agent,
+            )
+
+            try:
+                crew = Crew(
+                    agents=[self._agent],
+                    tasks=[task],
+                    verbose=self._verbose,
+                )
+                result = await asyncio.to_thread(crew.kickoff)
+                batch_groups = self._parse_groupings(str(result), batch)
+
+                # Merge into all_themes
+                for group in batch_groups:
+                    theme = group.get("theme", "Unknown")
+                    motion_ids = group.get("motion_ids", [])
+
+                    # Normalize theme name for matching
+                    theme_key = theme.lower().strip()
+                    if theme_key not in all_themes:
+                        all_themes[theme_key] = []
+                    all_themes[theme_key].extend(motion_ids)
+
+                logger.debug(
+                    "batch_grouped",
+                    batch=batch_idx + 1,
+                    groups=len(batch_groups),
+                )
+
+            except Exception as e:
+                logger.warning(
+                    "batch_grouping_failed",
+                    batch=batch_idx + 1,
+                    error=str(e),
+                )
+                # Fallback: assign all motions in batch to "Ungrouped"
+                all_themes.setdefault("ungrouped", []).extend(
+                    [m.motion_id for m in batch]
+                )
+
+        # Step 2: Consolidate similar themes
+        consolidated = self._consolidate_themes(all_themes)
+
+        logger.info(
+            "batched_grouping_complete",
+            raw_themes=len(all_themes),
+            consolidated_themes=len(consolidated),
+        )
+
+        # Convert to expected format
+        return [
+            {"theme": theme, "motion_ids": ids}
+            for theme, ids in consolidated.items()
+        ]
+
+    def _consolidate_themes(
+        self,
+        themes: dict[str, list[str]],
+    ) -> dict[str, list[str]]:
+        """Consolidate similar theme names."""
+        # Common theme keywords to normalize
+        theme_aliases = {
+            "attribution": ["attribution", "traceability", "audit", "tracking"],
+            "security": ["security", "protection", "compartment", "encrypt"],
+            "compliance": ["compliance", "conform", "adherence", "calibrat"],
+            "review": ["review", "clause", "safeguard", "feedback"],
+            "authority": ["authority", "definition", "scope", "power"],
+            "transparency": ["transparent", "accountab", "disclosure", "visib"],
+            "governance": ["governance", "oversight", "framework", "protocol"],
+            "verification": ["verif", "valid", "confirm", "check"],
+        }
+
+        consolidated: dict[str, list[str]] = {}
+
+        for theme, motion_ids in themes.items():
+            # Find matching alias group
+            matched = False
+            for canonical, aliases in theme_aliases.items():
+                if any(alias in theme for alias in aliases):
+                    if canonical not in consolidated:
+                        consolidated[canonical] = []
+                    consolidated[canonical].extend(motion_ids)
+                    matched = True
+                    break
+
+            if not matched:
+                # Keep original theme
+                if theme not in consolidated:
+                    consolidated[theme] = []
+                consolidated[theme].extend(motion_ids)
+
+        # If we have too many themes, merge smallest into "Other"
+        if len(consolidated) > self._target_count * 2:
+            # Sort by motion count
+            sorted_themes = sorted(
+                consolidated.items(), key=lambda x: len(x[1]), reverse=True
+            )
+            # Keep top themes, merge rest into "other"
+            final: dict[str, list[str]] = {}
+            for i, (theme, ids) in enumerate(sorted_themes):
+                if i < self._target_count:
+                    final[theme] = ids
+                else:
+                    if "other" not in final:
+                        final["other"] = []
+                    final["other"].extend(ids)
+            return final
+
+        return consolidated
 
     def _parse_groupings(
         self,
@@ -504,22 +731,33 @@ RULES:
                 {"theme": "All Motions", "motion_ids": [m.motion_id for m in motions]}
             ]
 
-        # Validate all motions are accounted for
+        # Normalize groups: remove duplicates across groups and ensure coverage
         all_ids = {m.motion_id for m in motions}
-        grouped_ids = set()
-        for group in data:
-            grouped_ids.update(group.get("motion_ids", []))
+        seen: set[str] = set()
+        normalized: list[dict] = []
 
-        missing = all_ids - grouped_ids
+        for group in data:
+            raw_ids = group.get("motion_ids", [])
+            unique_ids = []
+            for mid in raw_ids:
+                if mid in all_ids and mid not in seen:
+                    seen.add(mid)
+                    unique_ids.append(mid)
+            if unique_ids:
+                normalized.append(
+                    {"theme": group.get("theme", "Other"), "motion_ids": unique_ids}
+                )
+
+        missing = all_ids - seen
         if missing:
             logger.warning("motions_missing_from_groups", count=len(missing))
             # Add missing to last group or create "Other" group
-            if data:
-                data[-1]["motion_ids"].extend(list(missing))
+            if normalized:
+                normalized[-1]["motion_ids"].extend(sorted(missing))
             else:
-                data.append({"theme": "Other", "motion_ids": list(missing)})
+                normalized.append({"theme": "Other", "motion_ids": sorted(missing)})
 
-        return data
+        return normalized
 
     async def _merge_similar_mega_motions(
         self,
@@ -684,6 +922,87 @@ RULES:
 
         return merged, merge_audit
 
+    def _dedupe_mega_motion_sources(
+        self,
+        mega_motions: list[MegaMotion],
+        motions: list[SourceMotion],
+    ) -> list[MegaMotion]:
+        """Ensure each source motion appears in only one mega-motion."""
+        motion_lookup = {m.motion_id: m for m in motions}
+        seen: set[str] = set()
+        deduped: list[MegaMotion] = []
+
+        for mm in mega_motions:
+            retained_ids: list[str] = []
+            retained_titles: list[str] = []
+            retained_cluster_ids: list[str] = []
+            supporting_archons: set[str] = set()
+
+            for mid in mm.source_motion_ids:
+                if mid in seen:
+                    continue
+                motion = motion_lookup.get(mid)
+                if not motion:
+                    continue
+                seen.add(mid)
+                retained_ids.append(mid)
+                retained_titles.append(motion.title)
+                if motion.cluster_id:
+                    retained_cluster_ids.append(motion.cluster_id)
+                supporting_archons.update(motion.supporting_archons)
+
+            if not retained_ids:
+                logger.warning(
+                    "mega_motion_dropped_no_unique_sources",
+                    mega_motion_id=str(mm.mega_motion_id),
+                    title=mm.title,
+                )
+                continue
+
+            mm.source_motion_ids = retained_ids
+            mm.source_motion_titles = retained_titles
+            mm.source_cluster_ids = retained_cluster_ids
+            mm.all_supporting_archons = sorted(supporting_archons)
+            mm.unique_archon_count = len(mm.all_supporting_archons)
+            if mm.unique_archon_count >= 10:
+                mm.consensus_tier = "high"
+            elif mm.unique_archon_count >= 4:
+                mm.consensus_tier = "medium"
+            else:
+                mm.consensus_tier = "low"
+
+            deduped.append(mm)
+
+        return deduped
+
+    def _apply_emergency_exception_clause(
+        self, mega_motions: list[MegaMotion]
+    ) -> None:
+        """Add explicit emergency exception when post-hoc limits exist."""
+        emergency_keywords = ("emergency", "exemption", "contingency")
+        emergency_present = any(
+            any(
+                k in f"{mm.title} {mm.theme} {mm.consolidated_text}".lower()
+                for k in emergency_keywords
+            )
+            for mm in mega_motions
+        )
+        if not emergency_present:
+            return
+
+        clause = (
+            "EMERGENCY EXCEPTION: When an Emergency/Exemption protocol explicitly "
+            "requires post-hoc documentation, that documentation is permitted solely "
+            "to record the exception and does not retroactively legitimize non-emergency actions."
+        )
+
+        for mm in mega_motions:
+            combined = f"{mm.title}\n{mm.theme}\n{mm.consolidated_text}".lower()
+            if ("post-hoc" in combined or "post hoc" in combined) and "justif" in combined:
+                if "emergency exception" in combined:
+                    continue
+                mm.consolidated_text = mm.consolidated_text.rstrip() + "\n\n" + clause
+
     async def _synthesize_mega_motion(
         self,
         theme: str,
@@ -841,10 +1160,15 @@ CRITICAL: Output ONLY valid JSON.""",
 
         # Prepare summaries for LLM - batch in chunks to avoid token limits
         batch_size = 100
-        all_novel = []
+        batches = [
+            (batch_start, recommendations[batch_start : batch_start + batch_size])
+            for batch_start in range(0, len(recommendations), batch_size)
+        ]
 
-        for batch_start in range(0, len(recommendations), batch_size):
-            batch = recommendations[batch_start : batch_start + batch_size]
+        semaphore = asyncio.Semaphore(self._novelty_concurrency)
+        results_by_batch: dict[int, list[NovelProposal]] = {}
+
+        async def _process_batch(batch_index: int, batch_start: int, batch: list[dict]):
             batch_summaries = json.dumps(
                 [
                     {
@@ -863,7 +1187,7 @@ CRITICAL: Output ONLY valid JSON.""",
             task = Task(
                 description=f"""Analyze these {len(batch)} recommendations and identify the TOP 5 most NOVEL, CREATIVE, or UNCONVENTIONAL proposals.
 
-RECOMMENDATIONS (batch {batch_start // batch_size + 1}):
+RECOMMENDATIONS (batch {batch_index + 1}):
 {batch_summaries}
 
 Look for proposals that are:
@@ -876,6 +1200,7 @@ Return ONLY a JSON array with the top 5 most novel proposals:
 [
   {{
     "recommendation_id": "uuid",
+    "text_excerpt": "EXACT excerpt copied verbatim from the recommendation text",
     "novelty_reason": "Why this is novel/interesting",
     "novelty_score": 0.85,
     "category": "unconventional"
@@ -886,6 +1211,7 @@ RULES:
 - novelty_score: 0.0 to 1.0 (higher = more novel)
 - category: one of "unconventional", "cross-domain", "minority-insight", "creative"
 - Only include truly standout proposals, not generic ones
+- text_excerpt MUST be copied verbatim from the recommendation text provided (no paraphrase)
 - Output ONLY valid JSON""",
                 expected_output="JSON array of novel proposals",
                 agent=self._agent,
@@ -897,9 +1223,22 @@ RULES:
                 verbose=self._verbose,
             )
 
-            result = await asyncio.to_thread(crew.kickoff)
-            batch_novel = self._parse_novel_proposals(str(result), batch)
-            all_novel.extend(batch_novel)
+            async with semaphore:
+                result = await asyncio.to_thread(crew.kickoff)
+                results_by_batch[batch_index] = self._parse_novel_proposals(
+                    str(result), batch
+                )
+
+        tasks = [
+            asyncio.create_task(_process_batch(i, start, batch))
+            for i, (start, batch) in enumerate(batches)
+        ]
+        if tasks:
+            await asyncio.gather(*tasks)
+
+        all_novel: list[NovelProposal] = []
+        for i in range(len(batches)):
+            all_novel.extend(results_by_batch.get(i, []))
 
         # Sort by novelty score and take top N
         all_novel.sort(key=lambda x: x.novelty_score, reverse=True)
@@ -964,16 +1303,40 @@ RULES:
             if not rec:
                 continue
 
+            source_text = rec.get("summary", rec.get("source", {}).get("raw_text", ""))
+            excerpt = (item.get("text_excerpt") or "").strip()
+            match_ok = False
+            if excerpt:
+                if excerpt in source_text or source_text in excerpt:
+                    match_ok = True
+
+            if match_ok:
+                text = excerpt
+                novelty_reason = item.get("novelty_reason", "")
+                novelty_score = float(item.get("novelty_score", 0.5))
+                category = item.get("category", "creative")
+                deferred_reason = "Deferred for later review"
+            else:
+                text = source_text
+                novelty_reason = (
+                    "DEFERRED: LLM excerpt did not match recommendation text."
+                )
+                novelty_score = 0.0
+                category = "deferred"
+                deferred_reason = "Excerpt mismatch"
+
             proposals.append(
                 NovelProposal(
                     proposal_id=str(uuid4()),
                     recommendation_id=rec_id,
                     archon_name=rec.get("source", {}).get("archon_name", "Unknown"),
-                    text=rec.get("summary", rec.get("source", {}).get("raw_text", "")),
-                    novelty_reason=item.get("novelty_reason", ""),
-                    novelty_score=float(item.get("novelty_score", 0.5)),
-                    category=item.get("category", "creative"),
+                    text=text,
+                    novelty_reason=novelty_reason,
+                    novelty_score=novelty_score,
+                    category=category,
                     keywords=rec.get("keywords", []),
+                    deferred=True,
+                    deferred_reason=deferred_reason,
                 )
             )
 
@@ -1467,6 +1830,9 @@ CRITICAL: Output ONLY valid JSON.""",
         if result.acronym_registry:
             self._save_acronym_registry(result.acronym_registry, session_dir)
 
+        # Cleanup legacy/stale artifacts from previous runs
+        self._cleanup_legacy_files(result, session_dir)
+
         # Save master index
         self._save_master_index(result, session_dir)
 
@@ -1478,6 +1844,28 @@ CRITICAL: Output ONLY valid JSON.""",
 
         return session_dir
 
+    def _cleanup_legacy_files(
+        self,
+        result: FullConsolidationResult,
+        output_dir: Path,
+    ) -> None:
+        """Remove legacy or stale artifacts from prior runs."""
+        legacy_paths = [
+            output_dir / "novel-proposals.json",
+            output_dir / "novel-proposals.md",
+        ]
+        for path in legacy_paths:
+            if path.exists():
+                path.unlink()
+                logger.info("legacy_output_removed", file=str(path))
+
+        # Remove stale merge audit if not produced this run
+        if not result.consolidation.merge_audit:
+            merge_audit = output_dir / "merge-audit.json"
+            if merge_audit.exists():
+                merge_audit.unlink()
+                logger.info("stale_output_removed", file=str(merge_audit))
+
     def _save_novel_proposals(
         self,
         proposals: list[NovelProposal],
@@ -1485,7 +1873,7 @@ CRITICAL: Output ONLY valid JSON.""",
     ) -> None:
         """Save novel proposals to files."""
         # JSON
-        novel_json = output_dir / "novel-proposals.json"
+        novel_json = output_dir / "deferred-novel-proposals.json"
         with open(novel_json, "w") as f:
             json.dump(
                 [
@@ -1498,6 +1886,8 @@ CRITICAL: Output ONLY valid JSON.""",
                         "novelty_score": p.novelty_score,
                         "category": p.category,
                         "keywords": p.keywords,
+                        "deferred": p.deferred,
+                        "deferred_reason": p.deferred_reason,
                     }
                     for p in proposals
                 ],
@@ -1506,12 +1896,11 @@ CRITICAL: Output ONLY valid JSON.""",
             )
 
         # Markdown
-        novel_md = output_dir / "novel-proposals.md"
+        novel_md = output_dir / "deferred-novel-proposals.md"
         with open(novel_md, "w") as f:
-            f.write("# Novel & Unconventional Proposals\n\n")
-            f.write("*Flagged for special attention - these proposals demonstrate*\n")
+            f.write("# Deferred Novel & Unconventional Proposals\n\n")
             f.write(
-                "*creative thinking, cross-domain synthesis, or minority insights.*\n\n"
+                "*Set aside for later review; not included in consolidation outputs.*\n\n"
             )
             f.write("---\n\n")
 
@@ -1527,6 +1916,8 @@ CRITICAL: Output ONLY valid JSON.""",
                 f.write(f"> {p.text}\n\n")
                 f.write("### Why It's Interesting\n\n")
                 f.write(f"{p.novelty_reason}\n\n")
+                if p.deferred_reason:
+                    f.write(f"**Deferred Reason:** {p.deferred_reason}\n\n")
                 if p.keywords:
                     f.write(f"**Keywords:** {', '.join(p.keywords)}\n\n")
                 f.write("---\n\n")
@@ -1666,7 +2057,9 @@ CRITICAL: Output ONLY valid JSON.""",
                 f"| Original Motion Seeds | {result.consolidation.original_motion_count} |\n"
             )
             f.write(f"| Mega-Motions | {len(result.consolidation.mega_motions)} |\n")
-            f.write(f"| Novel Proposals | {len(result.novel_proposals)} |\n")
+            f.write(
+                f"| Deferred Novel Proposals | {len(result.novel_proposals)} |\n"
+            )
             f.write(f"| Acronyms Catalogued | {len(result.acronym_registry)} |\n")
             f.write(
                 f"| Consolidation Ratio | {result.consolidation.consolidation_ratio:.1%} |\n"
@@ -1693,7 +2086,7 @@ CRITICAL: Output ONLY valid JSON.""",
                 )
             if result.novel_proposals:
                 f.write(
-                    "| [novel-proposals.md](novel-proposals.md) | Uniquely interesting proposals |\n"
+                    "| [deferred-novel-proposals.md](deferred-novel-proposals.md) | Novel proposals deferred for later review |\n"
                 )
             if result.conclave_summary:
                 f.write(

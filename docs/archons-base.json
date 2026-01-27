@@ -1117,7 +1117,7 @@
       "elevenlabs_voice_id": "FRCWGHGdNg52Eppjpr8D",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "kimi-k2-thinking:cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
         "timeout_ms": 180000,
@@ -1225,7 +1225,7 @@
       "elevenlabs_voice_id": "N5TW8BSizV3JDeP6sh30",
       "llm_config": {
         "provider": "local",
-        "model": "qwen3-next:80b-cloud",
+        "model": "kimi-k2-thinking:cloud",
         "temperature": 0.65,
         "max_tokens": 3600,
         "timeout_ms": 180000,

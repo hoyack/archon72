@@ -20,6 +20,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -62,7 +64,11 @@ from src.optional_deps.crewai import Agent, Crew, Task
 logger = get_logger(__name__)
 
 # Batch size for clustering to avoid overwhelming the model
-CLUSTERING_BATCH_SIZE = 50
+# Reduced from 50 to 15 to prevent output truncation with smaller max_tokens configs
+# See docs/spikes/secretary-alignment-v2.md section 11 for analysis
+CLUSTERING_BATCH_SIZE = 15
+# Default concurrency for per-speech extraction (can override via env).
+DEFAULT_EXTRACTION_CONCURRENCY = 4
 
 
 def _is_truncated_json(text: str) -> bool:
@@ -127,6 +133,15 @@ class SecretaryCrewAIAdapter(SecretaryAgentProtocol):
         )
         self._checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
+        # Bound per-speech extraction concurrency.
+        try:
+            env_val = os.environ.get("SECRETARY_EXTRACT_CONCURRENCY", "")
+            self._extraction_concurrency = max(
+                1, int(env_val) if env_val else DEFAULT_EXTRACTION_CONCURRENCY
+            )
+        except ValueError:
+            self._extraction_concurrency = DEFAULT_EXTRACTION_CONCURRENCY
+
         # Create dual agents
         self._text_agent = self._create_agent(self._profile.text_llm_config, "text")
         self._json_agent = self._create_agent(self._profile.json_llm_config, "json")
@@ -139,6 +154,17 @@ class SecretaryCrewAIAdapter(SecretaryAgentProtocol):
             checkpoints_enabled=self._profile.checkpoints_enabled,
             verbose=verbose,
         )
+
+        # Warn if JSON model max_tokens is too low for clustering
+        # Clustering 15 recommendations needs ~2000-4000 tokens output
+        json_max_tokens = self._profile.json_llm_config.max_tokens
+        if json_max_tokens < 4096:
+            logger.warning(
+                "json_model_max_tokens_low",
+                current=json_max_tokens,
+                recommended=8192,
+                impact="Clustering may truncate with batches of 15+ recommendations",
+            )
 
     def _create_agent(self, llm_config: LLMConfig, agent_type: str) -> Agent:
         """Create a CrewAI Agent with specified LLM config.
@@ -570,16 +596,21 @@ CRITICAL: Output ONLY valid JSON. Example:
         self,
         recommendations: list[ExtractedRecommendation],
     ) -> ClusteringResult:
-        """Cluster recommendations in batches using JSON model."""
+        """Cluster recommendations in batches, then consolidate across batches.
+
+        Phase 1: Per-batch clustering (handles token limits)
+        Phase 2: Cross-batch consolidation (merges similar themes)
+        """
         all_clusters: list[RecommendationCluster] = []
 
-        # Process in batches to avoid overwhelming the model
+        # Phase 1: Process in batches to avoid overwhelming the model
+        total_batches = (
+            len(recommendations) + CLUSTERING_BATCH_SIZE - 1
+        ) // CLUSTERING_BATCH_SIZE
+
         for i in range(0, len(recommendations), CLUSTERING_BATCH_SIZE):
             batch = recommendations[i : i + CLUSTERING_BATCH_SIZE]
             batch_num = i // CLUSTERING_BATCH_SIZE + 1
-            total_batches = (
-                len(recommendations) + CLUSTERING_BATCH_SIZE - 1
-            ) // CLUSTERING_BATCH_SIZE
 
             logger.info(
                 "clustering_batch",
@@ -596,6 +627,30 @@ CRITICAL: Output ONLY valid JSON. Example:
                     "batch_clustering_failed",
                     batch=batch_num,
                     error=str(e),
+                )
+
+        logger.info(
+            "phase1_clustering_complete",
+            input_count=len(recommendations),
+            raw_cluster_count=len(all_clusters),
+        )
+
+        # Phase 2: Cross-batch consolidation (merge similar themes)
+        if len(all_clusters) > 10:
+            try:
+                consolidated = await self._consolidate_clusters(all_clusters)
+                logger.info(
+                    "phase2_consolidation_complete",
+                    raw_clusters=len(all_clusters),
+                    consolidated_clusters=len(consolidated),
+                    reduction_ratio=f"{(1 - len(consolidated)/len(all_clusters))*100:.1f}%",
+                )
+                all_clusters = consolidated
+            except Exception as e:
+                logger.warning(
+                    "cluster_consolidation_failed",
+                    error=str(e),
+                    keeping_raw_clusters=len(all_clusters),
                 )
 
         logger.info(
@@ -718,6 +773,331 @@ CRITICAL: Output ONLY a valid JSON array. Example:
             )
 
         return clusters
+
+    async def _consolidate_clusters(
+        self,
+        clusters: list[RecommendationCluster],
+    ) -> list[RecommendationCluster]:
+        """Consolidate similar clusters from different batches.
+
+        Uses LLM to identify semantically similar clusters across batches,
+        then merges them to reduce fragmentation.
+        """
+        # Build cluster summaries for comparison.
+        # Keep a stable global index for mapping back to the original cluster list.
+        cluster_summaries = [
+            {
+                "global_idx": i,
+                "theme": c.theme,
+                "summary": c.canonical_summary[:100],
+                "keywords": c.keywords[:5] if c.keywords else [],
+                "archon_count": c.archon_count,
+            }
+            for i, c in enumerate(clusters)
+        ]
+
+        def _norm(text: str) -> str:
+            cleaned = re.sub(r"[^a-z0-9\\s]", " ", text.lower())
+            return re.sub(r"\\s+", " ", cleaned).strip()
+
+        # Sort so similar themes/summaries are nearby in windows.
+        cluster_summaries.sort(
+            key=lambda s: (
+                _norm(s.get("theme", "")),
+                _norm(s.get("summary", "")),
+                -int(s.get("archon_count", 0)),
+            )
+        )
+
+        # Process in batches if too many clusters
+        consolidation_batch_size = 50
+        if len(cluster_summaries) <= consolidation_batch_size:
+            local_summaries = [
+                {
+                    "index": i,
+                    "theme": s["theme"],
+                    "summary": s["summary"],
+                    "keywords": s["keywords"],
+                    "archon_count": s["archon_count"],
+                }
+                for i, s in enumerate(cluster_summaries)
+            ]
+            index_map = {
+                i: s["global_idx"] for i, s in enumerate(cluster_summaries)
+            }
+            merge_groups_local = await self._identify_merge_groups(local_summaries)
+            merge_groups = [
+                [index_map[idx] for idx in group if idx in index_map]
+                for group in merge_groups_local
+            ]
+        else:
+            # For large cluster sets, process in overlapping windows
+            merge_groups = await self._identify_merge_groups_batched(
+                cluster_summaries, consolidation_batch_size
+            )
+
+        if not merge_groups:
+            return clusters
+
+        # Build consolidated clusters
+        consolidated: list[RecommendationCluster] = []
+        merged_indices: set[int] = set()
+
+        for group in merge_groups:
+            if len(group) == 1:
+                # Single cluster - no merge needed
+                consolidated.append(clusters[group[0]])
+                merged_indices.add(group[0])
+            else:
+                # Multiple clusters - merge them
+                group_clusters = [clusters[i] for i in group]
+                merged = self._merge_cluster_group(group_clusters)
+                consolidated.append(merged)
+                merged_indices.update(group)
+
+        # Add any clusters that weren't in any merge group
+        for i, cluster in enumerate(clusters):
+            if i not in merged_indices:
+                consolidated.append(cluster)
+
+        return consolidated
+
+    async def _identify_merge_groups(
+        self,
+        summaries: list[dict],
+    ) -> list[list[int]]:
+        """Use LLM to identify which clusters should be merged."""
+        summaries_json = json.dumps(summaries, indent=2)
+
+        task = Task(
+            description=f"""Identify semantically similar clusters that should be merged.
+
+CLUSTERS:
+{summaries_json}
+
+Group clusters by semantic similarity (same topic/intent). Each cluster should appear in EXACTLY ONE group.
+Clusters with different themes should NOT be merged.
+
+Return JSON array of index arrays using the 'index' field values. Example:
+[[0, 5, 12], [1, 8], [2], [3, 7, 15], [4], ...]
+
+CRITICAL:
+- Every cluster index (0 to {len(summaries)-1}) must appear exactly once
+- Only group clusters with genuinely similar themes
+- Output ONLY a valid JSON array of arrays""",
+            expected_output="JSON array of merge groups",
+            agent=self._json_agent,
+        )
+
+        try:
+            crew = Crew(
+                agents=[self._json_agent],
+                tasks=[task],
+                verbose=self._verbose,
+            )
+            result = await asyncio.to_thread(crew.kickoff)
+            return self._parse_merge_groups(str(result), len(summaries))
+
+        except Exception as e:
+            logger.warning("merge_group_identification_failed", error=str(e))
+            return []
+
+    async def _identify_merge_groups_batched(
+        self,
+        summaries: list[dict],
+        batch_size: int,
+    ) -> list[list[int]]:
+        """Identify merge groups for large cluster sets using batched processing."""
+        # Strategy: process in overlapping batches, then reconcile
+        all_merge_groups: list[list[int]] = []
+
+        for i in range(0, len(summaries), batch_size // 2):
+            batch = summaries[i : i + batch_size]
+            if len(batch) < 5:
+                # Too small to cluster
+                all_merge_groups.extend([[s["global_idx"]] for s in batch])
+                continue
+
+            local_summaries = [
+                {
+                    "index": j,
+                    "theme": s["theme"],
+                    "summary": s["summary"],
+                    "keywords": s["keywords"],
+                    "archon_count": s["archon_count"],
+                }
+                for j, s in enumerate(batch)
+            ]
+            index_map = {j: s["global_idx"] for j, s in enumerate(batch)}
+            batch_groups = await self._identify_merge_groups(local_summaries)
+
+            # Convert batch-local indices to global indices
+            for group in batch_groups:
+                global_group = [index_map[j] for j in group if j in index_map]
+                if global_group:
+                    all_merge_groups.append(global_group)
+
+        # Reconcile overlapping groups (merge groups that share members)
+        return self._reconcile_merge_groups(all_merge_groups, len(summaries))
+
+    def _reconcile_merge_groups(
+        self,
+        groups: list[list[int]],
+        total_count: int,
+    ) -> list[list[int]]:
+        """Reconcile overlapping merge groups using union-find."""
+        # Union-find structure
+        parent = list(range(total_count))
+
+        def find(x: int) -> int:
+            if parent[x] != x:
+                parent[x] = find(parent[x])
+            return parent[x]
+
+        def union(x: int, y: int) -> None:
+            px, py = find(x), find(y)
+            if px != py:
+                parent[px] = py
+
+        # Union all indices in each group
+        for group in groups:
+            if len(group) > 1:
+                for i in range(1, len(group)):
+                    union(group[0], group[i])
+
+        # Collect final groups
+        group_map: dict[int, list[int]] = {}
+        for i in range(total_count):
+            root = find(i)
+            if root not in group_map:
+                group_map[root] = []
+            group_map[root].append(i)
+
+        return list(group_map.values())
+
+    def _parse_merge_groups(
+        self,
+        result: str,
+        cluster_count: int,
+    ) -> list[list[int]]:
+        """Parse LLM merge group response."""
+        try:
+            json_str = self._extract_json_array(result)
+            if not json_str:
+                if _is_truncated_json(result):
+                    logger.warning("truncated_merge_groups_response", raw=result[:300])
+                return []
+
+            try:
+                data = json.loads(json_str)
+            except json.JSONDecodeError:
+                cleaned = aggressive_clean(json_str)
+                data = json.loads(cleaned)
+
+            if not isinstance(data, list):
+                return []
+
+            # Validate and clean groups
+            groups: list[list[int]] = []
+            seen_indices: set[int] = set()
+
+            for item in data:
+                if isinstance(item, list):
+                    group = [
+                        int(idx) for idx in item
+                        if isinstance(idx, (int, float)) and 0 <= int(idx) < cluster_count
+                    ]
+                    # Remove duplicates and already-seen indices
+                    unique_group = [idx for idx in group if idx not in seen_indices]
+                    if unique_group:
+                        groups.append(unique_group)
+                        seen_indices.update(unique_group)
+
+            # Add any missing indices as singletons
+            for i in range(cluster_count):
+                if i not in seen_indices:
+                    groups.append([i])
+
+            logger.info(
+                "merge_groups_identified",
+                total_clusters=cluster_count,
+                merge_groups=len(groups),
+                multi_member_groups=sum(1 for g in groups if len(g) > 1),
+            )
+
+            return groups
+
+        except Exception as e:
+            logger.warning("merge_groups_parse_failed", error=str(e))
+            return []
+
+    def _merge_cluster_group(
+        self,
+        clusters: list[RecommendationCluster],
+    ) -> RecommendationCluster:
+        """Merge multiple clusters into one consolidated cluster."""
+        if len(clusters) == 1:
+            return clusters[0]
+
+        # Combine all recommendations
+        all_recommendations: list[ExtractedRecommendation] = []
+        all_archon_names: list[str] = []
+        all_archon_ids: list[str] = []
+        all_keywords: list[str] = []
+        themes: list[str] = []
+
+        for cluster in clusters:
+            all_recommendations.extend(cluster.recommendations)
+            all_archon_names.extend(cluster.archon_names)
+            all_archon_ids.extend(cluster.archon_ids)
+            all_keywords.extend(cluster.keywords or [])
+            themes.append(cluster.theme)
+
+        # Deduplicate
+        unique_archon_names = list(dict.fromkeys(all_archon_names))
+        unique_archon_ids = list(dict.fromkeys(all_archon_ids))
+        unique_keywords = list(dict.fromkeys(all_keywords))[:10]
+
+        # Choose best theme (most common or first)
+        theme_counts: dict[str, int] = {}
+        for t in themes:
+            theme_counts[t] = theme_counts.get(t, 0) + 1
+        merged_theme = max(theme_counts, key=theme_counts.get)  # type: ignore[arg-type]
+
+        # Use the canonical summary from the largest cluster
+        largest_cluster = max(clusters, key=lambda c: c.archon_count)
+        canonical_summary = largest_cluster.canonical_summary
+
+        # Use category/type from largest cluster
+        category = largest_cluster.category
+        rec_type = largest_cluster.recommendation_type
+
+        archon_count = len(unique_archon_names)
+
+        merged = RecommendationCluster(
+            cluster_id=uuid4(),
+            theme=merged_theme,
+            canonical_summary=canonical_summary,
+            category=category,
+            recommendation_type=rec_type,
+            keywords=unique_keywords,
+            recommendations=all_recommendations,
+            archon_count=archon_count,
+            consensus_level=ConsensusLevel.from_count(archon_count),
+            archon_ids=unique_archon_ids,
+            archon_names=unique_archon_names,
+            created_at=datetime.now(timezone.utc),
+        )
+
+        logger.debug(
+            "clusters_merged",
+            source_count=len(clusters),
+            themes=themes,
+            merged_theme=merged_theme,
+            archon_count=archon_count,
+        )
+
+        return merged
 
     async def detect_conflicts(
         self,
@@ -908,25 +1288,53 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
         checkpoint_id = f"{session_id}_{int(start_time)}"
 
         # Step 1: Extract from all speeches
-        logger.info("step_1_extraction_start", speech_count=len(speeches))
+        logger.info(
+            "step_1_extraction_start",
+            speech_count=len(speeches),
+            concurrency=self._extraction_concurrency,
+        )
         all_recommendations: list[ExtractedRecommendation] = []
+        recommendation_count = 0
+        results_by_index: dict[int, list[ExtractedRecommendation]] = {}
 
-        for i, speech in enumerate(speeches):
-            try:
-                result = await self.extract_recommendations(speech)
-                all_recommendations.extend(result.recommendations)
+        semaphore = asyncio.Semaphore(self._extraction_concurrency)
 
-                # Log progress every 10 speeches
-                if (i + 1) % 10 == 0:
-                    logger.info(
-                        "extraction_progress",
-                        processed=i + 1,
-                        total=len(speeches),
-                        recommendations_so_far=len(all_recommendations),
-                    )
+        async def _extract_one(idx: int, speech: SpeechContext):
+            async with semaphore:
+                try:
+                    result = await self.extract_recommendations(speech)
+                    return idx, result.recommendations, None
+                except ExtractionError as exc:
+                    return idx, [], exc
 
-            except ExtractionError:
-                logger.warning("skipping_speech_extraction", archon=speech.archon_name)
+        tasks = [
+            asyncio.create_task(_extract_one(i, speech))
+            for i, speech in enumerate(speeches)
+        ]
+        processed = 0
+        for task in asyncio.as_completed(tasks):
+            idx, recs, err = await task
+            results_by_index[idx] = recs
+            if err:
+                logger.warning(
+                    "skipping_speech_extraction",
+                    archon=speeches[idx].archon_name,
+                )
+            else:
+                recommendation_count += len(recs)
+
+            processed += 1
+            if processed % 10 == 0:
+                logger.info(
+                    "extraction_progress",
+                    processed=processed,
+                    total=len(speeches),
+                    recommendations_so_far=recommendation_count,
+                )
+
+        # Preserve original ordering in the aggregated output.
+        for i in range(len(speeches)):
+            all_recommendations.extend(results_by_index.get(i, []))
 
         # Checkpoint after extraction
         self._save_checkpoint(checkpoint_id, "01_extraction", all_recommendations)

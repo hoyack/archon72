@@ -403,7 +403,150 @@ def test_parses_debate_digest_position_summary():
 
 ---
 
-## 11. Appendix: Sample Transcript Entries
+---
+
+## 11. Critical Issue: Clustering Truncation (Enhanced Mode)
+
+### 11.1 Problem Statement
+
+The enhanced Secretary's clustering step fails catastrophically due to output truncation:
+
+| Metric | Value |
+|--------|-------|
+| Recommendations extracted | 963 |
+| Clustering batch size | 50 |
+| Total batches | 20 |
+| **Batches truncated** | **19 (95%)** |
+| Batches successful | 1 |
+| Resulting clusters | 5 (from 13 recs) |
+
+**Impact:** The 3 queued motions only represent the last 13 recommendations (1.3% of the transcript), not the full Conclave deliberation.
+
+### 11.2 Root Cause Analysis
+
+**Math Problem:**
+```
+Input per batch:
+  - 50 recommendations × ~150 tokens each = ~7,500 tokens (input)
+
+Output per batch:
+  - Clusters with member_ids (up to 50 UUIDs each)
+  - ~500-2000 tokens output needed
+
+Model config (user override):
+  - max_tokens = 2000 ← TOO SMALL
+
+Default config (secretary_agent.py):
+  - max_tokens = 8192 ← Would work, but was overridden
+```
+
+**The user's `SECRETARY_JSON_ARCHON_ID` override has `max_tokens=2000`**, which is insufficient for clustering 50 recommendations.
+
+### 11.3 Evidence
+
+From `logs/secretary.log`:
+```
+truncated_clustering_response appears 19 times
+```
+
+From checkpoints:
+```
+_bmad-output/secretary/checkpoints/..._03_clustering.json
+Only contains themes from last batch: Vepar, Valac, Beleth, Amdusias
+```
+
+### 11.4 Proposed Fixes
+
+#### Fix A: Reduce Batch Size (Quick Fix)
+
+```python
+# In secretary_crewai_adapter.py
+CLUSTERING_BATCH_SIZE = 15  # Was 50
+```
+
+**Pros:** Immediate fix, no config changes
+**Cons:** More batches = longer processing time
+
+#### Fix B: Require Higher max_tokens for JSON Model
+
+```python
+# In SecretaryCrewAIAdapter.__init__
+if self._profile.json_llm_config.max_tokens < 4096:
+    logger.warning(
+        "json_model_max_tokens_too_low",
+        current=self._profile.json_llm_config.max_tokens,
+        recommended=8192,
+    )
+```
+
+**Pros:** Catches bad configs early
+**Cons:** Doesn't fix the override
+
+#### Fix C: Simplify Clustering Output Format
+
+Current output requires:
+```json
+{
+  "member_ids": ["uuid-1", "uuid-2", ..., "uuid-50"],  // ~1800 chars just for IDs
+  "archon_names": ["Bael", "Asmoday", ...]
+}
+```
+
+Proposed simplified:
+```json
+{
+  "member_indices": [0, 1, 2, 15, 23],  // Just indices into the batch
+  "archon_names": ["Bael", "Asmoday"]   // Still needed for attribution
+}
+```
+
+**Pros:** 10x reduction in output size
+**Cons:** Requires refactoring parse logic
+
+#### Fix D: Retry with Smaller Batch on Truncation
+
+```python
+async def _cluster_with_retry(
+    self,
+    recommendations: list[ExtractedRecommendation],
+    batch_size: int = CLUSTERING_BATCH_SIZE,
+) -> list[RecommendationCluster]:
+    """Cluster with automatic retry on truncation."""
+    clusters = []
+    for batch in batches(recommendations, batch_size):
+        result = await self._cluster_batch(batch)
+        if result.truncated and batch_size > 10:
+            # Retry with smaller batch
+            result = await self._cluster_with_retry(batch, batch_size // 2)
+        clusters.extend(result.clusters)
+    return clusters
+```
+
+**Pros:** Self-healing, works with any model
+**Cons:** Complexity, longer processing time
+
+#### Fix E: Hierarchical Clustering
+
+1. Cluster each batch of 15 into mini-clusters
+2. Collect all mini-cluster representatives
+3. Cluster the representatives into final themes
+
+**Pros:** Scales to any transcript size
+**Cons:** Most complex to implement
+
+### 11.5 Recommended Fix Order
+
+| Priority | Fix | Effort | Impact |
+|----------|-----|--------|--------|
+| P0 | Reduce batch size to 15 | 1 line | Immediate |
+| P1 | Add truncation warning in config | 10 lines | Prevents bad configs |
+| P2 | Simplify output format | 2 hrs | Long-term scalability |
+| P3 | Retry logic | 1 hr | Robustness |
+| P3 | Hierarchical clustering | 4 hrs | Future-proof |
+
+---
+
+## 12. Appendix: Sample Transcript Entries
 
 ### A. STANCE_MISSING (New)
 ```markdown
@@ -445,3 +588,179 @@ Reason: Upon careful re-examination, the motion's geometric precision...
 **[14:56:30] [PROCEDURAL]:**
 RED TEAM ROUND: Before voting, 5 archons will now steelman the AGAINST position...
 ```
+
+---
+
+## 13. Re-Run Analysis: Cross-Batch Fragmentation Issue
+
+**Date:** 2026-01-26
+**Status:** Issue Identified, Fix Pending
+
+### 13.1 P0 Fix Validation
+
+The batch size reduction (50→15) completely resolved the truncation issue:
+
+| Metric | Before Fix | After Fix |
+|--------|------------|-----------|
+| Recommendations | 963 | 981 |
+| Batches truncated | 19/20 (95%) | **0/65 (0%)** |
+| Clusters generated | 5 | **433** |
+| Motions queued | 3 | **185** |
+| Processing time | ~20 min | ~64 min |
+
+**Verdict:** ✅ Truncation fix validated.
+
+### 13.2 New Issue: Cross-Batch Clustering Fragmentation
+
+With 981 recommendations in ~65 batches of 15, each batch clusters independently. Similar themes appearing in different batches are never merged, creating **significant motion duplication**.
+
+**Observed Pattern:**
+
+| Theme Family | Duplicate Motions | Should Merge To |
+|-------------|-------------------|-----------------|
+| Attribution/Verifiability | 15+ (Motions 1,3,5,9,11,17,22,25,28,31,33,35,36,41,42) | ~2-3 |
+| Authority Definition | 6+ (Motions 4,7,10,20,29,39) | ~1-2 |
+| Compliance Clause | 6+ (Motions 23,30,34,37,40,43) | ~1-2 |
+| Review Clause | 4+ (Motions 2,12,21,32) | ~1 |
+| Security/Compartmentalization | 5+ (Motions 14,19,24,26,28) | ~1-2 |
+| Audit Trail/Traceability | 4+ (Motions 6,13,18,31) | ~1 |
+
+**Example Near-Duplicates:**
+
+```
+Motion 1:  "Mandate Explicit Authority Attribution" (Asmoday, Bael, Beleth)
+Motion 3:  "Mandate Explicit Attribution for Authority-Bearing Acts" (Belial, Paimon)
+Motion 5:  "Mandate Explicit Attribution for Authority-Bearing Actions" (Zagan, Agares)
+Motion 17: "Mandate Explicit Attribution for State or Authority Alterations" (Crocell, Dantalion, Eligos)
+```
+
+These are semantically identical — all mandate explicit attribution — but because they were clustered in different batches, they became 4 separate motions.
+
+**Estimated Redundancy:** 50-60% of 185 motions are near-duplicates.
+
+### 13.3 Root Cause
+
+```
+Batch 1:  [Rec A₁, A₂, B₁] → Cluster "Attribution" (Asmoday, Bael, Beleth)
+Batch 30: [Rec A₃, A₄, C₁] → Cluster "Attribution" (Zagan, Agares)  ← No merge!
+Batch 50: [Rec A₅, A₆, D₁] → Cluster "Attribution" (Crocell, Dantalion, Eligos)  ← No merge!
+```
+
+Each batch's "Attribution" cluster becomes a separate motion because there's no cross-batch merge step.
+
+### 13.4 Proposed Fix: Cross-Batch Cluster Consolidation
+
+**Phase 1: Post-Clustering Deduplication**
+
+After all batches are clustered, run a second-pass merge:
+
+```python
+async def _consolidate_clusters(
+    self,
+    clusters: list[RecommendationCluster],
+) -> list[RecommendationCluster]:
+    """Merge semantically similar clusters from different batches."""
+
+    # Extract cluster summaries for comparison
+    summaries = [
+        {
+            "cluster_id": c.cluster_id,
+            "theme": c.theme_label,
+            "keywords": c.representative_keywords,
+        }
+        for c in clusters
+    ]
+
+    # Ask LLM to identify mergeable cluster groups
+    merge_groups = await self._identify_merge_groups(summaries)
+
+    # Merge clusters within each group
+    consolidated = []
+    for group in merge_groups:
+        if len(group) == 1:
+            consolidated.append(clusters[group[0]])
+        else:
+            merged = self._merge_cluster_group([clusters[i] for i in group])
+            consolidated.append(merged)
+
+    return consolidated
+```
+
+**Phase 2: Hierarchical Clustering (Future)**
+
+1. Per-batch clustering → mini-clusters
+2. Cluster mini-cluster representatives → meta-themes
+3. Merge mini-clusters into meta-themes → final clusters
+
+### 13.5 Updated Fix Priority
+
+| Priority | Fix | Effort | Impact |
+|----------|-----|--------|--------|
+| ~~P0~~ | ~~Reduce batch size to 15~~ | ~~1 line~~ | ✅ DONE |
+| ~~P1~~ | ~~Add truncation warning~~ | ~~10 lines~~ | ✅ DONE |
+| ~~P2~~ | ~~Cross-batch cluster consolidation~~ | ~~2-3 hrs~~ | ✅ DONE |
+| P3 | Hierarchical clustering | 4 hrs | Future-proof scalability |
+| P4 | Simplify output format | 2 hrs | Long-term optimization |
+
+### 13.8 P2 Implementation Details (Cross-Batch Consolidation)
+
+**Implemented in:** `src/infrastructure/adapters/external/secretary_crewai_adapter.py`
+
+**Algorithm:**
+
+```
+Phase 1: Per-batch clustering (existing)
+  └── 65 batches of 15 recommendations each
+  └── Result: ~433 raw clusters
+
+Phase 2: Cross-batch consolidation (NEW)
+  ├── Extract cluster summaries (theme, canonical_summary, keywords)
+  ├── LLM identifies merge groups (semantically similar clusters)
+  ├── Merge clusters within each group:
+  │   ├── Combine recommendations
+  │   ├── Deduplicate archon lists
+  │   ├── Choose most representative theme
+  │   └── Recalculate consensus level
+  └── Result: ~150-200 consolidated clusters → ~60-80 motions
+```
+
+**Key Methods Added:**
+
+| Method | Purpose |
+|--------|---------|
+| `_consolidate_clusters()` | Orchestrates the consolidation phase |
+| `_identify_merge_groups()` | LLM call to find similar clusters |
+| `_identify_merge_groups_batched()` | Handles large cluster sets (>50) |
+| `_reconcile_merge_groups()` | Union-find to merge overlapping groups |
+| `_merge_cluster_group()` | Combines multiple clusters into one |
+
+**Safeguards:**
+- Graceful degradation: If consolidation fails, keeps raw clusters
+- Only runs if >10 clusters (skip for small sets)
+- Batched processing for >50 clusters using overlapping windows
+- Union-find ensures every cluster appears exactly once
+
+### 13.6 Consensus Distribution Analysis
+
+```
+Clusters by consensus:
+  - single: 248 (57%)  ← Only 1 archon contributed
+  - low: 163 (38%)     ← 2-3 archons
+  - medium: 22 (5%)    ← 4+ archons
+  - high/critical: 0
+```
+
+The high percentage of "single" consensus clusters suggests:
+1. Many recommendations are unique (good)
+2. OR similar recommendations are in different batches (bad — cross-batch issue)
+
+Cross-batch consolidation would likely convert many "single" clusters into "low" or "medium" by merging scattered contributors.
+
+### 13.7 Next Steps
+
+1. **Implement P2 fix** — Cross-batch cluster consolidation in `secretary_crewai_adapter.py`
+2. **Re-run Secretary** on same transcript
+3. **Compare metrics:**
+   - Target: 60-80 motions (down from 185)
+   - Target: <20% single-consensus clusters (down from 57%)
+   - Target: 10+ medium/high consensus clusters (up from 22)

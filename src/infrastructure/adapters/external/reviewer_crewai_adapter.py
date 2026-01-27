@@ -34,7 +34,6 @@ from src.application.ports.reviewer_agent import (
     PanelDeliberationResult,
     ReviewDecision,
     ReviewerAgentProtocol,
-    ReviewError,
 )
 from src.domain.models.llm_config import LLMConfig
 from src.infrastructure.adapters.external.crewai_json_utils import parse_json_response
@@ -52,6 +51,9 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
 
     Each Archon uses their per-archon LLM binding from archon-llm-bindings.yaml,
     with rank-based defaults and global fallback for local Ollama models.
+
+    LLM instances are cached per-archon to avoid connection exhaustion with
+    rate-limited endpoints like Ollama Cloud.
     """
 
     def __init__(
@@ -69,6 +71,10 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
         """
         self.verbose = verbose
         self._profile_repository = profile_repository
+
+        # Cache for LLM instances per-archon to avoid connection exhaustion
+        # Key: archon_name, Value: LLM instance
+        self._llm_cache: dict[str, LLM | str] = {}
 
         # Default LLM config for utility agents (conflict analysis, synthesis)
         # These are not character-specific, so use a default local model
@@ -96,10 +102,13 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
             )
 
     def _get_archon_llm(self, archon_name: str) -> LLM | str:
-        """Get the appropriate LLM for an Archon.
+        """Get the appropriate LLM for an Archon (cached).
 
         Looks up the Archon's profile to get their per-archon LLM binding.
         Falls back to default if profile not found.
+
+        LLM instances are cached per-archon to avoid creating new connections
+        for each motion review, which can exhaust rate-limited endpoints.
 
         Args:
             archon_name: Name of the Archon
@@ -107,6 +116,17 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
         Returns:
             CrewAI LLM instance configured for this Archon
         """
+        # Check cache first
+        if archon_name in self._llm_cache:
+            logger.debug(
+                "archon_llm_cache_hit",
+                archon=archon_name,
+            )
+            return self._llm_cache[archon_name]
+
+        # Create new LLM instance
+        llm: LLM | str = self._default_llm
+
         if self._profile_repository:
             try:
                 profile = self._profile_repository.get_by_name(archon_name)
@@ -118,7 +138,6 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
                         provider=profile.llm_config.provider,
                         model=profile.llm_config.model,
                     )
-                    return llm
             except Exception as e:
                 logger.warning(
                     "archon_profile_lookup_failed",
@@ -126,12 +145,15 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
                     error=str(e),
                 )
 
-        # Fallback to default
-        logger.debug(
-            "archon_using_default_llm",
-            archon=archon_name,
-        )
-        return self._default_llm
+        if llm is self._default_llm:
+            logger.debug(
+                "archon_using_default_llm",
+                archon=archon_name,
+            )
+
+        # Cache the LLM instance
+        self._llm_cache[archon_name] = llm
+        return llm
 
     def _create_archon_agent(self, archon: ArchonReviewerContext) -> Agent:
         """Create a CrewAI agent representing an Archon.
@@ -162,8 +184,20 @@ class ReviewerCrewAIAdapter(ReviewerAgentProtocol):
         self,
         archon: ArchonReviewerContext,
         motion: MotionReviewContext,
+        max_retries: int = 3,
     ) -> ReviewDecision:
-        """Have an Archon review a mega-motion."""
+        """Have an Archon review a mega-motion.
+
+        Includes retry logic with exponential backoff for transient LLM failures.
+
+        Args:
+            archon: The reviewing Archon's context
+            motion: The motion to review
+            max_retries: Maximum number of retry attempts (default: 3)
+
+        Returns:
+            ReviewDecision from the Archon
+        """
         start_time = time.time()
 
         logger.info(
@@ -206,6 +240,11 @@ Analyze this motion through the lens of your expertise and values. Consider:
 3. Are there gaps, risks, or concerns?
 4. Would you endorse, oppose, propose amendments, or abstain?
 
+Decision guidance:
+- Do not default to "amend" as a safe middle choice.
+- If risks, ambiguity, or misalignment remain unacceptable even after plausible
+  amendments, choose "oppose" and list concrete concerns.
+
 **RESPOND IN JSON FORMAT:**
 {{
     "stance": "endorse" | "oppose" | "amend" | "abstain",
@@ -226,58 +265,93 @@ Analyze this motion through the lens of your expertise and values. Consider:
 
         crew = Crew(agents=[agent], tasks=[task], verbose=self.verbose)
 
-        try:
-            result = await asyncio.to_thread(crew.kickoff)
-            raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
+        # Retry loop with exponential backoff for transient LLM failures
+        last_error: Exception | None = None
+        raw_output: str = ""
 
-            parsed = parse_json_response(raw_output)
+        for attempt in range(max_retries):
+            try:
+                result = await asyncio.to_thread(crew.kickoff)
+                raw_output = str(result.raw) if hasattr(result, "raw") else str(result)
 
-            decision = ReviewDecision(
-                stance=parsed.get("stance", "abstain"),
-                reasoning=parsed.get("reasoning", ""),
-                confidence=float(parsed.get("confidence", 0.5)),
-                opposition_concerns=parsed.get("opposition_concerns", []),
-                amendment_type=parsed.get("amendment_type"),
-                amendment_text=parsed.get("amendment_text"),
-                amendment_rationale=parsed.get("amendment_rationale"),
-                review_duration_ms=int((time.time() - start_time) * 1000),
-            )
+                # Check for empty/None response (common with rate limiting)
+                if not raw_output or raw_output.strip() in ("None", "null", ""):
+                    raise ValueError("Empty response from LLM - possible rate limiting")
 
-            logger.info(
-                "review_motion_complete",
-                archon=archon.archon_name,
-                motion_id=motion.mega_motion_id,
-                stance=decision.stance,
-                duration_ms=decision.review_duration_ms,
-            )
+                parsed = parse_json_response(raw_output)
 
-            return decision
+                decision = ReviewDecision(
+                    stance=parsed.get("stance", "abstain"),
+                    reasoning=parsed.get("reasoning", ""),
+                    confidence=float(parsed.get("confidence", 0.5)),
+                    opposition_concerns=parsed.get("opposition_concerns", []),
+                    amendment_type=parsed.get("amendment_type"),
+                    amendment_text=parsed.get("amendment_text"),
+                    amendment_rationale=parsed.get("amendment_rationale"),
+                    review_duration_ms=int((time.time() - start_time) * 1000),
+                )
 
-        except json.JSONDecodeError as e:
-            logger.error(
-                "json_parse_failed",
-                adapter="reviewer",
-                stage="review",
-                archon=archon.archon_name,
-                motion_id=motion.mega_motion_id,
-                error=str(e),
-                raw_output=raw_output[:500],
-            )
-            # Return abstain on parse failure
-            return ReviewDecision(
-                stance="abstain",
-                reasoning=f"Parse error: {str(e)}. Raw response could not be parsed.",
-                confidence=0.0,
-                review_duration_ms=int((time.time() - start_time) * 1000),
-            )
-        except Exception as e:
-            logger.error(
-                "review_motion_failed",
-                archon=archon.archon_name,
-                motion_id=motion.mega_motion_id,
-                error=str(e),
-            )
-            raise ReviewError(f"Review failed for {archon.archon_name}: {e}") from e
+                logger.info(
+                    "review_motion_complete",
+                    archon=archon.archon_name,
+                    motion_id=motion.mega_motion_id,
+                    stance=decision.stance,
+                    duration_ms=decision.review_duration_ms,
+                    attempts=attempt + 1,
+                )
+
+                return decision
+
+            except json.JSONDecodeError as e:
+                logger.warning(
+                    "json_parse_failed_will_retry" if attempt < max_retries - 1 else "json_parse_failed",
+                    adapter="reviewer",
+                    stage="review",
+                    archon=archon.archon_name,
+                    motion_id=motion.mega_motion_id,
+                    error=str(e),
+                    raw_output=raw_output[:500] if raw_output else "empty",
+                    attempt=attempt + 1,
+                    max_retries=max_retries,
+                )
+                last_error = e
+
+            except Exception as e:
+                logger.warning(
+                    "review_motion_retry" if attempt < max_retries - 1 else "review_motion_failed",
+                    archon=archon.archon_name,
+                    motion_id=motion.mega_motion_id,
+                    error=str(e),
+                    attempt=attempt + 1,
+                    max_retries=max_retries,
+                )
+                last_error = e
+
+            # Exponential backoff: 2s, 4s, 8s
+            if attempt < max_retries - 1:
+                backoff_seconds = 2 ** (attempt + 1)
+                logger.info(
+                    "review_motion_backoff",
+                    archon=archon.archon_name,
+                    motion_id=motion.mega_motion_id,
+                    backoff_seconds=backoff_seconds,
+                )
+                await asyncio.sleep(backoff_seconds)
+
+        # All retries exhausted - return abstain with error info
+        logger.error(
+            "review_motion_all_retries_exhausted",
+            archon=archon.archon_name,
+            motion_id=motion.mega_motion_id,
+            error=str(last_error) if last_error else "unknown",
+            max_retries=max_retries,
+        )
+        return ReviewDecision(
+            stance="abstain",
+            reasoning=f"Review failed after {max_retries} attempts: {last_error}",
+            confidence=0.0,
+            review_duration_ms=int((time.time() - start_time) * 1000),
+        )
 
     async def detect_conflict(
         self,
@@ -679,7 +753,11 @@ Respond with your argument text only (no JSON).
         archon: ArchonReviewerContext,
         motions: list[MotionReviewContext],
     ) -> list[ReviewDecision]:
-        """Have an Archon review multiple motions."""
+        """Have an Archon review multiple motions.
+
+        Reviews are processed sequentially with a small delay between each
+        to prevent connection storms on rate-limited endpoints.
+        """
         logger.info(
             "batch_review_start",
             archon=archon.archon_name,
@@ -687,7 +765,12 @@ Respond with your argument text only (no JSON).
         )
 
         decisions = []
-        for motion in motions:
+        for i, motion in enumerate(motions):
+            # Small delay between reviews to prevent connection storms
+            # Skip delay for the first motion
+            if i > 0:
+                await asyncio.sleep(0.5)
+
             decision = await self.review_motion(archon, motion)
             decisions.append(decision)
 

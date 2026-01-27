@@ -16,6 +16,7 @@ This avoids combinatorial Conclave explosion by leveraging:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import math
 import os
@@ -153,6 +154,15 @@ QUORUM_ELIGIBLE_SIMPLE = 36  # half of 72
 QUORUM_ELIGIBLE_CONSTITUTIONAL = 48  # two-thirds of 72
 AMEND_TOLERANCE_RATIO = 0.10
 AMEND_TOLERANCE_ABS = 5
+# If amendment ratio exceeds this threshold, defer for manual revision
+# instead of auto-ratifying with amendments incorporated
+AMEND_AUTO_RATIFY_THRESHOLD = 0.50
+
+# Concurrency defaults (override via env vars)
+# Reduced from 4 to 3 to leave headroom for Ollama Cloud's 5-connection limit
+# Each concurrent Archon uses 1 LLM connection, plus potential panel deliberation
+DEFAULT_REVIEWER_ARCHON_CONCURRENCY = 3
+DEFAULT_REVIEWER_PANEL_CONCURRENCY = 2
 
 
 @dataclass
@@ -193,6 +203,12 @@ class MotionReviewService:
         self._implicit_endorsements_enabled = (
             os.getenv("REVIEW_IMPLICIT_ENDORSEMENTS", "true").lower() == "true"
         )
+        self._reviewer_archon_concurrency = self._resolve_concurrency(
+            "REVIEWER_ARCHON_CONCURRENCY", DEFAULT_REVIEWER_ARCHON_CONCURRENCY
+        )
+        self._reviewer_panel_concurrency = self._resolve_concurrency(
+            "REVIEWER_PANEL_CONCURRENCY", DEFAULT_REVIEWER_PANEL_CONCURRENCY
+        )
 
         # Load archon names from repository if provided, otherwise use hardcoded list
         if archon_repository is not None:
@@ -202,23 +218,58 @@ class MotionReviewService:
 
         self._all_archons = set(self._all_archon_names)
 
+    @staticmethod
+    def _resolve_concurrency(env_var: str, default_value: int) -> int:
+        """Resolve a bounded concurrency setting from env."""
+        value = os.getenv(env_var)
+        if value is None:
+            return default_value
+        try:
+            parsed = int(value)
+        except ValueError:
+            logger.warning(
+                "invalid_concurrency_value",
+                env_var=env_var,
+                value=value,
+                default=default_value,
+            )
+            return default_value
+        if parsed < 1:
+            logger.warning(
+                "invalid_concurrency_value",
+                env_var=env_var,
+                value=parsed,
+                default=default_value,
+            )
+            return default_value
+        return parsed
+
     # =========================================================================
     # Data Loading
     # =========================================================================
 
     def load_mega_motions(
-        self, consolidator_output_path: Path
+        self,
+        consolidator_output_path: Path,
+        include_deferred: bool = False,
     ) -> tuple[list[MegaMotionData], list[MegaMotionData], str, str]:
-        """Load mega-motions and novel proposals from consolidator output.
+        """Load mega-motions and optionally deferred novel proposals.
 
         Args:
             consolidator_output_path: Path to consolidator session directory
+            include_deferred: If True, load deferred novel proposals as high-risk
+                motions. Default False - deferred proposals are excluded from
+                the review pipeline and queued for future specialized review.
 
         Returns:
             Tuple of (mega_motions, novel_proposals, session_id, session_name)
+            Note: novel_proposals will be empty list if include_deferred=False
         """
         mega_motions_file = consolidator_output_path / "mega-motions.json"
-        novel_proposals_file = consolidator_output_path / "novel-proposals.json"
+        # Support both old and new novel proposals filename
+        novel_proposals_file = consolidator_output_path / "deferred-novel-proposals.json"
+        if not novel_proposals_file.exists():
+            novel_proposals_file = consolidator_output_path / "novel-proposals.json"
         summary_file = consolidator_output_path / "conclave-summary.json"
 
         # Load session info from summary
@@ -250,30 +301,35 @@ class MotionReviewService:
                         )
                     )
 
-        # Load novel proposals (treated as HIGH risk motions)
+        # Load deferred novel proposals only if explicitly requested
         novel_proposals = []
+        deferred_count = 0
         if novel_proposals_file.exists():
             with open(novel_proposals_file) as f:
                 data = json.load(f)
-                for np in data:
-                    novel_proposals.append(
-                        MegaMotionData(
-                            mega_motion_id=np.get("proposal_id", str(uuid4())),
-                            title=f"Novel: {np.get('text', '')[:50]}...",
-                            theme=np.get("category", "novel"),
-                            text=np.get("text", ""),
-                            source_motion_ids=[np.get("recommendation_id", "")],
-                            supporting_archons=[np.get("archon_name", "")],
-                            unique_archon_count=1,
-                            consensus_tier="low",
-                            is_novel=True,
+                deferred_count = len(data)
+
+                if include_deferred:
+                    for np in data:
+                        novel_proposals.append(
+                            MegaMotionData(
+                                mega_motion_id=np.get("proposal_id", str(uuid4())),
+                                title=f"Novel: {np.get('text', '')[:50]}...",
+                                theme=np.get("category", "novel"),
+                                text=np.get("text", ""),
+                                source_motion_ids=[np.get("recommendation_id", "")],
+                                supporting_archons=[np.get("archon_name", "")],
+                                unique_archon_count=1,
+                                consensus_tier="low",
+                                is_novel=True,
+                            )
                         )
-                    )
 
         logger.info(
             "mega_motions_loaded",
             mega_motion_count=len(mega_motions),
             novel_proposal_count=len(novel_proposals),
+            deferred_proposals_skipped=deferred_count if not include_deferred else 0,
             session_id=session_id,
         )
 
@@ -715,13 +771,34 @@ class MotionReviewService:
             ReviewResponse for aggregation
         """
         # Map stance string to ReviewStance enum
+        stance_raw = (decision.stance or "").strip().lower()
         stance_map = {
             "endorse": ReviewStance.ENDORSE,
+            "approve": ReviewStance.ENDORSE,
+            "support": ReviewStance.ENDORSE,
+            "accept": ReviewStance.ENDORSE,
             "oppose": ReviewStance.OPPOSE,
+            "reject": ReviewStance.OPPOSE,
+            "nay": ReviewStance.OPPOSE,
             "amend": ReviewStance.AMEND,
+            # Some models return hybrid stances; treat these as amendments.
+            "endorse_with_amendments": ReviewStance.AMEND,
+            "endorse_with_amendment": ReviewStance.AMEND,
+            "endorse_with_changes": ReviewStance.AMEND,
             "abstain": ReviewStance.ABSTAIN,
+            "neutral": ReviewStance.ABSTAIN,
         }
-        stance = stance_map.get(decision.stance.lower(), ReviewStance.ABSTAIN)
+        stance = stance_map.get(stance_raw)
+        if stance is None:
+            # Fallback heuristics for slightly off-schema responses.
+            if "amend" in stance_raw:
+                stance = ReviewStance.AMEND
+            elif "oppose" in stance_raw or "reject" in stance_raw:
+                stance = ReviewStance.OPPOSE
+            elif "endorse" in stance_raw or "support" in stance_raw:
+                stance = ReviewStance.ENDORSE
+            else:
+                stance = ReviewStance.ABSTAIN
 
         # Map amendment type if present
         amendment_type = None
@@ -788,6 +865,7 @@ class MotionReviewService:
             "collecting_real_reviews",
             assignment_count=len(assignments),
             using_agent=True,
+            archon_concurrency=self._reviewer_archon_concurrency,
         )
 
         # Build lookups
@@ -795,10 +873,13 @@ class MotionReviewService:
         support_lookup = {s.mega_motion_id: s for s in triage_result.implicit_supports}
 
         responses: list[ReviewResponse] = []
+        semaphore = asyncio.Semaphore(self._reviewer_archon_concurrency)
+        results_by_index: dict[int, list[ReviewResponse]] = {}
 
-        for assignment in assignments:
+        async def _process_assignment(idx: int, assignment: ReviewAssignment) -> None:
             if not assignment.assigned_motions:
-                continue
+                results_by_index[idx] = []
+                return
 
             # Create Archon context
             archon_context = self._create_archon_context(assignment.archon_name)
@@ -828,47 +909,62 @@ class MotionReviewService:
                 motion_contexts.append(motion_context)
 
             if not motion_contexts:
-                continue
+                results_by_index[idx] = []
+                return
 
             # Use batch review for efficiency
-            try:
-                logger.debug(
-                    "batch_review_start",
-                    archon=assignment.archon_name,
-                    motion_count=len(motion_contexts),
-                )
-
-                decisions = await self._reviewer_agent.batch_review_motions(
-                    archon=archon_context,
-                    motions=motion_contexts,
-                )
-
-                # Convert decisions to responses
-                for motion_ctx, decision in zip(
-                    motion_contexts, decisions, strict=False
-                ):
-                    response = self._convert_review_decision_to_response(
-                        decision=decision,
-                        archon_name=assignment.archon_name,
-                        archon_id=assignment.archon_id,
-                        mega_motion_id=motion_ctx.mega_motion_id,
+            async with semaphore:
+                try:
+                    logger.debug(
+                        "batch_review_start",
+                        archon=assignment.archon_name,
+                        motion_count=len(motion_contexts),
                     )
-                    responses.append(response)
 
-                logger.debug(
-                    "batch_review_complete",
-                    archon=assignment.archon_name,
-                    response_count=len(decisions),
-                )
+                    decisions = await self._reviewer_agent.batch_review_motions(
+                        archon=archon_context,
+                        motions=motion_contexts,
+                    )
 
-            except Exception as e:
-                logger.error(
-                    "batch_review_failed",
-                    archon=assignment.archon_name,
-                    error=str(e),
-                )
-                # Continue with other Archons even if one fails
-                continue
+                    # Convert decisions to responses
+                    batch_responses: list[ReviewResponse] = []
+                    for motion_ctx, decision in zip(
+                        motion_contexts, decisions, strict=False
+                    ):
+                        response = self._convert_review_decision_to_response(
+                            decision=decision,
+                            archon_name=assignment.archon_name,
+                            archon_id=assignment.archon_id,
+                            mega_motion_id=motion_ctx.mega_motion_id,
+                        )
+                        batch_responses.append(response)
+
+                    results_by_index[idx] = batch_responses
+
+                    logger.debug(
+                        "batch_review_complete",
+                        archon=assignment.archon_name,
+                        response_count=len(decisions),
+                    )
+
+                except Exception as e:
+                    logger.error(
+                        "batch_review_failed",
+                        archon=assignment.archon_name,
+                        error=str(e),
+                    )
+                    # Continue with other Archons even if one fails
+                    results_by_index[idx] = []
+
+        tasks = [
+            asyncio.create_task(_process_assignment(idx, assignment))
+            for idx, assignment in enumerate(assignments)
+        ]
+        if tasks:
+            await asyncio.gather(*tasks)
+
+        for idx in range(len(assignments)):
+            responses.extend(results_by_index.get(idx, []))
 
         logger.info(
             "real_reviews_collected",
@@ -1487,8 +1583,56 @@ class MotionReviewService:
         aggregation: ReviewAggregation | None,
         revised_text: str,
     ) -> RatificationVote:
-        """Create a follow-up ratification vote after amendments are applied."""
-        yeas = original_vote.support_total  # treat amendments as incorporated
+        """Create a follow-up ratification vote after amendments are applied.
+
+        If the amendment ratio exceeds AMEND_AUTO_RATIFY_THRESHOLD, the motion
+        is deferred for manual revision instead of auto-ratifying. This ensures
+        that motions with significant proposed changes receive proper review.
+        """
+        # Calculate amendment ratio to determine if auto-ratification is appropriate
+        original_total = original_vote.support_total + original_vote.nays
+        amendment_ratio = (
+            original_vote.amends / original_total if original_total > 0 else 0
+        )
+
+        # If too many amendments, defer for manual revision
+        if amendment_ratio > AMEND_AUTO_RATIFY_THRESHOLD:
+            logger.info(
+                "amendment_ratio_exceeded_threshold",
+                mega_motion_id=original_vote.mega_motion_id,
+                amendment_ratio=f"{amendment_ratio:.1%}",
+                threshold=f"{AMEND_AUTO_RATIFY_THRESHOLD:.0%}",
+                action="deferred_for_revision",
+            )
+            return RatificationVote(
+                vote_id=str(uuid4()),
+                mega_motion_id=original_vote.mega_motion_id,
+                mega_motion_title=original_vote.mega_motion_title,
+                yeas=original_vote.yeas,
+                nays=original_vote.nays,
+                amends=original_vote.amends,
+                abstentions=original_vote.abstentions,
+                eligible_votes=original_total,
+                threshold_type="revision_required",
+                threshold_required=0,
+                quorum_required=original_vote.quorum_required,
+                quorum_met=True,
+                support_total=original_vote.support_total,
+                support_required=0,
+                threshold_met=False,
+                votes_by_archon=original_vote.votes_by_archon,
+                outcome=RatificationOutcome.DEFERRED,
+                revision_of=original_vote.vote_id,
+                revised_motion_text=(
+                    f"{revised_text}\n\n"
+                    f"[DEFERRED: Amendment ratio ({amendment_ratio:.0%}) exceeds threshold "
+                    f"({AMEND_AUTO_RATIFY_THRESHOLD:.0%}). Motion deferred for "
+                    "manual revision and re-submission to Conclave.]"
+                ),
+            )
+
+        # Amendment ratio acceptable - treat amendments as incorporated support
+        yeas = original_vote.support_total  # amendments count as yeas
         nays = original_vote.nays
         amends = 0
         abstentions = original_vote.abstentions
@@ -1607,12 +1751,14 @@ class MotionReviewService:
         self,
         consolidator_output_path: Path,
         simulate: bool = True,
+        include_deferred: bool = False,
     ) -> MotionReviewPipelineResult:
         """Run the complete motion review pipeline.
 
         Args:
             consolidator_output_path: Path to consolidator session directory
             simulate: If True, simulate reviews and deliberation
+            include_deferred: If True, include deferred novel proposals as motions
 
         Returns:
             Complete pipeline result
@@ -1621,7 +1767,9 @@ class MotionReviewService:
 
         # Load data
         mega_motions, novel_proposals, session_id, session_name = (
-            self.load_mega_motions(consolidator_output_path)
+            self.load_mega_motions(
+                consolidator_output_path, include_deferred=include_deferred
+            )
         )
 
         result = MotionReviewPipelineResult(
@@ -1638,6 +1786,7 @@ class MotionReviewService:
                 "consolidator_path": str(consolidator_output_path),
                 "mega_motions": len(mega_motions),
                 "novel_proposals": len(novel_proposals),
+                "include_deferred": include_deferred,
             },
         )
 
@@ -1747,6 +1896,7 @@ class MotionReviewService:
         self,
         consolidator_output_path: Path,
         use_real_agent: bool = True,
+        include_deferred: bool = False,
     ) -> MotionReviewPipelineResult:
         """Run the complete motion review pipeline using real Archon agents.
 
@@ -1756,6 +1906,7 @@ class MotionReviewService:
         Args:
             consolidator_output_path: Path to consolidator session directory
             use_real_agent: If True and reviewer_agent is configured, use real reviews
+            include_deferred: If True, include deferred novel proposals as motions
 
         Returns:
             Complete pipeline result
@@ -1774,7 +1925,9 @@ class MotionReviewService:
 
         # Load data
         mega_motions, novel_proposals, session_id, session_name = (
-            self.load_mega_motions(consolidator_output_path)
+            self.load_mega_motions(
+                consolidator_output_path, include_deferred=include_deferred
+            )
         )
 
         result = MotionReviewPipelineResult(
@@ -1792,6 +1945,7 @@ class MotionReviewService:
                 "mega_motions": len(mega_motions),
                 "novel_proposals": len(novel_proposals),
                 "using_real_agent": use_real_agent,
+                "include_deferred": include_deferred,
             },
         )
 
@@ -1855,10 +2009,27 @@ class MotionReviewService:
 
         if use_real_agent:
             logger.info("running_real_panel_deliberations", panel_count=len(panels))
-            for panel in panels:
+            panel_semaphore = asyncio.Semaphore(self._reviewer_panel_concurrency)
+            panel_results: dict[int, DeliberationPanel] = {}
+
+            async def _process_panel(idx: int, panel: DeliberationPanel) -> None:
                 agg = aggregation_lookup.get(panel.mega_motion_id)
-                if agg:
-                    await self.run_real_panel_deliberation(panel, all_motions, agg)
+                if not agg:
+                    panel_results[idx] = panel
+                    return
+                async with panel_semaphore:
+                    panel_results[idx] = await self.run_real_panel_deliberation(
+                        panel, all_motions, agg
+                    )
+
+            tasks = [
+                asyncio.create_task(_process_panel(idx, panel))
+                for idx, panel in enumerate(panels)
+            ]
+            if tasks:
+                await asyncio.gather(*tasks)
+
+            panels = [panel_results[i] for i in range(len(panels))]
         else:
             for panel in panels:
                 self.simulate_panel_deliberation(panel)

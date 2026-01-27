@@ -28,7 +28,7 @@ This stage consumes the output of the consolidator stage:
 
 From a consolidator session directory (default auto-detected):
 - `mega-motions.json` (required for mega-motions)
-- `novel-proposals.json` (optional; if present, these are treated as HIGH risk motions)
+- `deferred-novel-proposals.json` (optional; skipped by default, include with `--include-deferred`; falls back to legacy `novel-proposals.json`)
 - `conclave-summary.json` (optional; used to set session name)
 
 Loading logic lives in:
@@ -66,6 +66,7 @@ The output gets large mainly because:
 - `--triage-only`: runs only Phase 1 (triage) and prints risk breakdown
 - `--no-simulate`: skips simulated reviews (produces triage + packets only)
 - `--real-agent`: uses real LLM-powered Archon reviews via `ReviewerAgentProtocol`
+- `--include-deferred`: include deferred novel proposals as HIGH-risk motions (default: skip them)
 
 Important behavioral notes:
 - If `--real-agent` is set but the reviewer agent fails to initialize, the script falls back to simulation (it explicitly flips `args.real_agent = False`).
@@ -83,9 +84,10 @@ Code: `MotionReviewService.load_mega_motions()`
 
 It builds:
 - A list of `MegaMotionData` from `mega-motions.json`
-- A list of “novel proposals” from `novel-proposals.json` (if present)
+- A list of deferred novel proposals from `deferred-novel-proposals.json`
+  (or legacy `novel-proposals.json`) only when `--include-deferred` is set
 
-Novel proposals are promoted to “motions” for review:
+Deferred novel proposals (when included) are promoted to “motions” for review:
 - `is_novel=True`
 - `unique_archon_count=1` (only the proposer)
 
@@ -142,7 +144,8 @@ Code: `MotionReviewService.collect_archon_reviews()`
 Adapter: `ReviewerCrewAIAdapter` (`reviewer_crewai_adapter.py`)
 
 How real reviews are executed today:
-- `collect_archon_reviews()` loops **sequentially** over Archons with assignments.
+- `collect_archon_reviews()` runs Archon reviews concurrently with a bounded semaphore
+  (`REVIEWER_ARCHON_CONCURRENCY`, default 4), while preserving result ordering.
 - For each Archon, it constructs:
   - `ArchonReviewerContext` (lightweight backstory + identity)
   - a list of `MotionReviewContext` items (one per motion assigned to that Archon)
@@ -150,7 +153,7 @@ How real reviews are executed today:
   - `reviewer_agent.batch_review_motions(archon, motions)`
 
 Important current performance characteristic:
-- `ReviewerCrewAIAdapter.batch_review_motions()` is itself sequential and simply calls `review_motion()` for each motion.
+- `ReviewerCrewAIAdapter.batch_review_motions()` is sequential per Archon and simply calls `review_motion()` for each motion (with a small delay between calls).
 - `review_motion()` creates a fresh CrewAI `Agent` and runs a single-task `Crew` kickoff.
   - That means many separate LLM calls, and significant per-call overhead.
 
@@ -178,7 +181,9 @@ Panels are composed of:
 - up to 3 critics
 - 3 neutrals (first available names not already used)
 
-Real panel deliberation is also sequential in the adapter:
+Panel deliberations run concurrently across panels with a bounded semaphore
+(`REVIEWER_PANEL_CONCURRENCY`, default 2), but each panel's internal steps
+remain sequential in the adapter:
 - Supporters each produce an argument (one LLM call each).
 - Critics each respond (one LLM call each).
 - A “Panel Facilitator” synthesizes into JSON (one LLM call).
@@ -196,11 +201,17 @@ Code: `MotionReviewService.derive_ratification_from_reviews()`
 This counts actual review stances per motion:
 - ENDORSE → yea
 - OPPOSE → nay
-- AMEND/ABSTAIN → abstain
+- AMEND → amend (counts toward eligible votes)
+- ABSTAIN → abstain
 
 Then applies threshold rules:
 - supermajority if the title contains “constitutional”
 - else simple majority
+
+Amendment-aware behavior:
+- Motions can land in `accepted_with_amendments` when amend support plus yea support
+  meets the threshold.
+- A second pass then synthesizes amendments deterministically and re-ratifies.
 
 #### B) Simulation mode: simulated ratification
 
@@ -214,16 +225,16 @@ This is a heuristic vote generator. The “default” branch produces a fixed sp
 
 ### 1) Parallelize across Archons (High impact, requires care)
 
-Current bottleneck:
-- `collect_archon_reviews()` runs per-Archon sequentially.
+Current state:
+- `collect_archon_reviews()` already runs per-Archon concurrently with a semaphore.
+- Concurrency is controlled via `REVIEWER_ARCHON_CONCURRENCY` (default 4).
 
 In principle, Archon reviews are independent and can be run concurrently with the same “effect” (same semantics), as long as:
 - You can tolerate non-deterministic ordering of completion/logs.
 - Your model provider(s) can handle concurrency (rate limits, GPU capacity).
 
-Recommended design:
-- Use `asyncio.gather()` on multiple Archon review tasks.
-- Gate concurrency with a semaphore (e.g., 4–16).
+Recommended tuning:
+- Adjust `REVIEWER_ARCHON_CONCURRENCY` based on provider capacity.
 - If you have distributed inference (different `base_url` per Archon), you can increase concurrency substantially.
 
 When *not* to parallelize:
@@ -232,8 +243,12 @@ When *not* to parallelize:
 
 ### 2) Parallelize within a panel deliberation (Medium impact)
 
-Panel stage currently executes supporter arguments sequentially and critic arguments sequentially.
-These can be run concurrently (each is independent text generation), then fed into synthesis.
+Current state:
+- Panels already run concurrently across motions via `REVIEWER_PANEL_CONCURRENCY`.
+- Within a single panel, supporter and critic arguments are still sequential.
+
+Potential improvement:
+- Run supporter arguments concurrently, then critic arguments concurrently, then synthesize.
 
 ### 3) Reduce per-review overhead (High impact)
 
@@ -298,8 +313,8 @@ Semantically, the pipeline does not require round-robin ordering for correctness
 ## Suggested Next Improvements (If You Want to Implement Speedups)
 
 If you want speed without changing governance semantics:
-1. Add concurrency in `MotionReviewService.collect_archon_reviews()` with a semaphore.
-2. Add concurrency in `ReviewerCrewAIAdapter.run_panel_deliberation()` for supporter/critic argument generation.
+1. Tune `REVIEWER_ARCHON_CONCURRENCY` and `REVIEWER_PANEL_CONCURRENCY` for your infra.
+2. Add concurrency inside `ReviewerCrewAIAdapter.run_panel_deliberation()` for supporter/critic argument generation.
 3. Rework `ReviewerCrewAIAdapter.batch_review_motions()` to do a true “single call returns many decisions” batch.
 
 If you want speed by changing the review “coverage” model:

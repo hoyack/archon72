@@ -91,11 +91,12 @@ def create_reviewer_agent(verbose: bool = False):
             return None
 
 
-async def run_async_pipeline(service, consolidator_path, output_dir):
+async def run_async_pipeline(service, consolidator_path, output_dir, include_deferred):
     """Run the async pipeline with real agent reviews."""
     result = await service.run_full_pipeline_async(
         consolidator_path,
         use_real_agent=True,
+        include_deferred=include_deferred,
     )
     session_dir = service.save_results(result, output_dir)
     return result, session_dir
@@ -135,6 +136,11 @@ def main():
         action="store_true",
         help="Use real LLM-powered Archon reviews (requires API keys)",
     )
+    parser.add_argument(
+        "--include-deferred",
+        action="store_true",
+        help="Include deferred novel proposals as high-risk motions (default: skip them)",
+    )
 
     args = parser.parse_args()
 
@@ -172,6 +178,7 @@ def main():
     print(f"Verbose: {args.verbose}")
     print(f"Triage Only: {args.triage_only}")
     print(f"Real Agent: {args.real_agent}")
+    print(f"Include Deferred: {args.include_deferred}")
     print(
         f"Simulate Reviews: {not args.no_simulate and not args.triage_only and not args.real_agent}"
     )
@@ -180,9 +187,10 @@ def main():
     # Initialize service
     service = MotionReviewService(verbose=args.verbose, reviewer_agent=reviewer_agent)
 
-    # Load data
+    # Load data (deferred proposals excluded by default)
     mega_motions, novel_proposals, session_id, session_name = service.load_mega_motions(
-        args.consolidator_path
+        args.consolidator_path,
+        include_deferred=args.include_deferred,
     )
 
     print(f"Session: {session_name}")
@@ -229,7 +237,12 @@ def main():
         output_dir = Path("_bmad-output/review-pipeline")
 
         result, session_dir = asyncio.run(
-            run_async_pipeline(service, args.consolidator_path, output_dir)
+            run_async_pipeline(
+                service,
+                args.consolidator_path,
+                output_dir,
+                args.include_deferred,
+            )
         )
 
         # Print summary
@@ -243,6 +256,7 @@ def main():
         result = service.run_full_pipeline(
             args.consolidator_path,
             simulate=simulate,
+            include_deferred=args.include_deferred,
         )
 
         # Save results
@@ -301,11 +315,14 @@ def print_pipeline_summary(result, session_dir, real_agent: bool = False):
         print("RATIFICATION RESULTS:")
         print("-" * 60)
         for i, vote in enumerate(result.ratification_votes, 1):
-            outcome_emoji = {
+            outcome_emojis = {
                 "ratified": "✅",
+                "accepted_with_amendments": "🛠️",
                 "rejected": "❌",
                 "deferred": "⏸️",
-            }[vote.outcome.value]
+            }
+            outcome_key = vote.outcome.value
+            outcome_emoji = outcome_emojis.get(outcome_key, "❔")
             print(f"{i:2}. {outcome_emoji} {vote.mega_motion_title[:45]}...")
             print(
                 f"    Yeas: {vote.yeas} | Nays: {vote.nays} | Abstain: {vote.abstentions}"

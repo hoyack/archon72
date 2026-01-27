@@ -529,8 +529,7 @@ RULES:
         """
         batch_size = 30
         batches = [
-            motions[i : i + batch_size]
-            for i in range(0, len(motions), batch_size)
+            motions[i : i + batch_size] for i in range(0, len(motions), batch_size)
         ]
 
         logger.info(
@@ -622,8 +621,7 @@ RULES:
 
         # Convert to expected format
         return [
-            {"theme": theme, "motion_ids": ids}
-            for theme, ids in consolidated.items()
+            {"theme": theme, "motion_ids": ids} for theme, ids in consolidated.items()
         ]
 
     def _consolidate_themes(
@@ -975,9 +973,7 @@ RULES:
 
         return deduped
 
-    def _apply_emergency_exception_clause(
-        self, mega_motions: list[MegaMotion]
-    ) -> None:
+    def _apply_emergency_exception_clause(self, mega_motions: list[MegaMotion]) -> None:
         """Add explicit emergency exception when post-hoc limits exist."""
         emergency_keywords = ("emergency", "exemption", "contingency")
         emergency_present = any(
@@ -998,7 +994,9 @@ RULES:
 
         for mm in mega_motions:
             combined = f"{mm.title}\n{mm.theme}\n{mm.consolidated_text}".lower()
-            if ("post-hoc" in combined or "post hoc" in combined) and "justif" in combined:
+            if (
+                "post-hoc" in combined or "post hoc" in combined
+            ) and "justif" in combined:
                 if "emergency exception" in combined:
                     continue
                 mm.consolidated_text = mm.consolidated_text.rstrip() + "\n\n" + clause
@@ -2057,9 +2055,7 @@ CRITICAL: Output ONLY valid JSON.""",
                 f"| Original Motion Seeds | {result.consolidation.original_motion_count} |\n"
             )
             f.write(f"| Mega-Motions | {len(result.consolidation.mega_motions)} |\n")
-            f.write(
-                f"| Deferred Novel Proposals | {len(result.novel_proposals)} |\n"
-            )
+            f.write(f"| Deferred Novel Proposals | {len(result.novel_proposals)} |\n")
             f.write(f"| Acronyms Catalogued | {len(result.acronym_registry)} |\n")
             f.write(
                 f"| Consolidation Ratio | {result.consolidation.consolidation_ratio:.1%} |\n"

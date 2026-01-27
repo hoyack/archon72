@@ -643,7 +643,7 @@ CRITICAL: Output ONLY valid JSON. Example:
                     "phase2_consolidation_complete",
                     raw_clusters=len(all_clusters),
                     consolidated_clusters=len(consolidated),
-                    reduction_ratio=f"{(1 - len(consolidated)/len(all_clusters))*100:.1f}%",
+                    reduction_ratio=f"{(1 - len(consolidated) / len(all_clusters)) * 100:.1f}%",
                 )
                 all_clusters = consolidated
             except Exception as e:
@@ -822,9 +822,7 @@ CRITICAL: Output ONLY a valid JSON array. Example:
                 }
                 for i, s in enumerate(cluster_summaries)
             ]
-            index_map = {
-                i: s["global_idx"] for i, s in enumerate(cluster_summaries)
-            }
+            index_map = {i: s["global_idx"] for i, s in enumerate(cluster_summaries)}
             merge_groups_local = await self._identify_merge_groups(local_summaries)
             merge_groups = [
                 [index_map[idx] for idx in group if idx in index_map]
@@ -882,7 +880,7 @@ Return JSON array of index arrays using the 'index' field values. Example:
 [[0, 5, 12], [1, 8], [2], [3, 7, 15], [4], ...]
 
 CRITICAL:
-- Every cluster index (0 to {len(summaries)-1}) must appear exactly once
+- Every cluster index (0 to {len(summaries) - 1}) must appear exactly once
 - Only group clusters with genuinely similar themes
 - Output ONLY a valid JSON array of arrays""",
             expected_output="JSON array of merge groups",
@@ -1004,8 +1002,10 @@ CRITICAL:
             for item in data:
                 if isinstance(item, list):
                     group = [
-                        int(idx) for idx in item
-                        if isinstance(idx, (int, float)) and 0 <= int(idx) < cluster_count
+                        int(idx)
+                        for idx in item
+                        if isinstance(idx, (int, float))
+                        and 0 <= int(idx) < cluster_count
                     ]
                     # Remove duplicates and already-seen indices
                     unique_group = [idx for idx in group if idx not in seen_indices]
@@ -1311,8 +1311,7 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
             asyncio.create_task(_extract_one(i, speech))
             for i, speech in enumerate(speeches)
         ]
-        processed = 0
-        for task in asyncio.as_completed(tasks):
+        for processed, task in enumerate(asyncio.as_completed(tasks), start=1):
             idx, recs, err = await task
             results_by_index[idx] = recs
             if err:
@@ -1323,7 +1322,6 @@ CRITICAL: Output ONLY valid JSON. Do not use line breaks within string values.""
             else:
                 recommendation_count += len(recs)
 
-            processed += 1
             if processed % 10 == 0:
                 logger.info(
                     "extraction_progress",

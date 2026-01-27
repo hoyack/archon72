@@ -267,7 +267,9 @@ class MotionReviewService:
         """
         mega_motions_file = consolidator_output_path / "mega-motions.json"
         # Support both old and new novel proposals filename
-        novel_proposals_file = consolidator_output_path / "deferred-novel-proposals.json"
+        novel_proposals_file = (
+            consolidator_output_path / "deferred-novel-proposals.json"
+        )
         if not novel_proposals_file.exists():
             novel_proposals_file = consolidator_output_path / "novel-proposals.json"
         summary_file = consolidator_output_path / "conclave-summary.json"

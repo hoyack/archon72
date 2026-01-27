@@ -304,7 +304,9 @@ Decision guidance:
 
             except json.JSONDecodeError as e:
                 logger.warning(
-                    "json_parse_failed_will_retry" if attempt < max_retries - 1 else "json_parse_failed",
+                    "json_parse_failed_will_retry"
+                    if attempt < max_retries - 1
+                    else "json_parse_failed",
                     adapter="reviewer",
                     stage="review",
                     archon=archon.archon_name,
@@ -318,7 +320,9 @@ Decision guidance:
 
             except Exception as e:
                 logger.warning(
-                    "review_motion_retry" if attempt < max_retries - 1 else "review_motion_failed",
+                    "review_motion_retry"
+                    if attempt < max_retries - 1
+                    else "review_motion_failed",
                     archon=archon.archon_name,
                     motion_id=motion.mega_motion_id,
                     error=str(e),

@@ -1165,10 +1165,10 @@
       "elevenlabs_voice_id": "FRCWGHGdNg52Eppjpr8D",
       "llm_config": {
         "provider": "local",
-        "model": "kimi-k2-thinking:cloud",
+        "model": "qwen3-next:80b-cloud",
         "temperature": 0.6,
         "max_tokens": 3000,
-        "timeout_ms": 300000,
+        "timeout_ms": 360000,
         "api_key_env": null,
         "base_url": "https://ollama.com"
       }

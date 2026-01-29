@@ -152,40 +152,22 @@ class RFPContributorCrewAIAdapter(RFPContributorProtocol):
     # Context purity constraint - CRITICAL for preventing domain hallucination
     CONTEXT_PURITY_CONSTRAINT = """
 CONTEXT PURITY CONSTRAINT (MANDATORY):
-You may ONLY reference:
-- The governance system itself (ledger, events, tasks, roles, branches)
-- Conclave / Aegis Network / Archon task lifecycle artifacts
-- Abstract system concepts (state changes, authority, attribution, verification)
-
-You may NOT:
-- Invent real-world domains (healthcare/HIPAA, military/Geneva, nuclear, financial/SOX)
-- Reference external compliance frameworks unless the motion explicitly names them
-- Create fictional urgency or compliance burdens
-- Introduce domain-specific terminology that doesn't exist in the motion
-
-If the motion doesn't mention a domain, it doesn't apply. Stick to the governance system.
+- Only reference governance artifacts and abstract system concepts.
+- Do NOT introduce real-world domains or external frameworks unless named in the motion.
+- Do NOT add domain-specific terminology not present in the motion.
 """
 
     BRANCH_BOUNDARY_CONSTRAINT = """
 BRANCH-BOUNDARY CONSTRAINT (MANDATORY):
-- You may NOT assign work, responsibilities, validators, approvals, or signers to any other branch/portfolio.
-- You may state independence requirements only (e.g., "validation must be independent from the acting entity").
-- If another portfolio is needed, record it as an independence requirement without naming portfolios or branches.
-- You may NOT introduce new governance structures, matrices, cycles, councils, or consensus frameworks unless present in the motion text.
+- Do NOT assign work/approvals to other branches or portfolios.
+- Independence requirements only; do not name portfolios/branches.
+- Do NOT introduce new governance structures unless present in the motion.
 """
 
     EXECUTIVE_NON_OPERATIONAL_CONSTRAINT = """
 EXECUTIVE NON-OPERATIONAL CONSTRAINT (MANDATORY):
-You are NOT permitted to:
-- Describe systems, modules, pipelines, protocols, engines, ledgers, APIs, dashboards, or tooling
-- Specify cryptography, hashes, signatures, keys, clocks, latency, throughput, SLAs, or performance metrics
-- Assign execution, validation, review, or operation to any branch, portfolio, or role
-- Specify who performs an action, only that it must be independently verifiable
-
-You MAY ONLY:
-- Declare capabilities the system must support
-- Declare constraints the system must not violate
-- Declare properties that must be true for an action to be recognized
+- Do NOT specify mechanisms, metrics, or operators.
+- Only state capabilities, constraints, and recognition properties.
 """
 
     # Portfolio focus areas (abstract, not domain-specific)
@@ -208,9 +190,48 @@ ASTR SPECIAL LIMITS (MANDATORY):
 - You may discuss uncertainty and forecasting only as metadata attached to actions.
 - You may NOT introduce new clocks, divination cycles, matrices, consensus systems, or role schemas.
 - You may NOT require alignment to celestial events, divination schedules, or scenario scores as gating conditions.
-- Allowed: "If an ASTR output is authority-bearing, it must include explicit attribution and a declared uncertainty note."
-- Forbidden: "must align to divination cycles", "astrological role matrix governs legitimacy", "scenario coverage score required".
+    - Allowed: "If an ASTR output is authority-bearing, it must include explicit attribution and a declared uncertainty note."
+    - Forbidden: "must align to divination cycles", "astrological role matrix governs legitimacy", "scenario coverage score required".
 """
+
+    def _compact_motion_text(self, motion_text: str, max_chars: int = 1200) -> str:
+        """Return a compact motion snippet for retry prompts."""
+        if not motion_text:
+            return ""
+
+        sections: list[str] = []
+        patterns = [
+            r"##\s*Definitions[\s\S]*?(?=^##\s|\Z)",
+            r"##\s*Binding Requirement[\s\S]*?(?=^##\s|\Z)",
+            r"##\s*Success Criteria[\s\S]*?(?=^##\s|\Z)",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, motion_text, re.MULTILINE)
+            if match:
+                sections.append(match.group(0).strip())
+
+        if sections:
+            compact = "\n\n".join(sections)
+        else:
+            compact = motion_text.strip()
+
+        if len(compact) > max_chars:
+            compact = compact[:max_chars].rstrip()
+        return compact
+
+    def _is_empty_contribution(self, contribution: PortfolioContribution) -> bool:
+        """Return True if the contribution has no substantive content."""
+        return not any(
+            [
+                contribution.functional_requirements,
+                contribution.non_functional_requirements,
+                contribution.constraints,
+                contribution.deliverables,
+                contribution.evaluation_criteria,
+                contribution.risks_identified,
+                contribution.assumptions,
+            ]
+        )
     def __init__(
         self,
         profile_repository: ArchonProfileRepository | None = None,
@@ -404,6 +425,8 @@ Output ONLY ONE JSON object. Do not return a list.
         """Generate a portfolio contribution to the RFP."""
         llm, llm_config = self._get_president_llm(president_name)
 
+        use_compact_prompt = False
+
         # Get unique portfolio abbreviation for ID namespacing
         abbrev = self.PORTFOLIO_ABBREV.get(portfolio_id, portfolio_id[-4:].upper())
         focus = self.PORTFOLIO_FOCUS.get(abbrev, "requirements relevant to your portfolio")
@@ -419,12 +442,41 @@ Output ONLY ONE JSON object. Do not return a list.
 
         special_limits = self.ASTR_SPECIAL_LIMITS if abbrev == "ASTR" else ""
 
-        contribution_prompt = f"""OUTPUT ONLY VALID JSON.
+        agent = Agent(
+            role=f"{president_name} - {portfolio_domain} President",
+            goal=f"Contribute requirements and constraints from {portfolio_id} perspective within governance system context only",
+            backstory=f"You are {president_name}, President responsible for {portfolio_domain} "
+            f"within the Aegis Network governance system. You analyze mandates through your "
+            f"portfolio lens but ONLY within the context of this governance system - you do not "
+            f"invent external compliance frameworks, real-world domains, or fictional urgency.",
+            llm=llm,
+            verbose=self._verbose,
+        )
+
+        max_attempts = int(os.getenv("RFP_CONTRIBUTION_RETRIES", "3"))
+        attempts = 0
+        last_raw = ""
+        while attempts < max_attempts:
+            attempts += 1
+            base_header = "OUTPUT ONLY VALID JSON."
+            retry_header = (
+                "OUTPUT ONLY VALID JSON.\nRETRY MODE: Your last response was empty/invalid or violated constraints. "
+                "Provide a minimal, non-empty contribution using capability language only."
+            )
+            prompt_header = retry_header if use_compact_prompt else base_header
+
+            mandate_text = (
+                self._compact_motion_text(motion_text)
+                if use_compact_prompt
+                else motion_text
+            )
+
+            contribution_prompt = f"""{prompt_header}
 You are {president_name}, President of {portfolio_id}.
 
 MANDATE:
 Title: {motion_title}
-Text: {motion_text}
+Text: {mandate_text}
 
 {self.CONTEXT_PURITY_CONSTRAINT}
 {self.BRANCH_BOUNDARY_CONSTRAINT}
@@ -436,10 +488,11 @@ PORTFOLIO LENS: {focus}
 
 Rules:
 - Define WHAT is needed, not HOW to implement it
-- Stay within governance system context only
-- Use "The implementation shall enable ..." for requirement and constraint descriptions
-- Use empty arrays/empty strings for any fields with no content (never use null)
-- If no action is required, use empty arrays and write a brief summary
+- Use "The implementation shall enable ..." for requirement/constraint descriptions
+- If no action is required, set contribution_summary to "NO_ACTION: <reason>" and leave all arrays empty
+- Otherwise include at least one requirement or constraint (aim for 2-4 if applicable)
+- Do NOT leave all arrays empty unless NO_ACTION (empty contributions are rejected and retried)
+- Use empty arrays/empty strings for fields you are not populating (never use null)
 - If independence is required, record it only in "independence_requirements" without naming portfolios or branches
 
 Use ID prefix "{abbrev}" for all IDs.
@@ -459,34 +512,18 @@ JSON SHAPE (exact keys, arrays may be empty):
 
 CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No extra text."""
 
-        agent = Agent(
-            role=f"{president_name} - {portfolio_domain} President",
-            goal=f"Contribute requirements and constraints from {portfolio_id} perspective within governance system context only",
-            backstory=f"You are {president_name}, President responsible for {portfolio_domain} "
-            f"within the Aegis Network governance system. You analyze mandates through your "
-            f"portfolio lens but ONLY within the context of this governance system - you do not "
-            f"invent external compliance frameworks, real-world domains, or fictional urgency.",
-            llm=llm,
-            verbose=self._verbose,
-        )
+            task = Task(
+                description=contribution_prompt,
+                expected_output="JSON object with requirements, constraints, deliverables, and evaluation criteria",
+                agent=agent,
+            )
 
-        task = Task(
-            description=contribution_prompt,
-            expected_output="JSON object with requirements, constraints, deliverables, and evaluation criteria",
-            agent=agent,
-        )
+            crew = Crew(
+                agents=[agent],
+                tasks=[task],
+                verbose=self._verbose,
+            )
 
-        crew = Crew(
-            agents=[agent],
-            tasks=[task],
-            verbose=self._verbose,
-        )
-
-        max_attempts = int(os.getenv("RFP_CONTRIBUTION_RETRIES", "3"))
-        attempts = 0
-        last_raw = ""
-        while attempts < max_attempts:
-            attempts += 1
             try:
                 result = crew.kickoff()
             except Exception as exc:
@@ -499,12 +536,17 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
             last_raw = raw_output
             if not raw_output or not raw_output.strip():
                 if attempts < max_attempts:
+                    cooldown = float(
+                        os.getenv("RFP_CONTRIBUTION_EMPTY_COOLDOWN_SECONDS", "0")
+                    )
+                    if cooldown > 0:
+                        await asyncio.sleep(cooldown)
                     await asyncio.sleep(self._backoff_delay(attempts))
                     continue
                 break
 
             try:
-                return self._parse_contribution(
+                contribution = self._parse_contribution(
                     raw_output=raw_output,
                     portfolio_id=portfolio_id,
                     president_name=president_name,
@@ -513,6 +555,12 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
                     llm_config=llm_config,
                     raise_on_error=True,
                 )
+                if self._is_empty_contribution(contribution) and not contribution.is_no_action():
+                    if attempts < max_attempts:
+                        use_compact_prompt = True
+                        await asyncio.sleep(self._backoff_delay(attempts))
+                        continue
+                return contribution
             except ValueError:
                 repaired = self._repair_json_with_secretary(
                     raw_output=raw_output,
@@ -521,7 +569,7 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
                 )
                 if repaired:
                     try:
-                        return self._parse_contribution(
+                        contribution = self._parse_contribution(
                             raw_output=repaired,
                             portfolio_id=portfolio_id,
                             president_name=president_name,
@@ -530,8 +578,17 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
                             llm_config=llm_config,
                             raise_on_error=True,
                         )
+                        if self._is_empty_contribution(contribution) and not contribution.is_no_action():
+                            if attempts < max_attempts:
+                                use_compact_prompt = True
+                                await asyncio.sleep(self._backoff_delay(attempts))
+                                continue
+                        return contribution
                     except ValueError:
-                        pass
+                        use_compact_prompt = True
+                        if attempts < max_attempts:
+                            await asyncio.sleep(self._backoff_delay(attempts))
+                            continue
                 if attempts < max_attempts:
                     await asyncio.sleep(self._backoff_delay(attempts))
                     continue

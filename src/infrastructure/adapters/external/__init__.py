@@ -12,9 +12,16 @@ from src.infrastructure.adapters.external.crewai_adapter import (
     CrewAIAdapter,
     create_crewai_adapter,
 )
+from src.infrastructure.adapters.external.duke_proposal_crewai_adapter import (
+    DukeProposalCrewAIAdapter,
+    create_duke_proposal_generator,
+)
 from src.infrastructure.adapters.external.executive_review_crewai_adapter import (
     ExecutiveReviewCrewAIAdapter,
     create_executive_reviewer,
+)
+from src.infrastructure.adapters.external.in_memory_audit_bus import (
+    InMemoryAuditEventBus,
 )
 from src.infrastructure.adapters.external.planner_crewai_adapter import (
     PlannerCrewAIAdapter,
@@ -31,14 +38,21 @@ from src.infrastructure.adapters.external.rfp_contributor_crewai_adapter import 
 from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     SecretaryCrewAIAdapter,
 )
+from src.infrastructure.adapters.external.tool_execution_adapter import (
+    ToolExecutionAdapter,
+    create_tool_executor,
+)
 
 __all__ = [
     "AdministrativeCrewAIAdapter",
     "create_administrative_proposal_generator",
     "CrewAIAdapter",
     "create_crewai_adapter",
+    "DukeProposalCrewAIAdapter",
+    "create_duke_proposal_generator",
     "ExecutiveReviewCrewAIAdapter",
     "create_executive_reviewer",
+    "InMemoryAuditEventBus",
     "PlannerCrewAIAdapter",
     "create_planner_agent",
     "PresidentCrewAIAdapter",
@@ -47,6 +61,8 @@ __all__ = [
     "create_rfp_contributor",
     "SecretaryCrewAIAdapter",
     "create_secretary_agent",
+    "ToolExecutionAdapter",
+    "create_tool_executor",
 ]
 
 

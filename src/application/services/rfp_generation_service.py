@@ -110,8 +110,23 @@ class RFPGenerationService:
             "503",
             "empty response",
             "invalid response",
+            "empty contribution",
         ]
         return any(signal in message for signal in retry_signals)
+
+    def _is_empty_contribution(self, contribution: PortfolioContribution) -> bool:
+        """Return True if a contribution has no substantive content."""
+        return not any(
+            [
+                contribution.functional_requirements,
+                contribution.non_functional_requirements,
+                contribution.constraints,
+                contribution.deliverables,
+                contribution.evaluation_criteria,
+                contribution.risks_identified,
+                contribution.assumptions,
+            ]
+        )
 
     def _backoff_delay(self, attempt: int) -> float:
         base = float(os.getenv("RFP_GENERATOR_BACKOFF_BASE_SECONDS", "2.0"))
@@ -221,6 +236,20 @@ class RFPGenerationService:
                         existing_contributions=contributions,
                     )
                     contribution.portfolio_label = president.get("portfolio_label", "")
+
+                    if (
+                        contribution.status == ContributionStatus.CONTRIBUTED
+                        and self._is_empty_contribution(contribution)
+                    ):
+                        if contribution.is_no_action():
+                            contribution.status = ContributionStatus.NO_ACTION
+                        else:
+                            contribution.status = ContributionStatus.FAILED
+                            contribution.failure_reason = "Empty contribution"
+                            contribution.deliberation_notes = (
+                                "No requirements, constraints, deliverables, "
+                                "criteria, risks, or assumptions were provided."
+                            )
 
                     if (
                         contribution.status == ContributionStatus.FAILED

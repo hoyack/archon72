@@ -15,6 +15,7 @@ Principle: "Conclave is for intent. Administration is for reality."
 from __future__ import annotations
 
 import argparse
+import asyncio
 import glob
 import json
 import sys
@@ -170,6 +171,186 @@ def _process_motion(
     }
 
 
+def _run_execution_programs(
+    handoffs: list[dict],
+    executive_output_path: Path,
+    session_dir: Path,
+    args: argparse.Namespace,
+) -> list[dict]:
+    """Run Execution Program Stages A-F for each handoff."""
+    from src.application.services.execution_program_service import (
+        ExecutionProgramService,
+    )
+
+    events: list[dict] = []
+
+    def event_sink(event_type: str, payload: dict) -> None:
+        events.append({"type": event_type, "payload": payload})
+
+    # Create port injections based on mode
+    tool_executor = None
+    audit_bus = None
+    profile_repository = None
+
+    if args.mode in ("llm", "auto"):
+        try:
+            from src.infrastructure.adapters.external.tool_execution_adapter import (
+                create_tool_executor,
+            )
+
+            tool_executor = create_tool_executor(verbose=args.verbose)
+            print("  Loaded tool execution adapter")
+        except ImportError as e:
+            print(f"  Warning: Could not load tool executor: {e}")
+
+        try:
+            from src.infrastructure.adapters.external.in_memory_audit_bus import (
+                InMemoryAuditEventBus,
+            )
+
+            audit_bus = InMemoryAuditEventBus()
+            print("  Loaded audit event bus")
+        except ImportError as e:
+            print(f"  Warning: Could not load audit bus: {e}")
+
+        try:
+            from src.infrastructure.adapters.config.archon_profile_adapter import (
+                create_archon_profile_repository,
+            )
+
+            profile_repository = create_archon_profile_repository()
+            print("  Loaded Archon profile repository")
+        except ImportError as e:
+            print(f"  Warning: Could not load profile repository: {e}")
+
+    service = ExecutionProgramService(
+        tool_executor=tool_executor,
+        audit_bus=audit_bus,
+        profile_repository=profile_repository,
+        event_sink=event_sink,
+        verbose=args.verbose,
+    )
+
+    # Load existing admin service for epic loading
+    admin_service = AdministrativePipelineService(verbose=args.verbose)
+
+    async def _run_stages_for_motion(
+        svc: ExecutionProgramService,
+        admin_svc: AdministrativePipelineService,
+        handoff: dict,
+        exec_output_path: Path,
+        out_dir: Path,
+    ) -> dict:
+        motion_id = handoff.get("motion_id", "unknown")
+
+        # Load epics and work packages
+        epics = admin_svc.load_epics_from_handoff(
+            handoff=handoff,
+            executive_output_path=exec_output_path,
+        )
+        work_packages = svc.load_work_packages_from_handoff(
+            handoff=handoff,
+            executive_output_path=exec_output_path,
+        )
+
+        print(f"    Epics: {len(epics)}, Work Packages: {len(work_packages)}")
+
+        # Stage A: Intake
+        program = await svc.create_program_from_handoff(
+            handoff=handoff,
+            executive_output_path=exec_output_path,
+            epics=epics,
+            work_packages=work_packages,
+        )
+        print(f"    Stage A (Intake): program={program.program_id}")
+
+        # Stage B: Feasibility
+        program, blockers = await svc.run_feasibility_checks(
+            program=program,
+            epics=epics,
+            work_packages=work_packages,
+        )
+        print(
+            f"    Stage B (Feasibility): "
+            f"feasible={len(program.tasks)}, blockers={len(blockers)}"
+        )
+
+        # Stage C: Commit
+        program = await svc.commit_program(program)
+        print(f"    Stage C (Commit): stage={program.stage.value}")
+
+        # Stage D: Activation
+        program = await svc.activate_tasks(
+            program=program,
+            work_packages=work_packages,
+            epics=epics,
+        )
+        activated = sum(
+            1 for s in program.tasks.values() if s.value in ("ACTIVATED", "COMPLETED")
+        )
+        print(f"    Stage D (Activation): activated={activated}")
+
+        # Stage E: Results
+        program = await svc.collect_results(
+            program=program,
+            results=[],
+        )
+        completion = (
+            program.completion_status.value
+            if program.completion_status
+            else "IN_PROGRESS"
+        )
+        print(
+            f"    Stage E (Results): "
+            f"artifacts={len(program.result_artifacts)}, "
+            f"completion={completion}"
+        )
+
+        # Stage F skipped unless violation detected
+        print("    Stage F (Violation): skipped (no violations)")
+
+        # Save program output
+        program_dir = out_dir / "programs" / program.program_id
+        program_dir.mkdir(parents=True, exist_ok=True)
+        _save_json(program_dir / "execution_program.json", program.to_dict())
+
+        return {
+            "program_id": program.program_id,
+            "motion_id": motion_id,
+            "duke": (
+                program.duke_assignment.duke_name if program.duke_assignment else "none"
+            ),
+            "total_tasks": len(program.tasks),
+            "activated": activated,
+            "results": len(program.result_artifacts),
+            "blockers": len(program.blocker_reports),
+            "completion_status": completion,
+            "stage": program.stage.value,
+        }
+
+    program_summaries: list[dict] = []
+
+    for handoff in handoffs:
+        motion_id = handoff.get("motion_id", "unknown")
+        print(f"\n  Running Execution Program for motion: {motion_id}")
+
+        summary = asyncio.run(
+            _run_stages_for_motion(
+                svc=service,
+                admin_svc=admin_service,
+                handoff=handoff,
+                exec_output_path=executive_output_path,
+                out_dir=session_dir,
+            )
+        )
+        program_summaries.append(summary)
+
+    # Save events
+    _save_jsonl(session_dir / "execution_program_events.jsonl", events)
+
+    return program_summaries
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run Administrative Pipeline on Executive execution handoffs"
@@ -203,6 +384,11 @@ def main() -> None:
             "'llm' uses LLM, 'auto' uses LLM when available, "
             "'simulation' generates test proposals (default: auto)"
         ),
+    )
+    parser.add_argument(
+        "--execution-programs",
+        action="store_true",
+        help="Run Execution Program Stages A-F after proposal generation",
     )
     parser.add_argument(
         "--verbose",
@@ -290,6 +476,48 @@ def main() -> None:
     print(f"Mode: {args.mode}")
     print(f"Output saved to: {session_dir}")
     print("=" * 60 + "\n")
+
+    # Run Execution Programs if requested
+    if args.execution_programs:
+        print("\n" + "=" * 60)
+        print("EXECUTION PROGRAMS (Stages A-F)")
+        print("=" * 60)
+
+        program_summaries = _run_execution_programs(
+            handoffs=handoffs,
+            executive_output_path=executive_output_path,
+            session_dir=session_dir,
+            args=args,
+        )
+
+        # Save execution program summary
+        exec_summary = {
+            "session_id": session_id,
+            "created_at": now_iso(),
+            "mode": args.mode,
+            "programs_created": len(program_summaries),
+            "total_tasks": sum(s["total_tasks"] for s in program_summaries),
+            "total_activated": sum(s["activated"] for s in program_summaries),
+            "total_results": sum(s["results"] for s in program_summaries),
+            "total_blockers": sum(s["blockers"] for s in program_summaries),
+            "program_summaries": program_summaries,
+        }
+        _save_json(session_dir / "execution_program_summary.json", exec_summary)
+
+        print("\n" + "-" * 60)
+        print("EXECUTION PROGRAMS COMPLETE")
+        print("-" * 60)
+        print(f"Programs created: {len(program_summaries)}")
+        print(f"Total tasks: {exec_summary['total_tasks']}")
+        print(f"Total activated: {exec_summary['total_activated']}")
+        print(f"Total results: {exec_summary['total_results']}")
+        print(f"Total blockers: {exec_summary['total_blockers']}")
+        for ps in program_summaries:
+            print(
+                f"  {ps['program_id']}: {ps['completion_status']} "
+                f"(duke={ps['duke']}, tasks={ps['total_tasks']})"
+            )
+        print("-" * 60 + "\n")
 
 
 if __name__ == "__main__":

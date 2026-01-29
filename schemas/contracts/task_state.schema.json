@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.local/schemas/contracts/task_state.schema.json",
+  "title": "TaskState",
+  "description": "Minimal state ledger per task, updated on TRA ingestion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "program_id",
+    "tar_id",
+    "tra_id",
+    "last_updated_at",
+    "state",
+    "last_outcome_status",
+    "blockers",
+    "deliverables",
+    "escalations"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "task_id": { "type": "string", "pattern": "^task-[a-zA-Z0-9\\-]+$" },
+    "program_id": { "type": "string", "pattern": "^program-[a-zA-Z0-9\\-]+$" },
+    "tar_id": { "type": "string", "pattern": "^tar-[a-zA-Z0-9\\-]+$" },
+    "tra_id": { "type": "string", "pattern": "^tra-[a-zA-Z0-9\\-]+$" },
+    "last_updated_at": { "type": "string", "minLength": 1 },
+    "state": {
+      "type": "string",
+      "enum": ["CLOSED", "CLOSED_PARTIAL", "NEEDS_REROUTE", "BLOCKED", "FAILED"]
+    },
+    "last_outcome_status": {
+      "type": "string",
+      "enum": ["COMPLETED", "PARTIAL", "BLOCKED", "FAILED", "DECLINED", "WITHDRAWN"]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "description", "needs_upstream_decision"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["MINOR", "MAJOR", "SEVERE"] },
+          "description": { "type": "string", "minLength": 1 },
+          "needs_upstream_decision": { "type": "boolean" }
+        }
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "artifact_ref"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "artifact_ref": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "escalations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["to", "reason", "ts"],
+        "properties": {
+          "to": { "type": "string", "enum": ["EARL", "DUKE", "PRESIDENT"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "ts": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

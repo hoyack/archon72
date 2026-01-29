@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archon72.local/schemas/contracts/task_state.schema.json",
   "title": "TaskState",
-  "description": "Minimal state ledger per task, updated on TRA ingestion.",
+  "description": "State ledger per task, updated on TRA ingestion and reroute.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -27,7 +27,7 @@
     "last_updated_at": { "type": "string", "minLength": 1 },
     "state": {
       "type": "string",
-      "enum": ["CLOSED", "CLOSED_PARTIAL", "NEEDS_REROUTE", "BLOCKED", "FAILED"]
+      "enum": ["ACTIVATION_SENT", "CLOSED", "CLOSED_PARTIAL", "NEEDS_REROUTE", "BLOCKED", "FAILED"]
     },
     "last_outcome_status": {
       "type": "string",
@@ -69,6 +69,40 @@
           "reason": { "type": "string", "minLength": 1 },
           "ts": { "type": "string", "minLength": 1 }
         }
+      }
+    },
+    "attempt_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "attempt_history": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tar_id", "tool_id", "created_at"],
+        "properties": {
+          "tar_id": { "type": "string", "pattern": "^tar-[a-zA-Z0-9\\-]+$" },
+          "tool_id": { "type": "string", "minLength": 1 },
+          "created_at": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "excluded_tools": {
+      "type": "array",
+      "default": [],
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "reroute_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "default": { "max_attempts": 3, "escalate_on_exhaustion": true },
+      "required": ["max_attempts", "escalate_on_exhaustion"],
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "escalate_on_exhaustion": { "type": "boolean" }
       }
     }
   }

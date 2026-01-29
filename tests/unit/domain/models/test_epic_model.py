@@ -156,7 +156,7 @@ class TestWorkPackageValidation:
             package_id="wp_crypto_001",
             epic_id="epic_security_001",
             scope_description="Implement cryptographic signing for vote records",
-            portfolio_id="portfolio_technical_solutions",
+            portfolio_id="portfolio_architecture_engineering_standards",
             dependencies=["wp_infra_001"],
             constraints_respected=["security", "auditability"],
         )

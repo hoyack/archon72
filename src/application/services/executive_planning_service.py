@@ -398,8 +398,8 @@ class ExecutivePlanningService:
 
         # Fall back to a reasonable default if no matches were found.
         if not scores:
-            default_owner = "portfolio_technical_solutions"
-            affected = [default_owner, "portfolio_resource_discovery"]
+            default_owner = "portfolio_architecture_engineering_standards"
+            affected = [default_owner, "portfolio_capacity_resource_planning"]
             return affected, default_owner
 
         scores.sort(reverse=True)
@@ -411,10 +411,10 @@ class ExecutivePlanningService:
 
         # Always include Resource Discovery for capacity visibility if present.
         if (
-            "portfolio_resource_discovery" in self._portfolio_dir.labels_by_portfolio
-            and "portfolio_resource_discovery" not in affected
+            "portfolio_capacity_resource_planning" in self._portfolio_dir.labels_by_portfolio
+            and "portfolio_capacity_resource_planning" not in affected
         ):
-            affected.append("portfolio_resource_discovery")
+            affected.append("portfolio_capacity_resource_planning")
 
         return affected, owner
 

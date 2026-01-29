@@ -24,6 +24,10 @@ from src.infrastructure.adapters.external.president_crewai_adapter import (
     PresidentCrewAIAdapter,
     create_president_deliberator,
 )
+from src.infrastructure.adapters.external.rfp_contributor_crewai_adapter import (
+    RFPContributorCrewAIAdapter,
+    create_rfp_contributor,
+)
 from src.infrastructure.adapters.external.secretary_crewai_adapter import (
     SecretaryCrewAIAdapter,
 )
@@ -39,6 +43,8 @@ __all__ = [
     "create_planner_agent",
     "PresidentCrewAIAdapter",
     "create_president_deliberator",
+    "RFPContributorCrewAIAdapter",
+    "create_rfp_contributor",
     "SecretaryCrewAIAdapter",
     "create_secretary_agent",
 ]

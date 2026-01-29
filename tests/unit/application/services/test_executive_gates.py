@@ -46,10 +46,10 @@ def test_completeness_fails_when_missing_response() -> None:
     packet = _mk_packet()
 
     affected = [
-        "portfolio_technical_solutions",
-        "portfolio_resource_discovery",
+        "portfolio_architecture_engineering_standards",
+        "portfolio_capacity_resource_planning",
     ]
-    owner = "portfolio_technical_solutions"
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -88,8 +88,8 @@ def test_visibility_fails_without_capacity_claims() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -125,8 +125,8 @@ def test_all_gates_pass_with_complete_responses() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -169,10 +169,10 @@ def test_attestation_satisfies_completeness() -> None:
     packet = _mk_packet()
 
     affected = [
-        "portfolio_technical_solutions",
-        "portfolio_resource_discovery",
+        "portfolio_architecture_engineering_standards",
+        "portfolio_capacity_resource_planning",
     ]
-    owner = "portfolio_technical_solutions"
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -201,7 +201,7 @@ def test_attestation_satisfies_completeness() -> None:
 
     # Resource Discovery attests no action
     resource_identity = PortfolioIdentity(
-        portfolio_id="portfolio_resource_discovery",
+        portfolio_id="portfolio_capacity_resource_planning",
         president_id="dfbc91a1-5494-412f-8b91-5328170860d6",
         president_name="Valac",
     )
@@ -231,8 +231,8 @@ def test_inbox_loading_contributions() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -247,7 +247,7 @@ def test_inbox_loading_contributions() -> None:
         contribution_data = {
             "cycle_id": cycle_id,
             "motion_id": packet.motion_id,
-            "portfolio_id": "portfolio_technical_solutions",
+            "portfolio_id": "portfolio_architecture_engineering_standards",
             "president_id": "65b64f9a-6758-48e0-91ca-852e7b7b1287",
             "president_name": "Marbas",
             "tasks": [{"id": "t1", "title": "Implement security controls"}],
@@ -258,7 +258,7 @@ def test_inbox_loading_contributions() -> None:
             },
             "blockers": [],
         }
-        with open(inbox_path / "contribution_portfolio_technical_solutions.json", "w") as f:
+        with open(inbox_path / "contribution_portfolio_architecture_engineering_standards.json", "w") as f:
             json.dump(contribution_data, f)
 
         contributions = svc.load_contributions_from_inbox(
@@ -266,7 +266,7 @@ def test_inbox_loading_contributions() -> None:
         )
 
         assert len(contributions) == 1
-        assert contributions[0].portfolio.portfolio_id == "portfolio_technical_solutions"
+        assert contributions[0].portfolio.portfolio_id == "portfolio_architecture_engineering_standards"
         assert contributions[0].capacity_claim.units == 8
         assert len(contributions[0].tasks) == 1
 
@@ -276,8 +276,8 @@ def test_inbox_loading_v2_work_packages() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -292,7 +292,7 @@ def test_inbox_loading_v2_work_packages() -> None:
             "schema_version": "2.0",
             "cycle_id": cycle_id,
             "motion_id": packet.motion_id,
-            "portfolio_id": "portfolio_technical_solutions",
+            "portfolio_id": "portfolio_architecture_engineering_standards",
             "president_id": "65b64f9a-6758-48e0-91ca-852e7b7b1287",
             "president_name": "Marbas",
             "tasks": [],
@@ -301,7 +301,7 @@ def test_inbox_loading_v2_work_packages() -> None:
                     "package_id": "wp_security_001",
                     "epic_id": "epic_security_001",
                     "scope_description": "Harden audit logging for key subsystems",
-                    "portfolio_id": "portfolio_technical_solutions",
+                    "portfolio_id": "portfolio_architecture_engineering_standards",
                     "dependencies": [],
                     "constraints_respected": ["Must preserve intent"],
                 }
@@ -314,7 +314,7 @@ def test_inbox_loading_v2_work_packages() -> None:
             "blockers": [],
         }
         with open(
-            inbox_path / "contribution_portfolio_technical_solutions.json", "w"
+            inbox_path / "contribution_portfolio_architecture_engineering_standards.json", "w"
         ) as f:
             json.dump(contribution_data, f)
 
@@ -332,8 +332,8 @@ def test_integrate_uses_blocker_workup_result() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -371,7 +371,7 @@ def test_integrate_uses_blocker_workup_result() -> None:
         blocker_class=BlockerClass.EXECUTION_UNCERTAINTY,
         severity=BlockerSeverity.MEDIUM,
         description="Need verification before implementation",
-        owner_portfolio_id="portfolio_technical_solutions",
+        owner_portfolio_id="portfolio_architecture_engineering_standards",
         disposition=BlockerDisposition.DEFER_DOWNSTREAM,
         ttl="P7D",
         escalation_conditions=["No audit within TTL"],
@@ -408,7 +408,7 @@ def test_integrate_uses_blocker_workup_result() -> None:
     peer_review_summary = PeerReviewSummary(
         cycle_id=cycle_id,
         motion_id=packet.motion_id,
-        plan_owner_portfolio_id="portfolio_technical_solutions",
+        plan_owner_portfolio_id="portfolio_architecture_engineering_standards",
         duplicates_detected=[],
         conflicts_detected=[],
         coverage_gaps=[],
@@ -443,8 +443,8 @@ def test_inbox_loading_attestations() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -459,14 +459,14 @@ def test_inbox_loading_attestations() -> None:
         attestation_data = {
             "cycle_id": cycle_id,
             "motion_id": packet.motion_id,
-            "portfolio_id": "portfolio_technical_solutions",
+            "portfolio_id": "portfolio_architecture_engineering_standards",
             "president_id": "65b64f9a-6758-48e0-91ca-852e7b7b1287",
             "president_name": "Marbas",
             "reason_code": "OUTSIDE_PORTFOLIO_SCOPE",
             "explanation": "This motion is outside my portfolio's scope.",
             "capacity_claim": {"claim_type": "NONE"},
         }
-        with open(inbox_path / "attestation_portfolio_technical_solutions.json", "w") as f:
+        with open(inbox_path / "attestation_portfolio_architecture_engineering_standards.json", "w") as f:
             json.dump(attestation_data, f)
 
         attestations = svc.load_attestations_from_inbox(
@@ -474,7 +474,7 @@ def test_inbox_loading_attestations() -> None:
         )
 
         assert len(attestations) == 1
-        assert attestations[0].portfolio.portfolio_id == "portfolio_technical_solutions"
+        assert attestations[0].portfolio.portfolio_id == "portfolio_architecture_engineering_standards"
         assert attestations[0].reason_code == NoActionReason.OUTSIDE_PORTFOLIO_SCOPE
 
 
@@ -488,8 +488,8 @@ def test_legibility_fails_with_invalid_v2_blocker() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -506,7 +506,7 @@ def test_legibility_fails_with_invalid_v2_blocker() -> None:
         blocker_class=BlockerClass.EXECUTION_UNCERTAINTY,
         severity=BlockerSeverity.MEDIUM,
         description="Some uncertainty",
-        owner_portfolio_id="portfolio_technical_solutions",
+        owner_portfolio_id="portfolio_architecture_engineering_standards",
         disposition=BlockerDisposition.DEFER_DOWNSTREAM,
         ttl="P7D",
         escalation_conditions=["Some condition"],
@@ -545,8 +545,8 @@ def test_legibility_fails_when_intent_ambiguity_not_escalated() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -563,7 +563,7 @@ def test_legibility_fails_when_intent_ambiguity_not_escalated() -> None:
         blocker_class=BlockerClass.INTENT_AMBIGUITY,
         severity=BlockerSeverity.HIGH,
         description="Ambiguous motion scope",
-        owner_portfolio_id="portfolio_technical_solutions",
+        owner_portfolio_id="portfolio_architecture_engineering_standards",
         disposition=BlockerDisposition.MITIGATE_IN_EXECUTIVE,  # Wrong!
         ttl="P1D",
         escalation_conditions=["Some condition"],
@@ -602,8 +602,8 @@ def test_legibility_passes_with_valid_deferred_blocker() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -620,7 +620,7 @@ def test_legibility_passes_with_valid_deferred_blocker() -> None:
         blocker_class=BlockerClass.EXECUTION_UNCERTAINTY,
         severity=BlockerSeverity.MEDIUM,
         description="Need to evaluate cryptographic options",
-        owner_portfolio_id="portfolio_technical_solutions",
+        owner_portfolio_id="portfolio_architecture_engineering_standards",
         disposition=BlockerDisposition.DEFER_DOWNSTREAM,
         ttl="P7D",
         escalation_conditions=["Audit not completed within TTL"],
@@ -679,8 +679,8 @@ def test_legibility_passes_with_valid_escalated_blocker() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -697,7 +697,7 @@ def test_legibility_passes_with_valid_escalated_blocker() -> None:
         blocker_class=BlockerClass.INTENT_AMBIGUITY,
         severity=BlockerSeverity.HIGH,
         description="Motion scope is ambiguous",
-        owner_portfolio_id="portfolio_technical_solutions",
+        owner_portfolio_id="portfolio_architecture_engineering_standards",
         disposition=BlockerDisposition.ESCALATE_NOW,
         ttl="P1D",
         escalation_conditions=["Conclave must clarify scope"],
@@ -748,8 +748,8 @@ def test_legibility_passes_with_mitigated_blocker() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -766,7 +766,7 @@ def test_legibility_passes_with_mitigated_blocker() -> None:
         blocker_class=BlockerClass.CAPACITY_CONFLICT,
         severity=BlockerSeverity.LOW,
         description="Resource contention resolved",
-        owner_portfolio_id="portfolio_technical_solutions",
+        owner_portfolio_id="portfolio_architecture_engineering_standards",
         disposition=BlockerDisposition.MITIGATE_IN_EXECUTIVE,
         ttl="P3D",
         escalation_conditions=["Mitigation fails"],
@@ -822,8 +822,8 @@ def test_epics_generated_from_work_packages() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -839,7 +839,7 @@ def test_epics_generated_from_work_packages() -> None:
         package_id="wp_crypto_001",
         epic_id="epic_auto",  # Will be overwritten by generated epic
         scope_description="Implement cryptographic signing for vote records",
-        portfolio_id="portfolio_technical_solutions",
+        portfolio_id="portfolio_architecture_engineering_standards",
         constraints_respected=["security", "auditability"],
     )
 
@@ -939,8 +939,8 @@ def test_v2_plan_includes_epics_in_output() -> None:
     svc = ExecutivePlanningService()
     packet = _mk_packet()
 
-    affected = ["portfolio_technical_solutions"]
-    owner = "portfolio_technical_solutions"
+    affected = ["portfolio_architecture_engineering_standards"]
+    owner = "portfolio_architecture_engineering_standards"
     assignment = svc.run_assignment_session(
         packet=packet,
         affected_portfolio_ids=affected,
@@ -956,7 +956,7 @@ def test_v2_plan_includes_epics_in_output() -> None:
         package_id="wp_impl_001",
         epic_id="epic_auto",
         scope_description="Implement feature X",
-        portfolio_id="portfolio_technical_solutions",
+        portfolio_id="portfolio_architecture_engineering_standards",
         constraints_respected=["security"],
     )
 

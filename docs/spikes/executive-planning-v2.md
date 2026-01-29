@@ -131,7 +131,7 @@ E3 — Integration (Plan Owner assembles final plan with epics)
   "blocker_class": "EXECUTION_UNCERTAINTY",
   "severity": "MEDIUM",
   "description": "Cryptographic proof mechanism selection requires security audit",
-  "owner_portfolio_id": "portfolio_technical_solutions",
+  "owner_portfolio_id": "portfolio_architecture_engineering_standards",
   "disposition": "DEFER_DOWNSTREAM",
   "ttl": "P7D",
   "escalation_conditions": [
@@ -260,7 +260,7 @@ Presidents may emit thin work packages that describe scope without detail:
   "package_id": "wp_crypto_layer_001",
   "epic_id": "epic_security_framework_001",
   "scope_description": "Implement cryptographic signing for vote records",
-  "portfolio_id": "portfolio_technical_solutions",
+  "portfolio_id": "portfolio_architecture_engineering_standards",
   "dependencies": [],
   "constraints_respected": ["security", "auditability"]
 }
@@ -279,7 +279,7 @@ Plan Owner emits after blocker workup:
   "schema_version": "2.0",
   "cycle_id": "exec_abc123",
   "motion_id": "motion_xyz",
-  "plan_owner_portfolio_id": "portfolio_technical_solutions",
+  "plan_owner_portfolio_id": "portfolio_architecture_engineering_standards",
   "duplicates_detected": [],
   "conflicts_detected": [],
   "coverage_gaps": ["No portfolio claimed compliance monitoring"],

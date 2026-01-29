@@ -6,6 +6,7 @@ Retry behavior is handled by individual adapters or CrewAI defaults.
 from __future__ import annotations
 
 import os
+import threading
 
 from structlog import get_logger
 
@@ -13,6 +14,44 @@ from src.domain.models.llm_config import LLMConfig
 from src.optional_deps.crewai import LLM
 
 logger = get_logger(__name__)
+
+_GLOBAL_LLM_SEMAPHORE: threading.Semaphore | None = None
+_GLOBAL_LLM_SEMAPHORE_LIMIT: int | None = None
+
+
+def _get_global_llm_semaphore() -> threading.Semaphore | None:
+    """Return a global semaphore for throttling LLM calls if configured."""
+    limit = os.getenv("CREWAI_LLM_GLOBAL_CONCURRENCY", "").strip()
+    if not limit:
+        return None
+    try:
+        value = int(limit)
+    except ValueError:
+        logger.warning("invalid_llm_global_concurrency", value=limit)
+        return None
+    if value <= 0:
+        return None
+
+    global _GLOBAL_LLM_SEMAPHORE, _GLOBAL_LLM_SEMAPHORE_LIMIT
+    if _GLOBAL_LLM_SEMAPHORE is None or value != _GLOBAL_LLM_SEMAPHORE_LIMIT:
+        _GLOBAL_LLM_SEMAPHORE = threading.Semaphore(value)
+        _GLOBAL_LLM_SEMAPHORE_LIMIT = value
+    return _GLOBAL_LLM_SEMAPHORE
+
+
+class _ThrottledLLM:
+    """Wrapper to throttle LLM calls with a semaphore."""
+
+    def __init__(self, llm: LLM | object, semaphore: threading.Semaphore) -> None:
+        self._llm = llm
+        self._semaphore = semaphore
+
+    def call(self, *args, **kwargs):
+        with self._semaphore:
+            return self._llm.call(*args, **kwargs)
+
+    def __getattr__(self, name: str):
+        return getattr(self._llm, name)
 
 
 def _normalize_provider(provider: str) -> str:
@@ -107,7 +146,7 @@ def create_crewai_llm(llm_config: LLMConfig) -> LLM | object:
         timeout_ms=llm_config.timeout_ms,
     )
     try:
-        return LLM(**llm_kwargs)
+        llm = LLM(**llm_kwargs)
     except ImportError as exc:
         logger.warning(
             "crewai_llm_fallback",
@@ -120,7 +159,17 @@ def create_crewai_llm(llm_config: LLMConfig) -> LLM | object:
                 self.model = model
                 self.base_url = base_url
 
-        return _FallbackLLM(model_string, base_url)
+        llm = _FallbackLLM(model_string, base_url)
+
+    semaphore = _get_global_llm_semaphore()
+    if semaphore:
+        logger.info(
+            "crewai_llm_throttled",
+            max_concurrency=_GLOBAL_LLM_SEMAPHORE_LIMIT,
+        )
+        return _ThrottledLLM(llm, semaphore)
+
+    return llm
 
 
 def llm_config_from_model_string(

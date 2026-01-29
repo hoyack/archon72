@@ -404,7 +404,7 @@ class AdministrativePipelineService:
     ) -> ImplementationProposal:
         """Create a simulated proposal for an epic."""
         proposal_id = f"prop_{uuid.uuid4().hex[:12]}"
-        portfolio_id = "portfolio_technical_solutions"  # Default
+        portfolio_id = "portfolio_architecture_engineering_standards"  # Default
 
         # Generate tactics from epic intent
         tactics = [

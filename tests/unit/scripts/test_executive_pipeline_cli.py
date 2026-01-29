@@ -1,10 +1,10 @@
 """Tests for Executive pipeline CLI (v2 mode handling)."""
 
+# Import the CLI functions to test
+import sys
 import tempfile
 from pathlib import Path
 
-# Import the CLI functions to test
-import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from scripts.run_executive_pipeline import (

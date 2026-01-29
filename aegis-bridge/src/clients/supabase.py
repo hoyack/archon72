@@ -3,9 +3,8 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
-from uuid import UUID
 
-from supabase import create_client, Client
+from supabase import Client, create_client
 
 from src.config import SupabaseConfig
 

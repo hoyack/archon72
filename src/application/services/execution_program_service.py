@@ -30,12 +30,11 @@ from typing import Any
 
 from structlog import get_logger
 
-from src.application.ports.audit_event_bus import AuditEvent, AuditEventBus
 from src.application.ports.archon_profile_repository import ArchonProfileRepository
+from src.application.ports.audit_event_bus import AuditEvent, AuditEventBus
 from src.application.ports.tool_execution import ToolExecutionProtocol
 from src.domain.models.execution_program import (
     DUKE_MAX_CONCURRENT_PROGRAMS,
-    EXECUTION_PROGRAM_SCHEMA_VERSION,
     MAX_SAME_CLUSTER_RETRIES,
     ActionReversibility,
     AdminBlockerDisposition,
@@ -62,13 +61,15 @@ logger = get_logger(__name__)
 ISO = "%Y-%m-%dT%H:%M:%SZ"
 
 # Terminal task statuses (task is done, regardless of outcome)
-_TERMINAL_STATUSES = frozenset({
-    TaskLifecycleStatus.COMPLETED,
-    TaskLifecycleStatus.FAILED,
-    TaskLifecycleStatus.WITHDRAWN,
-    TaskLifecycleStatus.TIMED_OUT,
-    TaskLifecycleStatus.DECLINED,
-})
+_TERMINAL_STATUSES = frozenset(
+    {
+        TaskLifecycleStatus.COMPLETED,
+        TaskLifecycleStatus.FAILED,
+        TaskLifecycleStatus.WITHDRAWN,
+        TaskLifecycleStatus.TIMED_OUT,
+        TaskLifecycleStatus.DECLINED,
+    }
+)
 
 
 def _now_iso() -> str:
@@ -295,12 +296,14 @@ class ExecutionProgramService:
 
             epic = epic_by_id.get(wp.epic_id)
             if not epic:
-                errors.append(
-                    f"WorkPackage references unknown epic_id: {wp.epic_id}"
-                )
+                errors.append(f"WorkPackage references unknown epic_id: {wp.epic_id}")
 
             if errors:
-                severity = AdminBlockerSeverity.CRITICAL if not wp.scope_description else AdminBlockerSeverity.MAJOR
+                severity = (
+                    AdminBlockerSeverity.CRITICAL
+                    if not wp.scope_description
+                    else AdminBlockerSeverity.MAJOR
+                )
                 report = AdministrativeBlockerReport(
                     report_id=_new_id("blocker_"),
                     program_id=program.program_id,
@@ -333,7 +336,9 @@ class ExecutionProgramService:
                         "administrative.blocker.escalated",
                         program.program_id,
                         {"report_id": report.report_id, "severity": severity.value},
-                        severity="critical" if severity == AdminBlockerSeverity.CRITICAL else "warning",
+                        severity="critical"
+                        if severity == AdminBlockerSeverity.CRITICAL
+                        else "warning",
                     )
             else:
                 # Task is feasible - register as PENDING
@@ -359,9 +364,7 @@ class ExecutionProgramService:
     # Stage C: Commit
     # ------------------------------------------------------------------
 
-    async def commit_program(
-        self, program: ExecutionProgram
-    ) -> ExecutionProgram:
+    async def commit_program(self, program: ExecutionProgram) -> ExecutionProgram:
         """Stage C: Commit program as append-only record."""
         program.stage = ProgramStage.COMMIT
         program.updated_at = _now_iso()
@@ -405,7 +408,8 @@ class ExecutionProgramService:
 
         # Assign Earls
         pending_task_ids = [
-            tid for tid, status in program.tasks.items()
+            tid
+            for tid, status in program.tasks.items()
             if status == TaskLifecycleStatus.PENDING
         ]
         earl_assignments = self._assign_earls(program, pending_task_ids)
@@ -437,17 +441,15 @@ class ExecutionProgramService:
                 earl_archon_id=earl.archon_id if earl else "",
                 scope_description=wp.scope_description,
                 constraints=wp.constraints_respected,
-                success_definition=(
-                    "; ".join(epic.success_signals) if epic else ""
-                ),
+                success_definition=("; ".join(epic.success_signals) if epic else ""),
                 required_capabilities=[],
                 action_reversibility=ActionReversibility.REVERSIBLE,
                 activation_deadline=(
                     datetime.now(timezone.utc) + timedelta(days=7)
                 ).strftime(ISO),
-                max_deadline=(
-                    datetime.now(timezone.utc) + timedelta(days=30)
-                ).strftime(ISO),
+                max_deadline=(datetime.now(timezone.utc) + timedelta(days=30)).strftime(
+                    ISO
+                ),
             )
             program.activation_requests.append(request)
 
@@ -564,9 +566,7 @@ class ExecutionProgramService:
             return None
 
         # Max retries exceeded - create blocker report
-        self._update_task_status(
-            program, task_id, TaskLifecycleStatus.DECLINED
-        )
+        self._update_task_status(program, task_id, TaskLifecycleStatus.DECLINED)
 
         report = AdministrativeBlockerReport(
             report_id=_new_id("blocker_"),
@@ -634,12 +634,7 @@ class ExecutionProgramService:
         # Update acceptance stats
         total_tasks = len(program.tasks)
         completed = sum(
-            1 for s in program.tasks.values()
-            if s == TaskLifecycleStatus.COMPLETED
-        )
-        declined = sum(
-            1 for s in program.tasks.values()
-            if s == TaskLifecycleStatus.DECLINED
+            1 for s in program.tasks.values() if s == TaskLifecycleStatus.COMPLETED
         )
         if total_tasks > 0:
             program.capacity_snapshots[-1].acceptance_rate = (
@@ -647,15 +642,14 @@ class ExecutionProgramService:
             )
 
         # Check if all tasks are in terminal state
-        all_terminal = all(
-            status in _TERMINAL_STATUSES
-            for status in program.tasks.values()
-        ) if program.tasks else False
+        all_terminal = (
+            all(status in _TERMINAL_STATUSES for status in program.tasks.values())
+            if program.tasks
+            else False
+        )
 
         if all_terminal:
-            program.completion_status = self._determine_completion_status(
-                program
-            )
+            program.completion_status = self._determine_completion_status(program)
 
         # Escalate unresolved critical blockers
         for report in program.blocker_reports:
@@ -780,9 +774,7 @@ class ExecutionProgramService:
 
         return stale_task_ids
 
-    def refresh_capacity_snapshot(
-        self, program: ExecutionProgram
-    ) -> CapacitySnapshot:
+    def refresh_capacity_snapshot(self, program: ExecutionProgram) -> CapacitySnapshot:
         """Create a new capacity snapshot with confidence decay."""
         now = datetime.now(timezone.utc)
 
@@ -791,9 +783,9 @@ class ExecutionProgramService:
         if program.capacity_snapshots:
             latest = program.capacity_snapshots[-1]
             try:
-                latest_time = datetime.strptime(
-                    latest.timestamp, ISO
-                ).replace(tzinfo=timezone.utc)
+                latest_time = datetime.strptime(latest.timestamp, ISO).replace(
+                    tzinfo=timezone.utc
+                )
                 age = now - latest_time
                 if age > timedelta(hours=4):
                     confidence = CapacityConfidence.LOW
@@ -805,12 +797,10 @@ class ExecutionProgramService:
         # Calculate acceptance rate from tasks
         total = len(program.tasks)
         completed = sum(
-            1 for s in program.tasks.values()
-            if s == TaskLifecycleStatus.COMPLETED
+            1 for s in program.tasks.values() if s == TaskLifecycleStatus.COMPLETED
         )
         declined = sum(
-            1 for s in program.tasks.values()
-            if s == TaskLifecycleStatus.DECLINED
+            1 for s in program.tasks.values() if s == TaskLifecycleStatus.DECLINED
         )
         decided = completed + declined
         acceptance_rate = completed / decided if decided > 0 else 1.0
@@ -860,8 +850,7 @@ class ExecutionProgramService:
 
         # Check task outcomes
         failed_count = sum(
-            1 for s in program.tasks.values()
-            if s == TaskLifecycleStatus.FAILED
+            1 for s in program.tasks.values() if s == TaskLifecycleStatus.FAILED
         )
         total_tasks = len(program.tasks)
 
@@ -887,7 +876,10 @@ class ExecutionProgramService:
                 for profile in candidates:
                     archon_id = str(profile.archon_id)
                     current_load = self._duke_load.get(archon_id, 0)
-                    if current_load < DUKE_MAX_CONCURRENT_PROGRAMS and current_load < best_load:
+                    if (
+                        current_load < DUKE_MAX_CONCURRENT_PROGRAMS
+                        and current_load < best_load
+                    ):
                         best = profile
                         best_load = current_load
 
@@ -973,7 +965,9 @@ class ExecutionProgramService:
         old_status = program.tasks.get(task_id)
 
         # Define expected transitions (for warning, not blocking)
-        expected_transitions: dict[TaskLifecycleStatus | None, set[TaskLifecycleStatus]] = {
+        expected_transitions: dict[
+            TaskLifecycleStatus | None, set[TaskLifecycleStatus]
+        ] = {
             None: {TaskLifecycleStatus.PENDING},
             TaskLifecycleStatus.PENDING: {
                 TaskLifecycleStatus.ACTIVATED,

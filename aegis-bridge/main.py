@@ -23,7 +23,6 @@ import asyncio
 import logging
 import os
 import sys
-from datetime import datetime
 
 from src.clients.archon72 import Archon72Client
 from src.clients.supabase import SupabaseClient
@@ -74,7 +73,8 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="Verbose output (debug logging)",
     )

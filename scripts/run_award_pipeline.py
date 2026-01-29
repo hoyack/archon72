@@ -55,9 +55,7 @@ def parse_args() -> argparse.Namespace:
         help="Directory containing duke proposals output",
     )
     p.add_argument("--out-dir", required=True, help="Output directory")
-    p.add_argument(
-        "--mode", choices=["auto", "llm", "manual"], default="auto"
-    )
+    p.add_argument("--mode", choices=["auto", "llm", "manual"], default="auto")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
 
@@ -67,9 +65,7 @@ def main() -> int:
     out_dir = Path(args.out_dir)
     events_path = out_dir / "events.jsonl"
 
-    append_event(
-        events_path, {"type": "award.evaluation.started", "ts": utc_now()}
-    )
+    append_event(events_path, {"type": "award.evaluation.started", "ts": utc_now()})
 
     # TODO:
     # 1) load rfp

@@ -57,7 +57,9 @@ def resolve_conclave_source(path: Path) -> Path:
             session_id = _extract_session_id_from_transcript(path)
             if not session_id:
                 raise ValueError(f"Could not parse session_id from {path}")
-            candidate = _find_latest(path.parent, f"conclave-results-{session_id}-*.json")
+            candidate = _find_latest(
+                path.parent, f"conclave-results-{session_id}-*.json"
+            )
             if candidate:
                 return candidate
             raise ValueError(
@@ -73,9 +75,7 @@ def resolve_conclave_source(path: Path) -> Path:
         candidate = _find_latest(path, "checkpoint-*.json")
         if candidate:
             return candidate
-        raise ValueError(
-            f"No conclave-results or checkpoint files found in {path}"
-        )
+        raise ValueError(f"No conclave-results or checkpoint files found in {path}")
 
     raise ValueError(f"Path not found: {path}")
 

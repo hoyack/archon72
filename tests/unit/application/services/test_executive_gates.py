@@ -258,7 +258,11 @@ def test_inbox_loading_contributions() -> None:
             },
             "blockers": [],
         }
-        with open(inbox_path / "contribution_portfolio_architecture_engineering_standards.json", "w") as f:
+        with open(
+            inbox_path
+            / "contribution_portfolio_architecture_engineering_standards.json",
+            "w",
+        ) as f:
             json.dump(contribution_data, f)
 
         contributions = svc.load_contributions_from_inbox(
@@ -266,7 +270,10 @@ def test_inbox_loading_contributions() -> None:
         )
 
         assert len(contributions) == 1
-        assert contributions[0].portfolio.portfolio_id == "portfolio_architecture_engineering_standards"
+        assert (
+            contributions[0].portfolio.portfolio_id
+            == "portfolio_architecture_engineering_standards"
+        )
         assert contributions[0].capacity_claim.units == 8
         assert len(contributions[0].tasks) == 1
 
@@ -314,7 +321,9 @@ def test_inbox_loading_v2_work_packages() -> None:
             "blockers": [],
         }
         with open(
-            inbox_path / "contribution_portfolio_architecture_engineering_standards.json", "w"
+            inbox_path
+            / "contribution_portfolio_architecture_engineering_standards.json",
+            "w",
         ) as f:
             json.dump(contribution_data, f)
 
@@ -466,7 +475,11 @@ def test_inbox_loading_attestations() -> None:
             "explanation": "This motion is outside my portfolio's scope.",
             "capacity_claim": {"claim_type": "NONE"},
         }
-        with open(inbox_path / "attestation_portfolio_architecture_engineering_standards.json", "w") as f:
+        with open(
+            inbox_path
+            / "attestation_portfolio_architecture_engineering_standards.json",
+            "w",
+        ) as f:
             json.dump(attestation_data, f)
 
         attestations = svc.load_attestations_from_inbox(
@@ -474,7 +487,10 @@ def test_inbox_loading_attestations() -> None:
         )
 
         assert len(attestations) == 1
-        assert attestations[0].portfolio.portfolio_id == "portfolio_architecture_engineering_standards"
+        assert (
+            attestations[0].portfolio.portfolio_id
+            == "portfolio_architecture_engineering_standards"
+        )
         assert attestations[0].reason_code == NoActionReason.OUTSIDE_PORTFOLIO_SCOPE
 
 
@@ -594,7 +610,10 @@ def test_legibility_fails_when_intent_ambiguity_not_escalated() -> None:
     )
 
     assert result.gates.integrity.value == "FAIL"
-    assert any("INTENT_AMBIGUITY must have disposition ESCALATE_NOW" in f for f in result.gates.failures)
+    assert any(
+        "INTENT_AMBIGUITY must have disposition ESCALATE_NOW" in f
+        for f in result.gates.failures
+    )
 
 
 def test_legibility_passes_with_valid_deferred_blocker() -> None:
@@ -669,7 +688,9 @@ def test_legibility_passes_with_valid_deferred_blocker() -> None:
     assert result.gates.visibility.value == "PASS"
 
     # Should emit deferred_downstream event
-    deferred_events = [e for e in events if e["type"] == "executive.blocker.deferred_downstream"]
+    deferred_events = [
+        e for e in events if e["type"] == "executive.blocker.deferred_downstream"
+    ]
     assert len(deferred_events) == 1
     assert deferred_events[0]["payload"]["blocker_id"] == "blocker_discovery"
 
@@ -807,7 +828,9 @@ def test_legibility_passes_with_mitigated_blocker() -> None:
     assert result.gates.integrity.value == "PASS"
 
     # Should emit mitigated event
-    mitigated_events = [e for e in events if e["type"] == "executive.blocker.mitigated_in_executive"]
+    mitigated_events = [
+        e for e in events if e["type"] == "executive.blocker.mitigated_in_executive"
+    ]
     assert len(mitigated_events) == 1
     assert mitigated_events[0]["payload"]["blocker_id"] == "blocker_mitigated"
 

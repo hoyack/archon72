@@ -1,15 +1,13 @@
 """Tests for BlockerV2 model and validation rules."""
 
-import pytest
-
 from src.domain.models.executive_planning import (
+    SCHEMA_VERSION,
+    SCHEMA_VERSION_V1,
     Blocker,
     BlockerClass,
     BlockerDisposition,
     BlockerSeverity,
     BlockerV2,
-    SCHEMA_VERSION,
-    SCHEMA_VERSION_V1,
     VerificationTask,
 )
 

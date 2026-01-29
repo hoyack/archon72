@@ -411,7 +411,8 @@ class ExecutivePlanningService:
 
         # Always include Resource Discovery for capacity visibility if present.
         if (
-            "portfolio_capacity_resource_planning" in self._portfolio_dir.labels_by_portfolio
+            "portfolio_capacity_resource_planning"
+            in self._portfolio_dir.labels_by_portfolio
             and "portfolio_capacity_resource_planning" not in affected
         ):
             affected.append("portfolio_capacity_resource_planning")
@@ -515,7 +516,9 @@ class ExecutivePlanningService:
         motion_id = packet.motion_id
         cycle_id = assignment_record["cycle_id"]
         owner = PortfolioIdentity(**assignment_record["plan_owner"])
-        affected = [PortfolioIdentity(**p) for p in assignment_record["affected_portfolios"]]
+        affected = [
+            PortfolioIdentity(**p) for p in assignment_record["affected_portfolios"]
+        ]
 
         _, _, missing = self.collect_responses(
             cycle_id, motion_id, affected, contributions, attestations
@@ -526,7 +529,9 @@ class ExecutivePlanningService:
         if not completeness_ok:
             failures.append(f"Completeness failed: missing responses from {missing}")
 
-        def _has_capacity_claim(obj: PortfolioContribution | NoActionAttestation) -> bool:
+        def _has_capacity_claim(
+            obj: PortfolioContribution | NoActionAttestation,
+        ) -> bool:
             cc = getattr(obj, "capacity_claim", None)
             return cc is not None and getattr(cc, "claim_type", None) is not None
 
@@ -738,8 +743,7 @@ class ExecutivePlanningService:
                         )
                 if b.disposition == BlockerDisposition.DEFER_DOWNSTREAM:
                     if not any(
-                        stub.origin_blocker_id == b.id
-                        for stub in discovery_task_stubs
+                        stub.origin_blocker_id == b.id for stub in discovery_task_stubs
                     ):
                         legibility_errors.append(
                             f"Blocker {b.id}: DEFER_DOWNSTREAM requires discovery task stub"
@@ -1091,9 +1095,7 @@ class ExecutivePlanningService:
 
         if schema_version == SCHEMA_VERSION:
             for idx, task in enumerate(tasks):
-                forbidden_errors = validate_no_forbidden_fields(
-                    task, f"tasks[{idx}]"
-                )
+                forbidden_errors = validate_no_forbidden_fields(task, f"tasks[{idx}]")
                 if forbidden_errors:
                     logger.warning(
                         "contribution_task_forbidden_fields",
@@ -1127,7 +1129,8 @@ class ExecutivePlanningService:
         # Validate president identity against assignment (if provided)
         if assignment_record:
             affected_portfolios = {
-                p["portfolio_id"]: p for p in assignment_record.get("affected_portfolios", [])
+                p["portfolio_id"]: p
+                for p in assignment_record.get("affected_portfolios", [])
             }
             portfolio_id = data["portfolio_id"]
             expected_portfolio = affected_portfolios.get(portfolio_id)
@@ -1152,13 +1155,10 @@ class ExecutivePlanningService:
         # Parse blockers
         blockers: list[Blocker] = []
         for idx, b in enumerate(data.get("blockers", [])):
-            looks_like_v2 = (
-                isinstance(b, dict)
-                and (
-                    b.get("schema_version") == SCHEMA_VERSION
-                    or "blocker_class" in b
-                    or "disposition" in b
-                )
+            looks_like_v2 = isinstance(b, dict) and (
+                b.get("schema_version") == SCHEMA_VERSION
+                or "blocker_class" in b
+                or "disposition" in b
             )
             if looks_like_v2:
                 try:
@@ -1294,7 +1294,8 @@ class ExecutivePlanningService:
         # Validate president identity against assignment (if provided)
         if assignment_record:
             affected_portfolios = {
-                p["portfolio_id"]: p for p in assignment_record.get("affected_portfolios", [])
+                p["portfolio_id"]: p
+                for p in assignment_record.get("affected_portfolios", [])
             }
             portfolio_id = data["portfolio_id"]
             expected_portfolio = affected_portfolios.get(portfolio_id)
@@ -1390,7 +1391,9 @@ class ExecutivePlanningService:
                 "blockers": [],
             }
 
-            contribution_path = inbox_path / f"contribution_{portfolio_id}.json.template"
+            contribution_path = (
+                inbox_path / f"contribution_{portfolio_id}.json.template"
+            )
             if not contribution_path.exists():
                 with open(contribution_path, "w", encoding="utf-8") as f:
                     json.dump(contribution_scaffold, f, indent=2)
@@ -1707,8 +1710,12 @@ class ExecutivePlanningService:
             {
                 "cycle_id": cycle_id,
                 "motion_id": motion_id,
-                "duplicates_detected": len(result.peer_review_summary.duplicates_detected),
-                "conflicts_detected": len(result.peer_review_summary.conflicts_detected),
+                "duplicates_detected": len(
+                    result.peer_review_summary.duplicates_detected
+                ),
+                "conflicts_detected": len(
+                    result.peer_review_summary.conflicts_detected
+                ),
                 "coverage_gaps": len(result.peer_review_summary.coverage_gaps),
                 "final_blocker_count": len(result.final_blockers),
                 "conclave_queue_items": len(result.conclave_queue_items),
@@ -1792,7 +1799,11 @@ class ExecutivePlanningService:
                     blocker_id=b.id,
                     blocker_class=b.blocker_class,
                     questions=[b.description],
-                    options=["Resolve in Conclave", "Defer resolution", "Reject motion"],
+                    options=[
+                        "Resolve in Conclave",
+                        "Defer resolution",
+                        "Reject motion",
+                    ],
                     source_citations=b.escalation_conditions,
                     created_at=now_iso(),
                 )
@@ -1954,7 +1965,7 @@ class ExecutivePlanningService:
                     WorkPackage(
                         package_id=task.get("task_id")
                         or task.get("id")
-                        or f"wp_{c.portfolio.portfolio_id}_{idx+1:03d}",
+                        or f"wp_{c.portfolio.portfolio_id}_{idx + 1:03d}",
                         epic_id=task.get("epic_id")
                         or f"epic_{packet.motion_id}_{c.portfolio.portfolio_id}",
                         scope_description=task.get("description")
@@ -1996,12 +2007,16 @@ class ExecutivePlanningService:
                     blocker_ids_by_constraint.setdefault("general", []).append(b.id)
 
         # Generate an epic for each constraint group
-        for epic_idx, (constraint, work_packages) in enumerate(constraint_groups.items(), start=1):
+        for epic_idx, (constraint, work_packages) in enumerate(
+            constraint_groups.items(), start=1
+        ):
             epic_id = f"epic_{packet.motion_id}_{epic_idx:03d}"
 
             # Derive intent from work package scopes
             scope_descriptions = [wp.scope_description for wp in work_packages]
-            intent = f"Deliver {constraint} capabilities: " + "; ".join(scope_descriptions[:3])
+            intent = f"Deliver {constraint} capabilities: " + "; ".join(
+                scope_descriptions[:3]
+            )
             if len(scope_descriptions) > 3:
                 intent += f" (+{len(scope_descriptions) - 3} more)"
 
@@ -2051,9 +2066,7 @@ class ExecutivePlanningService:
         for epic in epics:
             epic_errors = epic.validate()
             if epic_errors:
-                errors.extend(
-                    f"Epic {epic.epic_id}: {err}" for err in epic_errors
-                )
+                errors.extend(f"Epic {epic.epic_id}: {err}" for err in epic_errors)
         return errors
 
     def _build_execution_plan(
@@ -2134,6 +2147,7 @@ class ExecutivePlanningService:
             )
 
         if schema_version == SCHEMA_VERSION:
+
             def _collect_work_packages() -> list[WorkPackage]:
                 collected: list[WorkPackage] = []
                 for c in contributions:
@@ -2147,7 +2161,7 @@ class ExecutivePlanningService:
                             WorkPackage(
                                 package_id=task.get("task_id")
                                 or task.get("id")
-                                or f"wp_{c.portfolio.portfolio_id}_{idx+1:03d}",
+                                or f"wp_{c.portfolio.portfolio_id}_{idx + 1:03d}",
                                 epic_id=task.get("epic_id")
                                 or f"epic_{packet.motion_id}_{c.portfolio.portfolio_id}",
                                 scope_description=task.get("description")
@@ -2155,7 +2169,9 @@ class ExecutivePlanningService:
                                 or "Work package",
                                 portfolio_id=c.portfolio.portfolio_id,
                                 dependencies=task.get("dependencies", []),
-                                constraints_respected=task.get("constraints_respected", []),
+                                constraints_respected=task.get(
+                                    "constraints_respected", []
+                                ),
                                 schema_version=SCHEMA_VERSION,
                             )
                         )
@@ -2170,9 +2186,13 @@ class ExecutivePlanningService:
             if peer_review_summary is not None:
                 plan["peer_review_summary"] = peer_review_summary.to_dict()
             if discovery_task_stubs:
-                plan["discovery_task_stubs"] = [s.to_dict() for s in discovery_task_stubs]
+                plan["discovery_task_stubs"] = [
+                    s.to_dict() for s in discovery_task_stubs
+                ]
             if conclave_queue_items:
-                plan["conclave_queue_items"] = [i.to_dict() for i in conclave_queue_items]
+                plan["conclave_queue_items"] = [
+                    i.to_dict() for i in conclave_queue_items
+                ]
 
         return plan
 

@@ -322,14 +322,19 @@ def main() -> None:
         conclave_results = find_latest_conclave_results()
         ledger_session = find_latest_ledger_session()
 
-        if ledger_session and (not conclave_results or ledger_session.stat().st_mtime > conclave_results.stat().st_mtime):
+        if ledger_session and (
+            not conclave_results
+            or ledger_session.stat().st_mtime > conclave_results.stat().st_mtime
+        ):
             print(f"Auto-detected ledger session: {ledger_session}")
             mandates = load_mandates_from_ledger(ledger_session)
         elif conclave_results:
             print(f"Auto-detected conclave results: {conclave_results}")
             mandates = load_mandates_from_conclave(conclave_results)
         else:
-            print("Error: No input source found. Specify --from-conclave, --from-ledger, or --mandate-file")
+            print(
+                "Error: No input source found. Specify --from-conclave, --from-ledger, or --mandate-file"
+            )
             sys.exit(1)
 
     if not mandates:
@@ -338,7 +343,12 @@ def main() -> None:
 
     # Filter by mandate ID if specified
     if args.mandate_id:
-        mandates = [m for m in mandates if m.get("mandate_id") == args.mandate_id or m.get("motion_id") == args.mandate_id]
+        mandates = [
+            m
+            for m in mandates
+            if m.get("mandate_id") == args.mandate_id
+            or m.get("motion_id") == args.mandate_id
+        ]
         if not mandates:
             print(f"No mandate found with ID: {args.mandate_id}")
             sys.exit(1)

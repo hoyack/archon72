@@ -279,7 +279,9 @@ class RFPGenerationService:
                             "session_id": self._session_id,
                             "portfolio_id": president["portfolio_id"],
                             "president_id": president_id,
-                            "requirements_count": len(contribution.functional_requirements)
+                            "requirements_count": len(
+                                contribution.functional_requirements
+                            )
                             + len(contribution.non_functional_requirements),
                             "constraints_count": len(contribution.constraints),
                         },
@@ -376,7 +378,9 @@ class RFPGenerationService:
                         f"{president.get('domain', 'general')} concerns",
                         priority=RequirementPriority.SHOULD,
                         source_portfolio_id=president["portfolio_id"],
-                        acceptance_criteria=["Criteria to be defined by Administrative"],
+                        acceptance_criteria=[
+                            "Criteria to be defined by Administrative"
+                        ],
                     )
                 ],
                 deliberation_notes="Simulated contribution - no LLM available",
@@ -436,11 +440,16 @@ class RFPGenerationService:
         for round_num in range(1, max_rounds + 1):
             self._emit(
                 "deliberation_round_start",
-                {"implementation_dossier_id": rfp.implementation_dossier_id, "round": round_num},
+                {
+                    "implementation_dossier_id": rfp.implementation_dossier_id,
+                    "round": round_num,
+                },
             )
 
             # Identify focus areas (conflicts, gaps)
-            conflicts = await self._synthesizer.identify_conflicts(current_contributions)
+            conflicts = await self._synthesizer.identify_conflicts(
+                current_contributions
+            )
             focus_areas = [c.get("description", "") for c in conflicts[:3]]
 
             current_contributions = await self._deliberation.run_deliberation_round(
@@ -778,7 +787,9 @@ class RFPGenerationService:
         contributions_dir.mkdir(parents=True, exist_ok=True)
 
         # Save per-President contribution files
-        contributions = self._contributions_by_mandate.get(rfp.mandate_id, rfp.portfolio_contributions)
+        contributions = self._contributions_by_mandate.get(
+            rfp.mandate_id, rfp.portfolio_contributions
+        )
         for contrib in contributions:
             contrib_dict = contrib.to_dict()
             status = getattr(contrib, "status", None)
@@ -796,7 +807,9 @@ class RFPGenerationService:
                 "mandate_id": rfp.mandate_id,
                 **contrib_dict,
             }
-            contrib_path = contributions_dir / f"contribution_{contrib.portfolio_id}.json"
+            contrib_path = (
+                contributions_dir / f"contribution_{contrib.portfolio_id}.json"
+            )
             with open(contrib_path, "w", encoding="utf-8") as f:
                 json.dump(contrib_data, f, indent=2)
 
@@ -897,97 +910,119 @@ class RFPGenerationService:
         ]
 
         if rfp.business_justification:
-            lines.extend([
-                "### Business Justification",
-                "",
-                rfp.business_justification,
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Business Justification",
+                    "",
+                    rfp.business_justification,
+                    "",
+                ]
+            )
 
         if rfp.strategic_alignment:
-            lines.extend([
-                "### Strategic Alignment",
-                "",
-                *[f"- {a}" for a in rfp.strategic_alignment],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Strategic Alignment",
+                    "",
+                    *[f"- {a}" for a in rfp.strategic_alignment],
+                    "",
+                ]
+            )
 
         # Scope
-        lines.extend([
-            "---",
-            "",
-            "## 2. Scope of Work",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 2. Scope of Work",
+                "",
+            ]
+        )
 
         if rfp.objectives:
-            lines.extend([
-                "### Objectives",
-                "",
-                *[f"- {o}" for o in rfp.objectives],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Objectives",
+                    "",
+                    *[f"- {o}" for o in rfp.objectives],
+                    "",
+                ]
+            )
 
         if rfp.in_scope:
-            lines.extend([
-                "### In Scope",
-                "",
-                *[f"- {s}" for s in rfp.in_scope],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### In Scope",
+                    "",
+                    *[f"- {s}" for s in rfp.in_scope],
+                    "",
+                ]
+            )
 
         if rfp.out_of_scope:
-            lines.extend([
-                "### Out of Scope",
-                "",
-                *[f"- {s}" for s in rfp.out_of_scope],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Out of Scope",
+                    "",
+                    *[f"- {s}" for s in rfp.out_of_scope],
+                    "",
+                ]
+            )
 
         if rfp.success_criteria:
-            lines.extend([
-                "### Success Criteria",
-                "",
-                *[f"- {c}" for c in rfp.success_criteria],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Success Criteria",
+                    "",
+                    *[f"- {c}" for c in rfp.success_criteria],
+                    "",
+                ]
+            )
 
         # Requirements
-        lines.extend([
-            "---",
-            "",
-            "## 3. Requirements",
-            "",
-            "### Functional Requirements",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 3. Requirements",
+                "",
+                "### Functional Requirements",
+                "",
+            ]
+        )
 
         for req in rfp.functional_requirements:
-            lines.extend([
-                f"#### {req.req_id}: {req.description[:60]}...",
-                "",
-                f"- **Priority:** {req.priority.value.upper()}",
-                f"- **Source:** {req.source_portfolio_id}",
-            ])
+            lines.extend(
+                [
+                    f"#### {req.req_id}: {req.description[:60]}...",
+                    "",
+                    f"- **Priority:** {req.priority.value.upper()}",
+                    f"- **Source:** {req.source_portfolio_id}",
+                ]
+            )
             if req.acceptance_criteria:
                 lines.append("- **Acceptance Criteria:**")
                 for ac in req.acceptance_criteria:
                     lines.append(f"  - {ac}")
             lines.append("")
 
-        lines.extend([
-            "### Non-Functional Requirements",
-            "",
-        ])
+        lines.extend(
+            [
+                "### Non-Functional Requirements",
+                "",
+            ]
+        )
 
         for req in rfp.non_functional_requirements:
-            lines.extend([
-                f"#### {req.req_id}: {req.description[:60]}...",
-                "",
-                f"- **Category:** {req.category.value}",
-                f"- **Priority:** {req.priority.value.upper()}",
-                f"- **Source:** {req.source_portfolio_id}",
-            ])
+            lines.extend(
+                [
+                    f"#### {req.req_id}: {req.description[:60]}...",
+                    "",
+                    f"- **Category:** {req.category.value}",
+                    f"- **Priority:** {req.priority.value.upper()}",
+                    f"- **Source:** {req.source_portfolio_id}",
+                ]
+            )
             if req.target_metric:
                 lines.append(f"- **Target:** {req.target_metric}")
             if req.threshold:
@@ -995,34 +1030,40 @@ class RFPGenerationService:
             lines.append("")
 
         # Constraints
-        lines.extend([
-            "---",
-            "",
-            "## 4. Constraints",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 4. Constraints",
+                "",
+            ]
+        )
 
         for const in rfp.constraints:
-            lines.extend([
-                f"#### {const.constraint_id}: {const.description[:60]}...",
-                "",
-                f"- **Type:** {const.constraint_type.value}",
-                f"- **Source:** {const.source_portfolio_id}",
-                f"- **Negotiable:** {'Yes' if const.negotiable else 'No'}",
-            ])
+            lines.extend(
+                [
+                    f"#### {const.constraint_id}: {const.description[:60]}...",
+                    "",
+                    f"- **Type:** {const.constraint_type.value}",
+                    f"- **Source:** {const.source_portfolio_id}",
+                    f"- **Negotiable:** {'Yes' if const.negotiable else 'No'}",
+                ]
+            )
             if const.rationale:
                 lines.append(f"- **Rationale:** {const.rationale}")
             lines.append("")
 
         # Evaluation Criteria
-        lines.extend([
-            "---",
-            "",
-            "## 5. Evaluation Criteria",
-            "",
-            "| Criterion | Priority Band | Scoring Method |",
-            "|-----------|---------------|----------------|",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 5. Evaluation Criteria",
+                "",
+                "| Criterion | Priority Band | Scoring Method |",
+                "|-----------|---------------|----------------|",
+            ]
+        )
 
         for ec in rfp.evaluation_criteria:
             lines.append(f"| {ec.name} | {ec.priority_band} | {ec.scoring_method} |")
@@ -1030,20 +1071,24 @@ class RFPGenerationService:
         lines.append("")
 
         # Deliverables
-        lines.extend([
-            "---",
-            "",
-            "## 6. Deliverables",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 6. Deliverables",
+                "",
+            ]
+        )
 
         for deliv in rfp.deliverables:
-            lines.extend([
-                f"### {deliv.deliverable_id}: {deliv.name}",
-                "",
-                deliv.description,
-                "",
-            ])
+            lines.extend(
+                [
+                    f"### {deliv.deliverable_id}: {deliv.name}",
+                    "",
+                    deliv.description,
+                    "",
+                ]
+            )
             if deliv.acceptance_criteria:
                 lines.append("**Acceptance Criteria:**")
                 for ac in deliv.acceptance_criteria:
@@ -1051,38 +1096,46 @@ class RFPGenerationService:
                 lines.append("")
 
         # Terms
-        lines.extend([
-            "---",
-            "",
-            "## 7. Terms and Governance",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 7. Terms and Governance",
+                "",
+            ]
+        )
 
         if rfp.governance_requirements:
-            lines.extend([
-                "### Governance Requirements",
-                "",
-                *[f"- {g}" for g in rfp.governance_requirements],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Governance Requirements",
+                    "",
+                    *[f"- {g}" for g in rfp.governance_requirements],
+                    "",
+                ]
+            )
 
         if rfp.escalation_paths:
-            lines.extend([
-                "### Escalation Paths",
-                "",
-                *[f"- {e}" for e in rfp.escalation_paths],
-                "",
-            ])
+            lines.extend(
+                [
+                    "### Escalation Paths",
+                    "",
+                    *[f"- {e}" for e in rfp.escalation_paths],
+                    "",
+                ]
+            )
 
         # Contributing portfolios
-        lines.extend([
-            "---",
-            "",
-            "## 8. Contributing Portfolios",
-            "",
-            "| Portfolio | President | Requirements | Constraints |",
-            "|-----------|-----------|--------------|-------------|",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## 8. Contributing Portfolios",
+                "",
+                "| Portfolio | President | Requirements | Constraints |",
+                "|-----------|-----------|--------------|-------------|",
+            ]
+        )
 
         for contrib in rfp.portfolio_contributions:
             req_count = len(contrib.functional_requirements) + len(
@@ -1097,26 +1150,32 @@ class RFPGenerationService:
 
         # Unresolved conflicts
         if rfp.unresolved_conflicts:
-            lines.extend([
-                "---",
-                "",
-                "## 9. Unresolved Conflicts",
-                "",
-                "The following conflicts require resolution:",
-                "",
-            ])
+            lines.extend(
+                [
+                    "---",
+                    "",
+                    "## 9. Unresolved Conflicts",
+                    "",
+                    "The following conflicts require resolution:",
+                    "",
+                ]
+            )
 
             for conflict in rfp.unresolved_conflicts:
-                lines.extend([
-                    f"### {conflict.conflict_id}",
-                    "",
-                    conflict.description,
-                    "",
-                    f"- **Parties:** {', '.join(conflict.conflicting_portfolios)}",
-                    f"- **Escalate to Conclave:** {'Yes' if conflict.escalate_to_conclave else 'No'}",
-                ])
+                lines.extend(
+                    [
+                        f"### {conflict.conflict_id}",
+                        "",
+                        conflict.description,
+                        "",
+                        f"- **Parties:** {', '.join(conflict.conflicting_portfolios)}",
+                        f"- **Escalate to Conclave:** {'Yes' if conflict.escalate_to_conclave else 'No'}",
+                    ]
+                )
                 if conflict.proposed_resolution:
-                    lines.append(f"- **Proposed Resolution:** {conflict.proposed_resolution}")
+                    lines.append(
+                        f"- **Proposed Resolution:** {conflict.proposed_resolution}"
+                    )
                 lines.append("")
 
         with open(path, "w", encoding="utf-8") as f:

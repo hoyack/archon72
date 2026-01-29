@@ -181,7 +181,7 @@ You produce a comprehensive PeerReviewSummary that enables clean E3 Integration.
 - **Motion ID:** {context.motion_id}
 - **Title:** {context.motion_title}
 - **Text:** {context.motion_text}
-- **Constraints:** {', '.join(context.constraints) if context.constraints else 'none specified'}
+- **Constraints:** {", ".join(context.constraints) if context.constraints else "none specified"}
 
 ## Affected Portfolios
 {portfolio_labels_text}
@@ -236,7 +236,9 @@ Return ONLY the JSON object, no additional text."""
 
         try:
             raw_output = crew.kickoff()
-            output_text = str(raw_output.raw) if hasattr(raw_output, "raw") else str(raw_output)
+            output_text = (
+                str(raw_output.raw) if hasattr(raw_output, "raw") else str(raw_output)
+            )
             parsed = parse_json_response(output_text)
 
             # Build peer review summary

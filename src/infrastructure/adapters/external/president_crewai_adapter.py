@@ -222,7 +222,9 @@ class PresidentCrewAIAdapter(PresidentDeliberationProtocol):
         Returns:
             Tuple of (CrewAI Agent, LLMConfig used)
         """
-        scope_text = ", ".join(portfolio_scope) if portfolio_scope else "general governance"
+        scope_text = (
+            ", ".join(portfolio_scope) if portfolio_scope else "general governance"
+        )
         llm, config = self._get_president_llm(portfolio.president_name)
 
         agent = Agent(
@@ -268,9 +270,15 @@ You respect other portfolios' boundaries and delegate appropriately.""",
         agent, llm_config = self._create_president_agent(portfolio, portfolio_scope)
 
         # Build the deliberation prompt
-        scope_text = ", ".join(portfolio_scope) if portfolio_scope else "general governance"
-        constraints_text = ", ".join(context.constraints) if context.constraints else "none specified"
-        other_portfolios = [p for p in context.affected_portfolios if p != portfolio.portfolio_id]
+        scope_text = (
+            ", ".join(portfolio_scope) if portfolio_scope else "general governance"
+        )
+        constraints_text = (
+            ", ".join(context.constraints) if context.constraints else "none specified"
+        )
+        other_portfolios = [
+            p for p in context.affected_portfolios if p != portfolio.portfolio_id
+        ]
         other_text = ", ".join(other_portfolios) if other_portfolios else "none"
 
         is_plan_owner = context.plan_owner_portfolio_id == portfolio.portfolio_id
@@ -339,7 +347,7 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                 portfolio_id=portfolio.portfolio_id,
                 motion_id=context.motion_id,
                 error=str(e),
-                raw_output=raw_output[:500] if 'raw_output' in dir() else "N/A",
+                raw_output=raw_output[:500] if "raw_output" in dir() else "N/A",
             )
             raise PresidentDeliberationError(f"Failed to parse response: {e}") from e
         except Exception as e:
@@ -373,14 +381,18 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
             except Exception:
                 return default
 
-        is_v2 = schema_version == SCHEMA_VERSION or bool(work_packages_data) or any(
-            isinstance(b, dict)
-            and (
-                b.get("schema_version") == SCHEMA_VERSION
-                or "blocker_class" in b
-                or "disposition" in b
+        is_v2 = (
+            schema_version == SCHEMA_VERSION
+            or bool(work_packages_data)
+            or any(
+                isinstance(b, dict)
+                and (
+                    b.get("schema_version") == SCHEMA_VERSION
+                    or "blocker_class" in b
+                    or "disposition" in b
+                )
+                for b in blockers_data
             )
-            for b in blockers_data
         )
 
         # If v2 is requested but only tasks were provided, lift tasks into work packages.
@@ -392,7 +404,7 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                 lifted_packages.append(
                     {
                         "package_id": task.get("task_id")
-                        or f"wp_{portfolio.portfolio_id}_{idx+1:03d}",
+                        or f"wp_{portfolio.portfolio_id}_{idx + 1:03d}",
                         "epic_id": parsed.get("epic_id")
                         or f"epic_{portfolio.portfolio_id}_001",
                         "scope_description": task.get("description")
@@ -413,7 +425,7 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                 wp = WorkPackage(
                     package_id=wp_data.get("package_id")
                     or wp_data.get("task_id")
-                    or f"wp_{portfolio.portfolio_id}_{idx+1:03d}",
+                    or f"wp_{portfolio.portfolio_id}_{idx + 1:03d}",
                     epic_id=wp_data.get("epic_id")
                     or parsed.get("epic_id")
                     or f"epic_{portfolio.portfolio_id}_001",
@@ -444,7 +456,9 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
             )
 
             if looks_like_v2:
-                blocker_id = b.get("id") or f"blocker_{portfolio.portfolio_id}_{idx+1:03d}"
+                blocker_id = (
+                    b.get("id") or f"blocker_{portfolio.portfolio_id}_{idx + 1:03d}"
+                )
                 blocker_class = _coerce_enum(
                     BlockerClass,
                     b.get("blocker_class", BlockerClass.EXECUTION_UNCERTAINTY.value),
@@ -505,11 +519,12 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                     verification_tasks.append(
                         VerificationTask(
                             task_id=vt.get("task_id")
-                            or f"verify_{blocker_id}_{vt_idx+1:02d}",
+                            or f"verify_{blocker_id}_{vt_idx + 1:02d}",
                             description=vt.get("description")
                             or vt.get("task")
                             or "Discovery task",
-                            success_signal=vt.get("success_signal") or "Evidence gathered",
+                            success_signal=vt.get("success_signal")
+                            or "Evidence gathered",
                         )
                     )
 

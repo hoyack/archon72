@@ -630,9 +630,7 @@ async def run_conclave(args: argparse.Namespace) -> None:  # noqa: C901
 
         # Save structured motion results for registrar
         results_path = conclave.save_motion_results()
-        print(
-            f"{Colors.GREEN}Conclave results saved:{Colors.ENDC} {results_path}"
-        )
+        print(f"{Colors.GREEN}Conclave results saved:{Colors.ENDC} {results_path}")
 
         # Print summary
         summary = conclave.get_session_summary()

@@ -1,7 +1,5 @@
 """Tests for President deliberation port interface."""
 
-import pytest
-
 from src.application.ports.president_deliberation import (
     DeliberationContext,
     DeliberationResult,

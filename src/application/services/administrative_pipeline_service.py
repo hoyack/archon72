@@ -149,7 +149,9 @@ class AdministrativePipelineService:
                     epic_count = len(exec_plan.get("epics", []))
 
                     # Load motion_title and motion_text from intent_provenance if not in handoff
-                    if not handoff.get("motion_title") or not handoff.get("motion_text"):
+                    if not handoff.get("motion_title") or not handoff.get(
+                        "motion_text"
+                    ):
                         provenance = exec_plan.get("intent_provenance", {})
                         ratification = provenance.get("ratification_record", {})
                         if not handoff.get("motion_title"):

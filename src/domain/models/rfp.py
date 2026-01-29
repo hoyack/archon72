@@ -60,7 +60,9 @@ class RFPStatus(Enum):
 
     DRAFT = "draft"
     IN_DELIBERATION = "in_deliberation"
-    BLOCKED = "blocked"  # Cannot finalize - missing contributions or unresolved failures
+    BLOCKED = (
+        "blocked"  # Cannot finalize - missing contributions or unresolved failures
+    )
     FINAL = "final"
     ISSUED = "issued"
     CLOSED = "closed"
@@ -325,7 +327,9 @@ class PortfolioContribution:
             "status": self.status.value,
             "contribution_summary": self.contribution_summary,
             "failure_reason": self.failure_reason,
-            "functional_requirements": [r.to_dict() for r in self.functional_requirements],
+            "functional_requirements": [
+                r.to_dict() for r in self.functional_requirements
+            ],
             "non_functional_requirements": [
                 r.to_dict() for r in self.non_functional_requirements
             ],
@@ -384,7 +388,9 @@ class PortfolioContribution:
                 for r in data.get("non_functional_requirements", [])
             ],
             constraints=[Constraint.from_dict(c) for c in data.get("constraints", [])],
-            deliverables=[Deliverable.from_dict(d) for d in data.get("deliverables", [])],
+            deliverables=[
+                Deliverable.from_dict(d) for d in data.get("deliverables", [])
+            ],
             evaluation_criteria=[
                 EvaluationCriterion.from_dict(e)
                 for e in data.get("evaluation_criteria", [])
@@ -524,12 +530,16 @@ class RFPDocument:
         self.portfolio_contributions.append(contribution)
         # Merge requirements, constraints, etc. into main lists
         self.functional_requirements.extend(contribution.functional_requirements)
-        self.non_functional_requirements.extend(contribution.non_functional_requirements)
+        self.non_functional_requirements.extend(
+            contribution.non_functional_requirements
+        )
         self.constraints.extend(contribution.constraints)
         self.deliverables.extend(contribution.deliverables)
         self.evaluation_criteria.extend(contribution.evaluation_criteria)
 
-    def check_completeness(self, expected_portfolios: list[str] | None = None) -> tuple[bool, list[str]]:
+    def check_completeness(
+        self, expected_portfolios: list[str] | None = None
+    ) -> tuple[bool, list[str]]:
         """Check if the RFP has complete contributions from all expected portfolios.
 
         Args:
@@ -612,7 +622,9 @@ class RFPDocument:
             },
             "requirements": {
                 "functional": [r.to_dict() for r in self.functional_requirements],
-                "non_functional": [r.to_dict() for r in self.non_functional_requirements],
+                "non_functional": [
+                    r.to_dict() for r in self.non_functional_requirements
+                ],
             },
             "constraints": [c.to_dict() for c in self.constraints],
             "evaluation_criteria": [e.to_dict() for e in self.evaluation_criteria],
@@ -623,7 +635,9 @@ class RFPDocument:
                 "escalation_paths": self.escalation_paths,
                 "change_management_process": self.change_management_process,
             },
-            "portfolio_contributions": [c.to_dict() for c in self.portfolio_contributions],
+            "portfolio_contributions": [
+                c.to_dict() for c in self.portfolio_contributions
+            ],
             "unresolved_conflicts": [c.to_dict() for c in self.unresolved_conflicts],
             "open_questions": self.open_questions,
             "deliberation_rounds": self.deliberation_rounds,
@@ -667,7 +681,9 @@ class RFPDocument:
                 EvaluationCriterion.from_dict(e)
                 for e in data.get("evaluation_criteria", [])
             ],
-            deliverables=[Deliverable.from_dict(d) for d in data.get("deliverables", [])],
+            deliverables=[
+                Deliverable.from_dict(d) for d in data.get("deliverables", [])
+            ],
             governance_requirements=terms.get("governance_requirements", []),
             reporting_expectations=terms.get("reporting_expectations", []),
             escalation_paths=terms.get("escalation_paths", []),

@@ -88,7 +88,9 @@ def load_config() -> Config:
         missing.append("ARCHON72_API_URL")
 
     if missing:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+        raise ValueError(
+            f"Missing required environment variables: {', '.join(missing)}"
+        )
 
     # Optional
     batch_size = int(os.environ.get("BATCH_SIZE", "100"))

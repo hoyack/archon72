@@ -26,10 +26,10 @@ from typing import Any
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from src.clients.archon72 import Archon72Client
-from src.clients.supabase import SupabaseClient
-from src.config import load_config
-from src.extractor import PetitionExtractor
+from src.clients.archon72 import Archon72Client  # noqa: E402
+from src.clients.supabase import SupabaseClient  # noqa: E402
+from src.config import load_config  # noqa: E402
+from src.extractor import PetitionExtractor  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -62,9 +62,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _find_latest_deliberation_file(
-    repo_root: Path, petition_id: str
-) -> Path | None:
+def _find_latest_deliberation_file(repo_root: Path, petition_id: str) -> Path | None:
     output_dir = repo_root / "_bmad-output" / "petition-deliberations"
     pattern = f"petition-{petition_id}-session-*.json"
     matches = list(output_dir.glob(pattern))
@@ -158,7 +156,9 @@ async def main() -> int:
                 result.archon72_petition_id,
             )
             continue
-        _run_deliberation(repo_root, result.archon72_petition_id, args.force_deliberation)
+        _run_deliberation(
+            repo_root, result.archon72_petition_id, args.force_deliberation
+        )
 
     return 0
 

@@ -11,7 +11,9 @@ from src.config import Archon72Config
 class Archon72Error(Exception):
     """Base exception for Archon72 API errors."""
 
-    def __init__(self, message: str, status_code: int | None = None, detail: Any = None):
+    def __init__(
+        self, message: str, status_code: int | None = None, detail: Any = None
+    ):
         super().__init__(message)
         self.status_code = status_code
         self.detail = detail
@@ -169,7 +171,7 @@ class Archon72Client:
         if status == 429:
             retry_after = int(response.headers.get("Retry-After", "60"))
             raise TransientError(
-                f"Rate limit exceeded",
+                "Rate limit exceeded",
                 status_code=status,
                 retry_after=retry_after,
                 detail=detail,
@@ -179,7 +181,7 @@ class Archon72Client:
         if status == 503:
             retry_after = int(response.headers.get("Retry-After", "60"))
             raise TransientError(
-                f"Service unavailable",
+                "Service unavailable",
                 status_code=status,
                 retry_after=retry_after,
                 detail=detail,
@@ -196,7 +198,11 @@ class Archon72Client:
 
         # Bad request - permanent (validation error)
         if status == 400:
-            error_msg = detail.get("detail", str(detail)) if isinstance(detail, dict) else str(detail)
+            error_msg = (
+                detail.get("detail", str(detail))
+                if isinstance(detail, dict)
+                else str(detail)
+            )
             raise PermanentError(
                 f"Validation error: {error_msg}",
                 status_code=status,
@@ -206,7 +212,7 @@ class Archon72Client:
         # Not found - permanent
         if status == 404:
             raise PermanentError(
-                f"Not found",
+                "Not found",
                 status_code=status,
                 detail=detail,
             )

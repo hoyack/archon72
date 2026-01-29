@@ -20,6 +20,9 @@ Available services:
 from src.application.services.acknowledgment_rate_metrics_service import (
     AcknowledgmentRateMetricsService,
 )
+from src.application.services.administrative_pipeline_service import (
+    AdministrativePipelineService,
+)
 from src.application.services.amendment_visibility_service import (
     AMENDMENT_VISIBILITY_SYSTEM_AGENT_ID,
     AmendmentProposalRequest,
@@ -152,6 +155,9 @@ from src.application.services.escalation_threshold_service import (
     EscalationThresholdService,
 )
 from src.application.services.event_writer_service import EventWriterService
+from src.application.services.executive_review_service import (
+    ExecutiveReviewService,
+)
 from src.application.services.extension_request_service import (
     EXTENSION_DURATION_CYCLES,
     MIN_REASON_LENGTH,
@@ -367,12 +373,6 @@ from src.application.services.witness_pool_monitoring_service import (
     WitnessPoolMonitoringService,
 )
 from src.application.services.witness_service import WitnessService
-from src.application.services.administrative_pipeline_service import (
-    AdministrativePipelineService,
-)
-from src.application.services.executive_review_service import (
-    ExecutiveReviewService,
-)
 
 __all__: list[str] = [
     "AcknowledgmentRateMetricsService",

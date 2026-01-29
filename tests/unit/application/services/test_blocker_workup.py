@@ -188,7 +188,10 @@ class TestPeerReviewSummary:
             plan_owner_portfolio_id="portfolio_tech",
             duplicates_detected=[["blocker_001", "blocker_002"]],
             conflicts_detected=[
-                {"blocker_ids": ["blocker_003", "blocker_004"], "conflict_type": "incompatible"}
+                {
+                    "blocker_ids": ["blocker_003", "blocker_004"],
+                    "conflict_type": "incompatible",
+                }
             ],
             coverage_gaps=["No compliance monitoring claimed"],
             blocker_disposition_rationale={
@@ -344,8 +347,11 @@ class TestBasicBlockerWorkup:
 
         assert len(result.conclave_queue_items) == 1
         assert result.conclave_queue_items[0].blocker_id == "blocker_001"
-        assert "Escalated" in result.peer_review_summary.blocker_disposition_rationale.get(
-            "blocker_001", ""
+        assert (
+            "Escalated"
+            in result.peer_review_summary.blocker_disposition_rationale.get(
+                "blocker_001", ""
+            )
         )
 
     @pytest.mark.asyncio
@@ -370,8 +376,11 @@ class TestBasicBlockerWorkup:
 
         assert len(result.discovery_task_stubs) == 1
         assert result.discovery_task_stubs[0].origin_blocker_id == "blocker_002"
-        assert "Deferred" in result.peer_review_summary.blocker_disposition_rationale.get(
-            "blocker_002", ""
+        assert (
+            "Deferred"
+            in result.peer_review_summary.blocker_disposition_rationale.get(
+                "blocker_002", ""
+            )
         )
 
     @pytest.mark.asyncio
@@ -397,14 +406,15 @@ class TestBasicBlockerWorkup:
         # Mitigated blockers don't emit artifacts
         assert len(result.conclave_queue_items) == 0
         assert len(result.discovery_task_stubs) == 0
-        assert "Mitigated" in result.peer_review_summary.blocker_disposition_rationale.get(
-            "blocker_003", ""
+        assert (
+            "Mitigated"
+            in result.peer_review_summary.blocker_disposition_rationale.get(
+                "blocker_003", ""
+            )
         )
 
     @pytest.mark.asyncio
-    async def test_basic_workup_no_blockers(
-        self, service, packet, assignment_record
-    ):
+    async def test_basic_workup_no_blockers(self, service, packet, assignment_record):
         """Basic workup should handle contributions with no blockers."""
         contributions = [
             _make_contribution_with_blockers("portfolio_tech", []),

@@ -23,7 +23,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-
 # =============================================================================
 # Schema Version & Constants
 # =============================================================================
@@ -451,20 +450,13 @@ class TaskResultArtifact:
             errors.append("TaskResultArtifact missing required field: result_id")
         if not self.task_id:
             errors.append("TaskResultArtifact missing required field: task_id")
-        if (
-            self.result_type == ResultType.HUMAN_VERIFIED
-            and not self.verifier_id
-        ):
-            errors.append(
-                "HUMAN_VERIFIED results must include verifier_id"
-            )
+        if self.result_type == ResultType.HUMAN_VERIFIED and not self.verifier_id:
+            errors.append("HUMAN_VERIFIED results must include verifier_id")
         if (
             self.action_reversibility == ActionReversibility.IRREVERSIBLE
             and self.result_type == ResultType.DRAFT_PRODUCED
         ):
-            errors.append(
-                "IRREVERSIBLE actions cannot remain as DRAFT_PRODUCED"
-            )
+            errors.append("IRREVERSIBLE actions cannot remain as DRAFT_PRODUCED")
         return errors
 
 
@@ -507,9 +499,7 @@ class AdministrativeBlockerReport:
             "original_plan_reference": self.original_plan_reference,
             "options": self.options,
             "details_ref": self.details_ref,
-            "disposition": (
-                self.disposition.value if self.disposition else None
-            ),
+            "disposition": (self.disposition.value if self.disposition else None),
             "created_at": self.created_at,
         }
 
@@ -525,18 +515,14 @@ class AdministrativeBlockerReport:
             blocker_type=BlockerType(data["blocker_type"]),
             severity=AdminBlockerSeverity(data["severity"]),
             affected_task_ids=data.get("affected_task_ids", []),
-            requested_action=RequestedAction(
-                data.get("requested_action", "CLARIFY")
-            ),
+            requested_action=RequestedAction(data.get("requested_action", "CLARIFY")),
             clarification_type=(
                 ClarificationType(clarification_type) if clarification_type else None
             ),
             original_plan_reference=data.get("original_plan_reference", ""),
             options=data.get("options", []),
             details_ref=data.get("details_ref", ""),
-            disposition=(
-                AdminBlockerDisposition(disposition) if disposition else None
-            ),
+            disposition=(AdminBlockerDisposition(disposition) if disposition else None),
             created_at=data.get("created_at", ""),
         )
 
@@ -544,7 +530,9 @@ class AdministrativeBlockerReport:
         """Validate STRUCTURE only. Content judgment is Executive's role."""
         errors: list[str] = []
         if not self.report_id:
-            errors.append("AdministrativeBlockerReport missing required field: report_id")
+            errors.append(
+                "AdministrativeBlockerReport missing required field: report_id"
+            )
         if not self.summary:
             errors.append("Blocker report must have summary")
         if not self.affected_task_ids:
@@ -619,13 +607,10 @@ class ExecutionProgram:
                 DukeAssignment.from_dict(duke_data) if duke_data else None
             ),
             earl_assignments=[
-                EarlAssignment.from_dict(e)
-                for e in data.get("earl_assignments", [])
+                EarlAssignment.from_dict(e) for e in data.get("earl_assignments", [])
             ],
             stage=ProgramStage(data.get("stage", "INTAKE")),
-            tasks={
-                k: TaskLifecycleStatus(v) for k, v in tasks_data.items()
-            },
+            tasks={k: TaskLifecycleStatus(v) for k, v in tasks_data.items()},
             activation_requests=[
                 TaskActivationRequest.from_dict(r)
                 for r in data.get("activation_requests", [])
@@ -647,9 +632,7 @@ class ExecutionProgram:
             ),
             created_at=data.get("created_at", ""),
             updated_at=data.get("updated_at", ""),
-            schema_version=data.get(
-                "schema_version", EXECUTION_PROGRAM_SCHEMA_VERSION
-            ),
+            schema_version=data.get("schema_version", EXECUTION_PROGRAM_SCHEMA_VERSION),
         )
 
     def validate(self) -> list[str]:
@@ -657,9 +640,7 @@ class ExecutionProgram:
         if not self.program_id:
             errors.append("ExecutionProgram missing required field: program_id")
         if not self.execution_plan_id:
-            errors.append(
-                "ExecutionProgram missing required field: execution_plan_id"
-            )
+            errors.append("ExecutionProgram missing required field: execution_plan_id")
         if not self.motion_id:
             errors.append("ExecutionProgram missing required field: motion_id")
         if not self.duke_assignment:

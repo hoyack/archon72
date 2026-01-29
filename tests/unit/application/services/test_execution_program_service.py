@@ -14,7 +14,6 @@ from src.application.services.execution_program_service import (
     _now_iso,
 )
 from src.domain.models.execution_program import (
-    DUKE_MAX_CONCURRENT_PROGRAMS,
     MAX_SAME_CLUSTER_RETRIES,
     ActionReversibility,
     AdminBlockerDisposition,
@@ -26,7 +25,6 @@ from src.domain.models.execution_program import (
     ExecutionProgram,
     ProgramCompletionStatus,
     ProgramStage,
-    RequestedAction,
     ResultType,
     TaskActivationRequest,
     TaskLifecycleStatus,
@@ -266,9 +264,7 @@ class TestStageBFeasibility:
         epics = [_mk_epic()]
         wps = [_mk_work_package()]
 
-        program, blockers = await service.run_feasibility_checks(
-            program, epics, wps
-        )
+        program, blockers = await service.run_feasibility_checks(program, epics, wps)
 
         assert len(blockers) == 0
         assert program.tasks["wp-001"] == TaskLifecycleStatus.PENDING
@@ -282,9 +278,7 @@ class TestStageBFeasibility:
         epics = [_mk_epic()]
         wps = [_mk_work_package(scope_description="")]
 
-        program, blockers = await service.run_feasibility_checks(
-            program, epics, wps
-        )
+        program, blockers = await service.run_feasibility_checks(program, epics, wps)
 
         assert len(blockers) == 1
         assert blockers[0].blocker_type == BlockerType.REQUIREMENTS_AMBIGUOUS
@@ -308,9 +302,7 @@ class TestStageBFeasibility:
         epics = []  # No epics
         wps = [_mk_work_package()]
 
-        program, blockers = await service.run_feasibility_checks(
-            program, epics, wps
-        )
+        program, blockers = await service.run_feasibility_checks(program, epics, wps)
 
         assert len(blockers) == 1
         assert "unknown epic_id" in blockers[0].summary
@@ -440,10 +432,9 @@ class TestStageDActivation:
         service = ExecutionProgramService(event_sink=events)
 
         # Create program with old snapshot
-        old_time = (
-            datetime.now(timezone.utc) - timedelta(hours=5)
-        ).strftime(ISO)
+        old_time = (datetime.now(timezone.utc) - timedelta(hours=5)).strftime(ISO)
         from src.domain.models.execution_program import CapacitySnapshot
+
         old_snap = CapacitySnapshot(
             snapshot_id="old",
             program_id="prog-001",
@@ -472,8 +463,11 @@ class TestStageEResults:
             tasks={"wp-001": TaskLifecycleStatus.ACTIVATED},
         )
         program.capacity_snapshots.append(
-            __import__("src.domain.models.execution_program", fromlist=["CapacitySnapshot"]).CapacitySnapshot(
-                snapshot_id="s1", program_id="prog-001",
+            __import__(
+                "src.domain.models.execution_program", fromlist=["CapacitySnapshot"]
+            ).CapacitySnapshot(
+                snapshot_id="s1",
+                program_id="prog-001",
                 timestamp=_now_iso(),
             )
         )
@@ -495,8 +489,11 @@ class TestStageEResults:
             tasks={"wp-001": TaskLifecycleStatus.PENDING},
         )
         program.capacity_snapshots.append(
-            __import__("src.domain.models.execution_program", fromlist=["CapacitySnapshot"]).CapacitySnapshot(
-                snapshot_id="s1", program_id="prog-001",
+            __import__(
+                "src.domain.models.execution_program", fromlist=["CapacitySnapshot"]
+            ).CapacitySnapshot(
+                snapshot_id="s1",
+                program_id="prog-001",
                 timestamp=_now_iso(),
             )
         )
@@ -516,8 +513,11 @@ class TestStageEResults:
             tasks={"wp-001": TaskLifecycleStatus.ACTIVATED},
         )
         program.capacity_snapshots.append(
-            __import__("src.domain.models.execution_program", fromlist=["CapacitySnapshot"]).CapacitySnapshot(
-                snapshot_id="s1", program_id="prog-001",
+            __import__(
+                "src.domain.models.execution_program", fromlist=["CapacitySnapshot"]
+            ).CapacitySnapshot(
+                snapshot_id="s1",
+                program_id="prog-001",
                 timestamp=_now_iso(),
             )
         )
@@ -535,7 +535,8 @@ class TestStageEResults:
             tasks={"wp-001": TaskLifecycleStatus.ACTIVATED},
             blocker_reports=[
                 AdministrativeBlockerReport(
-                    report_id="b1", program_id="prog-001",
+                    report_id="b1",
+                    program_id="prog-001",
                     execution_plan_id="plan-001",
                     summary="Risk accepted",
                     blocker_type=BlockerType.CAPACITY_UNAVAILABLE,
@@ -546,8 +547,11 @@ class TestStageEResults:
             ],
         )
         program.capacity_snapshots.append(
-            __import__("src.domain.models.execution_program", fromlist=["CapacitySnapshot"]).CapacitySnapshot(
-                snapshot_id="s1", program_id="prog-001",
+            __import__(
+                "src.domain.models.execution_program", fromlist=["CapacitySnapshot"]
+            ).CapacitySnapshot(
+                snapshot_id="s1",
+                program_id="prog-001",
                 timestamp=_now_iso(),
             )
         )
@@ -555,7 +559,10 @@ class TestStageEResults:
         results = [_mk_result(task_id="wp-001")]
         program = await service.collect_results(program, results)
 
-        assert program.completion_status == ProgramCompletionStatus.COMPLETED_WITH_ACCEPTED_RISKS
+        assert (
+            program.completion_status
+            == ProgramCompletionStatus.COMPLETED_WITH_ACCEPTED_RISKS
+        )
 
     @pytest.mark.asyncio
     async def test_determines_completion_unresolved(self) -> None:
@@ -565,7 +572,8 @@ class TestStageEResults:
             tasks={"wp-001": TaskLifecycleStatus.ACTIVATED},
             blocker_reports=[
                 AdministrativeBlockerReport(
-                    report_id="b1", program_id="prog-001",
+                    report_id="b1",
+                    program_id="prog-001",
                     execution_plan_id="plan-001",
                     summary="Unresolved",
                     blocker_type=BlockerType.CONSTRAINT_CONFLICT,
@@ -576,8 +584,11 @@ class TestStageEResults:
             ],
         )
         program.capacity_snapshots.append(
-            __import__("src.domain.models.execution_program", fromlist=["CapacitySnapshot"]).CapacitySnapshot(
-                snapshot_id="s1", program_id="prog-001",
+            __import__(
+                "src.domain.models.execution_program", fromlist=["CapacitySnapshot"]
+            ).CapacitySnapshot(
+                snapshot_id="s1",
+                program_id="prog-001",
                 timestamp=_now_iso(),
             )
         )
@@ -585,7 +596,10 @@ class TestStageEResults:
         results = [_mk_result(task_id="wp-001")]
         program = await service.collect_results(program, results)
 
-        assert program.completion_status == ProgramCompletionStatus.COMPLETED_WITH_UNRESOLVED
+        assert (
+            program.completion_status
+            == ProgramCompletionStatus.COMPLETED_WITH_UNRESOLVED
+        )
 
 
 # =============================================================================
@@ -629,9 +643,7 @@ class TestStaleTaskDetection:
         events = EventCapture()
         service = ExecutionProgramService(event_sink=events)
 
-        past_deadline = (
-            datetime.now(timezone.utc) - timedelta(hours=1)
-        ).strftime(ISO)
+        past_deadline = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime(ISO)
 
         program = _mk_program(
             tasks={"wp-001": TaskLifecycleStatus.ACTIVATED},
@@ -652,9 +664,7 @@ class TestStaleTaskDetection:
     def test_ignores_completed_tasks(self) -> None:
         service = ExecutionProgramService()
 
-        past_deadline = (
-            datetime.now(timezone.utc) - timedelta(hours=1)
-        ).strftime(ISO)
+        past_deadline = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime(ISO)
 
         program = _mk_program(
             tasks={"wp-001": TaskLifecycleStatus.COMPLETED},
@@ -682,14 +692,14 @@ class TestCapacityRefresh:
         service = ExecutionProgramService()
 
         # Recent snapshot → HIGH
-        recent_time = (
-            datetime.now(timezone.utc) - timedelta(minutes=30)
-        ).strftime(ISO)
+        recent_time = (datetime.now(timezone.utc) - timedelta(minutes=30)).strftime(ISO)
         from src.domain.models.execution_program import CapacitySnapshot
+
         program = _mk_program()
         program.capacity_snapshots = [
             CapacitySnapshot(
-                snapshot_id="s1", program_id="prog-001",
+                snapshot_id="s1",
+                program_id="prog-001",
                 timestamp=recent_time,
             )
         ]
@@ -697,12 +707,11 @@ class TestCapacityRefresh:
         assert snapshot.confidence == CapacityConfidence.HIGH
 
         # 2-hour old snapshot → MEDIUM
-        medium_time = (
-            datetime.now(timezone.utc) - timedelta(hours=2)
-        ).strftime(ISO)
+        medium_time = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime(ISO)
         program.capacity_snapshots = [
             CapacitySnapshot(
-                snapshot_id="s2", program_id="prog-001",
+                snapshot_id="s2",
+                program_id="prog-001",
                 timestamp=medium_time,
             )
         ]
@@ -710,12 +719,11 @@ class TestCapacityRefresh:
         assert snapshot.confidence == CapacityConfidence.MEDIUM
 
         # 5-hour old snapshot → LOW
-        old_time = (
-            datetime.now(timezone.utc) - timedelta(hours=5)
-        ).strftime(ISO)
+        old_time = (datetime.now(timezone.utc) - timedelta(hours=5)).strftime(ISO)
         program.capacity_snapshots = [
             CapacitySnapshot(
-                snapshot_id="s3", program_id="prog-001",
+                snapshot_id="s3",
+                program_id="prog-001",
                 timestamp=old_time,
             )
         ]

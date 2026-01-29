@@ -1,6 +1,5 @@
 """Tests for Epic and WorkPackage models (v2)."""
 
-
 from src.domain.models.executive_planning import (
     FORBIDDEN_EXECUTIVE_FIELDS,
     SCHEMA_VERSION,

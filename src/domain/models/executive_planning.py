@@ -396,9 +396,7 @@ class PeerReviewSummary:
             duplicates_detected=data.get("duplicates_detected", []),
             conflicts_detected=data.get("conflicts_detected", []),
             coverage_gaps=data.get("coverage_gaps", []),
-            blocker_disposition_rationale=data.get(
-                "blocker_disposition_rationale", {}
-            ),
+            blocker_disposition_rationale=data.get("blocker_disposition_rationale", {}),
             created_at=data["created_at"],
             schema_version=data.get("schema_version", SCHEMA_VERSION),
         )
@@ -437,16 +435,18 @@ class BlockerWorkupResult:
 # -----------------------------------------------------------------------------
 
 # Forbidden fields that indicate v1 artifacts or Administrative-level detail
-FORBIDDEN_EXECUTIVE_FIELDS = frozenset([
-    "story_points",
-    "estimate",
-    "hours",
-    "FR",
-    "NFR",
-    "detailed_requirements",
-    "functional_requirements",
-    "non_functional_requirements",
-])
+FORBIDDEN_EXECUTIVE_FIELDS = frozenset(
+    [
+        "story_points",
+        "estimate",
+        "hours",
+        "FR",
+        "NFR",
+        "detailed_requirements",
+        "functional_requirements",
+        "non_functional_requirements",
+    ]
+)
 
 
 @dataclass
@@ -690,9 +690,11 @@ class Blocker:
             blocker_class = BlockerClass.EXECUTION_UNCERTAINTY
             disposition = BlockerDisposition.DEFER_DOWNSTREAM
 
-        severity = BlockerSeverity(self.severity) if self.severity in [
-            s.value for s in BlockerSeverity
-        ] else BlockerSeverity.MEDIUM
+        severity = (
+            BlockerSeverity(self.severity)
+            if self.severity in [s.value for s in BlockerSeverity]
+            else BlockerSeverity.MEDIUM
+        )
 
         return BlockerV2(
             id=blocker_id,

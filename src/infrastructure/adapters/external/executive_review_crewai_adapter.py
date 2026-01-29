@@ -226,7 +226,9 @@ governance-level ambiguities.""",
             for r in proposal.resource_requests
         )
 
-        constraints_text = ', '.join(context.constraints) if context.constraints else 'None'
+        constraints_text = (
+            ", ".join(context.constraints) if context.constraints else "None"
+        )
 
         review_prompt = f"""OUTPUT ONLY VALID JSON. No prose, no explanation outside JSON.
 
@@ -305,7 +307,9 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                         motion_id=context.motion_id,
                         accepted_at=_now_iso(),
                         approved_tactics=[t.tactic_id for t in proposal.tactics],
-                        approved_resources=[r.request_id for r in proposal.resource_requests],
+                        approved_resources=[
+                            r.request_id for r in proposal.resource_requests
+                        ],
                         acceptance_conditions=parsed.get("acceptance_conditions", []),
                         monitoring_requirements=["Progress tracking required"],
                         proceed_to_earl_tasking=True,
@@ -313,7 +317,9 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                         review_notes=parsed.get("reasoning", ""),
                     )
                 elif outcome == ReviewOutcome.REVISION_REQUESTED:
-                    revision_type_str = parsed.get("revision_type", "SCOPE_CLARIFICATION")
+                    revision_type_str = parsed.get(
+                        "revision_type", "SCOPE_CLARIFICATION"
+                    )
                     try:
                         revision_type = RevisionType(revision_type_str)
                     except ValueError:
@@ -396,7 +402,9 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
             proposal_id=proposal.proposal_id,
             error=str(last_error),
         )
-        raise ReviewError(f"Review failed after {self._max_retries} attempts: {last_error}")
+        raise ReviewError(
+            f"Review failed after {self._max_retries} attempts: {last_error}"
+        )
 
     async def batch_review_proposals(
         self,
@@ -447,7 +455,9 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
             1 for pr in proposal_results if pr.outcome == ReviewOutcome.ACCEPTED
         )
         revision_count = sum(
-            1 for pr in proposal_results if pr.outcome == ReviewOutcome.REVISION_REQUESTED
+            1
+            for pr in proposal_results
+            if pr.outcome == ReviewOutcome.REVISION_REQUESTED
         )
 
         result = ExecutiveReviewResult(
@@ -483,10 +493,7 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
         """Evaluate aggregated resource requests."""
         # For now, approve all resource requests
         # Could be enhanced with LLM-powered resource arbitration
-        return {
-            req.request_id: True
-            for req in resource_summary.all_requests
-        }
+        return {req.request_id: True for req in resource_summary.all_requests}
 
     async def check_escalation_needed(
         self,
@@ -499,8 +506,8 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
         for proposal in proposals:
             # Check for intent ambiguity indicators
             has_ambiguity = any(
-                "ambiguity" in r.description.lower() or
-                "unclear" in r.description.lower()
+                "ambiguity" in r.description.lower()
+                or "unclear" in r.description.lower()
                 for r in proposal.risks
             )
 

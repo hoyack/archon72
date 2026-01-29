@@ -92,7 +92,9 @@ def parse_json_response(raw: str, aggressive: bool = True) -> dict | list:
                                 for item in parsed:
                                     if isinstance(item, dict):
                                         return item
-                                raise ValueError("Parsed JSON is a list, no object found")
+                                raise ValueError(
+                                    "Parsed JSON is a list, no object found"
+                                )
                             return parsed
                         except json.JSONDecodeError:
                             break
@@ -111,7 +113,9 @@ def parse_json_response(raw: str, aggressive: bool = True) -> dict | list:
                                 for item in parsed:
                                     if isinstance(item, dict):
                                         return item
-                                raise ValueError("Parsed JSON is a list, no object found")
+                                raise ValueError(
+                                    "Parsed JSON is a list, no object found"
+                                )
                             return parsed
                         except json.JSONDecodeError:
                             break
@@ -210,10 +214,7 @@ ASTR SPECIAL LIMITS (MANDATORY):
             if match:
                 sections.append(match.group(0).strip())
 
-        if sections:
-            compact = "\n\n".join(sections)
-        else:
-            compact = motion_text.strip()
+        compact = "\n\n".join(sections) if sections else motion_text.strip()
 
         if len(compact) > max_chars:
             compact = compact[:max_chars].rstrip()
@@ -232,6 +233,7 @@ ASTR SPECIAL LIMITS (MANDATORY):
                 contribution.assumptions,
             ]
         )
+
     def __init__(
         self,
         profile_repository: ArchonProfileRepository | None = None,
@@ -429,7 +431,9 @@ Output ONLY ONE JSON object. Do not return a list.
 
         # Get unique portfolio abbreviation for ID namespacing
         abbrev = self.PORTFOLIO_ABBREV.get(portfolio_id, portfolio_id[-4:].upper())
-        focus = self.PORTFOLIO_FOCUS.get(abbrev, "requirements relevant to your portfolio")
+        focus = self.PORTFOLIO_FOCUS.get(
+            abbrev, "requirements relevant to your portfolio"
+        )
 
         # Build context from existing contributions
         existing_context = ""
@@ -437,7 +441,9 @@ Output ONLY ONE JSON object. Do not return a list.
             existing_context = "\n\nOther Presidents have already contributed:\n"
             for contrib in existing_contributions:
                 existing_context += f"- {contrib.president_name}: {len(contrib.functional_requirements)} functional, "
-                existing_context += f"{len(contrib.non_functional_requirements)} non-functional, "
+                existing_context += (
+                    f"{len(contrib.non_functional_requirements)} non-functional, "
+                )
                 existing_context += f"{len(contrib.constraints)} constraints\n"
 
         special_limits = self.ASTR_SPECIAL_LIMITS if abbrev == "ASTR" else ""
@@ -555,7 +561,10 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
                     llm_config=llm_config,
                     raise_on_error=True,
                 )
-                if self._is_empty_contribution(contribution) and not contribution.is_no_action():
+                if (
+                    self._is_empty_contribution(contribution)
+                    and not contribution.is_no_action()
+                ):
                     if attempts < max_attempts:
                         use_compact_prompt = True
                         await asyncio.sleep(self._backoff_delay(attempts))
@@ -578,7 +587,10 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
                             llm_config=llm_config,
                             raise_on_error=True,
                         )
-                        if self._is_empty_contribution(contribution) and not contribution.is_no_action():
+                        if (
+                            self._is_empty_contribution(contribution)
+                            and not contribution.is_no_action()
+                        ):
                             if attempts < max_attempts:
                                 use_compact_prompt = True
                                 await asyncio.sleep(self._backoff_delay(attempts))
@@ -663,7 +675,9 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
         functional_reqs = []
         for i, req_data in enumerate(data.get("functional_requirements", []), 1):
             try:
-                priority = RequirementPriority(req_data.get("priority", "should").lower())
+                priority = RequirementPriority(
+                    req_data.get("priority", "should").lower()
+                )
             except ValueError:
                 priority = RequirementPriority.SHOULD
 
@@ -694,12 +708,16 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
         non_functional_reqs = []
         for i, req_data in enumerate(data.get("non_functional_requirements", []), 1):
             try:
-                category = RequirementCategory(req_data.get("category", "performance").lower())
+                category = RequirementCategory(
+                    req_data.get("category", "performance").lower()
+                )
             except ValueError:
                 category = RequirementCategory.PERFORMANCE
 
             try:
-                priority = RequirementPriority(req_data.get("priority", "should").lower())
+                priority = RequirementPriority(
+                    req_data.get("priority", "should").lower()
+                )
             except ValueError:
                 priority = RequirementPriority.SHOULD
 
@@ -726,20 +744,26 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
         constraints = []
         for i, const_data in enumerate(data.get("constraints", []), 1):
             try:
-                const_type = ConstraintType(const_data.get("constraint_type", "technical").lower())
+                const_type = ConstraintType(
+                    const_data.get("constraint_type", "technical").lower()
+                )
             except ValueError:
                 const_type = ConstraintType.TECHNICAL
 
             resource_type = None
             if const_type == ConstraintType.RESOURCE:
                 try:
-                    resource_type = ResourceType(const_data.get("resource_type", "capacity").lower())
+                    resource_type = ResourceType(
+                        const_data.get("resource_type", "capacity").lower()
+                    )
                 except ValueError:
                     resource_type = ResourceType.CAPACITY
 
             constraints.append(
                 Constraint(
-                    constraint_id=const_data.get("constraint_id", f"C-{abbrev}-{i:03d}"),
+                    constraint_id=const_data.get(
+                        "constraint_id", f"C-{abbrev}-{i:03d}"
+                    ),
                     constraint_type=const_type,
                     description=self._normalize_requirement_text(
                         const_data.get("description", "")
@@ -759,7 +783,9 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
         for i, deliv_data in enumerate(data.get("deliverables", []), 1):
             deliverables.append(
                 Deliverable(
-                    deliverable_id=deliv_data.get("deliverable_id", f"D-{abbrev}-{i:03d}"),
+                    deliverable_id=deliv_data.get(
+                        "deliverable_id", f"D-{abbrev}-{i:03d}"
+                    ),
                     name=deliv_data.get("name", ""),
                     description=self._normalize_requirement_text(
                         deliv_data.get("description", "")
@@ -799,7 +825,9 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
 
         # Determine contribution status
         contribution_summary = data.get("contribution_summary", "")
-        has_content = bool(functional_reqs or non_functional_reqs or constraints or deliverables)
+        has_content = bool(
+            functional_reqs or non_functional_reqs or constraints or deliverables
+        )
 
         # Detect no-action responses
         no_action_phrases = [
@@ -809,7 +837,9 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
             "no requirements from this portfolio",
             "does not apply",
         ]
-        is_no_action = any(phrase in contribution_summary.lower() for phrase in no_action_phrases)
+        is_no_action = any(
+            phrase in contribution_summary.lower() for phrase in no_action_phrases
+        )
 
         if is_no_action or (not has_content and contribution_summary):
             status = ContributionStatus.NO_ACTION
@@ -851,7 +881,7 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
         }
         for prefix, replacement in replacements.items():
             if lowered.startswith(prefix):
-                normalized = replacement + normalized[len(prefix):]
+                normalized = replacement + normalized[len(prefix) :]
                 lowered = normalized.lower()
                 break
 
@@ -1042,27 +1072,37 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
 
             for term in branch_terms:
                 if term in lowered and term not in motion_lower:
-                    violations.append("Branch or role reference detected outside motion text.")
+                    violations.append(
+                        "Branch or role reference detected outside motion text."
+                    )
                     break
 
             for pattern in assignment_patterns:
                 if re.search(pattern, text, re.IGNORECASE):
-                    violations.append("Branch assignment detected in contribution content.")
+                    violations.append(
+                        "Branch assignment detected in contribution content."
+                    )
                     break
 
             for term in governance_terms:
                 if term in lowered and term not in motion_lower:
-                    violations.append(f"Introduces governance construct not in motion: {term}")
+                    violations.append(
+                        f"Introduces governance construct not in motion: {term}"
+                    )
                     break
 
             for term in mechanism_terms:
                 if term in lowered and term not in motion_lower:
-                    violations.append("Mechanism-specific term detected; use capability language.")
+                    violations.append(
+                        "Mechanism-specific term detected; use capability language."
+                    )
                     break
 
             for pattern in metric_patterns:
                 if re.search(pattern, text, re.IGNORECASE):
-                    violations.append("Quantitative constraint detected; defer to Administrative proposals.")
+                    violations.append(
+                        "Quantitative constraint detected; defer to Administrative proposals."
+                    )
                     break
 
         # Dedupe violations

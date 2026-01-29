@@ -10,7 +10,9 @@ import re
 def strip_markdown_fence(text: str) -> str:
     """Remove markdown code fences from text if present."""
     cleaned = text.strip()
-    fence_match = re.search(r"```(?:json)?\s*(.*?)```", cleaned, re.DOTALL | re.IGNORECASE)
+    fence_match = re.search(
+        r"```(?:json)?\s*(.*?)```", cleaned, re.DOTALL | re.IGNORECASE
+    )
     if fence_match:
         return fence_match.group(1).strip()
     if cleaned.startswith("```"):

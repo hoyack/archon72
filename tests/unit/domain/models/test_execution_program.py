@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
-
 from src.domain.models.execution_program import (
     DUKE_MAX_CONCURRENT_PROGRAMS,
     EXECUTION_PROGRAM_SCHEMA_VERSION,
@@ -32,7 +30,6 @@ from src.domain.models.execution_program import (
     TaskLifecycleStatus,
     TaskResultArtifact,
 )
-
 
 # =============================================================================
 # Helpers
@@ -151,8 +148,15 @@ class TestEnums:
 
     def test_task_lifecycle_members(self) -> None:
         expected = {
-            "PENDING", "ACTIVATED", "ACCEPTED", "DECLINED",
-            "EXECUTING", "COMPLETED", "FAILED", "WITHDRAWN", "TIMED_OUT",
+            "PENDING",
+            "ACTIVATED",
+            "ACCEPTED",
+            "DECLINED",
+            "EXECUTING",
+            "COMPLETED",
+            "FAILED",
+            "WITHDRAWN",
+            "TIMED_OUT",
         }
         assert {m.name for m in TaskLifecycleStatus} == expected
 
@@ -161,8 +165,11 @@ class TestEnums:
 
     def test_program_completion_members(self) -> None:
         expected = {
-            "COMPLETED_CLEAN", "COMPLETED_WITH_ACCEPTED_RISKS",
-            "COMPLETED_WITH_UNRESOLVED", "FAILED", "HALTED",
+            "COMPLETED_CLEAN",
+            "COMPLETED_WITH_ACCEPTED_RISKS",
+            "COMPLETED_WITH_UNRESOLVED",
+            "FAILED",
+            "HALTED",
         }
         assert {m.name for m in ProgramCompletionStatus} == expected
 
@@ -176,8 +183,10 @@ class TestEnums:
 
     def test_blocker_type_members(self) -> None:
         expected = {
-            "REQUIREMENTS_AMBIGUOUS", "CAPACITY_UNAVAILABLE",
-            "CONSTRAINT_CONFLICT", "RESOURCE_MISSING",
+            "REQUIREMENTS_AMBIGUOUS",
+            "CAPACITY_UNAVAILABLE",
+            "CONSTRAINT_CONFLICT",
+            "RESOURCE_MISSING",
         }
         assert {m.name for m in BlockerType} == expected
 
@@ -191,7 +200,8 @@ class TestEnums:
 
     def test_clarification_type_members(self) -> None:
         expected = {
-            "AMBIGUITY_RESOLUTION", "CONSTRAINT_INTERPRETATION",
+            "AMBIGUITY_RESOLUTION",
+            "CONSTRAINT_INTERPRETATION",
             "DEPENDENCY_QUESTION",
         }
         assert {m.name for m in ClarificationType} == expected

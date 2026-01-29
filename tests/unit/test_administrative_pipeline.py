@@ -18,7 +18,6 @@ import pytest
 
 # Import the pure functions under test
 from scripts.run_administrative_pipeline import (
-    KNOWN_EARL_IDS,
     build_execution_program,
     filter_eligible_tools,
     route_earl,
@@ -142,19 +141,13 @@ def _load_schema(name: str) -> dict:
 class TestRouteEarl:
     """Tests for Earl routing logic."""
 
-    def test_known_portfolio_routes_to_correct_earl(
-        self, routing_table: dict
-    ) -> None:
-        earl_id, matched, fallback = route_earl(
-            ["acquisition"], routing_table
-        )
+    def test_known_portfolio_routes_to_correct_earl(self, routing_table: dict) -> None:
+        earl_id, matched, fallback = route_earl(["acquisition"], routing_table)
         assert earl_id == RAUM_ID
         assert matched == "acquisition"
         assert fallback is False
 
-    def test_first_matching_portfolio_wins(
-        self, routing_table: dict
-    ) -> None:
+    def test_first_matching_portfolio_wins(self, routing_table: dict) -> None:
         earl_id, matched, fallback = route_earl(
             ["military", "acquisition"], routing_table
         )
@@ -162,19 +155,13 @@ class TestRouteEarl:
         assert matched == "military"
         assert fallback is False
 
-    def test_unknown_portfolio_falls_back_to_default(
-        self, routing_table: dict
-    ) -> None:
-        earl_id, matched, fallback = route_earl(
-            ["unknown_domain"], routing_table
-        )
+    def test_unknown_portfolio_falls_back_to_default(self, routing_table: dict) -> None:
+        earl_id, matched, fallback = route_earl(["unknown_domain"], routing_table)
         assert earl_id == BIFRONS_ID
         assert matched == "__default__"
         assert fallback is True
 
-    def test_empty_portfolios_falls_back_to_default(
-        self, routing_table: dict
-    ) -> None:
+    def test_empty_portfolios_falls_back_to_default(self, routing_table: dict) -> None:
         earl_id, matched, fallback = route_earl([], routing_table)
         assert earl_id == BIFRONS_ID
         assert fallback is True
@@ -216,9 +203,7 @@ class TestRouteEarl:
 class TestFilterEligibleTools:
     """Tests for tool capability filtering."""
 
-    def test_matching_capabilities_returns_tools(
-        self, tool_registry: dict
-    ) -> None:
+    def test_matching_capabilities_returns_tools(self, tool_registry: dict) -> None:
         result = filter_eligible_tools(
             required_capabilities=["doc_drafting"],
             tool_class="HUMAN_CLUSTER",
@@ -229,9 +214,7 @@ class TestFilterEligibleTools:
         tool_ids = {t["tool_id"] for t in result}
         assert tool_ids == {"cluster:alpha", "cluster:beta"}
 
-    def test_stricter_capabilities_filters_further(
-        self, tool_registry: dict
-    ) -> None:
+    def test_stricter_capabilities_filters_further(self, tool_registry: dict) -> None:
         result = filter_eligible_tools(
             required_capabilities=["doc_drafting", "review"],
             tool_class="HUMAN_CLUSTER",
@@ -241,9 +224,7 @@ class TestFilterEligibleTools:
         assert len(result) == 1
         assert result[0]["tool_id"] == "cluster:alpha"
 
-    def test_unavailable_tools_excluded(
-        self, tool_registry: dict
-    ) -> None:
+    def test_unavailable_tools_excluded(self, tool_registry: dict) -> None:
         result = filter_eligible_tools(
             required_capabilities=["doc_drafting", "review", "coding"],
             tool_class="HUMAN_CLUSTER",
@@ -252,9 +233,7 @@ class TestFilterEligibleTools:
         # cluster:offline has all caps but is UNAVAILABLE
         assert len(result) == 0
 
-    def test_wrong_tool_class_returns_empty(
-        self, tool_registry: dict
-    ) -> None:
+    def test_wrong_tool_class_returns_empty(self, tool_registry: dict) -> None:
         result = filter_eligible_tools(
             required_capabilities=["doc_drafting"],
             tool_class="DIGITAL_TOOL",
@@ -263,9 +242,7 @@ class TestFilterEligibleTools:
         # No DIGITAL_TOOL with doc_drafting
         assert len(result) == 0
 
-    def test_digital_tool_class_matches(
-        self, tool_registry: dict
-    ) -> None:
+    def test_digital_tool_class_matches(self, tool_registry: dict) -> None:
         result = filter_eligible_tools(
             required_capabilities=["scanning"],
             tool_class="DIGITAL_TOOL",
@@ -349,15 +326,11 @@ class TestSchemaValidation:
         )
         jsonschema.validate(instance=program, schema=schema)
 
-    def test_tool_registry_validates_against_schema(
-        self, tool_registry: dict
-    ) -> None:
+    def test_tool_registry_validates_against_schema(self, tool_registry: dict) -> None:
         schema = _load_schema("tool_registry.schema.json")
         jsonschema.validate(instance=tool_registry, schema=schema)
 
-    def test_handoff_validates_against_schema(
-        self, minimal_handoff: dict
-    ) -> None:
+    def test_handoff_validates_against_schema(self, minimal_handoff: dict) -> None:
         schema = _load_schema("administrative_handoff.schema.json")
         jsonschema.validate(instance=minimal_handoff, schema=schema)
 

@@ -415,7 +415,9 @@ def _resolve_mandates_path(path: Path) -> Path:
 
 def _load_mandate_session_id(path: Path) -> str:
     data = json.loads(path.read_text(encoding="utf-8"))
-    return data.get("conclave_session_id") or data.get("session_id") or "unknown-session"
+    return (
+        data.get("conclave_session_id") or data.get("session_id") or "unknown-session"
+    )
 
 
 def _init_planner_agent(args):

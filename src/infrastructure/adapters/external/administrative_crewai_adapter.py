@@ -203,7 +203,9 @@ You propose actionable tactics, not vague descriptions.""",
         start_time = time.time()
 
         # Get the portfolio ID from the epic
-        portfolio_id = epic.owner_portfolio_id or f"portfolio_{epic.epic_id.split('_')[1]}"
+        portfolio_id = (
+            epic.owner_portfolio_id or f"portfolio_{epic.epic_id.split('_')[1]}"
+        )
 
         logger.info(
             "generate_proposal_start",
@@ -218,7 +220,8 @@ You propose actionable tactics, not vague descriptions.""",
         discovery_text = ""
         if discovery_stubs:
             relevant_stubs = [
-                s for s in discovery_stubs
+                s
+                for s in discovery_stubs
                 if s.origin_blocker_id and epic.epic_id in s.task_id
             ]
             if relevant_stubs:
@@ -234,7 +237,11 @@ You propose actionable tactics, not vague descriptions.""",
                 for wp in epic.work_packages
             )
 
-        constraints_text = ', '.join(context.constraints_spotlight) if context.constraints_spotlight else 'None'
+        constraints_text = (
+            ", ".join(context.constraints_spotlight)
+            if context.constraints_spotlight
+            else "None"
+        )
 
         proposal_prompt = f"""OUTPUT ONLY VALID JSON. No prose, no explanation outside JSON.
 
@@ -367,6 +374,7 @@ CRITICAL: Output ONLY the JSON object. No markdown, no ```json, no explanation."
                 specs: list[TechnicalSpecReference] = []
                 for idx, s in enumerate(parsed.get("spec_references", [])):
                     from src.domain.models.administrative_pipeline import SpecType
+
                     spec_type_str = s.get("spec_type", "TECHNICAL_DESIGN")
                     try:
                         spec_type = SpecType(spec_type_str)

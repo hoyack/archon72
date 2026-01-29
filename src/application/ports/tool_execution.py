@@ -26,9 +26,7 @@ class ToolExecutionProtocol(ABC):
     """
 
     @abstractmethod
-    async def execute_task(
-        self, request: TaskActivationRequest
-    ) -> TaskResultArtifact:
+    async def execute_task(self, request: TaskActivationRequest) -> TaskResultArtifact:
         """Execute a task via internal tools.
 
         Args:

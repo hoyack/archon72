@@ -2,14 +2,11 @@
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any
 
 from src.clients.archon72 import (
     Archon72Client,
     PermanentError,
     SubmitPetitionRequest,
-    SubmitPetitionResponse,
     TransientError,
 )
 from src.clients.supabase import PetitionRecord, SupabaseClient

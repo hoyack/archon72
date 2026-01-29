@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.local/schemas/contracts/task_result_artifact.schema.json",
+  "title": "TaskResultArtifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tra_id", "submitted_at", "references", "responder", "outcome", "next_actions"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "tra_id": { "type": "string", "pattern": "^tra-[a-zA-Z0-9\\-]+$" },
+    "submitted_at": { "type": "string", "format": "date-time" },
+
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tar_id", "program_id", "task_id"],
+      "properties": {
+        "tar_id": { "type": "string", "pattern": "^tar-[a-zA-Z0-9\\-]+$" },
+        "program_id": { "type": "string", "pattern": "^program-[a-zA-Z0-9\\-]+$" },
+        "task_id": { "type": "string", "pattern": "^task-[a-zA-Z0-9\\-]+$" }
+      }
+    },
+
+    "responder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool_id", "tool_class", "operator"],
+      "properties": {
+        "tool_id": { "type": "string", "minLength": 1 },
+        "tool_class": { "type": "string", "enum": ["HUMAN_CLUSTER", "DIGITAL_TOOL"] },
+        "operator": { "type": "string", "enum": ["human", "system"] }
+      }
+    },
+
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "summary", "deliverables", "evidence_refs", "issues"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["COMPLETED", "PARTIAL", "BLOCKED", "FAILED", "DECLINED", "WITHDRAWN"]
+        },
+        "summary": { "type": "string", "minLength": 1 },
+        "deliverables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "artifact_ref"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "artifact_ref": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "severity", "description", "needs_upstream_decision"],
+            "properties": {
+              "type": { "type": "string", "enum": ["BLOCKER", "RISK", "DEFECT", "CONSTRAINT_VIOLATION"] },
+              "severity": { "type": "string", "enum": ["MINOR", "MAJOR", "SEVERE"] },
+              "description": { "type": "string", "minLength": 1 },
+              "needs_upstream_decision": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "to", "message"],
+        "properties": {
+          "type": { "type": "string", "enum": ["REQUEST_CLARIFICATION", "ESCALATE", "RETRY", "NO_ACTION"] },
+          "to": { "type": "string", "enum": ["EARL", "DUKE", "PRESIDENT"] },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}

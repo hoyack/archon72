@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.local/schemas/contracts/award_decision.schema.json",
+  "title": "AwardDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "award_id",
+    "session_id",
+    "mandate_id",
+    "motion_id",
+    "rfp_id",
+    "created_at",
+    "awarding_authority",
+    "selected_bid",
+    "award_terms",
+    "gates",
+    "protest_window"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "award_id": { "type": "string", "pattern": "^award-[a-zA-Z0-9\\-]+$" },
+    "session_id": { "type": "string", "minLength": 1 },
+    "mandate_id": { "type": "string", "pattern": "^mandate-[a-zA-Z0-9\\-]+$" },
+    "motion_id": { "type": "string", "pattern": "^motion-[a-zA-Z0-9\\-]+$" },
+    "rfp_id": { "type": "string", "pattern": "^rfp-[a-zA-Z0-9\\-]+$" },
+    "created_at": { "type": "string", "format": "date-time" },
+
+    "awarding_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["president_id", "peer_review"],
+      "properties": {
+        "president_id": { "type": "string", "minLength": 1 },
+        "peer_review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "reviewers", "trigger_reasons"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "reviewers": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "maxItems": 5
+            },
+            "trigger_reasons": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "CROSS_PORTFOLIO_GT_2",
+                  "RFP_UNRESOLVED_CONFLICTS_PRESENT",
+                  "BUDGET_THRESHOLD_EXCEEDED"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "selected_bid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duke_id", "proposal_id", "score_summary", "award_type"],
+      "properties": {
+        "duke_id": { "type": "string", "minLength": 1 },
+        "proposal_id": { "type": "string", "pattern": "^proposal-[a-zA-Z0-9\\-]+$" },
+        "award_type": { "type": "string", "enum": ["SINGLE_WINNER"] },
+        "score_summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["overall", "rubric"],
+          "properties": {
+            "overall": { "type": "number", "minimum": 0, "maximum": 1 },
+            "rubric": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["traceability", "feasibility", "clarity", "consentability", "risk_posture"],
+              "properties": {
+                "traceability": { "type": "number", "minimum": 0, "maximum": 1 },
+                "feasibility": { "type": "number", "minimum": 0, "maximum": 1 },
+                "clarity": { "type": "number", "minimum": 0, "maximum": 1 },
+                "consentability": { "type": "number", "minimum": 0, "maximum": 1 },
+                "risk_posture": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "award_terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "constraints"],
+      "properties": {
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deliverables", "explicit_exclusions"],
+          "properties": {
+            "deliverables": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "title", "acceptance_criteria"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "title": { "type": "string", "minLength": 1 },
+                  "acceptance_criteria": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            },
+            "explicit_exclusions": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deadline_iso", "budget_cap", "data_handling"],
+          "properties": {
+            "deadline_iso": { "type": "string", "minLength": 1 },
+            "budget_cap": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["amount", "currency"],
+              "properties": {
+                "amount": { "type": "number", "minimum": 0 },
+                "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+              }
+            },
+            "data_handling": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["traceability", "feasibility", "clarity", "consentability"],
+      "properties": {
+        "traceability": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "feasibility": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "clarity": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "consentability": { "type": "string", "enum": ["PASS", "FAIL"] }
+      }
+    },
+
+    "non_selected_bids": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["duke_id", "proposal_id", "summary_reason"],
+        "properties": {
+          "duke_id": { "type": "string", "minLength": 1 },
+          "proposal_id": { "type": "string", "pattern": "^proposal-[a-zA-Z0-9\\-]+$" },
+          "summary_reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "protest_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "duration_hours", "allowed_reasons"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "duration_hours": { "type": "integer", "minimum": 1, "maximum": 168 },
+        "allowed_reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["SCORING_ERROR", "MISREAD_REQUIREMENT", "CONFLICT_OF_INTEREST_ASSERTION"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "default_earl_id": "3af355a1-9026-4d4a-9294-9964bf230751",
+  "portfolio_to_earl": {
+    "acquisition": "07fec517-1529-4499-aa55-b0a9faaf47b1",
+    "transformation": "3af355a1-9026-4d4a-9294-9964bf230751",
+    "knowledge": "3af355a1-9026-4d4a-9294-9964bf230751",
+    "military": "3836da54-2509-4dc1-be4d-0c321cd66e58",
+    "asset_recovery": "8bfe38f1-8bed-48fd-8447-fc36aed2a672",
+    "weather": "78c885cc-c9b0-4b61-bba9-50692b62fc8d",
+    "discord": "78c885cc-c9b0-4b61-bba9-50692b62fc8d",
+    "astronomy": "71d8cccb-208f-49cd-a9c2-d7930076da70",
+    "education": "71d8cccb-208f-49cd-a9c2-d7930076da70"
+  }
+}

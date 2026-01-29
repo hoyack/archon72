@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archon72.local/schemas/contracts/tool_registry.schema.json",
+  "title": "ToolRegistry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "updated_at", "tools"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tool_id", "tool_class", "capabilities", "status"],
+        "properties": {
+          "tool_id": { "type": "string", "minLength": 1 },
+          "tool_class": { "type": "string", "enum": ["HUMAN_CLUSTER", "DIGITAL_TOOL"] },
+          "capabilities": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "status": { "type": "string", "enum": ["AVAILABLE", "UNAVAILABLE", "DEGRADED"] }
+        }
+      }
+    }
+  }
+}

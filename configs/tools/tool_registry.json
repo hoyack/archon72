@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-01-29T00:00:00Z",
+  "tools": [
+    {
+      "tool_id": "cluster:alpha",
+      "tool_class": "HUMAN_CLUSTER",
+      "capabilities": ["doc_drafting", "review"],
+      "status": "AVAILABLE"
+    }
+  ]
+}

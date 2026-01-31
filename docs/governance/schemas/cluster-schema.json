@@ -256,6 +256,18 @@
         }
       }
     },
+    "power_tier": {
+      "type": "integer",
+      "description": "Output axis: what a Tool may do with the work. Tier 0=read-only, 1=artifact creation, 2=sandbox write, 3=real-world effect. See Labor Layer Contract §4.",
+      "enum": [0, 1, 2, 3],
+      "default": 0
+    },
+    "tool_type": {
+      "type": "string",
+      "description": "Whether the cluster is operated by a human, bot, or hybrid (bot with human gate).",
+      "enum": ["human", "bot", "hybrid"],
+      "default": "human"
+    },
     "interfaces": {
       "type": "object",
       "description": "How tasks are received and how results are returned.",

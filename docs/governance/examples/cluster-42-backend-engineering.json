@@ -1,0 +1,65 @@
+{
+  "cluster_id": "a1b2c3d4-4201-4a01-b001-000000000042",
+  "version": "1.0.0",
+  "name": "Aegis Cluster 42 — Backend & Data Engineering",
+  "status": "active",
+  "tool_type": "hybrid",
+  "power_tier": 1,
+  "steward": {
+    "steward_id": "steward-42",
+    "display_name": "Cluster Steward 42",
+    "contact": {
+      "channel": "discord",
+      "address": "#aegis-cluster-42"
+    },
+    "auth_level": "sensitive"
+  },
+  "members": {
+    "member_count": 4
+  },
+  "capabilities": {
+    "tags": [
+      "dev_backend",
+      "data_engineering",
+      "design",
+      "analysis"
+    ],
+    "tooling": ["github", "vscode", "docker", "postgresql"],
+    "domain_focus": ["attribution_systems", "event_driven_architecture"]
+  },
+  "capacity": {
+    "availability_status": "available",
+    "max_concurrent_tasks": 4,
+    "max_weekly_task_load": 12,
+    "timezone": "America/New_York",
+    "hours_of_operation": {
+      "start_local": "08:00",
+      "end_local": "18:00"
+    }
+  },
+  "consent_policy": {
+    "requires_explicit_acceptance": true,
+    "refusal_is_penalty_free": true,
+    "acceptance_method": "steward_accepts",
+    "task_types_allowed": [
+      "implementation_work",
+      "content_creation",
+      "research_summary"
+    ],
+    "sensitive_task_gate": {
+      "enabled": true,
+      "requires_steward_auth_level": "sensitive"
+    }
+  },
+  "interfaces": {
+    "intake_channels": ["discord", "api"],
+    "delivery_channels": ["api", "discord"]
+  },
+  "audit": {
+    "created_at": "2026-01-31T18:00:00Z",
+    "updated_at": "2026-01-31T18:00:00Z",
+    "audit_level": "standard",
+    "event_log_enabled": true,
+    "data_retention_days": 365
+  }
+}

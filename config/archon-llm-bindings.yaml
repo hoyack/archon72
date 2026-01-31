@@ -1,5 +1,27 @@
-# Archon LLM Bindings Configuration
-# ==================================
+# ============================================================================
+# DEPRECATED - DO NOT USE THIS FILE FOR ARCHON LLM BINDINGS
+# ============================================================================
+# The authoritative source for per-archon LLM bindings is:
+#
+#   docs/archons-base.json  (each archon's "llm_config" field)
+#
+# Role-based overrides (Secretary, Consolidator, Witness, etc.) are
+# configured via archon UUID environment variables in .env:
+#
+#   SECRETARY_TEXT_ARCHON_ID=<uuid>
+#   SECRETARY_JSON_ARCHON_ID=<uuid>
+#   CONSOLIDATOR_ARCHON_ID=<uuid>
+#   WITNESS_ARCHON_ID=<uuid>
+#   PRESIDENT_DELIBERATOR_ARCHON_ID=<uuid>
+#   EXECUTION_PLANNER_ARCHON_ID=<uuid>
+#
+# This YAML file is only used as a legacy fallback by the
+# JsonYamlArchonProfileAdapter when archons-base.json does not
+# contain llm_config entries. It should NOT be edited for normal
+# configuration changes.
+# ============================================================================
+#
+# Original file description (legacy):
 # Per-archon LLM provider and model configuration.
 # Each archon can be bound to a unique LLM for granular control
 # over capabilities, costs, and personality fidelity.

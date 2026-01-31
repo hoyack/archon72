@@ -105,7 +105,7 @@ poetry run python scripts/run_conclave.py \
 **Output files:**
 - `_bmad-output/conclave/transcript-{uuid}-{timestamp}.md`
 - `_bmad-output/conclave/conclave-results-{uuid}-{timestamp}.json`
-- `_bmad-output/conclave/conclave-checkpoint-{stage}.json`
+- `_bmad-output/conclave/checkpoint-{session_id}-{timestamp}.json`
 
 **Sample output** (`conclave-results-*.json`, abbreviated):
 ```json
@@ -210,8 +210,13 @@ poetry run python scripts/run_consolidator.py --verbose
 
 **Output files:**
 - `_bmad-output/consolidator/{session_id}/mega-motions.json`
-- `_bmad-output/consolidator/{session_id}/consolidation-report.json`
-- `_bmad-output/consolidator/{session_id}/novel_proposals.json`
+- `_bmad-output/consolidator/{session_id}/mega-motions.md`
+- `_bmad-output/consolidator/{session_id}/merge-audit.json`
+- `_bmad-output/consolidator/{session_id}/traceability-matrix.md`
+- `_bmad-output/consolidator/{session_id}/deferred-novel-proposals.json`
+- `_bmad-output/consolidator/{session_id}/conclave-summary.json`
+- `_bmad-output/consolidator/{session_id}/acronym-registry.json`
+- `_bmad-output/consolidator/{session_id}/index.md`
 
 **Sample output** (abbreviated):
 ```json
@@ -253,20 +258,22 @@ poetry run python scripts/run_review_pipeline.py --real-agent --verbose
 1. **Triage** - Risk assessment by implicit support ratio and conflict detection
 2. **Packet Generation** - Assign reviews to specific Archons
 3. **Review Collection** - Gather Archon responses (simulated or real LLM)
-4. **Aggregation** - Consensus building (2-of-3 supermajority)
+4. **Aggregation** - Consensus building (75% endorsement threshold)
 5. **Panel Deliberation** - Convene panels for contested HIGH-risk motions
 6. **Ratification** - Final votes (ratified, amended, rejected, deferred)
 
 **Input files:**
 - `_bmad-output/consolidator/{session_id}/mega-motions.json`
-- `_bmad-output/consolidator/{session_id}/novel_proposals.json`
+- `_bmad-output/consolidator/{session_id}/deferred-novel-proposals.json`
 
 **Output files:**
 - `_bmad-output/review-pipeline/{session_id}/triage_results.json`
-- `_bmad-output/review-pipeline/{session_id}/review_packets.json`
-- `_bmad-output/review-pipeline/{session_id}/panel_deliberations.json`
+- `_bmad-output/review-pipeline/{session_id}/review_packets/{archon_id}.json`
+- `_bmad-output/review-pipeline/{session_id}/aggregations.json`
+- `_bmad-output/review-pipeline/{session_id}/panel_deliberations/{panel_id}.json`
 - `_bmad-output/review-pipeline/{session_id}/ratification_results.json`
-- `_bmad-output/review-pipeline/{session_id}/motion_status_summary.json`
+- `_bmad-output/review-pipeline/{session_id}/pipeline_result.json`
+- `_bmad-output/review-pipeline/{session_id}/audit_trail.json`
 
 **Sample output** (`ratification_results.json`, abbreviated):
 ```json
@@ -290,7 +297,9 @@ poetry run python scripts/run_review_pipeline.py --real-agent --verbose
 
 **Purpose:** Vote on the ratified recommendations from the review pipeline. This closes the Discovery Loop. Passed motions graduate to Wheel 2 (Execution Loop) for implementation.
 
-The command is identical to Stage 1 -- it pulls from the same `active-queue.json`, which now contains newly imported motions from the Secretary and Review pipeline.
+Before this stage runs, `run_full_pipeline.sh` executes a **bridge step** that calls `MotionQueueService.import_from_ratification()` to import ratified mega-motions into the active queue. It also calls `recover_stranded_promoted()` to revert any PROMOTED motions stuck from prior failed runs.
+
+The command is identical to Stage 1 -- it pulls from the same `active-queue.json`, which now contains newly imported motions from the ratification bridge.
 
 **Command:**
 ```bash
@@ -527,36 +536,54 @@ Key fields from `ConclaveConfig` in `src/application/services/conclave_service.p
 ### Motion Status Lifecycle
 
 ```
-PENDING ──► ENDORSED ──► PROMOTED ──► voted (passed/failed)
-    │           │                         │
-    ▼           ▼                         ▼
-WITHDRAWN   DEFERRED                  archived
+PENDING ──► ENDORSED ──► PROMOTED ──► archived (passed/failed)
+    │           │             │
+    ▼           ▼             ▼
+WITHDRAWN   DEFERRED      recovered (on Conclave failure)
+    │
+    ▼
+  MERGED
 ```
 
-- **PENDING** - New motion in queue (from Secretary import)
-- **ENDORSED** - Has received King endorsement(s)
+- **PENDING** - New motion in queue (from Secretary import or ratification bridge)
+- **ENDORSED** - Has received endorsement(s)
+- **MERGED** - Combined with a similar motion
 - **PROMOTED** - Selected for and promoted to a Conclave session
-- **voted** - Conclave voted; result recorded, motion archived
+- **archived** - Conclave voted; result recorded, motion removed from active queue
+- **DEFERRED** - Pushed to a later Conclave
+- **WITHDRAWN** - Removed from queue
+
+Note: `mark_voted()` archives the motion to `_bmad-output/motion-queue/archive/{motion_id}.json` and removes it from the active queue. There is no explicit "voted" status in the queue enum.
 
 ### Queue Selection Algorithm
 
 `MotionQueueService.select_for_conclave(max_items, min_consensus)`:
 
-1. Filter by status: only `pending` or `endorsed`
+1. Filter by status: only `PENDING` or `ENDORSED`
 2. Filter by consensus tier >= `min_consensus` (ordering: critical > high > medium > low > single)
-3. Sort by endorsement count (descending), then by creation date (oldest first)
+3. Sort by: endorsement count (descending), then original archon count (descending), then consensus level (descending)
 4. Take top `max_items`
 
-### Circular Completion (Secretary Import)
+Note: creation date is not used as a tiebreaker in the current implementation.
 
-After the Secretary processes a transcript, it calls `MotionQueueService.import_from_report()` which:
+### Circular Completion
 
+The loop closes at two points:
+
+**Secretary Import** (`import_from_report`):
 1. Reads the `SecretaryReport.motion_queue` (list of `QueuedMotion`)
-2. Deduplicates against existing queue entries by title similarity
+2. Deduplicates by `source_cluster_id` (not title similarity)
 3. Inserts new motions with status `PENDING` and computed `ConsensusLevel`
 4. Persists to `_bmad-output/motion-queue/active-queue.json`
 
-This is how the loop closes: debate generates recommendations, the Secretary extracts them, and they re-enter the queue for the next Conclave session.
+**Ratification Bridge** (`import_from_ratification`):
+1. Reads `ratification_results.json` from the review pipeline
+2. Loads `mega-motions.json` from the consolidator for full content
+3. Creates `ENDORSED` queue entries for ratified/amended mega-motions
+4. Deduplicates by exact title match against existing queue entries
+5. Persists to the active queue for Conclave 2 to pick up
+
+This ensures both Secretary-extracted recommendations and review-ratified mega-motions flow back into the queue.
 
 ---
 

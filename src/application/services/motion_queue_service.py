@@ -20,7 +20,7 @@ import json
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from src.domain.models.conclave import (
     AgendaItem,
@@ -29,6 +29,7 @@ from src.domain.models.conclave import (
     MotionType,
 )
 from src.domain.models.secretary import (
+    ConsensusLevel,
     QueuedMotion,
     QueuedMotionStatus,
     SecretaryReport,
@@ -441,6 +442,132 @@ class MotionQueueService:
         )
 
         return self.format_for_conclave(motion)
+
+    # =========================================================================
+    # Review Pipeline Bridge
+    # =========================================================================
+
+    def import_from_ratification(
+        self,
+        ratification_path: Path,
+        mega_motions_path: Path,
+        source_session_name: str = "Review Pipeline",
+    ) -> int:
+        """Import ratified mega-motions from the review pipeline into the queue.
+
+        Bridges Wheel 1 review output into the motion queue so Conclave 2
+        can vote on ratified recommendations, completing the circular loop.
+
+        Args:
+            ratification_path: Path to ratification_results.json
+            mega_motions_path: Path to mega-motions.json (full content)
+            source_session_name: Session name for provenance
+
+        Returns:
+            Number of motions imported
+        """
+        import json as _json
+
+        # Load ratification results
+        with open(ratification_path) as f:
+            ratification_data = _json.load(f)
+
+        # Handle both list and dict formats
+        votes = (
+            ratification_data
+            if isinstance(ratification_data, list)
+            else ratification_data.get("votes", [])
+        )
+
+        # Load mega-motions for full content
+        with open(mega_motions_path) as f:
+            mega_data = _json.load(f)
+
+        # Index mega-motions by title for lookup
+        mega_by_title: dict[str, dict] = {}
+        for mm in mega_data if isinstance(mega_data, list) else mega_data.get("mega_motions", []):
+            mega_by_title[mm.get("title", "")] = mm
+
+        imported = 0
+        for vote in votes:
+            outcome = vote.get("outcome", "")
+            if outcome not in ("ratified", "accepted_with_amendments"):
+                continue
+
+            title = vote.get("mega_motion_title", "")
+            mega = mega_by_title.get(title, {})
+
+            # Skip if already in queue (by title match)
+            if any(m.title == title for m in self._queue):
+                logger.debug(f"Skipping duplicate ratified motion: {title}")
+                continue
+
+            # Build motion text from mega-motion content or vote summary
+            text = mega.get("text", mega.get("merged_text", ""))
+            if not text:
+                text = f"Ratified mega-motion: {title}"
+
+            # Compute supporting archon count from mega-motion
+            archon_count = mega.get("unique_archon_count", 0)
+            source_motions = mega.get("source_motion_ids", [])
+            supporting = mega.get("supporting_archons", [])
+
+            motion = QueuedMotion(
+                queued_motion_id=uuid4(),
+                status=QueuedMotionStatus.ENDORSED,
+                title=title,
+                text=text,
+                rationale=(
+                    f"Ratified by review pipeline ({vote.get('yeas', 0)} yeas, "
+                    f"{vote.get('nays', 0)} nays). "
+                    f"Consolidated from {len(source_motions)} source motions."
+                ),
+                original_archon_count=archon_count,
+                consensus_level=ConsensusLevel.from_count(archon_count),
+                supporting_archons=supporting[:20],  # Cap for serialization
+                source_session_name=source_session_name,
+                endorsement_count=vote.get("yeas", 0),
+            )
+
+            self._queue.append(motion)
+            imported += 1
+
+        if imported > 0:
+            self._save_queue()
+            logger.info(
+                f"Imported {imported} ratified mega-motions into queue"
+            )
+
+        return imported
+
+    # =========================================================================
+    # Promoted Motion Recovery
+    # =========================================================================
+
+    def recover_stranded_promoted(self) -> int:
+        """Revert PROMOTED motions back to PENDING if they were never voted on.
+
+        This handles the case where a Conclave run fails mid-flight,
+        leaving motions stuck in PROMOTED status with no vote recorded.
+
+        Returns:
+            Number of motions recovered
+        """
+        recovered = 0
+        for motion in self._queue:
+            if motion.status == QueuedMotionStatus.PROMOTED:
+                motion.status = QueuedMotionStatus.PENDING
+                motion.promoted_at = None
+                motion.target_conclave_id = None
+                recovered += 1
+                logger.info(
+                    f"Recovered stranded motion '{motion.title}' back to PENDING"
+                )
+
+        if recovered > 0:
+            self._save_queue()
+
+        return recovered
 
     # =========================================================================
     # Lifecycle Management

@@ -1,0 +1,66 @@
+{
+  "cluster_id": "b2c3d4e5-4301-4b01-c001-000000000043",
+  "version": "1.0.0",
+  "name": "Aegis Cluster 43 — Security Engineering",
+  "status": "active",
+  "tool_type": "hybrid",
+  "power_tier": 1,
+  "steward": {
+    "steward_id": "steward-43",
+    "display_name": "Cluster Steward 43",
+    "contact": {
+      "channel": "discord",
+      "address": "#aegis-cluster-43"
+    },
+    "auth_level": "restricted"
+  },
+  "members": {
+    "member_count": 3
+  },
+  "capabilities": {
+    "tags": [
+      "dev_backend",
+      "security",
+      "data_engineering",
+      "incident_response",
+      "compliance_ops"
+    ],
+    "tooling": ["github", "vault", "docker", "cryptography_libs"],
+    "domain_focus": ["immutable_ledgers", "cryptographic_verification", "attribution"]
+  },
+  "capacity": {
+    "availability_status": "available",
+    "max_concurrent_tasks": 3,
+    "max_weekly_task_load": 8,
+    "timezone": "America/Chicago",
+    "hours_of_operation": {
+      "start_local": "09:00",
+      "end_local": "17:00"
+    }
+  },
+  "consent_policy": {
+    "requires_explicit_acceptance": true,
+    "refusal_is_penalty_free": true,
+    "acceptance_method": "steward_accepts",
+    "task_types_allowed": [
+      "implementation_work",
+      "security_review",
+      "incident_support"
+    ],
+    "sensitive_task_gate": {
+      "enabled": true,
+      "requires_steward_auth_level": "restricted"
+    }
+  },
+  "interfaces": {
+    "intake_channels": ["discord", "api"],
+    "delivery_channels": ["api", "discord"]
+  },
+  "audit": {
+    "created_at": "2026-01-31T18:00:00Z",
+    "updated_at": "2026-01-31T18:00:00Z",
+    "audit_level": "strict",
+    "event_log_enabled": true,
+    "data_retention_days": 730
+  }
+}

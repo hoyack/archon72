@@ -187,6 +187,17 @@ else
     exit 1
 fi
 
+# Recover stranded PROMOTED motions from failed prior runs
+python3 -c "
+import sys
+sys.path.insert(0, '.')
+from src.application.services.motion_queue_service import MotionQueueService
+svc = MotionQueueService()
+recovered = svc.recover_stranded_promoted()
+if recovered:
+    print(f'Recovered {recovered} stranded PROMOTED motions back to PENDING')
+" 2>/dev/null | while IFS= read -r line; do log "INFO" "$line"; done
+
 # Check motion queue
 MOTION_COUNT=$(python3 -c "
 import json
@@ -282,8 +293,12 @@ if should_run "conclave1"; then
         CONCLAVE_CMD+=" --quick"
     fi
 
-    # Override agent timeout for cloud models (default --quick 60s is too short)
-    export AGENT_TIMEOUT_SECONDS="${AGENT_TIMEOUT_SECONDS:-180}"
+    # Set agent timeout: respect quick mode (60s) unless explicitly overridden
+    if [ "$QUICK_MODE" = true ]; then
+        export AGENT_TIMEOUT_SECONDS="${AGENT_TIMEOUT_SECONDS:-60}"
+    else
+        export AGENT_TIMEOUT_SECONDS="${AGENT_TIMEOUT_SECONDS:-180}"
+    fi
     export AGENT_TIMEOUT_MAX_ATTEMPTS="${AGENT_TIMEOUT_MAX_ATTEMPTS:-5}"
 
     run_stage "conclave1" "$CONCLAVE_CMD"
@@ -403,6 +418,44 @@ else
     log "INFO" "Skipping Stage 4 (review) - skip-to=${SKIP_TO}"
 fi
 
+# ── Bridge: Import ratified mega-motions into queue ──────────────────────
+
+if should_run "conclave2"; then
+    log "INFO" ""
+    log "INFO" "BRIDGE: Importing ratified mega-motions into motion queue"
+
+    REVIEW_DIR_BRIDGE=$(find_latest_review_dir)
+    CONSOLIDATOR_DIR_BRIDGE=$(find_latest_consolidator_dir)
+
+    if [ -n "$REVIEW_DIR_BRIDGE" ] && [ -n "$CONSOLIDATOR_DIR_BRIDGE" ]; then
+        RATIFICATION_BRIDGE="${REVIEW_DIR_BRIDGE}ratification_results.json"
+        MEGA_MOTIONS_BRIDGE="${CONSOLIDATOR_DIR_BRIDGE}mega-motions.json"
+
+        if [ -f "$RATIFICATION_BRIDGE" ] && [ -f "$MEGA_MOTIONS_BRIDGE" ]; then
+            BRIDGE_RESULT=$(python3 -c "
+import sys
+sys.path.insert(0, '.')
+from pathlib import Path
+from src.application.services.motion_queue_service import MotionQueueService
+svc = MotionQueueService()
+imported = svc.import_from_ratification(
+    Path('${RATIFICATION_BRIDGE}'),
+    Path('${MEGA_MOTIONS_BRIDGE}'),
+    source_session_name='Review Pipeline (Wheel 1)',
+)
+print(imported)
+" 2>/dev/null)
+            log "INFO" "Imported ${BRIDGE_RESULT} ratified mega-motions into queue"
+        else
+            log "WARN" "Ratification or mega-motions file not found; skipping bridge"
+            [ ! -f "$RATIFICATION_BRIDGE" ] && log "WARN" "  Missing: ${RATIFICATION_BRIDGE}"
+            [ ! -f "$MEGA_MOTIONS_BRIDGE" ] && log "WARN" "  Missing: ${MEGA_MOTIONS_BRIDGE}"
+        fi
+    else
+        log "WARN" "No review/consolidator directory found; skipping bridge import"
+    fi
+fi
+
 # ── Stage 5: Conclave Round 2 (circular completion) ───────────────────────
 
 if should_run "conclave2"; then
@@ -431,8 +484,12 @@ print(len(pending))
         CONCLAVE2_CMD+=" --quick"
     fi
 
-    # Override agent timeout for cloud models
-    export AGENT_TIMEOUT_SECONDS="${AGENT_TIMEOUT_SECONDS:-180}"
+    # Set agent timeout: respect quick mode (60s) unless explicitly overridden
+    if [ "$QUICK_MODE" = true ]; then
+        export AGENT_TIMEOUT_SECONDS="${AGENT_TIMEOUT_SECONDS:-60}"
+    else
+        export AGENT_TIMEOUT_SECONDS="${AGENT_TIMEOUT_SECONDS:-180}"
+    fi
     export AGENT_TIMEOUT_MAX_ATTEMPTS="${AGENT_TIMEOUT_MAX_ATTEMPTS:-5}"
 
     run_stage "conclave2" "$CONCLAVE2_CMD"

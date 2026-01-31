@@ -242,6 +242,7 @@ ASTR SPECIAL LIMITS (MANDATORY):
         model: str | None = None,
         provider: str | None = None,
         base_url: str | None = None,
+        lint_enabled: bool = True,
     ) -> None:
         """Initialize the RFP contributor adapter.
 
@@ -252,6 +253,7 @@ ASTR SPECIAL LIMITS (MANDATORY):
             model: Override model name
             provider: Override LLM provider (e.g., 'ollama', 'openai', 'anthropic')
             base_url: Override base URL for API
+            lint_enabled: Enable constitutional lint checks on contributions
         """
         self._profile_repository = profile_repository
         self._verbose = verbose
@@ -259,6 +261,7 @@ ASTR SPECIAL LIMITS (MANDATORY):
         self._model_override = model
         self._provider_override = provider
         self._base_url_override = base_url
+        self._lint_enabled = lint_enabled
         self._llm_cache: dict[str, tuple[LLM | str, LLMConfig]] = {}
         self._secretary_llm: tuple[LLM | str, LLMConfig] | None = None
 
@@ -654,7 +657,9 @@ CRITICAL: Output ONLY ONE JSON OBJECT. Do not output a list. No markdown. No ext
                 generated_at=generated_at,
             )
 
-        violations = self._lint_contribution(data, motion_text)
+        violations = (
+            self._lint_contribution(data, motion_text) if self._lint_enabled else []
+        )
         if violations:
             if raise_on_error:
                 raise ValueError("; ".join(violations))
@@ -1116,6 +1121,7 @@ def create_rfp_contributor(
     model: str | None = None,
     provider: str | None = None,
     base_url: str | None = None,
+    lint_enabled: bool = True,
 ) -> RFPContributorCrewAIAdapter:
     """Factory function to create an RFP contributor adapter.
 
@@ -1126,6 +1132,7 @@ def create_rfp_contributor(
         model: Override model name
         provider: Override LLM provider (e.g., 'ollama', 'openai', 'anthropic')
         base_url: Override base URL
+        lint_enabled: Enable constitutional lint checks on contributions
 
     Returns:
         Configured RFP contributor adapter
@@ -1137,4 +1144,5 @@ def create_rfp_contributor(
         model=model,
         provider=provider,
         base_url=base_url,
+        lint_enabled=lint_enabled,
     )

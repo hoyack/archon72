@@ -4,6 +4,13 @@
 Each Administrative Duke reads the RFP and produces a complete implementation
 proposal describing HOW to accomplish the requirements from their domain expertise.
 
+Multi-pass pipeline (5 phases per Duke) with optional checkpointing:
+  Phase 1: Strategic Foundation (Overview, Issues, Philosophy)
+  Phase 2: Per-Deliverable Solutions (Tactics, Risks, Resources) - N calls
+  Phase 3: Cross-Cutting (Coverage table, Deliverable plan, Assumptions, Constraints)
+  Phase 4: Consolidation Review (secretary text agent reviews for consistency)
+  Phase 5: Executive Summary (synthesises the completed proposal)
+
 Pipeline Position:
     Legislative (Motion) -> Executive (RFP) -> Administrative (Duke Proposals) <- THIS
                                              -> Executive (Selection)          <- LATER
@@ -14,6 +21,8 @@ Usage:
     python scripts/run_duke_proposals.py --rfp-file path/rfp.json  # explicit RFP
     python scripts/run_duke_proposals.py --duke-name Agares        # single Duke
     python scripts/run_duke_proposals.py --mode simulation -v      # no LLM
+    python scripts/run_duke_proposals.py --no-checkpoint           # disable checkpointing
+    python scripts/run_duke_proposals.py --clear-checkpoints       # fresh run
 """
 
 from __future__ import annotations
@@ -22,6 +31,8 @@ import argparse
 import asyncio
 import glob
 import json
+import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -219,6 +230,22 @@ def main() -> None:
         help="Override LLM base URL",
     )
     parser.add_argument(
+        "--checkpoint-dir",
+        type=Path,
+        default=None,
+        help="Override checkpoint directory for multi-pass pipeline",
+    )
+    parser.add_argument(
+        "--no-checkpoint",
+        action="store_true",
+        help="Disable checkpointing (each run starts fresh, no resume)",
+    )
+    parser.add_argument(
+        "--clear-checkpoints",
+        action="store_true",
+        help="Delete existing checkpoint directory before starting",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -272,6 +299,34 @@ def main() -> None:
     output_dir = args.outdir or rfp_path.parent
 
     # ------------------------------------------------------------------
+    # Resolve checkpoint directory
+    # ------------------------------------------------------------------
+    checkpoint_dir: Path | None = None
+    if not args.no_checkpoint:
+        checkpoint_dir = args.checkpoint_dir or output_dir / "proposal_drafts"
+
+        if args.clear_checkpoints and checkpoint_dir.exists():
+            print(f"\nClearing checkpoint directory: {checkpoint_dir}")
+            shutil.rmtree(checkpoint_dir)
+
+        print(f"\nCheckpoint directory: {checkpoint_dir}")
+    else:
+        print("\nCheckpointing disabled (--no-checkpoint)")
+
+    # ------------------------------------------------------------------
+    # Read secretary archon ID (same pattern as run_proposal_selection.py)
+    # ------------------------------------------------------------------
+    secretary_text_archon_id = os.getenv("SECRETARY_TEXT_ARCHON_ID", "").strip() or None
+
+    if secretary_text_archon_id:
+        print(f"Secretary Text Archon: {secretary_text_archon_id}")
+    else:
+        print(
+            "Warning: SECRETARY_TEXT_ARCHON_ID not set, "
+            "Phase 4 consolidation will be skipped"
+        )
+
+    # ------------------------------------------------------------------
     # Create service and generate proposals
     # ------------------------------------------------------------------
     generator = None
@@ -293,6 +348,8 @@ def main() -> None:
                 model=args.model,
                 provider=args.provider,
                 base_url=args.base_url,
+                secretary_text_archon_id=secretary_text_archon_id,
+                checkpoint_dir=checkpoint_dir,
             )
             print(
                 f"\nLoaded {profile_repo.count()} Archon profiles"
@@ -313,7 +370,7 @@ def main() -> None:
 
     # Generate proposals
     if generator is not None and use_llm:
-        print("\nGenerating proposals via LLM...")
+        print("\nGenerating proposals via LLM (5-phase pipeline)...")
         try:
             proposals = asyncio.run(service.generate_all_proposals(rfp, dukes))
         except Exception as e:
@@ -369,7 +426,10 @@ def main() -> None:
             llm_info = f" | LLM: {p.llm_provider}/{p.llm_model}"
         print(
             f"  [{status_marker}] {p.duke_name} ({p.duke_abbreviation}): "
-            f"{p.tactic_count} tactics, {p.risk_count} risks{llm_info}"
+            f"{p.tactic_count} tactics, {p.risk_count} risks, "
+            f"{p.resource_request_count} resources, "
+            f"{p.requirement_coverage_count} coverage, "
+            f"{p.deliverable_plan_count} deliverables{llm_info}"
         )
 
     print("=" * 60 + "\n")

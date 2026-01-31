@@ -7,6 +7,67 @@ requirements for the Administrative branch (WHO does HOW).
 All 11 Presidents contribute requirements and constraints from their
 portfolio perspective, producing an Executive Implementation Dossier.
 
+LLM Initialization Chain
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When --mode llm (default), each President gets a dedicated CrewAI Agent
+backed by its own LLM instance. The wiring is:
+
+1. ``load_presidents()`` reads ``docs/archons-base.json``, filters for
+   branch=="executive" + original_rank=="President" (11 agents).
+
+2. ``init_rfp_contributor()`` calls ``create_archon_profile_repository()``
+   which lives in
+   ``src/infrastructure/adapters/config/archon_profile_adapter.py``
+   (class ``JsonYamlArchonProfileAdapter``).  The adapter **merges**:
+
+   - Identity data from ``docs/archons-base.json`` (name, portfolio,
+     rank, and optional inline ``llm_config``).
+   - LLM bindings from ``config/archon-llm-bindings.yaml`` with
+     resolution priority: per-archon UUID > rank default
+     (``_rank_defaults.managing_director`` for Presidents) > global
+     ``_default``.
+
+   Result: every ArchonProfile carries a resolved ``LLMConfig``.
+
+3. ``create_rfp_contributor()`` (in
+   ``src/infrastructure/adapters/external/__init__.py``) instantiates
+   ``RFPContributorCrewAIAdapter`` (in
+   ``src/infrastructure/adapters/external/rfp_contributor_crewai_adapter.py``).
+   The adapter stores the profile repository and caches LLM instances
+   per President name.
+
+4. At contribution time the adapter calls ``_get_president_llm(name)``
+   which looks up the President's ArchonProfile, extracts its
+   ``LLMConfig``, applies any CLI overrides (--model, --provider,
+   --base-url), and calls ``create_crewai_llm()`` (in
+   ``src/application/llm/crewai_llm_factory.py``) to produce a
+   ``crewai.LLM`` instance (e.g. ``ollama/qwen3:latest``).
+
+5. A **one-agent Crew** is created per President: one ``Agent`` (with
+   portfolio-specific role/backstory and the President's LLM), one
+   ``Task`` (contribution prompt), one ``Crew``.  ``crew.kickoff()``
+   invokes the LLM; the raw output is parsed into a
+   ``PortfolioContribution``.
+
+6. The service (``RFPGenerationService.collect_contributions()``)
+   iterates all 11 Presidents sequentially, with retry/backoff per
+   President (env: ``RFP_GENERATOR_MAX_ATTEMPTS``, default 2).
+
+Key files in the chain::
+
+    scripts/run_rfp_generator.py              ← you are here
+    docs/archons-base.json                    ← 72 Archon identities
+    config/archon-llm-bindings.yaml           ← rank/UUID LLM configs
+    src/infrastructure/adapters/config/
+        archon_profile_adapter.py             ← JSON+YAML merge
+    src/infrastructure/adapters/external/
+        __init__.py                           ← create_rfp_contributor()
+        rfp_contributor_crewai_adapter.py     ← CrewAI one-agent crews
+    src/application/llm/crewai_llm_factory.py ← LLMConfig → crewai.LLM
+    src/application/services/
+        rfp_generation_service.py             ← orchestration + retry
+
 Usage:
     python scripts/run_rfp_generator.py --from-conclave _bmad-output/conclave
     python scripts/run_rfp_generator.py --from-ledger _bmad-output/motion-ledger/<session_id>

@@ -503,11 +503,16 @@ Be thorough but concise in your response.""",
                 "too many concurrent requests",
                 "rate limit",
                 "429",
+                "500",
+                "502",
                 "503",
                 "temporarily unavailable",
+                "internal server error",
                 "timeout",
                 "connection",
                 "api connection",
+                "invalid response",
+                "none or empty",
             )
         )
 

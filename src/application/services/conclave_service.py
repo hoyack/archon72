@@ -2521,14 +2521,24 @@ Output format:
                     return vote
 
                 except AgentInvocationError as e:
-                    logger.error(f"Error getting vote from {archon.name}: {e}")
+                    logger.warning(
+                        f"Vote collection failed for {archon.name}: {e} — recording as ABSTAIN"
+                    )
 
                     # Update progress atomically
                     async with completed_lock:
                         completed_count += 1
 
-                    # Do not silently skip failed LLM invocations.
-                    raise
+                    # Record abstention so a single archon failure does not
+                    # crash the entire voting phase.
+                    return Vote(
+                        voter_id=archon_id,
+                        voter_name=archon.name,
+                        voter_rank=archon.aegis_rank,
+                        choice=VoteChoice.ABSTAIN,
+                        timestamp=datetime.now(timezone.utc),
+                        reasoning=f"Vote error (abstain): {e}",
+                    )
                 except Exception as e:
                     logger.error(f"Error getting vote from {archon.name}: {e}")
 

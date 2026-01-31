@@ -336,6 +336,19 @@ from src.domain.models.prohibited_language import (
     ProhibitedTermsList,
     normalize_for_scanning,
 )
+from src.domain.models.proposal_selection import (
+    PROPOSAL_SELECTION_SCHEMA_VERSION,
+    DukeRevisionGuidance,
+    ProposalNovelty,
+    ProposalRanking,
+    ProposalScore,
+    ProposalSelectionResult,
+    ProposalTier,
+    SelectionDeliberation,
+    SelectionHandback,
+    SelectionOutcome,
+    SelectionStatus,
+)
 from src.domain.models.publication import (
     PUBLICATION_ID_PREFIX,
     Publication,
@@ -725,6 +738,18 @@ __all__: list[str] = [
     "SpecType",
     "TacticProposal",
     "TechnicalSpecReference",
+    # Proposal Selection models (Executive Selection Pipeline)
+    "PROPOSAL_SELECTION_SCHEMA_VERSION",
+    "DukeRevisionGuidance",
+    "ProposalNovelty",
+    "ProposalRanking",
+    "ProposalScore",
+    "ProposalSelectionResult",
+    "ProposalTier",
+    "SelectionDeliberation",
+    "SelectionHandback",
+    "SelectionOutcome",
+    "SelectionStatus",
     # Executive Review models (E4 Implementation)
     "REVIEW_SCHEMA_VERSION",
     "ConclaveEscalation",

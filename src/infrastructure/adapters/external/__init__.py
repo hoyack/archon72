@@ -31,6 +31,10 @@ from src.infrastructure.adapters.external.president_crewai_adapter import (
     PresidentCrewAIAdapter,
     create_president_deliberator,
 )
+from src.infrastructure.adapters.external.proposal_scorer_crewai_adapter import (
+    ProposalScorerCrewAIAdapter,
+    create_proposal_scorer,
+)
 from src.infrastructure.adapters.external.rfp_contributor_crewai_adapter import (
     RFPContributorCrewAIAdapter,
     create_rfp_contributor,
@@ -50,6 +54,8 @@ __all__ = [
     "create_crewai_adapter",
     "DukeProposalCrewAIAdapter",
     "create_duke_proposal_generator",
+    "ProposalScorerCrewAIAdapter",
+    "create_proposal_scorer",
     "ExecutiveReviewCrewAIAdapter",
     "create_executive_reviewer",
     "InMemoryAuditEventBus",

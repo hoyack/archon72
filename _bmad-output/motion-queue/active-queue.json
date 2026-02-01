@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-01-31T21:47:36.863959+00:00",
-  "motion_count": 89,
+  "updated_at": "2026-02-01T04:26:31.882275+00:00",
+  "motion_count": 85,
   "motions": [
     {
       "queued_motion_id": "4fac6da1-4e16-4911-8f82-180ace6aeba8",
@@ -1941,25 +1941,6 @@
       "target_conclave_id": null
     },
     {
-      "queued_motion_id": "7c75a569-b5bf-49ad-8ea5-a40fd176fbdb",
-      "status": "promoted",
-      "title": "Mega-Motion: Comprehensive Framework for Authority Delimitation and Definitional Precision",
-      "text": "Ratified mega-motion: Mega-Motion: Comprehensive Framework for Authority Delimitation and Definitional Precision",
-      "rationale": "Ratified by review pipeline (55 yeas, 2 nays). Consolidated from 10 source motions.",
-      "source_cluster_id": null,
-      "source_cluster_theme": "",
-      "original_archon_count": 36,
-      "consensus_level": "critical",
-      "supporting_archons": [],
-      "source_session_id": null,
-      "source_session_name": "Legislative Test Review",
-      "endorsements": [],
-      "endorsement_count": 55,
-      "created_at": "2026-01-31T20:14:19.486192+00:00",
-      "promoted_at": "2026-01-31T20:14:42.731915+00:00",
-      "target_conclave_id": "e5e389f3-01c5-4c35-866c-c70a3b8ad95d"
-    },
-    {
       "queued_motion_id": "513a0948-4772-4935-94b7-72311c60e394",
       "status": "endorsed",
       "title": "Mega-Motion: Comprehensive Risk Management Framework for Governance Integrity",
@@ -1996,25 +1977,6 @@
       "created_at": "2026-01-31T20:14:19.486236+00:00",
       "promoted_at": null,
       "target_conclave_id": null
-    },
-    {
-      "queued_motion_id": "6dad4d15-1189-4808-a123-07c5279eba3a",
-      "status": "promoted",
-      "title": "Mega-Motion: Comprehensive Security Enhancement and Access Control Protocol",
-      "text": "Ratified mega-motion: Mega-Motion: Comprehensive Security Enhancement and Access Control Protocol",
-      "rationale": "Ratified by review pipeline (55 yeas, 2 nays). Consolidated from 5 source motions.",
-      "source_cluster_id": null,
-      "source_cluster_theme": "",
-      "original_archon_count": 32,
-      "consensus_level": "critical",
-      "supporting_archons": [],
-      "source_session_id": null,
-      "source_session_name": "Legislative Test Review",
-      "endorsements": [],
-      "endorsement_count": 55,
-      "created_at": "2026-01-31T20:14:19.486244+00:00",
-      "promoted_at": "2026-01-31T20:14:42.738403+00:00",
-      "target_conclave_id": "e5e389f3-01c5-4c35-866c-c70a3b8ad95d"
     },
     {
       "queued_motion_id": "43f9ab79-78d7-46df-b764-6634f2e9eab5",
@@ -2148,44 +2110,6 @@
       "created_at": "2026-01-31T20:14:19.486465+00:00",
       "promoted_at": null,
       "target_conclave_id": null
-    },
-    {
-      "queued_motion_id": "d4c8446e-1525-42fb-8be7-8be0374e4c57",
-      "status": "promoted",
-      "title": "Mega-Motion: Comprehensive Operational Resilience and Contingency Framework",
-      "text": "Ratified mega-motion: Mega-Motion: Comprehensive Operational Resilience and Contingency Framework",
-      "rationale": "Ratified by review pipeline (54 yeas, 0 nays). Consolidated from 4 source motions.",
-      "source_cluster_id": null,
-      "source_cluster_theme": "",
-      "original_archon_count": 28,
-      "consensus_level": "critical",
-      "supporting_archons": [],
-      "source_session_id": null,
-      "source_session_name": "Legislative Test Review",
-      "endorsements": [],
-      "endorsement_count": 54,
-      "created_at": "2026-01-31T20:14:19.486477+00:00",
-      "promoted_at": "2026-01-31T20:14:42.743387+00:00",
-      "target_conclave_id": "e5e389f3-01c5-4c35-866c-c70a3b8ad95d"
-    },
-    {
-      "queued_motion_id": "964f8527-544a-4a37-a07e-088a045008f1",
-      "status": "promoted",
-      "title": "Mega-Motion: Comprehensive Adjournment and Summary Process Reform",
-      "text": "Ratified mega-motion: Mega-Motion: Comprehensive Adjournment and Summary Process Reform",
-      "rationale": "Ratified by review pipeline (51 yeas, 0 nays). Consolidated from 4 source motions.",
-      "source_cluster_id": null,
-      "source_cluster_theme": "",
-      "original_archon_count": 51,
-      "consensus_level": "critical",
-      "supporting_archons": [],
-      "source_session_id": null,
-      "source_session_name": "Legislative Test Review",
-      "endorsements": [],
-      "endorsement_count": 51,
-      "created_at": "2026-01-31T20:14:19.486489+00:00",
-      "promoted_at": "2026-01-31T20:14:42.747289+00:00",
-      "target_conclave_id": "e5e389f3-01c5-4c35-866c-c70a3b8ad95d"
     },
     {
       "queued_motion_id": "e8d6daca-cab4-4793-9694-5ba35fd563cc",

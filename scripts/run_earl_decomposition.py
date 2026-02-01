@@ -258,15 +258,17 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 # ------------------------------------------------------------------
-# Main
+# Input resolution
 # ------------------------------------------------------------------
 
 
-async def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
+def _resolve_paths(
+    args: argparse.Namespace,
+) -> tuple[Path | None, Path | None, Path | None, Path | None] | int:
+    """Resolve mandate_dir, selection_path, rfp_path, proposal_md_path.
 
-    # --- Resolve inputs ---
+    Returns the 4-tuple on success, or an int exit code on failure.
+    """
     mandate_dir: Path | None = None
     selection_path: Path | None = args.selection_file
     rfp_path: Path | None = args.rfp_file
@@ -278,7 +280,6 @@ async def main() -> int:
     elif selection_path:
         mandate_dir = selection_path.parent.parent
     else:
-        # Auto-detect
         session_dir = _find_latest_rfp_session()
         if session_dir is None:
             print(
@@ -304,7 +305,26 @@ async def main() -> int:
         print(f"ERROR: rfp.json not found: {rfp_path}")
         return 1
 
-    # Load selection result
+    return mandate_dir, selection_path, rfp_path, proposal_md_path
+
+
+# ------------------------------------------------------------------
+# Load and validate selection + proposal + tactics
+# ------------------------------------------------------------------
+
+
+def _load_and_validate(
+    args: argparse.Namespace,
+    mandate_dir: Path | None,
+    selection_path: Path,
+    rfp_path: Path,
+    proposal_md_path: Path | None,
+) -> tuple[str, str, dict, list, dict, Path] | int:
+    """Load selection result, validate winner, find proposal, parse tactics.
+
+    Returns (proposal_id, duke_name, earl_routing, tactics, rfp, selection_path)
+    on success, or an int exit code on failure.
+    """
     from src.application.services.earl_decomposition_service import (
         EarlDecompositionService,
     )
@@ -318,7 +338,6 @@ async def main() -> int:
         )
         return 1
 
-    # Resolve winner
     proposal_id, duke_name, duke_abbrev = _resolve_winning_duke(selection)
     if not proposal_id:
         print("ERROR: Could not determine winning proposal from selection result.")
@@ -327,7 +346,6 @@ async def main() -> int:
     if args.verbose:
         print(f"Winner: {duke_name or duke_abbrev} ({proposal_id})")
 
-    # Find proposal markdown
     if proposal_md_path is None and mandate_dir:
         proposal_md_path, _ = _find_winning_proposal(
             mandate_dir, duke_name or duke_abbrev
@@ -336,18 +354,15 @@ async def main() -> int:
         print(f"ERROR: Winning proposal markdown not found: {proposal_md_path}")
         return 1
 
-    # Load inputs
     rfp = EarlDecompositionService.load_rfp(rfp_path)
     proposal_md = EarlDecompositionService.load_proposal_markdown(proposal_md_path)
 
-    # Load earl routing table
     earl_routing: dict = {}
     if args.earl_routing_table.exists():
         earl_routing = EarlDecompositionService.load_earl_routing_table(
             args.earl_routing_table
         )
 
-    # Parse tactics
     tactics = EarlDecompositionService.parse_tactics_from_markdown(proposal_md)
     if not tactics:
         print("ERROR: No tactics found in winning proposal.")
@@ -356,18 +371,24 @@ async def main() -> int:
     if args.verbose:
         print(f"Found {len(tactics)} tactics in proposal")
 
-    # --- Checkpointing (must resolve before decomposer for adapter) ---
-    checkpoint_dir: Path | None = None
-    if not args.no_checkpoint:
-        checkpoint_dir = args.checkpoint_dir or (
-            mandate_dir / "execution_bridge" / "checkpoints" if mandate_dir else None
-        )
-        if args.clear_checkpoints and checkpoint_dir and checkpoint_dir.exists():
-            shutil.rmtree(checkpoint_dir)
-            if args.verbose:
-                print(f"Cleared checkpoints: {checkpoint_dir}")
+    return (proposal_id, duke_name, earl_routing, tactics, rfp, selection_path)
 
-    # --- Set up decomposer adapter ---
+
+# ------------------------------------------------------------------
+# Decomposer setup
+# ------------------------------------------------------------------
+
+
+def _setup_decomposer(
+    args: argparse.Namespace,
+    earl_routing: dict,
+    checkpoint_dir: Path | None,
+) -> object | int:
+    """Create the decomposer adapter. Returns adapter or int exit code."""
+    from src.infrastructure.adapters.external.tactic_decomposer_simulation_adapter import (
+        TacticDecomposerSimulationAdapter,
+    )
+
     decomposer = None
     use_llm = args.mode in ("llm", "auto")
 
@@ -381,7 +402,6 @@ async def main() -> int:
             )
 
             profile_repo = create_archon_profile_repository()
-
             decomposer = create_tactic_decomposer(
                 profile_repository=profile_repo,
                 earl_routing_table=earl_routing,
@@ -408,13 +428,95 @@ async def main() -> int:
                 print("Falling back to simulation mode")
 
     if decomposer is None:
-        from src.infrastructure.adapters.external.tactic_decomposer_simulation_adapter import (
-            TacticDecomposerSimulationAdapter,
-        )
-
         decomposer = TacticDecomposerSimulationAdapter()
         if args.verbose:
             print("Mode: simulation")
+
+    return decomposer
+
+
+# ------------------------------------------------------------------
+# Activation wiring
+# ------------------------------------------------------------------
+
+
+async def _run_activation(service: object, args: argparse.Namespace) -> None:
+    """Wire up TaskActivationService and call activate_all."""
+    try:
+        from src.application.services.governance.task_activation_service import (
+            TaskActivationService,
+        )
+        from src.application.services.governance.two_phase_event_emitter import (
+            TwoPhaseEventEmitter,
+        )
+        from src.infrastructure.adapters.governance.in_memory_adapters import (
+            InMemoryGovernanceLedger,
+            InMemoryParticipantMessagePort,
+            InMemoryTaskStatePort,
+            PassthroughCoercionFilter,
+            SimpleTimeAuthority,
+        )
+
+        ledger = InMemoryGovernanceLedger()
+        task_state_port = InMemoryTaskStatePort()
+        activation_svc = TaskActivationService(
+            task_state_port=task_state_port,
+            coercion_filter=PassthroughCoercionFilter(),
+            participant_message_port=InMemoryParticipantMessagePort(),
+            ledger_port=ledger,
+            two_phase_emitter=TwoPhaseEventEmitter(
+                ledger=ledger,
+                time_authority=SimpleTimeAuthority(),
+            ),
+        )
+        await service.activate_all(task_activation_service=activation_svc)
+    except Exception as e:
+        if args.verbose:
+            print(f"  [bridge] activation wiring failed: {e}")
+        await service.activate_all(task_activation_service=None)
+
+
+# ------------------------------------------------------------------
+# Main
+# ------------------------------------------------------------------
+
+
+async def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    # --- Resolve inputs ---
+    resolved = _resolve_paths(args)
+    if isinstance(resolved, int):
+        return resolved
+    mandate_dir, selection_path, rfp_path, proposal_md_path = resolved
+
+    loaded = _load_and_validate(
+        args, mandate_dir, selection_path, rfp_path, proposal_md_path
+    )
+    if isinstance(loaded, int):
+        return loaded
+    (proposal_id, duke_name, earl_routing, tactics, rfp, selection_path) = loaded
+
+    from src.application.services.earl_decomposition_service import (
+        EarlDecompositionService,
+    )
+
+    # --- Checkpointing ---
+    checkpoint_dir: Path | None = None
+    if not args.no_checkpoint:
+        checkpoint_dir = args.checkpoint_dir or (
+            mandate_dir / "execution_bridge" / "checkpoints" if mandate_dir else None
+        )
+        if args.clear_checkpoints and checkpoint_dir and checkpoint_dir.exists():
+            shutil.rmtree(checkpoint_dir)
+            if args.verbose:
+                print(f"Cleared checkpoints: {checkpoint_dir}")
+
+    # --- Set up decomposer ---
+    decomposer = _setup_decomposer(args, earl_routing, checkpoint_dir)
+    if isinstance(decomposer, int):
+        return decomposer
 
     # --- Set up cluster registry ---
     from src.infrastructure.adapters.cluster.cluster_registry_json_adapter import (
@@ -439,31 +541,18 @@ async def main() -> int:
     )
 
     # --- Run pipeline ---
-    service._emit(
-        "bridge.started",
-        {
-            "selection_file": str(selection_path),
-            "proposal_id": proposal_id,
-            "duke_name": duke_name,
-        },
-    )
-    service._emit(
-        "bridge.loaded_selection",
-        {
-            "outcome": outcome,
-            "winning_proposal_id": proposal_id,
-        },
-    )
-    service._emit(
-        "bridge.loaded_proposal",
-        {
-            "tactic_count": len(tactics),
-        },
-    )
-
+    service._emit("bridge.started", {
+        "selection_file": str(selection_path),
+        "proposal_id": proposal_id,
+        "duke_name": duke_name,
+    })
+    service._emit("bridge.loaded_selection", {
+        "outcome": "WINNER_SELECTED",
+        "winning_proposal_id": proposal_id,
+    })
+    service._emit("bridge.loaded_proposal", {"tactic_count": len(tactics)})
     service._summary.winning_duke_name = duke_name
 
-    # Step B: Decompose tactics
     task_drafts = await service.decompose_all(
         tactics=tactics,
         rfp=rfp,
@@ -474,51 +563,12 @@ async def main() -> int:
     if args.verbose:
         print(f"Produced {len(task_drafts)} task drafts")
 
-    # Step C: Route to clusters
     await service.route_all()
 
-    # Step D: Activate (unless --no-activate or --dry-run)
     if not args.no_activate and not args.dry_run:
-        try:
-            from src.application.services.governance.task_activation_service import (
-                TaskActivationService,
-            )
-            from src.application.services.governance.two_phase_event_emitter import (
-                TwoPhaseEventEmitter,
-            )
-            from src.infrastructure.adapters.governance.in_memory_adapters import (
-                InMemoryGovernanceLedger,
-                InMemoryParticipantMessagePort,
-                InMemoryTaskStatePort,
-                PassthroughCoercionFilter,
-                SimpleTimeAuthority,
-            )
+        await _run_activation(service, args)
 
-            ledger = InMemoryGovernanceLedger()
-            task_state_port = InMemoryTaskStatePort()
-            activation_svc = TaskActivationService(
-                task_state_port=task_state_port,
-                coercion_filter=PassthroughCoercionFilter(),
-                participant_message_port=InMemoryParticipantMessagePort(),
-                ledger_port=ledger,
-                two_phase_emitter=TwoPhaseEventEmitter(
-                    ledger=ledger,
-                    time_authority=SimpleTimeAuthority(),
-                ),
-            )
-            await service.activate_all(task_activation_service=activation_svc)
-        except Exception as e:
-            if args.verbose:
-                print(f"  [bridge] activation wiring failed: {e}")
-            await service.activate_all(task_activation_service=None)
-
-    # --- Write outputs ---
-    service._emit(
-        "bridge.complete",
-        {
-            "total_drafts": len(task_drafts),
-        },
-    )
+    service._emit("bridge.complete", {"total_drafts": len(task_drafts)})
 
     if not args.dry_run and mandate_dir:
         service.save_outputs(mandate_dir)

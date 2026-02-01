@@ -64,7 +64,7 @@ class TacticDecomposerSimulationAdapter(TacticDecomposerProtocol):
                 "requirements": list(requirement_lines),
                 "expected_outcomes": [
                     f"Written specification for {tactic.title} reviewed and accepted",
-                    f"Test plan with at least 3 acceptance criteria defined",
+                    "Test plan with at least 3 acceptance criteria defined",
                 ],
                 "capability_tags": list(_DEFAULT_CAPABILITY_TAGS),
                 "effort_hours": 8.0,
@@ -84,7 +84,7 @@ class TacticDecomposerSimulationAdapter(TacticDecomposerProtocol):
                 "requirements": list(requirement_lines),
                 "expected_outcomes": [
                     f"Implementation of {tactic.title} passes all acceptance tests",
-                    f"Code reviewed and merged to target branch",
+                    "Code reviewed and merged to target branch",
                 ],
                 "capability_tags": list(_DEFAULT_CAPABILITY_TAGS),
                 "effort_hours": 16.0,

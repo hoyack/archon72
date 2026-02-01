@@ -612,7 +612,7 @@ class EarlDecompositionService:
     def print_summary(self) -> None:
         """Print a human-readable summary to stdout."""
         s = self._summary
-        print(f"\nEarl Decomposition Bridge Summary")
+        print("\nEarl Decomposition Bridge Summary")
         print(f"  Tactics processed:     {s.total_tactics}")
         print(f"  Task drafts created:   {s.total_task_drafts}")
         print(f"  Activations created:   {s.activations_created}")

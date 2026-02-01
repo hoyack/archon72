@@ -70,6 +70,14 @@ class InMemoryTaskStatePort:
     async def save_task(self, task: TaskState) -> None:
         self._tasks[task.task_id] = task
 
+    async def get_tasks_by_status(
+        self,
+        status: TaskStatus,
+        limit: int = 100,
+    ) -> list[TaskState]:
+        results = [t for t in self._tasks.values() if t.current_status == status]
+        return results[:limit]
+
     async def get_tasks_by_state_and_cluster(
         self,
         status: TaskStatus,
